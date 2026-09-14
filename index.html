@@ -72,7 +72,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.5 CLOUD</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.6 CLOUD</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -147,12 +147,23 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div id="aiAnswer" style="margin-top:14px"></div>
   <button class="close" id="closeAi">Fermer</button>
 </div></div>
-<div class="modal" id="accountModal"><div class="sheet"><h3>👤 Compte ONE</h3><p>Ton profil ONE centralise tes préférences et tes plateformes. Alpha 0.5 active la sauvegarde cloud chiffrée via ton Worker ONE. La clé de récupération reste sur ton appareil.</p>
-  <div class="accountSummary"><div class="accountAvatar">👤</div><div><b id="oneAccountDisplay">Mon profil ONE</b><span id="accountConnectedCount">0 plateforme connectée</span></div></div>
+<div class="modal" id="accountModal"><div class="sheet"><h3>👤 Compte ONE</h3><p>Alpha 0.6 ajoute un vrai compte ONE : crée ton compte ou connecte-toi pour retrouver ton profil chiffré sur plusieurs appareils.</p>
+  <div class="accountSummary"><div class="accountAvatar">👤</div><div><b id="oneAccountDisplay">Compte ONE</b><span id="accountConnectedCount">Non connecté</span></div></div>
   <div style="height:1px;background:var(--line);margin:16px 0"></div>
-  <p><b style="color:var(--text)">Identité ONE</b></p>
-  <div class="search"><input id="oneDisplayName" maxlength="40" autocomplete="nickname" placeholder="Ton nom dans ONE"/><button id="saveOneIdentity">Enregistrer</button></div>
-  <div class="hint" id="oneIdentityStatus" style="margin-top:8px"></div>
+  <div id="oneAuthLoggedOut">
+    <p><b style="color:var(--text)">Créer un compte / Se connecter</b></p>
+    <div class="search"><input id="oneAuthName" maxlength="50" autocomplete="nickname" placeholder="Ton nom ONE"/></div>
+    <div class="search" style="margin-top:8px"><input id="oneAuthEmail" type="email" autocomplete="email" placeholder="E-mail"/></div>
+    <div class="search" style="margin-top:8px"><input id="oneAuthPassword" type="password" minlength="8" autocomplete="current-password" placeholder="Mot de passe (8 caractères minimum)"/></div>
+    <div class="accountActions" style="margin-top:10px"><button class="primary" id="oneRegister">Créer mon compte</button><button id="oneLogin">Se connecter</button></div>
+    <div class="hint" id="oneAuthStatus" style="margin-top:8px">Ton mot de passe n'est jamais enregistré en clair par ONE.</div>
+  </div>
+  <div id="oneAuthLoggedIn" style="display:none">
+    <p><b style="color:var(--text)">Identité ONE</b></p>
+    <div class="search"><input id="oneDisplayName" maxlength="50" autocomplete="nickname" placeholder="Ton nom dans ONE"/><button id="saveOneIdentity">Enregistrer</button></div>
+    <div class="hint" id="oneIdentityStatus" style="margin-top:8px"></div>
+    <div class="accountActions" style="margin-top:8px"><button id="oneLogout">Se déconnecter</button></div>
+  </div>
   <div class="platformList">
     <div class="platformRow"><div class="platformIcon">▶️</div><div class="platformMeta"><b>YouTube</b><span id="accountYoutubeText">Non configuré</span></div><button class="platformStatus" id="accountYoutubeStatus">Configurer</button></div>
     <div class="platformRow"><div class="platformIcon">🟣</div><div class="platformMeta"><b>Twitch</b><span id="accountTwitchText">Non connecté</span></div><button class="platformStatus" id="accountTwitchStatus">Connecter</button></div>
@@ -160,13 +171,13 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   </div>
   <div class="accountActions"><button class="primary" id="managePlatforms">Gérer les connexions</button><button id="openAdvancedSettings">Réglages avancés</button></div><div class="accountActions" style="margin-top:8px"><button id="exportOneProfile">Sauvegarder le profil</button><button id="importOneProfile">Restaurer le profil</button><input id="importOneFile" type="file" accept="application/json" hidden></div>
   <div style="height:1px;background:var(--line);margin:18px 0"></div>
-  <p><b style="color:var(--text)">☁️ Sauvegarde cloud chiffrée (Alpha 0.5)</b><br>Le Worker ONE Cloud est configuré automatiquement. Les données sont chiffrées dans ton navigateur avant l’envoi.</p>
-  <div class="search"><input id="oneCloudUrl" autocomplete="off" placeholder="https://one-profile-api....workers.dev"/><button id="saveOneCloudUrl">Enregistrer</button></div>
+  <p><b style="color:var(--text)">☁️ Profil ONE chiffré · Alpha 0.6</b><br>Connecte-toi pour sauvegarder et restaurer le même profil sur plusieurs appareils. Le chiffrement est effectué dans ton navigateur.</p>
+  <div class="search"><input id="oneCloudUrl" autocomplete="off" readonly value="https://one-profile-api.moulinanthony60.workers.dev"/><button id="saveOneCloudUrl">Connecté</button></div>
   <div class="accountActions" style="margin-top:8px"><button id="cloudBackupOne">☁️ Sauvegarder</button><button id="cloudRestoreOne">⬇️ Restaurer</button></div>
-  <div class="hint" id="oneCloudStatus" style="margin-top:8px">Cloud non configuré.</div>
+  <div class="hint" id="oneCloudStatus" style="margin-top:8px">Connecte-toi à ton compte ONE pour activer le cloud.</div>
   <button class="close" id="closeAccount">Fermer</button>
 </div></div>
-<div class="modal" id="settingsModal"><div class="sheet"><h3>⚙️ Réglages ONE · Mobile Alpha 0.5</h3><p>Ajoute ta clé YouTube Data API v3. Elle reste enregistrée uniquement dans ce navigateur.</p>
+<div class="modal" id="settingsModal"><div class="sheet"><h3>⚙️ Réglages ONE · Mobile Alpha 0.6</h3><p>Ajoute ta clé YouTube Data API v3. Elle reste enregistrée uniquement dans ce navigateur.</p>
   <div class="search"><input id="ytKey" type="password" autocomplete="off" placeholder="Colle ta clé YouTube ici"/><button id="saveKey">Enregistrer</button></div>
   <div style="display:flex;gap:8px;margin-top:10px"><button class="action" id="testKey">Tester YouTube</button><button class="action" id="deleteKey">Supprimer la clé</button></div>
   <div id="keyStatus" class="meta" style="margin-top:10px"></div>
@@ -945,32 +956,41 @@ document.getElementById('bestToday').onclick=()=>{state.mode='best';state.query=
 document.getElementById('savedNav').onclick=async()=>{closeVerticalFeed();document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));document.getElementById('savedNav').classList.add('active');await loadFollowingFeed()};
 document.getElementById('discover').onclick=()=>{closeVerticalFeed();state.mode=null;state.filter='all';state.query='';document.getElementById('search').focus();render()};
 const ONE_CLOUD_DEFAULT='https://one-profile-api.moulinanthony60.workers.dev';
+const ONE_AUTH_TOKEN_KEY='one_account_token_v06';
+const ONE_ACCOUNT_KEY='one_account_v06';
+const ONE_PROFILE_KEY='one_account_crypto_key_v06';
 if(!localStorage.getItem('one_cloud_url')) localStorage.setItem('one_cloud_url',ONE_CLOUD_DEFAULT);
+function oneAccountLocal(){try{return JSON.parse(localStorage.getItem(ONE_ACCOUNT_KEY)||'null')}catch{return null}}
+function oneAccountToken(){return localStorage.getItem(ONE_AUTH_TOKEN_KEY)||''}
+function oneSetAccount(account,token){if(account)localStorage.setItem(ONE_ACCOUNT_KEY,JSON.stringify(account));if(token)localStorage.setItem(ONE_AUTH_TOKEN_KEY,token)}
+function oneClearAccount(){localStorage.removeItem(ONE_AUTH_TOKEN_KEY);localStorage.removeItem(ONE_ACCOUNT_KEY);localStorage.removeItem(ONE_PROFILE_KEY)}
+function oneB64(bytes){return btoa(String.fromCharCode(...bytes))}function oneUnb64(s){return Uint8Array.from(atob(s),c=>c.charCodeAt(0))}
+async function oneDeriveProfileKey(password,accountId){const material=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode('ONE-PROFILE-06:'+accountId),iterations:180000,hash:'SHA-256'},material,256);const raw=new Uint8Array(bits);localStorage.setItem(ONE_PROFILE_KEY,oneB64(raw));return crypto.subtle.importKey('raw',raw,{name:'AES-GCM'},false,['encrypt','decrypt'])}
+async function oneProfileCryptoKey(){const raw=localStorage.getItem(ONE_PROFILE_KEY);if(!raw)throw new Error('Reconnecte-toi pour déverrouiller le profil chiffré');return crypto.subtle.importKey('raw',oneUnb64(raw),{name:'AES-GCM'},false,['encrypt','decrypt'])}
+async function oneCloudEncrypt(obj){const iv=crypto.getRandomValues(new Uint8Array(12)),key=await oneProfileCryptoKey(),plain=new TextEncoder().encode(JSON.stringify(obj)),enc=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,plain));return {iv:oneB64(iv),ciphertext:oneB64(enc)}}
+async function oneCloudDecrypt(box){const key=await oneProfileCryptoKey(),plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:oneUnb64(box.iv)},key,oneUnb64(box.ciphertext));return JSON.parse(new TextDecoder().decode(plain))}
+function oneCloudPayload(){const deny=['one_youtube_api_key','one_twitch_client_id','one_twitch_token','one_tiktok_oauth_state',ONE_AUTH_TOKEN_KEY,ONE_ACCOUNT_KEY,ONE_PROFILE_KEY,'one_cloud_key'];const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'';if(k.startsWith('one_')&&!deny.includes(k)&&k!=='one_cloud_url'){const v=localStorage.getItem(k);if(v!==null)data[k]=v}}return {version:3,exportedAt:new Date().toISOString(),data}}
+async function oneApi(path,options={}){const token=oneAccountToken();const headers={'Content-Type':'application/json',...(options.headers||{})};if(token)headers.Authorization='Bearer '+token;const r=await fetch(ONE_CLOUD_DEFAULT+path,{...options,headers});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||'Erreur ONE Cloud');return j}
 function oneAlphaRefreshAccount(){
- const ident=JSON.parse(localStorage.getItem('one_identity_v1')||'null')||{};const dn=ident.displayName||'Mon profil ONE';const ad=document.getElementById('oneAccountDisplay');if(ad)ad.textContent=dn;const ni=document.getElementById('oneDisplayName');if(ni&&!ni.matches(':focus'))ni.value=ident.displayName||'';const ist=document.getElementById('oneIdentityStatus');if(ist)ist.textContent=ident.id?'ID ONE local : '+ident.id:'Ton ID ONE sera créé au premier enregistrement.';const cu=document.getElementById('oneCloudUrl');if(cu&&!cu.matches(':focus'))cu.value=localStorage.getItem('one_cloud_url')||ONE_CLOUD_DEFAULT;const cs=document.getElementById('oneCloudStatus');if(cs)cs.textContent='✅ ONE Cloud connecté · sauvegarde chiffrée disponible.';
- const yt=!!localStorage.getItem('one_youtube_api_key');
- const tw=!!localStorage.getItem('one_twitch_token');
- const tt=!!localStorage.getItem('one_tiktok_connected');
- const n=[yt,tw,tt].filter(Boolean).length;
- const btn=document.getElementById('accountBtn');if(btn)btn.classList.toggle('connected',n>0);
- const c=document.getElementById('accountConnectedCount');if(c)c.textContent=n?`${n} plateforme${n>1?'s':''} connectée${n>1?'s':''}`:'Aucune plateforme connectée';
+ const account=oneAccountLocal(),logged=!!(account&&oneAccountToken());const dn=account?.displayName||'Compte ONE';const ad=document.getElementById('oneAccountDisplay');if(ad)ad.textContent=dn;const out=document.getElementById('oneAuthLoggedOut'),inn=document.getElementById('oneAuthLoggedIn');if(out)out.style.display=logged?'none':'';if(inn)inn.style.display=logged?'':'none';const ni=document.getElementById('oneDisplayName');if(ni&&!ni.matches(':focus'))ni.value=account?.displayName||'';const ist=document.getElementById('oneIdentityStatus');if(ist)ist.textContent=logged?'ID ONE : '+account.id+' · '+account.email:'';
+ const yt=!!localStorage.getItem('one_youtube_api_key'),tw=!!localStorage.getItem('one_twitch_token'),tt=!!localStorage.getItem('one_tiktok_connected'),count=[yt,tw,tt].filter(Boolean).length;const ac=document.getElementById('accountConnectedCount');if(ac)ac.textContent=logged?`${count} plateforme${count>1?'s':''} connectée${count>1?'s':''} · compte synchronisable`:'Non connecté · '+count+' plateforme'+(count>1?'s':'')+' locale'+(count>1?'s':'');
  const ys=document.getElementById('accountYoutubeStatus'),ytxt=document.getElementById('accountYoutubeText');if(ys){ys.textContent=yt?'Configuré':'Configurer';ys.classList.toggle('on',yt)}if(ytxt)ytxt.textContent=yt?'API YouTube configurée sur cet appareil':'Ajoute ta clé YouTube pour charger les contenus';
  const ts=document.getElementById('accountTwitchStatus'),ttxt=document.getElementById('accountTwitchText');if(ts){ts.textContent=tw?'Connecté':'Connecter';ts.classList.toggle('on',tw)}if(ttxt)ttxt.textContent=tw?'Compte Twitch autorisé':'Autorise ONE à accéder à Twitch';
  const ks=document.getElementById('accountTikTokStatus'),ktxt=document.getElementById('accountTikTokText');if(ks){ks.textContent=tt?'Connecté':'Connecter';ks.classList.toggle('on',tt)}if(ktxt)ktxt.textContent=tt?'Compte TikTok autorisé':'Connecte TikTok à ONE';
+ const cs=document.getElementById('oneCloudStatus');if(cs)cs.textContent=logged?'✅ Compte ONE connecté · profil cloud chiffré disponible.':'Connecte-toi à ton compte ONE pour activer le cloud.';
 }
+async function oneAuth(mode){const email=document.getElementById('oneAuthEmail').value.trim(),password=document.getElementById('oneAuthPassword').value,name=document.getElementById('oneAuthName').value.trim(),status=document.getElementById('oneAuthStatus');try{if(status)status.textContent='Connexion…';const body=mode==='register'?{email,password,displayName:name}:{email,password};const j=await oneApi('/auth/'+mode,{method:'POST',body:JSON.stringify(body)});oneSetAccount(j.account,j.token);await oneDeriveProfileKey(password,j.account.id);document.getElementById('oneAuthPassword').value='';oneAlphaRefreshAccount();toast(mode==='register'?'Compte ONE créé ✅':'Compte ONE connecté ✅')}catch(e){if(status)status.textContent='❌ '+e.message;toast(e.message||'Erreur compte ONE')}}
 function oneAlphaOpenSettings(){document.getElementById('accountModal')?.classList.remove('show');document.getElementById('profile')?.click()}
 document.getElementById('accountBtn').onclick=()=>{oneAlphaRefreshAccount();document.getElementById('accountModal').classList.add('show')};
 document.getElementById('closeAccount').onclick=()=>document.getElementById('accountModal').classList.remove('show');
-document.getElementById('saveOneIdentity').onclick=()=>{const name=document.getElementById('oneDisplayName').value.trim();if(!name)return toast('Choisis un nom ONE');let ident=JSON.parse(localStorage.getItem('one_identity_v1')||'null')||{};if(!ident.id)ident.id='one_'+crypto.randomUUID().replace(/-/g,'').slice(0,16);ident.displayName=name;ident.updatedAt=new Date().toISOString();localStorage.setItem('one_identity_v1',JSON.stringify(ident));oneAlphaRefreshAccount();toast('Profil ONE enregistré')};
-function oneCloudPayload(){const deny=['one_youtube_api_key','one_twitch_client_id','one_twitch_token','one_tiktok_data','one_tiktok_connected','one_tiktok_oauth_state'];const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'';if(k.startsWith('one_')&&!deny.includes(k)&&k!=='one_cloud_key'&&k!=='one_cloud_url'){const v=localStorage.getItem(k);if(v!==null)data[k]=v}}return {version:2,exportedAt:new Date().toISOString(),data}}
-function oneB64(bytes){return btoa(String.fromCharCode(...bytes))}function oneUnb64(s){return Uint8Array.from(atob(s),c=>c.charCodeAt(0))}
-async function oneCloudCryptoKey(create=true){let raw=localStorage.getItem('one_cloud_key');if(!raw&&create){const b=crypto.getRandomValues(new Uint8Array(32));raw=oneB64(b);localStorage.setItem('one_cloud_key',raw)}if(!raw)throw new Error('Clé cloud absente');return crypto.subtle.importKey('raw',oneUnb64(raw),{name:'AES-GCM'},false,['encrypt','decrypt'])}
-async function oneCloudEncrypt(obj){const iv=crypto.getRandomValues(new Uint8Array(12)),key=await oneCloudCryptoKey(true),plain=new TextEncoder().encode(JSON.stringify(obj)),enc=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,plain));return {iv:oneB64(iv),ciphertext:oneB64(enc)}}
-async function oneCloudDecrypt(box){const key=await oneCloudCryptoKey(false),plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:oneUnb64(box.iv)},key,oneUnb64(box.ciphertext));return JSON.parse(new TextDecoder().decode(plain))}
-function oneCloudId(){let ident=JSON.parse(localStorage.getItem('one_identity_v1')||'null')||{};if(!ident.id){ident.id='one_'+crypto.randomUUID().replace(/-/g,'').slice(0,16);ident.displayName=ident.displayName||'Mon profil ONE';localStorage.setItem('one_identity_v1',JSON.stringify(ident))}return ident.id}
-document.getElementById('saveOneCloudUrl').onclick=()=>{const u=document.getElementById('oneCloudUrl').value.trim().replace(/\/$/,'');if(!/^https:\/\//i.test(u))return toast('URL Worker invalide');localStorage.setItem('one_cloud_url',u);oneAlphaRefreshAccount();toast('Worker cloud enregistré')};
-document.getElementById('cloudBackupOne').onclick=async()=>{try{const base=(localStorage.getItem('one_cloud_url')||'').replace(/\/$/,'');if(!base)throw new Error('Configure le Worker cloud');const id=oneCloudId(),box=await oneCloudEncrypt(oneCloudPayload());const r=await fetch(base+'/profile/'+encodeURIComponent(id),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(box)});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||'Erreur cloud');document.getElementById('oneCloudStatus').textContent='✅ Sauvegarde chiffrée envoyée · '+new Date().toLocaleString();toast('Sauvegarde cloud terminée ☁️')}catch(e){toast(e.message||'Erreur cloud')}};
-document.getElementById('cloudRestoreOne').onclick=async()=>{try{const base=(localStorage.getItem('one_cloud_url')||'').replace(/\/$/,'');if(!base)throw new Error('Configure le Worker cloud');const id=oneCloudId(),r=await fetch(base+'/profile/'+encodeURIComponent(id));const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||'Sauvegarde introuvable');const payload=await oneCloudDecrypt(j.backup);if(!payload?.data)throw new Error('Sauvegarde invalide');for(const [k,v] of Object.entries(payload.data))if(k.startsWith('one_')&&typeof v==='string')localStorage.setItem(k,v);toast('Profil cloud restauré · rechargement');setTimeout(()=>location.reload(),700)}catch(e){toast(e.message||'Erreur restauration')}};
+document.getElementById('oneRegister').onclick=()=>oneAuth('register');
+document.getElementById('oneLogin').onclick=()=>oneAuth('login');
+document.getElementById('oneLogout').onclick=async()=>{try{await oneApi('/auth/logout',{method:'POST'})}catch{}oneClearAccount();oneAlphaRefreshAccount();toast('Compte ONE déconnecté')};
+document.getElementById('saveOneIdentity').onclick=async()=>{const name=document.getElementById('oneDisplayName').value.trim();if(!name)return toast('Choisis un nom ONE');try{const j=await oneApi('/account',{method:'PUT',body:JSON.stringify({displayName:name})});oneSetAccount(j.account);oneAlphaRefreshAccount();toast('Nom ONE enregistré')}catch(e){toast(e.message||'Erreur ONE')}};
+document.getElementById('saveOneCloudUrl').onclick=()=>toast('ONE Cloud connecté automatiquement');
+document.getElementById('cloudBackupOne').onclick=async()=>{try{if(!oneAccountToken())throw new Error('Connecte-toi à ton compte ONE');const box=await oneCloudEncrypt(oneCloudPayload());await oneApi('/account/profile',{method:'PUT',body:JSON.stringify(box)});document.getElementById('oneCloudStatus').textContent='✅ Sauvegarde chiffrée envoyée · '+new Date().toLocaleString();toast('Profil ONE sauvegardé ☁️')}catch(e){toast(e.message||'Erreur cloud')}};
+document.getElementById('cloudRestoreOne').onclick=async()=>{try{if(!oneAccountToken())throw new Error('Connecte-toi à ton compte ONE');const j=await oneApi('/account/profile');const payload=await oneCloudDecrypt(j.backup);if(!payload?.data)throw new Error('Sauvegarde invalide');for(const [k,v] of Object.entries(payload.data))if(k.startsWith('one_')&&typeof v==='string'&&![ONE_AUTH_TOKEN_KEY,ONE_ACCOUNT_KEY,ONE_PROFILE_KEY].includes(k))localStorage.setItem(k,v);toast('Profil ONE restauré · rechargement');setTimeout(()=>location.reload(),700)}catch(e){toast(e.message||'Erreur restauration')}};
+(async()=>{if(oneAccountToken()){try{const j=await oneApi('/auth/me');oneSetAccount(j.account)}catch{oneClearAccount()}}oneAlphaRefreshAccount()})();
 document.getElementById('exportOneProfile').onclick=()=>{const keys=['one_profile_v7','one_feed_prefs_v17_12','one_saved_items','one_liked_v9','one_disliked_v9','one_amazon_affiliate_tag'];const data={version:1,exportedAt:new Date().toISOString(),data:{}};for(const k of keys){const v=localStorage.getItem(k);if(v!==null)data.data[k]=v}const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ONE-profil-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Profil ONE sauvegardé')};
 document.getElementById('importOneProfile').onclick=()=>document.getElementById('importOneFile').click();
 document.getElementById('importOneFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const j=JSON.parse(await f.text());if(!j?.data||typeof j.data!=='object')throw new Error();for(const [k,v] of Object.entries(j.data)){if(k.startsWith('one_')&&typeof v==='string')localStorage.setItem(k,v)}toast('Profil restauré · rechargement');setTimeout(()=>location.reload(),500)}catch{toast('Sauvegarde ONE invalide')}};
