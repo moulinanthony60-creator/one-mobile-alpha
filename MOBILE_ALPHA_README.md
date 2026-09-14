@@ -1,21 +1,16 @@
-# ONE Mobile Alpha 0.1
+# ONE Mobile Alpha 0.2
 
-Prototype mobile installable dérivé de ONE V18.46 Trusted Stores.
+Prototype mobile installable basé sur ONE V18.46 Trusted Stores.
 
-## Test rapide
-1. Déployer le contenu de ce dossier sur Cloudflare Pages ou un hébergement HTTPS.
-2. Ouvrir l’URL sur le téléphone.
-3. Android/Chrome : utiliser **Installer ONE** ou **Ajouter à l’écran d’accueil**.
-4. iPhone/Safari : Partager → **Sur l’écran d’accueil**.
+## Nouveautés 0.2
+- bouton Compte ONE en haut à droite à la place du compteur `0` ;
+- vue centralisée des connexions YouTube, Twitch et TikTok ;
+- indicateur visuel quand au moins une plateforme est connectée ;
+- accès rapide aux connexions et réglages avancés ;
+- barre supérieure plus compacte ;
+- onglets plateformes optimisés pour petit écran ;
+- navigation basse ajustée pour le tactile ;
+- cache PWA versionné pour forcer proprement la mise à jour depuis l’Alpha 0.1.
 
-## Cette Alpha contient
-- le vrai frontend ONE V18.46 ;
-- manifest PWA ;
-- icônes 192/512 ;
-- service worker versionné ;
-- installation plein écran ;
-- mécanisme de mise à jour de la PWA ;
-- ajustements tactiles / safe areas mobile.
-
-## Important
-Cette Alpha sert au test produit. Elle ne remplace pas la future V19 Foundation ni un audit sécurité complet avant publication publique.
+## Déploiement
+Envoyer tous les fichiers à la racine du dépôt GitHub Pages, en remplaçant ceux de l’Alpha 0.1. `index.html`, `manifest.webmanifest` et `sw.js` doivent rester à la racine.
