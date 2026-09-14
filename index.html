@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.2</title>
+<title>ONE Mobile Alpha 0.3</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -72,7 +72,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.2</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.3</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -147,17 +147,17 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div id="aiAnswer" style="margin-top:14px"></div>
   <button class="close" id="closeAi">Fermer</button>
 </div></div>
-<div class="modal" id="accountModal"><div class="sheet"><h3>👤 Compte ONE</h3><p>Centralise tes plateformes ici. Cette Alpha garde encore tes connexions sur cet appareil ; le compte cloud arrivera avec les fondations V19.</p>
+<div class="modal" id="accountModal"><div class="sheet"><h3>👤 Compte ONE</h3><p>Centralise tes plateformes et ton profil ONE. En Alpha 0.3, tu peux sauvegarder/restaurer ton profil local ; la synchronisation cloud nécessite le futur service compte ONE.</p>
   <div class="accountSummary"><div class="accountAvatar">👤</div><div><b>Profil ONE local</b><span id="accountConnectedCount">0 plateforme connectée</span></div></div>
   <div class="platformList">
     <div class="platformRow"><div class="platformIcon">▶️</div><div class="platformMeta"><b>YouTube</b><span id="accountYoutubeText">Non configuré</span></div><button class="platformStatus" id="accountYoutubeStatus">Configurer</button></div>
     <div class="platformRow"><div class="platformIcon">🟣</div><div class="platformMeta"><b>Twitch</b><span id="accountTwitchText">Non connecté</span></div><button class="platformStatus" id="accountTwitchStatus">Connecter</button></div>
     <div class="platformRow"><div class="platformIcon">🎵</div><div class="platformMeta"><b>TikTok</b><span id="accountTikTokText">Non connecté</span></div><button class="platformStatus" id="accountTikTokStatus">Connecter</button></div>
   </div>
-  <div class="accountActions"><button class="primary" id="managePlatforms">Gérer les connexions</button><button id="openAdvancedSettings">Réglages avancés</button></div>
+  <div class="accountActions"><button class="primary" id="managePlatforms">Gérer les connexions</button><button id="openAdvancedSettings">Réglages avancés</button></div><div class="accountActions" style="margin-top:8px"><button id="exportOneProfile">Sauvegarder le profil</button><button id="importOneProfile">Restaurer le profil</button><input id="importOneFile" type="file" accept="application/json" hidden></div>
   <button class="close" id="closeAccount">Fermer</button>
 </div></div>
-<div class="modal" id="settingsModal"><div class="sheet"><h3>⚙️ Réglages ONE · Mobile Alpha 0.2</h3><p>Ajoute ta clé YouTube Data API v3. Elle reste enregistrée uniquement dans ce navigateur.</p>
+<div class="modal" id="settingsModal"><div class="sheet"><h3>⚙️ Réglages ONE · Mobile Alpha 0.3</h3><p>Ajoute ta clé YouTube Data API v3. Elle reste enregistrée uniquement dans ce navigateur.</p>
   <div class="search"><input id="ytKey" type="password" autocomplete="off" placeholder="Colle ta clé YouTube ici"/><button id="saveKey">Enregistrer</button></div>
   <div style="display:flex;gap:8px;margin-top:10px"><button class="action" id="testKey">Tester YouTube</button><button class="action" id="deleteKey">Supprimer la clé</button></div>
   <div id="keyStatus" class="meta" style="margin-top:10px"></div>
@@ -173,7 +173,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div style="height:1px;background:var(--line);margin:16px 0"></div>
   <p><b style="color:var(--text)">🎵 TikTok</b><br>Connecte ton compte TikTok Sandbox pour charger tes vidéos publiques autorisées dans ONE.</p>
   <div style="display:flex;gap:8px;margin-top:10px"><button class="action open" id="connectTikTok">🎵 Connecter TikTok</button><button class="action" id="disconnectTikTok">Déconnecter</button></div>
-  <div id="tiktokStatus" class="meta" style="margin-top:10px"></div>
+  <div id="tiktokStatus" class="meta" style="margin-top:10px"></div><div class="hint" style="margin-top:8px">Redirect URI à déclarer pour Twitch et TikTok : <code id="oauthRedirectUri" style="word-break:break-all"></code></div>
   <button class="close" id="closeSettings">Fermer</button>
 </div></div>
 
@@ -593,7 +593,7 @@ function purgeMockContent(){youtubeItems=youtubeItems.filter(x=>!FORBIDDEN_MOCKS
 function twitchLogin(){
  const cid=localStorage.getItem('one_twitch_client_id');
  if(!cid){toast('Ajoute ton identifiant Twitch dans Réglages');document.getElementById('settingsModal').classList.add('show');return}
- const redirect=location.origin+location.pathname;
+ const redirect=new URL(location.pathname,location.origin).href;
  const stateToken=Math.random().toString(36).slice(2)+Date.now().toString(36);
  sessionStorage.setItem('one_twitch_oauth_state',stateToken);localStorage.setItem('one_twitch_oauth_state',stateToken);
  const auth='https://id.twitch.tv/oauth2/authorize?response_type=token&client_id='+encodeURIComponent(cid)+'&redirect_uri='+encodeURIComponent(redirect)+'&scope='+encodeURIComponent('')+'&force_verify=true&state='+encodeURIComponent(stateToken);
@@ -949,11 +949,15 @@ function oneAlphaRefreshAccount(){
 function oneAlphaOpenSettings(){document.getElementById('accountModal')?.classList.remove('show');document.getElementById('profile')?.click()}
 document.getElementById('accountBtn').onclick=()=>{oneAlphaRefreshAccount();document.getElementById('accountModal').classList.add('show')};
 document.getElementById('closeAccount').onclick=()=>document.getElementById('accountModal').classList.remove('show');
+document.getElementById('exportOneProfile').onclick=()=>{const keys=['one_profile_v7','one_feed_prefs_v17_12','one_saved_items','one_liked_v9','one_disliked_v9','one_amazon_affiliate_tag'];const data={version:1,exportedAt:new Date().toISOString(),data:{}};for(const k of keys){const v=localStorage.getItem(k);if(v!==null)data.data[k]=v}const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ONE-profil-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Profil ONE sauvegardé')};
+document.getElementById('importOneProfile').onclick=()=>document.getElementById('importOneFile').click();
+document.getElementById('importOneFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const j=JSON.parse(await f.text());if(!j?.data||typeof j.data!=='object')throw new Error();for(const [k,v] of Object.entries(j.data)){if(k.startsWith('one_')&&typeof v==='string')localStorage.setItem(k,v)}toast('Profil restauré · rechargement');setTimeout(()=>location.reload(),500)}catch{toast('Sauvegarde ONE invalide')}};
+
 document.getElementById('accountModal').onclick=e=>{if(e.target.id==='accountModal')e.currentTarget.classList.remove('show')};
 document.getElementById('managePlatforms').onclick=oneAlphaOpenSettings;
 document.getElementById('openAdvancedSettings').onclick=oneAlphaOpenSettings;
 ['accountYoutubeStatus','accountTwitchStatus','accountTikTokStatus'].forEach(id=>{document.getElementById(id).onclick=oneAlphaOpenSettings});
-document.getElementById('profile').onclick=()=>{v1616SyncAmazonTag();const m=document.getElementById('settingsModal');document.getElementById('shoppingApiUrl').value='https://one-shopping-api.moulinanthony60.workers.dev';document.getElementById('shoppingApiStatus').textContent='✅ Shopping Live connecté.';document.getElementById('ytKey').value=localStorage.getItem('one_youtube_api_key')||'';document.getElementById('keyStatus').textContent=localStorage.getItem('one_youtube_api_key')?'✅ Une clé YouTube est enregistrée sur cet appareil.':'Aucune clé enregistrée.';document.getElementById('twitchClientId').value=localStorage.getItem('one_twitch_client_id')||'';document.getElementById('twitchStatus').textContent=localStorage.getItem('one_twitch_token')?'✅ Twitch connecté.':(localStorage.getItem('one_twitch_client_id')?'Identifiant enregistré · connexion nécessaire.':'Aucun identifiant Twitch enregistré.');const ttRaw=JSON.parse(localStorage.getItem('one_tiktok_data')||'null');const ttCount=Array.isArray(ttRaw?.videos)?ttRaw.videos.length:0;document.getElementById('tiktokStatus').textContent=localStorage.getItem('one_tiktok_connected')?`✅ TikTok connecté · ${ttCount} publication(s) chargée(s).`:'TikTok non connecté.';m.classList.add('show')};
+document.getElementById('profile').onclick=()=>{v1616SyncAmazonTag();const m=document.getElementById('settingsModal');document.getElementById('shoppingApiUrl').value='https://one-shopping-api.moulinanthony60.workers.dev';document.getElementById('shoppingApiStatus').textContent='✅ Shopping Live connecté.';const od=document.getElementById('oauthRedirectUri');if(od)od.textContent=new URL(location.pathname,location.origin).href;document.getElementById('ytKey').value=localStorage.getItem('one_youtube_api_key')||'';document.getElementById('keyStatus').textContent=localStorage.getItem('one_youtube_api_key')?'✅ Une clé YouTube est enregistrée sur cet appareil.':'Aucune clé enregistrée.';document.getElementById('twitchClientId').value=localStorage.getItem('one_twitch_client_id')||'';document.getElementById('twitchStatus').textContent=localStorage.getItem('one_twitch_token')?'✅ Twitch connecté.':(localStorage.getItem('one_twitch_client_id')?'Identifiant enregistré · connexion nécessaire.':'Aucun identifiant Twitch enregistré.');const ttRaw=JSON.parse(localStorage.getItem('one_tiktok_data')||'null');const ttCount=Array.isArray(ttRaw?.videos)?ttRaw.videos.length:0;document.getElementById('tiktokStatus').textContent=localStorage.getItem('one_tiktok_connected')?`✅ TikTok connecté · ${ttCount} publication(s) chargée(s).`:'TikTok non connecté.';m.classList.add('show')};
 document.getElementById('closeSettings').onclick=()=>document.getElementById('settingsModal').classList.remove('show');
 document.getElementById('settingsModal').onclick=e=>{if(e.target.id==='settingsModal')e.currentTarget.classList.remove('show')};
 
@@ -972,7 +976,7 @@ readTwitchToken();
 
 
 const TIKTOK_CLIENT_KEY='sbaw7iuxscgibogn4b';
-const TIKTOK_REDIRECT=location.origin+'/tiktok-callback';
+const TIKTOK_REDIRECT=new URL(location.pathname,location.origin).href;
 const TIKTOK_API='https://one-tiktok-api.moulinanthony60.workers.dev';
 function loadTikTokLocal(){
  try{
@@ -1006,6 +1010,7 @@ document.getElementById('connectTikTok').onclick=()=>{document.getElementById('s
 document.getElementById('disconnectTikTok').onclick=()=>{localStorage.removeItem('one_tiktok_connected');localStorage.removeItem('one_tiktok_data');tiktokItems=[];document.getElementById('tiktokStatus').textContent='TikTok déconnecté.';oneAlphaRefreshAccount();render();toast('TikTok déconnecté')};
 loadTikTokLocal();
 const ttParams=new URLSearchParams(location.search);
+if(ttParams.get('error')&&ttParams.get('state')){const expected=sessionStorage.getItem('one_tiktok_oauth_state')||localStorage.getItem('one_tiktok_oauth_state');if(!expected||ttParams.get('state')===expected){toast('TikTok : '+(ttParams.get('error_description')||ttParams.get('error')));}}
 if(ttParams.get('tiktok')==='connected'){localStorage.setItem('one_tiktok_connected','1');loadTikTokLocal();history.replaceState(null,'',location.pathname);const ttRaw=JSON.parse(localStorage.getItem('one_tiktok_data')||'null');const ttCount=Array.isArray(ttRaw?.videos)?ttRaw.videos.length:0;toast(`TikTok connecté · ${ttCount} publication(s) 🎵`);}
 
 document.getElementById('askOne').onclick=()=>{closeVerticalFeed();const m=document.getElementById('aiModal');m.classList.add('show');const sh=m.querySelector('.sheet');if(sh)sh.scrollTop=0};

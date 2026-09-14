@@ -1,7 +1,7 @@
 {
-  "name": "ONE Mobile Alpha",
+  "name": "ONE Mobile Alpha 0.3",
   "short_name": "ONE",
-  "description": "ONE Mobile Alpha 0.2 — feed, IA et shopping Trusted Stores.",
+  "description": "ONE Mobile Alpha 0.3 — connexions et profil ONE améliorés.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
