@@ -14,3 +14,7 @@ Prototype mobile installable basé sur ONE V18.46 Trusted Stores.
 
 ## Déploiement
 Envoyer tous les fichiers à la racine du dépôt GitHub Pages, en remplaçant ceux de l’Alpha 0.1. `index.html`, `manifest.webmanifest` et `sw.js` doivent rester à la racine.
+
+
+### Alpha 0.9
+Ajout du catalogue TikTok externe : coller un lien public complet `tiktok.com/@createur/video/...` dans Réglages > TikTok. Les vidéos ajoutées rejoignent l’onglet TikTok et le feed ONE.
