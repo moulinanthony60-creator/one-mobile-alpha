@@ -14,3 +14,7 @@ V18.46 : classement des offres exactes par confiance marchand (Amazon.fr, Cdisco
 - Feed multi-plateformes YouTube + Twitch + TikTok.
 - Catalogue TikTok externe par liens publics, synchronisé avec le compte ONE.
 - Voir `ALPHA_09_CHANGES.md`.
+
+## Mobile Alpha 0.10
+Import TikTok multiple : voir ALPHA_10_CHANGES.md.
+

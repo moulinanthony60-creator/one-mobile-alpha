@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.9 — Feed Multi-plateformes</title>
+<title>ONE Mobile Alpha 0.10 — Feed Multi-plateformes</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -63,7 +63,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 #oneUpdate{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(82px + env(safe-area-inset-bottom));z-index:121;border:0;background:#fff;color:#111;border-radius:999px;padding:11px 15px;font-weight:900;display:none;box-shadow:0 12px 30px rgba(0,0,0,.35)}#oneUpdate.show{display:block}
 @media(display-mode:standalone){#oneInstall{display:none!important}}
 
-/* Mobile Alpha 0.9 — catalogue TikTok externe */
+/* Mobile Alpha 0.10 — catalogue TikTok externe */
 .ttCatalogBox{margin-top:12px;padding:12px;border:1px solid var(--line);background:#0d1118;border-radius:14px}.ttCatalogBox b{display:block;margin-bottom:5px}.ttCatalogBox .hint{color:var(--muted);font-size:11px;line-height:1.4}.ttCatalogList{display:grid;gap:7px;margin-top:10px}.ttCatalogItem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:11px;background:#111722}.ttCatalogItem strong{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ttCatalogItem span{display:block;color:var(--muted);font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ttCatalogItem button,.ttCatalogClear{border:1px solid var(--line);background:#1a202b;color:#fff;border-radius:9px;padding:7px 9px;font-weight:800;font-size:11px}.ttCatalogClear{width:100%;margin-top:9px}.ttCatalogStatus{margin-top:8px;color:var(--muted);font-size:11px}.ttExternalTag{background:#2a1837!important;color:#f0c8ff!important}
 
 /* Mobile Alpha 0.2 — compte + polish mobile */
@@ -75,7 +75,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.9 MULTI-FEED + TIKTOK CATALOG</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.10 MULTI-FEED + TIKTOK CATALOG</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -150,7 +150,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div id="aiAnswer" style="margin-top:14px"></div>
   <button class="close" id="closeAi">Fermer</button>
 </div></div>
-<div class="modal" id="accountModal"><div class="sheet"><h3>👤 Compte ONE</h3><p>Alpha 0.9 synchronise ton profil ONE, tes connexions de plateforme et ton catalogue TikTok externe entre tes appareils : favoris, J’aime, préférences, YouTube, Twitch et l’état TikTok sont restaurés après connexion au compte ONE.</p>
+<div class="modal" id="accountModal"><div class="sheet"><h3>👤 Compte ONE</h3><p>Alpha 0.10 synchronise ton profil ONE, tes connexions de plateforme et ton catalogue TikTok externe entre tes appareils : favoris, J’aime, préférences, YouTube, Twitch et l’état TikTok sont restaurés après connexion au compte ONE.</p>
   <div class="accountSummary"><div class="accountAvatar">👤</div><div><b id="oneAccountDisplay">Compte ONE</b><span id="accountConnectedCount">Non connecté</span></div></div>
   <div style="height:1px;background:var(--line);margin:16px 0"></div>
   <div id="oneAuthLoggedOut">
@@ -174,7 +174,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   </div>
   <div class="accountActions"><button class="primary" id="managePlatforms">Gérer les connexions</button><button id="openAdvancedSettings">Réglages avancés</button></div><div class="accountActions" style="margin-top:8px"><button id="exportOneProfile">Sauvegarder le profil</button><button id="importOneProfile">Restaurer le profil</button><input id="importOneFile" type="file" accept="application/json" hidden></div>
   <div style="height:1px;background:var(--line);margin:18px 0"></div>
-  <p><b style="color:var(--text)">☁️ Profil ONE chiffré · Alpha 0.9</b><br>Ton profil et le coffre plateformes sont chiffrés dans le navigateur avant envoi au cloud. La clé de déchiffrement est dérivée de ton mot de passe ONE. Les états YouTube/Twitch/TikTok peuvent ainsi être restaurés sur un autre appareil. Un jeton expiré peut toutefois nécessiter une nouvelle autorisation auprès de la plateforme.</p>
+  <p><b style="color:var(--text)">☁️ Profil ONE chiffré · Alpha 0.10</b><br>Ton profil et le coffre plateformes sont chiffrés dans le navigateur avant envoi au cloud. La clé de déchiffrement est dérivée de ton mot de passe ONE. Les états YouTube/Twitch/TikTok peuvent ainsi être restaurés sur un autre appareil. Un jeton expiré peut toutefois nécessiter une nouvelle autorisation auprès de la plateforme.</p>
   <div class="search"><input id="oneCloudUrl" autocomplete="off" readonly value="https://one-profile-api.moulinanthony60.workers.dev"/><button id="saveOneCloudUrl">Connecté</button></div>
   <div class="accountActions" style="margin-top:8px"><button id="cloudBackupOne">☁️ Sauvegarder</button><button id="cloudRestoreOne">⬇️ Restaurer</button></div>
   <label style="display:flex;align-items:center;gap:10px;margin-top:12px;color:var(--text);font-weight:700"><input id="oneAutoSync" type="checkbox" style="width:20px;height:20px;accent-color:#7c4dff"> Synchronisation automatique</label>
@@ -182,7 +182,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div class="hint" id="oneCloudStatus" style="margin-top:8px">Connecte-toi à ton compte ONE pour activer le cloud.</div>
   <button class="close" id="closeAccount">Fermer</button>
 </div></div>
-<div class="modal" id="settingsModal"><div class="sheet"><h3>⚙️ Réglages ONE · Mobile Alpha 0.9</h3><p>Ajoute ta clé YouTube Data API v3. Quand tu es connecté à ton compte ONE avec la synchro automatique activée, elle est incluse dans ton coffre chiffré et peut être restaurée sur tes autres appareils.</p>
+<div class="modal" id="settingsModal"><div class="sheet"><h3>⚙️ Réglages ONE · Mobile Alpha 0.10</h3><p>Ajoute ta clé YouTube Data API v3. Quand tu es connecté à ton compte ONE avec la synchro automatique activée, elle est incluse dans ton coffre chiffré et peut être restaurée sur tes autres appareils.</p>
   <div class="search"><input id="ytKey" type="password" autocomplete="off" placeholder="Colle ta clé YouTube ici"/><button id="saveKey">Enregistrer</button></div>
   <div style="display:flex;gap:8px;margin-top:10px"><button class="action" id="testKey">Tester YouTube</button><button class="action" id="deleteKey">Supprimer la clé</button></div>
   <div id="keyStatus" class="meta" style="margin-top:10px"></div>
@@ -201,8 +201,9 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div id="tiktokStatus" class="meta" style="margin-top:10px"></div>
   <div class="ttCatalogBox">
     <b>➕ Catalogue TikTok externe</b>
-    <div class="hint">Colle le lien public complet d’une vidéo TikTok d’un autre créateur. ONE l’ajoute à l’onglet TikTok et au feed Pour toi. Le catalogue est synchronisé avec ton compte ONE.</div>
-    <div class="search" style="margin-top:9px"><input id="tiktokExternalUrl" autocomplete="off" inputmode="url" placeholder="https://www.tiktok.com/@createur/video/…"/><button id="addTikTokExternal">Ajouter</button></div>
+    <div class="hint">Colle un ou plusieurs liens TikTok, ou le texte copié depuis Partager. ONE ajoute les vidéos au feed et ignore les doublons. Maximum 20 liens par import et 120 vidéos dans le catalogue. Pour les liens courts non reconnus, ouvre la vidéo dans ton navigateur et copie son adresse complète.</div>
+    <div class="search" style="margin-top:9px"><textarea id="tiktokExternalUrl" rows="3" aria-label="Liens TikTok à importer" placeholder="Colle ici tes liens ou un texte de partage TikTok" style="flex:1;min-width:0;resize:vertical;background:transparent;color:var(--text);border:0;padding:10px;font:inherit"></textarea><button id="addTikTokExternal">Ajouter</button></div>
+    <div id="tiktokImportResult" class="ttCatalogStatus" role="status" aria-live="polite"></div>
     <div class="ttCatalogStatus" id="tiktokExternalStatus">Aucun TikTok externe ajouté.</div>
     <div class="ttCatalogList" id="tiktokExternalList"></div>
     <button class="ttCatalogClear" id="clearTikTokExternal" type="button">Vider le catalogue TikTok externe</button>
@@ -1055,7 +1056,23 @@ function tiktokExternalEntries(){try{const a=JSON.parse(localStorage.getItem(TIK
 function tiktokSaveExternalEntries(entries){localStorage.setItem(TIKTOK_EXTERNAL_KEY,JSON.stringify(entries));if(typeof oneScheduleAutoSync==='function')oneScheduleAutoSync()}
 function tiktokIdFromText(value){const t=String(value||'').trim();const patterns=[/\/video\/(\d{8,})/i,/\/player\/v1\/(\d{8,})/i,/data-video-id=["'](\d{8,})/i,/video_id["'=:\s]+(\d{8,})/i];for(const re of patterns){const m=t.match(re);if(m)return m[1]}return ''}
 function tiktokCreatorFromUrl(value){try{const u=new URL(value);const m=u.pathname.match(/\/@([^/]+)/);return m?decodeURIComponent(m[1]):'Créateur TikTok'}catch{return 'Créateur TikTok'}}
-async function tiktokResolveExternal(value){const input=String(value||'').trim();if(!/^https?:\/\//i.test(input))throw new Error('Colle un lien TikTok public complet.');let id=tiktokIdFromText(input),creator=tiktokCreatorFromUrl(input),title='Vidéo TikTok ajoutée à ONE',thumbnail='';try{const r=await fetch('https://www.tiktok.com/oembed?url='+encodeURIComponent(input));if(r.ok){const d=await r.json();title=d.title||title;creator=d.author_name||creator;thumbnail=d.thumbnail_url||thumbnail;id=id||tiktokIdFromText(d.html||'')||tiktokIdFromText(d.embed_url||'')}}catch(e){}if(!id)throw new Error('ONE ne trouve pas l’ID de cette vidéo. Utilise le lien complet tiktok.com/@createur/video/…');return {id:String(id),url:input,creator,title,thumbnail,addedAt:Date.now()}}
+function tiktokImportUrls(value){
+ const matches=String(value||'').match(/https?:\/\/[^\s<>"']+/gi)||[];
+ return [...new Set(matches.map(x=>x.replace(/[.,;!?)\]}]+$/g,'')))];
+}
+function tiktokValidateUrl(value){
+ let u;try{u=new URL(value)}catch{throw new Error('Lien invalide.')}
+ if(u.protocol!=='https:'||u.username||u.password||u.port||!(u.hostname==='tiktok.com'||u.hostname.endsWith('.tiktok.com')))throw new Error('Utilise un lien HTTPS vers tiktok.com.');
+ return u;
+}
+async function tiktokResolveExternal(value){
+ const u=tiktokValidateUrl(value),input=u.href;
+ let id=tiktokIdFromText(u.pathname),creator=tiktokCreatorFromUrl(input),title='Vidéo TikTok ajoutée à ONE',thumbnail='';
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
+ try{const r=await fetch('https://www.tiktok.com/oembed?url='+encodeURIComponent(input),{signal:controller.signal});if(r.ok){const d=await r.json();title=d.title||title;creator=d.author_name||creator;thumbnail=d.thumbnail_url||thumbnail;id=id||tiktokIdFromText(d.html||'')||tiktokIdFromText(d.embed_url||'')}}catch(e){}finally{clearTimeout(timer)}
+ if(!id)throw new Error('Lien non résolu : ouvre la vidéo dans ton navigateur puis copie le lien complet tiktok.com/@createur/video/…');
+ return {id:String(id),url:input,creator,title,thumbnail,addedAt:Date.now()};
+}
 function tiktokExternalToItem(v,n){return {id:'tt_ext_'+v.id,p:'tiktok',icon:'🎵',creator:v.creator||'Créateur TikTok',title:v.title||'Vidéo TikTok externe',meta:'TikTok externe · ajouté à ONE',duration:'TikTok',tags:['TikTok','Externe'],score:118-n,short:true,thumbnail:v.thumbnail||'',shareUrl:v.url||'',embedLink:'https://www.tiktok.com/player/v1/'+encodeURIComponent(v.id),url:'https://www.tiktok.com/player/v1/'+encodeURIComponent(v.id),tiktokId:String(v.id||''),tiktokPlayable:true,isTikTokExternal:true}}
 function renderTikTokExternalManager(){const entries=tiktokExternalEntries();const status=document.getElementById('tiktokExternalStatus'),list=document.getElementById('tiktokExternalList'),clear=document.getElementById('clearTikTokExternal');if(status)status.textContent=entries.length?`${entries.length} vidéo(s) TikTok externe(s) dans ONE.`:'Aucun TikTok externe ajouté.';if(clear)clear.style.display=entries.length?'block':'none';if(list)list.innerHTML=entries.map(v=>`<div class="ttCatalogItem"><div><strong>${v17Escape(v.title||'Vidéo TikTok')}</strong><span>@${v17Escape(v.creator||'Créateur TikTok')} · ${v17Escape(v.id)}</span></div><button type="button" onclick="removeTikTokExternal('${v17Escape(v.id)}')">Supprimer</button></div>`).join('')}
 window.removeTikTokExternal=id=>{const entries=tiktokExternalEntries().filter(v=>String(v.id)!==String(id));tiktokSaveExternalEntries(entries);loadTikTokLocal();renderTikTokExternalManager();render();toast('TikTok retiré du catalogue')};
@@ -1085,8 +1102,32 @@ function tiktokLogin(){
  u.searchParams.set('state',state);
  location.href=u.toString();
 }
-document.getElementById('addTikTokExternal').onclick=async()=>{const input=document.getElementById('tiktokExternalUrl');const btn=document.getElementById('addTikTokExternal');const value=input.value.trim();if(!value)return toast('Colle un lien TikTok');btn.disabled=true;btn.textContent='Ajout…';try{const entry=await tiktokResolveExternal(value);const entries=tiktokExternalEntries().filter(v=>String(v.id)!==String(entry.id));entries.unshift(entry);tiktokSaveExternalEntries(entries.slice(0,120));input.value='';loadTikTokLocal();render();renderTikTokExternalManager();toast('TikTok externe ajouté au feed 🎵')}catch(e){toast(e.message||'Impossible d’ajouter ce TikTok')}finally{btn.disabled=false;btn.textContent='Ajouter'}};
-document.getElementById('tiktokExternalUrl').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('addTikTokExternal').click()}});
+document.getElementById('addTikTokExternal').onclick=async()=>{
+ const input=document.getElementById('tiktokExternalUrl'),btn=document.getElementById('addTikTokExternal'),result=document.getElementById('tiktokImportResult');
+ const urls=tiktokImportUrls(input.value);
+ if(!urls.length){result.textContent='Colle au moins un lien TikTok commençant par https://.';return}
+ if(urls.length>20){result.textContent='Importe au maximum 20 liens à la fois. Ton texte a été conservé.';return}
+ btn.disabled=true;input.disabled=true;
+ let added=0,duplicates=0;const failed=[],errors=[];
+ try{
+  for(let i=0;i<urls.length;i++){
+   btn.textContent=(i+1)+' / '+urls.length;result.textContent='Import en cours… '+(i+1)+' / '+urls.length;
+   try{
+    const u=tiktokValidateUrl(urls[i]),knownId=tiktokIdFromText(u.pathname);
+    if(knownId&&tiktokExternalEntries().some(x=>String(x.id)===knownId)){duplicates++;continue}
+    if(tiktokExternalEntries().length>=120)throw new Error('Catalogue plein (120 vidéos). Supprime une vidéo avant de réessayer.');
+    const entry=await tiktokResolveExternal(urls[i]);
+    const entries=tiktokExternalEntries();
+    if(entries.some(x=>String(x.id)===entry.id)){duplicates++;continue}
+    if(entries.length>=120)throw new Error('Catalogue plein (120 vidéos).');
+    tiktokSaveExternalEntries([entry,...entries]);added++;
+   }catch(e){failed.push(urls[i]);errors.push(e.message||'Import impossible.')}
+  }
+  input.value=failed.join('\n');loadTikTokLocal();render();renderTikTokExternalManager();
+  result.textContent=added+' ajoutée(s) · '+duplicates+' déjà présente(s) · '+failed.length+' en échec.'+(failed.length?' Les liens en échec restent dans le champ. '+[...new Set(errors)].join(' '):'');
+ }finally{btn.disabled=false;input.disabled=false;btn.textContent='Ajouter'}
+};
+document.getElementById('tiktokExternalUrl').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();document.getElementById('addTikTokExternal').click()}});
 document.getElementById('clearTikTokExternal').onclick=()=>{if(!tiktokExternalEntries().length)return;localStorage.removeItem(TIKTOK_EXTERNAL_KEY);if(typeof oneScheduleAutoSync==='function')oneScheduleAutoSync();loadTikTokLocal();render();renderTikTokExternalManager();toast('Catalogue TikTok externe vidé')};
 document.getElementById('connectTikTok').onclick=()=>{document.getElementById('settingsModal').classList.remove('show');tiktokLogin()};
 document.getElementById('disconnectTikTok').onclick=()=>{localStorage.removeItem('one_tiktok_connected');localStorage.removeItem('one_tiktok_data');tiktokItems=[];document.getElementById('tiktokStatus').textContent='TikTok déconnecté.';oneAlphaRefreshAccount();oneScheduleAutoSync();render();toast('TikTok déconnecté')};
