@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.3</title>
+<title>ONE Mobile Alpha 0.4</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -72,7 +72,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.3</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.4</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -147,7 +147,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div id="aiAnswer" style="margin-top:14px"></div>
   <button class="close" id="closeAi">Fermer</button>
 </div></div>
-<div class="modal" id="accountModal"><div class="sheet"><h3>👤 Compte ONE</h3><p>Centralise tes plateformes et ton profil ONE. En Alpha 0.3, tu peux sauvegarder/restaurer ton profil local ; la synchronisation cloud nécessite le futur service compte ONE.</p>
+<div class="modal" id="accountModal"><div class="sheet"><h3>👤 Compte ONE</h3><p>Centralise tes plateformes et ton profil ONE. En Alpha 0.4, tu peux sauvegarder/restaurer ton profil local ; la synchronisation cloud nécessite le futur service compte ONE.</p>
   <div class="accountSummary"><div class="accountAvatar">👤</div><div><b>Profil ONE local</b><span id="accountConnectedCount">0 plateforme connectée</span></div></div>
   <div class="platformList">
     <div class="platformRow"><div class="platformIcon">▶️</div><div class="platformMeta"><b>YouTube</b><span id="accountYoutubeText">Non configuré</span></div><button class="platformStatus" id="accountYoutubeStatus">Configurer</button></div>
@@ -157,7 +157,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div class="accountActions"><button class="primary" id="managePlatforms">Gérer les connexions</button><button id="openAdvancedSettings">Réglages avancés</button></div><div class="accountActions" style="margin-top:8px"><button id="exportOneProfile">Sauvegarder le profil</button><button id="importOneProfile">Restaurer le profil</button><input id="importOneFile" type="file" accept="application/json" hidden></div>
   <button class="close" id="closeAccount">Fermer</button>
 </div></div>
-<div class="modal" id="settingsModal"><div class="sheet"><h3>⚙️ Réglages ONE · Mobile Alpha 0.3</h3><p>Ajoute ta clé YouTube Data API v3. Elle reste enregistrée uniquement dans ce navigateur.</p>
+<div class="modal" id="settingsModal"><div class="sheet"><h3>⚙️ Réglages ONE · Mobile Alpha 0.4</h3><p>Ajoute ta clé YouTube Data API v3. Elle reste enregistrée uniquement dans ce navigateur.</p>
   <div class="search"><input id="ytKey" type="password" autocomplete="off" placeholder="Colle ta clé YouTube ici"/><button id="saveKey">Enregistrer</button></div>
   <div style="display:flex;gap:8px;margin-top:10px"><button class="action" id="testKey">Tester YouTube</button><button class="action" id="deleteKey">Supprimer la clé</button></div>
   <div id="keyStatus" class="meta" style="margin-top:10px"></div>
@@ -1000,7 +1000,7 @@ function tiktokLogin(){
  localStorage.setItem('one_tiktok_oauth_state',state);
  const u=new URL('https://www.tiktok.com/v2/auth/authorize/');
  u.searchParams.set('client_key',TIKTOK_CLIENT_KEY);
- u.searchParams.set('scope','user.info.basic,video.list');
+ u.searchParams.set('scope','user.info.basic');
  u.searchParams.set('response_type','code');
  u.searchParams.set('redirect_uri',TIKTOK_REDIRECT);
  u.searchParams.set('state',state);
@@ -1010,8 +1010,48 @@ document.getElementById('connectTikTok').onclick=()=>{document.getElementById('s
 document.getElementById('disconnectTikTok').onclick=()=>{localStorage.removeItem('one_tiktok_connected');localStorage.removeItem('one_tiktok_data');tiktokItems=[];document.getElementById('tiktokStatus').textContent='TikTok déconnecté.';oneAlphaRefreshAccount();render();toast('TikTok déconnecté')};
 loadTikTokLocal();
 const ttParams=new URLSearchParams(location.search);
-if(ttParams.get('error')&&ttParams.get('state')){const expected=sessionStorage.getItem('one_tiktok_oauth_state')||localStorage.getItem('one_tiktok_oauth_state');if(!expected||ttParams.get('state')===expected){toast('TikTok : '+(ttParams.get('error_description')||ttParams.get('error')));}}
-if(ttParams.get('tiktok')==='connected'){localStorage.setItem('one_tiktok_connected','1');loadTikTokLocal();history.replaceState(null,'',location.pathname);const ttRaw=JSON.parse(localStorage.getItem('one_tiktok_data')||'null');const ttCount=Array.isArray(ttRaw?.videos)?ttRaw.videos.length:0;toast(`TikTok connecté · ${ttCount} publication(s) 🎵`);}
+async function finishTikTokOAuth(){
+ const error=ttParams.get('error');
+ const returnedState=ttParams.get('state');
+ const expected=sessionStorage.getItem('one_tiktok_oauth_state')||localStorage.getItem('one_tiktok_oauth_state');
+ if(error){
+  if(!expected||!returnedState||returnedState===expected){toast('TikTok : '+(ttParams.get('error_description')||error));}
+  history.replaceState(null,'',location.pathname);
+  return;
+ }
+ const code=ttParams.get('code');
+ if(!code)return;
+ if(expected&&returnedState!==expected){
+  history.replaceState(null,'',location.pathname);
+  toast('TikTok : vérification de sécurité invalide. Recommence la connexion.');
+  return;
+ }
+ try{
+  toast('Connexion TikTok en cours…');
+  const r=await fetch(TIKTOK_API+'/exchange',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({code})
+  });
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok||!data?.ok)throw new Error(data?.error||`Erreur API ${r.status}`);
+  localStorage.setItem('one_tiktok_data',JSON.stringify(data));
+  localStorage.setItem('one_tiktok_connected','1');
+  localStorage.removeItem('one_tiktok_oauth_state');
+  sessionStorage.removeItem('one_tiktok_oauth_state');
+  history.replaceState(null,'',location.pathname);
+  loadTikTokLocal();
+  oneAlphaRefreshAccount();
+  render();
+  const name=data?.profile?.display_name||'TikTok';
+  const count=Array.isArray(data?.videos)?data.videos.length:0;
+  toast(`TikTok connecté · ${name}${count?` · ${count} publication(s)`:''} 🎵`);
+ }catch(e){
+  history.replaceState(null,'',location.pathname);
+  toast('TikTok : '+(e?.message||'échec de connexion'));
+ }
+}
+finishTikTokOAuth();
 
 document.getElementById('askOne').onclick=()=>{closeVerticalFeed();const m=document.getElementById('aiModal');m.classList.add('show');const sh=m.querySelector('.sheet');if(sh)sh.scrollTop=0};
 document.getElementById('closeAi').onclick=()=>document.getElementById('aiModal').classList.remove('show');
