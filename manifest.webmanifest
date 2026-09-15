@@ -1,7 +1,7 @@
 {
-  "name": "ONE Mobile Alpha 0.11",
+  "name": "ONE Mobile Alpha 0.11.1",
   "short_name": "ONE",
-  "description": "ONE — feed multi-plateformes et partage TikTok depuis Android.",
+  "description": "ONE — feed multi-plateformes et cible de partage Android TikTok.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -24,13 +24,13 @@
     }
   ],
   "share_target": {
-    "action": "./index.html?one_share=1",
+    "action": "./?one_share=1",
     "method": "GET",
-    "enctype": "application/x-www-form-urlencoded",
     "params": {
       "title": "share_title",
       "text": "share_text",
       "url": "share_url"
     }
-  }
+  },
+  "id": "./"
 }
