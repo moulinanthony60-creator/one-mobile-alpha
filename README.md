@@ -1,7 +1,7 @@
-# ONE Mobile Alpha 0.12.6 — Speed Finish
+# ONE Mobile Alpha 0.13.1 — Fresh Following
 
 Version complète déployable sur GitHub Pages.
 
-Cette version conserve la logique Fast Swipe validée en 0.12.5 et ne fait qu'une passe de finition sur la vitesse du feed TikTok : délais de reprise raccourcis, première frame révélée plus tôt et préchauffage des voisins avancé.
+Le feed Pour toi est remélangé à chaque ouverture tout en conservant l’historique et la personnalisation. Les créateurs suivis ont une priorité forte. Twitch peut importer les chaînes suivies après reconnexion avec l’autorisation `user:read:follows`. Pour YouTube, la clé API seule ne permet pas de lire les abonnements privés de l’utilisateur : ONE priorise donc les chaînes suivies dans ONE tant qu’un OAuth YouTube utilisateur n’est pas ajouté. TikTok reste limité par la Display API officielle.
 
-Le partage Android TikTok, le catalogue externe protégé, Safe-Sync, le compte ONE et la synchronisation cloud sont conservés.
+Le moteur de lecture rapide issu de 0.12.6 n’est pas modifié.
