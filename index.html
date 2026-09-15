@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=0117" />
+<link rel="manifest" href="./manifest.json?v=0118" />
 <style>
 :root{--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -75,7 +75,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.11.7 TIKTOK SHARE</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.11.9 TIKTOK SAFE-SYNC</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -200,7 +200,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div style="display:flex;gap:8px;margin-top:10px"><button class="action open" id="connectTikTok">🎵 Connecter TikTok</button><button class="action" id="disconnectTikTok">Déconnecter</button></div>
   <div id="tiktokStatus" class="meta" style="margin-top:10px"></div>
   <div class="ttCatalogBox">
-    <b>➕ Catalogue TikTok externe</b><div class="hint">Sur Android, partage une vidéo depuis TikTok vers ONE, puis appuie sur Ajouter. ONE doit être installée depuis Chrome pour apparaître dans les applications de partage.</div>
+    <b>➕ Catalogue TikTok externe</b><div class="hint">Sur Android, partage une vidéo depuis TikTok vers ONE : la vidéo est ajoutée automatiquement au catalogue. ONE doit être installée depuis Chrome pour apparaître dans les applications de partage.</div>
     <div class="hint">Colle un ou plusieurs liens TikTok, ou le texte copié depuis Partager. ONE ajoute les vidéos au feed et ignore les doublons. Maximum 20 liens par import et 120 vidéos dans le catalogue. Pour les liens courts non reconnus, ouvre la vidéo dans ton navigateur et copie son adresse complète.</div>
     <div class="search" style="margin-top:9px"><textarea id="tiktokExternalUrl" rows="3" aria-label="Liens TikTok à importer" placeholder="Colle ici tes liens ou un texte de partage TikTok" style="flex:1;min-width:0;resize:vertical;background:transparent;color:var(--text);border:0;padding:10px;font:inherit"></textarea><button id="addTikTokExternal">Ajouter</button></div>
     <div id="tiktokImportResult" class="ttCatalogStatus" role="status" aria-live="polite"></div>
@@ -995,7 +995,7 @@ function oneLastSync(){const n=Number(localStorage.getItem(ONE_LAST_SYNC_KEY)||0
 function oneMarkSynced(ts=Date.now()){localStorage.setItem(ONE_LAST_SYNC_KEY,String(ts));oneUpdateSyncStatus()}
 function oneUpdateSyncStatus(extra=''){const el=document.getElementById('oneSyncStatus');if(!el)return;const on=oneAutoSyncEnabled(),last=oneLastSync();let txt=on?'🔄 Synchronisation automatique activée.':'⏸️ Synchronisation automatique désactivée.';if(last)txt+=' Dernière synchro : '+new Date(last).toLocaleString()+'.';if(extra)txt+=' '+extra;el.textContent=txt}
 async function oneCloudBackupRun({silent=false}={}){if(!oneAccountToken())throw new Error('Connecte-toi à ton compte ONE');const box=await oneCloudEncrypt(oneCloudPayload());const j=await oneApi('/account/profile',{method:'PUT',body:JSON.stringify(box)});oneMarkSynced(Number(j.updatedAt)||Date.now());const st=document.getElementById('oneCloudStatus');if(st)st.textContent='✅ Sauvegarde chiffrée envoyée · '+new Date().toLocaleString();if(!silent)toast('Profil ONE sauvegardé ☁️');return j}
-async function oneApplyCloudBackup(backup,{reload=true,silent=false}={}){const payload=await oneCloudDecrypt(backup);if(!payload?.data)throw new Error('Sauvegarde invalide');for(const [k,v] of Object.entries(payload.data))if(k.startsWith('one_')&&typeof v==='string'&&![ONE_AUTH_TOKEN_KEY,ONE_ACCOUNT_KEY,ONE_PROFILE_KEY,ONE_AUTOSYNC_KEY,ONE_LAST_SYNC_KEY].includes(k))localStorage.setItem(k,v);const p=payload.platforms;if(p&&typeof p==='object'){const yt=String(p.youtube?.apiKey||'');const tc=String(p.twitch?.clientId||'');const tt=String(p.twitch?.accessToken||'');const td=String(p.tiktok?.data||'');yt?localStorage.setItem('one_youtube_api_key',yt):localStorage.removeItem('one_youtube_api_key');tc?localStorage.setItem('one_twitch_client_id',tc):localStorage.removeItem('one_twitch_client_id');tt?localStorage.setItem('one_twitch_token',tt):localStorage.removeItem('one_twitch_token');p.tiktok?.connected?localStorage.setItem('one_tiktok_connected','1'):localStorage.removeItem('one_tiktok_connected');td?localStorage.setItem('one_tiktok_data',td):localStorage.removeItem('one_tiktok_data')}oneMarkSynced(Number(backup?.updatedAt)||Date.now());if(!silent)toast('Profil + plateformes ONE restaurés');if(reload)setTimeout(()=>location.reload(),500);return payload}
+async function oneApplyCloudBackup(backup,{reload=true,silent=false}={}){const payload=await oneCloudDecrypt(backup);if(!payload?.data)throw new Error('Sauvegarde invalide');const localTikTokExternal=(typeof tiktokExternalEntries==='function')?tiktokExternalEntries():[];for(const [k,v] of Object.entries(payload.data))if(k.startsWith('one_')&&typeof v==='string'&&![ONE_AUTH_TOKEN_KEY,ONE_ACCOUNT_KEY,ONE_PROFILE_KEY,ONE_AUTOSYNC_KEY,ONE_LAST_SYNC_KEY].includes(k))localStorage.setItem(k,v);if(typeof tiktokMergeExternalEntries==='function'){let cloudTikTokExternal=[];try{cloudTikTokExternal=JSON.parse(payload.data?.[TIKTOK_EXTERNAL_KEY]||'[]')}catch(e){}const merged=tiktokMergeExternalEntries(localTikTokExternal,cloudTikTokExternal);if(merged.length)localStorage.setItem(TIKTOK_EXTERNAL_KEY,JSON.stringify(merged));else if(localTikTokExternal.length)localStorage.setItem(TIKTOK_EXTERNAL_KEY,JSON.stringify(localTikTokExternal));}const p=payload.platforms;if(p&&typeof p==='object'){const yt=String(p.youtube?.apiKey||'');const tc=String(p.twitch?.clientId||'');const tt=String(p.twitch?.accessToken||'');const td=String(p.tiktok?.data||'');yt?localStorage.setItem('one_youtube_api_key',yt):localStorage.removeItem('one_youtube_api_key');tc?localStorage.setItem('one_twitch_client_id',tc):localStorage.removeItem('one_twitch_client_id');tt?localStorage.setItem('one_twitch_token',tt):localStorage.removeItem('one_twitch_token');p.tiktok?.connected?localStorage.setItem('one_tiktok_connected','1'):localStorage.removeItem('one_tiktok_connected');td?localStorage.setItem('one_tiktok_data',td):localStorage.removeItem('one_tiktok_data')}oneMarkSynced(Number(backup?.updatedAt)||Date.now());if(!silent)toast('Profil + plateformes ONE restaurés');if(reload)setTimeout(()=>location.reload(),500);return payload}
 async function oneCloudRestoreRun({reload=true,silent=false,ignoreMissing=false}={}){if(!oneAccountToken())throw new Error('Connecte-toi à ton compte ONE');try{const j=await oneApi('/account/profile');await oneApplyCloudBackup(j.backup,{reload,silent});return j}catch(e){if(ignoreMissing&&/Aucune sauvegarde|404/.test(String(e.message||'')))return null;throw e}}
 function oneScheduleAutoSync(){if(!oneAutoSyncEnabled()||!oneAccountToken()||!localStorage.getItem(ONE_PROFILE_KEY))return;clearTimeout(oneAutoSyncTimer);oneAutoSyncTimer=setTimeout(()=>oneCloudBackupRun({silent:true}).catch(()=>{}),2200)}
 async function oneSmartSyncOnStart(){if(!oneAutoSyncEnabled()||!oneAccountToken()||!localStorage.getItem(ONE_PROFILE_KEY))return false;try{const j=await oneApi('/account/profile');const remote=Number(j?.backup?.updatedAt||0);if(remote>oneLastSync()+1500){oneUpdateSyncStatus('Une version cloud plus récente a été trouvée.');await oneApplyCloudBackup(j.backup,{reload:true,silent:true});return true}oneUpdateSyncStatus('Profil à jour sur cet appareil.');return false}catch(e){oneUpdateSyncStatus('Cloud momentanément indisponible.');return false}}
@@ -1052,6 +1052,10 @@ const TIKTOK_CLIENT_KEY='sbaw7iuxscgibogn4b';
 const TIKTOK_REDIRECT=new URL(location.pathname,location.origin).href;
 const TIKTOK_API='https://one-tiktok-api.moulinanthony60.workers.dev';
 const TIKTOK_EXTERNAL_KEY='one_tiktok_external_v09';
+const TIKTOK_EXTERNAL_SAFETY_KEY='one_tiktok_external_safety_v119';
+function tiktokMergeExternalEntries(...groups){const byId=new Map();for(const group of groups){for(const v of (Array.isArray(group)?group:[])){const id=String(v?.id||'');if(!id)continue;const old=byId.get(id);byId.set(id,old?{...v,...old}:v)}}return [...byId.values()].sort((a,b)=>Number(b.addedAt||0)-Number(a.addedAt||0)).slice(0,120)}
+function tiktokSafetySnapshot(){const entries=tiktokExternalEntries();try{localStorage.setItem(TIKTOK_EXTERNAL_SAFETY_KEY,JSON.stringify(entries));sessionStorage.setItem(TIKTOK_EXTERNAL_SAFETY_KEY,JSON.stringify(entries))}catch(e){}return entries}
+function tiktokRestoreSafety(){let safe=[];for(const store of [sessionStorage,localStorage]){try{const a=JSON.parse(store.getItem(TIKTOK_EXTERNAL_SAFETY_KEY)||'[]');if(Array.isArray(a))safe=tiktokMergeExternalEntries(safe,a)}catch(e){}}const merged=tiktokMergeExternalEntries(tiktokExternalEntries(),safe);if(merged.length)tiktokSaveExternalEntries(merged);try{sessionStorage.removeItem(TIKTOK_EXTERNAL_SAFETY_KEY)}catch(e){}return merged}
 function tiktokExternalEntries(){try{const a=JSON.parse(localStorage.getItem(TIKTOK_EXTERNAL_KEY)||'[]');return Array.isArray(a)?a:[]}catch{return []}}
 function tiktokSaveExternalEntries(entries){localStorage.setItem(TIKTOK_EXTERNAL_KEY,JSON.stringify(entries));if(typeof oneScheduleAutoSync==='function')oneScheduleAutoSync()}
 function tiktokIdFromText(value){const t=String(value||'').trim();const patterns=[/\/video\/(\d{8,})/i,/\/player\/v1\/(\d{8,})/i,/data-video-id=["'](\d{8,})/i,/video_id["'=:\s]+(\d{8,})/i];for(const re of patterns){const m=t.match(re);if(m)return m[1]}return ''}
@@ -1091,6 +1095,7 @@ function loadTikTokLocal(){
  renderTikTokExternalManager();
 }
 function tiktokLogin(){
+ tiktokSafetySnapshot();
  const state=crypto.getRandomValues(new Uint32Array(4)).join('-');
  sessionStorage.setItem('one_tiktok_oauth_state',state);
  localStorage.setItem('one_tiktok_oauth_state',state);
@@ -1130,7 +1135,7 @@ document.getElementById('addTikTokExternal').onclick=async()=>{
 document.getElementById('tiktokExternalUrl').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();document.getElementById('addTikTokExternal').click()}});
 document.getElementById('clearTikTokExternal').onclick=()=>{if(!tiktokExternalEntries().length)return;localStorage.removeItem(TIKTOK_EXTERNAL_KEY);if(typeof oneScheduleAutoSync==='function')oneScheduleAutoSync();loadTikTokLocal();render();renderTikTokExternalManager();toast('Catalogue TikTok externe vidé')};
 document.getElementById('connectTikTok').onclick=()=>{document.getElementById('settingsModal').classList.remove('show');tiktokLogin()};
-document.getElementById('disconnectTikTok').onclick=()=>{localStorage.removeItem('one_tiktok_connected');localStorage.removeItem('one_tiktok_data');tiktokItems=[];document.getElementById('tiktokStatus').textContent='TikTok déconnecté.';oneAlphaRefreshAccount();oneScheduleAutoSync();render();toast('TikTok déconnecté')};
+document.getElementById('disconnectTikTok').onclick=()=>{tiktokSafetySnapshot();localStorage.removeItem('one_tiktok_connected');localStorage.removeItem('one_tiktok_data');loadTikTokLocal();document.getElementById('tiktokStatus').textContent='TikTok déconnecté · catalogue externe conservé.';oneAlphaRefreshAccount();oneScheduleAutoSync();render();toast('TikTok déconnecté · ajouts conservés')};
 loadTikTokLocal();
 const ttParams=new URLSearchParams(location.search);
 async function finishTikTokOAuth(){
@@ -1158,8 +1163,10 @@ async function finishTikTokOAuth(){
   });
   const data=await r.json().catch(()=>({}));
   if(!r.ok||!data?.ok)throw new Error(data?.error||`Erreur API ${r.status}`);
+  const externalBeforeOAuth=tiktokRestoreSafety();
   localStorage.setItem('one_tiktok_data',JSON.stringify(data));
   localStorage.setItem('one_tiktok_connected','1');
+  if(externalBeforeOAuth.length)tiktokSaveExternalEntries(tiktokMergeExternalEntries(tiktokExternalEntries(),externalBeforeOAuth));
   localStorage.removeItem('one_tiktok_oauth_state');
   sessionStorage.removeItem('one_tiktok_oauth_state');
   history.replaceState(null,'',location.pathname);
@@ -1786,7 +1793,7 @@ v17ApplySound();
 <script>try{oneAlphaRefreshAccount()}catch(e){}</script>
 <script>
 (()=>{
- const pendingKey='one_pending_share_v117';
+ const pendingKey='one_pending_share_v119';
  function receiveOneShare(){
   const current=new URL(location.href);
   let text='';
@@ -1801,7 +1808,8 @@ v17ApplySound();
   const urls=tiktokImportUrls(text).filter(value=>{try{tiktokValidateUrl(value);return true}catch{return false}});
   document.getElementById('settingsModal').classList.add('show');
   input.value=urls.join('\n');
-  result.textContent=urls.length?'Lien reçu depuis le partage Android. Appuie sur Ajouter pour l’importer.':'Ce partage ne contient pas de lien TikTok HTTPS. Dans TikTok, partage le lien de la vidéo, puis choisis ONE.';
+  result.textContent=urls.length?'Lien reçu depuis Android. Import automatique en cours…':'Ce partage ne contient pas de lien TikTok HTTPS. Dans TikTok, partage le lien de la vidéo, puis choisis ONE.';
+  if(urls.length){requestAnimationFrame(()=>document.getElementById('addTikTokExternal')?.click())}
   input.addEventListener('input',()=>{try{sessionStorage.setItem(pendingKey,input.value)}catch(e){}});
   document.getElementById('addTikTokExternal').addEventListener('click',()=>{try{sessionStorage.removeItem(pendingKey)}catch(e){}});
   requestAnimationFrame(()=>input.scrollIntoView({block:'center'}));
