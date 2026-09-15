@@ -75,7 +75,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.12.0 FEED FLUIDE</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.12.1 FRAME SAFE</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -508,13 +508,13 @@ function v17ActivateSlide(slide){
    v1710ShowTwitchPreview(slide,x,media); return;
  }
  const src=v17PlayerUrl(x); if(!src){media.classList.remove('loading');return;}
- let f=media.querySelector('iframe[data-one-preload="1"]')||document.createElement('iframe');
- const wasPreloaded=f.dataset.onePreload==='1'; delete f.dataset.onePreload;
- if(!wasPreloaded)f.src=src; f.title='Lecteur '+platformName(x.p); f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture'; f.allowFullscreen=true; f.setAttribute('playsinline',''); f.dataset.provider=x.p;
+ let f=document.createElement('iframe');
+ const wasPreloaded=false;
+ f.src=src; f.title='Lecteur '+platformName(x.p); f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture'; f.allowFullscreen=true; f.setAttribute('playsinline',''); f.dataset.provider=x.p;
  f.style.opacity='1';f.style.pointerEvents='auto';
- if(wasPreloaded&&x.p==='tiktok'){f.style.opacity='0';f.style.pointerEvents='auto';setTimeout(()=>v17SendTikTok(f,'play'),20);}
- f.onload=()=>{media.classList.remove('loading');if(x.p==='tiktok'&&slide.dataset.ttReady==='1'){const img=media.querySelector('img');if(img)img.style.opacity='0';f.style.opacity='1';}if(x.p==='youtube'&&f.contentWindow){try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:String(x.id),channel:'one'}),'*')}catch(e){}}setTimeout(()=>v17ApplySound(slide),120);setTimeout(()=>v17ApplySound(slide),500);setTimeout(()=>v17ApplySound(slide),1200)};
- if(!f.isConnected)media.appendChild(f); media.classList.add('playing');if(x.p==='tiktok')v120PrewarmAround(slide);
+ if(x.p==='tiktok'){f.style.opacity='0';f.style.pointerEvents='auto';}
+ f.onload=()=>{media.classList.remove('loading');if(x.p==='tiktok'){f.style.opacity='0';}if(x.p==='youtube'&&f.contentWindow){try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:String(x.id),channel:'one'}),'*')}catch(e){}}setTimeout(()=>v17ApplySound(slide),120);setTimeout(()=>v17ApplySound(slide),500);setTimeout(()=>v17ApplySound(slide),1200)};
+ if(!f.isConnected)media.appendChild(f); media.classList.add('playing');if(x.p==='tiktok'){v121ArmTikTokVisualWatch(slide);v120PrewarmAround(slide);}
  if(x.p==='tiktok'){
    slide.dataset.ttReady='0';clearTimeout(slide._ttReadyTimer);slide._ttReadyTimer=setTimeout(()=>{if(slide.isConnected&&slide.getAttribute('data-active')==='1'&&slide.dataset.ttReady!=='1')v17TikTokFallback(slide)},4500);
  }
@@ -523,20 +523,15 @@ function v17ActivateSlide(slide){
  learnFromItem(x,'watch');
 }
 function v1810PreloadNextTikTok(activeSlide){
- // V0.12: garde la miniature visible et prépare le prochain lecteur TikTok hors écran.
+ // V0.12.1: ne crée jamais un second lecteur TikTok en arrière-plan.
+ // Sur Android, plusieurs iframes TikTok simultanées pouvaient donner du son avec une image noire.
  if(!activeSlide)return;
  const next=activeSlide.nextElementSibling;
  if(!next?.classList?.contains('vslide'))return;
  const x=v17ItemById(next.dataset.id), media=next.querySelector('.vslideMedia');
- if(!x||x.p!=='tiktok'||!media||media.querySelector('iframe'))return;
- const src=v17PlayerUrl(x);if(!src)return;
- const f=document.createElement('iframe');
- f.src=src;f.title='Préchargement TikTok';f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');
- f.dataset.provider='tiktok';f.dataset.onePreload='1';
- // Le player chauffe derrière la miniature : aucune surface noire visible pendant le swipe.
- f.style.opacity='0';f.style.pointerEvents='none';f.style.zIndex='0';
- f.onload=()=>{next.dataset.ttPreloaded='1'};
- media.prepend(f);
+ if(!x||x.p!=='tiktok'||!media)return;
+ const img=media.querySelector('img');
+ if(img){img.loading='eager';try{img.fetchPriority='high'}catch(e){}}
 }
 function v120PrewarmAround(activeSlide){
  if(!activeSlide)return;
@@ -545,11 +540,51 @@ function v120PrewarmAround(activeSlide){
  let s=activeSlide;
  for(let i=0;i<2;i++){s=s?.nextElementSibling;if(!s)break;const img=s.querySelector('.vslideMedia img');if(img){img.loading='eager';try{img.fetchPriority=i===0?'high':'auto'}catch(e){}}}
 }
+function v121RevealTikTokFrame(slide){
+ if(!slide||slide.getAttribute('data-active')!=='1'||slide.dataset.ttVisualReady==='1')return;
+ const media=slide.querySelector('.vslideMedia'),frame=media?.querySelector('iframe'),img=media?.querySelector('img');
+ if(!frame)return;
+ slide.dataset.ttVisualReady='1';
+ if(img)img.style.opacity='0';
+ frame.style.opacity='1';frame.style.pointerEvents='auto';
+ media?.classList.add('playing');media?.classList.remove('loading');
+}
+function v121ArmTikTokVisualWatch(slide){
+ if(!slide)return;
+ slide.dataset.ttVisualReady='0';slide.dataset.ttPlaying='0';slide.dataset.ttTimeAdvanced='0';
+ clearTimeout(slide._ttVisualTimer);
+ // Si aucune progression vidéo réelle n'arrive, on garde la miniature au lieu d'un écran noir.
+ slide._ttVisualTimer=setTimeout(()=>{
+   if(slide.isConnected&&slide.getAttribute('data-active')==='1'&&slide.dataset.ttVisualReady!=='1'){
+     const f=slide.querySelector('iframe');if(f){v17SendTikTok(f,'pause');f.remove();}
+     const media=slide.querySelector('.vslideMedia'),img=media?.querySelector('img'),play=media?.querySelector('.vslidePlay');
+     if(img)img.style.opacity='1';if(play)play.style.display='grid';media?.classList.remove('playing','loading');
+     slide.dataset.ttReady='0';
+   }
+ },5000);
+}
 window.addEventListener('message',e=>{
  const d=e.data; if(!d||d['x-tiktok-player']!==true)return;
  const slides=[...document.querySelectorAll('.vslide[data-platform="tiktok"]')];
  const slide=slides.find(s=>s.querySelector('iframe')?.contentWindow===e.source); if(!slide)return;
- if(d.type==='onPlayerReady'){slide.dataset.ttReady='1';clearTimeout(slide._ttReadyTimer);const media=slide.querySelector('.vslideMedia'),img=media?.querySelector('img'),frame=slide.querySelector('iframe');if(img)img.style.opacity='0';if(frame){frame.style.opacity='1';frame.style.pointerEvents='auto';}media?.classList.add('playing');media?.classList.remove('loading');const f=slide.querySelector('iframe');v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute');setTimeout(()=>{v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')},180);setTimeout(()=>{v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')},700);v17ApplySound(slide);v120PrewarmAround(slide);}
+ const media=slide.querySelector('.vslideMedia'),frame=slide.querySelector('iframe');
+ if(d.type==='onPlayerReady'){
+   slide.dataset.ttReady='1';clearTimeout(slide._ttReadyTimer);
+   // Ready = lecteur chargé, pas forcément une image vidéo affichée : on garde donc la miniature.
+   if(frame){frame.style.opacity='0';frame.style.pointerEvents='auto';v17SendTikTok(frame,'play');if(v1814SoundAllowed())v17SendTikTok(frame,'unMute');}
+   setTimeout(()=>{v17SendTikTok(frame,'play');if(v1814SoundAllowed())v17SendTikTok(frame,'unMute')},180);
+   v17ApplySound(slide);v120PrewarmAround(slide);
+ }
+ if(d.type==='onStateChange'){
+   const st=Number(d.value);
+   if(st===1)slide.dataset.ttPlaying='1';
+   if(st===3)media?.classList.add('loading');
+   if(st===1&&slide.dataset.ttTimeAdvanced==='1')setTimeout(()=>v121RevealTikTokFrame(slide),120);
+ }
+ if(d.type==='onCurrentTime'){
+   const t=Number(d.value?.currentTime??d.value??0);
+   if(t>0.08){slide.dataset.ttTimeAdvanced='1';if(slide.dataset.ttPlaying==='1')setTimeout(()=>v121RevealTikTokFrame(slide),120);}
+ }
  if(d.type==='onPlayerError'){v17TikTokFallback(slide);}
 });
 function v17SetupObserver(){

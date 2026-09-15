@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "ONE Mobile Alpha 0.12.0",
+  "name": "ONE Mobile Alpha 0.12.1",
   "short_name": "ONE",
-  "description": "ONE — feed vertical fluide avec préchargement TikTok et partage Android automatique.",
+  "description": "ONE — feed vertical TikTok avec protection anti-écran noir et partage Android automatique.",
   "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",

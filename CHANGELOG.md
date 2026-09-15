@@ -1,6 +1,9 @@
-# 0.12.0
+# ONE Mobile Alpha 0.12.1 — Frame Safe
 
-- Feed vertical : préchauffage TikTok N+1 et miniatures N+1/N+2.
-- Transition : conserve la miniature jusqu'au signal `onPlayerReady`, puis révèle le lecteur.
-- Préserve la logique TikTok Safe-Sync validée en 0.11.9.
-- Archive complète nettoyée des anciens changelogs.
+- Base 0.11.9 Safe-Sync conservée.
+- Suppression du préchargement de plusieurs lecteurs TikTok en parallèle.
+- Une seule iframe TikTok active à la fois.
+- La miniature reste visible tant que TikTok ne confirme pas lecture + progression temporelle.
+- Si le lecteur ne progresse pas, ONE garde la miniature et remet le bouton Lecture au lieu d'afficher un écran noir.
+- Préchargement limité aux miniatures N+1/N+2.
+- Partage Android et auto-import TikTok inchangés.

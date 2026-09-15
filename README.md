@@ -1,9 +1,5 @@
-# ONE Mobile Alpha 0.12.0 — Feed fluide
+# ONE Mobile Alpha 0.12.1
 
-Version complète à déployer sur GitHub Pages.
+Version complète de déploiement. Remplace le contenu du dépôt GitHub Pages par ces fichiers.
 
-- Base stable 0.11.9 conservée (TikTok Safe-Sync + partage Android auto-import).
-- Préchargement du prochain lecteur TikTok dans le feed vertical.
-- La miniature reste visible jusqu'à ce que le lecteur TikTok signale qu'il est prêt, afin d'éviter l'écran noir au swipe.
-- Préchargement prioritaire des miniatures N+1 et N+2.
-- ZIP nettoyé : uniquement les fichiers nécessaires au déploiement + ce README.
+Objectif 0.12.1 : supprimer le cas « son mais écran noir » du feed TikTok en ne gardant qu'un lecteur actif et en conservant la miniature jusqu'à une progression réelle de lecture.
