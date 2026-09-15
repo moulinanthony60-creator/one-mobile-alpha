@@ -1,3 +1,12 @@
+# 0.13.8 — Salon ONE et studio multiplateforme
+
+- Remplace Découvrir dans la barre du bas par Créer.
+- Catégories : Pour toi, ONE, TikTok, YouTube, Twitch, Musique, Ciné.
+- Salon ONE vide réservé au futur contenu natif.
+- Studio vidéo courte/photo/texte/live avec aperçu local et choix de destinations, toutes non activées ; aucune simulation de publication.
+- Rotation, moteurs, abonnements, fiches et connexions/sync conservés.
+- Fullscreen natif des fiches conservé sans bouton ONE redondant.
+- Version, README, manifests et cache actualisés ; clés d’historique conservées.
 # 0.13.7 — Diversité TikTok et fullscreen natif
 
 ## Corrigé
