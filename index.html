@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.webmanifest?v=0113" />
+<link rel="manifest" href="./manifest.json?v=0114" />
 <style>
 :root{--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -75,7 +75,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.11.3 ANDROID SHARE POST</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.11.4 CHROME INSTALL FIX</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -1786,14 +1786,14 @@ v17ApplySound();
 <script>try{oneAlphaRefreshAccount()}catch(e){}</script>
 <script>
 (()=>{
- const pendingKey='one_pending_share_v113';
+ const pendingKey='one_pending_share_v114';
  function receiveOneShare(){
   const current=new URL(location.href);
   let text='';
   if(['share_title','share_text','share_url'].some(k=>current.searchParams.has(k))){
    text=['share_title','share_text','share_url'].map(k=>current.searchParams.get(k)||'').join('\n').trim();
    try{sessionStorage.setItem(pendingKey,text)}catch(e){}
-   for(const key of ['share_title','share_text','share_url'])current.searchParams.delete(key);
+   for(const key of ['one_share','share_title','share_text','share_url'])current.searchParams.delete(key);
    history.replaceState(null,'',current.pathname+current.search+current.hash);
   }else{try{text=sessionStorage.getItem(pendingKey)||''}catch(e){}}
   if(!text)return;
