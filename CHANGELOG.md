@@ -1,4 +1,18 @@
 
+# 0.13.23 — ONE IA accessible avec le chat
+
+- La bulle IA reste visible lorsque la page ONE est en plein écran (vue vidéo + chat).
+- Bulle placée au-dessus des panneaux vidéo/chat, sous son panneau de question.
+- Plein écran natif Twitch inchangé ; bulle toujours masquée dans ce cas.
+
+
+# 0.13.22 — Son Twitch à 50 % au lancement
+
+- Cartes live : lecteur interactif officiel préparé avec volume 0.5 et son activé ; lecture au clic sur Play natif (autoplay désactivé pour ces cartes).
+- Le volume reste ensuite modifiable par les commandes Twitch.
+- Conteneur compatible avec paysage et vidéo + chat.
+
+
 # 0.13.21 — Chat escamotable
 
 - Retire la barre Live + tchat / Retour au live et le titre ONE du chat dans la vue partagée.
