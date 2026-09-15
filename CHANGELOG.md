@@ -1,3 +1,22 @@
+# 0.13.7 — Diversité TikTok et fullscreen natif
+
+## Corrigé
+- Réunit et valide les sources TikTok avant classement, avec dédoublonnage après validation.
+- Charge le catalogue après initialisation de ses clés de stockage ; une donnée compte malformée n’empêche pas le chargement externe.
+- Ne confond plus absence de durée et impossibilité de lecture ; exclut les publications explicitement non vidéo.
+- Retire le filtre par noms de créateurs fictifs du pool TikTok issu de données réelles.
+- Remplace le biais lié à la position par les statistiques disponibles et garantit un passage en tête de chaque candidat éligible avant répétition, indépendamment de l’écart de score.
+- Mémorise les passages en tête par ID vidéo canonique, en conservant un ordre TikTok stable pendant la session.
+- Supprime le bouton ONE et sa fonction fullscreen des fiches chaînes. Conserve fs=1 et allowfullscreen.
+- Met à jour les deux manifests, leur URL de cache, le README et le service worker.
+
+## Conservé
+- Moteur vertical TikTok stable hérité de 0.12.6, inchangé par rapport à la base 0.13.6.
+- Classement Twitch par viewers, abonnements et lecteurs natifs.
+- Mélange des plateformes dans Pour toi.
+
+---
+
 # 0.13.6 — Rotation + Fullscreen
 
 ## Corrigé
