@@ -1,4 +1,12 @@
 
+# 0.13.24 — Dimensions du lecteur mobile
+
+- Mesure de la fenêtre visible au démarrage, resize, rotation et transition fullscreen.
+- Nouvelles mesures à 100/300/700 ms pour suivre la stabilisation des barres du navigateur.
+- Largeurs vidéo/chat complémentaires en pixels, sans écart d’arrondi. Aucun rechargement iframe.
+- S’applique aux vues ONE ; ne peut pas modifier les barres système ou le contenu du fullscreen natif Twitch.
+
+
 # 0.13.23 — ONE IA accessible avec le chat
 
 - La bulle IA reste visible lorsque la page ONE est en plein écran (vue vidéo + chat).
