@@ -160,3 +160,6 @@ Bouton contextuel dans cartes, lecteur vertical, lecteur vidéo et fiches chaîn
 - Abonnements séparés par plateforme.
 - Channel Hub/Player de 0.13.5.
 - Moteur vidéo vertical TikTok stable.
+
+## 0.13.26
+Croix flottante pour quitter le plein écran ONE en portrait ou paysage, chat ouvert ou replié. Empêche la réouverture immédiate du mode paysage après fermeture.
