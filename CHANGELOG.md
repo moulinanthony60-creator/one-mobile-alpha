@@ -1,3 +1,16 @@
+# 0.13.10 — Pour toi sans YouTube ni Twitch
+
+- Filtre Pour toi dans la liste, le lecteur vertical et l’historique de sélection.
+- Conserve la rotation TikTok et les onglets dédiés, abonnements, connexions et studio.
+- État vide orienté TikTok ; version, manifests et cache actualisés.
+
+# 0.13.9 — Fermer Créer
+
+- Croix accessible en haut à droite, visible au défilement.
+- Retour à l’accueil Pour toi, aperçu vidéo mis en pause et préparation conservée.
+- Échap et bouton Retour au Feed utilisent la même fermeture.
+- Version, manifests et cache actualisés.
+
 # 0.13.8 — Salon ONE et studio multiplateforme
 
 - Remplace Découvrir dans la barre du bas par Créer.
