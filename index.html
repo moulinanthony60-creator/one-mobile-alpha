@@ -75,7 +75,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.12.4 BACK SWIPE</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.12.5 FAST SWIPE</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -492,7 +492,7 @@ window.v1710StartTwitch=v1710StartTwitch;
 
 window.v17ActivateTikTok=function(slide){if(!slide)return;v17ActiveId='';v17ActivateSlide(slide)};
 
-// V0.12.4: conserve le TikTok que l'on vient de quitter comme lecteur chaud.
+// V0.12.5: cache rapide bidirectionnel et priorité à la vidéo visible.
 // Ainsi un swipe vers le haut reprend le vrai lecteur au lieu de reconstruire une image figée.
 function v124ParkTikTokSlide(slide){
  if(!slide||slide.dataset.platform!=='tiktok')return;
@@ -529,9 +529,9 @@ function v17ActivateSlide(slide){
  const wasPreloaded=x.p==='tiktok'&&f.dataset.onePreload==='1';
  if(!wasPreloaded)f.src=src;
  f.title='Lecteur '+platformName(x.p);f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider=x.p;f.style.pointerEvents='auto';
- if(x.p==='tiktok'&&wasPreloaded&&f.dataset.oneWarm==='1'){slide.dataset.ttVisualReady='1';f.style.opacity='1';const im=media.querySelector('img');if(im)im.style.opacity='0';media.classList.add('playing');}else f.style.opacity=x.p==='tiktok'?'0':'1';
+ if(x.p==='tiktok'){slide.dataset.ttVisualReady='0';slide.dataset.ttActivationTime=String(Number(f.dataset.oneWarmTime||0));f.style.opacity='0';const im=media.querySelector('img');if(im)im.style.opacity='1';media.classList.remove('playing','loading');}else f.style.opacity='1';
  f.onload=()=>{media.classList.remove('loading');if(x.p==='tiktok'&&!wasPreloaded)f.style.opacity='0';if(x.p==='youtube'&&f.contentWindow){try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:String(x.id),channel:'one'}),'*')}catch(e){}}setTimeout(()=>v17ApplySound(slide),80);setTimeout(()=>v17ApplySound(slide),280);setTimeout(()=>v17ApplySound(slide),700)};
- if(!f.isConnected)media.appendChild(f);if(x.p!=='tiktok')media.classList.add('playing');if(x.p==='tiktok'){f.dataset.onePreload='0';delete f.dataset.oneBackCache;media.classList.remove('loading');if(!wasPreloaded||f.dataset.oneWarm!=='1')media.classList.remove('playing');v121ArmTikTokVisualWatch(slide);v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute');v120PrewarmAround(slide);}
+ if(!f.isConnected)media.appendChild(f);if(x.p!=='tiktok')media.classList.add('playing');if(x.p==='tiktok'){f.dataset.onePreload='0';delete f.dataset.oneBackCache;media.classList.remove('loading');if(!wasPreloaded||f.dataset.oneWarm!=='1')media.classList.remove('playing');v121ArmTikTokVisualWatch(slide);v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute');clearTimeout(slide._ttFastKick);slide._ttFastKick=setTimeout(()=>{if(slide.getAttribute('data-active')==='1'&&slide.dataset.ttTimeAdvanced!=='1'){v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')}},320);v120PrewarmAround(slide);}
  const img=media.querySelector('img'); if(img&&x.p!=='tiktok')img.style.opacity='0';
  const play=media.querySelector('.vslidePlay'); if(play)play.style.display='none';
  learnFromItem(x,'watch');
@@ -546,11 +546,14 @@ function v124PreloadTikTokSlide(target,label='voisin'){
 }
 function v1810PreloadNextTikTok(activeSlide){
  if(!activeSlide)return;
- const prev=activeSlide.previousElementSibling,next=activeSlide.nextElementSibling;
- // Fenêtre chaude bidirectionnelle: précédent + actif + suivant uniquement.
- document.querySelectorAll('.vslide[data-platform="tiktok"] iframe').forEach(f=>{const owner=f.closest('.vslide');if(owner!==prev&&owner!==activeSlide&&owner!==next){v17SendTikTok(f,'pause');f.remove();}});
+ const prev=activeSlide.previousElementSibling,next=activeSlide.nextElementSibling,next2=next?.nextElementSibling;
+ // V0.12.5 : 1 précédent + actif + 2 suivants. Les lecteurs hors fenêtre sont libérés.
+ const keep=new Set([prev,activeSlide,next,next2].filter(Boolean));
+ document.querySelectorAll('.vslide[data-platform="tiktok"] iframe').forEach(f=>{const owner=f.closest('.vslide');if(!keep.has(owner)){v17SendTikTok(f,'pause');f.remove();}});
  v124PreloadTikTokSlide(prev,'précédent');
  v124PreloadTikTokSlide(next,'suivant');
+ // Le N+2 part légèrement après pour laisser la priorité réseau au lecteur visible/N+1.
+ clearTimeout(activeSlide._ttNext2Timer);activeSlide._ttNext2Timer=setTimeout(()=>v124PreloadTikTokSlide(next2,'suivant +2'),180);
 }
 function v120PrewarmAround(activeSlide){
  if(!activeSlide)return;
@@ -581,7 +584,7 @@ function v121ArmTikTokVisualWatch(slide){
      if(img)img.style.opacity='1';if(play)play.style.display='grid';media?.classList.remove('playing','loading');
      slide.dataset.ttReady='0';
    }
- },5000);
+ },4500);
 }
 window.addEventListener('message',e=>{
  const d=e.data; if(!d||d['x-tiktok-player']!==true)return;
@@ -589,7 +592,7 @@ window.addEventListener('message',e=>{
  const slide=slides.find(s=>s.querySelector('iframe')?.contentWindow===e.source); if(!slide)return;
  const media=slide.querySelector('.vslideMedia'),frame=slide.querySelector('iframe');
  const isWarmPreload=frame?.dataset.onePreload==='1'&&slide.getAttribute('data-active')!=='1';
- if(isWarmPreload){if(d.type==='onPlayerReady'){v17SendTikTok(frame,'mute');v17SendTikTok(frame,'play')}if(d.type==='onCurrentTime'){const wt=Number(d.value?.currentTime??d.value??0);if(wt>0.06){frame.dataset.oneWarm='1';v17SendTikTok(frame,'pause')}}if(d.type==='onPlayerError')frame.remove();return;}
+ if(isWarmPreload){if(d.type==='onPlayerReady'){v17SendTikTok(frame,'mute');v17SendTikTok(frame,'play')}if(d.type==='onCurrentTime'){const wt=Number(d.value?.currentTime??d.value??0);if(wt>0.06){frame.dataset.oneWarm='1';frame.dataset.oneWarmTime=String(wt);v17SendTikTok(frame,'pause')}}if(d.type==='onPlayerError')frame.remove();return;}
  if(d.type==='onPlayerReady'){
    slide.dataset.ttReady='1';clearTimeout(slide._ttReadyTimer);
    // Ready = lecteur chargé, pas forcément une image vidéo affichée : on garde donc la miniature.
@@ -600,12 +603,12 @@ window.addEventListener('message',e=>{
  if(d.type==='onStateChange'){
    const st=Number(d.value);
    if(st===1)slide.dataset.ttPlaying='1';
-   if(st===3)media?.classList.add('loading');
-   if(st===1&&slide.dataset.ttTimeAdvanced==='1')setTimeout(()=>v121RevealTikTokFrame(slide),120);
+   if(st===3&&slide.dataset.platform!=='tiktok')media?.classList.add('loading');
+   if(st===1&&slide.dataset.ttTimeAdvanced==='1')setTimeout(()=>v121RevealTikTokFrame(slide),25);
  }
  if(d.type==='onCurrentTime'){
    const t=Number(d.value?.currentTime??d.value??0);
-   if(t>0.08){slide.dataset.ttTimeAdvanced='1';if(slide.dataset.ttPlaying==='1')setTimeout(()=>v121RevealTikTokFrame(slide),120);}
+   const base=Number(slide.dataset.ttActivationTime||0);if(t>Math.max(0.025,base+0.025)){slide.dataset.ttTimeAdvanced='1';if(slide.dataset.ttPlaying==='1')setTimeout(()=>v121RevealTikTokFrame(slide),25);}
  }
  if(d.type==='onPlayerError'){v17TikTokFallback(slide);}
 });

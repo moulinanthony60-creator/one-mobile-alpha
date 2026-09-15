@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "ONE Mobile Alpha 0.12.4",
+  "name": "ONE Mobile Alpha 0.12.5",
   "short_name": "ONE",
-  "description": "ONE — feed vertical TikTok Back Swipe, partage Android automatique et catalogue TikTok protégé.",
+  "description": "ONE — feed vertical TikTok Fast Swipe, partage Android automatique et catalogue TikTok protégé.",
   "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",

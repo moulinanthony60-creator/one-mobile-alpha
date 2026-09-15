@@ -1,5 +1,7 @@
-# ONE Mobile Alpha 0.12.4 — Back Swipe
+# ONE Mobile Alpha 0.12.5 — Fast Swipe
 
-Version complète déployable sur GitHub Pages. Cette version conserve le feed rapide de la 0.12.3 et ajoute un cache TikTok bidirectionnel pour fluidifier le retour vers les vidéos précédentes.
+Version complète déployable.
 
-Le catalogue TikTok Safe-Sync, le partage Android, l’import automatique, YouTube, Twitch et le compte ONE restent inclus.
+Optimisation du feed TikTok pour les swipes rapides dans les deux sens : 1 lecteur précédent, lecteur actif et 2 suivants préparés, priorité à la vidéo visible, reprise sans afficher une frame préchargée figée.
+
+Conserve Safe-Sync TikTok, partage Android, compte ONE/cloud et les fonctions validées précédemment.

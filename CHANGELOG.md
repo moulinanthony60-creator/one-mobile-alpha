@@ -1,9 +1,9 @@
-# ONE Mobile Alpha 0.12.4 — Back Swipe
+# CHANGELOG — 0.12.5 FAST SWIPE
 
-- Base 0.12.3 Instant Swipe conservée.
-- Le lecteur TikTok précédent est maintenant mis en pause et gardé chaud au lieu d’être détruit.
-- Fenêtre bidirectionnelle : précédent + actuel + suivant.
-- En remontant le feed, ONE réutilise le lecteur précédent et reprend la lecture immédiatement.
-- Les lecteurs hors de cette fenêtre sont détruits pour limiter mémoire, réseau et audio parasite.
-- Préchargement des miniatures dans les deux directions.
-- Safe-Sync TikTok, partage Android et import automatique conservés.
+- Prépare 1 TikTok précédent et 2 suivants autour de la vidéo active.
+- Le lecteur N+2 démarre avec un léger décalage pour ne pas voler la priorité réseau à la vidéo visible.
+- Une vidéo préchargée n’est plus affichée immédiatement sur sa frame figée : le poster reste visible jusqu’à une vraie progression après activation.
+- Transition vers la vidéo accélérée dès la première progression confirmée.
+- Relance `play` rapide si la vidéo visible tarde à progresser.
+- Aucun overlay de chargement TikTok pendant le buffering.
+- Safe-Sync, partage Android et catalogue TikTok conservés.
