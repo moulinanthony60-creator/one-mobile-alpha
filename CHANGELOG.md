@@ -1,3 +1,10 @@
+# 0.13.17 — Retour à la recherche web uniquement
+
+- Retire capture, analyse visuelle, configuration du serveur et code d’accès du panneau IA.
+- Conserve bulle, question, titre/créateur et recherche web.
+- Exclut le Worker vision et son guide du ZIP ; aucune suppression sur Cloudflare.
+- Version, manifests, cache et documentation actualisés.
+
 
 # 0.13.16 — Analyse de capture et tchat Twitch
 
