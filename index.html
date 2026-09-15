@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.10 — Feed Multi-plateformes</title>
+<title>ONE Mobile Alpha 0.11 — Feed Multi-plateformes</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -63,7 +63,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 #oneUpdate{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(82px + env(safe-area-inset-bottom));z-index:121;border:0;background:#fff;color:#111;border-radius:999px;padding:11px 15px;font-weight:900;display:none;box-shadow:0 12px 30px rgba(0,0,0,.35)}#oneUpdate.show{display:block}
 @media(display-mode:standalone){#oneInstall{display:none!important}}
 
-/* Mobile Alpha 0.10 — catalogue TikTok externe */
+/* Mobile Alpha 0.11 — catalogue TikTok externe */
 .ttCatalogBox{margin-top:12px;padding:12px;border:1px solid var(--line);background:#0d1118;border-radius:14px}.ttCatalogBox b{display:block;margin-bottom:5px}.ttCatalogBox .hint{color:var(--muted);font-size:11px;line-height:1.4}.ttCatalogList{display:grid;gap:7px;margin-top:10px}.ttCatalogItem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:11px;background:#111722}.ttCatalogItem strong{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ttCatalogItem span{display:block;color:var(--muted);font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ttCatalogItem button,.ttCatalogClear{border:1px solid var(--line);background:#1a202b;color:#fff;border-radius:9px;padding:7px 9px;font-weight:800;font-size:11px}.ttCatalogClear{width:100%;margin-top:9px}.ttCatalogStatus{margin-top:8px;color:var(--muted);font-size:11px}.ttExternalTag{background:#2a1837!important;color:#f0c8ff!important}
 
 /* Mobile Alpha 0.2 — compte + polish mobile */
@@ -75,7 +75,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.10 MULTI-FEED + TIKTOK CATALOG</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.11 MULTI-FEED + TIKTOK CATALOG</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -150,7 +150,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div id="aiAnswer" style="margin-top:14px"></div>
   <button class="close" id="closeAi">Fermer</button>
 </div></div>
-<div class="modal" id="accountModal"><div class="sheet"><h3>👤 Compte ONE</h3><p>Alpha 0.10 synchronise ton profil ONE, tes connexions de plateforme et ton catalogue TikTok externe entre tes appareils : favoris, J’aime, préférences, YouTube, Twitch et l’état TikTok sont restaurés après connexion au compte ONE.</p>
+<div class="modal" id="accountModal"><div class="sheet"><h3>👤 Compte ONE</h3><p>Alpha 0.11 synchronise ton profil ONE, tes connexions de plateforme et ton catalogue TikTok externe entre tes appareils : favoris, J’aime, préférences, YouTube, Twitch et l’état TikTok sont restaurés après connexion au compte ONE.</p>
   <div class="accountSummary"><div class="accountAvatar">👤</div><div><b id="oneAccountDisplay">Compte ONE</b><span id="accountConnectedCount">Non connecté</span></div></div>
   <div style="height:1px;background:var(--line);margin:16px 0"></div>
   <div id="oneAuthLoggedOut">
@@ -174,7 +174,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   </div>
   <div class="accountActions"><button class="primary" id="managePlatforms">Gérer les connexions</button><button id="openAdvancedSettings">Réglages avancés</button></div><div class="accountActions" style="margin-top:8px"><button id="exportOneProfile">Sauvegarder le profil</button><button id="importOneProfile">Restaurer le profil</button><input id="importOneFile" type="file" accept="application/json" hidden></div>
   <div style="height:1px;background:var(--line);margin:18px 0"></div>
-  <p><b style="color:var(--text)">☁️ Profil ONE chiffré · Alpha 0.10</b><br>Ton profil et le coffre plateformes sont chiffrés dans le navigateur avant envoi au cloud. La clé de déchiffrement est dérivée de ton mot de passe ONE. Les états YouTube/Twitch/TikTok peuvent ainsi être restaurés sur un autre appareil. Un jeton expiré peut toutefois nécessiter une nouvelle autorisation auprès de la plateforme.</p>
+  <p><b style="color:var(--text)">☁️ Profil ONE chiffré · Alpha 0.11</b><br>Ton profil et le coffre plateformes sont chiffrés dans le navigateur avant envoi au cloud. La clé de déchiffrement est dérivée de ton mot de passe ONE. Les états YouTube/Twitch/TikTok peuvent ainsi être restaurés sur un autre appareil. Un jeton expiré peut toutefois nécessiter une nouvelle autorisation auprès de la plateforme.</p>
   <div class="search"><input id="oneCloudUrl" autocomplete="off" readonly value="https://one-profile-api.moulinanthony60.workers.dev"/><button id="saveOneCloudUrl">Connecté</button></div>
   <div class="accountActions" style="margin-top:8px"><button id="cloudBackupOne">☁️ Sauvegarder</button><button id="cloudRestoreOne">⬇️ Restaurer</button></div>
   <label style="display:flex;align-items:center;gap:10px;margin-top:12px;color:var(--text);font-weight:700"><input id="oneAutoSync" type="checkbox" style="width:20px;height:20px;accent-color:#7c4dff"> Synchronisation automatique</label>
@@ -182,7 +182,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div class="hint" id="oneCloudStatus" style="margin-top:8px">Connecte-toi à ton compte ONE pour activer le cloud.</div>
   <button class="close" id="closeAccount">Fermer</button>
 </div></div>
-<div class="modal" id="settingsModal"><div class="sheet"><h3>⚙️ Réglages ONE · Mobile Alpha 0.10</h3><p>Ajoute ta clé YouTube Data API v3. Quand tu es connecté à ton compte ONE avec la synchro automatique activée, elle est incluse dans ton coffre chiffré et peut être restaurée sur tes autres appareils.</p>
+<div class="modal" id="settingsModal"><div class="sheet"><h3>⚙️ Réglages ONE · Mobile Alpha 0.11</h3><p>Ajoute ta clé YouTube Data API v3. Quand tu es connecté à ton compte ONE avec la synchro automatique activée, elle est incluse dans ton coffre chiffré et peut être restaurée sur tes autres appareils.</p>
   <div class="search"><input id="ytKey" type="password" autocomplete="off" placeholder="Colle ta clé YouTube ici"/><button id="saveKey">Enregistrer</button></div>
   <div style="display:flex;gap:8px;margin-top:10px"><button class="action" id="testKey">Tester YouTube</button><button class="action" id="deleteKey">Supprimer la clé</button></div>
   <div id="keyStatus" class="meta" style="margin-top:10px"></div>
@@ -200,7 +200,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div style="display:flex;gap:8px;margin-top:10px"><button class="action open" id="connectTikTok">🎵 Connecter TikTok</button><button class="action" id="disconnectTikTok">Déconnecter</button></div>
   <div id="tiktokStatus" class="meta" style="margin-top:10px"></div>
   <div class="ttCatalogBox">
-    <b>➕ Catalogue TikTok externe</b>
+    <b>➕ Catalogue TikTok externe</b><div class="hint">Sur Android, partage une vidéo depuis TikTok vers ONE, puis appuie sur Ajouter. ONE doit être installée depuis Chrome pour apparaître dans les applications de partage.</div>
     <div class="hint">Colle un ou plusieurs liens TikTok, ou le texte copié depuis Partager. ONE ajoute les vidéos au feed et ignore les doublons. Maximum 20 liens par import et 120 vidéos dans le catalogue. Pour les liens courts non reconnus, ouvre la vidéo dans ton navigateur et copie son adresse complète.</div>
     <div class="search" style="margin-top:9px"><textarea id="tiktokExternalUrl" rows="3" aria-label="Liens TikTok à importer" placeholder="Colle ici tes liens ou un texte de partage TikTok" style="flex:1;min-width:0;resize:vertical;background:transparent;color:var(--text);border:0;padding:10px;font:inherit"></textarea><button id="addTikTokExternal">Ajouter</button></div>
     <div id="tiktokImportResult" class="ttCatalogStatus" role="status" aria-live="polite"></div>
@@ -1784,5 +1784,30 @@ v17ApplySound();
 })();
 </script>
 <script>try{oneAlphaRefreshAccount()}catch(e){}</script>
+<script>
+(()=>{
+ const pendingKey='one_pending_share_v11';
+ function receiveOneShare(){
+  const current=new URL(location.href);
+  let text='';
+  if(current.searchParams.get('one_share')==='1'){
+   text=['share_title','share_text','share_url'].map(k=>current.searchParams.get(k)||'').join('\n').trim();
+   try{sessionStorage.setItem(pendingKey,text)}catch(e){}
+   for(const key of ['one_share','share_title','share_text','share_url'])current.searchParams.delete(key);
+   history.replaceState(null,'',current.pathname+current.search+current.hash);
+  }else{try{text=sessionStorage.getItem(pendingKey)||''}catch(e){}}
+  if(!text)return;
+  const input=document.getElementById('tiktokExternalUrl'),result=document.getElementById('tiktokImportResult');
+  const urls=tiktokImportUrls(text).filter(value=>{try{tiktokValidateUrl(value);return true}catch{return false}});
+  document.getElementById('settingsModal').classList.add('show');
+  input.value=urls.join('\n');
+  result.textContent=urls.length?'Lien reçu depuis le partage Android. Appuie sur Ajouter pour l’importer.':'Ce partage ne contient pas de lien TikTok HTTPS. Dans TikTok, partage le lien de la vidéo, puis choisis ONE.';
+  input.addEventListener('input',()=>{try{sessionStorage.setItem(pendingKey,input.value)}catch(e){}});
+  document.getElementById('addTikTokExternal').addEventListener('click',()=>{try{sessionStorage.removeItem(pendingKey)}catch(e){}});
+  requestAnimationFrame(()=>input.scrollIntoView({block:'center'}));
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',receiveOneShare,{once:true});else receiveOneShare();
+})();
+</script>
 </body>
 </html>
