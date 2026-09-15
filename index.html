@@ -75,7 +75,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.12.2 SEAMLESS POSTER</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.12.3 INSTANT SWIPE</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -508,30 +508,27 @@ function v17ActivateSlide(slide){
    v1710ShowTwitchPreview(slide,x,media); return;
  }
  const src=v17PlayerUrl(x); if(!src){media.classList.remove('loading');return;}
- let f=document.createElement('iframe');
- const wasPreloaded=false;
- f.src=src; f.title='Lecteur '+platformName(x.p); f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture'; f.allowFullscreen=true; f.setAttribute('playsinline',''); f.dataset.provider=x.p;
- f.style.opacity='1';f.style.pointerEvents='auto';
- if(x.p==='tiktok'){f.style.opacity='0';f.style.pointerEvents='auto';}
- f.onload=()=>{media.classList.remove('loading');if(x.p==='tiktok'){f.style.opacity='0';}if(x.p==='youtube'&&f.contentWindow){try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:String(x.id),channel:'one'}),'*')}catch(e){}}setTimeout(()=>v17ApplySound(slide),120);setTimeout(()=>v17ApplySound(slide),500);setTimeout(()=>v17ApplySound(slide),1200)};
- if(!f.isConnected)media.appendChild(f); if(x.p!=='tiktok')media.classList.add('playing');if(x.p==='tiktok'){media.classList.remove('loading','playing');v121ArmTikTokVisualWatch(slide);v120PrewarmAround(slide);}
- if(x.p==='tiktok'){
-   slide.dataset.ttReady='0';clearTimeout(slide._ttReadyTimer);slide._ttReadyTimer=setTimeout(()=>{if(slide.isConnected&&slide.getAttribute('data-active')==='1'&&slide.dataset.ttReady!=='1')v17TikTokFallback(slide)},4500);
- }
+ let f=(x.p==='tiktok'?media.querySelector('iframe[data-one-preload="1"]'):null)||document.createElement('iframe');
+ const wasPreloaded=x.p==='tiktok'&&f.dataset.onePreload==='1';
+ if(!wasPreloaded)f.src=src;
+ f.title='Lecteur '+platformName(x.p);f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider=x.p;f.style.pointerEvents='auto';
+ if(x.p==='tiktok'&&wasPreloaded&&f.dataset.oneWarm==='1'){slide.dataset.ttVisualReady='1';f.style.opacity='1';const im=media.querySelector('img');if(im)im.style.opacity='0';media.classList.add('playing');}else f.style.opacity=x.p==='tiktok'?'0':'1';
+ f.onload=()=>{media.classList.remove('loading');if(x.p==='tiktok'&&!wasPreloaded)f.style.opacity='0';if(x.p==='youtube'&&f.contentWindow){try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:String(x.id),channel:'one'}),'*')}catch(e){}}setTimeout(()=>v17ApplySound(slide),80);setTimeout(()=>v17ApplySound(slide),280);setTimeout(()=>v17ApplySound(slide),700)};
+ if(!f.isConnected)media.appendChild(f);if(x.p!=='tiktok')media.classList.add('playing');if(x.p==='tiktok'){f.dataset.onePreload='0';media.classList.remove('loading');if(!wasPreloaded||f.dataset.oneWarm!=='1')media.classList.remove('playing');v121ArmTikTokVisualWatch(slide);v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute');v120PrewarmAround(slide);}
  const img=media.querySelector('img'); if(img&&x.p!=='tiktok')img.style.opacity='0';
  const play=media.querySelector('.vslidePlay'); if(play)play.style.display='none';
  learnFromItem(x,'watch');
 }
 function v1810PreloadNextTikTok(activeSlide){
- // V0.12.1: ne crée jamais un second lecteur TikTok en arrière-plan.
- // Sur Android, plusieurs iframes TikTok simultanées pouvaient donner du son avec une image noire.
  if(!activeSlide)return;
  const next=activeSlide.nextElementSibling;
+ document.querySelectorAll('.vslide[data-platform="tiktok"] iframe[data-one-preload="1"]').forEach(f=>{const owner=f.closest('.vslide');if(owner!==activeSlide&&owner!==next)f.remove()});
  if(!next?.classList?.contains('vslide'))return;
- const x=v17ItemById(next.dataset.id), media=next.querySelector('.vslideMedia');
- if(!x||x.p!=='tiktok'||!media)return;
- const img=media.querySelector('img');
- if(img){img.loading='eager';try{img.fetchPriority='high'}catch(e){}}
+ const x=v17ItemById(next.dataset.id),media=next.querySelector('.vslideMedia');if(!x||x.p!=='tiktok'||!media)return;
+ const img=media.querySelector('img');if(img){img.loading='eager';try{img.fetchPriority='high'}catch(e){}}
+ if(media.querySelector('iframe'))return;
+ const src=v17PlayerUrl(x);if(!src)return;
+ const f=document.createElement('iframe');f.src=src.replace(/([?&])muted=[01]/,'$1muted=1');f.title='Préchargement TikTok';f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider='tiktok';f.dataset.onePreload='1';f.style.opacity='0';f.style.pointerEvents='none';media.appendChild(f);
 }
 function v120PrewarmAround(activeSlide){
  if(!activeSlide)return;
@@ -551,7 +548,7 @@ function v121RevealTikTokFrame(slide){
 }
 function v121ArmTikTokVisualWatch(slide){
  if(!slide)return;
- slide.dataset.ttVisualReady='0';slide.dataset.ttPlaying='0';slide.dataset.ttTimeAdvanced='0';
+ if(slide.dataset.ttVisualReady!=='1')slide.dataset.ttVisualReady='0';slide.dataset.ttPlaying='0';slide.dataset.ttTimeAdvanced='0';
  clearTimeout(slide._ttVisualTimer);
  // Si aucune progression vidéo réelle n'arrive, on garde la miniature au lieu d'un écran noir.
  slide._ttVisualTimer=setTimeout(()=>{
@@ -568,6 +565,8 @@ window.addEventListener('message',e=>{
  const slides=[...document.querySelectorAll('.vslide[data-platform="tiktok"]')];
  const slide=slides.find(s=>s.querySelector('iframe')?.contentWindow===e.source); if(!slide)return;
  const media=slide.querySelector('.vslideMedia'),frame=slide.querySelector('iframe');
+ const isWarmPreload=frame?.dataset.onePreload==='1'&&slide.getAttribute('data-active')!=='1';
+ if(isWarmPreload){if(d.type==='onPlayerReady'){v17SendTikTok(frame,'mute');v17SendTikTok(frame,'play')}if(d.type==='onCurrentTime'){const wt=Number(d.value?.currentTime??d.value??0);if(wt>0.06){frame.dataset.oneWarm='1';v17SendTikTok(frame,'pause')}}if(d.type==='onPlayerError')frame.remove();return;}
  if(d.type==='onPlayerReady'){
    slide.dataset.ttReady='1';clearTimeout(slide._ttReadyTimer);
    // Ready = lecteur chargé, pas forcément une image vidéo affichée : on garde donc la miniature.

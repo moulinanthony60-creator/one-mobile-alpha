@@ -1,8 +1,9 @@
-# ONE Mobile Alpha 0.12.2 — Seamless Poster
+# ONE Mobile Alpha 0.12.3 — Instant Swipe
 
-- Base stable TikTok Safe-Sync conservée.
-- Correction du feed vertical TikTok : la miniature ne disparaît plus au moment où l’iframe est créée.
-- Le lecteur TikTok démarre derrière la miniature ; celle-ci ne s’efface qu’après lecture + progression réelle.
-- Suppression visuelle du message « Chargement du lecteur… » pour TikTok.
-- Miniature TikTok chargée en priorité pour un swipe immédiat.
-- Un seul lecteur TikTok actif à la fois pour éviter les conflits vidéo/audio sur Android.
+- Base fonctionnelle TikTok Safe-Sync conservée.
+- Un seul lecteur TikTok actif + un lecteur N+1 préchauffé en arrière-plan.
+- Le lecteur suivant est préchargé muet, avance jusqu’à une première frame puis se met en pause.
+- Au swipe, ONE réutilise ce lecteur déjà chaud au lieu de recréer un iframe.
+- La première frame TikTok peut remplacer immédiatement la miniature, puis la lecture reprend.
+- Nettoyage automatique des anciens préchargements : deux lecteurs TikTok maximum.
+- Miniature de secours conservée si le préchauffage échoue.
