@@ -1,9 +1,13 @@
-# ONE Mobile Alpha 0.12.4 — Back Swipe
+# 0.13.6 — Rotation + Fullscreen
 
-- Base 0.12.3 Instant Swipe conservée.
-- Le lecteur TikTok précédent est maintenant mis en pause et gardé chaud au lieu d’être détruit.
-- Fenêtre bidirectionnelle : précédent + actuel + suivant.
-- En remontant le feed, ONE réutilise le lecteur précédent et reprend la lecture immédiatement.
-- Les lecteurs hors de cette fenêtre sont détruits pour limiter mémoire, réseau et audio parasite.
-- Préchargement des miniatures dans les deux directions.
-- Safe-Sync TikTok, partage Android et import automatique conservés.
+## Corrigé
+- Supprime la rotation en ping-pong entre deux Tops : mémoire glissante sur 5 ouvertures.
+- Rotation appliquée au Pour toi et renforcée pour TikTok.
+- Ajoute un bouton Plein écran aux lecteurs de fiches chaînes YouTube/Twitch.
+- Active explicitement le fullscreen YouTube (`fs=1`) et les permissions fullscreen des iframes.
+
+## Conservé
+- Classement Twitch par viewers de 0.13.3.
+- Abonnements séparés par plateforme.
+- Channel Hub/Player de 0.13.5.
+- Moteur vidéo vertical TikTok stable.

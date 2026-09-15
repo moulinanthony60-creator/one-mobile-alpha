@@ -1,5 +1,10 @@
-# ONE Mobile Alpha 0.12.4 — Back Swipe
+# ONE Mobile Alpha 0.13.6 — Rotation + Fullscreen
 
-Version complète déployable sur GitHub Pages. Cette version conserve le feed rapide de la 0.12.3 et ajoute un cache TikTok bidirectionnel pour fluidifier le retour vers les vidéos précédentes.
+Correctif ciblé construit sur la 0.13.5 stable.
 
-Le catalogue TikTok Safe-Sync, le partage Android, l’import automatique, YouTube, Twitch et le compte ONE restent inclus.
+- Rotation du feed mémorisée sur 5 ouvertures pour éviter le ping-pong A → B → A.
+- Historique séparé pour TikTok et Pour toi.
+- Les contenus récents du Top perdent progressivement leur pénalité et peuvent revenir plus tard.
+- Bouton plein écran explicite dans les fiches chaînes YouTube et Twitch, en plus du plein écran natif des lecteurs.
+- Classement Twitch par viewers conservé.
+- Moteur vertical TikTok stable conservé.

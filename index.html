@@ -69,13 +69,18 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 /* Mobile Alpha 0.2 — compte + polish mobile */
 .accountSummary{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);background:linear-gradient(180deg,#151a24,#0f131b);border-radius:16px;margin:12px 0 14px}.accountAvatar{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#7c5cff,#ff4d8d);font-size:22px}.accountSummary b{display:block}.accountSummary span{display:block;color:var(--muted);font-size:12px;margin-top:3px}.platformList{display:grid;gap:9px}.platformRow{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--line);background:#0d1118;border-radius:14px}.platformIcon{width:38px;height:38px;border-radius:12px;background:var(--panel2);display:grid;place-items:center;font-size:20px}.platformMeta b{display:block;font-size:14px}.platformMeta span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.platformStatus{border:0;border-radius:999px;padding:7px 9px;background:#242b38;color:#cbd3df;font-weight:800;font-size:11px}.platformStatus.on{background:rgba(32,201,151,.14);color:#5de1b3}.accountActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.accountActions button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;padding:11px 8px;font-weight:800}.accountActions .primary{background:var(--accent);border-color:var(--accent)}
 @media(max-width:420px){.brand{font-size:26px}.brand small{font-size:9px!important;margin-left:5px!important}.tabsRail{grid-template-columns:28px minmax(0,1fr) 28px;gap:4px}.tabsArrow{width:28px;height:28px}.chips{gap:6px}.chip{padding:7px 9px;font-size:12px}.hero h1{font-size:25px}.bottom{height:72px}.nav{font-size:10.5px}.nav .ico{font-size:19px}}
+
+/* 0.13.6 FULLSCREEN + MULTI-SESSION ROTATION */
+.oneChannelHub{position:fixed;inset:0;z-index:12000;background:#08090d;color:#fff;display:none;overflow:auto;padding-bottom:100px}.oneChannelHub.show{display:block}.oneChannelHead{position:sticky;top:0;z-index:2;background:rgba(8,9,13,.96);backdrop-filter:blur(12px);padding:18px 22px;border-bottom:1px solid #252938}.oneChannelBack{border:1px solid #303546;background:#151824;color:#fff;border-radius:14px;padding:10px 14px;font-weight:800}.oneChannelIdentity{display:flex;align-items:center;gap:14px;margin-top:16px}.oneChannelAvatar{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#202432}.oneChannelIdentity h2{margin:0;font-size:25px}.oneChannelIdentity p{margin:4px 0 0;color:#aeb4c5}.oneChannelBody{padding:18px 22px;max-width:900px;margin:auto}.oneChannelStatus{padding:14px 16px;border:1px solid #2b3040;border-radius:16px;background:#11141d;margin-bottom:16px}.oneChannelGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.oneChannelVideo{border:1px solid #292e3d;border-radius:15px;overflow:hidden;background:#11141d;cursor:pointer}.oneChannelVideo img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.oneChannelVideoText{padding:10px}.oneChannelVideoTitle{font-size:14px;font-weight:850;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.oneChannelVideoMeta{font-size:12px;color:#aeb4c5;margin-top:6px}.oneChannelLive{border-color:#a53cff;box-shadow:0 0 0 1px rgba(165,60,255,.25)}.oneChannelEmpty{padding:28px 10px;text-align:center;color:#aeb4c5}@media(min-width:720px){.oneChannelGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+.oneChannelPlayer{margin:0 0 18px;border:1px solid #293042;border-radius:22px;overflow:hidden;background:#080a10;box-shadow:0 16px 42px #0008}.oneChannelPlayer[hidden]{display:none}.oneChannelPlayer iframe{display:block;width:100%;border:0;background:#000}.oneChannelPlayer.youtube iframe{aspect-ratio:16/9;min-height:220px}.oneChannelPlayer.twitch iframe{height:300px;min-height:300px}.oneChannelPlayerInfo{padding:12px 14px;font-weight:800;color:#f7f7fb;display:flex;align-items:center;justify-content:space-between;gap:10px}.oneChannelFullscreen{border:1px solid #343b4c;background:#171c26;color:#fff;border-radius:12px;padding:9px 12px;font-weight:900;white-space:nowrap}.oneChannelVideo{cursor:pointer}.oneChannelVideo:active{transform:scale(.985)}
 </style>
 <script src="https://player.twitch.tv/js/embed/v1.js"></script>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.12.4 BACK SWIPE</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.6 ROTATION + FULLSCREEN</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -235,6 +240,10 @@ oneProfile.searches=Array.isArray(oneProfile.searches)?oneProfile.searches:[];
 oneProfile.creators=oneProfile.creators||{}; oneProfile.watched=oneProfile.watched||{};
 oneProfile.platforms=oneProfile.platforms||{}; oneProfile.topics=oneProfile.topics||{};
 let feedPrefs=JSON.parse(localStorage.getItem('one_feed_prefs_v17_12')||'{"gaming":true,"music":true,"sport":false,"tech":true}');
+// V0.13.1 : mémoire du feed personnalisé (contenus déjà vus + fraîcheur de session).
+let oneFeedSeen=JSON.parse(localStorage.getItem('one_feed_seen_v130')||'{}');
+function oneMarkFeedSeen(x){if(!x?.id)return;const id=String(x.id);oneFeedSeen[id]=Date.now();const keys=Object.keys(oneFeedSeen);if(keys.length>500){keys.sort((a,b)=>Number(oneFeedSeen[b]||0)-Number(oneFeedSeen[a]||0));const keep=new Set(keys.slice(0,350));for(const k of keys)if(!keep.has(k))delete oneFeedSeen[k]}localStorage.setItem('one_feed_seen_v130',JSON.stringify(oneFeedSeen));}
+function oneSeenPenalty(x){const t=Number(oneFeedSeen[String(x?.id)]||0);if(!t)return 0;const age=(Date.now()-t)/3600000;if(age<1)return -180;if(age<6)return -110;if(age<24)return -70;if(age<72)return -35;return -10;}
 function saveProfile(){localStorage.setItem('one_profile_v7',JSON.stringify(oneProfile));if(typeof oneScheduleAutoSync==='function')oneScheduleAutoSync()}
 function oneTopic(x){
  const t=((x?.title||'')+' '+(x?.creator||'')+' '+(x?.tags||[]).join(' ')).toLowerCase();
@@ -256,8 +265,27 @@ function saveFeedPrefsUI(){document.querySelectorAll('#modal input[data-topic]')
 
 function rememberSearch(q){q=(q||'').trim();if(!q)return;oneProfile.searches=[q,...oneProfile.searches.filter(x=>x.toLowerCase()!==q.toLowerCase())].slice(0,12);saveProfile()}
 function durationSeconds(v){if(!v||v==='LIVE'||v==='YouTube')return 999999;const a=v.split(':').map(Number);return a.length===3?a[0]*3600+a[1]*60+a[2]:a[0]*60+a[1]}
+const ONE_SESSION_SEED=(Date.now()^Math.floor(Math.random()*0x7fffffff))>>>0;
+// 0.13.6 : mémoire de rotation sur plusieurs ouvertures pour éviter le ping-pong A/B.
+const ONE_FEED_HISTORY_KEY='one_feed_top_history_v136';
+const ONE_TIKTOK_HISTORY_KEY='one_tiktok_top_history_v136';
+const ONE_ROTATION_DEPTH=5;
+function oneReadRotationHistory(key){try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v.filter(Array.isArray).slice(0,ONE_ROTATION_DEPTH):[]}catch{return []}}
+const oneFeedTopHistory=oneReadRotationHistory(ONE_FEED_HISTORY_KEY);
+const oneTikTokTopHistory=oneReadRotationHistory(ONE_TIKTOK_HISTORY_KEY);
+let oneLaunchTopCommitted=false;
+function oneHistoryPenalty(history,id,base){let n=0;for(let age=0;age<history.length;age++){const rank=history[age].indexOf(id);if(rank<0)continue;const ageWeight=[1,.72,.50,.32,.18][age]||.12;const rankWeight=Math.max(.32,1-rank*.07);n-=base*ageWeight*rankWeight}return n}
+function onePreviousTopPenalty(x){const id=String(x?.id||'');let n=oneHistoryPenalty(oneFeedTopHistory,id,250);if(x?.p==='tiktok')n+=oneHistoryPenalty(oneTikTokTopHistory,id,285);return Math.max(-620,n)}
+function oneCommitRotationHistory(feedTop,tiktokTop){try{const feed=[feedTop,...oneFeedTopHistory].slice(0,ONE_ROTATION_DEPTH),tt=[tiktokTop,...oneTikTokTopHistory].slice(0,ONE_ROTATION_DEPTH);localStorage.setItem(ONE_FEED_HISTORY_KEY,JSON.stringify(feed));localStorage.setItem(ONE_TIKTOK_HISTORY_KEY,JSON.stringify(tt))}catch(e){console.warn('ONE rotation history',e)}}
+const oneSessionNoise=new Map();
+function oneSessionRand(id){id=String(id||'');if(oneSessionNoise.has(id))return oneSessionNoise.get(id);let h=ONE_SESSION_SEED||2166136261;for(let i=0;i<id.length;i++){h^=id.charCodeAt(i);h=Math.imul(h,16777619)}const v=((h>>>0)%10000)/10000;oneSessionNoise.set(id,v);return v}
+function oneIsFollowedItem(x){const m=itemCreatorMeta(x);return !!(m&&followedCreators.has(m.platform+':'+m.id))}
 function personalScore(x){
  let n=x.score||0, id=String(x.id);
+ n+=(oneSessionRand(id)-.5)*24;
+ if(oneIsFollowedItem(x))n+=220;
+ n+=oneSeenPenalty(x);
+ n+=onePreviousTopPenalty(x);
  if(state.disliked.has(id))n-=1000;
  if(state.liked.has(id))n+=78;
  n+=(oneProfile.creators[x.creator]||0)*18;
@@ -275,11 +303,11 @@ function personalScore(x){
    if(views>=1e6)n+=34; else if(views>=100000)n+=25; else if(views>=10000)n+=14; else if(views>=1000)n+=4; else n-=30;
    if(age>1095 && views<100000)n-=55;
  }
- if(x.p==='twitch'&&x.live)n+=28;
+ if(x.p==='twitch'&&x.live){const vc=Number(x.viewerCount||0);n+=28+Math.min(220,Math.log10(vc+1)*48);}
  if(x.isTwitchVod){const vv=Number(x.viewCount||0);n+=Math.min(90,Math.log10(vv+1)*20);}
  return n
 }
-function recommendationReason(x){const id=String(x.id);if(state.liked.has(id))return '👍 Parce que tu as aimé ce contenu';if(state.saved.has(x.id))return '♥ Parce qu’il est dans tes favoris';const topic=oneTopic(x);if(topic&&feedPrefs[topic])return '🎯 Parce que '+({gaming:'le gaming',music:'la musique',sport:'le sport',tech:'la tech'}[topic])+' fait partie de tes préférences';const c=oneProfile.creators[x.creator]||0;if(c>=4)return '✨ Parce que tu apprécies '+x.creator;if(c>0)return '▶ Parce que tu as déjà regardé '+x.creator;const text=(x.title+' '+x.creator+' '+(x.tags||[]).join(' ')).toLowerCase();const q=oneProfile.searches.find(q=>text.includes(q.toLowerCase()));if(q)return '🔎 Parce que tu recherches « '+q+' »';if((oneProfile.platforms[x.p]||0)>3)return '📺 Parce que tu regardes souvent '+platformName(x.p);return '✨ Sélectionné pour ton feed'}
+function recommendationReason(x){const id=String(x.id);if(oneIsFollowedItem(x))return '👥 Prioritaire · créateur suivi';if(!oneFeedSeen[id])return '✨ Nouveau dans ton feed personnalisé';if(state.liked.has(id))return '👍 Parce que tu as aimé ce contenu';if(state.saved.has(x.id))return '♥ Parce qu’il est dans tes favoris';const topic=oneTopic(x);if(topic&&feedPrefs[topic])return '🎯 Parce que '+({gaming:'le gaming',music:'la musique',sport:'le sport',tech:'la tech'}[topic])+' fait partie de tes préférences';const c=oneProfile.creators[x.creator]||0;if(c>=4)return '✨ Parce que tu apprécies '+x.creator;if(c>0)return '▶ Parce que tu as déjà regardé '+x.creator;const text=(x.title+' '+x.creator+' '+(x.tags||[]).join(' ')).toLowerCase();const q=oneProfile.searches.find(q=>text.includes(q.toLowerCase()));if(q)return '🔎 Parce que tu recherches « '+q+' »';if((oneProfile.platforms[x.p]||0)>3)return '📺 Parce que tu regardes souvent '+platformName(x.p);return '✨ Sélectionné pour ton feed'}
 function updateLearnbar(){
  const el=document.getElementById('learnbar');if(!el)return;
  const signals=state.liked.size+state.disliked.size+Object.values(oneProfile.watched||{}).reduce((a,b)=>a+b,0);
@@ -324,7 +352,7 @@ function renderCreatorResults(){const box=document.getElementById('creatorResult
 
 const feed=document.getElementById('feed'), title=document.getElementById('feedTitle');
 function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1400)}
-function filtered(){let arr=state.mode==='following'?[...followingItems]:[...tiktokItems,...twitchItems,...youtubeItems,...items];if(state.mode===null&&!state.query)arr=arr.filter(x=>!state.disliked.has(String(x.id)));if(state.filter==='youtube'||state.filter==='tiktok'||state.filter==='twitch')arr=arr.filter(x=>x.p===state.filter);if(state.filter==='music'){arr=[...musicPlaylist];}if(state.filter==='cinema')arr=arr.filter(x=>/(cin[ée]ma|film|s[ée]rie|trailer|bande.?annonce|acteur|actrice|movie|netflix|disney|marvel|dc|anime)/i.test((x.title||'')+' '+(x.creator||'')+' '+(x.tags||[]).join(' ')));if(state.filter==='live')arr=arr.filter(x=>x.live);if(state.filter==='short')arr=arr.filter(x=>x.short);if(state.query){const q=state.query.toLowerCase();arr=arr.filter(x=>(x.title+' '+x.creator+' '+x.tags.join(' ')).toLowerCase().includes(q));}if(state.mode==='15')arr=fifteenMinutes(arr);else if(state.mode==='ai'){if(Array.isArray(state.aiProgram)&&state.aiProgram.length){arr=state.aiProgram}else if(state.aiIds&&state.aiIds.size){arr=arr.filter(x=>state.aiIds.has(String(x.id)));arr=diverseUnified(arr);}}else if(state.mode==='best')arr=arr.sort((a,b)=>personalScore(b)-personalScore(a)).slice(0,4);else if(state.mode===null&&!state.query)arr=arr.sort((a,b)=>personalScore(b)-personalScore(a));if(state.mode==='saved')arr=arr.filter(x=>state.saved.has(x.id));return arr}
+function filtered(){let arr=state.mode==='following'?[...followingItems]:[...tiktokItems,...twitchItems,...youtubeItems,...items];if(state.mode===null&&!state.query)arr=arr.filter(x=>!state.disliked.has(String(x.id)));if(state.filter==='youtube'||state.filter==='tiktok'||state.filter==='twitch')arr=arr.filter(x=>x.p===state.filter);if(state.filter==='music'){arr=[...musicPlaylist];}if(state.filter==='cinema')arr=arr.filter(x=>/(cin[ée]ma|film|s[ée]rie|trailer|bande.?annonce|acteur|actrice|movie|netflix|disney|marvel|dc|anime)/i.test((x.title||'')+' '+(x.creator||'')+' '+(x.tags||[]).join(' ')));if(state.filter==='live')arr=arr.filter(x=>x.live);if(state.filter==='short')arr=arr.filter(x=>x.short);if(state.query){const q=state.query.toLowerCase();arr=arr.filter(x=>(x.title+' '+x.creator+' '+x.tags.join(' ')).toLowerCase().includes(q));}if(state.mode==='15')arr=fifteenMinutes(arr);else if(state.mode==='ai'){if(Array.isArray(state.aiProgram)&&state.aiProgram.length){arr=state.aiProgram}else if(state.aiIds&&state.aiIds.size){arr=arr.filter(x=>state.aiIds.has(String(x.id)));arr=diverseUnified(arr);}}else if(state.mode==='best')arr=arr.sort((a,b)=>personalScore(b)-personalScore(a)).slice(0,4);else if(state.mode===null&&!state.query)arr=arr.sort((a,b)=>personalScore(b)-personalScore(a));if(state.filter==='twitch'&&state.mode===null&&!state.query)arr=arr.sort((a,b)=>Number(b.viewerCount||0)-Number(a.viewerCount||0));if(state.mode==='saved')arr=arr.filter(x=>state.saved.has(x.id));return arr}
 function platformName(p){return p==='youtube'?'YouTube':p==='tiktok'?'TikTok':'Twitch'}
 function v17ItemById(id){id=String(id);return [...followingItems,...musicPlaylist,...tiktokItems,...twitchItems,...twitchVodItems,...twitchClipItems,...youtubeItems,...items].find(i=>String(i.id)===id)}
 let v17Observer=null;
@@ -492,7 +520,7 @@ window.v1710StartTwitch=v1710StartTwitch;
 
 window.v17ActivateTikTok=function(slide){if(!slide)return;v17ActiveId='';v17ActivateSlide(slide)};
 
-// V0.12.4: conserve le TikTok que l'on vient de quitter comme lecteur chaud.
+// V0.12.6: finition vitesse — même cache stable, délais de bascule réduits.
 // Ainsi un swipe vers le haut reprend le vrai lecteur au lieu de reconstruire une image figée.
 function v124ParkTikTokSlide(slide){
  if(!slide||slide.dataset.platform!=='tiktok')return;
@@ -529,9 +557,9 @@ function v17ActivateSlide(slide){
  const wasPreloaded=x.p==='tiktok'&&f.dataset.onePreload==='1';
  if(!wasPreloaded)f.src=src;
  f.title='Lecteur '+platformName(x.p);f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider=x.p;f.style.pointerEvents='auto';
- if(x.p==='tiktok'&&wasPreloaded&&f.dataset.oneWarm==='1'){slide.dataset.ttVisualReady='1';f.style.opacity='1';const im=media.querySelector('img');if(im)im.style.opacity='0';media.classList.add('playing');}else f.style.opacity=x.p==='tiktok'?'0':'1';
+ if(x.p==='tiktok'){slide.dataset.ttVisualReady='0';slide.dataset.ttActivationTime=String(Number(f.dataset.oneWarmTime||0));f.style.opacity='0';const im=media.querySelector('img');if(im)im.style.opacity='1';media.classList.remove('playing','loading');}else f.style.opacity='1';
  f.onload=()=>{media.classList.remove('loading');if(x.p==='tiktok'&&!wasPreloaded)f.style.opacity='0';if(x.p==='youtube'&&f.contentWindow){try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:String(x.id),channel:'one'}),'*')}catch(e){}}setTimeout(()=>v17ApplySound(slide),80);setTimeout(()=>v17ApplySound(slide),280);setTimeout(()=>v17ApplySound(slide),700)};
- if(!f.isConnected)media.appendChild(f);if(x.p!=='tiktok')media.classList.add('playing');if(x.p==='tiktok'){f.dataset.onePreload='0';delete f.dataset.oneBackCache;media.classList.remove('loading');if(!wasPreloaded||f.dataset.oneWarm!=='1')media.classList.remove('playing');v121ArmTikTokVisualWatch(slide);v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute');v120PrewarmAround(slide);}
+ if(!f.isConnected)media.appendChild(f);if(x.p!=='tiktok')media.classList.add('playing');if(x.p==='tiktok'){f.dataset.onePreload='0';delete f.dataset.oneBackCache;media.classList.remove('loading');if(!wasPreloaded||f.dataset.oneWarm!=='1')media.classList.remove('playing');v121ArmTikTokVisualWatch(slide);v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute');clearTimeout(slide._ttFastKick);slide._ttFastKick=setTimeout(()=>{if(slide.getAttribute('data-active')==='1'&&slide.dataset.ttTimeAdvanced!=='1'){v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')}},160);v120PrewarmAround(slide);}
  const img=media.querySelector('img'); if(img&&x.p!=='tiktok')img.style.opacity='0';
  const play=media.querySelector('.vslidePlay'); if(play)play.style.display='none';
  learnFromItem(x,'watch');
@@ -546,11 +574,14 @@ function v124PreloadTikTokSlide(target,label='voisin'){
 }
 function v1810PreloadNextTikTok(activeSlide){
  if(!activeSlide)return;
- const prev=activeSlide.previousElementSibling,next=activeSlide.nextElementSibling;
- // Fenêtre chaude bidirectionnelle: précédent + actif + suivant uniquement.
- document.querySelectorAll('.vslide[data-platform="tiktok"] iframe').forEach(f=>{const owner=f.closest('.vslide');if(owner!==prev&&owner!==activeSlide&&owner!==next){v17SendTikTok(f,'pause');f.remove();}});
+ const prev=activeSlide.previousElementSibling,next=activeSlide.nextElementSibling,next2=next?.nextElementSibling;
+ // V0.12.6 : 1 précédent + actif + 2 suivants. Les lecteurs hors fenêtre sont libérés.
+ const keep=new Set([prev,activeSlide,next,next2].filter(Boolean));
+ document.querySelectorAll('.vslide[data-platform="tiktok"] iframe').forEach(f=>{const owner=f.closest('.vslide');if(!keep.has(owner)){v17SendTikTok(f,'pause');f.remove();}});
  v124PreloadTikTokSlide(prev,'précédent');
  v124PreloadTikTokSlide(next,'suivant');
+ // Le N+2 part légèrement après pour laisser la priorité réseau au lecteur visible/N+1.
+ clearTimeout(activeSlide._ttNext2Timer);activeSlide._ttNext2Timer=setTimeout(()=>v124PreloadTikTokSlide(next2,'suivant +2'),90);
 }
 function v120PrewarmAround(activeSlide){
  if(!activeSlide)return;
@@ -581,7 +612,7 @@ function v121ArmTikTokVisualWatch(slide){
      if(img)img.style.opacity='1';if(play)play.style.display='grid';media?.classList.remove('playing','loading');
      slide.dataset.ttReady='0';
    }
- },5000);
+ },4500);
 }
 window.addEventListener('message',e=>{
  const d=e.data; if(!d||d['x-tiktok-player']!==true)return;
@@ -589,23 +620,23 @@ window.addEventListener('message',e=>{
  const slide=slides.find(s=>s.querySelector('iframe')?.contentWindow===e.source); if(!slide)return;
  const media=slide.querySelector('.vslideMedia'),frame=slide.querySelector('iframe');
  const isWarmPreload=frame?.dataset.onePreload==='1'&&slide.getAttribute('data-active')!=='1';
- if(isWarmPreload){if(d.type==='onPlayerReady'){v17SendTikTok(frame,'mute');v17SendTikTok(frame,'play')}if(d.type==='onCurrentTime'){const wt=Number(d.value?.currentTime??d.value??0);if(wt>0.06){frame.dataset.oneWarm='1';v17SendTikTok(frame,'pause')}}if(d.type==='onPlayerError')frame.remove();return;}
+ if(isWarmPreload){if(d.type==='onPlayerReady'){v17SendTikTok(frame,'mute');v17SendTikTok(frame,'play')}if(d.type==='onCurrentTime'){const wt=Number(d.value?.currentTime??d.value??0);if(wt>0.025){frame.dataset.oneWarm='1';frame.dataset.oneWarmTime=String(wt);v17SendTikTok(frame,'pause')}}if(d.type==='onPlayerError')frame.remove();return;}
  if(d.type==='onPlayerReady'){
    slide.dataset.ttReady='1';clearTimeout(slide._ttReadyTimer);
    // Ready = lecteur chargé, pas forcément une image vidéo affichée : on garde donc la miniature.
    if(frame){frame.style.opacity='0';frame.style.pointerEvents='auto';v17SendTikTok(frame,'play');if(v1814SoundAllowed())v17SendTikTok(frame,'unMute');}
-   setTimeout(()=>{v17SendTikTok(frame,'play');if(v1814SoundAllowed())v17SendTikTok(frame,'unMute')},180);
+   setTimeout(()=>{v17SendTikTok(frame,'play');if(v1814SoundAllowed())v17SendTikTok(frame,'unMute')},80);
    v17ApplySound(slide);v120PrewarmAround(slide);
  }
  if(d.type==='onStateChange'){
    const st=Number(d.value);
    if(st===1)slide.dataset.ttPlaying='1';
-   if(st===3)media?.classList.add('loading');
-   if(st===1&&slide.dataset.ttTimeAdvanced==='1')setTimeout(()=>v121RevealTikTokFrame(slide),120);
+   if(st===3&&slide.dataset.platform!=='tiktok')media?.classList.add('loading');
+   if(st===1&&slide.dataset.ttTimeAdvanced==='1')requestAnimationFrame(()=>v121RevealTikTokFrame(slide));
  }
  if(d.type==='onCurrentTime'){
    const t=Number(d.value?.currentTime??d.value??0);
-   if(t>0.08){slide.dataset.ttTimeAdvanced='1';if(slide.dataset.ttPlaying==='1')setTimeout(()=>v121RevealTikTokFrame(slide),120);}
+   const base=Number(slide.dataset.ttActivationTime||0);if(t>Math.max(0.012,base+0.012)){slide.dataset.ttTimeAdvanced='1';if(slide.dataset.ttPlaying==='1')requestAnimationFrame(()=>v121RevealTikTokFrame(slide));}
  }
  if(d.type==='onPlayerError'){v17TikTokFallback(slide);}
 });
@@ -614,7 +645,7 @@ function v17SetupObserver(){
  const root=document.getElementById('vfeedScroller');
  v17Observer=new IntersectionObserver(entries=>{
    const visible=entries.filter(e=>e.isIntersecting&&e.intersectionRatio>=.72).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
-   if(visible){const x=v17ItemById(visible.target.dataset.id);if(x?.isTwitchVod||x?.isTwitchClip){
+   if(visible){const x=v17ItemById(visible.target.dataset.id);if(x)oneMarkFeedSeen(x);if(x?.isTwitchVod||x?.isTwitchClip){
      document.querySelectorAll('.vslide').forEach(s=>{if(s!==visible.target)v17RestoreSlide(s)});
      document.querySelectorAll('.vslide').forEach(s=>s.removeAttribute('data-active'));visible.target.setAttribute('data-active','1');v17ActiveId=String(visible.target.dataset.id||'');
      if(x?.isTwitchClip&&!v1822TwitchClipAudioArmed){v1710ShowTwitchPreview(visible.target,x,visible.target.querySelector('.vslideMedia'));}
@@ -710,7 +741,7 @@ function twitchLogin(){
  const redirect=new URL(location.pathname,location.origin).href;
  const stateToken=Math.random().toString(36).slice(2)+Date.now().toString(36);
  sessionStorage.setItem('one_twitch_oauth_state',stateToken);localStorage.setItem('one_twitch_oauth_state',stateToken);
- const auth='https://id.twitch.tv/oauth2/authorize?response_type=token&client_id='+encodeURIComponent(cid)+'&redirect_uri='+encodeURIComponent(redirect)+'&scope='+encodeURIComponent('')+'&force_verify=true&state='+encodeURIComponent(stateToken);
+ const auth='https://id.twitch.tv/oauth2/authorize?response_type=token&client_id='+encodeURIComponent(cid)+'&redirect_uri='+encodeURIComponent(redirect)+'&scope='+encodeURIComponent('user:read:follows')+'&force_verify=true&state='+encodeURIComponent(stateToken);
  location.href=auth;
 }
 function readTwitchToken(){
@@ -740,6 +771,12 @@ async function twitchExactLive(query,cid,token){
   const rr=await fetch('https://api.twitch.tv/helix/streams?user_id='+encodeURIComponent(c.id),{headers:h}); const rd=await rr.json(); if(!rr.ok)return null;
   return (rd.data||[])[0]||null;
  }catch{return null}
+}
+async function oneImportTwitchFollows(){
+ const cid=localStorage.getItem('one_twitch_client_id'),token=localStorage.getItem('one_twitch_token');if(!cid||!token)return 0;
+ try{const h={'Client-Id':cid,'Authorization':'Bearer '+token};const ur=await fetch('https://api.twitch.tv/helix/users',{headers:h});if(!ur.ok)return 0;const ud=await ur.json();const uid=ud.data?.[0]?.id;if(!uid)return 0;let after='',count=0,pages=0;
+  do{const url='https://api.twitch.tv/helix/channels/followed?user_id='+encodeURIComponent(uid)+'&first=100'+(after?'&after='+encodeURIComponent(after):'');const r=await fetch(url,{headers:h});if(!r.ok){if(r.status===401||r.status===403)localStorage.setItem('one_twitch_follow_scope_needed','1');return count}const d=await r.json();for(const c of (d.data||[])){const k='twitch:'+c.broadcaster_id;followedCreators.add(k);followedMeta[k]={platform:'twitch',id:c.broadcaster_id,name:c.broadcaster_name||c.broadcaster_login||'Twitch',login:c.broadcaster_login||'',avatar:'',description:'Suivi sur Twitch',url:'https://www.twitch.tv/'+encodeURIComponent(c.broadcaster_login||'')};count++}after=d.pagination?.cursor||'';pages++}while(after&&pages<5);if(count){saveFollowed();localStorage.removeItem('one_twitch_follow_scope_needed')}return count
+ }catch(e){console.warn('Twitch follows',e);return 0}
 }
 async function twitchStreams(switchFilter=true, exactQuery=''){
  const cid=localStorage.getItem('one_twitch_client_id'), token=localStorage.getItem('one_twitch_token');
@@ -935,36 +972,38 @@ document.getElementById('queueNext').onclick=()=>{if(state.queueIndex>=0&&state.
 document.getElementById('closePlayer').onclick=()=>{document.getElementById('playerModal').classList.remove('show');document.getElementById('videoWrap').innerHTML=''};
 document.getElementById('playerModal').onclick=e=>{if(e.target.id==='playerModal'){e.currentTarget.classList.remove('show');document.getElementById('videoWrap').innerHTML=''}};
 function diverseUnified(arr){
- const sorted=[...arr].sort((a,b)=>personalScore(b)-personalScore(a));
- const out=[], creatorCount={}, platformCount={youtube:0,twitch:0,tiktok:0};
- // V16.4 : si les 3 sources sont disponibles, garantir un vrai mélange dès le haut du feed.
- const available=['youtube','tiktok','twitch'].filter(p=>sorted.some(x=>x.p===p));
- const platformTop=available.map(p=>sorted.find(x=>x.p===p)).filter(Boolean);
- platformTop.sort((a,b)=>personalScore(b)-personalScore(a));
- for(const x of platformTop){
-   if(!out.includes(x)){out.push(x);creatorCount[x.creator]=(creatorCount[x.creator]||0)+1;platformCount[x.p]=(platformCount[x.p]||0)+1;}
- }
- for(const x of sorted){
-   if(out.includes(x)) continue;
-   const c=creatorCount[x.creator]||0, p=platformCount[x.p]||0;
-   if(c>=2) continue;
-   const minPlatform=Math.min(...available.map(k=>platformCount[k]||0));
-   if(available.length>1 && p>minPlatform+2) continue;
-   out.push(x); creatorCount[x.creator]=c+1; platformCount[x.p]=p+1;
- }
- return out.concat(sorted.filter(x=>!out.includes(x)));
+ const clean=arr.filter(x=>!state.disliked.has(String(x.id)));
+ const buckets={youtube:[],tiktok:[],twitch:[]};
+ for(const x of clean){(buckets[x.p]||(buckets[x.p]=[])).push(x)}
+ for(const a of Object.values(buckets))a.sort((a,b)=>personalScore(b)-personalScore(a));
+ const available=['youtube','tiktok','twitch'].filter(p=>buckets[p]?.length);
+ if(!available.length)return [];
+ // Commence par la plateforme la plus pertinente, puis tourne pour éviter les blocs monotones.
+ available.sort((a,b)=>personalScore(buckets[b][0])-personalScore(buckets[a][0]));
+ const out=[],creatorCount={};let guard=0;
+ while(out.length<60&&guard++<300){let added=0;for(const p of available){const a=buckets[p];let pick=-1;for(let i=0;i<Math.min(8,a.length);i++){const x=a[i],c=creatorCount[x.creator]||0;if(c<3){pick=i;break}}if(pick<0&&a.length)pick=0;if(pick>=0){const x=a.splice(pick,1)[0];out.push(x);creatorCount[x.creator]=(creatorCount[x.creator]||0)+1;added++;if(out.length>=60)break}}if(!added)break}
+ return out;
 }
 const oldFiltered=filtered;
 filtered=function(){const arr=oldFiltered();return (state.filter==='all'&&state.mode===null&&!state.query)?diverseUnified(arr):arr};
 async function loadUnifiedFeed(){
  loadTikTokLocal();
+ // 0.13.1 : chaque ouverture choisit une graine de découverte différente, sans effacer l'historique.
+ const sessionQueries=[...oneProfile.searches.slice(0,5),...Object.entries(oneProfile.topics||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).map(([k])=>({gaming:'gaming france',music:'musique france',sport:'sport france',tech:'tech france'}[k])).filter(Boolean),'gaming france','créateurs français','tendances france'];
+ const sessionQuery=sessionQueries[Math.floor(oneSessionRand('session-query')*sessionQueries.length)]||'gaming france';
+ if(localStorage.getItem('one_twitch_client_id')&&localStorage.getItem('one_twitch_token'))await oneImportTwitchFollows();
  const jobs=[];
- if(localStorage.getItem('one_youtube_api_key')) jobs.push(youtubeSearch(oneProfile.searches[0]||'gaming france',false,false));
+ if(localStorage.getItem('one_youtube_api_key')) jobs.push(youtubeSearch(sessionQuery,false,false));
  if(localStorage.getItem('one_twitch_client_id')&&localStorage.getItem('one_twitch_token')) jobs.push(twitchStreams(false));
  if(jobs.length) await Promise.allSettled(jobs);
  state.filter='all';state.mode=null;state.query='';
  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.filter==='all'));
- render();const n=[youtubeItems.length?'YouTube':'',tiktokItems.length?'TikTok':'',twitchItems.length?'Twitch':''].filter(Boolean).join(' + ');toast(n?'Feed réel : '+n+' ✨':'Pour toi actualisé ✨');
+ render();
+ if(!oneLaunchTopCommitted){
+   oneLaunchTopCommitted=true;
+   setTimeout(()=>{try{const source=[...tiktokItems,...twitchItems,...youtubeItems,...items];const top=diverseUnified(source).slice(0,10).map(x=>String(x.id));const tt=source.filter(x=>x.p==='tiktok'&&!state.disliked.has(String(x.id))).sort((a,b)=>personalScore(b)-personalScore(a)).slice(0,10).map(x=>String(x.id));oneCommitRotationHistory(top,tt)}catch(e){console.warn('ONE top rotation',e)}},80);
+ }
+ const n=[youtubeItems.length?'YouTube':'',tiktokItems.length?'TikTok':'',twitchItems.length?'Twitch':''].filter(Boolean).join(' + ');toast(n?'Feed réel : '+n+' ✨':'Pour toi actualisé ✨');
 }
 
 function syncVerticalLauncher(){
@@ -1010,10 +1049,10 @@ async function loadFollowingFeed(){
  if(ytMetas.length&&key){try{const ids=ytMetas.map(m=>m.id).filter(Boolean).join(',');const cr=await fetch('https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&id='+encodeURIComponent(ids)+'&key='+encodeURIComponent(key));const cd=await cr.json();for(const c of (cd.items||[])){const up=c.contentDetails?.relatedPlaylists?.uploads;if(!up)continue;const pr=await fetch('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=1&playlistId='+encodeURIComponent(up)+'&key='+encodeURIComponent(key));const pd=await pr.json();const v=pd.items?.[0]?.snippet;if(!v?.resourceId?.videoId)continue;followingItems.push({id:'sub_yt_'+v.resourceId.videoId,p:'youtube',icon:'▶️',creator:v.channelTitle||c.snippet?.title||'YouTube',title:v.title||'Dernière vidéo',meta:'Dernière vidéo publiée',duration:'YouTube',tags:['Abonnement','YouTube'],score:1000,videoId:v.resourceId.videoId,channelId:c.id,thumbnail:(v.thumbnails?.high||v.thumbnails?.medium||v.thumbnails?.default)?.url||'',url:'https://www.youtube.com/watch?v='+v.resourceId.videoId,publishedRaw:v.publishedAt||''});}}catch(e){console.warn('Subscriptions YouTube',e)}}
  // Twitch : affiche le live s'il est en cours, sinon un accès direct à la chaîne.
  const twMetas=metas.filter(m=>m.platform==='twitch');const cid=localStorage.getItem('one_twitch_client_id'),tok=localStorage.getItem('one_twitch_token');
- if(twMetas.length&&cid&&tok){try{let u='https://api.twitch.tv/helix/streams?first=100'+twMetas.map(m=>'&user_id='+encodeURIComponent(m.id)).join('');const r=await fetch(u,{headers:{'Client-Id':cid,'Authorization':'Bearer '+tok}});const d=await r.json();const liveMap=new Map((d.data||[]).map(v=>[String(v.user_id),v]));for(const m of twMetas){const v=liveMap.get(String(m.id));if(v){followingItems.push({id:'sub_tw_'+v.id,p:'twitch',icon:'🟣',creator:v.user_name,title:v.title||('Live de '+v.user_name),meta:(v.viewer_count||0).toLocaleString('fr-FR')+' spectateurs',duration:'LIVE',tags:['Abonnement','Twitch','Live'],score:1200,live:true,thumbnail:(v.thumbnail_url||'').replace('{width}','640').replace('{height}','360'),twitchUserId:v.user_id,twitchChannel:v.user_login,url:'https://www.twitch.tv/'+encodeURIComponent(v.user_login)});}else{followingItems.push({id:'sub_tw_off_'+m.id,p:'twitch',icon:'🟣',creator:m.name||m.login||'Twitch',title:'Hors ligne · ouvrir la chaîne',meta:'Pas en live pour le moment',duration:'CHAÎNE',tags:['Abonnement','Twitch'],score:500,live:false,thumbnail:m.avatar||'',twitchUserId:m.id,twitchChannel:m.login||'',url:'https://www.twitch.tv/'+encodeURIComponent(m.login||m.name||'')});}}}catch(e){console.warn('Subscriptions Twitch',e)}}
+ if(twMetas.length&&cid&&tok){try{let u='https://api.twitch.tv/helix/streams?first=100'+twMetas.map(m=>'&user_id='+encodeURIComponent(m.id)).join('');const r=await fetch(u,{headers:{'Client-Id':cid,'Authorization':'Bearer '+tok}});const d=await r.json();const liveMap=new Map((d.data||[]).map(v=>[String(v.user_id),v]));for(const m of twMetas){const v=liveMap.get(String(m.id));if(v){followingItems.push({id:'sub_tw_'+v.id,p:'twitch',icon:'🟣',creator:v.user_name,title:v.title||('Live de '+v.user_name),meta:(v.viewer_count||0).toLocaleString('fr-FR')+' spectateurs',viewerCount:Number(v.viewer_count||0),duration:'LIVE',tags:['Abonnement','Twitch','Live'],score:1200,live:true,thumbnail:(v.thumbnail_url||'').replace('{width}','640').replace('{height}','360'),twitchUserId:v.user_id,twitchChannel:v.user_login,url:'https://www.twitch.tv/'+encodeURIComponent(v.user_login)});}else{followingItems.push({id:'sub_tw_off_'+m.id,p:'twitch',icon:'🟣',creator:m.name||m.login||'Twitch',title:'Hors ligne · ouvrir la chaîne',meta:'Pas en live pour le moment',duration:'CHAÎNE',tags:['Abonnement','Twitch'],score:500,live:false,thumbnail:m.avatar||'',twitchUserId:m.id,twitchChannel:m.login||'',url:'https://www.twitch.tv/'+encodeURIComponent(m.login||m.name||'')});}}}catch(e){console.warn('Subscriptions Twitch',e)}}
  // TikTok : Display API ne permet que le compte autorisé ; on montre sa dernière publication déjà chargée.
  const ttMetas=metas.filter(m=>m.platform==='tiktok');for(const m of ttMetas){const v=tiktokItems.find(x=>v182Norm(x.creator)===v182Norm(m.name))||tiktokItems[0];if(v)followingItems.push({...v,id:'sub_'+v.id,tags:[...(v.tags||[]),'Abonnement']});}
- followingItems.sort((a,b)=>(b.live?1:0)-(a.live?1:0));render();toast(followingItems.length+' abonnement(s) actualisé(s) 👥');
+ followingItems.sort((a,b)=>{if(a.p==='twitch'&&b.p==='twitch')return Number(b.viewerCount||0)-Number(a.viewerCount||0);return (b.live?1:0)-(a.live?1:0)});render();toast(followingItems.length+' abonnement(s) actualisé(s) 👥');
 }
 window.loadFollowingFeed=loadFollowingFeed;
 
@@ -1665,7 +1704,7 @@ v17ApplySound();
 .v1826PlaylistManager{margin:0 16px 12px;padding:12px;border:1px solid var(--line);background:var(--panel);border-radius:16px}
 .v1826PlaylistTop{display:flex;gap:8px;align-items:center}.v1826PlaylistTop select{flex:1;min-width:0;background:#0d1118;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-weight:800}.v1826PlaylistTop button,.v1826PlaylistActions button{border:0;border-radius:12px;padding:10px 12px;font-weight:900;background:#202633;color:var(--text)}
 .v1826PlaylistActions{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}.v1826PlaylistActions .primary{background:linear-gradient(90deg,#7455ff,#b52fff);color:#fff;flex:1}.v1826PlaylistHint{font-size:11px;color:var(--muted);margin-top:8px}
-.v1826Subs{display:grid;gap:8px;padding:0 0 6px}.v1826SubRow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:11px 12px}.v1826SubMain{min-width:0;flex:1}.v1826SubName{font-weight:900;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v1826SubMeta{font-size:11px;color:var(--muted);margin-top:3px}.v1826SubActions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.v1826SubActions button{border:1px solid var(--line);background:#111722;color:#fff;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:900;white-space:nowrap}.v1826SubActions button.live{background:#d90047;border-color:#d90047}.v1826SubActions button.video{background:#6847ff;border-color:#6847ff}.v1826Platform{display:inline-block;font-size:10px;font-weight:900;padding:3px 6px;border-radius:999px;background:#202633;margin-left:6px}.v1826NoSubs{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px}
+.v1826Subs{display:grid;gap:8px;padding:0 0 6px}.v1826SubRow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:11px 12px}.v1826SubMain{min-width:0;flex:1}.v1826SubName{font-weight:900;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v1826SubMeta{font-size:11px;color:var(--muted);margin-top:3px}.v1826SubActions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.v1826SubActions button{border:1px solid var(--line);background:#111722;color:#fff;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:900;white-space:nowrap}.v1826SubActions button.live{background:#d90047;border-color:#d90047}.v1826SubActions button.video{background:#6847ff;border-color:#6847ff}.v1826Platform{display:inline-block;font-size:10px;font-weight:900;padding:3px 6px;border-radius:999px;background:#202633;margin-left:6px}.v1826NoSubs{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px}.v133SubTabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 0 12px}.v133SubTabs button{border:1px solid var(--line);background:#111722;color:var(--muted);border-radius:12px;padding:10px 6px;font-weight:900;font-size:12px}.v133SubTabs button.active{background:#fff;color:#111;border-color:#fff}.v133SubCount{opacity:.72;font-size:10px;margin-left:3px}
 @media(max-width:520px){.v1826SubRow{align-items:flex-start}.v1826SubActions{max-width:45%}.v1826SubActions button{width:100%}}
 </style>
 <script>
@@ -1762,33 +1801,65 @@ v17ApplySound();
       }
     },120);
   };
-  window.v1827OpenCreatorInOne=async function(platform,name){
-    const q=String(name||'').trim();if(!q)return;
-    state.mode=null;state.query='';state.filter=platform;
-    resetCreatorMode(false);
-    const searchBox=document.getElementById('search');if(searchBox)searchBox.value=q;
-    document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.filter===platform));
-    render();syncTwitchFilters();syncVerticalLauncher();
-    const btn=document.getElementById('searchBtn');if(btn)btn.click();
+  function v134Hub(){let h=document.getElementById('oneChannelHub');if(!h){h=document.createElement('section');h.id='oneChannelHub';h.className='oneChannelHub';h.innerHTML='<div class="oneChannelHead"><button class="oneChannelBack" onclick="v134CloseChannel()">← Abonnements</button><div id="oneChannelIdentity" class="oneChannelIdentity"></div></div><div id="oneChannelBody" class="oneChannelBody"><div id="oneChannelPlayer" class="oneChannelPlayer" hidden></div><div id="oneChannelContent"></div></div>';document.body.appendChild(h)}return h}
+  window.v134CloseChannel=function(){const p=document.getElementById('oneChannelPlayer');if(p){p.innerHTML='';p.hidden=true}v134Hub().classList.remove('show')};
+  function v134Date(d){try{return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}catch{return ''}}
+  function v136RequestChannelFullscreen(){const p=document.getElementById('oneChannelPlayer'),f=p?.querySelector('iframe');if(!f)return;const target=f;const req=target.requestFullscreen||target.webkitRequestFullscreen||target.msRequestFullscreen;if(req){try{const r=req.call(target);if(r?.catch)r.catch(()=>toast('Utilise le bouton plein écran du lecteur'))}catch{toast('Utilise le bouton plein écran du lecteur')}}else toast('Utilise le bouton plein écran du lecteur')}
+  function v135ShowChannelPlayer(kind,src,title){const p=document.getElementById('oneChannelPlayer');if(!p)return;p.className='oneChannelPlayer '+kind;p.hidden=false;p.innerHTML='<iframe src="'+esc(src)+'" title="'+esc(title||'Lecteur ONE')+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe><div class="oneChannelPlayerInfo"><span>'+esc(title||'Lecture dans ONE')+'</span><button class="oneChannelFullscreen" type="button" onclick="v136RequestChannelFullscreen()" aria-label="Plein écran">⛶ Plein écran</button></div>';p.scrollIntoView({behavior:'smooth',block:'start'})}
+  function v134YTPlay(id,title,creator){const origin=encodeURIComponent(location.origin);v135ShowChannelPlayer('youtube','https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay=1&playsinline=1&rel=0&fs=1&origin='+origin,title||creator||'YouTube')}
+  window.v134YTPlay=v134YTPlay;
+  window.v134TWPlay=function(id,title,creator,thumb){const parent=encodeURIComponent(location.hostname);v135ShowChannelPlayer('twitch','https://player.twitch.tv/?video=v'+encodeURIComponent(id)+'&parent='+parent+'&autoplay=true',title||creator||'Twitch')};
+  window.v134TWLive=function(uid,login,title,creator,thumb,viewers){const parent=encodeURIComponent(location.hostname);v135ShowChannelPlayer('twitch','https://player.twitch.tv/?channel='+encodeURIComponent(login||'')+'&parent='+parent+'&autoplay=true',title||('Live de '+(creator||login||'Twitch')))};
+  window.v1827OpenCreatorInOne=async function(platform,id,login,name){
+    const h=v134Hub(),identity=document.getElementById('oneChannelIdentity'),player=document.getElementById('oneChannelPlayer'),body=document.getElementById('oneChannelContent');h.classList.add('show');if(player){player.innerHTML='';player.hidden=true}identity.innerHTML='<div class="oneChannelAvatar"></div><div><h2>'+esc(name||login||'Chaîne')+'</h2><p>'+esc(platformName(platform))+'</p></div>';body.innerHTML='<div class="oneChannelEmpty">Chargement de la chaîne…</div>';
+    try{
+      if(platform==='youtube'){
+        const key=localStorage.getItem('one_youtube_api_key');if(!key)throw new Error('Clé YouTube manquante');
+        const cr=await fetch('https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&id='+encodeURIComponent(id)+'&key='+encodeURIComponent(key)),cd=await cr.json(),c=cd.items?.[0];if(!c)throw new Error('Chaîne YouTube introuvable');
+        const avatar=(c.snippet?.thumbnails?.high||c.snippet?.thumbnails?.default)?.url||'',up=c.contentDetails?.relatedPlaylists?.uploads;if(!up)throw new Error('Vidéos indisponibles');
+        identity.innerHTML=(avatar?'<img class="oneChannelAvatar" src="'+esc(avatar)+'" alt="">':'<div class="oneChannelAvatar"></div>')+'<div><h2>'+esc(c.snippet?.title||name||'YouTube')+'</h2><p>YouTube · dernières vidéos</p></div>';
+        const pr=await fetch('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=30&playlistId='+encodeURIComponent(up)+'&key='+encodeURIComponent(key)),pd=await pr.json();const vids=(pd.items||[]).filter(v=>v.snippet?.resourceId?.videoId).sort((a,b)=>new Date(b.snippet.publishedAt)-new Date(a.snippet.publishedAt));
+        body.innerHTML='<div class="oneChannelStatus">Dernières vidéos · de la plus récente à la plus ancienne</div><div class="oneChannelGrid">'+vids.map(v=>{const z=v.snippet,vid=z.resourceId.videoId,th=(z.thumbnails?.medium||z.thumbnails?.high||z.thumbnails?.default)?.url||'';return '<article class="oneChannelVideo" onclick="v134YTPlay(\''+esc(vid)+'\',\''+esc(String(z.title||'').replace(/'/g,'&#39;'))+'\',\''+esc(String(c.snippet?.title||'YouTube').replace(/'/g,'&#39;'))+'\')"><img src="'+esc(th)+'" alt=""><div class="oneChannelVideoText"><div class="oneChannelVideoTitle">'+esc(z.title||'Vidéo')+'</div><div class="oneChannelVideoMeta">'+esc(v134Date(z.publishedAt))+'</div></div></article>'}).join('')+'</div>';
+      }else if(platform==='twitch'){
+        const cid=localStorage.getItem('one_twitch_client_id'),tok=localStorage.getItem('one_twitch_token');if(!cid||!tok)throw new Error('Reconnecte Twitch');const headers={'Client-Id':cid,'Authorization':'Bearer '+tok};let uid=String(id||'');
+        if(!uid){const ur=await fetch('https://api.twitch.tv/helix/users?login='+encodeURIComponent(login||name||''),{headers}),ud=await ur.json();uid=ud.data?.[0]?.id||''}if(!uid)throw new Error('Chaîne Twitch introuvable');
+        const [ur,sr,vr]=await Promise.all([fetch('https://api.twitch.tv/helix/users?id='+encodeURIComponent(uid),{headers}),fetch('https://api.twitch.tv/helix/streams?user_id='+encodeURIComponent(uid),{headers}),fetch('https://api.twitch.tv/helix/videos?user_id='+encodeURIComponent(uid)+'&first=30&sort=time',{headers})]);const ud=await ur.json(),sd=await sr.json(),vd=await vr.json(),u=ud.data?.[0],live=sd.data?.[0],vids=(vd.data||[]).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+        identity.innerHTML=(u?.profile_image_url?'<img class="oneChannelAvatar" src="'+esc(u.profile_image_url)+'" alt="">':'<div class="oneChannelAvatar"></div>')+'<div><h2>'+esc(u?.display_name||name||login||'Twitch')+'</h2><p>Twitch · '+(live?'🔴 EN DIRECT':'hors ligne')+'</p></div>';
+        let top=live?'<div class="oneChannelStatus oneChannelLive"><b>🔴 En direct · '+Number(live.viewer_count||0).toLocaleString('fr-FR')+' spectateurs</b><br>'+esc(live.title||'Live en cours')+'<br><button class="oneChannelBack" style="margin-top:10px" onclick="v134TWLive(\''+esc(uid)+'\',\''+esc(live.user_login||login||'')+'\',\''+esc(String(live.title||'').replace(/'/g,'&#39;'))+'\',\''+esc(String(live.user_name||name||'Twitch').replace(/'/g,'&#39;'))+'\',\''+esc((live.thumbnail_url||'').replace('{width}','640').replace('{height}','360'))+'\','+Number(live.viewer_count||0)+')">▶ Voir le live dans ONE</button></div>':'<div class="oneChannelStatus">Hors ligne · dernières vidéos ci-dessous</div>';
+        body.innerHTML=top+'<div class="oneChannelGrid">'+vids.map(v=>{const th=(v.thumbnail_url||'').replace('%{width}','480').replace('%{height}','270');return '<article class="oneChannelVideo" onclick="v134TWPlay(\''+esc(v.id)+'\',\''+esc(String(v.title||'').replace(/'/g,'&#39;'))+'\',\''+esc(String(v.user_name||'Twitch').replace(/'/g,'&#39;'))+'\',\''+esc(th)+'\')"><img src="'+esc(th)+'" alt=""><div class="oneChannelVideoText"><div class="oneChannelVideoTitle">'+esc(v.title||'Vidéo Twitch')+'</div><div class="oneChannelVideoMeta">'+esc(v134Date(v.created_at))+(v.view_count?' · '+Number(v.view_count).toLocaleString('fr-FR')+' vues':'')+'</div></div></article>'}).join('')+'</div>';
+      }else if(platform==='tiktok'){
+        const creator=String(name||id||'').trim();
+        const vids=tiktokItems.filter(x=>v182Norm(x.creator)===v182Norm(creator)).sort((a,b)=>Number(b.publishedTs||0)-Number(a.publishedTs||0));
+        identity.innerHTML='<div class="oneChannelAvatar"></div><div><h2>'+esc(creator||'TikTok')+'</h2><p>TikTok · contenus disponibles dans ONE</p></div>';
+        body.innerHTML=vids.length?'<div class="oneChannelStatus">Vidéos TikTok disponibles dans ONE</div><div class="oneChannelGrid">'+vids.map(v=>'<article class="oneChannelVideo" onclick="v1827OpenItemInOne(\''+esc(v.id)+'\')"><img src="'+esc(v.thumbnail||'')+'" alt=""><div class="oneChannelVideoText"><div class="oneChannelVideoTitle">'+esc(v.title||'TikTok')+'</div></div></article>').join('')+'</div>':'<div class="oneChannelEmpty">Aucune vidéo TikTok de ce créateur disponible dans ONE pour le moment.</div>';
+      }
+    }catch(e){body.innerHTML='<div class="oneChannelEmpty">'+esc(e.message||'Impossible de charger la chaîne')+'</div>'}
   };
+  let v133SubPlatform=localStorage.getItem('one_sub_platform_v133')||'youtube';
+  window.v133SetSubPlatform=function(p){v133SubPlatform=['youtube','twitch','tiktok'].includes(p)?p:'youtube';localStorage.setItem('one_sub_platform_v133',v133SubPlatform);renderSubsCompact()};
   function renderSubsCompact(){
-    const metas=[...followedCreators].map(k=>({k,m:followedMeta[k]})).filter(x=>x.m);
+    const allMetas=[...followedCreators].map(k=>({k,m:followedMeta[k]})).filter(x=>x.m);
+    const counts={youtube:0,twitch:0,tiktok:0};allMetas.forEach(x=>{if(counts[x.m.platform]!==undefined)counts[x.m.platform]++});
+    const metas=allMetas.filter(x=>x.m.platform===v133SubPlatform);
     title.textContent='Tes abonnements';
-    if(!metas.length){feed.innerHTML='<div class="v1826NoSubs">Tu ne suis encore aucune chaîne.<br>Ajoute un créateur avec ＋ Suivre.</div>';return}
-    feed.innerHTML='<div class="v1826Subs">'+metas.map(({m})=>{
+    const tabs=`<div class="v133SubTabs"><button class="${v133SubPlatform==='youtube'?'active':''}" onclick="v133SetSubPlatform('youtube')">YouTube <span class="v133SubCount">${counts.youtube}</span></button><button class="${v133SubPlatform==='twitch'?'active':''}" onclick="v133SetSubPlatform('twitch')">Twitch <span class="v133SubCount">${counts.twitch}</span></button><button class="${v133SubPlatform==='tiktok'?'active':''}" onclick="v133SetSubPlatform('tiktok')">TikTok <span class="v133SubCount">${counts.tiktok}</span></button></div>`;
+    if(!allMetas.length){feed.innerHTML=tabs+'<div class="v1826NoSubs">Tu ne suis encore aucune chaîne.<br>Ajoute un créateur avec ＋ Suivre.</div>';return}
+    if(!metas.length){feed.innerHTML=tabs+'<div class="v1826NoSubs">Aucun abonnement '+platformName(v133SubPlatform)+' pour le moment.</div>';return}
+    if(v133SubPlatform==='twitch')metas.sort((A,B)=>{const a=followingItems.find(x=>x.p==='twitch'&&String(x.twitchUserId||'')===String(A.m.id)),b=followingItems.find(x=>x.p==='twitch'&&String(x.twitchUserId||'')===String(B.m.id));return Number(b?.viewerCount||0)-Number(a?.viewerCount||0)});
+    feed.innerHTML=tabs+'<div class="v1826Subs">'+metas.map(({m})=>{
       let item=null,status='',buttons='';
       if(m.platform==='twitch'){
         item=followingItems.find(x=>x.p==='twitch'&&String(x.twitchUserId||'')===String(m.id));
         const u=followedUrl(m);
         if(item?.live){status='🔴 En live'+(item.meta?' · '+item.meta:'');buttons=`<button class="live" onclick="v1827OpenItemInOne('${esc(item.id)}')">Voir le live dans ONE</button>`}
-        else{status='Hors ligne';buttons=`<button onclick="v1827OpenCreatorInOne('twitch','${esc(m.login||m.name||'')}')">Voir la chaîne dans ONE</button>`}
+        else{status='Hors ligne';buttons=`<button onclick="v1827OpenCreatorInOne('twitch','${esc(m.id||'')}','${esc(m.login||'')}','${esc(m.name||'')}')">Voir la chaîne dans ONE</button>`}
       }else if(m.platform==='youtube'){
         item=followingItems.find(x=>x.p==='youtube'&&String(x.channelId||'')===String(m.id));
         status=item?'Dernière vidéo disponible':'Chaîne suivie';
         if(item?.videoId)buttons+=`<button class="video" onclick="v1827OpenItemInOne('${esc(item.id)}')">Lire la dernière vidéo</button>`;
-        buttons+=`<button onclick="v1827OpenCreatorInOne('youtube','${esc(m.name||'')}')">Voir la chaîne dans ONE</button>`;
+        buttons+=`<button onclick="v1827OpenCreatorInOne('youtube','${esc(m.id||'')}','','${esc(m.name||'')}')">Voir la chaîne dans ONE</button>`;
       }else if(m.platform==='tiktok'){
-        status='TikTok suivi';buttons=`<button onclick="v1827OpenCreatorInOne('tiktok','${esc(m.name||'')}')">Voir dans ONE</button>`;
+        status='TikTok suivi';buttons=`<button onclick="v1827OpenCreatorInOne('tiktok','','','${esc(m.name||'')}')">Voir dans ONE</button>`;
       }
       return `<div class="v1826SubRow"><div class="v1826SubMain"><div class="v1826SubName">${esc(m.name||m.login||'Créateur')}<span class="v1826Platform">${esc(platformName(m.platform))}</span></div><div class="v1826SubMeta">${esc(status)}</div></div><div class="v1826SubActions">${buttons}</div></div>`;
     }).join('')+'</div>';
