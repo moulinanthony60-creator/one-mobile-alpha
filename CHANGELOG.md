@@ -1,3 +1,11 @@
+
+# 0.13.21 — Chat escamotable
+
+- Retire la barre Live + tchat / Retour au live et le titre ONE du chat dans la vue partagée.
+- Flèche sur le bord gauche du chat pour masquer/afficher ; vidéo agrandie quand le chat est masqué.
+- Les iframes vidéo/chat restent en place au basculement, sans rechargement.
+- Cache et version actualisés.
+
 # 0.13.20 — Plus de place pour le tchat
 
 - Retire le message ONE « Connecte-toi à Twitch… » au-dessus du chat.
