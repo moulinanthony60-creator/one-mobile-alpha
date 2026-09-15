@@ -1,4 +1,12 @@
 
+# 0.13.14 — Bulle ONE IA et découverte YouTube
+
+- Retire le bouton Grand lecteur ONE ajouté en 0.13.13 ; conserve les contrôles fullscreen natifs.
+- Bulle IA déplaçable pendant la lecture dans ONE, position locale mémorisée, déplacement au clavier et séparation clic/glissement. Masquée en plein écran natif et lorsque le panneau IA est ouvert.
+- YouTube : deux vidéos par chaîne suivie, puis autres créateurs sans doublons ; complément via vidéos populaires publiques YouTube (région FR), avec la clé existante.
+- Analyse visuelle et musique écran verrouillé toujours non activées.
+
+
 # 0.13.13 — Priorité aux chaînes suivies
 
 - Twitch : récupération directe des lives suivis et priorité avant les autres, tri par spectateurs dans chaque groupe.
