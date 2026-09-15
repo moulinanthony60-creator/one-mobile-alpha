@@ -1,4 +1,9 @@
 
+# 0.13.15 — Lecture paysage automatique
+
+Sur appareil tactile, un lecteur vidéo ouvert est agrandi dans l’espace disponible en paysage. Retour à la disposition normale en portrait, sans recréer l’iframe. Bulle IA conservée. Aucun bouton fullscreen ajouté ; les barres du navigateur peuvent rester visibles. Le plein écran natif garde son fonctionnement. Le feed vertical conserve sa présentation actuelle.
+
+
 # 0.13.14 — Bulle ONE IA et découverte YouTube
 
 - Retire le bouton Grand lecteur ONE ajouté en 0.13.13 ; conserve les contrôles fullscreen natifs.
