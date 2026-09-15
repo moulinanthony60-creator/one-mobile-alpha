@@ -1,7 +1,7 @@
-# ONE Mobile Alpha 0.12.5 — Fast Swipe
+# ONE Mobile Alpha 0.12.6 — Speed Finish
 
-Version complète déployable.
+Version complète déployable sur GitHub Pages.
 
-Optimisation du feed TikTok pour les swipes rapides dans les deux sens : 1 lecteur précédent, lecteur actif et 2 suivants préparés, priorité à la vidéo visible, reprise sans afficher une frame préchargée figée.
+Cette version conserve la logique Fast Swipe validée en 0.12.5 et ne fait qu'une passe de finition sur la vitesse du feed TikTok : délais de reprise raccourcis, première frame révélée plus tôt et préchauffage des voisins avancé.
 
-Conserve Safe-Sync TikTok, partage Android, compte ONE/cloud et les fonctions validées précédemment.
+Le partage Android TikTok, le catalogue externe protégé, Safe-Sync, le compte ONE et la synchronisation cloud sont conservés.
