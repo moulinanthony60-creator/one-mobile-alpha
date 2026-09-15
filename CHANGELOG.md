@@ -1,4 +1,13 @@
 
+# 0.13.13 — Priorité aux chaînes suivies
+
+- Twitch : récupération directe des lives suivis et priorité avant les autres, tri par spectateurs dans chaque groupe.
+- YouTube : deux derniers éléments publics disponibles de la playlist Uploads par chaîne suivie, avant les autres vidéos, sans doublons.
+- Priorité dans les onglets sans recherche active ; rafraîchissement à la consultation, cache mémoire de trois minutes. Connexions existantes nécessaires.
+- Grand lecteur ONE conserve le bouton IA ; le plein écran natif reste disponible mais masque les commandes ONE.
+- Musique écran verrouillé/arrière-plan toujours non disponible pour les playlists YouTube intégrées ; nécessite une autre source audio compatible.
+
+
 # 0.13.12 — ONE IA depuis les lecteurs
 
 Bouton contextuel dans cartes, lecteur vertical, lecteur vidéo et fiches chaînes. Panneau avec question, recherche web existante et capture locale (10 Mo max). Aucune analyse des images/son/transcription du lecteur. Service vision non connecté : identification visuelle et résumé réel de vidéo non disponibles. Aucun envoi de capture. Fermeture sans navigation hors du lecteur.
