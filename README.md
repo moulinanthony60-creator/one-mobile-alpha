@@ -1,5 +1,3 @@
-# ONE Mobile Alpha 0.13.2 — Navigation Hotfix
+# ONE Mobile Alpha 0.13.3 — Smart Ranking
 
-Version corrective complète. Elle conserve les fonctions de 0.13.1 mais corrige l’erreur JavaScript qui bloquait les onglets principaux.
-
-Base vidéo : 0.12.6 stable.
+Base stable 0.12.6 conservée. Abonnements séparés YouTube / Twitch / TikTok. Twitch est classé par audience live dans son onglet et les suivis restent favorisés dans Pour toi.
