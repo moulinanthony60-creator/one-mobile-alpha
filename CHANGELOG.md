@@ -1,4 +1,9 @@
 
+# 0.13.16 — Analyse de capture et tchat Twitch
+
+Intégration serveur vision préparée avec bouton Analyser la capture, adresse de serveur et code privé. Worker séparé fourni : voir VISION_SETUP.md. Activation réelle requiert son déploiement et une clé API configurée côté serveur. Tchat Twitch officiel intégré dans les cartes live et fiches live ; connexion Twitch nécessaire pour écrire. Commentaires/likes YouTube et TikTok non activés.
+
+
 # 0.13.15 — Lecture paysage automatique
 
 Sur appareil tactile, un lecteur vidéo ouvert est agrandi dans l’espace disponible en paysage. Retour à la disposition normale en portrait, sans recréer l’iframe. Bulle IA conservée. Aucun bouton fullscreen ajouté ; les barres du navigateur peuvent rester visibles. Le plein écran natif garde son fonctionnement. Le feed vertical conserve sa présentation actuelle.
