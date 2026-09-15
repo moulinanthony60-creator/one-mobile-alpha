@@ -1,10 +1,7 @@
-# ONE Mobile Alpha — Changelog
+# ONE Mobile Alpha 0.13.2 — Navigation Hotfix
 
-## 0.13.1 — Fresh Following
-- Nouveau mélange du Pour toi à chaque ouverture de ONE.
-- Priorité forte aux créateurs suivis dans ONE.
-- Twitch : nouvelle autorisation `user:read:follows` et import des chaînes réellement suivies après reconnexion.
-- YouTube : les créateurs suivis dans ONE sont prioritaires. L’import direct des abonnements YouTube exige OAuth utilisateur (`subscriptions.list?mine=true`) et n’est pas simulé avec la simple clé API.
-- TikTok : priorité aux créateurs suivis/appris par ONE ; la Display API ne fournit pas la liste des comptes suivis.
-- Historique des contenus vus conservé pour éviter les répétitions.
+- Correctif critique de navigation après 0.13.1.
+- Suppression d’une accolade JavaScript en trop qui empêchait l’exécution du script après le chargement de la page.
+- Restaure Feed, Découvrir, ONE IA, Abonnements et Réglages.
+- Conserve le feed renouvelé et la priorité aux créateurs suivis de 0.13.1.
 - Moteur vidéo 0.12.6 conservé.

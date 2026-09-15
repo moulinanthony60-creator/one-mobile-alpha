@@ -75,7 +75,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.1 FRESH FOLLOWING</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.2 NAV HOTFIX</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -965,7 +965,6 @@ function diverseUnified(arr){
  available.sort((a,b)=>personalScore(buckets[b][0])-personalScore(buckets[a][0]));
  const out=[],creatorCount={};let guard=0;
  while(out.length<60&&guard++<300){let added=0;for(const p of available){const a=buckets[p];let pick=-1;for(let i=0;i<Math.min(8,a.length);i++){const x=a[i],c=creatorCount[x.creator]||0;if(c<3){pick=i;break}}if(pick<0&&a.length)pick=0;if(pick>=0){const x=a.splice(pick,1)[0];out.push(x);creatorCount[x.creator]=(creatorCount[x.creator]||0)+1;added++;if(out.length>=60)break}}if(!added)break}
- }
  return out;
 }
 const oldFiltered=filtered;
