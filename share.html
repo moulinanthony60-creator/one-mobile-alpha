@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07090d"><title>Partager vers ONE</title></head>
+<body style="margin:0;background:#07090d;color:white;font-family:system-ui"><p style="padding:24px">Ouverture dans ONE…</p>
+<script>
+(()=>{
+ const incoming=new URL(location.href);
+ const target=new URL('./',location.href);
+ for(const key of ['share_title','share_text','share_url']){const v=incoming.searchParams.get(key);if(v)target.searchParams.set(key,v)}
+ location.replace(target.href);
+})();
+</script></body></html>
