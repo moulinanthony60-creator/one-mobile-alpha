@@ -1,4 +1,12 @@
 
+# 0.13.19 — Bulle Chat et vue vidéo + chat
+
+- Bulle Chat sur les lives visibles : vidéo à gauche/chat à droite en paysage, empilés en portrait. Retour au live sans déplacer ni recréer son iframe.
+- Ouverture du chat depuis sa bulle : demande fullscreen sur la page ONE (vidéo et chat inclus), avec navigationUI hide. Repli sur la fenêtre disponible si le navigateur refuse.
+- Fonds de page sombres pour éviter une zone blanche issue du site. Les barres système restent contrôlées par le téléphone.
+- Plein écran natif Twitch inchangé : il ne contient pas le chat ONE.
+
+
 # 0.13.18 — Lecture native Twitch et chat agrandi
 
 - Cartes live Twitch : lecteur natif chargé lorsque la carte devient visible, sans bouton Play/Lire ONE redondant. Autoplay demandé sans son ; un appui natif peut rester nécessaire sur mobile.
