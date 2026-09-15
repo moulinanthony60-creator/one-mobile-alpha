@@ -1,5 +1,10 @@
-# ONE Mobile Alpha 0.13.4 — Channel Hub
+# ONE Mobile Alpha 0.13.5 — Channel Player
 
-Base vidéo stable 0.12.6 conservée. Abonnements séparés YouTube / Twitch / TikTok, classement Twitch par audience, rotation du Top entre les ouvertures, et nouvelle fiche chaîne interne à ONE pour YouTube et Twitch.
+Base stable 0.13.4 + lecture directe des vidéos dans les fiches chaîne ONE et rotation renforcée TikTok / Pour toi.
 
-YouTube : dernières vidéos de la chaîne en grille compacte, de la plus récente à la plus ancienne. Twitch : statut live + audience puis dernières VOD, de la plus récente à la plus ancienne.
+- YouTube : toucher une vidéo ouvre le lecteur dans la fiche chaîne.
+- Twitch : live et VOD se lisent dans la fiche chaîne avec le `parent` GitHub Pages.
+- TikTok : mémorisation séparée du Top TikTok précédent pour forcer une vraie rotation au prochain lancement.
+- Pour toi : pénalité renforcée du Top précédent avant le mélange des plateformes.
+- Classement Twitch par viewers conservé.
+- Moteur vertical TikTok stable conservé.
