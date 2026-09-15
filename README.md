@@ -1,5 +1,5 @@
-# ONE Mobile Alpha 0.12.1
+# ONE Mobile Alpha 0.12.2
 
-Version complète de déploiement. Remplace le contenu du dépôt GitHub Pages par ces fichiers.
+Version complète de déploiement GitHub Pages.
 
-Objectif 0.12.1 : supprimer le cas « son mais écran noir » du feed TikTok en ne gardant qu'un lecteur actif et en conservant la miniature jusqu'à une progression réelle de lecture.
+Objectif 0.12.2 : feed TikTok sans écran noir ni écran de chargement visible : miniature immédiate, lecteur préparé derrière, puis bascule sur la vidéo lorsqu’elle progresse réellement.
