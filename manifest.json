@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "ONE Mobile Alpha 0.11.6",
+  "name": "ONE Mobile Alpha 0.11.7",
   "short_name": "ONE",
-  "description": "ONE — diagnostic installation Chrome Android.",
+  "description": "ONE — partage TikTok depuis Android vers ONE.",
   "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
@@ -23,5 +23,14 @@
       "type": "image/png",
       "purpose": "any"
     }
-  ]
+  ],
+  "share_target": {
+    "action": "./?one_share=1",
+    "method": "GET",
+    "params": {
+      "title": "share_title",
+      "text": "share_text",
+      "url": "share_url"
+    }
+  }
 }
