@@ -69,13 +69,16 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 /* Mobile Alpha 0.2 — compte + polish mobile */
 .accountSummary{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);background:linear-gradient(180deg,#151a24,#0f131b);border-radius:16px;margin:12px 0 14px}.accountAvatar{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#7c5cff,#ff4d8d);font-size:22px}.accountSummary b{display:block}.accountSummary span{display:block;color:var(--muted);font-size:12px;margin-top:3px}.platformList{display:grid;gap:9px}.platformRow{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--line);background:#0d1118;border-radius:14px}.platformIcon{width:38px;height:38px;border-radius:12px;background:var(--panel2);display:grid;place-items:center;font-size:20px}.platformMeta b{display:block;font-size:14px}.platformMeta span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.platformStatus{border:0;border-radius:999px;padding:7px 9px;background:#242b38;color:#cbd3df;font-weight:800;font-size:11px}.platformStatus.on{background:rgba(32,201,151,.14);color:#5de1b3}.accountActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.accountActions button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;padding:11px 8px;font-weight:800}.accountActions .primary{background:var(--accent);border-color:var(--accent)}
 @media(max-width:420px){.brand{font-size:26px}.brand small{font-size:9px!important;margin-left:5px!important}.tabsRail{grid-template-columns:28px minmax(0,1fr) 28px;gap:4px}.tabsArrow{width:28px;height:28px}.chips{gap:6px}.chip{padding:7px 9px;font-size:12px}.hero h1{font-size:25px}.bottom{height:72px}.nav{font-size:10.5px}.nav .ico{font-size:19px}}
+
+/* 0.13.4 CHANNEL HUB */
+.oneChannelHub{position:fixed;inset:0;z-index:12000;background:#08090d;color:#fff;display:none;overflow:auto;padding-bottom:100px}.oneChannelHub.show{display:block}.oneChannelHead{position:sticky;top:0;z-index:2;background:rgba(8,9,13,.96);backdrop-filter:blur(12px);padding:18px 22px;border-bottom:1px solid #252938}.oneChannelBack{border:1px solid #303546;background:#151824;color:#fff;border-radius:14px;padding:10px 14px;font-weight:800}.oneChannelIdentity{display:flex;align-items:center;gap:14px;margin-top:16px}.oneChannelAvatar{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#202432}.oneChannelIdentity h2{margin:0;font-size:25px}.oneChannelIdentity p{margin:4px 0 0;color:#aeb4c5}.oneChannelBody{padding:18px 22px;max-width:900px;margin:auto}.oneChannelStatus{padding:14px 16px;border:1px solid #2b3040;border-radius:16px;background:#11141d;margin-bottom:16px}.oneChannelGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.oneChannelVideo{border:1px solid #292e3d;border-radius:15px;overflow:hidden;background:#11141d;cursor:pointer}.oneChannelVideo img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}.oneChannelVideoText{padding:10px}.oneChannelVideoTitle{font-size:14px;font-weight:850;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.oneChannelVideoMeta{font-size:12px;color:#aeb4c5;margin-top:6px}.oneChannelLive{border-color:#a53cff;box-shadow:0 0 0 1px rgba(165,60,255,.25)}.oneChannelEmpty{padding:28px 10px;text-align:center;color:#aeb4c5}@media(min-width:720px){.oneChannelGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
 <script src="https://player.twitch.tv/js/embed/v1.js"></script>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.3 SMART RANKING</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.4 CHANNEL HUB</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -261,6 +264,11 @@ function saveFeedPrefsUI(){document.querySelectorAll('#modal input[data-topic]')
 function rememberSearch(q){q=(q||'').trim();if(!q)return;oneProfile.searches=[q,...oneProfile.searches.filter(x=>x.toLowerCase()!==q.toLowerCase())].slice(0,12);saveProfile()}
 function durationSeconds(v){if(!v||v==='LIVE'||v==='YouTube')return 999999;const a=v.split(':').map(Number);return a.length===3?a[0]*3600+a[1]*60+a[2]:a[0]*60+a[1]}
 const ONE_SESSION_SEED=(Date.now()^Math.floor(Math.random()*0x7fffffff))>>>0;
+const ONE_LAST_TOP_KEY='one_feed_last_top_v134';
+let onePreviousLaunchTop=[];
+try{onePreviousLaunchTop=JSON.parse(localStorage.getItem(ONE_LAST_TOP_KEY)||'[]');if(!Array.isArray(onePreviousLaunchTop))onePreviousLaunchTop=[]}catch{onePreviousLaunchTop=[]}
+let oneLaunchTopCommitted=false;
+function onePreviousTopPenalty(x){const i=onePreviousLaunchTop.indexOf(String(x?.id||''));return i<0?0:-(260-i*18)}
 const oneSessionNoise=new Map();
 function oneSessionRand(id){id=String(id||'');if(oneSessionNoise.has(id))return oneSessionNoise.get(id);let h=ONE_SESSION_SEED||2166136261;for(let i=0;i<id.length;i++){h^=id.charCodeAt(i);h=Math.imul(h,16777619)}const v=((h>>>0)%10000)/10000;oneSessionNoise.set(id,v);return v}
 function oneIsFollowedItem(x){const m=itemCreatorMeta(x);return !!(m&&followedCreators.has(m.platform+':'+m.id))}
@@ -269,6 +277,7 @@ function personalScore(x){
  n+=(oneSessionRand(id)-.5)*24;
  if(oneIsFollowedItem(x))n+=220;
  n+=oneSeenPenalty(x);
+ n+=onePreviousTopPenalty(x);
  if(state.disliked.has(id))n-=1000;
  if(state.liked.has(id))n+=78;
  n+=(oneProfile.creators[x.creator]||0)*18;
@@ -981,7 +990,12 @@ async function loadUnifiedFeed(){
  if(jobs.length) await Promise.allSettled(jobs);
  state.filter='all';state.mode=null;state.query='';
  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.filter==='all'));
- render();const n=[youtubeItems.length?'YouTube':'',tiktokItems.length?'TikTok':'',twitchItems.length?'Twitch':''].filter(Boolean).join(' + ');toast(n?'Feed réel : '+n+' ✨':'Pour toi actualisé ✨');
+ render();
+ if(!oneLaunchTopCommitted){
+   oneLaunchTopCommitted=true;
+   setTimeout(()=>{try{const top=diverseUnified([...tiktokItems,...twitchItems,...youtubeItems,...items]).slice(0,10).map(x=>String(x.id));localStorage.setItem(ONE_LAST_TOP_KEY,JSON.stringify(top))}catch(e){console.warn('ONE top rotation',e)}},80);
+ }
+ const n=[youtubeItems.length?'YouTube':'',tiktokItems.length?'TikTok':'',twitchItems.length?'Twitch':''].filter(Boolean).join(' + ');toast(n?'Feed réel : '+n+' ✨':'Pour toi actualisé ✨');
 }
 
 function syncVerticalLauncher(){
@@ -1779,14 +1793,37 @@ v17ApplySound();
       }
     },120);
   };
-  window.v1827OpenCreatorInOne=async function(platform,name){
-    const q=String(name||'').trim();if(!q)return;
-    state.mode=null;state.query='';state.filter=platform;
-    resetCreatorMode(false);
-    const searchBox=document.getElementById('search');if(searchBox)searchBox.value=q;
-    document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.filter===platform));
-    render();syncTwitchFilters();syncVerticalLauncher();
-    const btn=document.getElementById('searchBtn');if(btn)btn.click();
+  function v134Hub(){let h=document.getElementById('oneChannelHub');if(!h){h=document.createElement('section');h.id='oneChannelHub';h.className='oneChannelHub';h.innerHTML='<div class="oneChannelHead"><button class="oneChannelBack" onclick="v134CloseChannel()">← Abonnements</button><div id="oneChannelIdentity" class="oneChannelIdentity"></div></div><div id="oneChannelBody" class="oneChannelBody"></div>';document.body.appendChild(h)}return h}
+  window.v134CloseChannel=function(){v134Hub().classList.remove('show')};
+  function v134Date(d){try{return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}catch{return ''}}
+  function v134YTPlay(id,title,creator){const x={id:'hub_yt_'+id,p:'youtube',videoId:id,title:title||'YouTube',creator:creator||'YouTube'};followingItems.unshift(x);youtubeItems.unshift(x);v1827OpenItemInOne(x.id)}
+  window.v134YTPlay=v134YTPlay;
+  window.v134TWPlay=function(id,title,creator,thumb){const x={id:'hub_tw_'+id,p:'twitch',twitchVideoId:id,isTwitchVod:true,title:title||'Twitch',creator:creator||'Twitch',thumbnail:thumb||'',url:'https://www.twitch.tv/videos/'+id};followingItems.unshift(x);twitchItems.unshift(x);v1827OpenItemInOne(x.id)};
+  window.v134TWLive=function(uid,login,title,creator,thumb,viewers){const x={id:'hub_tw_live_'+uid,p:'twitch',live:true,twitchUserId:uid,twitchChannel:login,title:title||('Live de '+creator),creator:creator||login||'Twitch',thumbnail:thumb||'',viewerCount:Number(viewers||0),meta:Number(viewers||0).toLocaleString('fr-FR')+' spectateurs',url:'https://www.twitch.tv/'+encodeURIComponent(login||'')};followingItems.unshift(x);twitchItems.unshift(x);v1827OpenItemInOne(x.id)};
+  window.v1827OpenCreatorInOne=async function(platform,id,login,name){
+    const h=v134Hub(),identity=document.getElementById('oneChannelIdentity'),body=document.getElementById('oneChannelBody');h.classList.add('show');identity.innerHTML='<div class="oneChannelAvatar"></div><div><h2>'+esc(name||login||'Chaîne')+'</h2><p>'+esc(platformName(platform))+'</p></div>';body.innerHTML='<div class="oneChannelEmpty">Chargement de la chaîne…</div>';
+    try{
+      if(platform==='youtube'){
+        const key=localStorage.getItem('one_youtube_api_key');if(!key)throw new Error('Clé YouTube manquante');
+        const cr=await fetch('https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&id='+encodeURIComponent(id)+'&key='+encodeURIComponent(key)),cd=await cr.json(),c=cd.items?.[0];if(!c)throw new Error('Chaîne YouTube introuvable');
+        const avatar=(c.snippet?.thumbnails?.high||c.snippet?.thumbnails?.default)?.url||'',up=c.contentDetails?.relatedPlaylists?.uploads;if(!up)throw new Error('Vidéos indisponibles');
+        identity.innerHTML=(avatar?'<img class="oneChannelAvatar" src="'+esc(avatar)+'" alt="">':'<div class="oneChannelAvatar"></div>')+'<div><h2>'+esc(c.snippet?.title||name||'YouTube')+'</h2><p>YouTube · dernières vidéos</p></div>';
+        const pr=await fetch('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=30&playlistId='+encodeURIComponent(up)+'&key='+encodeURIComponent(key)),pd=await pr.json();const vids=(pd.items||[]).filter(v=>v.snippet?.resourceId?.videoId).sort((a,b)=>new Date(b.snippet.publishedAt)-new Date(a.snippet.publishedAt));
+        body.innerHTML='<div class="oneChannelStatus">Dernières vidéos · de la plus récente à la plus ancienne</div><div class="oneChannelGrid">'+vids.map(v=>{const z=v.snippet,vid=z.resourceId.videoId,th=(z.thumbnails?.medium||z.thumbnails?.high||z.thumbnails?.default)?.url||'';return '<article class="oneChannelVideo" onclick="v134YTPlay(\''+esc(vid)+'\',\''+esc(String(z.title||'').replace(/'/g,'&#39;'))+'\',\''+esc(String(c.snippet?.title||'YouTube').replace(/'/g,'&#39;'))+'\')"><img src="'+esc(th)+'" alt=""><div class="oneChannelVideoText"><div class="oneChannelVideoTitle">'+esc(z.title||'Vidéo')+'</div><div class="oneChannelVideoMeta">'+esc(v134Date(z.publishedAt))+'</div></div></article>'}).join('')+'</div>';
+      }else if(platform==='twitch'){
+        const cid=localStorage.getItem('one_twitch_client_id'),tok=localStorage.getItem('one_twitch_token');if(!cid||!tok)throw new Error('Reconnecte Twitch');const headers={'Client-Id':cid,'Authorization':'Bearer '+tok};let uid=String(id||'');
+        if(!uid){const ur=await fetch('https://api.twitch.tv/helix/users?login='+encodeURIComponent(login||name||''),{headers}),ud=await ur.json();uid=ud.data?.[0]?.id||''}if(!uid)throw new Error('Chaîne Twitch introuvable');
+        const [ur,sr,vr]=await Promise.all([fetch('https://api.twitch.tv/helix/users?id='+encodeURIComponent(uid),{headers}),fetch('https://api.twitch.tv/helix/streams?user_id='+encodeURIComponent(uid),{headers}),fetch('https://api.twitch.tv/helix/videos?user_id='+encodeURIComponent(uid)+'&first=30&sort=time',{headers})]);const ud=await ur.json(),sd=await sr.json(),vd=await vr.json(),u=ud.data?.[0],live=sd.data?.[0],vids=(vd.data||[]).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+        identity.innerHTML=(u?.profile_image_url?'<img class="oneChannelAvatar" src="'+esc(u.profile_image_url)+'" alt="">':'<div class="oneChannelAvatar"></div>')+'<div><h2>'+esc(u?.display_name||name||login||'Twitch')+'</h2><p>Twitch · '+(live?'🔴 EN DIRECT':'hors ligne')+'</p></div>';
+        let top=live?'<div class="oneChannelStatus oneChannelLive"><b>🔴 En direct · '+Number(live.viewer_count||0).toLocaleString('fr-FR')+' spectateurs</b><br>'+esc(live.title||'Live en cours')+'<br><button class="oneChannelBack" style="margin-top:10px" onclick="v134TWLive(\''+esc(uid)+'\',\''+esc(live.user_login||login||'')+'\',\''+esc(String(live.title||'').replace(/'/g,'&#39;'))+'\',\''+esc(String(live.user_name||name||'Twitch').replace(/'/g,'&#39;'))+'\',\''+esc((live.thumbnail_url||'').replace('{width}','640').replace('{height}','360'))+'\','+Number(live.viewer_count||0)+')">▶ Voir le live dans ONE</button></div>':'<div class="oneChannelStatus">Hors ligne · dernières vidéos ci-dessous</div>';
+        body.innerHTML=top+'<div class="oneChannelGrid">'+vids.map(v=>{const th=(v.thumbnail_url||'').replace('%{width}','480').replace('%{height}','270');return '<article class="oneChannelVideo" onclick="v134TWPlay(\''+esc(v.id)+'\',\''+esc(String(v.title||'').replace(/'/g,'&#39;'))+'\',\''+esc(String(v.user_name||'Twitch').replace(/'/g,'&#39;'))+'\',\''+esc(th)+'\')"><img src="'+esc(th)+'" alt=""><div class="oneChannelVideoText"><div class="oneChannelVideoTitle">'+esc(v.title||'Vidéo Twitch')+'</div><div class="oneChannelVideoMeta">'+esc(v134Date(v.created_at))+(v.view_count?' · '+Number(v.view_count).toLocaleString('fr-FR')+' vues':'')+'</div></div></article>'}).join('')+'</div>';
+      }else if(platform==='tiktok'){
+        const creator=String(name||id||'').trim();
+        const vids=tiktokItems.filter(x=>v182Norm(x.creator)===v182Norm(creator)).sort((a,b)=>Number(b.publishedTs||0)-Number(a.publishedTs||0));
+        identity.innerHTML='<div class="oneChannelAvatar"></div><div><h2>'+esc(creator||'TikTok')+'</h2><p>TikTok · contenus disponibles dans ONE</p></div>';
+        body.innerHTML=vids.length?'<div class="oneChannelStatus">Vidéos TikTok disponibles dans ONE</div><div class="oneChannelGrid">'+vids.map(v=>'<article class="oneChannelVideo" onclick="v1827OpenItemInOne(\''+esc(v.id)+'\')"><img src="'+esc(v.thumbnail||'')+'" alt=""><div class="oneChannelVideoText"><div class="oneChannelVideoTitle">'+esc(v.title||'TikTok')+'</div></div></article>').join('')+'</div>':'<div class="oneChannelEmpty">Aucune vidéo TikTok de ce créateur disponible dans ONE pour le moment.</div>';
+      }
+    }catch(e){body.innerHTML='<div class="oneChannelEmpty">'+esc(e.message||'Impossible de charger la chaîne')+'</div>'}
   };
   let v133SubPlatform=localStorage.getItem('one_sub_platform_v133')||'youtube';
   window.v133SetSubPlatform=function(p){v133SubPlatform=['youtube','twitch','tiktok'].includes(p)?p:'youtube';localStorage.setItem('one_sub_platform_v133',v133SubPlatform);renderSubsCompact()};
@@ -1805,14 +1842,14 @@ v17ApplySound();
         item=followingItems.find(x=>x.p==='twitch'&&String(x.twitchUserId||'')===String(m.id));
         const u=followedUrl(m);
         if(item?.live){status='🔴 En live'+(item.meta?' · '+item.meta:'');buttons=`<button class="live" onclick="v1827OpenItemInOne('${esc(item.id)}')">Voir le live dans ONE</button>`}
-        else{status='Hors ligne';buttons=`<button onclick="v1827OpenCreatorInOne('twitch','${esc(m.login||m.name||'')}')">Voir la chaîne dans ONE</button>`}
+        else{status='Hors ligne';buttons=`<button onclick="v1827OpenCreatorInOne('twitch','${esc(m.id||'')}','${esc(m.login||'')}','${esc(m.name||'')}')">Voir la chaîne dans ONE</button>`}
       }else if(m.platform==='youtube'){
         item=followingItems.find(x=>x.p==='youtube'&&String(x.channelId||'')===String(m.id));
         status=item?'Dernière vidéo disponible':'Chaîne suivie';
         if(item?.videoId)buttons+=`<button class="video" onclick="v1827OpenItemInOne('${esc(item.id)}')">Lire la dernière vidéo</button>`;
-        buttons+=`<button onclick="v1827OpenCreatorInOne('youtube','${esc(m.name||'')}')">Voir la chaîne dans ONE</button>`;
+        buttons+=`<button onclick="v1827OpenCreatorInOne('youtube','${esc(m.id||'')}','','${esc(m.name||'')}')">Voir la chaîne dans ONE</button>`;
       }else if(m.platform==='tiktok'){
-        status='TikTok suivi';buttons=`<button onclick="v1827OpenCreatorInOne('tiktok','${esc(m.name||'')}')">Voir dans ONE</button>`;
+        status='TikTok suivi';buttons=`<button onclick="v1827OpenCreatorInOne('tiktok','','','${esc(m.name||'')}')">Voir dans ONE</button>`;
       }
       return `<div class="v1826SubRow"><div class="v1826SubMain"><div class="v1826SubName">${esc(m.name||m.login||'Créateur')}<span class="v1826Platform">${esc(platformName(m.platform))}</span></div><div class="v1826SubMeta">${esc(status)}</div></div><div class="v1826SubActions">${buttons}</div></div>`;
     }).join('')+'</div>';

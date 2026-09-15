@@ -1,3 +1,5 @@
-# ONE Mobile Alpha 0.13.3 — Smart Ranking
+# ONE Mobile Alpha 0.13.4 — Channel Hub
 
-Base stable 0.12.6 conservée. Abonnements séparés YouTube / Twitch / TikTok. Twitch est classé par audience live dans son onglet et les suivis restent favorisés dans Pour toi.
+Base vidéo stable 0.12.6 conservée. Abonnements séparés YouTube / Twitch / TikTok, classement Twitch par audience, rotation du Top entre les ouvertures, et nouvelle fiche chaîne interne à ONE pour YouTube et Twitch.
+
+YouTube : dernières vidéos de la chaîne en grille compacte, de la plus récente à la plus ancienne. Twitch : statut live + audience puis dernières VOD, de la plus récente à la plus ancienne.

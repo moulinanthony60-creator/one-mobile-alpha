@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "ONE Mobile Alpha 0.13.3",
-  "short_name": "ONE",
+  "name": "ONE Mobile Alpha 0.13.4 Channel Hub",
+  "short_name": "ONE 0.13.4",
   "description": "ONE — feed personnalisé renouvelé à chaque ouverture, créateurs suivis prioritaires et moteur vidéo Speed Finish.",
   "start_url": "./?source=pwa",
   "scope": "./",

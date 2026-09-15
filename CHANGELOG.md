@@ -1,8 +1,10 @@
-# 0.13.3 — Smart Ranking
+# 0.13.4 — Channel Hub
 
-- Abonnements séparés en 3 onglets : YouTube, Twitch, TikTok.
-- Un compte présent sur plusieurs plateformes reste dans son onglet d’origine.
-- Onglet Twitch : lives classés par `viewer_count` décroissant.
-- Abonnements Twitch : lives suivis classés par audience, hors-ligne ensuite.
-- Pour toi : bonus Twitch progressif selon l’audience, en plus des suivis et préférences.
-- Moteur vidéo 0.12.6 conservé.
+- « Voir la chaîne dans ONE » ouvre désormais une vraie fiche interne.
+- YouTube : avatar, chaîne et 30 dernières vidéos en format compact, triées récent → ancien.
+- Twitch : avatar, statut live + viewers et 30 dernières VOD, triées récent → ancien.
+- Lecture des vidéos/VOD directement dans ONE.
+- Rotation du Top 10 entre deux ouvertures de ONE, appliquée aussi au contenu TikTok.
+- Abonnements YouTube / Twitch / TikTok restent séparés.
+- Classement Twitch par viewers conservé.
+- Moteur vidéo stable 0.12.6 conservé.
