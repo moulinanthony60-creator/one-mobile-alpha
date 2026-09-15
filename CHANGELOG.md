@@ -1,3 +1,13 @@
+
+## 0.13.11 — Chaînes et navigation
+- Barre du bas : Créer, ONE IA, Abonnements, Réglages. Logo ONE cliquable pour revenir à l’accueil.
+- Bouton Retour à l’accueil dans Abonnements ; croix du studio conservée.
+- Ouvrir et noms des chaînes affichent les fiches internes ONE (YouTube/Twitch/TikTok disponibles).
+- Avatars officiels YouTube/Twitch chargés par lots avec les connexions existantes, cache en mémoire, initiale en secours. Les miniatures de vidéos TikTok ne sont plus présentées comme logos.
+- Cartes créateurs : espacement, retour à la ligne et images circulaires.
+- Musique : lecture arrière-plan/écran verrouillé NON implémentée pour les playlists YouTube. L’interface indique cette limite. Une source audio compatible sera nécessaire.
+- Règles du lecteur YouTube : https://developers.google.com/youtube/terms/developer-policies#i.-additional-prohibitions
+
 # 0.13.10 — Pour toi sans YouTube ni Twitch
 
 - Filtre Pour toi dans la liste, le lecteur vertical et l’historique de sélection.
