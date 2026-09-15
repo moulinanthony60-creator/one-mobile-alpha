@@ -1,3 +1,9 @@
+# 0.13.20 — Plus de place pour le tchat
+
+- Retire le message ONE « Connecte-toi à Twitch… » au-dessus du chat.
+- La zone du chat utilise la place libérée ; connexion et lecteur Twitch inchangés.
+- Version et cache actualisés.
+
 
 # 0.13.19 — Bulle Chat et vue vidéo + chat
 
