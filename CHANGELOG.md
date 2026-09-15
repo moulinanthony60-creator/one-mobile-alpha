@@ -1,3 +1,11 @@
+
+# 0.13.18 — Lecture native Twitch et chat agrandi
+
+- Cartes live Twitch : lecteur natif chargé lorsque la carte devient visible, sans bouton Play/Lire ONE redondant. Autoplay demandé sans son ; un appui natif peut rester nécessaire sur mobile.
+- Aucun masquage des bandeaux internes Twitch.
+- Chat : Agrandir/Réduire, demande de plein écran avec repli sur toute la fenêtre ONE si refusé. Ce mode agrandit le chat seul ; le fullscreen natif vidéo ne permet pas de superposer le chat ONE.
+- Moteur vertical TikTok inchangé.
+
 # 0.13.17 — Retour à la recherche web uniquement
 
 - Retire capture, analyse visuelle, configuration du serveur et code d’accès du panneau IA.
