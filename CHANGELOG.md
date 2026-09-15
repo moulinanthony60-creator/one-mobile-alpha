@@ -1,4 +1,11 @@
 
+# 0.13.25 — Déclaration du thème sombre
+
+- Ajoute color-scheme dark dans le document et le CSS racine. Couleurs theme-color et manifest déjà sombres, conservées.
+- Corrige le titre de page resté en 0.11.
+- La bande montrée sur les captures est la barre système Android. Sa couleur finale dépend du navigateur et du système ; cette déclaration ne garantit pas sa recoloration. Aucun changement supplémentaire aux dimensions du lecteur.
+
+
 # 0.13.24 — Dimensions du lecteur mobile
 
 - Mesure de la fenêtre visible au démarrage, resize, rotation et transition fullscreen.
