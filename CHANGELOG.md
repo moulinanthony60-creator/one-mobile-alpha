@@ -1,9 +1,9 @@
-# 0.13.5 — Channel Player + Feed Rotation
+# ONE Mobile Alpha 0.12.4 — Back Swipe
 
-- Lecture YouTube intégrée directement dans la fiche chaîne ONE.
-- Lecture Twitch live/VOD intégrée directement dans la fiche chaîne ONE.
-- Rotation TikTok indépendante entre deux ouvertures de ONE.
-- Rotation renforcée du Top Pour toi entre deux ouvertures.
-- Abonnements séparés YouTube / Twitch / TikTok conservés.
-- Classement Twitch par viewers conservé.
-- Aucun changement du moteur vertical TikTok stable.
+- Base 0.12.3 Instant Swipe conservée.
+- Le lecteur TikTok précédent est maintenant mis en pause et gardé chaud au lieu d’être détruit.
+- Fenêtre bidirectionnelle : précédent + actuel + suivant.
+- En remontant le feed, ONE réutilise le lecteur précédent et reprend la lecture immédiatement.
+- Les lecteurs hors de cette fenêtre sont détruits pour limiter mémoire, réseau et audio parasite.
+- Préchargement des miniatures dans les deux directions.
+- Safe-Sync TikTok, partage Android et import automatique conservés.

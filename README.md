@@ -1,10 +1,5 @@
-# ONE Mobile Alpha 0.13.5 — Channel Player
+# ONE Mobile Alpha 0.12.4 — Back Swipe
 
-Base stable 0.13.4 + lecture directe des vidéos dans les fiches chaîne ONE et rotation renforcée TikTok / Pour toi.
+Version complète déployable sur GitHub Pages. Cette version conserve le feed rapide de la 0.12.3 et ajoute un cache TikTok bidirectionnel pour fluidifier le retour vers les vidéos précédentes.
 
-- YouTube : toucher une vidéo ouvre le lecteur dans la fiche chaîne.
-- Twitch : live et VOD se lisent dans la fiche chaîne avec le `parent` GitHub Pages.
-- TikTok : mémorisation séparée du Top TikTok précédent pour forcer une vraie rotation au prochain lancement.
-- Pour toi : pénalité renforcée du Top précédent avant le mélange des plateformes.
-- Classement Twitch par viewers conservé.
-- Moteur vertical TikTok stable conservé.
+Le catalogue TikTok Safe-Sync, le partage Android, l’import automatique, YouTube, Twitch et le compte ONE restent inclus.
