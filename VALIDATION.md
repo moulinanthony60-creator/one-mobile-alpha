@@ -1,4 +1,4 @@
-# Validation ONE 0.13.11
+# Validation ONE 0.13.12
 
 - Syntaxe des 11 scripts vérifiée, y compris scripts HTML, service worker et worker de profil.
 - Démarrage des scripts dans un DOM simulé réussi.
@@ -13,7 +13,7 @@
 Limites : aucun test visuel sur navigateur ou téléphone pour cette version. Sessions privées, API authentifiées, lecteurs embarqués et synchronisation réelle à vérifier sur appareil connecté. Les tests avec DOM simulé ne remplacent pas ces contrôles.
 
 ## Contrôle après déploiement
-1. Vérifier 0.13.11 et l’ordre des catégories.
+1. Vérifier 0.13.12 et l’ordre des catégories.
 2. Ouvrir ONE : état vide sans contenu externe.
 3. Préparer vidéo/photo/texte/live dans Créer, sélectionner plusieurs destinations ; publication désactivée.
 4. Quitter/revenir : préparation conservée. Recharger : préparation effacée comme annoncé.
@@ -22,6 +22,8 @@ Limites : aucun test visuel sur navigateur ou téléphone pour cette version. Se
 
 Croix de fermeture : retour à Pour toi et conservation des champs vérifiés dans le DOM simulé. Pas de vérification visuelle sur appareil.
 
-0.13.11 : tests avec contenus TikTok/YouTube/Twitch simultanés : Pour toi ne contient que TikTok dans la liste et le lecteur vertical. Onglet YouTube et tri Twitch conservés. Tests DOM simulé, vérification sur appareil restante.
+0.13.12 : tests avec contenus TikTok/YouTube/Twitch simultanés : Pour toi ne contient que TikTok dans la liste et le lecteur vertical. Onglet YouTube et tri Twitch conservés. Tests DOM simulé, vérification sur appareil restante.
 
-0.13.11 : ouverture interne vérifiée par interception de la route ; retour Abonnements/accueil ; récupération avatar avec réponse API simulée et réutilisation du cache sans deuxième requête. 11 scripts validés. API authentifiées et rendu mobile non testés. Lecture musicale arrière-plan non disponible.
+0.13.12 : ouverture interne vérifiée par interception de la route ; retour Abonnements/accueil ; récupération avatar avec réponse API simulée et réutilisation du cache sans deuxième requête. 11 scripts validés. API authentifiées et rendu mobile non testés. Lecture musicale arrière-plan non disponible.
+
+0.13.12 : 12 scripts validés. Panneau IA : ouverture, contexte exact, réponse web signalée sans analyse visuelle, fermeture testés avec DOM et recherche simulés. Lecteurs réels, rendu mobile et recherche serveur à vérifier sur appareil.

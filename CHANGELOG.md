@@ -1,4 +1,9 @@
 
+# 0.13.12 — ONE IA depuis les lecteurs
+
+Bouton contextuel dans cartes, lecteur vertical, lecteur vidéo et fiches chaînes. Panneau avec question, recherche web existante et capture locale (10 Mo max). Aucune analyse des images/son/transcription du lecteur. Service vision non connecté : identification visuelle et résumé réel de vidéo non disponibles. Aucun envoi de capture. Fermeture sans navigation hors du lecteur.
+
+
 ## 0.13.11 — Chaînes et navigation
 - Barre du bas : Créer, ONE IA, Abonnements, Réglages. Logo ONE cliquable pour revenir à l’accueil.
 - Bouton Retour à l’accueil dans Abonnements ; croix du studio conservée.
