@@ -1,5 +1,5 @@
-# ONE Mobile Alpha 0.12.3
+# ONE Mobile Alpha 0.12.4 — Back Swipe
 
-Version complète de déploiement GitHub Pages.
+Version complète déployable sur GitHub Pages. Cette version conserve le feed rapide de la 0.12.3 et ajoute un cache TikTok bidirectionnel pour fluidifier le retour vers les vidéos précédentes.
 
-Objectif de cette version : réduire au maximum le délai visible au swipe TikTok avec un lecteur N+1 préchauffé, sans modifier le partage Android ni la conservation du catalogue externe.
+Le catalogue TikTok Safe-Sync, le partage Android, l’import automatique, YouTube, Twitch et le compte ONE restent inclus.

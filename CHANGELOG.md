@@ -1,9 +1,9 @@
-# ONE Mobile Alpha 0.12.3 — Instant Swipe
+# ONE Mobile Alpha 0.12.4 — Back Swipe
 
-- Base fonctionnelle TikTok Safe-Sync conservée.
-- Un seul lecteur TikTok actif + un lecteur N+1 préchauffé en arrière-plan.
-- Le lecteur suivant est préchargé muet, avance jusqu’à une première frame puis se met en pause.
-- Au swipe, ONE réutilise ce lecteur déjà chaud au lieu de recréer un iframe.
-- La première frame TikTok peut remplacer immédiatement la miniature, puis la lecture reprend.
-- Nettoyage automatique des anciens préchargements : deux lecteurs TikTok maximum.
-- Miniature de secours conservée si le préchauffage échoue.
+- Base 0.12.3 Instant Swipe conservée.
+- Le lecteur TikTok précédent est maintenant mis en pause et gardé chaud au lieu d’être détruit.
+- Fenêtre bidirectionnelle : précédent + actuel + suivant.
+- En remontant le feed, ONE réutilise le lecteur précédent et reprend la lecture immédiatement.
+- Les lecteurs hors de cette fenêtre sont détruits pour limiter mémoire, réseau et audio parasite.
+- Préchargement des miniatures dans les deux directions.
+- Safe-Sync TikTok, partage Android et import automatique conservés.
