@@ -2,14 +2,19 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
+<script>
+function oneReadReloadRoute(){try{if(performance.getEntriesByType('navigation')[0]?.type!=='reload')return null;const r=JSON.parse(sessionStorage.getItem('one_reload_route')||'null');return r&&['all','one','tiktok','youtube','twitch','music','cinema'].includes(r.filter)?r:null;}catch{return null;}}
+const oneReloadRoute=oneReadReloadRoute();
+
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.35 — State + Reactions + Audio + Twitch Fullscreen</title>
+<title>ONE Mobile Alpha 0.13.40</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=01339" />
+<link rel="manifest" href="./manifest.json?v=01340" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -81,7 +86,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.39 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.40 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -94,6 +99,9 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
         <button class="chip" data-filter="music">Musique</button>
         <button class="chip" data-filter="cinema">Ciné</button>
       </div>
+      <script>
+      (()=>{const rail=document.getElementById('chips');const filter=oneReloadRoute?.filter||'all';rail.querySelectorAll('.chip').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter));if(oneReloadRoute)rail.scrollLeft=Number(oneReloadRoute.tabsScroll)||0;})();
+      </script>
       <button class="tabsArrow" id="tabsRight" type="button" aria-label="Onglets suivants">›</button>
     </div>
   </header>
@@ -236,8 +244,6 @@ if(localStorage.getItem('one_v18_19_migrated')!=='1'){
 
 const items=[]; // V14: aucun contenu fictif. Les cartes viennent uniquement des API réelles.
 
-function oneReadReloadRoute(){try{if(performance.getEntriesByType('navigation')[0]?.type!=='reload')return null;const r=JSON.parse(sessionStorage.getItem('one_reload_route')||'null');return r&&['all','one','tiktok','youtube','twitch','music','cinema'].includes(r.filter)?r:null;}catch{return null;}}
-const oneReloadRoute=oneReadReloadRoute();
 let state={filter:oneReloadRoute?.filter||'all',query:'',saved:new Set(JSON.parse(localStorage.getItem('one_saved_items')||'[]')),liked:new Set(JSON.parse(localStorage.getItem('one_liked_v9')||'[]')),disliked:new Set(JSON.parse(localStorage.getItem('one_disliked_v9')||'[]')),mode:null,aiBudget:null,queue:[],queueIndex:-1,aiIds:new Set()};
 let oneProfile=JSON.parse(localStorage.getItem('one_profile_v7')||'{"searches":[],"creators":{},"watched":{}}');
 oneProfile.searches=Array.isArray(oneProfile.searches)?oneProfile.searches:[];
@@ -491,7 +497,7 @@ function v1815StopAllPlayers(exceptSlide=null){
 }
 function v1815TikTokSound(slide,enable=true){
  const f=slide?.querySelector('iframe');if(!f)return;
- if(enable){v1814RememberSoundGesture();v17SendTikTok(f,'unMute');v17SendTikTok(f,'play');toast('Son TikTok activé au maximum du lecteur 🔊')}
+ if(enable){v1814RememberSoundGesture();if(f&&new URL(f.src).searchParams.get('muted')==='1'){v17ActivateSlide(slide);return;}v17SendTikTok(f,'unMute');v17SendTikTok(f,'play');toast('Son TikTok activé au maximum du lecteur 🔊')}
  else{v17SendTikTok(f,'mute');}
 }
 function v1815ClipSound(slide){
@@ -518,7 +524,7 @@ function v17ActivateTwitch(slide,x,media,channel){
    const host=document.createElement('div'); host.className='vtwitchHost'; host.id='twh_'+Math.random().toString(36).slice(2); host.style.cssText='position:absolute;inset:0;display:grid;place-items:center;background:#000'; media.appendChild(host);
    const pl=new Twitch.Player(host.id,{width:'100%',height:'100%',channel,parent:[location.hostname],autoplay:true,muted:v1814NativeMuted()});
    v17TwitchPlayers[String(x.id)]=pl;
-   pl.addEventListener(Twitch.Player.READY,()=>{try{pl.setVolume(.5);if(!v1814NativeMuted())pl.setMuted(false);pl.play()}catch(e){} media.classList.remove('loading');});pl.addEventListener(Twitch.Player.PLAY,()=>window.v136ArmTwitchFullscreen?.(media));pl.addEventListener(Twitch.Player.PAUSE,()=>window.oneCancelTwitchAuto?.(media));
+   pl.addEventListener(Twitch.Player.READY,()=>{try{pl.setVolume(.5);if(!v1814NativeMuted())pl.setMuted(false);pl.play()}catch(e){} media.classList.remove('loading');});
    media.classList.add('playing'); const img=media.querySelector('img');if(img)img.style.opacity='0'; return true;
  }
  return false;
@@ -575,7 +581,12 @@ function v124ParkTikTokSlide(slide){
 function v17ActivateSlide(slide){
  if(!slide)return;
  const id=String(slide.dataset.id||''); if(!id)return;
- if(id===v17ActiveId){v17ApplySound(slide);return;}
+ if(id===v17ActiveId){
+  const current=slide.querySelector('iframe');
+  if(slide.dataset.platform==='tiktok'&&v1814SoundAllowed()&&current&&new URL(current.src).searchParams.get('muted')==='1'){
+   v17SendTikTok(current,'pause');current.remove();v17ActiveId='';
+  }else{v17ApplySound(slide);return;}
+ }
  const oldActive=document.querySelector('.vslide[data-active="1"]');
  if(oldActive&&oldActive!==slide&&oldActive.dataset.platform==='tiktok'&&slide.dataset.platform==='tiktok')v124ParkTikTokSlide(oldActive);
  v1815StopAllPlayers(slide);
@@ -590,11 +601,16 @@ function v17ActivateSlide(slide){
    v1710ShowTwitchPreview(slide,x,media); return;
  }
  const src=v17PlayerUrl(x); if(!src){media.classList.remove('loading');return;}
- let f=(x.p==='tiktok'?media.querySelector('iframe[data-one-preload="1"]'):null)||document.createElement('iframe');
+ let f=x.p==='tiktok'?media.querySelector('iframe[data-one-preload="1"]'):null;
+ // muted=1 locks TikTok volume. Keep silent preloads, replace once at activation.
+ if(f&&v1814SoundAllowed()&&new URL(f.src).searchParams.get('muted')==='1'){
+  v17SendTikTok(f,'pause');f.remove();f=null;
+ }
+ f=f||document.createElement('iframe');
  const wasPreloaded=x.p==='tiktok'&&f.dataset.onePreload==='1';
  if(!wasPreloaded)f.src=src;
  f.title='Lecteur '+platformName(x.p);f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider=x.p;f.style.pointerEvents='auto';
- if(x.p==='tiktok'){slide.dataset.ttVisualReady='0';slide.dataset.ttActivationTime=String(Number(f.dataset.oneWarmTime||0));f.style.opacity='0';const im=media.querySelector('img');if(im)im.style.opacity='1';media.classList.remove('playing','loading');}else f.style.opacity='1';
+ if(x.p==='tiktok'){slide.dataset.ttTimeAdvanced='0';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';slide.dataset.ttActivationTime=String(Number(f.dataset.oneWarmTime||0));f.style.opacity='0';const im=media.querySelector('img');if(im)im.style.opacity='1';media.classList.remove('playing','loading');}else f.style.opacity='1';
  f.onload=()=>{media.classList.remove('loading');if(x.p==='tiktok'&&!wasPreloaded)f.style.opacity='0';if(x.p==='youtube'&&f.contentWindow){try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:String(x.id),channel:'one'}),'*')}catch(e){}}setTimeout(()=>v17ApplySound(slide),80);setTimeout(()=>v17ApplySound(slide),280);setTimeout(()=>v17ApplySound(slide),700)};
  if(!f.isConnected)media.appendChild(f);if(x.p!=='tiktok')media.classList.add('playing');if(x.p==='tiktok'){f.dataset.onePreload='0';delete f.dataset.oneBackCache;media.classList.remove('loading');if(!wasPreloaded||f.dataset.oneWarm!=='1')media.classList.remove('playing');v121ArmTikTokVisualWatch(slide);v17SendTikTok(f,'play');if(v1814SoundAllowed()){v17SendTikTok(f,'unMute');setTimeout(()=>{if(slide.getAttribute('data-active')==='1'){v17SendTikTok(f,'unMute');v17SendTikTok(f,'play')}},60);setTimeout(()=>{if(slide.getAttribute('data-active')==='1')v17SendTikTok(f,'unMute')},320)}clearTimeout(slide._ttFastKick);slide._ttFastKick=setTimeout(()=>{if(slide.getAttribute('data-active')==='1'&&slide.dataset.ttTimeAdvanced!=='1'){v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')}},160);v120PrewarmAround(slide);}
  const img=media.querySelector('img'); if(img&&x.p!=='tiktok')img.style.opacity='0';
@@ -2264,7 +2280,7 @@ v17ApplySound();
 (()=>{
  const observed=new WeakSet();
  let playerId=0;
- function mount(media){if(!media.isConnected||media.querySelector('iframe')||media.querySelector('.oneTwitchHost'))return;const card=media.closest('.card'),item=v17ItemById(card?.dataset.id);if(!item?.live||!item.twitchChannel)return;media.classList.add('inline-playing','oneNativeReady');media.dataset.provider='twitch';if(window.Twitch?.Player){const host=document.createElement('div');host.className='oneTwitchHost';host.id='one_card_tw_'+(++playerId);media.appendChild(host);const player=new Twitch.Player(host.id,{width:'100%',height:'100%',channel:item.twitchChannel,parent:[location.hostname],autoplay:false,muted:false});player.addEventListener(Twitch.Player.READY,()=>{try{player.setVolume(0.5);player.setMuted(false);}catch{}});player.addEventListener(Twitch.Player.PLAY,()=>{try{window.v136ArmTwitchFullscreen?.(media)}catch{}});player.addEventListener(Twitch.Player.PAUSE,()=>window.oneCancelTwitchAuto?.(media));}else{const message=document.createElement('div');message.textContent='Lecteur Twitch indisponible. Recharge la page pour réessayer.';media.appendChild(message);}}
+ function mount(media){if(!media.isConnected||media.querySelector('iframe')||media.querySelector('.oneTwitchHost'))return;const card=media.closest('.card'),item=v17ItemById(card?.dataset.id);if(!item?.live||!item.twitchChannel)return;media.classList.add('inline-playing','oneNativeReady');media.dataset.provider='twitch';if(window.Twitch?.Player){const host=document.createElement('div');host.className='oneTwitchHost';host.id='one_card_tw_'+(++playerId);media.appendChild(host);const player=new Twitch.Player(host.id,{width:'100%',height:'100%',channel:item.twitchChannel,parent:[location.hostname],autoplay:false,muted:false});player.addEventListener(Twitch.Player.READY,()=>{try{player.setVolume(0.5);player.setMuted(false);}catch{}});}else{const message=document.createElement('div');message.textContent='Lecteur Twitch indisponible. Recharge la page pour réessayer.';media.appendChild(message);}}
 
  const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){mount(e.target);observer.unobserve(e.target);}}),{threshold:0.5});
  const attach=()=>document.querySelectorAll('.twitch-card .media').forEach(m=>{if(!observed.has(m)){observed.add(m);observer.observe(m);}});new MutationObserver(attach).observe(document.getElementById('feed'),{childList:true,subtree:true});attach();
@@ -2399,7 +2415,14 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  const syncLang=()=>{if(box)box.style.display=document.getElementById('vfeed').classList.contains('show')&&verticalFeedMode==='twitch-clips'?'flex':'none';};
  if(select){select.value=twitchClipLanguage;select.onchange=()=>{twitchClipLanguage=select.value;localStorage.setItem('one_twitch_clip_lang_v134',twitchClipLanguage);renderVerticalFeed();};}
  new MutationObserver(syncLang).observe(document.getElementById('vfeed'),{attributes:true,attributeFilter:['class']});syncLang();
- function buttons(){document.querySelectorAll('.twitch-card .media').forEach(media=>{if(media.querySelector('.oneTwFs38'))return;const b=document.createElement('button');b.type='button';b.className='oneTwFs38';b.textContent='⛶';b.setAttribute('aria-label','Ouvrir ou quitter le plein écran');b.onclick=async e=>{e.preventDefault();e.stopPropagation();try{if(document.fullscreenElement)await document.exitFullscreen();else await media.requestFullscreen({navigationUI:'hide'});}catch{toast('Plein écran indisponible sur ce navigateur');}};media.appendChild(b);});}
+ function buttons(){document.querySelectorAll('.twitch-card').forEach(card=>{
+  const media=card.querySelector('.media'),body=card.querySelector('.cardBody');if(!media||!body||body.querySelector('.oneTwPortrait'))return;
+  const exit=document.createElement('button');exit.type='button';exit.className='oneTwFs38';exit.textContent='×';exit.setAttribute('aria-label','Quitter le plein écran');
+  exit.onclick=e=>{e.preventDefault();e.stopPropagation();document.exitFullscreen?.().catch(()=>{});};media.appendChild(exit);
+  const b=document.createElement('button');b.type='button';b.className='action oneTwPortrait';b.textContent='⛶ Plein écran vertical';
+  b.onclick=async e=>{e.preventDefault();e.stopPropagation();try{await media.requestFullscreen({navigationUI:'hide'});}catch{toast('Plein écran indisponible sur ce navigateur');}};
+  body.appendChild(b);
+ });}
  new MutationObserver(buttons).observe(document.getElementById('feed'),{childList:true,subtree:true});buttons();
  const stop=()=>{v1815StopAllPlayers();v17ActiveId='';};
  window.addEventListener('pagehide',stop);
@@ -2409,9 +2432,9 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 
 
 <script>
-// 0.13.39: one reload route, one touch handoff, one live enlargement timer.
+// 0.13.40: reload route and touch handoff.
 (()=>{
- const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
+ const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,tabsScroll:document.getElementById('chips').scrollLeft,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
  window.addEventListener('load',async()=>{try{
   const r=oneReloadRoute;
@@ -2445,23 +2468,16 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  root.addEventListener('touchstart',start,{passive:true});root.addEventListener('touchend',end,{passive:true});
  root.addEventListener('touchcancel',()=>{startY=null;},{passive:true});
  root.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')start(e);},{passive:true});root.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')end(e);},{passive:true});
- const timers=new Map(),expanded=new WeakSet();
- window.oneCancelTwitchAuto=media=>{clearTimeout(timers.get(media));timers.delete(media);};
- window.v136ArmTwitchFullscreen=media=>{
-  if(!media||expanded.has(media)||timers.has(media))return;
-  timers.set(media,setTimeout(()=>{
-   timers.delete(media);if(!media.isConnected||document.hidden||document.fullscreenElement||document.body.classList.contains('oneSplitActive'))return;
-   const r=media.getBoundingClientRect();if(r.bottom<=0||r.top>=innerHeight)return;
-   const slide=media.closest('.vslide');if(slide&&slide.getAttribute('data-active')!=='1')return;
-   let login;try{login=new URL(media.querySelector('iframe')?.src).searchParams.get('channel');}catch{return;}if(!login)return;
-   expanded.add(media);oneOpenChat(login);
-   if(document.body.classList.contains('oneSplitActive')&&!document.body.classList.contains('oneChatCollapsed'))document.getElementById('oneSplitBar').click();
-  },5000));
- };
- document.addEventListener('visibilitychange',()=>{if(document.hidden)for(const media of timers.keys())oneCancelTwitchAuto(media);});
+
 })();
 </script>
 
 <style>.oneSplitMedia>.vtwitchHost{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important}</style>
+<style>
+.twitch-card .media .oneTwFs38{display:none!important}
+.twitch-card .media:fullscreen .oneTwFs38{display:grid!important;z-index:30!important}
+.oneTwPortrait{display:block;width:100%;min-height:46px;margin-top:12px}
+.twitch-card .media:fullscreen{inset:0!important;margin:0!important;min-height:0!important;border-radius:0!important;transform:none!important}
+</style>
 </body>
 </html>

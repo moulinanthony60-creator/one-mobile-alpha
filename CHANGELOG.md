@@ -1,4 +1,6 @@
-# 0.13.39
-- Passage audio TikTok sur touchend, sans remplacement du lecteur. Retrait des trois anciens rappels concurrents.
-- Rafraîchissement : restaure onglet, recherche, mode et feed vertical depuis sessionStorage uniquement pour une navigation reload. Nouvelle ouverture : accueil.
-- Live Twitch : agrandissement ONE après cinq secondes de lecture, sans verrouillage paysage ; tentative plein écran natif, repli sur agrandissement ONE si refus. Pause/onglet masqué annulent le délai.
+# 0.13.40
+- TikTok et Pour toi : remplacement du préchargement TikTok muted=1 une seule fois à son activation lorsque le son est autorisé. Les voisins restent muets.
+- Retrait du minuteur de plein écran Twitch et de ses abonnements PLAY/PAUSE.
+- Bouton Plein écran vertical sous chaque carte Twitch ; croix à l’intérieur du plein écran. Agrandissement à la rotation conservé.
+- Conservation de la page au rafraîchissement.
+- Onglet restauré lors de la construction de la barre, avant le chargement réseau ; position horizontale conservée sans animation.
