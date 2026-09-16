@@ -8,13 +8,13 @@ const oneReloadRoute=oneReadReloadRoute();
 
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.40</title>
+<title>ONE Mobile Alpha 0.13.41</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=01340" />
+<link rel="manifest" href="./manifest.json?v=01341" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -86,7 +86,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.40 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.41 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -2308,7 +2308,7 @@ body.oneSplitActive #oneChatPanel{inset:48px 0 0 auto!important;width:35vw!impor
  function find(login){return [...document.querySelectorAll('.card .media,#oneChannelPlayer,.vslideMedia')].find(m=>channelOf(m)?.toLowerCase()===login.toLowerCase())||null;}
  const original=window.oneOpenChat;
  function restore(){if(ownsFullscreen&&document.fullscreenElement===document.documentElement)document.exitFullscreen?.().catch(()=>{});ownsFullscreen=false;media?.classList.remove('oneSplitMedia');host?.classList.remove('oneSplitHost');body.classList.remove('oneSplitActive','oneChatCollapsed');bar.hidden=true;backdrop.hidden=true;media=null;host=null;opener?.focus?.();}
- window.oneOpenChat=login=>{const found=find(login);if(!found){original(login);return;}if(media)restore();opener=document.activeElement;media=found;host=media.closest('.oneChannelHub')||media.closest('.vfeed');body.classList.add('oneSplitActive');media.classList.remove('oneLandscapeMedia');host?.classList.add('oneSplitHost');media.classList.add('oneSplitMedia');body.classList.remove('oneChatCollapsed');bar.textContent='›';bar.setAttribute('aria-expanded','true');bar.setAttribute('aria-label','Masquer le chat');bar.hidden=false;backdrop.hidden=false;original(login);bar.focus();if(!document.fullscreenElement&&document.documentElement.requestFullscreen){document.documentElement.requestFullscreen({navigationUI:'hide'}).then(()=>{if(media)ownsFullscreen=true;else document.exitFullscreen?.().catch(()=>{});}).catch(()=>{});}};
+ window.oneOpenChat=(login,preferredMedia)=>{const found=preferredMedia?.isConnected&&channelOf(preferredMedia)?.toLowerCase()===login.toLowerCase()?preferredMedia:find(login);if(!found){original(login);return;}if(media)restore();opener=document.activeElement;media=found;host=media.closest('.oneChannelHub')||media.closest('.vfeed');body.classList.add('oneSplitActive');media.classList.remove('oneLandscapeMedia');host?.classList.add('oneSplitHost');media.classList.add('oneSplitMedia');body.classList.remove('oneChatCollapsed');bar.textContent='›';bar.setAttribute('aria-expanded','true');bar.setAttribute('aria-label','Masquer le chat');bar.hidden=false;backdrop.hidden=false;original(login);bar.focus();if(!document.fullscreenElement&&document.documentElement.requestFullscreen){document.documentElement.requestFullscreen({navigationUI:'hide'}).then(()=>{if(media)ownsFullscreen=true;else document.exitFullscreen?.().catch(()=>{});}).catch(()=>{});}};
  document.getElementById('oneChatClose').addEventListener('click',restore);bar.onclick=()=>{const collapsed=body.classList.toggle('oneChatCollapsed');bar.textContent=collapsed?'‹':'›';bar.setAttribute('aria-expanded',String(!collapsed));bar.setAttribute('aria-label',collapsed?'Afficher le chat':'Masquer le chat');};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&media)document.getElementById('oneChatClose').click();});
  function current(){const candidates=[...document.querySelectorAll('.oneLandscapeMedia,#oneChannelPlayer,.card .media,.vslide[data-active="1"] .vslideMedia')];return candidates.find(m=>{if(!channelOf(m)||m.hidden)return false;const hub=m.closest('.oneChannelHub');if(hub&&!hub.classList.contains('show'))return false;const r=m.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth;});}
  shortcut.onclick=()=>{const login=channelOf(current());if(login)oneOpenChat(login);};
@@ -2391,7 +2391,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 
 <style>
 /* 0.13.36 — Twitch control stays above the embedded player. */
-.twitch-card .media{position:relative!important}
+/* Base .media already positions the normal card; fullscreen classes must stay fixed. */
 .oneTwFs36{position:absolute!important;right:12px!important;top:12px!important;z-index:2147483000!important;width:48px!important;height:48px!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.4)!important;background:rgba(0,0,0,.82)!important;color:#fff!important;font-size:25px!important;font-weight:900!important;display:grid!important;place-items:center!important;pointer-events:auto!important}
 </style>
 
@@ -2416,12 +2416,17 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  if(select){select.value=twitchClipLanguage;select.onchange=()=>{twitchClipLanguage=select.value;localStorage.setItem('one_twitch_clip_lang_v134',twitchClipLanguage);renderVerticalFeed();};}
  new MutationObserver(syncLang).observe(document.getElementById('vfeed'),{attributes:true,attributeFilter:['class']});syncLang();
  function buttons(){document.querySelectorAll('.twitch-card').forEach(card=>{
+  if(v17ItemById(card.dataset.id)?.live)card.dataset.oneLive='1';
   const media=card.querySelector('.media'),body=card.querySelector('.cardBody');if(!media||!body||body.querySelector('.oneTwPortrait'))return;
   const exit=document.createElement('button');exit.type='button';exit.className='oneTwFs38';exit.textContent='×';exit.setAttribute('aria-label','Quitter le plein écran');
   exit.onclick=e=>{e.preventDefault();e.stopPropagation();document.exitFullscreen?.().catch(()=>{});};media.appendChild(exit);
-  const b=document.createElement('button');b.type='button';b.className='action oneTwPortrait';b.textContent='⛶ Plein écran vertical';
-  b.onclick=async e=>{e.preventDefault();e.stopPropagation();try{await media.requestFullscreen({navigationUI:'hide'});}catch{toast('Plein écran indisponible sur ce navigateur');}};
-  body.appendChild(b);
+  const b=document.createElement('button');b.type='button';b.className='action oneTwPortrait';b.textContent='⛶ Plein écran + chat';
+  b.onclick=e=>{e.preventDefault();e.stopPropagation();
+   const item=v17ItemById(card.dataset.id);let login=item?.twitchChannel;
+   if(!login)try{login=new URL(media.querySelector('iframe')?.src).searchParams.get('channel');}catch{}
+   if(login)oneOpenChat(login,media);else toast('Le tchat est disponible pour les lives Twitch.');
+  };
+  body.prepend(b);
  });}
  new MutationObserver(buttons).observe(document.getElementById('feed'),{childList:true,subtree:true});buttons();
  const stop=()=>{v1815StopAllPlayers();v17ActiveId='';};
@@ -2432,7 +2437,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 
 
 <script>
-// 0.13.40: reload route and touch handoff.
+// 0.13.41: reload route and touch handoff.
 (()=>{
  const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,tabsScroll:document.getElementById('chips').scrollLeft,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
@@ -2476,8 +2481,34 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 <style>
 .twitch-card .media .oneTwFs38{display:none!important}
 .twitch-card .media:fullscreen .oneTwFs38{display:grid!important;z-index:30!important}
-.oneTwPortrait{display:block;width:100%;min-height:46px;margin-top:12px}
+.oneTwPortrait{display:block;width:100%;min-height:46px;margin:0 0 10px}
 .twitch-card .media:fullscreen{inset:0!important;margin:0!important;min-height:0!important;border-radius:0!important;transform:none!important}
 </style>
+
+<style id="oneLivePolish">
+/* ONE live cards: visual changes stay outside the embedded Twitch player. */
+.twitch-card[data-one-live="1"]{border:1px solid #343044;border-radius:20px;background:#11131d;box-shadow:0 12px 32px #0003}
+.twitch-card[data-one-live="1"] .cardBody{padding:12px 14px 16px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:10px;row-gap:10px}
+.twitch-card[data-one-live="1"] .cardBody>*{grid-column:1/-1;min-width:0;margin-top:0;margin-bottom:0}
+.twitch-card[data-one-live="1"] .oneTwPortrait{min-height:48px;background:#7549e8;border:1px solid #a989ff;border-radius:12px;font-size:14px;font-weight:800;box-shadow:0 3px 12px #7549e826}
+.twitch-card[data-one-live="1"] .oneTwPortrait:active{background:#6238cf}
+.twitch-card[data-one-live="1"] .creator{padding-top:4px;gap:11px}
+.twitch-card[data-one-live="1"] .cava{width:44px;height:44px;border:2px solid #a48af6;box-shadow:0 0 0 3px #a48af612}
+.twitch-card[data-one-live="1"] .creator .name{font-size:16px;line-height:1.35}
+.twitch-card[data-one-live="1"] .creator .name::after{content:'EN DIRECT';display:inline-block;vertical-align:middle;margin-left:8px;padding:3px 6px;border-radius:5px;background:#f044641c;color:#ff8398;font-size:9px;font-weight:800;letter-spacing:.4px;white-space:nowrap}
+.twitch-card[data-one-live="1"] .creator .platform{font-size:11px;margin-top:3px;color:#a6a4b5}
+.twitch-card[data-one-live="1"] .cardBody>.title{font-size:16px;line-height:1.45;font-weight:700;color:#f4f2fb}
+.twitch-card[data-one-live="1"] .smalltag{font-size:10px;background:#20202c;color:#c3bfd1;border-radius:5px;padding:3px 6px}
+.twitch-card[data-one-live="1"] .meta{color:#b5afc9;font-size:12px}
+.twitch-card[data-one-live="1"] .actions{margin:0;gap:10px}
+.twitch-card[data-one-live="1"] .actions .action{min-height:42px;background:#20202d;border-color:#39334d;font-size:13px}
+.twitch-card[data-one-live="1"] .actions .action.saved{background:#29213f;border-color:#6d50a4;color:#d9c8ff}
+.twitch-card[data-one-live="1"] .feedback{padding-top:10px;border-top:1px solid #272534;gap:8px;flex-wrap:wrap}
+.twitch-card[data-one-live="1"] .feedback button{min-height:36px;padding:7px 10px;font-size:12px;background:transparent;color:#b8b2c9}
+.twitch-card[data-one-live="1"] .feedback button.on{background:#312344;color:#e2d2ff;border-color:#8e6cd0}
+.twitch-card[data-one-live="1"] .cardBody>button:not(.oneTwPortrait){grid-column:auto;width:100%;min-height:44px;margin:0!important;border-radius:12px;font-size:13px}
+.twitch-card[data-one-live="1"] button:focus-visible{outline:2px solid #cbb7ff;outline-offset:3px}
+</style>
+
 </body>
 </html>

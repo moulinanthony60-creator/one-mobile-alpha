@@ -1,6 +1,8 @@
-# ONE 0.13.40
+# ONE 0.13.41
 Publier le contenu du ZIP.
 
-À tester sur Chrome Android : enchaîner plusieurs vidéos dans TikTok et Pour toi avec son ; retour à une vidéo précédente ; J’aime sans rechargement ; aucun ancien son. Twitch : pas de plein écran après 5 s, agrandissement à la rotation, bouton sous le live en portrait et croix de sortie.
+Sur téléphone : tourner un live en paysage, vérifier que le lecteur occupe la zone web disponible ; revenir en portrait, bouton Plein écran + chat juste sous la vidéo, flèche masquer/rouvrir, croix quitter.
 
-Vérifications locales automatisées uniquement, pas de validation sur le téléphone.
+La rotation agrandit dans la page ; les barres système peuvent rester présentes sans plein écran natif. Le bouton demande le plein écran natif sur la vue vidéo et chat.
+
+Tests locaux uniquement, confirmation sur téléphone nécessaire. Audio TikTok conservé.
