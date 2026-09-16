@@ -1,6 +1,7 @@
-# 0.13.35
-- Recharge : conserve l’onglet/section actif au lieu de forcer Pour toi.
-- J’aime / Pas pour moi : mise à jour locale sans reconstruire la carte ni interrompre le lecteur.
-- TikTok : promotion du lecteur actif vers un lecteur son `muted=0` à la fin du swipe + `unMute/play`.
-- Twitch : bouton ⛶ sur les cartes vidéo.
-- Twitch : tentative de plein écran paysage après 5 s de lecture ; fallback manuel si le navigateur exige un geste.
+# CHANGELOG
+
+## 0.13.36
+- TikTok : le lecteur préchargé hérite désormais de l’état son et le geste de swipe transmet `unMute` au lecteur destination sans reconstruire la vidéo.
+- Navigation : sauvegarde immédiate de l’onglet et de l’état du feed vertical ; fermer le feed efface son état avant un prochain rechargement.
+- Twitch : bouton ⛶ au-dessus du lecteur et tentative plein écran paysage 5 s après l’événement PLAY du lecteur Twitch.
+- Le moteur de swipe/cache 0.12.6 n’est pas modifié.

@@ -81,7 +81,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.35 STATE + AUDIO + TWITCH FULLSCREEN</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.36 AUDIO CORE + STATE + TWITCH FS</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -2286,7 +2286,7 @@ v17ApplySound();
 (()=>{
  const observed=new WeakSet();
  let playerId=0;
- function mount(media){if(!media.isConnected||media.querySelector('iframe')||media.querySelector('.oneTwitchHost'))return;const card=media.closest('.card'),item=v17ItemById(card?.dataset.id);if(!item?.live||!item.twitchChannel)return;media.classList.add('inline-playing','oneNativeReady');media.dataset.provider='twitch';if(window.Twitch?.Player){const host=document.createElement('div');host.className='oneTwitchHost';host.id='one_card_tw_'+(++playerId);media.appendChild(host);const player=new Twitch.Player(host.id,{width:'100%',height:'100%',channel:item.twitchChannel,parent:[location.hostname],autoplay:false,muted:false});player.addEventListener(Twitch.Player.READY,()=>{try{player.setVolume(0.5);player.setMuted(false);}catch{}});}else{const message=document.createElement('div');message.textContent='Lecteur Twitch indisponible. Recharge la page pour réessayer.';media.appendChild(message);}}
+ function mount(media){if(!media.isConnected||media.querySelector('iframe')||media.querySelector('.oneTwitchHost'))return;const card=media.closest('.card'),item=v17ItemById(card?.dataset.id);if(!item?.live||!item.twitchChannel)return;media.classList.add('inline-playing','oneNativeReady');media.dataset.provider='twitch';if(window.Twitch?.Player){const host=document.createElement('div');host.className='oneTwitchHost';host.id='one_card_tw_'+(++playerId);media.appendChild(host);const player=new Twitch.Player(host.id,{width:'100%',height:'100%',channel:item.twitchChannel,parent:[location.hostname],autoplay:false,muted:false});player.addEventListener(Twitch.Player.READY,()=>{try{player.setVolume(0.5);player.setMuted(false);}catch{}});player.addEventListener(Twitch.Player.PLAY,()=>{try{window.v136ArmTwitchFullscreen?.(media)}catch{}});}else{const message=document.createElement('div');message.textContent='Lecteur Twitch indisponible. Recharge la page pour réessayer.';media.appendChild(message);}}
 
  const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){mount(e.target);observer.unobserve(e.target);}}),{threshold:0.5});
  const attach=()=>document.querySelectorAll('.twitch-card .media').forEach(m=>{if(!observed.has(m)){observed.add(m);observer.observe(m);}});new MutationObserver(attach).observe(document.getElementById('feed'),{childList:true,subtree:true});attach();
@@ -2473,6 +2473,50 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  new MutationObserver(addTw).observe(document.getElementById('feed'),{childList:true,subtree:true});addTw();
  let twTimer=0;const armAuto=()=>{clearTimeout(twTimer);const m=document.querySelector('.twitch-card .media.inline-playing');if(!m)return;twTimer=setTimeout(async()=>{if(!m.isConnected||document.fullscreenElement)return;try{await m.requestFullscreen?.({navigationUI:'hide'});try{await screen.orientation?.lock?.('landscape')}catch{}}catch{}},5000)};
  document.getElementById('feed')?.addEventListener('click',e=>{if(e.target.closest('.twitch-card .playbtn,.twitch-card .media'))setTimeout(armAuto,100)},true);
+ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)try{screen.orientation?.unlock?.()}catch{}});
+})();
+</script>
+
+<style>
+/* 0.13.36 — Twitch control stays above the embedded player. */
+.twitch-card .media{position:relative!important}
+.oneTwFs36{position:absolute!important;right:12px!important;top:12px!important;z-index:2147483000!important;width:48px!important;height:48px!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.4)!important;background:rgba(0,0,0,.82)!important;color:#fff!important;font-size:25px!important;font-weight:900!important;display:grid!important;place-items:center!important;pointer-events:auto!important}
+</style>
+<script>
+// 0.13.36 — single corrective layer. Keeps the validated swipe/cache engine intact.
+(()=>{
+ const KEY='one_last_page_v136';
+ const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch{return null}};
+ const save=(patch={})=>{try{const old=read()||{};localStorage.setItem(KEY,JSON.stringify({...old,filter:state.filter||old.filter||'all',mode:state.mode||null,vertical:document.getElementById('vfeed')?.classList.contains('show')?verticalFeedMode:null,...patch}))}catch{}};
+ // Save the selected tab immediately, before its async API loading starts.
+ document.getElementById('chips')?.addEventListener('click',e=>{const b=e.target.closest('.chip');if(b)save({filter:b.dataset.filter,mode:null,vertical:null})},true);
+ window.addEventListener('pagehide',()=>save());document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')save()});
+ // Opening/closing a vertical feed updates the persisted page, so a closed feed never reopens after refresh.
+ const oldOpen=window.openVerticalFeed,oldClose=window.closeVerticalFeed;
+ if(typeof oldOpen==='function')window.openVerticalFeed=function(mode){const r=oldOpen.apply(this,arguments);setTimeout(()=>save({vertical:verticalFeedMode}),0);return r};
+ if(typeof oldClose==='function')window.closeVerticalFeed=function(){const r=oldClose.apply(this,arguments);setTimeout(()=>save({vertical:null}),0);return r};
+ async function restore(){const d=read();if(!d?.filter)return;state.filter=d.filter;state.mode=d.mode||null;state.query='';document.querySelectorAll('#chips .chip').forEach(c=>c.classList.toggle('active',c.dataset.filter===state.filter));syncTwitchFilters();if(state.filter==='tiktok'){loadTikTokLocal();render()}else if(state.filter==='youtube'){if(!ytApplyPersonalizedCachePool())await youtubeSearch('gaming france',false,false);render()}else if(state.filter==='twitch'){await twitchStreams(false);render()}else if(state.filter==='all'){await loadUnifiedFeed()}else render();renderCreatorResults();syncVerticalLauncher();if(d.vertical&&!document.getElementById('vfeed')?.classList.contains('show'))oldOpen?.(d.vertical)}
+ window.addEventListener('pageshow',()=>setTimeout(restore,80),{once:true});
+
+ // TikTok audio: preheated neighbours now inherit the user's sound choice instead of being forced muted.
+ window.v124PreloadTikTokSlide=function(target,label='voisin'){
+   if(!target?.classList?.contains('vslide'))return;const x=v17ItemById(target.dataset.id),media=target.querySelector('.vslideMedia');if(!x||x.p!=='tiktok'||!media)return;
+   const img=media.querySelector('img');if(img){img.loading='eager';try{img.fetchPriority='high'}catch{}}if(media.querySelector('iframe'))return;const src=v17PlayerUrl(x);if(!src)return;
+   const muted=v1814SoundAllowed()?'0':'1',f=document.createElement('iframe');f.src=src.replace(/([?&])muted=[01]/,'$1muted='+muted);f.title='Préchargement TikTok '+label;f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider='tiktok';f.dataset.onePreload='1';f.dataset.oneSound36=muted==='0'?'1':'0';f.style.opacity='0';f.style.pointerEvents='none';media.appendChild(f);
+ };
+ // Use the swipe gesture itself to unmute the destination player synchronously.
+ const sc=document.getElementById('vfeedScroller');let sy=null;
+ const start=e=>{sy=(e.touches?.[0]?.clientY??e.clientY??null);v1814RememberSoundGesture()};
+ const end=e=>{const ey=(e.changedTouches?.[0]?.clientY??e.clientY??null);if(sy==null||ey==null)return;const dy=ey-sy;sy=null;if(Math.abs(dy)<18)return;const active=document.querySelector('.vslide[data-active="1"]');if(!active||active.dataset.platform!=='tiktok')return;const target=dy<0?active.nextElementSibling:active.previousElementSibling;if(!target?.classList?.contains('vslide')||target.dataset.platform!=='tiktok')return;const f=target.querySelector('iframe');if(f){v17SendTikTok(f,'unMute');v17SendTikTok(f,'play');f.dataset.oneSound36='1'}setTimeout(()=>{const a=document.querySelector('.vslide[data-active="1"][data-platform="tiktok"]'),af=a?.querySelector('iframe');if(af){v17SendTikTok(af,'unMute');v17SendTikTok(af,'play')}},0)};
+ if(window.PointerEvent){sc?.addEventListener('pointerdown',start,{passive:true});sc?.addEventListener('pointerup',end,{passive:true})}else{sc?.addEventListener('touchstart',start,{passive:true});sc?.addEventListener('touchend',end,{passive:true})}
+ // Never rebuild the active TikTok iframe just to recover audio.
+ sc?.addEventListener('scroll',()=>{clearTimeout(sc._oneAudio36);sc._oneAudio36=setTimeout(()=>{const a=document.querySelector('.vslide[data-active="1"][data-platform="tiktok"]'),f=a?.querySelector('iframe');if(f&&v1814SoundAllowed()){v17SendTikTok(f,'unMute');v17SendTikTok(f,'play')}},45)},{passive:true});
+
+ // Twitch: visible button on every Twitch media, plus best-effort landscape fullscreen 5 s after a real PLAY event.
+ async function fs(media){if(!media||document.fullscreenElement)return;try{await media.requestFullscreen?.({navigationUI:'hide'});try{await screen.orientation?.lock?.('landscape')}catch{}}catch{toast('Android demande un appui sur ⛶ pour le plein écran')}}
+ window.v136ArmTwitchFullscreen=media=>{clearTimeout(media?._oneFs36);if(media)media._oneFs36=setTimeout(()=>{if(media.isConnected)fs(media)},5000)};
+ function buttons(){document.querySelectorAll('.twitch-card .media').forEach(media=>{if(media.querySelector('.oneTwFs36'))return;const b=document.createElement('button');b.type='button';b.className='oneTwFs36';b.textContent='⛶';b.title='Plein écran';b.setAttribute('aria-label','Plein écran Twitch');b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();fs(media)},true);media.appendChild(b)})}
+ new MutationObserver(buttons).observe(document.getElementById('feed'),{childList:true,subtree:true});buttons();
  document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)try{screen.orientation?.unlock?.()}catch{}});
 })();
 </script>
