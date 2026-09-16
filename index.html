@@ -8,13 +8,13 @@ const oneReloadRoute=oneReadReloadRoute();
 
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.54</title>
+<title>ONE Mobile Alpha 0.13.55</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=01354" />
+<link rel="manifest" href="./manifest.json?v=01355" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -85,11 +85,16 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <style>/* Chat remains available through fullscreen and the side arrow. */
 #oneLandscapeChat{display:none!important}
 </style>
+
+<style>
+.oneTwitchHost.oneStableTwitchHost{position:absolute!important;inset:auto!important;left:50%!important;top:50%!important;width:960px!important;height:540px!important;min-width:960px!important;max-width:none!important;min-height:540px!important;max-height:none!important;transform:translate(-50%,-50%) scale(var(--one-twitch-scale,1))!important;transform-origin:center center!important}
+.oneStableTwitchHost>iframe{width:960px!important;height:540px!important;max-width:none!important;max-height:none!important}
+</style>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.54 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.55 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -2314,7 +2319,7 @@ v17ApplySound();
 (()=>{
  // Only the most visible live may play. A user pause is preserved until it leaves the viewport.
  const records=new Map();let sequence=0,desired=null,queued=false;
- const trace=(event,r,reason)=>window.oneTwitchTrace?.(event,{reason,active:r?.active,ready:r?.ready,selected:desired===r?.media,connected:r?.media?.isConnected,expanded:r?.media?.classList.contains('oneSplitMedia'),landscape:r?.media?.classList.contains('oneLandscapeMedia'),frame:!!r?.host?.querySelector('iframe')});
+ const trace=(event,r,reason)=>window.oneTwitchTrace?.(event,{reason,active:r?.active,ready:r?.ready,selected:desired===r?.media,connected:r?.media?.isConnected,expanded:r?.media?.classList.contains('oneSplitMedia'),landscape:r?.media?.classList.contains('oneLandscapeMedia'),frame:!!r?.host?.querySelector('iframe'),layout:r?.host?[r.host.offsetWidth,r.host.offsetHeight]:null,display:r?.media?[Math.round(r.media.getBoundingClientRect().width),Math.round(r.media.getBoundingClientRect().height)]:null});
  function stop(r){trace('ONE pause',r,new Error().stack?.split('\n').slice(2,4).map(x=>x.replace(/https?:\/\/[^ )]+/g,'source')).join(' '));r.active=false;try{r.player.setMuted(true);r.player.pause();}catch{}}
  function eligible(media){
   if(!media.isConnected||document.hidden)return 0;
@@ -2338,9 +2343,10 @@ v17ApplySound();
  document.addEventListener('oneTwitchLayoutChanged',()=>{resumeExpanded();[150,450].forEach(ms=>setTimeout(resumeExpanded,ms));});
  function mount(media){
   const item=v17ItemById(media.closest('.card')?.dataset.id);if(!item?.live||!item.twitchChannel||!window.Twitch?.Player)return null;
-  const host=document.createElement('div');host.className='oneTwitchHost';host.id='one_card_tw_'+(++sequence);media.appendChild(host);media.classList.add('inline-playing','oneNativeReady');media.dataset.provider='twitch';
-  const player=new Twitch.Player(host.id,{width:'100%',height:'100%',channel:item.twitchChannel,parent:[location.hostname],autoplay:true,muted:false});
-  const r={media,host,player,active:true,ready:false,transitionUntil:0,fallbackMuted:false};records.set(media,r);
+  const host=document.createElement('div');host.className='oneTwitchHost oneStableTwitchHost';host.id='one_card_tw_'+(++sequence);media.appendChild(host);media.classList.add('inline-playing','oneNativeReady');media.dataset.provider='twitch';
+  const fit=()=>{const box=media.getBoundingClientRect();if(box.width>0&&box.height>0){const scale=Math.min(box.width/960,box.height/540);host.style.setProperty('--one-twitch-scale',String(scale));}};fit();const sizeObserver=new ResizeObserver(fit);sizeObserver.observe(media);
+  const player=new Twitch.Player(host.id,{width:960,height:540,channel:item.twitchChannel,parent:[location.hostname],autoplay:true,muted:false});
+  const r={media,host,player,sizeObserver,active:true,ready:false,transitionUntil:0,fallbackMuted:false};records.set(media,r);
   player.addEventListener(Twitch.Player.READY,()=>{trace('Twitch READY',r);r.ready=true;try{player.setVolume(.5);player.setMuted(false);if(desired===media&&r.active&&eligible(media)>=.5)player.play();else stop(r);}catch{}});
   player.addEventListener(Twitch.Player.PLAY,()=>{trace('Twitch PLAY',r);if(desired!==media||!r.active||eligible(media)<.5)stop(r);});
   player.addEventListener(Twitch.Player.PAUSE,()=>{trace('Twitch PAUSE',r);if(r.active&&desired===media&&r.transitionUntil>Date.now()&&document.activeElement!==media.querySelector('iframe'))window.oneCheckExpandedPlayback?.(media);});
@@ -2353,7 +2359,7 @@ v17ApplySound();
   return r;
  }
  function sync(){queued=false;
-  for(const [media,r] of records)if(!media.isConnected||!r.host.isConnected||!r.host.querySelector('iframe')){if(!r.ready&&r.host.isConnected)continue;stop(r);records.delete(media);r.host.remove();media.classList.remove('inline-playing','oneNativeReady');}
+  for(const [media,r] of records)if(!media.isConnected||!r.host.isConnected||!r.host.querySelector('iframe')){if(!r.ready&&r.host.isConnected)continue;stop(r);r.sizeObserver.disconnect();records.delete(media);r.host.remove();media.classList.remove('inline-playing','oneNativeReady');}
   let next=null,score=.5;
   for(const media of document.querySelectorAll('.twitch-card .media')){const item=v17ItemById(media.closest('.card')?.dataset.id);if(!item?.live)continue;const s=eligible(media);if(s>=score){score=s;next=media;}}
   const expanded=document.querySelector('.oneSplitMedia');if(expanded?.isConnected&&!document.hidden&&records.has(expanded))next=expanded;
@@ -2534,7 +2540,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  };
 })();
 
-// 0.13.54: reload route and touch handoff.
+// 0.13.55: reload route and touch handoff.
 (()=>{
  const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,tabsScroll:document.getElementById('chips').scrollLeft,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
@@ -2751,7 +2757,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  window.oneTwitchTrace=(event,details={})=>{events.push({t:Math.round(performance.now()),event,...details,hidden:document.hidden,viewport:[innerWidth,innerHeight],split:document.body.classList.contains('oneSplitActive'),landscape:!!document.querySelector('.oneLandscapeMedia'),fullscreen:!!document.fullscreenElement});if(events.length>100)events.shift();};
  for(const event of ['resize','orientationchange','fullscreenchange','visibilitychange'])window.addEventListener(event,()=>oneTwitchTrace(event),true);
  const button=document.createElement('button');button.type='button';button.className='close';button.textContent='Copier le diagnostic Twitch';
- button.onclick=async()=>{const report='ONE 0.13.54 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
+ button.onclick=async()=>{const report='ONE 0.13.55 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
  document.getElementById('settingsModal').querySelector('.sheet,.modalBox,.modalContent')?.appendChild(button);
  if(!button.isConnected)document.getElementById('settingsModal').firstElementChild.appendChild(button);
 })();
