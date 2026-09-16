@@ -1,5 +1,5 @@
-# ONE 0.13.78
+# ONE 0.13.79 — essai de promotion
 
-Essai ciblé TikTok / Pour toi : activation à 55 % de visibilité au lieu de 72 %. Le chargement commence plus tôt pendant le swipe, avec arrêt précédent inchangé. Twitch, YouTube, préchargement et gestion du son inchangés. Diagnostic enrichi du pourcentage visible lors du changement.
+Préchargement strictement inchangé. Suppression des deux remplacements pour son dans activation ; conservation de la même iframe et URL. Diagnostic promotion et commandes play/unMute.
 
-Ne supprime pas le temps de chargement interne TikTok. Gain après le swipe à vérifier sur téléphone.
+Attention : muted=1 du préchargement peut verrouiller le son côté TikTok. Cette version expérimentale ne garantit pas une lecture sonore ; validation vitesse ET son requise. 0.13.78 reste disponible pour revenir en arrière.
