@@ -171,4 +171,9 @@ Croix flottante pour quitter le plein écran ONE en portrait ou paysage, chat ou
 - Force un rafraîchissement de layout sans recharger l’iframe Twitch : le live et le chat restent en place.
 - Conserve la croix de sortie, le chat escamotable, ONE IA et le comportement Twitch existant.
 
-- Catalogue TikTok externe : limite portée à 5 000 vidéos ; liste repliée par défaut avec bouton « Gérer le catalogue ».
+## 0.13.28 — ONE IA Web Context (palier 2)
+- Questions générales routées vers la recherche Web.
+- Contexte plateforme/créateur/titre injecté dans la recherche quand un contenu est actif.
+- Sources Web affichées avec la réponse.
+- État explicite quand aucune réponse fiable n'est disponible.
+- Séparation conservée entre questions ONE IA, recherche produit et création de programmes vidéo.

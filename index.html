@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.27 — Feed Multi-plateformes</title>
+<title>ONE Mobile Alpha 0.13.28 — ONE IA Web Context</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -81,7 +81,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.27 STUDIO MULTIPLATEFORME</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.28 ONE IA WEB CONTEXT</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -147,13 +147,13 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div class="opt"><span>💡 Tech</span><input type="checkbox" data-topic="tech"></div>
   <button class="close" id="closeModal">Enregistrer</button>
 </div></div>
-<div class="modal" id="aiModal"><div class="sheet"><h3>✨ ONE IA</h3><p>Dis ce que tu veux regarder, combien de temps tu as et les plateformes souhaitées. ONE crée un programme réel avec YouTube + Twitch. Tu peux aussi demander un produit vu dans une vidéo : marque, modèle ou où l’acheter.</p>
+<div class="modal" id="aiModal"><div class="sheet"><h3>✨ ONE IA</h3><p>Pose une question sur ce que tu regardes ou demande une recherche Web. ONE utilise le titre, le créateur et la plateforme disponibles comme contexte. Il peut aussi préparer un programme YouTube + Twitch.</p>
   <div class="quick" style="margin:12px 0 14px">
     <button class="qbtn" id="mode15"><b>⏱️ J'ai 15 minutes</b><span>ONE remplit ton temps intelligemment</span></button>
     <button class="qbtn" id="bestToday"><b>✨ Le meilleur d'aujourd'hui</b><span>Top contenus du feed</span></button>
   </div>
-  <div class="search"><input id="aiQuestion" placeholder="Ex : quel est son clavier ? où acheter le même ?"/><button id="aiSend">Créer</button></div>
-  <div id="aiQuick" style="display:flex;gap:8px;overflow:auto;margin:10px 0 2px"><button class="chip" data-ai="J’ai 15 minutes, montre-moi du gaming sur YouTube et Twitch">15 min gaming MIX</button><button class="chip" data-ai="Dernières vidéos de Gotaga sur YouTube">Gotaga</button><button class="chip" data-ai="Je veux 30 minutes de tech sur YouTube">30 min tech</button><button class="chip" data-ai="Quel est le clavier ou le setup de la vidéo que je regarde ?">⌨️ Son setup ?</button><button class="chip" data-ai="Où acheter le produit de la vidéo que je regarde ?">🛒 Où l’acheter ?</button></div>
+  <div class="search"><input id="aiQuestion" placeholder="Ex : qui est ce créateur ? de quoi parle cette vidéo ?"/><button id="aiSend">Demander</button></div>
+  <div id="aiQuick" style="display:flex;gap:8px;overflow:auto;margin:10px 0 2px"><button class="chip" data-ai="Qui est le créateur que je regarde et quelles sont les infos publiques récentes à son sujet ?">👤 Ce créateur ?</button><button class="chip" data-ai="J’ai 15 minutes, montre-moi du gaming sur YouTube et Twitch">15 min gaming MIX</button><button class="chip" data-ai="Dernières vidéos de Gotaga sur YouTube">Gotaga</button><button class="chip" data-ai="Je veux 30 minutes de tech sur YouTube">30 min tech</button><button class="chip" data-ai="Quel est le clavier ou le setup de la vidéo que je regarde ?">⌨️ Son setup ?</button><button class="chip" data-ai="Où acheter le produit de la vidéo que je regarde ?">🛒 Où l’acheter ?</button></div>
   <div id="aiAnswer" style="margin-top:14px"></div>
   <button class="close" id="closeAi">Fermer</button>
 </div></div>
@@ -208,7 +208,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
   <div id="tiktokStatus" class="meta" style="margin-top:10px"></div>
   <div class="ttCatalogBox">
     <b>➕ Catalogue TikTok externe</b><div class="hint">Sur Android, partage une vidéo depuis TikTok vers ONE : la vidéo est ajoutée automatiquement au catalogue. ONE doit être installée depuis Chrome pour apparaître dans les applications de partage.</div>
-    <div class="hint">Colle un ou plusieurs liens TikTok, ou le texte copié depuis Partager. ONE ajoute les vidéos au feed et ignore les doublons. Maximum 20 liens par import. Le catalogue peut contenir jusqu’à 5 000 vidéos. Pour les liens courts non reconnus, ouvre la vidéo dans ton navigateur et copie son adresse complète.</div>
+    <div class="hint">Colle un ou plusieurs liens TikTok, ou le texte copié depuis Partager. ONE ajoute les vidéos au feed et ignore les doublons. Pour les liens courts non reconnus, ouvre la vidéo dans ton navigateur et copie son adresse complète.</div>
     <div class="search" style="margin-top:9px"><textarea id="tiktokExternalUrl" rows="3" aria-label="Liens TikTok à importer" placeholder="Colle ici tes liens ou un texte de partage TikTok" style="flex:1;min-width:0;resize:vertical;background:transparent;color:var(--text);border:0;padding:10px;font:inherit"></textarea><button id="addTikTokExternal">Ajouter</button></div>
     <div id="tiktokImportResult" class="ttCatalogStatus" role="status" aria-live="polite"></div>
     <div class="ttCatalogStatus" id="tiktokExternalStatus">Aucun TikTok externe ajouté.</div>
@@ -559,7 +559,7 @@ function v124ParkTikTokSlide(slide){
  if(!slide||slide.dataset.platform!=='tiktok')return;
  const media=slide.querySelector('.vslideMedia'),frame=media?.querySelector('iframe');if(!frame)return;
  clearTimeout(slide._ttVisualTimer);
- v17SendTikTok(frame,'mute');v17SendTikTok(frame,'pause');
+ v17SendTikTok(frame,'mute');v17SendTikTok(frame,'pause');v17SendTikTok(frame,'seekTo',0);
  frame.dataset.onePreload='1';frame.dataset.oneWarm='1';frame.dataset.oneBackCache='1';
  frame.style.opacity='0';frame.style.pointerEvents='none';
  slide.removeAttribute('data-active');
@@ -592,7 +592,7 @@ function v17ActivateSlide(slide){
  f.title='Lecteur '+platformName(x.p);f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider=x.p;f.style.pointerEvents='auto';
  if(x.p==='tiktok'){slide.dataset.ttVisualReady='0';slide.dataset.ttActivationTime=String(Number(f.dataset.oneWarmTime||0));f.style.opacity='0';const im=media.querySelector('img');if(im)im.style.opacity='1';media.classList.remove('playing','loading');}else f.style.opacity='1';
  f.onload=()=>{media.classList.remove('loading');if(x.p==='tiktok'&&!wasPreloaded)f.style.opacity='0';if(x.p==='youtube'&&f.contentWindow){try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:String(x.id),channel:'one'}),'*')}catch(e){}}setTimeout(()=>v17ApplySound(slide),80);setTimeout(()=>v17ApplySound(slide),280);setTimeout(()=>v17ApplySound(slide),700)};
- if(!f.isConnected)media.appendChild(f);if(x.p!=='tiktok')media.classList.add('playing');if(x.p==='tiktok'){f.dataset.onePreload='0';delete f.dataset.oneBackCache;media.classList.remove('loading');if(!wasPreloaded||f.dataset.oneWarm!=='1')media.classList.remove('playing');v121ArmTikTokVisualWatch(slide);v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute');clearTimeout(slide._ttFastKick);slide._ttFastKick=setTimeout(()=>{if(slide.getAttribute('data-active')==='1'&&slide.dataset.ttTimeAdvanced!=='1'){v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')}},160);v120PrewarmAround(slide);}
+ if(!f.isConnected)media.appendChild(f);if(x.p!=='tiktok')media.classList.add('playing');if(x.p==='tiktok'){f.dataset.onePreload='0';delete f.dataset.oneBackCache;media.classList.remove('loading');if(!wasPreloaded||f.dataset.oneWarm!=='1')media.classList.remove('playing');v121ArmTikTokVisualWatch(slide);if(wasPreloaded&&f.dataset.oneBackCache==='1')v17SendTikTok(f,'seekTo',0);v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute');clearTimeout(slide._ttFastKick);slide._ttFastKick=setTimeout(()=>{if(slide.getAttribute('data-active')==='1'&&slide.dataset.ttTimeAdvanced!=='1'){v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')}},160);v120PrewarmAround(slide);}
  const img=media.querySelector('img'); if(img&&x.p!=='tiktok')img.style.opacity='0';
  const play=media.querySelector('.vslidePlay'); if(play)play.style.display='none';
  learnFromItem(x,'watch');
@@ -1205,7 +1205,6 @@ const TIKTOK_REDIRECT=new URL(location.pathname,location.origin).href;
 const TIKTOK_API='https://one-tiktok-api.moulinanthony60.workers.dev';
 const TIKTOK_EXTERNAL_KEY='one_tiktok_external_v09';
 const TIKTOK_EXTERNAL_SAFETY_KEY='one_tiktok_external_safety_v119';
-const TIKTOK_EXTERNAL_MAX=5000;
 loadTikTokLocal();
 function tiktokMergeExternalEntries(...groups){const byId=new Map();for(const group of groups){for(const v of (Array.isArray(group)?group:[])){const id=String(v?.id||'');if(!id)continue;const old=byId.get(id);byId.set(id,old?{...v,...old}:v)}}return [...byId.values()].sort((a,b)=>Number(b.addedAt||0)-Number(a.addedAt||0)).slice(0,TIKTOK_EXTERNAL_MAX)}
 function tiktokSafetySnapshot(){const entries=tiktokExternalEntries();try{localStorage.setItem(TIKTOK_EXTERNAL_SAFETY_KEY,JSON.stringify(entries));sessionStorage.setItem(TIKTOK_EXTERNAL_SAFETY_KEY,JSON.stringify(entries))}catch(e){}return entries}
@@ -1294,11 +1293,11 @@ document.getElementById('addTikTokExternal').onclick=async()=>{
    try{
     const u=tiktokValidateUrl(urls[i]),knownId=tiktokIdFromText(u.pathname);
     if(knownId&&tiktokExternalEntries().some(x=>String(x.id)===knownId)){duplicates++;continue}
-    if(tiktokExternalEntries().length>=TIKTOK_EXTERNAL_MAX)throw new Error('Catalogue plein ('+TIKTOK_EXTERNAL_MAX+' vidéos).');
+    if(tiktokExternalEntries().length>=TIKTOK_EXTERNAL_MAX)throw new Error(`Catalogue plein (${TIKTOK_EXTERNAL_MAX} vidéos).`);
     const entry=await tiktokResolveExternal(urls[i]);
     const entries=tiktokExternalEntries();
     if(entries.some(x=>String(x.id)===entry.id)){duplicates++;continue}
-    if(entries.length>=TIKTOK_EXTERNAL_MAX)throw new Error('Catalogue plein ('+TIKTOK_EXTERNAL_MAX+' vidéos).');
+    if(entries.length>=TIKTOK_EXTERNAL_MAX)throw new Error(`Catalogue plein (${TIKTOK_EXTERNAL_MAX} vidéos).`);
     tiktokSaveExternalEntries([entry,...entries]);added++;
    }catch(e){failed.push(urls[i]);errors.push(e.message||'Import impossible.')}
   }
@@ -1702,11 +1701,43 @@ function v1841SourcesHtml(data){
  return `<div class="aiProductNote"><b>🌐 Sources web</b><br>${rows.map(x=>`<a href="${String(x.url).replace(/"/g,'%22')}" target="_blank" rel="noopener noreferrer" style="color:#9db7ff;text-decoration:none">${v17Escape(x.title)}</a>`).join('<br>')}</div>`
 }
 
+let v1328LastAiContext='';
+function v1328ActiveContext(){
+ const active=document.querySelector('.vslide[data-active="1"]');
+ const item=active?v17ItemById(active.dataset.id):null;
+ if(item){
+  const platform=item.p||item.platform||'';
+  const parts=[platform,item.creator?('@'+item.creator):'',item.title||''].filter(Boolean);
+  v1328LastAiContext=parts.join(' · ');
+ }
+ return v1328LastAiContext;
+}
+function v1328LooksLikeProgram(q){
+ return /(montre[- ]?moi|je veux|j.?ai\s*\d{1,3}\s*(?:min|minute|minutes)|programme|playlist|derni[eè]res? vid[ée]os?|sur youtube|sur twitch|youtube et twitch|twitch et youtube)/i.test(q);
+}
+function v1328LooksLikeQuestion(q){
+ return /[?]|^(qui|quoi|quel|quelle|quels|quelles|comment|pourquoi|quand|o[uù]|est[- ]ce|c.?est quoi|explique|cherche|trouve|donne[- ]moi|parle[- ]moi|info|infos|actualit)/i.test(q.trim());
+}
+function v1328WebAnswerHtml(data,context){
+ const answer=String(data?.answer||'').trim();
+ if(!answer)return `<div class="aiProductBox"><div class="aiProductHead"><div class="aiProductIcon">🌐</div><div><div class="aiProductName">Information non trouvée</div><span class="aiConfidence">ONE n’invente pas de réponse</span></div></div><div class="aiContext">${context?'Contexte utilisé : '+v17Escape(context):'Aucun contenu actif détecté.'}</div><div class="aiProductNote">La recherche Web n’a pas fourni de réponse suffisamment exploitable. Précise le nom, le sujet ou le créateur.</div></div>`;
+ return `<div class="aiProductBox"><div class="aiProductHead"><div class="aiProductIcon">✨</div><div><div class="aiProductName">Réponse ONE IA</div><span class="aiConfidence">Recherche Web + contexte disponible</span></div></div>${context?`<div class="aiContext"><b>Contexte :</b> ${v17Escape(context)}</div>`:''}<div style="margin-top:12px;line-height:1.55;white-space:pre-wrap">${v17Escape(answer)}</div>${v1841SourcesHtml(data)}<div class="aiProductNote">ONE utilise uniquement les informations publiques trouvées sur le Web et les métadonnées disponibles. Il ne voit pas les images, le son ni la transcription de la vidéo.</div></div>`;
+}
+
 async function answerOne(){
  const q=document.getElementById('aiQuestion').value.trim(); const a=document.getElementById('aiAnswer');
  if(!q){a.innerHTML='<div class="empty">Écris ce que tu veux regarder.</div>';return}
  const low=q.toLowerCase();
  const productIntent=/(clavier|souris|casque|micro|[ée]cran|setup|marque|mod[eè]le|acheter|achat|prix|produit|o[uù] l.?acheter|manette|chaise|webcam|tapis|ordinateur|pc|carte graphique|gpu|cpu|processeur|t[eé]l[eé]phone|smartphone|montre|chaussure|veste|maillot)/i.test(low);
+ const aiContext=v1328ActiveContext();
+ const isProgram=v1328LooksLikeProgram(q);
+ if(!productIntent&&!isProgram&&v1328LooksLikeQuestion(q)){
+  a.innerHTML='<div class="empty">🌐 ONE IA recherche sur le Web…</div>';
+  const researchQuery=aiContext?(q+' — contexte du contenu : '+aiContext):q;
+  const web=await v1841WebResearch(researchQuery);
+  a.innerHTML=v1328WebAnswerHtml(web,aiContext);
+  return;
+ }
  if(productIntent){const active=document.querySelector('.vslide[data-active="1"]');const ctx=active?v17ItemById(active.dataset.id):null;const contextText=ctx?`${ctx.creator} ${ctx.title}`:'';const query=(q+' '+contextText).trim();const clean=q.replace(/^(quel(le)? est|c.?est quoi|ou trouver|où trouver|ou acheter|où acheter|trouve[- ]moi|acheter)\s*/i,'').trim()||q;const lowq=query.toLowerCase();a.innerHTML='<div class="empty">🌐 ONE IA cherche sur Internet…</div>';const web=await v1841WebResearch(query);const webModel=v1841ExtractModel(query,web);if(webModel){a.innerHTML='<div class="empty">🛒 Modèle trouvé : '+v17Escape(webModel)+' · recherche des prix…</div>';const webOffers=await v1833ShopSearch(webModel);a.innerHTML=`<div class="aiProductBox"><div class="aiProductHead"><div class="aiProductIcon">🌐</div><div><div class="aiProductName">${v17Escape(webModel)}</div><span class="aiConfidence">Identifié par recherche Internet · à confirmer selon la date du setup</span></div></div><div class="aiContext">${v17Escape(web?.answer||'Modèle repéré dans les résultats web.')}</div>${webOffers?.length?v1833ShopLiveHtml(webOffers,webModel):'<div class="aiProductNote">Aucune offre neuve suffisamment fiable trouvée pour ce modèle à cet instant.</div>'}${v1841SourcesHtml(web)}<div class="aiProductNote">ONE cherche d’abord le matériel sur le Web, puis compare les offres Shopping. Les prix correspondent aux offres remontées à cet instant.</div></div>`;return}const gear=v1817GearLookup(query);if(gear){a.innerHTML='<div class="empty">🛍 Recherche des prix actuels…</div>';const liveOffers=await v1833ShopSearch(gear.model);const gq=encodeURIComponent(gear.model),known=v1819ShopKnown(gear.model);const shops=liveOffers?.length?v1833ShopLiveHtml(liveOffers,gear.model):(known?v1819ShopHtml(known):`<div class="aiShopTitle">Marchands</div><div class="aiShopGrid"><div class="aiShopCard"><div><b>Amazon</b><span>Prix à vérifier</span></div><button onclick="window.open('https://www.amazon.fr/s?k=${gq}','_blank','noopener')">Voir</button></div><div class="aiShopCard"><div><b>Fnac</b><span>Prix à vérifier</span></div><button onclick="window.open('https://www.fnac.com/SearchResult/ResultList.aspx?Search=${gq}','_blank','noopener')">Voir</button></div><div class="aiShopCard"><div><b>Boulanger</b><span>Prix à vérifier</span></div><button onclick="window.open('https://www.boulanger.com/resultats?tr=${gq}','_blank','noopener')">Voir</button></div><div class="aiShopCard"><div><b>LDLC</b><span>Prix à vérifier</span></div><button onclick="window.open('https://www.ldlc.com/recherche/${gq}/','_blank','noopener')">Voir</button></div></div>`);a.innerHTML=`<div class="aiProductBox"><div class="aiProductHead"><div class="aiProductIcon">🎯</div><div><div class="aiProductName">${v17Escape(gear.model)}</div><span class="aiConfidence">Matériel identifié pour ${v17Escape(gear.creator)} · à confirmer selon la date du setup</span></div></div><div class="aiContext">${v17Escape(gear.note)}</div>${shops}<div class="aiProductNote">ONE privilégie maintenant les offres Shopping Live. Le catalogue local ne sert qu’en secours si la recherche dynamique est indisponible.</div></div>`;return}const squeezieKeyboard=/(squeezie).*(clavier)|clavier.*(squeezie)/i.test(query);if(squeezieKeyboard){const product='Logitech G915 TKL';const shopq=encodeURIComponent(product);a.innerHTML=`<div class="aiProductBox"><div class="aiProductHead"><div class="aiProductIcon">⌨️</div><div><div class="aiProductName">${product}</div><span class="aiConfidence">Modèle trouvé sur le web · à confirmer selon la date du setup</span></div></div><div class="aiContext"><b>Clavier recherché pour Squeezie</b><br>Le modèle G915 TKL ressort dans la recherche. Logitech commercialise aussi le plus récent G915 X LIGHTSPEED TKL.</div><div class="aiShopTitle">Prix repérés</div><div class="aiShopGrid"><div class="aiShopCard"><div><b>G915 TKL</b><span>Fnac · env. 252,39 € au relevé</span></div><button onclick="window.open('https://www.google.com/search?tbm=shop&q=${shopq}','_blank','noopener')">Voir</button></div><div class="aiShopCard"><div><b>Amazon</b><span>${localStorage.getItem('one_amazon_affiliate_tag')?'Lien partenaire activé':'Rechercher le G915 TKL'}</span></div><button onclick="window.open(v1616AmazonUrl('${shopq}'),'_blank','noopener')">Voir</button></div><div class="aiShopCard"><div><b>G915 X LIGHTSPEED TKL</b><span>Logitech G · 179,99 € au relevé</span></div><button onclick="window.open('https://www.logitechg.com/fr-fr/shop/p/g915-x-tkl-wireless','_blank','noopener')">Voir</button></div></div><div class="aiProductNote">Prix relevés le 13/09/2026 : ils peuvent changer. Vérifie le vendeur et la référence exacte avant achat.</div><button class="aiWebBtn" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(query)}','_blank','noopener')">🔎 Actualiser la recherche web</button></div>`;return}const enc=encodeURIComponent(query),shop=encodeURIComponent(clean);a.innerHTML='<div class="empty">🛍 Recherche Shopping Live…</div>';const liveOffers=await v1833ShopSearch(clean);if(liveOffers?.length){a.innerHTML=`<div class="aiProductBox"><div class="aiProductHead"><div class="aiProductIcon">🛒</div><div><div class="aiProductName">${v17Escape(clean)}</div><span class="aiConfidence">Comparaison Shopping Live</span></div></div>${v1833ShopLiveHtml(liveOffers,clean)}</div>`;return}a.innerHTML=`<div class="aiProductBox"><div class="aiProductHead"><div class="aiProductIcon">🛒</div><div><div class="aiProductName">${v17Escape(clean)}</div><span class="aiConfidence">Modèle non identifié avec assez de certitude</span></div></div><div class="aiContext">${ctx?`Contexte : <b>@${v17Escape(ctx.creator)}</b> · ${v17Escape(ctx.title)}`:'Aucune vidéo ouverte.'}</div><div class="aiProductNote">ONE n'a trouvé aucune offre Shopping suffisamment fiable. Pour éviter de t'envoyer vers une mauvaise référence, les anciennes pages de recherche Amazon/Fnac/Boulanger/LDLC ont été supprimées. Essaie avec le nom du créateur + le type de produit, ou ouvre une vidéo du créateur puis relance la question.</div></div>`;return}
  const m=low.match(/(\d{1,3})\s*(?:min|minute|minutes)/);
  const budget=m?Math.max(5,Math.min(180,Number(m[1]))):15;
@@ -1748,7 +1779,7 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', ()=>{ naviga
 // V18.46 TRUSTED STORES: native audio for TikTok/Twitch, clearer IA shopping cards
 const vSoundBtn=document.getElementById('vSound');
 const vVolumeInput=document.getElementById('vVolume');
-if(vSoundBtn)vSoundBtn.onclick=()=>{const x=v17ItemById(document.querySelector('.vslide[data-active="1"]')?.dataset.id);if(x&&(x.p==='twitch'||x.p==='tiktok'))return;if(v17Muted){v1813UserEnableSound()}else{v17Muted=true;localStorage.setItem('one_v17_muted','1');v17ApplySound();toast('Son coupé 🔇')}};
+if(vSoundBtn)vSoundBtn.onclick=()=>{const sl=document.querySelector('.vslide[data-active="1"]');const x=v17ItemById(sl?.dataset.id);if(x?.p==='twitch')return;if(x?.p==='tiktok'){v1813UserEnableSound();return;}if(v17Muted){v1813UserEnableSound()}else{v17Muted=true;localStorage.setItem('one_v17_muted','1');v17ApplySound();toast('Son coupé 🔇')}};
 if(vVolumeInput){vVolumeInput.value=String(v17Volume);vVolumeInput.oninput=()=>{v17Volume=Number(vVolumeInput.value);v17Muted=v17Volume===0;localStorage.setItem('one_v17_volume',String(v17Volume));localStorage.setItem('one_v17_muted',v17Muted?'1':'0');v17ApplySound();};}
 document.getElementById('vFullscreen')?.addEventListener('click',v17ToggleFullscreen);
 document.addEventListener('fullscreenchange',v17SyncFullscreenButton);
