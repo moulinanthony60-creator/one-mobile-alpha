@@ -1,5 +1,4 @@
-# 0.13.38
-- Retire les restaurations concurrentes de l’ancien onglet et du feed vertical.
-- Retire les remplacements de lecteur au toucher et les préchargements avec son.
-- Bloque les rappels audio des vidéos inactives et libère les anciens lecteurs.
-- Plein écran sans verrouillage paysage, un seul bouton Twitch ouverture/fermeture.
+# 0.13.39
+- Passage audio TikTok sur touchend, sans remplacement du lecteur. Retrait des trois anciens rappels concurrents.
+- Rafraîchissement : restaure onglet, recherche, mode et feed vertical depuis sessionStorage uniquement pour une navigation reload. Nouvelle ouverture : accueil.
+- Live Twitch : agrandissement ONE après cinq secondes de lecture, sans verrouillage paysage ; tentative plein écran natif, repli sur agrandissement ONE si refus. Pause/onglet masqué annulent le délai.

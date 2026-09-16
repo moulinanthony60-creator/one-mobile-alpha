@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=01338" />
+<link rel="manifest" href="./manifest.json?v=01339" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -81,7 +81,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.38 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.39 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -236,7 +236,9 @@ if(localStorage.getItem('one_v18_19_migrated')!=='1'){
 
 const items=[]; // V14: aucun contenu fictif. Les cartes viennent uniquement des API réelles.
 
-let state={filter:'all',query:'',saved:new Set(JSON.parse(localStorage.getItem('one_saved_items')||'[]')),liked:new Set(JSON.parse(localStorage.getItem('one_liked_v9')||'[]')),disliked:new Set(JSON.parse(localStorage.getItem('one_disliked_v9')||'[]')),mode:null,aiBudget:null,queue:[],queueIndex:-1,aiIds:new Set()};
+function oneReadReloadRoute(){try{if(performance.getEntriesByType('navigation')[0]?.type!=='reload')return null;const r=JSON.parse(sessionStorage.getItem('one_reload_route')||'null');return r&&['all','one','tiktok','youtube','twitch','music','cinema'].includes(r.filter)?r:null;}catch{return null;}}
+const oneReloadRoute=oneReadReloadRoute();
+let state={filter:oneReloadRoute?.filter||'all',query:'',saved:new Set(JSON.parse(localStorage.getItem('one_saved_items')||'[]')),liked:new Set(JSON.parse(localStorage.getItem('one_liked_v9')||'[]')),disliked:new Set(JSON.parse(localStorage.getItem('one_disliked_v9')||'[]')),mode:null,aiBudget:null,queue:[],queueIndex:-1,aiIds:new Set()};
 let oneProfile=JSON.parse(localStorage.getItem('one_profile_v7')||'{"searches":[],"creators":{},"watched":{}}');
 oneProfile.searches=Array.isArray(oneProfile.searches)?oneProfile.searches:[];
 oneProfile.creators=oneProfile.creators||{}; oneProfile.watched=oneProfile.watched||{};
@@ -516,7 +518,7 @@ function v17ActivateTwitch(slide,x,media,channel){
    const host=document.createElement('div'); host.className='vtwitchHost'; host.id='twh_'+Math.random().toString(36).slice(2); host.style.cssText='position:absolute;inset:0;display:grid;place-items:center;background:#000'; media.appendChild(host);
    const pl=new Twitch.Player(host.id,{width:'100%',height:'100%',channel,parent:[location.hostname],autoplay:true,muted:v1814NativeMuted()});
    v17TwitchPlayers[String(x.id)]=pl;
-   pl.addEventListener(Twitch.Player.READY,()=>{try{pl.setVolume(.5);if(!v1814NativeMuted())pl.setMuted(false);pl.play()}catch(e){} media.classList.remove('loading');});
+   pl.addEventListener(Twitch.Player.READY,()=>{try{pl.setVolume(.5);if(!v1814NativeMuted())pl.setMuted(false);pl.play()}catch(e){} media.classList.remove('loading');});pl.addEventListener(Twitch.Player.PLAY,()=>window.v136ArmTwitchFullscreen?.(media));pl.addEventListener(Twitch.Player.PAUSE,()=>window.oneCancelTwitchAuto?.(media));
    media.classList.add('playing'); const img=media.querySelector('img');if(img)img.style.opacity='0'; return true;
  }
  return false;
@@ -1792,7 +1794,7 @@ document.getElementById('prefBtn').onclick=()=>{loadFeedPrefsUI();document.getEl
 document.getElementById('closeModal').onclick=()=>{saveFeedPrefsUI();document.getElementById('modal').classList.remove('show')};
 document.getElementById('modal').onclick=e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('show')};
 render();
-loadUnifiedFeed();
+// Content is loaded once by the startup route below.
 
 if ('serviceWorker' in navigator) { window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }); }
 
@@ -2177,36 +2179,9 @@ v17ApplySound();
 })();
 </script>
 
-<script>
-// 0.13.31 — TikTok audio handoff : les players préchauffés sont créés muets.
-// Quand un player préchauffé devient actif, on réarme explicitement le son après le swipe.
-(()=>{
- const audioKick31=(slide)=>{
-   if(!slide||slide.getAttribute('data-active')!=='1'||slide.dataset.platform!=='tiktok'||!v1814SoundAllowed())return;
-   const frame=slide.querySelector('iframe');if(!frame)return;
-   const fire=()=>{if(slide.getAttribute('data-active')==='1'&&frame.isConnected){v17SendTikTok(frame,'unMute');v17SendTikTok(frame,'play')}};
-   fire();[40,120,260,520,900].forEach(ms=>setTimeout(fire,ms));
- };
- const oldActivate=window.v17ActivateTikTok;
- window.v17ActivateTikTok=function(slide){if(oldActivate)oldActivate(slide);setTimeout(()=>audioKick31(slide),0);};
- const bind=()=>{const root=document.getElementById('vfeedScroller');if(!root||root.dataset.oneAudio31)return;root.dataset.oneAudio31='1';
-   const handoff=()=>{v1814RememberSoundGesture();setTimeout(()=>audioKick31(document.querySelector('.vslide[data-active="1"][data-platform="tiktok"]')),25);};
-   root.addEventListener('pointerup',handoff,{passive:true});root.addEventListener('touchend',handoff,{passive:true});
- };
- window.addEventListener('message',e=>{const d=e.data;if(!d||d['x-tiktok-player']!==true)return;if(d.type!=='onPlayerReady'&&d.type!=='onStateChange')return;const slide=[...document.querySelectorAll('.vslide[data-active="1"][data-platform="tiktok"]')].find(s=>s.querySelector('iframe')?.contentWindow===e.source);if(slide)setTimeout(()=>audioKick31(slide),20);});
- new MutationObserver(bind).observe(document.body,{childList:true,subtree:true});bind();
-})();
-</script>
 
-<script>
-// 0.13.30 — TikTok : le relâchement du doigt après un swipe est un geste utilisateur.
-// On s'en sert pour réappliquer play + unMute au lecteur désormais actif.
-(()=>{
- const kick=()=>{const slide=document.querySelector('.vslide[data-active="1"][data-platform="tiktok"]');if(!slide||!v1814SoundAllowed())return;const frame=slide.querySelector('iframe');if(!frame)return;v17SendTikTok(frame,'unMute');v17SendTikTok(frame,'play');setTimeout(()=>{if(slide.getAttribute('data-active')==='1'){v17SendTikTok(frame,'unMute');v17SendTikTok(frame,'play')}},70);};
- const bind=()=>{const root=document.getElementById('vfeedScroller');if(!root||root.dataset.oneAudioGesture30)return;root.dataset.oneAudioGesture30='1';root.addEventListener('pointerup',()=>setTimeout(kick,0),{passive:true});root.addEventListener('touchend',()=>setTimeout(kick,0),{passive:true});};
- new MutationObserver(bind).observe(document.body,{childList:true,subtree:true});bind();
-})();
-</script>
+
+
 
 <style>.oneWidePlayer{position:fixed!important;inset:0!important;z-index:12500!important;width:100%!important;max-width:none!important;height:100dvh!important;overflow:auto!important;background:#080a10!important;margin:0!important;border-radius:0!important}.oneWidePlayer iframe{max-height:75dvh}.oneWideButton{margin:8px;padding:10px;border-radius:12px;background:#222b40;color:white;border:1px solid #56617a}.onePlayerHint{font-size:12px;color:#bac3d5;margin:8px}</style>
 <script>
@@ -2289,7 +2264,7 @@ v17ApplySound();
 (()=>{
  const observed=new WeakSet();
  let playerId=0;
- function mount(media){if(!media.isConnected||media.querySelector('iframe')||media.querySelector('.oneTwitchHost'))return;const card=media.closest('.card'),item=v17ItemById(card?.dataset.id);if(!item?.live||!item.twitchChannel)return;media.classList.add('inline-playing','oneNativeReady');media.dataset.provider='twitch';if(window.Twitch?.Player){const host=document.createElement('div');host.className='oneTwitchHost';host.id='one_card_tw_'+(++playerId);media.appendChild(host);const player=new Twitch.Player(host.id,{width:'100%',height:'100%',channel:item.twitchChannel,parent:[location.hostname],autoplay:false,muted:false});player.addEventListener(Twitch.Player.READY,()=>{try{player.setVolume(0.5);player.setMuted(false);}catch{}});player.addEventListener(Twitch.Player.PLAY,()=>{try{window.v136ArmTwitchFullscreen?.(media)}catch{}});}else{const message=document.createElement('div');message.textContent='Lecteur Twitch indisponible. Recharge la page pour réessayer.';media.appendChild(message);}}
+ function mount(media){if(!media.isConnected||media.querySelector('iframe')||media.querySelector('.oneTwitchHost'))return;const card=media.closest('.card'),item=v17ItemById(card?.dataset.id);if(!item?.live||!item.twitchChannel)return;media.classList.add('inline-playing','oneNativeReady');media.dataset.provider='twitch';if(window.Twitch?.Player){const host=document.createElement('div');host.className='oneTwitchHost';host.id='one_card_tw_'+(++playerId);media.appendChild(host);const player=new Twitch.Player(host.id,{width:'100%',height:'100%',channel:item.twitchChannel,parent:[location.hostname],autoplay:false,muted:false});player.addEventListener(Twitch.Player.READY,()=>{try{player.setVolume(0.5);player.setMuted(false);}catch{}});player.addEventListener(Twitch.Player.PLAY,()=>{try{window.v136ArmTwitchFullscreen?.(media)}catch{}});player.addEventListener(Twitch.Player.PAUSE,()=>window.oneCancelTwitchAuto?.(media));}else{const message=document.createElement('div');message.textContent='Lecteur Twitch indisponible. Recharge la page pour réessayer.';media.appendChild(message);}}
 
  const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){mount(e.target);observer.unobserve(e.target);}}),{threshold:0.5});
  const attach=()=>document.querySelectorAll('.twitch-card .media').forEach(m=>{if(!observed.has(m)){observed.add(m);observer.observe(m);}});new MutationObserver(attach).observe(document.getElementById('feed'),{childList:true,subtree:true});attach();
@@ -2304,7 +2279,7 @@ v17ApplySound();
 html,body{background-color:#080a10!important}html:fullscreen{width:100%;height:100%;background:#080a10}body.oneSplitActive{overflow:hidden}#oneSplitBackdrop{position:fixed;inset:0;background:#080a10;z-index:12880}#oneSplitBackdrop[hidden]{display:none}
 #oneSplitBar{position:fixed;top:0;left:0;right:0;height:48px;box-sizing:border-box;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;background:#10141c;z-index:12940;color:white}#oneSplitBar[hidden]{display:none}#oneSplitBar button,#oneLandscapeChat{border:1px solid #65558f;border-radius:12px;padding:8px 12px;background:#352450;color:white;font-weight:800}
 .oneSplitHost{z-index:12910!important}.oneSplitMedia{position:fixed!important;left:0!important;top:48px!important;width:65vw!important;height:calc(100dvh - 48px)!important;min-height:0!important;aspect-ratio:auto!important;margin:0!important;transform:none!important;z-index:12920!important;background:black!important;border:0!important;border-radius:0!important;overflow:hidden!important}
-.oneSplitMedia iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;aspect-ratio:auto!important;transform:none!important;border:0!important}.oneSplitMedia>*:not(iframe):not(.oneTwitchHost){display:none!important}
+.oneSplitMedia iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;aspect-ratio:auto!important;transform:none!important;border:0!important}.oneSplitMedia>*:not(iframe):not(.oneTwitchHost):not(.vtwitchHost){display:none!important}
 body.oneSplitActive #oneChatPanel{inset:48px 0 0 auto!important;width:35vw!important;height:calc(100dvh - 48px)!important;border-radius:0;z-index:12930}body.oneSplitActive #oneChatExpand{display:none!important}
 @media(orientation:portrait){.oneSplitMedia{width:100vw!important;height:32dvh!important}body.oneSplitActive #oneChatPanel{top:calc(48px + 32dvh)!important;width:100%!important;height:calc(68dvh - 48px)!important}}
 #oneLandscapeChat{position:fixed;right:16px;bottom:92px;z-index:12910;border-radius:999px;background:#7048d8;border:1px solid #baa8ff;padding:12px 16px;box-shadow:0 4px 20px #0008}#oneLandscapeChat[hidden]{display:none}
@@ -2383,43 +2358,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 </script>
 
 
-<script>
-// 0.13.32 — TikTok audio direct gesture handoff.
-// Important: unMute is sent synchronously inside pointer/touch release, before any timer.
-(()=>{
- const closestTikTok=()=>{
-   const root=document.getElementById('vfeedScroller'); if(!root)return null;
-   const rr=root.getBoundingClientRect(), cy=(rr.top+rr.bottom)/2;
-   let best=null,dist=Infinity;
-   root.querySelectorAll('.vslide[data-platform="tiktok"]').forEach(s=>{
-     const r=s.getBoundingClientRect(), d=Math.abs(((r.top+r.bottom)/2)-cy);
-     if(d<dist){dist=d;best=s}
-   });
-   return best;
- };
- const directHandoff=()=>{
-   v1814RememberSoundGesture();
-   const slide=closestTikTok(); if(!slide)return;
-   // Promote the slide now, while the browser still considers this a user gesture.
-   if(slide.getAttribute('data-active')!=='1')v17ActivateSlide(slide);
-   const frame=slide.querySelector('iframe'); if(!frame)return;
-   v17SendTikTok(frame,'unMute');
-   v17SendTikTok(frame,'play');
-   // Timed retries are only reinforcement; the first command above is the key change.
-   [80,220,600].forEach(ms=>setTimeout(()=>{
-     if(slide.getAttribute('data-active')==='1'&&frame.isConnected){v17SendTikTok(frame,'unMute');v17SendTikTok(frame,'play')}
-   },ms));
- };
- const bind=()=>{
-   const root=document.getElementById('vfeedScroller'); if(!root||root.dataset.oneAudio32)return;
-   root.dataset.oneAudio32='1';
-   root.addEventListener('pointerup',directHandoff,{passive:true});
-   // touchend is kept only for browsers without Pointer Events to avoid a double gesture.
-   if(!window.PointerEvent)root.addEventListener('touchend',directHandoff,{passive:true});
- };
- new MutationObserver(bind).observe(document.body,{childList:true,subtree:true});bind();
-})();
-</script>
+
 
 <style>
 #oneClipLang{position:absolute;top:calc(58px + env(safe-area-inset-top));left:14px;z-index:12;display:none;align-items:center;gap:7px;background:rgba(0,0,0,.68);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:6px 9px;color:#fff;font-size:11px;font-weight:800;backdrop-filter:blur(10px)}
@@ -2468,5 +2407,61 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 })();
 </script>
 
+
+<script>
+// 0.13.39: one reload route, one touch handoff, one live enlargement timer.
+(()=>{
+ const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
+ window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
+ window.addEventListener('load',async()=>{try{
+  const r=oneReloadRoute;
+  if(!r){await loadUnifiedFeed();return;}
+  state.filter=r.filter;state.mode=r.mode||null;
+  document.querySelectorAll('#chips .chip').forEach(c=>c.classList.toggle('active',c.dataset.filter===state.filter));
+  if(r.mode==='following')await loadFollowingFeed();
+  else if(r.query){document.getElementById('search').value=r.query;await document.getElementById('searchBtn').onclick();}
+  else if(r.filter==='twitch'){await twitchStreams(false);twitchLoadClips(false,false);}
+  else if(r.filter==='youtube')await youtubeSearch('gaming france',false,false);
+  else if(r.filter==='all')await loadUnifiedFeed();
+  else if(r.filter==='tiktok')loadTikTokLocal();
+  render();syncTwitchFilters();syncVerticalLauncher();renderCreatorResults();
+  if(r.vertical)openVerticalFeed(r.vertical);
+ }catch{toast('Actualisation incomplète. Réessaie depuis cet onglet.');}},{once:true});
+ const root=document.getElementById('vfeedScroller');let startY=null,startSlide=null;
+ const start=e=>{if(e.target.closest('button,input,a')){startY=null;return;}startSlide=root.querySelector('.vslide[data-active="1"]');startY=e.touches?.[0]?.clientY??e.clientY;};
+ const end=e=>{
+  const y=e.changedTouches?.[0]?.clientY??e.clientY;
+  if(startY===null||!Number.isFinite(y))return;const delta=y-startY;startY=null;
+  if(Math.abs(delta)<24||!document.getElementById('vfeed').classList.contains('show'))return;
+  const rr=root.getBoundingClientRect(),middle=(rr.top+rr.bottom)/2;
+  const slides=[...root.querySelectorAll('.vslide')];
+  let slide=slides.reduce((best,s)=>{const r=s.getBoundingClientRect(),distance=Math.abs((r.top+r.bottom)/2-middle);return !best||distance<best.distance?{slide:s,distance}:best;},null)?.slide;
+  if(slide===startSlide){const next=delta<0?slide.nextElementSibling:slide.previousElementSibling;if(next?.classList.contains('vslide')){slide=next;slide.scrollIntoView({behavior:'smooth',block:'start'});}}
+  if(!slide||slide.dataset.platform!=='tiktok')return;
+  v1814RememberSoundGesture();v17ActivateSlide(slide);
+  const f=slide.querySelector('iframe');v17SendTikTok(f,'unMute');v17SendTikTok(f,'play');
+ };
+ // touchend survives native scrolling, where Chrome cancels pointer events.
+ root.addEventListener('touchstart',start,{passive:true});root.addEventListener('touchend',end,{passive:true});
+ root.addEventListener('touchcancel',()=>{startY=null;},{passive:true});
+ root.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')start(e);},{passive:true});root.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')end(e);},{passive:true});
+ const timers=new Map(),expanded=new WeakSet();
+ window.oneCancelTwitchAuto=media=>{clearTimeout(timers.get(media));timers.delete(media);};
+ window.v136ArmTwitchFullscreen=media=>{
+  if(!media||expanded.has(media)||timers.has(media))return;
+  timers.set(media,setTimeout(()=>{
+   timers.delete(media);if(!media.isConnected||document.hidden||document.fullscreenElement||document.body.classList.contains('oneSplitActive'))return;
+   const r=media.getBoundingClientRect();if(r.bottom<=0||r.top>=innerHeight)return;
+   const slide=media.closest('.vslide');if(slide&&slide.getAttribute('data-active')!=='1')return;
+   let login;try{login=new URL(media.querySelector('iframe')?.src).searchParams.get('channel');}catch{return;}if(!login)return;
+   expanded.add(media);oneOpenChat(login);
+   if(document.body.classList.contains('oneSplitActive')&&!document.body.classList.contains('oneChatCollapsed'))document.getElementById('oneSplitBar').click();
+  },5000));
+ };
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)for(const media of timers.keys())oneCancelTwitchAuto(media);});
+})();
+</script>
+
+<style>.oneSplitMedia>.vtwitchHost{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important}</style>
 </body>
 </html>

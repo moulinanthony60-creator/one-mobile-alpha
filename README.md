@@ -1,7 +1,3 @@
-# ONE 0.13.38
-
-Base : ZIP 0.13.37 fourni par Anthony. Publier le contenu de ce dossier à la racine du site comme auparavant.
-
-À vérifier sur téléphone : ouverture sur accueil, plein écran portrait puis paysage, J’aime sans interruption, plusieurs balayages sans anciens sons, quitter et rouvrir le feed.
-
-Contrôles automatisés locaux uniquement ; le fonctionnement réel des lecteurs intégrés reste à confirmer sur Chrome Android.
+# ONE 0.13.39
+Publier le contenu du ZIP. Tests sur Chrome Android requis : son après plusieurs swipes, actualiser Twitch/YouTube/TikTok/recherche/feed vertical, live agrandi après 5 s, pause et sortie du live.
+Le plein écran natif automatique dépend du navigateur. ONE conserve son agrandissement avec sortie et chat si le navigateur le refuse.
