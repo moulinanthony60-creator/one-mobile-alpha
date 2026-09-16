@@ -1,10 +1,14 @@
-# ONE 0.13.49
+# ONE 0.13.50
 
-Publier les fichiers à la racine du ZIP.
+Publier le contenu du ZIP à la racine du site.
 
-- Recherche : conserve la requête, affiche les contenus disponibles du créateur dans Pour toi, et respecte la plateforme dans chaque onglet.
-- Chaînes : bouton Afficher les chaînes / Masquer les chaînes, correspondances exactes de nom ou identifiant public, sans suggestions similaires. Une correspondance de nom ne certifie pas un compte officiel.
-- TikTok et Pour toi : alternance des créateurs, ordre stable pendant la consultation, préférences conservées.
-- Twitch : carte non rognée en plein écran, mises à jour du feed différées pendant le plein écran pour conserver le lecteur, reprise des pauses de transition pendant une période limitée.
+- TikTok / Pour toi : renouvellement de toute la sélection avec tirage pondéré par les préférences, historique sur les 60 premières vidéos et alternance des créateurs. Ordre conservé durant la consultation.
+- Pour toi : actualiser efface la recherche et revient au feed normal. Les recherches des autres onglets sont conservées.
+- Chaînes : résolution du compte YouTube par son identifiant public et priorité aux correspondances exactes, puis aux abonnés pour départager les noms identiques. Aucune certification de compte officiel n'est inventée.
+- Twitch : contrôle de l'état réellement en pause après l'ouverture du plein écran et du chat, reprise limitée à la transition, conservation du lecteur existant. Correction à confirmer sur téléphone.
 
-Validation : syntaxe et tests locaux de recherche, mélange, priorités, commandes audio et sélection des lecteurs. Le passage Twitch en plein écran reste à confirmer sur le téléphone ; aucun test réel Android effectué ici.
+Vérifications locales : syntaxe, renouvellement au-delà de la première vidéo, stabilité pendant une session, historique, recherche après refresh, priorité des chaînes suivies, commande pause/reprise TikTok, reprise Twitch simulée et arrêt des lecteurs hors écran. Pas de validation Android réelle.
+
+Références API :
+https://developers.google.com/youtube/v3/docs/channels/list
+https://dev.twitch.tv/docs/embed/video-and-clips/
