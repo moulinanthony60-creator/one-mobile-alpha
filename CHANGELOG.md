@@ -1,3 +1,5 @@
-# ONE 0.13.68
+# ONE 0.13.70
 
-TikTok et Pour toi : un seul gestionnaire positionne la flèche IA ; suppression du repositionnement concurrent au centre de la vidéo. Flèche visible entre deux vidéos. La classe du feed n’est mise à jour que si elle change, pour éviter les notifications répétées.
+Fenêtre TikTok / Pour toi : précédent + actif + deux suivants. Préchargement silencieux réactivé, voisins conservés au changement de vidéo, lecteurs éloignés supprimés. N+2 différé de 450 ms, annulé si la vidéo est quittée.
+
+La gestion du son reste inchangée : un lecteur préchargé muet peut devoir être recréé pour une lecture audible. Le préchargement ne garantit donc pas de supprimer le délai de démarrage. Validation téléphone nécessaire.
