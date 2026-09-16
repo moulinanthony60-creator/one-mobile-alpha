@@ -1,5 +1,3 @@
-# ONE 0.13.80
+# ONE 0.13.81
 
-ONE IA : liens Markdown cliquables uniquement si URL présente dans les résultats de recherche ; sources HTTP(S) filtrées ; jusqu’à huit sources. Délai recherche limité à 25 secondes, requêtes identiques simultanées regroupées. Erreur réseau distinguée du manque de réponse fiable. Mentions de certitude produit atténuées.
-
-Lecteur 0.13.79 inchangé. Aucun achat ni disponibilité marchand vérifiés ; test service distant bloqué par SSL depuis cet environnement.
+Volet IA compact lorsque le clavier réduit la hauteur : saisie et recherche côte à côte, résultats défilants. Sources compactes, domaine et date fournie (ou mention de son absence). Consignes de recherche : distinguer setup ancien et actuel, priorité marchands Amazon.fr, Darty, Fnac, Cdiscount pour référence exacte. Ce sont des consignes au service de recherche, pas une garantie de vérification indépendante. Lecture et recherche volet fermé conservées.
