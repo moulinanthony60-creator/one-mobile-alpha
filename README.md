@@ -1,12 +1,11 @@
-# ONE Mobile Alpha 0.13.29 — Produits / liens directs (palier 3)
+# ONE Mobile Alpha 0.13.30 — IA Router + Audio
 
-Base : 0.13.28.
+Base : 0.13.29 hotfix.
 
-- ONE IA conserve la recherche Web contextuelle du palier 2.
-- Recherche produit : priorité au modèle exact et aux offres neuves.
-- Le bouton Voir l’offre n’est affiché que lorsqu’une fiche marchand directe exploitable a été résolue.
-- Les pages d’accueil, pages de recherche génériques et liens Google/Bing sont refusés comme destination produit.
-- Si aucun lien direct fiable n’est disponible, ONE le dit au lieu d’envoyer vers une recherche approximative.
-- Aucun prix n’est inventé.
+- ONE IA sépare maintenant les questions personne / action-contexte / produit / général.
+- Les questions « qui est sur la vidéo ? » ne doivent plus déclencher une réponse Shopping/matériel.
+- Les recherches ONE IA demandent une réponse en français et privilégient la publication exacte (URL/ID + titre + créateur).
+- TikTok : nouvelle relance audio sur le geste de swipe pour réappliquer `unMute` au lecteur actif.
+- TikTok : remise au début lorsqu'une vidéo quitte l'écran (`seekTo(0)`), tout en conservant le préchargement rapide.
 
-À tester sur téléphone avant fusion stable.
+À tester sur Android réel : le navigateur/TikTok peut encore appliquer ses propres règles d'autoplay audio.

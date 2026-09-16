@@ -81,7 +81,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.29 PRODUITS + IA STRICTE + AUDIO TIKTOK</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.30 IA ROUTER + AUDIO TIKTOK</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -558,7 +558,7 @@ function v124ParkTikTokSlide(slide){
  if(!slide||slide.dataset.platform!=='tiktok')return;
  const media=slide.querySelector('.vslideMedia'),frame=media?.querySelector('iframe');if(!frame)return;
  clearTimeout(slide._ttVisualTimer);
- v17SendTikTok(frame,'mute');v17SendTikTok(frame,'pause');
+ v17SendTikTok(frame,'mute');v17SendTikTok(frame,'seekTo',0);v17SendTikTok(frame,'pause');
  frame.dataset.onePreload='1';frame.dataset.oneWarm='1';frame.dataset.oneBackCache='1';
  frame.style.opacity='0';frame.style.pointerEvents='none';
  slide.removeAttribute('data-active');
@@ -2136,10 +2136,37 @@ v17ApplySound();
  }
  window.oneAskVideo=(name,creator,meta={})=>{returnFocus=document.activeElement;videoMeta=meta&&typeof meta==='object'?meta:{};const url=oneAiVideoUrl(videoMeta);const id=videoMeta.tiktokId||videoMeta.videoId||videoMeta.id||'';context=[name,creator,videoMeta.p||videoMeta.platform||'',id?('ID '+id):'',url].filter(Boolean).join(' · ');document.getElementById('videoAiContext').textContent=[name,creator].filter(Boolean).join(' · ')||'Vidéo en cours';question.value='';answer.textContent='';sources.innerHTML='';request++;search.disabled=false;panel.hidden=false;question.focus();};
  const close=()=>{panel.hidden=true;request++;search.disabled=false;returnFocus?.focus?.();};document.getElementById('videoAiClose').onclick=close;panel.onclick=e=>{if(e.target===panel)close();};panel.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();close();}if(e.key==='Tab'){const focusable=[...panel.querySelectorAll('button,input,textarea,a[href]')].filter(n=>!n.disabled);const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}};
- search.onclick=async()=>{const q=question.value.trim();if(!q){question.focus();return;}const token=++request;search.disabled=true;answer.textContent='Recherche web…';sources.innerHTML='';try{const refersToVideo=/(cette|la)\s+vid[ée]o|dans\s+(?:cette|la)\s+vid[ée]o|cette\s+personne|ce\s+(?:gars|mec|type|monsieur|garçon)|cette\s+(?:femme|fille)|qui\s+(?:c['’]est|est)\s+(?:cette|ce)|à\s+l['’]écran|porte|utilise|fait\s+(?:il|elle)|qu['’]est[- ]ce qu['’](?:il|elle) fait/i.test(q);const researchQ=refersToVideo?(q+' — retrouve d’abord la publication exacte à partir de son URL/ID, titre et créateur, puis répond uniquement avec les informations publiques vérifiables liées à cette publication. Contexte : '+context):q;const data=await v1841WebResearch(researchQ);if(token!==request)return;const prefix=refersToVideo?'Résultat de recherche autour de la publication exacte (URL/ID + titre + créateur). ONE ne voit toujours pas directement les pixels, le son ni la transcription ; si les sources publiques ne permettent pas d’identifier la personne avec certitude, il doit le signaler.\n\n':'';answer.textContent=data?.answer?prefix+data.answer:'Aucune réponse web suffisamment fiable. ONE préfère ne pas compléter avec des informations non demandées.';sources.innerHTML=v1841SourcesHtml(data);}catch{if(token===request)answer.textContent='Recherche indisponible. Réessaie plus tard.';}finally{if(token===request)search.disabled=false;}};
+ search.onclick=async()=>{const q=question.value.trim();if(!q){question.focus();return;}const token=++request;search.disabled=true;answer.textContent='Recherche web…';sources.innerHTML='';try{
+  const low=q.toLowerCase();
+  const productIntent=/(produit|marque|mod[eè]le|acheter|achat|prix|combien|o[uù]\s+(?:l['’]?acheter|trouver)|clavier|souris|casque|micro|[ée]cran|setup|mat[ée]riel|manette|chaise|webcam|tapis|ordinateur|\bpc\b|carte graphique|\bgpu\b|\bcpu\b|processeur|t[eé]l[eé]phone|smartphone|montre|chaussure|veste|maillot)/i.test(low);
+  const personIntent=/(qui\s+(?:est|c['’]est)|qui\s+est\s+sur|quelle?\s+personne|nom\s+de\s+(?:la|cette)\s+personne|ce\s+(?:gars|mec|type|monsieur|garçon)|cette\s+(?:femme|fille|personne))/i.test(low);
+  const actionIntent=/(que\s+fait|qu['’]est[- ]ce\s+qu|il\s+fait\s+quoi|elle\s+fait\s+quoi|que\s+se\s+passe|explique\s+(?:la|cette)\s+vid[ée]o|de\s+quoi\s+parle)/i.test(low);
+  const videoIntent=personIntent||actionIntent||/(cette|la)\s+vid[ée]o|dans\s+(?:cette|la)\s+vid[ée]o|à\s+l['’][ée]cran/i.test(low);
+  let instruction='Réponds en français. Utilise seulement des informations publiques vérifiables. N’invente rien.';
+  if(personIntent)instruction+=' La question porte sur l’identité d’une personne : retrouve d’abord la publication exacte avec son URL/ID, son titre et son créateur. Cherche ensuite qui est réellement nommé ou identifié par des sources liées à cette publication. Si l’identité n’est pas confirmable, dis-le clairement. Ne parle pas de matériel, produit, caméra, clavier ou setup sauf si la question le demande.';
+  else if(actionIntent)instruction+=' La question porte sur ce qui se passe dans la publication : retrouve la publication exacte et explique uniquement ce que les sources publiques permettent de confirmer. Ne transforme pas la réponse en recherche de produit.';
+  else if(productIntent)instruction+=' La question porte sur un produit : cherche le modèle exact uniquement si des sources fiables permettent de le confirmer, puis distingue clairement modèle confirmé et alternative. N’attribue jamais un produit à la vidéo sans preuve.';
+  else if(videoIntent)instruction+=' Retrouve d’abord la publication exacte avec URL/ID, titre et créateur, puis réponds uniquement à la question posée avec les informations publiques vérifiables liées à cette publication.';
+  else instruction+=' Réponds directement à la question posée sans ajouter de recherche Shopping ou de matériel non demandé.';
+  const researchQ=q+' — '+instruction+' Contexte exact de la publication : '+context;
+  const data=await v1841WebResearch(researchQ);if(token!==request)return;
+  const prefix=videoIntent?'Recherche liée à la publication exacte. ONE utilise son URL/ID, son titre et son créateur ; il ne voit pas directement les pixels, le son ni la transcription.\n\n':'';
+  answer.textContent=data?.answer?prefix+data.answer:'Aucune réponse web suffisamment fiable pour confirmer cette information. ONE préfère ne pas inventer.';
+  sources.innerHTML=v1841SourcesHtml(data);
+ }catch{if(token===request)answer.textContent='Recherche indisponible. Réessaie plus tard.';}finally{if(token===request)search.disabled=false;}};
  function add(host,getContext){if(!host||host.querySelector('.videoAiTrigger'))return;const b=document.createElement('button');b.className='videoAiTrigger';b.type='button';b.textContent='✨ Demander à ONE IA';b.onclick=()=>{const c=getContext();oneAskVideo(c.title,c.creator,c);};host.appendChild(b);}
  function attach(){document.querySelectorAll('.card').forEach(card=>add(card.querySelector('.cardBody'),()=>v17ItemById(card.dataset.id)||{}));add(document.querySelector('.vfeedTop'),()=>{const a=document.querySelector('.vslide[data-active="1"]');return a?v17ItemById(a.dataset.id)||{}:{};});add(document.querySelector('#playerModal .playerInfo'),()=>({title:document.getElementById('playerTitle').textContent,creator:document.getElementById('playerCreator').textContent}));const channel=document.getElementById('oneChannelPlayer');if(channel&&!channel.hidden)add(channel,()=>({title:channel.querySelector('.oneChannelPlayerInfo')?.textContent||'',creator:document.querySelector('#oneChannelIdentity h2')?.textContent||''}));}
  const observer=new MutationObserver(attach);observer.observe(document.body,{childList:true,subtree:true});attach();
+})();
+</script>
+
+<script>
+// 0.13.30 — TikTok : le relâchement du doigt après un swipe est un geste utilisateur.
+// On s'en sert pour réappliquer play + unMute au lecteur désormais actif.
+(()=>{
+ const kick=()=>{const slide=document.querySelector('.vslide[data-active="1"][data-platform="tiktok"]');if(!slide||!v1814SoundAllowed())return;const frame=slide.querySelector('iframe');if(!frame)return;v17SendTikTok(frame,'unMute');v17SendTikTok(frame,'play');setTimeout(()=>{if(slide.getAttribute('data-active')==='1'){v17SendTikTok(frame,'unMute');v17SendTikTok(frame,'play')}},70);};
+ const bind=()=>{const root=document.getElementById('vfeedScroller');if(!root||root.dataset.oneAudioGesture30)return;root.dataset.oneAudioGesture30='1';root.addEventListener('pointerup',()=>setTimeout(kick,0),{passive:true});root.addEventListener('touchend',()=>setTimeout(kick,0),{passive:true});};
+ new MutationObserver(bind).observe(document.body,{childList:true,subtree:true});bind();
 })();
 </script>
 
