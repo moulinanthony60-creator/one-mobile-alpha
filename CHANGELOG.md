@@ -1,5 +1,9 @@
-# 0.13.47
-- Twitch et YouTube : chaîne au-dessus du lecteur ; petit bouton Suivre ; commandes ONE IA/tchat/playlist regroupées sous la vidéo ; réactions sur la ligne suivante ; bouton Lire retiré.
-- Playlist : petit + à droite de ONE IA ; suivi et playlist ne reconstruisent plus les cartes en cours de lecture (hors écran playlist).
-- Twitch : tentative de son automatique à 50 %, repli muet et bouton Activer le son en cas de blocage navigateur.
-- Passage vidéo/chat : sélection maintenue pendant la transition et reprise bornée du même lecteur en cas de pause pendant cette transition.
+# ONE 0.13.48
+Publier le contenu du ZIP.
+
+- YouTube : priorité des chaînes suivies conservée après actualisation, y compris pendant le chargement.
+- TikTok / Pour toi : un appui sur la vidéo pour pause/reprise, glissement préservé.
+- Réglages : liste des vidéos TikTok importées masquée, données conservées.
+- Twitch : conservation du lecteur lors des changements de visibilité, priorité au live agrandi et suppression de la boucle de recalcul du plein écran.
+
+Tests locaux ; lecture Twitch sur téléphone à confirmer.

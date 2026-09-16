@@ -1,5 +1,9 @@
-# ONE 0.13.47
+# ONE 0.13.48
 Publier le contenu du ZIP.
-À tester : présentation des cartes Twitch/YouTube, suivre sans couper le lecteur, + playlist et réactions, son Twitch au démarrage et passage plein écran/chat.
-Le navigateur peut refuser le son automatique : le bouton Activer le son apparaît en cas de blocage. Tests locaux uniquement, pas de validation sur le téléphone.
-Commentaires ONE : serveur séparé toujours requis.
+
+- YouTube : priorité des chaînes suivies conservée après actualisation, y compris pendant le chargement.
+- TikTok / Pour toi : un appui sur la vidéo pour pause/reprise, glissement préservé.
+- Réglages : liste des vidéos TikTok importées masquée, données conservées.
+- Twitch : conservation du lecteur lors des changements de visibilité, priorité au live agrandi et suppression de la boucle de recalcul du plein écran.
+
+Tests locaux ; lecture Twitch sur téléphone à confirmer.

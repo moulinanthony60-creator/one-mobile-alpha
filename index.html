@@ -8,7 +8,7 @@ const oneReloadRoute=oneReadReloadRoute();
 
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.47</title>
+<title>ONE Mobile Alpha 0.13.48</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -86,7 +86,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.47 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.48 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -221,7 +221,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
     <div class="search" style="margin-top:9px"><textarea id="tiktokExternalUrl" rows="3" aria-label="Liens TikTok à importer" placeholder="Colle ici tes liens ou un texte de partage TikTok" style="flex:1;min-width:0;resize:vertical;background:transparent;color:var(--text);border:0;padding:10px;font:inherit"></textarea><button id="addTikTokExternal">Ajouter</button></div>
     <div id="tiktokImportResult" class="ttCatalogStatus" role="status" aria-live="polite"></div>
     <div class="ttCatalogStatus" id="tiktokExternalStatus">Aucun TikTok externe ajouté.</div>
-    <div class="ttCatalogList" id="tiktokExternalList"></div>
+    <div class="ttCatalogList" id="tiktokExternalList" hidden></div>
     <button class="ttCatalogClear" id="clearTikTokExternal" type="button">Vider le catalogue TikTok externe</button>
   </div>
   <div class="hint" style="margin-top:8px">Redirect URI à déclarer pour Twitch et TikTok : <code id="oauthRedirectUri" style="word-break:break-all"></code></div>
@@ -460,6 +460,8 @@ function v17TikTokFallback(slide){
 function v17SendTikTok(frame,type,value){
  if(!frame?.contentWindow||!frame.isConnected)return;
  const owner=frame.closest('.vslide');
+ const tapOwner=owner||frame.closest('.media');
+ if((type==='play'||type==='unMute')&&tapOwner?.dataset.oneUserPaused==='1')return;
  if(type==='unMute'&&(document.hidden||(owner&&(owner.getAttribute('data-active')!=='1'||!document.getElementById('vfeed')?.classList.contains('show')))))return;
  if(type==='play'&&(document.hidden||(owner&&owner.getAttribute('data-active')!=='1'&&frame.dataset.onePreload!=='1')))return;
  try{frame.contentWindow.postMessage({type,value,'x-tiktok-player':true},'*')}catch(e){}
@@ -491,9 +493,9 @@ function v1813UserEnableSound(){
  const sl=document.querySelector('.vslide[data-active="1"]');const xx=sl?v17ItemById(sl.dataset.id):null;if(xx?.p==='tiktok')v1815TikTokSound(sl,true);v17ApplySound();toast('Son autorisé 🔊');
 }
 window.v1813UserEnableSound=v1813UserEnableSound;
-function v1815StopAllPlayers(exceptSlide=null){
+function v1815StopAllPlayers(exceptSlide=null,preserveCardPlayers=false){
  document.querySelectorAll('.vslide').forEach(s=>{if(s!==exceptSlide){s.removeAttribute('data-active');s.querySelectorAll('iframe').forEach(f=>{clearTimeout(f._oneTTKick1);clearTimeout(f._oneTTKick2);v17SendTikTok(f,'mute');v17SendTikTok(f,'pause');f.remove();});v17RestoreSlide(s)}});
- document.querySelectorAll('.card .media.inline-playing').forEach(m=>{m.querySelectorAll('iframe,.oneTwitchHost').forEach(f=>f.remove());m.classList.remove('inline-playing','oneNativeReady')});
+ document.querySelectorAll('.card .media.inline-playing').forEach(m=>{if(preserveCardPlayers&&m.dataset.provider==='twitch')return;m.querySelectorAll('iframe,.oneTwitchHost').forEach(f=>f.remove());m.classList.remove('inline-playing','oneNativeReady')});
  Object.keys(v17TwitchPlayers).forEach(k=>{try{v17TwitchPlayers[k]?.pause?.()}catch(e){} if(!exceptSlide||String(exceptSlide.dataset.id)!==String(k))delete v17TwitchPlayers[k]});
 }
 function v1815TikTokSound(slide,enable=true){
@@ -1272,7 +1274,7 @@ async function tiktokResolveExternal(value){
  return {id:String(id),url:input,creator,title,thumbnail,addedAt:Date.now()};
 }
 function tiktokExternalToItem(v,n){return {id:'tt_ext_'+v.id,p:'tiktok',icon:'🎵',creator:v.creator||'Créateur TikTok',title:v.title||'Vidéo TikTok externe',meta:'TikTok externe · ajouté à ONE',duration:'TikTok',tags:['TikTok','Externe'],score:118,short:true,thumbnail:v.thumbnail||'',shareUrl:v.url||'',embedLink:'https://www.tiktok.com/player/v1/'+encodeURIComponent(v.id),url:'https://www.tiktok.com/player/v1/'+encodeURIComponent(v.id),tiktokId:String(v.id||''),tiktokPlayable:true,isTikTokExternal:true}}
-function renderTikTokExternalManager(){const entries=tiktokExternalEntries();const status=document.getElementById('tiktokExternalStatus'),list=document.getElementById('tiktokExternalList'),clear=document.getElementById('clearTikTokExternal');if(status)status.textContent=entries.length?`${entries.length} vidéo(s) TikTok externe(s) dans ONE.`:'Aucun TikTok externe ajouté.';if(clear)clear.style.display=entries.length?'block':'none';if(list)list.innerHTML=entries.map(v=>`<div class="ttCatalogItem"><div><strong>${v17Escape(v.title||'Vidéo TikTok')}</strong><span>@${v17Escape(v.creator||'Créateur TikTok')} · ${v17Escape(v.id)}</span></div><button type="button" onclick="removeTikTokExternal('${v17Escape(v.id)}')">Supprimer</button></div>`).join('')}
+function renderTikTokExternalManager(){const entries=tiktokExternalEntries();const status=document.getElementById('tiktokExternalStatus'),list=document.getElementById('tiktokExternalList'),clear=document.getElementById('clearTikTokExternal');if(status)status.textContent=entries.length?`${entries.length} vidéo(s) TikTok externe(s) dans ONE.`:'Aucun TikTok externe ajouté.';if(clear)clear.style.display=entries.length?'block':'none';if(list){list.hidden=true;list.replaceChildren()}}
 window.removeTikTokExternal=id=>{const entries=tiktokExternalEntries().filter(v=>String(v.id)!==String(id));tiktokSaveExternalEntries(entries);loadTikTokLocal();renderTikTokExternalManager();render();toast('TikTok retiré du catalogue')};
 // Build the complete usable pool before any ranking or platform mixing.
 function oneBuildTikTokPool(raw,external){
@@ -2215,9 +2217,9 @@ v17ApplySound();
  let discovery=[],pool={youtube:[],twitch:[]},loading=false,last='',at=0;
  const metas=p=>[...followedCreators].map(k=>followedMeta[k]).filter(m=>m?.platform===p&&m.id);
  const active=p=>new Set(metas(p).map(m=>String(m.id)));
- function merge(p,arr){const ids=active(p),head=pool[p].filter(x=>ids.has(String(p==='youtube'?x.channelId:x.twitchUserId)));const seen=new Set(head.map(x=>p==='youtube'?x.videoId:x.twitchUserId));const tail=[...arr,...(p==='youtube'?discovery:[])].filter(x=>{const key=p==='youtube'?x.videoId:x.twitchUserId;if(seen.has(key)||p==='youtube'&&ids.has(String(x.channelId)))return false;seen.add(key);return true;});if(p==='twitch'){const all=[...head,...tail];return all.sort((a,b)=>Number(ids.has(String(b.twitchUserId))&&b.live)-Number(ids.has(String(a.twitchUserId))&&a.live)||Number(b.viewerCount||0)-Number(a.viewerCount||0));}return [...head.sort((a,b)=>new Date(b.publishedRaw)-new Date(a.publishedRaw)),...tail];}
+ function merge(p,arr){const ids=active(p),head=[...pool[p],...arr].filter(x=>ids.has(String(p==='youtube'?x.channelId:x.twitchUserId))).sort((a,b)=>new Date(b.publishedRaw||0)-new Date(a.publishedRaw||0)).filter((x,i,a)=>a.findIndex(v=>(p==='youtube'?v.videoId:v.twitchUserId)===(p==='youtube'?x.videoId:x.twitchUserId))===i).filter((x,i,a)=>p!=='youtube'||a.slice(0,i).filter(v=>v.channelId===x.channelId).length<2);const seen=new Set(head.map(x=>p==='youtube'?x.videoId:x.twitchUserId));const tail=[...arr,...(p==='youtube'?discovery:[])].filter(x=>{const key=p==='youtube'?x.videoId:x.twitchUserId;if(seen.has(key)||p==='youtube'&&ids.has(String(x.channelId)))return false;seen.add(key);return true;});if(p==='twitch'){const all=[...head,...tail];return all.sort((a,b)=>Number(ids.has(String(b.twitchUserId))&&b.live)-Number(ids.has(String(a.twitchUserId))&&a.live)||Number(b.viewerCount||0)-Number(a.viewerCount||0));}return [...head.sort((a,b)=>new Date(b.publishedRaw)-new Date(a.publishedRaw)),...tail];}
  window.onePriorityMerge=merge;
- const old=filtered;filtered=function(){const arr=old();return state.mode===null&&!state.query&&!ytLastQuery&&state.filter==='youtube'?merge(state.filter,arr):arr;};
+ const old=filtered;filtered=function(){const arr=old();return state.mode===null&&!state.query&&state.filter==='youtube'?merge(state.filter,arr):arr;};
  async function refresh(){const signature=JSON.stringify([...followedCreators].sort())+localStorage.getItem('one_youtube_api_key')+localStorage.getItem('one_twitch_token');if(loading||signature===last&&Date.now()-at<180000)return;loading=true;last=signature;at=Date.now();const next={youtube:[],twitch:[]};try{
  const key=localStorage.getItem('one_youtube_api_key');const yt=metas('youtube');if(key)for(let i=0;i<yt.length;i+=50){try{const r=await fetch('https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&id='+encodeURIComponent(yt.slice(i,i+50).map(m=>m.id).join(','))+'&key='+encodeURIComponent(key));if(!r.ok)continue;const d=await r.json();for(const c of d.items||[]){const up=c.contentDetails?.relatedPlaylists?.uploads;if(!up)continue;try{const pr=await fetch('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=2&playlistId='+encodeURIComponent(up)+'&key='+encodeURIComponent(key));if(!pr.ok)continue;const pd=await pr.json();for(const item of pd.items||[]){const v=item.snippet,id=v?.resourceId?.videoId;if(!id||v.title==='Private video'||v.title==='Deleted video')continue;next.youtube.push({id:'yt_'+id,p:'youtube',creator:c.snippet?.title||v.channelTitle,channelId:c.id,creatorAvatar:c.snippet?.thumbnails?.default?.url||'',title:v.title,videoId:id,thumbnail:(v.thumbnails?.high||v.thumbnails?.default)?.url||'',url:'https://www.youtube.com/watch?v='+id,publishedRaw:v.publishedAt,tags:['Abonnement','YouTube'],meta:'Chaîne suivie · dernière publication',duration:'YouTube',score:100});}}catch{}}}catch{}}
  if(key)try{const r=await fetch('https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=FR&maxResults=25&key='+encodeURIComponent(key));if(r.ok){const d=await r.json();discovery=(d.items||[]).map(v=>({id:'yt_'+v.id,p:'youtube',videoId:v.id,channelId:v.snippet.channelId,creator:v.snippet.channelTitle,title:v.snippet.title,thumbnail:(v.snippet.thumbnails?.high||v.snippet.thumbnails?.default)?.url||'',publishedRaw:v.snippet.publishedAt,tags:['YouTube'],meta:'À découvrir',duration:'YouTube',score:50}));}}catch{}
@@ -2308,6 +2310,7 @@ v17ApplySound();
  };
  function resumeExpanded(){const media=document.querySelector('.oneSplitMedia');if(media){window.oneResumeTwitchView(media);}}
  document.addEventListener('fullscreenchange',()=>{requestAnimationFrame(resumeExpanded);});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestAnimationFrame(resumeExpanded);});
  document.addEventListener('oneTwitchLayoutChanged',()=>{resumeExpanded();[150,450].forEach(ms=>setTimeout(resumeExpanded,ms));});
  function mount(media){
   const item=v17ItemById(media.closest('.card')?.dataset.id);if(!item?.live||!item.twitchChannel||!window.Twitch?.Player)return null;
@@ -2329,6 +2332,7 @@ v17ApplySound();
   for(const [media,r] of records)if(!media.isConnected||!r.host.isConnected||!r.host.querySelector('iframe')){if(!r.ready&&r.host.isConnected)continue;stop(r);records.delete(media);r.host.remove();media.classList.remove('inline-playing','oneNativeReady');}
   let next=null,score=.5;
   for(const media of document.querySelectorAll('.twitch-card .media')){const item=v17ItemById(media.closest('.card')?.dataset.id);if(!item?.live)continue;const s=eligible(media);if(s>=score){score=s;next=media;}}
+  const expanded=document.querySelector('.oneSplitMedia');if(expanded?.isConnected&&!document.hidden&&records.has(expanded))next=expanded;
   desired=next;
   for(const [media,r] of records)if(media!==next&&r.active)stop(r);
   if(next){const r=records.get(next);if(r)start(r);else mount(next);}
@@ -2399,7 +2403,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  const root=document.documentElement;let raf=0,timers=[];
  function measure(){raf=0;const view=window.visualViewport;const fs=document.fullscreenElement===document.documentElement;const vw=view&&(!view.scale||Math.abs(view.scale-1)<.01)?view.width:0,vh=view&&(!view.scale||Math.abs(view.scale-1)<.01)?view.height:0;const width=Math.round(fs?Math.max(window.innerWidth||0,document.documentElement.clientWidth||0,vw||0):((vw||window.innerWidth||document.documentElement.clientWidth)));const height=Math.round(fs?Math.max(window.innerHeight||0,document.documentElement.clientHeight||0,vh||0):((vh||window.innerHeight||document.documentElement.clientHeight)));if(width<=0||height<=0)return;const videoWidth=Math.round(width*.65),videoHeight=Math.min(height,Math.max(300,Math.round(height*.4)));const values={'width':width,'height':height};for(const [key,value] of Object.entries(values)){const name='--one-view-'+key,val=value+'px';if(root.style.getPropertyValue(name)!==val)root.style.setProperty(name,val);}for(const [key,value] of Object.entries({'video-width':videoWidth,'chat-width':width-videoWidth,'video-height':videoHeight,'chat-height':height-videoHeight})){const name='--one-'+key,val=value+'px';if(root.style.getPropertyValue(name)!==val)root.style.setProperty(name,val);}}
  const schedule=()=>{if(!raf)raf=requestAnimationFrame(measure);};
- function settle(){schedule();timers.forEach(clearTimeout);timers=[40,120,300,700,1200].map(delay=>setTimeout(()=>{schedule();if(document.body.classList.contains('oneSplitActive')){void document.body.offsetWidth;document.body.classList.add('oneViewportRefresh');requestAnimationFrame(()=>document.body.classList.remove('oneViewportRefresh'));}},delay));}
+ function settle(){schedule();timers.forEach(clearTimeout);timers=[40,120,300,700,1200].map(delay=>setTimeout(schedule,delay));}
  window.addEventListener('resize',settle);window.addEventListener('orientationchange',settle);window.addEventListener('pageshow',settle);document.addEventListener('fullscreenchange',settle);window.visualViewport?.addEventListener('resize',settle);window.screen?.orientation?.addEventListener('change',settle);
  // Class changes open/close the ONE player; resize the existing iframe, never reload it.
  new MutationObserver(settle).observe(document.body,{attributes:true,attributeFilter:['class']});new ResizeObserver(settle).observe(document.documentElement);measure();
@@ -2485,13 +2489,13 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  new MutationObserver(buttons).observe(document.getElementById('feed'),{childList:true,subtree:true});buttons();
  const stop=()=>{v1815StopAllPlayers();v17ActiveId='';};
  window.addEventListener('pagehide',stop);
- document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else if(document.getElementById('vfeed').classList.contains('show'))v17SetupObserver();});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){v1815StopAllPlayers(null,true);v17ActiveId='';}else if(document.getElementById('vfeed').classList.contains('show'))v17SetupObserver();});
 })();
 </script>
 
 
 <script>
-// 0.13.47: reload route and touch handoff.
+// 0.13.48: reload route and touch handoff.
 (()=>{
  const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,tabsScroll:document.getElementById('chips').scrollLeft,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
@@ -2664,6 +2668,40 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  window.oneRefreshCardActions=refresh;
  const schedule=()=>{if(!queued){queued=true;requestAnimationFrame(refresh);}};
  new MutationObserver(schedule).observe(feed,{childList:true,subtree:true});refresh();
+})();
+</script>
+
+
+<style>
+.oneTapPlayback{position:absolute;inset:58px 0 64px;z-index:3;border:0;background:transparent;color:white;display:grid;place-items:center;touch-action:pan-y;cursor:pointer;padding:0;width:100%}
+.oneTapPlayback span{display:none;border-radius:50%;width:64px;height:64px;background:#0009;font-size:30px;place-items:center}
+.oneTapPlayback[aria-pressed="true"] span{display:grid}
+.oneTapPlayback:focus-visible{outline:2px solid #ad8dff;outline-offset:-4px}
+#tiktokExternalList[hidden]{display:none!important}
+</style>
+<script>
+(()=>{
+ function attach(){document.querySelectorAll('.vslide[data-platform="tiktok"] .vslideMedia,.card .media[data-provider="tiktok"]').forEach(media=>{
+  const frame=media.querySelector('iframe');if(!frame)return;
+  const owner=media.closest('.vslide')||media;
+  let b=media.querySelector('.oneTapPlayback');
+  if(!b){b=document.createElement('button');b.type='button';b.className='oneTapPlayback';b.innerHTML='<span aria-hidden="true">▶</span>';media.appendChild(b);
+   let point=null,moved=false;
+   b.addEventListener('pointerdown',e=>{point={x:e.clientX,y:e.clientY};moved=false;});
+   b.addEventListener('pointermove',e=>{if(point&&Math.hypot(e.clientX-point.x,e.clientY-point.y)>12)moved=true;});
+   b.addEventListener('pointercancel',()=>{moved=true;point=null;});
+   b.onclick=e=>{e.preventDefault();e.stopPropagation();if(moved)return;
+    const f=media.querySelector('iframe');if(!f)return;
+    const slide=media.closest('.vslide');if(slide&&slide.getAttribute('data-active')!=='1')return;
+    const pause=owner.dataset.oneUserPaused!=='1';owner.dataset.oneUserPaused=pause?'1':'0';
+    b.setAttribute('aria-pressed',String(pause));b.setAttribute('aria-label',pause?'Reprendre la vidéo':'Mettre la vidéo en pause');
+    v17SendTikTok(f,pause?'pause':'play');
+   };
+  }
+  if(b._frame!==frame){b._frame=frame;delete owner.dataset.oneUserPaused;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label','Mettre la vidéo en pause');}
+ });}
+ new MutationObserver(attach).observe(document.getElementById('vfeed'),{childList:true,subtree:true});
+ new MutationObserver(attach).observe(document.getElementById('feed'),{childList:true,subtree:true});attach();
 })();
 </script>
 
