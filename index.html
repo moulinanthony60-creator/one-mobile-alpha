@@ -17,13 +17,13 @@ const oneReloadRoute=oneReadReloadRoute();
 
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.75</title>
+<title>ONE Mobile Alpha 0.13.76</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=01375" />
+<link rel="manifest" href="./manifest.json?v=01376" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -119,7 +119,7 @@ body.oneTwitchBrowse .twitchFilters button:focus-visible,body.oneTwitchBrowse .v
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.75 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.76 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -496,7 +496,7 @@ function v17SendTikTok(frame,type,value){
  const tapOwner=owner||frame.closest('.media');
  if((type==='play'||type==='unMute')&&tapOwner?.dataset.oneUserPaused==='1')return;
  if(type==='unMute'&&(document.hidden||(owner&&(owner.getAttribute('data-active')!=='1'||!document.getElementById('vfeed')?.classList.contains('show')))))return;
- if(type==='play'&&(document.hidden||(owner&&owner.getAttribute('data-active')!=='1'&&frame.dataset.onePreload!=='1')))return;
+ if(type==='play'&&(document.hidden||(owner&&owner.getAttribute('data-active')!=='1')))return;
  try{frame.contentWindow.postMessage({type,value,'x-tiktok-player':true},'*')}catch(e){}
 }
 function v17ApplySound(slide=document.querySelector('.vslide[data-active="1"]')){
@@ -662,7 +662,7 @@ function v124PreloadTikTokSlide(target,label='voisin'){
  if(media.querySelector('iframe'))return;
 
  const src=v17PlayerUrl(x);if(!src)return;
- const f=document.createElement('iframe');f.src=src.replace(/([?&])muted=[01]/,'$1muted=1');f.title='Préchargement TikTok '+label;f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider='tiktok';f.dataset.onePreload='1';f.style.opacity='0';f.style.pointerEvents='none';oneTTTrace('création préchargement',target,f);media.appendChild(f);
+ const f=document.createElement('iframe');const preloadUrl=new URL(src);preloadUrl.searchParams.set('autoplay','0');preloadUrl.searchParams.set('muted','0');f.src=preloadUrl.href;f.title='Préchargement TikTok '+label;f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider='tiktok';f.dataset.onePreload='1';f.style.opacity='0';f.style.pointerEvents='none';oneTTTrace('création préchargement',target,f);media.appendChild(f);
 }
 function v1810PreloadNextTikTok(activeSlide){
  if(!activeSlide)return;
@@ -714,7 +714,7 @@ window.addEventListener('message',e=>{
  const media=slide.querySelector('.vslideMedia'),frame=slide.querySelector('iframe');
  if(d.type==='onPlayerReady'||d.type==='onPlayerError'||d.type==='onStateChange')oneTTTrace(d.type,slide,frame,{etat:typeof d.value==='number'?d.value:null});
  const isWarmPreload=frame?.dataset.onePreload==='1'&&slide.getAttribute('data-active')!=='1';
- if(isWarmPreload){if(d.type==='onPlayerReady'){v17SendTikTok(frame,'mute');v17SendTikTok(frame,'play')}if(d.type==='onCurrentTime'){const wt=Number(d.value?.currentTime??d.value??0);if(wt>0.025){frame.dataset.oneWarm='1';frame.dataset.oneWarmTime=String(wt);v17SendTikTok(frame,'pause')}}if(d.type==='onPlayerError')frame.remove();return;}
+ if(isWarmPreload){if(d.type==='onPlayerReady'){frame.dataset.onePrepared='1';v17SendTikTok(frame,'mute');v17SendTikTok(frame,'pause');oneTTTrace('préchargement prêt arrêté',slide,frame);}if(d.type==='onStateChange'&&Number(d.value)===1){v17SendTikTok(frame,'mute');v17SendTikTok(frame,'pause');}if(d.type==='onPlayerError')frame.remove();return;}
  if(d.type==='onPlayerReady'){
    slide.dataset.ttReady='1';clearTimeout(slide._ttReadyTimer);
    // Ready = lecteur chargé, pas forcément une image vidéo affichée : on garde donc la miniature.
@@ -2584,7 +2584,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  };
 })();
 
-// 0.13.75: reload route and touch handoff.
+// 0.13.76: reload route and touch handoff.
 (()=>{
  const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,tabsScroll:document.getElementById('chips').scrollLeft,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
@@ -2801,7 +2801,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  window.oneTwitchTrace=(event,details={})=>{events.push({t:Math.round(performance.now()),event,...details,hidden:document.hidden,viewport:[innerWidth,innerHeight],split:document.body.classList.contains('oneSplitActive'),landscape:!!document.querySelector('.oneLandscapeMedia'),fullscreen:!!document.fullscreenElement});if(events.length>100)events.shift();};
  for(const event of ['resize','orientationchange','fullscreenchange','visibilitychange'])window.addEventListener(event,()=>oneTwitchTrace(event),true);
  const button=document.createElement('button');button.type='button';button.className='close';button.textContent='Copier le diagnostic Twitch';
- button.onclick=async()=>{const report='ONE 0.13.75 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
+ button.onclick=async()=>{const report='ONE 0.13.76 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
  document.getElementById('settingsModal').querySelector('.sheet,.modalBox,.modalContent')?.appendChild(button);
  if(!button.isConnected)document.getElementById('settingsModal').firstElementChild.appendChild(button);
 })();
@@ -2839,5 +2839,5 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 @media(orientation:landscape){#videoAiPanel .videoAiSheet{width:min(520px,72vw);border-radius:0 16px 16px 0}#videoAiPanel .videoAiSheet p{margin:6px 0;font-size:12px}#videoAiPanel textarea{margin:7px 0;padding:9px;min-height:48px;height:60px}#videoAiPanel button{padding:9px 12px}#videoAiAnswer{font-size:14px}}
 </style>
 <script>(()=>{const panel=document.getElementById('videoAiPanel');function fit(){const v=window.visualViewport;panel.style.setProperty('--one-ai-top',(v?.offsetTop||0)+'px');panel.style.setProperty('--one-ai-left',(v?.offsetLeft||0)+'px');panel.style.setProperty('--one-ai-width',(v?.width||innerWidth)+'px');panel.style.setProperty('--one-ai-height',(v?.height||innerHeight)+'px');}window.visualViewport?.addEventListener('resize',fit);window.visualViewport?.addEventListener('scroll',fit);window.addEventListener('resize',fit);fit();})();</script>
-<script>(()=>{const b=document.createElement('button');b.className='close';b.type='button';b.textContent='Copier le diagnostic TikTok / Pour toi';b.onclick=async()=>{const report='ONE 0.13.75 — diagnostic TikTok / Pour toi\n'+JSON.stringify(window.oneTikTokDiagnostic,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic TikTok copié');}catch{let box=document.getElementById('oneTTDiagnosticText');if(!box){box=document.createElement('textarea');box.id='oneTTDiagnosticText';box.readOnly=true;box.style.cssText='width:100%;height:180px';b.after(box);}box.value=report;box.select();}};document.querySelector('#settingsModal .sheet')?.appendChild(b);})();</script></body>
+<script>(()=>{const b=document.createElement('button');b.className='close';b.type='button';b.textContent='Copier le diagnostic TikTok / Pour toi';b.onclick=async()=>{const report='ONE 0.13.76 — diagnostic TikTok / Pour toi\n'+JSON.stringify(window.oneTikTokDiagnostic,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic TikTok copié');}catch{let box=document.getElementById('oneTTDiagnosticText');if(!box){box=document.createElement('textarea');box.id='oneTTDiagnosticText';box.readOnly=true;box.style.cssText='width:100%;height:180px';b.after(box);}box.value=report;box.select();}};document.querySelector('#settingsModal .sheet')?.appendChild(b);})();</script></body>
 </html>

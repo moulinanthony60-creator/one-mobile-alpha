@@ -1,3 +1,5 @@
-# ONE 0.13.75
+# ONE 0.13.76
 
-Diagnostic TikTok / Pour toi ajouté aux Réglages. Mesure arrivée vidéo, création et réutilisation lecteur, remplacement pour le son, READY, progression et affichage. 250 événements maximum en mémoire ; aucune URL ni clé enregistrée. Lecture basée sur 0.13.74 inchangée.
+Préparation des lecteurs voisins avec autoplay=0 et muted=0. READY met en pause et coupe le son sans lancer les voisins. À activation, le lecteur peut être réutilisé avec unMute sans recréation. Toute commande play vers une vidéo inactive est bloquée. Fenêtre 2 suivants, actif, précédent conservée. Diagnostic TikTok conservé.
+
+Prépare le lecteur ; la quantité de vidéo mise en mémoire dépend de TikTok. Gain et son à vérifier sur téléphone.
