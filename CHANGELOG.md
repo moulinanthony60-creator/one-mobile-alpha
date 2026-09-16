@@ -1,8 +1,6 @@
-# ONE Mobile Alpha 0.13.34
-
-- TikTok: lorsqu'un player préchargé muet devient actif après swipe, ONE recrée uniquement ce player en audio autorisé, sans reconstruire le feed.
-- Réactions verticales: J’aime, Pas pour moi et Favori ne rechargent plus la vidéo en cours.
-- Navigation: mémorisation de la plateforme/section et restauration après actualisation.
-- Twitch Clips: choix Français / English / Toutes, sauvegardé localement. Le filtre strict n’affiche que les clips dont la langue est connue via les données Twitch déjà chargées.
-- Twitch plein écran de 0.13.33 conservé.
-- ONE IA conservée.
+# 0.13.35
+- Recharge : conserve l’onglet/section actif au lieu de forcer Pour toi.
+- J’aime / Pas pour moi : mise à jour locale sans reconstruire la carte ni interrompre le lecteur.
+- TikTok : promotion du lecteur actif vers un lecteur son `muted=0` à la fin du swipe + `unMute/play`.
+- Twitch : bouton ⛶ sur les cartes vidéo.
+- Twitch : tentative de plein écran paysage après 5 s de lecture ; fallback manuel si le navigateur exige un geste.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.34 — Audio + State + Twitch Clips FR</title>
+<title>ONE Mobile Alpha 0.13.35 — State + Reactions + Audio + Twitch Fullscreen</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -81,7 +81,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.34 AUDIO + STATE + CLIPS FR</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.35 STATE + AUDIO + TWITCH FULLSCREEN</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -2443,6 +2443,37 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  root?.addEventListener('pointerup',()=>setTimeout(freshAudio,0),{passive:true});if(!window.PointerEvent)root?.addEventListener('touchend',()=>setTimeout(freshAudio,0),{passive:true});
  // Restore the top platform after a normal page refresh. OAuth callback hashes are left untouched.
  window.addEventListener('load',()=>setTimeout(async()=>{try{const d=JSON.parse(localStorage.getItem(stateKey)||'null');if(!d?.filter)return;state.filter=d.filter;state.mode=d.mode||null;document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.filter===state.filter));syncTwitchFilters();if(state.filter==='tiktok'){loadTikTokLocal();render()}else if(state.filter==='youtube'){if(!ytApplyPersonalizedCachePool())await youtubeSearch('gaming france',false,false);render()}else if(state.filter==='twitch'){await twitchStreams(false);render()}else if(state.filter==='all'){await loadUnifiedFeed()}else render();if(d.vertical)setTimeout(()=>openVerticalFeed(d.vertical),120)}catch(e){console.warn('ONE restore section',e)}},180),{once:true});
+})();
+</script>
+
+<style>
+/* 0.13.35 — fullscreen control on regular Twitch cards */
+.oneTwFs{position:absolute;right:10px;top:10px;z-index:7;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(0,0,0,.66);color:#fff;font-size:21px;font-weight:900;backdrop-filter:blur(8px)}
+</style>
+<script>
+// 0.13.35 — hard fixes: page state, non-destructive reactions, TikTok audio promotion, Twitch fullscreen.
+(()=>{
+ const KEY='one_last_section_v135';
+ const oldKey='one_last_section_v134';
+ const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||localStorage.getItem(oldKey)||'null')}catch{return null}};
+ const write=()=>{try{localStorage.setItem(KEY,JSON.stringify({filter:state.filter||'all',mode:state.mode||null,vertical:document.getElementById('vfeed')?.classList.contains('show')?verticalFeedMode:null}))}catch{}};
+ // Save immediately after a real platform selection and before page is backgrounded/refreshed.
+ document.getElementById('chips')?.addEventListener('click',e=>{if(e.target.closest('.chip'))setTimeout(write,0)},true);
+ window.addEventListener('pagehide',write);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')write()});
+ // Re-apply after all legacy startup jobs so they cannot force Pour toi afterwards.
+ const restore=async()=>{const d=read();if(!d?.filter)return;state.filter=d.filter;state.mode=d.mode||null;state.query='';document.querySelectorAll('#chips .chip').forEach(c=>c.classList.toggle('active',c.dataset.filter===state.filter));syncTwitchFilters();if(state.filter==='tiktok'){loadTikTokLocal();render()}else if(state.filter==='youtube'){if(!ytApplyPersonalizedCachePool())await youtubeSearch('gaming france',false,false);render()}else if(state.filter==='twitch'){await twitchStreams(false);render()}else if(state.filter==='all'){await loadUnifiedFeed()}else render();syncVerticalLauncher();if(d.vertical&&!document.getElementById('vfeed')?.classList.contains('show'))openVerticalFeed(d.vertical)};
+ window.addEventListener('pageshow',()=>setTimeout(restore,700),{once:true});
+ // Regular-card reactions: update only the clicked controls; never rebuild the media/card.
+ window.rateItem=(id,type)=>{id=String(id);const x=[...tiktokItems,...twitchItems,...youtubeItems,...items].find(i=>String(i.id)===id);if(type==='like'){state.disliked.delete(id);const adding=!state.liked.has(id);adding?state.liked.add(id):state.liked.delete(id);if(x&&adding)learnFromItem(x,'like')}else{state.liked.delete(id);const adding=!state.disliked.has(id);adding?state.disliked.add(id):state.disliked.delete(id);if(x&&adding)learnFromItem(x,'dislike')}localStorage.setItem('one_liked_v9',JSON.stringify([...state.liked]));localStorage.setItem('one_disliked_v9',JSON.stringify([...state.disliked]));saveProfile();updateLearnbar();const card=[...document.querySelectorAll('.card')].find(c=>String(c.dataset.id)===id);if(card){const b=card.querySelectorAll('.feedback button');b[0]?.classList.toggle('on',state.liked.has(id));b[1]?.classList.toggle('on',state.disliked.has(id));}toast(type==='like'?'J’aime enregistré 👍 · la vidéo continue':'Préférence enregistrée 👎 · la vidéo continue')};
+ // TikTok: on each completed swipe, promote the active preheated muted player to a fresh sound player.
+ const promote=()=>{if(!v1814SoundAllowed())return;const root=document.getElementById('vfeedScroller');if(!root)return;const rr=root.getBoundingClientRect(),cy=(rr.top+rr.bottom)/2;let sl=null,dist=Infinity;root.querySelectorAll('.vslide[data-platform="tiktok"]').forEach(s=>{const r=s.getBoundingClientRect(),d=Math.abs((r.top+r.bottom)/2-cy);if(d<dist){dist=d;sl=s}});if(!sl)return;if(sl.getAttribute('data-active')!=='1')v17ActivateSlide(sl);const m=sl.querySelector('.vslideMedia');let f=m?.querySelector('iframe');const x=v17ItemById(sl.dataset.id),tid=x&&(x.tiktokId||String(x.id).replace(/^tt_ext_/,''));if(!m||!tid)return;if(f&&f.dataset.oneSound35==='1'){v17SendTikTok(f,'unMute');v17SendTikTok(f,'play');return}const nf=document.createElement('iframe');nf.src=`https://www.tiktok.com/player/v1/${encodeURIComponent(tid)}?autoplay=1&controls=1&progress_bar=1&play_button=1&volume_control=1&fullscreen_button=1&loop=1&rel=0&native_context_menu=1&muted=0`;nf.title=f?.title||`TikTok ${x?.creator||''}`;nf.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';nf.allowFullscreen=true;nf.setAttribute('playsinline','');nf.dataset.provider='tiktok';nf.dataset.oneSound35='1';nf.onload=()=>{v17SendTikTok(nf,'unMute');v17SendTikTok(nf,'play')};f?.replaceWith(nf)||m.appendChild(nf);m.classList.add('playing')};
+ const vr=document.getElementById('vfeedScroller');vr?.addEventListener('pointerup',promote,{passive:true});if(!window.PointerEvent)vr?.addEventListener('touchend',promote,{passive:true});
+ // Twitch cards: always expose a fullscreen button. Auto attempt after 5 s is best-effort only (mobile browsers may require a tap).
+ const addTw=()=>document.querySelectorAll('.twitch-card .media').forEach(m=>{if(m.querySelector('.oneTwFs'))return;const b=document.createElement('button');b.className='oneTwFs';b.type='button';b.textContent='⛶';b.title='Plein écran';b.setAttribute('aria-label','Plein écran Twitch');b.onclick=async e=>{e.stopPropagation();try{await m.requestFullscreen?.({navigationUI:'hide'});try{await screen.orientation?.lock?.('landscape')}catch{}}catch{toast('Appuie sur le plein écran du lecteur si Android bloque ce bouton')}};m.appendChild(b)});
+ new MutationObserver(addTw).observe(document.getElementById('feed'),{childList:true,subtree:true});addTw();
+ let twTimer=0;const armAuto=()=>{clearTimeout(twTimer);const m=document.querySelector('.twitch-card .media.inline-playing');if(!m)return;twTimer=setTimeout(async()=>{if(!m.isConnected||document.fullscreenElement)return;try{await m.requestFullscreen?.({navigationUI:'hide'});try{await screen.orientation?.lock?.('landscape')}catch{}}catch{}},5000)};
+ document.getElementById('feed')?.addEventListener('click',e=>{if(e.target.closest('.twitch-card .playbtn,.twitch-card .media'))setTimeout(armAuto,100)},true);
+ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)try{screen.orientation?.unlock?.()}catch{}});
 })();
 </script>
 
