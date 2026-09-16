@@ -1,7 +1,4 @@
-# ONE 0.13.58
+# ONE 0.13.59
 
-- ONE IA : languette à gauche de la vidéo, panneau latéral ouvrable et refermable. Ancienne bulle supprimée.
-- Twitch : surface interne fixe réduite de 960×540 à 400×300, minimum documenté du lecteur, afin de réduire l’écart entre sa taille interne et sa taille affichée sur mobile. Plein écran stable conservé ; des bandes noires peuvent varier selon le format.
-- Démarrage sans son et nouvelle demande de lecture au relâchement du défilement tactile si aucun démarrage n’a encore été confirmé. Une pause manuelle après démarrage n’est pas annulée.
-
-Le diagnostic 0.13.56 montre ONE start à 7701 ms sans événement Twitch PLAY ni BLOCKED. La raison interne du refus Twitch n’est pas exposée. Démarrage réel à confirmer sur téléphone ; diagnostic toujours disponible dans Réglages.
+Retour exact au lecteur Twitch de 0.13.56 : surface fixe 960×540, affichage fluide précédent. Languette ONE IA à gauche conservée.
+Lecture automatique non résolue. Diagnostic disponible dans Réglages.
