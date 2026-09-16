@@ -1,5 +1,3 @@
-# ONE 0.13.53
+# ONE 0.13.54 — diagnostic Twitch
 
-Sur téléphone tactile, le bouton Plein écran sous le live ouvre directement la vue ONE avec chat sans appeler le plein écran natif du navigateur. Le même lecteur reste en place. La flèche permet de fermer et rouvrir le chat. Sur ordinateur, le plein écran natif est conservé.
-
-Contournement du problème de pause à confirmer sur le téléphone. Dans Chrome, les barres du navigateur peuvent rester affichées. Aucun lecteur ni donnée supprimé. Capsule flottante masquée, bouton sous le live conservé.
+Cette version ne prétend pas corriger la pause. Elle enregistre localement les commandes ONE et événements Twitch, sans jetons ni noms de chaînes. Après reproduction, quitter la vue agrandie puis Réglages > Copier le diagnostic Twitch. Coller le rapport dans la conversation avant de fermer ou actualiser la page.
