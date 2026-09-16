@@ -1,4 +1,4 @@
-# 0.13.45
-- Bouton Commentaires au-dessus de Favori pour les vidéos TikTok, y compris Pour toi.
-- Panneau ONE ouvert/fermé sans modifier le lecteur ; brouillon par vidéo, compte ONE pour publier, suppression de ses messages.
-- Serveur partagé à déployer séparément. Aucune fausse publication locale.
+# 0.13.46
+- Abonnements : onglet ONE avant YouTube, espace vide annoncé.
+- Avatars de chaînes : chargement déclenché au changement de sous-onglet, images sauvegardées dans les métadonnées locales, alignement corrigé et arrêt des tentatives répétées sur image en erreur.
+- Ciné : aucun contenu ni lanceur, message Ce contenu arrive plus tard.

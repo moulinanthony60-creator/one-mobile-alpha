@@ -1,2 +1,4 @@
-# ONE 0.13.45
-Le panneau Commentaires ONE est prêt. Le Worker one-comments-api et sa base D1 doivent être déployés pour lire et publier les messages partagés. Le serveur est fourni séparément. Sans serveur, ONE indique une indisponibilité et désactive l’envoi.
+# ONE 0.13.46
+Publier le contenu du ZIP. Vérifier Abonnements : ONE / YouTube / Twitch / TikTok, logos de chaînes YouTube, puis Ciné vide avec son message.
+La récupération des avatars YouTube exige une clé API valide si aucune image n’est enregistrée.
+Les commentaires ONE de la version précédente nécessitent toujours le serveur séparé.
