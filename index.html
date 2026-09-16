@@ -8,13 +8,13 @@ const oneReloadRoute=oneReadReloadRoute();
 
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.55</title>
+<title>ONE Mobile Alpha 0.13.56</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=01355" />
+<link rel="manifest" href="./manifest.json?v=01356" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -94,7 +94,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.55 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.56 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -2329,7 +2329,7 @@ v17ApplySound();
   const r=media.getBoundingClientRect(),top=document.querySelector('.topbar')?.getBoundingClientRect().bottom||0,bottom=document.querySelector('.bottom')?.getBoundingClientRect().top||innerHeight;
   const visible=Math.max(0,Math.min(r.bottom,bottom)-Math.max(r.top,top));return r.height>0&&r.right>0&&r.left<innerWidth?visible/r.height:0;
  }
- function start(r){if(r.active)return;trace('ONE start',r);r.active=true;r.fallbackMuted=false;if(r.ready)try{r.player.setVolume(.5);r.player.setMuted(false);r.player.play();}catch{}}
+ function start(r){if(r.active)return;trace('ONE start',r);r.active=true;r.fallbackMuted=false;if(r.ready)try{r.player.setVolume(.5);r.player.setMuted(true);r.player.play();ensureSound(r);}catch{}}
  window.oneGetTwitchPlayer=media=>records.get(media)?.player||v17TwitchPlayers[String(media?.closest('.vslide')?.dataset.id||'')];
  window.onePrepareTwitchView=media=>{const r=records.get(media);if(!r){try{window.oneGetTwitchPlayer(media)?.play();}catch{}return;}trace('open view',r);r.transitionUntil=Date.now()+3000;desired=media;r.active=true;for(const [m,other] of records)if(m!==media&&other.active)stop(other);if(r.ready)try{r.player.play();}catch{}};
  window.oneResumeTwitchView=media=>{
@@ -2341,20 +2341,23 @@ v17ApplySound();
  document.addEventListener('fullscreenchange',()=>{requestAnimationFrame(resumeExpanded);});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestAnimationFrame(resumeExpanded);});
  document.addEventListener('oneTwitchLayoutChanged',()=>{resumeExpanded();[150,450].forEach(ms=>setTimeout(resumeExpanded,ms));});
+ function ensureSound(r){const {media,player}=r;
+   const card=media.closest('.card'),body=card?.querySelector('.cardBody');if(!body||body.querySelector('.oneTwSound'))return;
+   const button=document.createElement('button');button.type='button';button.className='oneTwSound';button.textContent='🔊 Activer le son';button.onclick=()=>{if(desired!==media||!r.active)return;try{player.setVolume(.5);player.setMuted(false);player.play();button.remove();r.fallbackMuted=false;}catch{}};body.appendChild(button);
+ }
  function mount(media){
   const item=v17ItemById(media.closest('.card')?.dataset.id);if(!item?.live||!item.twitchChannel||!window.Twitch?.Player)return null;
   const host=document.createElement('div');host.className='oneTwitchHost oneStableTwitchHost';host.id='one_card_tw_'+(++sequence);media.appendChild(host);media.classList.add('inline-playing','oneNativeReady');media.dataset.provider='twitch';
   const fit=()=>{const box=media.getBoundingClientRect();if(box.width>0&&box.height>0){const scale=Math.min(box.width/960,box.height/540);host.style.setProperty('--one-twitch-scale',String(scale));}};fit();const sizeObserver=new ResizeObserver(fit);sizeObserver.observe(media);
-  const player=new Twitch.Player(host.id,{width:960,height:540,channel:item.twitchChannel,parent:[location.hostname],autoplay:true,muted:false});
+  const player=new Twitch.Player(host.id,{width:960,height:540,channel:item.twitchChannel,parent:[location.hostname],autoplay:true,muted:true});
   const r={media,host,player,sizeObserver,active:true,ready:false,transitionUntil:0,fallbackMuted:false};records.set(media,r);
-  player.addEventListener(Twitch.Player.READY,()=>{trace('Twitch READY',r);r.ready=true;try{player.setVolume(.5);player.setMuted(false);if(desired===media&&r.active&&eligible(media)>=.5)player.play();else stop(r);}catch{}});
+  player.addEventListener(Twitch.Player.READY,()=>{trace('Twitch READY',r);r.ready=true;try{player.setVolume(.5);player.setMuted(true);if(desired===media&&r.active&&eligible(media)>=.5){player.play();ensureSound(r);}else stop(r);}catch{}});
   player.addEventListener(Twitch.Player.PLAY,()=>{trace('Twitch PLAY',r);if(desired!==media||!r.active||eligible(media)<.5)stop(r);});
   player.addEventListener(Twitch.Player.PAUSE,()=>{trace('Twitch PAUSE',r);if(r.active&&desired===media&&r.transitionUntil>Date.now()&&document.activeElement!==media.querySelector('iframe'))window.oneCheckExpandedPlayback?.(media);});
   player.addEventListener(Twitch.Player.PLAYBACK_BLOCKED,()=>{trace('Twitch BLOCKED',r);
    if(desired!==media||!r.active||document.hidden)return;
    if(!r.fallbackMuted){r.fallbackMuted=true;try{player.setMuted(true);player.play();}catch{}}
-   const card=media.closest('.card'),body=card?.querySelector('.cardBody');if(!body||body.querySelector('.oneTwSound'))return;
-   const button=document.createElement('button');button.type='button';button.className='oneTwSound';button.textContent='🔊 Activer le son';button.onclick=()=>{if(desired!==media||!r.active)return;try{player.setVolume(.5);player.setMuted(false);player.play();button.remove();r.fallbackMuted=false;}catch{}};body.appendChild(button);
+   ensureSound(r);
   });
   return r;
  }
@@ -2540,7 +2543,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  };
 })();
 
-// 0.13.55: reload route and touch handoff.
+// 0.13.56: reload route and touch handoff.
 (()=>{
  const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,tabsScroll:document.getElementById('chips').scrollLeft,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
@@ -2757,7 +2760,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  window.oneTwitchTrace=(event,details={})=>{events.push({t:Math.round(performance.now()),event,...details,hidden:document.hidden,viewport:[innerWidth,innerHeight],split:document.body.classList.contains('oneSplitActive'),landscape:!!document.querySelector('.oneLandscapeMedia'),fullscreen:!!document.fullscreenElement});if(events.length>100)events.shift();};
  for(const event of ['resize','orientationchange','fullscreenchange','visibilitychange'])window.addEventListener(event,()=>oneTwitchTrace(event),true);
  const button=document.createElement('button');button.type='button';button.className='close';button.textContent='Copier le diagnostic Twitch';
- button.onclick=async()=>{const report='ONE 0.13.55 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
+ button.onclick=async()=>{const report='ONE 0.13.56 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
  document.getElementById('settingsModal').querySelector('.sheet,.modalBox,.modalContent')?.appendChild(button);
  if(!button.isConnected)document.getElementById('settingsModal').firstElementChild.appendChild(button);
 })();
