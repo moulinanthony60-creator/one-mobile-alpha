@@ -9,3 +9,10 @@ Base : 0.13.29 hotfix.
 - TikTok : remise au début lorsqu'une vidéo quitte l'écran (`seekTo(0)`), tout en conservant le préchargement rapide.
 
 À tester sur Android réel : le navigateur/TikTok peut encore appliquer ses propres règles d'autoplay audio.
+
+
+## 0.13.33
+- Correctif audio TikTok direct au geste conservé.
+- Bouton ONE plein écran disponible sur Twitch.
+- Tentative de verrouillage paysage lors du plein écran, avec retour propre si Android le permet.
+- ONE IA et Chat restent dans le conteneur ONE plein écran.

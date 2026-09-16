@@ -81,7 +81,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.31 AUDIO SWIPE TIKTOK</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.33 AUDIO + TWITCH FULLSCREEN</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -458,7 +458,7 @@ function v17ApplySound(slide=document.querySelector('.vslide[data-active="1"]'))
  const x=slide?v17ItemById(slide.dataset.id):null;
  const nativeMedia=x&&(x.p==='twitch'||x.p==='tiktok');
  if(panel)panel.style.display=x?.p==='twitch'?'none':'flex';
- if(full)full.style.display=x?.p==='twitch'?'none':'block';
+ if(full){full.style.display='block';full.title=x?.p==='twitch'?'Plein écran Twitch':'Plein écran';full.setAttribute('aria-label',full.title);}
  if(x?.p==='tiktok'){if(snd)snd.textContent=v1814SoundAllowed()?'🔊 Son':'🔇 Activer le son';if(vol)vol.style.display='none';if(lab)lab.textContent='réglage dans le lecteur';const frame=slide?.querySelector('iframe');if(frame){v17SendTikTok(frame,'play');if(v1814SoundAllowed()){v17SendTikTok(frame,'unMute');clearTimeout(frame._oneTTKick1);clearTimeout(frame._oneTTKick2);frame._oneTTKick1=setTimeout(()=>{v17SendTikTok(frame,'unMute');v17SendTikTok(frame,'play')},220);frame._oneTTKick2=setTimeout(()=>{v17SendTikTok(frame,'unMute');v17SendTikTok(frame,'play')},850)}}return;}else if(vol){vol.style.display='';}
  if(x?.p==='twitch')return;
  if(snd)snd.textContent=v17Muted?'🔇 Activer':'🔊 Son';
@@ -710,14 +710,19 @@ function renderVerticalFeed(){
 async function v17ToggleFullscreen(){
  const active=document.querySelector('.vslide[data-active="1"]');
  const x=active?v17ItemById(active.dataset.id):null;
- if(x?.p==='twitch'){
-   toast('Utilise le bouton plein écran du lecteur Twitch');
-   return;
- }
+ // ONE fullscreen keeps ONE IA + Chat available, including for Twitch.
  const el=document.getElementById('vfeed');
- try{if(!document.fullscreenElement){await el.requestFullscreen?.()}else{await document.exitFullscreen?.()}}catch(e){toast('Plein écran non disponible sur ce navigateur')}
+ try{
+   if(!document.fullscreenElement){
+     await el.requestFullscreen?.({navigationUI:'hide'});
+     try{await screen.orientation?.lock?.('landscape')}catch(e){}
+   }else{
+     try{screen.orientation?.unlock?.()}catch(e){}
+     await document.exitFullscreen?.();
+   }
+ }catch(e){toast('Plein écran non disponible sur ce navigateur')}
 }
-function v17SyncFullscreenButton(){const b=document.getElementById('vFullscreen');if(b)b.textContent=document.fullscreenElement?'🗗':'⛶'}
+function v17SyncFullscreenButton(){const b=document.getElementById('vFullscreen');if(b)b.textContent=document.fullscreenElement?'🗗':'⛶';if(!document.fullscreenElement){try{screen.orientation?.unlock?.()}catch(e){}}}
 function openVerticalFeed(mode){v1814RememberSoundGesture();verticalFeedMode=(typeof mode==='string'?mode:(state.filter==='youtube'?'youtube':state.filter==='tiktok'?'tiktok':state.filter==='twitch'?'twitch-live':'all'));renderVerticalFeed();v1711StartPreviewRefresh();const v=document.getElementById('vfeed');v.classList.add('show');v.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));document.getElementById('feedNav')?.classList.add('active');v17SetupObserver()}
 function closeVerticalFeed(){clearInterval(v1711PreviewTimer);v1711PreviewTimer=null;const v=document.getElementById('vfeed');v.classList.remove('show');v.setAttribute('aria-hidden','true');document.body.style.overflow='';if(v17Observer)v17Observer.disconnect();v1815StopAllPlayers();v17ActiveId='';if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});}
 window.v17OpenTikTok=v17OpenTikTok;
@@ -2365,5 +2370,43 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 })();
 </script>
 
+
+<script>
+// 0.13.32 — TikTok audio direct gesture handoff.
+// Important: unMute is sent synchronously inside pointer/touch release, before any timer.
+(()=>{
+ const closestTikTok=()=>{
+   const root=document.getElementById('vfeedScroller'); if(!root)return null;
+   const rr=root.getBoundingClientRect(), cy=(rr.top+rr.bottom)/2;
+   let best=null,dist=Infinity;
+   root.querySelectorAll('.vslide[data-platform="tiktok"]').forEach(s=>{
+     const r=s.getBoundingClientRect(), d=Math.abs(((r.top+r.bottom)/2)-cy);
+     if(d<dist){dist=d;best=s}
+   });
+   return best;
+ };
+ const directHandoff=()=>{
+   v1814RememberSoundGesture();
+   const slide=closestTikTok(); if(!slide)return;
+   // Promote the slide now, while the browser still considers this a user gesture.
+   if(slide.getAttribute('data-active')!=='1')v17ActivateSlide(slide);
+   const frame=slide.querySelector('iframe'); if(!frame)return;
+   v17SendTikTok(frame,'unMute');
+   v17SendTikTok(frame,'play');
+   // Timed retries are only reinforcement; the first command above is the key change.
+   [80,220,600].forEach(ms=>setTimeout(()=>{
+     if(slide.getAttribute('data-active')==='1'&&frame.isConnected){v17SendTikTok(frame,'unMute');v17SendTikTok(frame,'play')}
+   },ms));
+ };
+ const bind=()=>{
+   const root=document.getElementById('vfeedScroller'); if(!root||root.dataset.oneAudio32)return;
+   root.dataset.oneAudio32='1';
+   root.addEventListener('pointerup',directHandoff,{passive:true});
+   // touchend is kept only for browsers without Pointer Events to avoid a double gesture.
+   if(!window.PointerEvent)root.addEventListener('touchend',directHandoff,{passive:true});
+ };
+ new MutationObserver(bind).observe(document.body,{childList:true,subtree:true});bind();
+})();
+</script>
 </body>
 </html>
