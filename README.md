@@ -1,3 +1,3 @@
-# ONE 0.13.74
+# ONE 0.13.75
 
-Base 0.13.73. Affichage TikTok dès réception de progression réelle, sans attendre aussi onStateChange. READY tardif ne masque plus une vidéo déjà révélée. Préchargement et son inchangés. Gain à confirmer sur téléphone ; aucun délai garanti.
+Diagnostic TikTok / Pour toi ajouté aux Réglages. Mesure arrivée vidéo, création et réutilisation lecteur, remplacement pour le son, READY, progression et affichage. 250 événements maximum en mémoire ; aucune URL ni clé enregistrée. Lecture basée sur 0.13.74 inchangée.

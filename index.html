@@ -1,6 +1,11 @@
 <!doctype html>
 <html lang="fr">
 <head>
+<script>
+window.oneTikTokDiagnostic=[];
+(()=>{const slides=new WeakMap(),frames=new WeakMap();let si=0,fi=0;window.oneTTTrace=(event,slide,frame,extra={})=>{try{if(slide&&!slides.has(slide))slides.set(slide,++si);if(frame&&!frames.has(frame))frames.set(frame,++fi);const t=Math.round(performance.now());if(event==='arrivée vidéo')slide._oneTTArrival=t;window.oneTikTokDiagnostic.push({t,event,video:slides.get(slide)||null,lecteur:frames.get(frame)||null,depuisArrivee:slide?._oneTTArrival==null?null:t-slide._oneTTArrival,actif:slide?.getAttribute('data-active')==='1',precharge:frame?.dataset.onePreload==='1',hidden:document.hidden,...extra});if(window.oneTikTokDiagnostic.length>250)window.oneTikTokDiagnostic.shift();}catch{}};})();
+</script>
+
 <script>var oneTwitchPending=0,oneTwitchLoadError=false;
 function onePinnedAiFeed(){return document.getElementById('vfeed')?.classList.contains('show')&&typeof verticalFeedMode!=='undefined'&&['all','tiktok'].includes(verticalFeedMode);}
 function oneStableContent(root,html,key=''){const old=root.oneStableContent;const intact=old&&old.key===key&&old.nodes.length===root.children.length&&old.nodes.every((n,i)=>n===root.children[i]);if(intact&&old.html===html)return false;const template=document.createElement('template');template.innerHTML=html;const incoming=[...template.content.children],signatures=incoming.map(n=>n.outerHTML);if(intact){incoming.forEach((n,i)=>{if(old.signatures[i]===signatures[i])return;if(root.children[i])root.replaceChild(n,root.children[i]);else root.appendChild(n);});while(root.children.length>incoming.length)root.lastElementChild.remove();}else root.replaceChildren(...incoming);root.oneStableContent={key,html,signatures,nodes:[...root.children]};return true;}
@@ -12,13 +17,13 @@ const oneReloadRoute=oneReadReloadRoute();
 
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.74</title>
+<title>ONE Mobile Alpha 0.13.75</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=01374" />
+<link rel="manifest" href="./manifest.json?v=01375" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -114,7 +119,7 @@ body.oneTwitchBrowse .twitchFilters button:focus-visible,body.oneTwitchBrowse .v
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.74 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.75 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -618,6 +623,7 @@ function v17ActivateSlide(slide){
    v17SendTikTok(current,'pause');current.remove();v17ActiveId='';
   }else{return;}
  }
+ if(slide.dataset.platform==='tiktok')oneTTTrace('arrivée vidéo',slide,slide.querySelector('iframe'));
  const oldActive=document.querySelector('.vslide[data-active="1"]');
  if(oldActive&&oldActive!==slide&&oldActive.dataset.platform==='tiktok'&&slide.dataset.platform==='tiktok')v124ParkTikTokSlide(oldActive);
  v1815StopAllPlayers(slide);
@@ -635,14 +641,15 @@ function v17ActivateSlide(slide){
  let f=x.p==='tiktok'?media.querySelector('iframe[data-one-preload="1"]'):null;
  // muted=1 locks TikTok volume. Keep silent preloads, replace once at activation.
  if(f&&v1814SoundAllowed()&&new URL(f.src).searchParams.get('muted')==='1'){
-  v17SendTikTok(f,'pause');f.remove();f=null;
+  oneTTTrace('remplacement pour son',slide,f);v17SendTikTok(f,'pause');f.remove();f=null;
  }
  f=f||document.createElement('iframe');
  const wasPreloaded=x.p==='tiktok'&&f.dataset.onePreload==='1';
+ if(x.p==='tiktok')oneTTTrace(wasPreloaded?'réutilisation lecteur':'création lecteur actif',slide,f);
  if(!wasPreloaded)f.src=src;
  f.title='Lecteur '+platformName(x.p);f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider=x.p;f.style.pointerEvents='auto';
  if(x.p==='tiktok'){slide.dataset.ttTimeAdvanced='0';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';slide.dataset.ttActivationTime=String(Number(f.dataset.oneWarmTime||0));f.style.opacity='0';const im=media.querySelector('img');if(im)im.style.opacity='1';media.classList.remove('playing','loading');}else f.style.opacity='1';
- f.onload=()=>{media.classList.remove('loading');if(x.p==='tiktok'&&!wasPreloaded)f.style.opacity='0';if(x.p==='youtube'&&f.contentWindow){try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:String(x.id),channel:'one'}),'*')}catch(e){}}setTimeout(()=>v17ApplySound(slide),80);setTimeout(()=>v17ApplySound(slide),280);setTimeout(()=>v17ApplySound(slide),700)};
+ f.onload=()=>{if(x.p==='tiktok')oneTTTrace('iframe chargée',slide,f);media.classList.remove('loading');if(x.p==='tiktok'&&!wasPreloaded)f.style.opacity='0';if(x.p==='youtube'&&f.contentWindow){try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:String(x.id),channel:'one'}),'*')}catch(e){}}setTimeout(()=>v17ApplySound(slide),80);setTimeout(()=>v17ApplySound(slide),280);setTimeout(()=>v17ApplySound(slide),700)};
  if(!f.isConnected)media.appendChild(f);if(x.p!=='tiktok')media.classList.add('playing');if(x.p==='tiktok'){f.dataset.onePreload='0';delete f.dataset.oneBackCache;media.classList.remove('loading');if(!wasPreloaded||f.dataset.oneWarm!=='1')media.classList.remove('playing');v121ArmTikTokVisualWatch(slide);v17SendTikTok(f,'play');if(v1814SoundAllowed()){v17SendTikTok(f,'unMute');setTimeout(()=>{if(slide.getAttribute('data-active')==='1'){v17SendTikTok(f,'unMute');v17SendTikTok(f,'play')}},60);setTimeout(()=>{if(slide.getAttribute('data-active')==='1')v17SendTikTok(f,'unMute')},320)}clearTimeout(slide._ttFastKick);slide._ttFastKick=setTimeout(()=>{if(slide.getAttribute('data-active')==='1'&&slide.dataset.ttTimeAdvanced!=='1'){v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')}},160);v120PrewarmAround(slide);}
  const img=media.querySelector('img'); if(img&&x.p!=='tiktok')img.style.opacity='0';
  const play=media.querySelector('.vslidePlay'); if(play)play.style.display='none';
@@ -655,7 +662,7 @@ function v124PreloadTikTokSlide(target,label='voisin'){
  if(media.querySelector('iframe'))return;
 
  const src=v17PlayerUrl(x);if(!src)return;
- const f=document.createElement('iframe');f.src=src.replace(/([?&])muted=[01]/,'$1muted=1');f.title='Préchargement TikTok '+label;f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider='tiktok';f.dataset.onePreload='1';f.style.opacity='0';f.style.pointerEvents='none';media.appendChild(f);
+ const f=document.createElement('iframe');f.src=src.replace(/([?&])muted=[01]/,'$1muted=1');f.title='Préchargement TikTok '+label;f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider='tiktok';f.dataset.onePreload='1';f.style.opacity='0';f.style.pointerEvents='none';oneTTTrace('création préchargement',target,f);media.appendChild(f);
 }
 function v1810PreloadNextTikTok(activeSlide){
  if(!activeSlide)return;
@@ -680,6 +687,7 @@ function v121RevealTikTokFrame(slide){
  if(!slide||slide.getAttribute('data-active')!=='1'||slide.dataset.ttVisualReady==='1')return;
  const media=slide.querySelector('.vslideMedia'),frame=media?.querySelector('iframe'),img=media?.querySelector('img');
  if(!frame)return;
+ oneTTTrace('vidéo affichée',slide,frame);
  slide.dataset.ttVisualReady='1';
  if(img)img.style.opacity='0';
  frame.style.opacity='1';frame.style.pointerEvents='auto';
@@ -704,6 +712,7 @@ window.addEventListener('message',e=>{
  const slides=[...document.querySelectorAll('.vslide[data-platform="tiktok"]')];
  const slide=slides.find(s=>s.querySelector('iframe')?.contentWindow===e.source); if(!slide)return;
  const media=slide.querySelector('.vslideMedia'),frame=slide.querySelector('iframe');
+ if(d.type==='onPlayerReady'||d.type==='onPlayerError'||d.type==='onStateChange')oneTTTrace(d.type,slide,frame,{etat:typeof d.value==='number'?d.value:null});
  const isWarmPreload=frame?.dataset.onePreload==='1'&&slide.getAttribute('data-active')!=='1';
  if(isWarmPreload){if(d.type==='onPlayerReady'){v17SendTikTok(frame,'mute');v17SendTikTok(frame,'play')}if(d.type==='onCurrentTime'){const wt=Number(d.value?.currentTime??d.value??0);if(wt>0.025){frame.dataset.oneWarm='1';frame.dataset.oneWarmTime=String(wt);v17SendTikTok(frame,'pause')}}if(d.type==='onPlayerError')frame.remove();return;}
  if(d.type==='onPlayerReady'){
@@ -721,7 +730,7 @@ window.addEventListener('message',e=>{
  }
  if(d.type==='onCurrentTime'){
    const t=Number(d.value?.currentTime??d.value??0);
-   const base=Number(slide.dataset.ttActivationTime||0);if(Number.isFinite(t)&&t>Math.max(0.012,base+0.012)){slide.dataset.ttTimeAdvanced='1';requestAnimationFrame(()=>v121RevealTikTokFrame(slide));}
+   const base=Number(slide.dataset.ttActivationTime||0);if(Number.isFinite(t)&&t>Math.max(0.012,base+0.012)){if(slide.dataset.ttTimeAdvanced!=='1')oneTTTrace('première progression',slide,frame);slide.dataset.ttTimeAdvanced='1';requestAnimationFrame(()=>v121RevealTikTokFrame(slide));}
  }
  if(d.type==='onPlayerError'){v17TikTokFallback(slide);}
 });
@@ -2575,7 +2584,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  };
 })();
 
-// 0.13.74: reload route and touch handoff.
+// 0.13.75: reload route and touch handoff.
 (()=>{
  const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,tabsScroll:document.getElementById('chips').scrollLeft,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
@@ -2792,7 +2801,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  window.oneTwitchTrace=(event,details={})=>{events.push({t:Math.round(performance.now()),event,...details,hidden:document.hidden,viewport:[innerWidth,innerHeight],split:document.body.classList.contains('oneSplitActive'),landscape:!!document.querySelector('.oneLandscapeMedia'),fullscreen:!!document.fullscreenElement});if(events.length>100)events.shift();};
  for(const event of ['resize','orientationchange','fullscreenchange','visibilitychange'])window.addEventListener(event,()=>oneTwitchTrace(event),true);
  const button=document.createElement('button');button.type='button';button.className='close';button.textContent='Copier le diagnostic Twitch';
- button.onclick=async()=>{const report='ONE 0.13.74 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
+ button.onclick=async()=>{const report='ONE 0.13.75 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
  document.getElementById('settingsModal').querySelector('.sheet,.modalBox,.modalContent')?.appendChild(button);
  if(!button.isConnected)document.getElementById('settingsModal').firstElementChild.appendChild(button);
 })();
@@ -2830,5 +2839,5 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 @media(orientation:landscape){#videoAiPanel .videoAiSheet{width:min(520px,72vw);border-radius:0 16px 16px 0}#videoAiPanel .videoAiSheet p{margin:6px 0;font-size:12px}#videoAiPanel textarea{margin:7px 0;padding:9px;min-height:48px;height:60px}#videoAiPanel button{padding:9px 12px}#videoAiAnswer{font-size:14px}}
 </style>
 <script>(()=>{const panel=document.getElementById('videoAiPanel');function fit(){const v=window.visualViewport;panel.style.setProperty('--one-ai-top',(v?.offsetTop||0)+'px');panel.style.setProperty('--one-ai-left',(v?.offsetLeft||0)+'px');panel.style.setProperty('--one-ai-width',(v?.width||innerWidth)+'px');panel.style.setProperty('--one-ai-height',(v?.height||innerHeight)+'px');}window.visualViewport?.addEventListener('resize',fit);window.visualViewport?.addEventListener('scroll',fit);window.addEventListener('resize',fit);fit();})();</script>
-</body>
+<script>(()=>{const b=document.createElement('button');b.className='close';b.type='button';b.textContent='Copier le diagnostic TikTok / Pour toi';b.onclick=async()=>{const report='ONE 0.13.75 — diagnostic TikTok / Pour toi\n'+JSON.stringify(window.oneTikTokDiagnostic,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic TikTok copié');}catch{let box=document.getElementById('oneTTDiagnosticText');if(!box){box=document.createElement('textarea');box.id='oneTTDiagnosticText';box.readOnly=true;box.style.cssText='width:100%;height:180px';b.after(box);}box.value=report;box.select();}};document.querySelector('#settingsModal .sheet')?.appendChild(b);})();</script></body>
 </html>
