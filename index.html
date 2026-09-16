@@ -12,13 +12,13 @@ const oneReloadRoute=oneReadReloadRoute();
 
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.67</title>
+<title>ONE Mobile Alpha 0.13.68</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=01367" />
+<link rel="manifest" href="./manifest.json?v=01368" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -114,7 +114,7 @@ body.oneTwitchBrowse .twitchFilters button:focus-visible,body.oneTwitchBrowse .v
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.67 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.68 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -2301,9 +2301,9 @@ v17ApplySound();
  panel.setAttribute('aria-modal','false');
  const visible=m=>{const r=m.getBoundingClientRect();return r.width>0&&r.height>0&&r.bottom>70&&r.top<innerHeight-70;};
  function current(){const expanded=document.querySelector('.oneSplitMedia,.oneLandscapeMedia');if(expanded)return expanded;const active=document.querySelector('.vfeed.show .vslide[data-active="1"] .vslideMedia');if(active)return active;return [...document.querySelectorAll('.card .media,#oneChannelPlayer')].find(m=>m.querySelector('iframe')&&visible(m));}
- function sync(){queued=false;document.getElementById('vfeed').classList.toggle('oneCleanFeed',!!onePinnedAiFeed());const media=current(),open=!panel.hidden;const native=document.fullscreenElement&&document.fullscreenElement!==document.documentElement;const hide=!!native||!document.getElementById('oneStudio').hidden||(!media&&!open);if(tab.hidden!==hide)tab.hidden=hide;if(hide)return;
+ function sync(){queued=false;const pinned=!!onePinnedAiFeed(),feed=document.getElementById('vfeed');if(feed.classList.contains('oneCleanFeed')!==pinned)feed.classList.toggle('oneCleanFeed',pinned);const media=current(),open=!panel.hidden;const native=document.fullscreenElement&&document.fullscreenElement!==document.documentElement;const hide=!!native||!document.getElementById('oneStudio').hidden||(!media&&!open&&!pinned);if(tab.hidden!==hide)tab.hidden=hide;if(hide)return;
   if(media){const card=media.closest('.card,.vslide');if(card)context=v17ItemById(card.dataset.id)||{};else context={title:media.querySelector('.oneChannelPlayerInfo')?.textContent||'',creator:document.querySelector('#oneChannelIdentity h2')?.textContent||''};}
-  const r=media?.getBoundingClientRect();const left=open?panel.querySelector('.videoAiSheet').getBoundingClientRect().right:Math.max(0,r?.left||0),top=Math.max(70,Math.min(innerHeight-110,(r?r.top+r.height/2:innerHeight/2)-32));tab.style.left=Math.min(innerWidth-32,left)+'px';tab.style.top=top+'px';
+  if(!pinned){const r=media?.getBoundingClientRect();const left=open?panel.querySelector('.videoAiSheet').getBoundingClientRect().right:Math.max(0,r?.left||0),top=Math.max(70,Math.min(innerHeight-110,(r?r.top+r.height/2:innerHeight/2)-32));tab.style.left=Math.min(innerWidth-32,left)+'px';tab.style.top=top+'px';}else window.onePlaceAiHandle?.();
   const label=open?'Fermer ONE IA':'Ouvrir ONE IA';if(tab.getAttribute('aria-label')!==label){tab.setAttribute('aria-label',label);tab.setAttribute('aria-expanded',String(open));tab.querySelector('.arrow').textContent=open?'‹':'›';}
  }
  tab.onclick=()=>{if(!panel.hidden)document.getElementById('videoAiClose').click();else oneAskVideo(context.title,context.creator,context);sync();};
@@ -2575,7 +2575,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  };
 })();
 
-// 0.13.67: reload route and touch handoff.
+// 0.13.68: reload route and touch handoff.
 (()=>{
  const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,tabsScroll:document.getElementById('chips').scrollLeft,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
@@ -2792,7 +2792,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  window.oneTwitchTrace=(event,details={})=>{events.push({t:Math.round(performance.now()),event,...details,hidden:document.hidden,viewport:[innerWidth,innerHeight],split:document.body.classList.contains('oneSplitActive'),landscape:!!document.querySelector('.oneLandscapeMedia'),fullscreen:!!document.fullscreenElement});if(events.length>100)events.shift();};
  for(const event of ['resize','orientationchange','fullscreenchange','visibilitychange'])window.addEventListener(event,()=>oneTwitchTrace(event),true);
  const button=document.createElement('button');button.type='button';button.className='close';button.textContent='Copier le diagnostic Twitch';
- button.onclick=async()=>{const report='ONE 0.13.67 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
+ button.onclick=async()=>{const report='ONE 0.13.68 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
  document.getElementById('settingsModal').querySelector('.sheet,.modalBox,.modalContent')?.appendChild(button);
  if(!button.isConnected)document.getElementById('settingsModal').firstElementChild.appendChild(button);
 })();
@@ -2816,6 +2816,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
   el.addEventListener('click',e=>{if(Date.now()<suppressUntil){e.preventDefault();e.stopImmediatePropagation();suppressUntil=0;}},true);
   el.addEventListener('keydown',e=>{if(id==='oneAiTab'&&onePinnedAiFeed())return;const move={ArrowLeft:[-10,0],ArrowRight:[10,0],ArrowUp:[0,-10],ArrowDown:[0,10]}[e.key];if(!move)return;e.preventDefault();const r=el.getBoundingClientRect();remember(r.left+move[0],r.top+move[1]);save();});
   const schedule=()=>{if(!queued){queued=true;requestAnimationFrame(place);}};
+  if(id==='oneAiTab')window.onePlaceAiHandle=place;
   new MutationObserver(schedule).observe(el,{attributes:true,attributeFilter:['style','hidden']});window.addEventListener('resize',schedule);window.addEventListener('orientationchange',schedule);place();
  }
 })();
