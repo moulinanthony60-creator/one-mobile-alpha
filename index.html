@@ -8,13 +8,13 @@ const oneReloadRoute=oneReadReloadRoute();
 
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.50</title>
+<title>ONE Mobile Alpha 0.13.53</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=01350" />
+<link rel="manifest" href="./manifest.json?v=01353" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -82,11 +82,14 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 .oneChannelPlayer{margin:0 0 18px;border:1px solid #293042;border-radius:22px;overflow:hidden;background:#080a10;box-shadow:0 16px 42px #0008}.oneChannelPlayer[hidden]{display:none}.oneChannelPlayer iframe{display:block;width:100%;border:0;background:#000}.oneChannelPlayer.youtube iframe{aspect-ratio:16/9;min-height:220px}.oneChannelPlayer.twitch iframe{height:300px;min-height:300px}.oneChannelPlayerInfo{padding:12px 14px;font-weight:800;color:#f7f7fb;display:flex;align-items:center;justify-content:space-between;gap:10px}.oneChannelVideo{cursor:pointer}.oneChannelVideo:active{transform:scale(.985)}
 </style>
 <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+<style>/* Chat remains available through fullscreen and the side arrow. */
+#oneLandscapeChat{display:none!important}
+</style>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.50 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.53 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -2386,7 +2389,7 @@ body.oneSplitActive #oneChatPanel{inset:48px 0 0 auto!important;width:35vw!impor
  function find(login){return [...document.querySelectorAll('.card .media,#oneChannelPlayer,.vslideMedia')].find(m=>channelOf(m)?.toLowerCase()===login.toLowerCase())||null;}
  const original=window.oneOpenChat;
  function restore(){if(ownsFullscreen&&document.fullscreenElement===document.documentElement)document.exitFullscreen?.().catch(()=>{});ownsFullscreen=false;media?.classList.remove('oneSplitMedia');host?.classList.remove('oneSplitHost');body.classList.remove('oneSplitActive','oneChatCollapsed');bar.hidden=true;backdrop.hidden=true;media=null;host=null;opener?.focus?.();if(window.oneRenderAfterSplit){window.oneRenderAfterSplit=false;render();}}
- window.oneOpenChat=(login,preferredMedia)=>{const found=preferredMedia?.isConnected&&channelOf(preferredMedia)?.toLowerCase()===login.toLowerCase()?preferredMedia:find(login);if(!found){original(login);return;}if(media)restore();window.onePrepareTwitchView?.(found);opener=document.activeElement;media=found;host=media.closest('.oneChannelHub')||media.closest('.vfeed')||media.closest('.card');body.classList.add('oneSplitActive');media.classList.remove('oneLandscapeMedia');host?.classList.add('oneSplitHost');media.classList.add('oneSplitMedia');body.classList.remove('oneChatCollapsed');bar.textContent='›';bar.setAttribute('aria-expanded','true');bar.setAttribute('aria-label','Masquer le chat');bar.hidden=false;backdrop.hidden=false;original(login);bar.focus({preventScroll:true});document.dispatchEvent(new Event('oneTwitchLayoutChanged'));window.oneCheckExpandedPlayback?.(media);if(!document.fullscreenElement&&document.documentElement.requestFullscreen){document.documentElement.requestFullscreen({navigationUI:'hide'}).then(()=>{if(media){ownsFullscreen=true;window.oneResumeTwitchView?.(media);window.oneCheckExpandedPlayback?.(media);}else document.exitFullscreen?.().catch(()=>{});}).catch(()=>{});}};
+ window.oneOpenChat=(login,preferredMedia)=>{const found=preferredMedia?.isConnected&&channelOf(preferredMedia)?.toLowerCase()===login.toLowerCase()?preferredMedia:find(login);if(!found){original(login);return;}if(media)restore();window.onePrepareTwitchView?.(found);opener=document.activeElement;media=found;host=media.closest('.oneChannelHub')||media.closest('.vfeed')||media.closest('.card');body.classList.add('oneSplitActive');media.classList.remove('oneLandscapeMedia');host?.classList.add('oneSplitHost');media.classList.add('oneSplitMedia');body.classList.remove('oneChatCollapsed');bar.textContent='›';bar.setAttribute('aria-expanded','true');bar.setAttribute('aria-label','Masquer le chat');bar.hidden=false;backdrop.hidden=false;original(login);bar.focus({preventScroll:true});document.dispatchEvent(new Event('oneTwitchLayoutChanged'));window.oneCheckExpandedPlayback?.(media);if(!window.matchMedia('(pointer:coarse)').matches&&!document.fullscreenElement&&document.documentElement.requestFullscreen){document.documentElement.requestFullscreen({navigationUI:'hide'}).then(()=>{if(media){ownsFullscreen=true;window.oneResumeTwitchView?.(media);window.oneCheckExpandedPlayback?.(media);}else document.exitFullscreen?.().catch(()=>{});}).catch(()=>{});}};
  document.getElementById('oneChatClose').addEventListener('click',restore);bar.onclick=()=>{const collapsed=body.classList.toggle('oneChatCollapsed');bar.textContent=collapsed?'‹':'›';bar.setAttribute('aria-expanded',String(!collapsed));bar.setAttribute('aria-label',collapsed?'Afficher le chat':'Masquer le chat');document.dispatchEvent(new Event('oneTwitchLayoutChanged'));};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&media)document.getElementById('oneChatClose').click();});
  function current(){const candidates=[...document.querySelectorAll('.oneLandscapeMedia,#oneChannelPlayer,.card .media,.vslide[data-active="1"] .vslideMedia')];return candidates.find(m=>{if(!channelOf(m)||m.hidden)return false;const hub=m.closest('.oneChannelHub');if(hub&&!hub.classList.contains('show'))return false;const r=m.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth;});}
  shortcut.onclick=()=>{const login=channelOf(current());if(login)oneOpenChat(login);};
@@ -2530,7 +2533,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  };
 })();
 
-// 0.13.50: reload route and touch handoff.
+// 0.13.53: reload route and touch handoff.
 (()=>{
  const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,tabsScroll:document.getElementById('chips').scrollLeft,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
