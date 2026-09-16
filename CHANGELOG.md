@@ -1,15 +1,8 @@
-## 0.13.33 — Audio + Twitch Fullscreen
-- Audio TikTok : handoff direct au geste conservé.
-- Twitch : bouton ⛶ ONE activé et tentative paysage.
-- Sortie fullscreen : déverrouillage orientation.
+# ONE Mobile Alpha 0.13.34
 
-# ONE Mobile Alpha 0.13.32 — TikTok Audio Direct Gesture
-
-Base : 0.13.31.
-
-- Correctif ciblé du son TikTok après swipe.
-- Le lecteur TikTok le plus proche du centre est activé directement au relâchement du doigt.
-- `unMute` + `play` sont envoyés immédiatement pendant le geste utilisateur, sans attendre un timer.
-- Les relances différées restent uniquement en renfort.
-- Le moteur de préchargement/fluidité TikTok 0.12.6 reste conservé.
-- ONE IA et les autres plateformes ne sont pas modifiées.
+- TikTok: lorsqu'un player préchargé muet devient actif après swipe, ONE recrée uniquement ce player en audio autorisé, sans reconstruire le feed.
+- Réactions verticales: J’aime, Pas pour moi et Favori ne rechargent plus la vidéo en cours.
+- Navigation: mémorisation de la plateforme/section et restauration après actualisation.
+- Twitch Clips: choix Français / English / Toutes, sauvegardé localement. Le filtre strict n’affiche que les clips dont la langue est connue via les données Twitch déjà chargées.
+- Twitch plein écran de 0.13.33 conservé.
+- ONE IA conservée.
