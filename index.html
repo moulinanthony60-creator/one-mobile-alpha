@@ -8,13 +8,13 @@ const oneReloadRoute=oneReadReloadRoute();
 
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.56</title>
+<title>ONE Mobile Alpha 0.13.58</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=01356" />
+<link rel="manifest" href="./manifest.json?v=01358" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -87,14 +87,14 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 </style>
 
 <style>
-.oneTwitchHost.oneStableTwitchHost{position:absolute!important;inset:auto!important;left:50%!important;top:50%!important;width:960px!important;height:540px!important;min-width:960px!important;max-width:none!important;min-height:540px!important;max-height:none!important;transform:translate(-50%,-50%) scale(var(--one-twitch-scale,1))!important;transform-origin:center center!important}
-.oneStableTwitchHost>iframe{width:960px!important;height:540px!important;max-width:none!important;max-height:none!important}
+.oneTwitchHost.oneStableTwitchHost{position:absolute!important;inset:auto!important;left:50%!important;top:50%!important;width:400px!important;height:300px!important;min-width:400px!important;max-width:none!important;min-height:300px!important;max-height:none!important;transform:translate(-50%,-50%) scale(var(--one-twitch-scale,1))!important;transform-origin:center center!important}
+.oneStableTwitchHost>iframe{width:400px!important;height:300px!important;max-width:none!important;max-height:none!important}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.56 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.58 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -2260,23 +2260,28 @@ v17ApplySound();
 })();
 </script>
 
-<style>#oneAiBubble{position:fixed;z-index:12960;border:1px solid #baa8ff;background:#7048d8;color:white;border-radius:999px;padding:13px 17px;font-weight:800;box-shadow:0 4px 20px #0008;touch-action:none;cursor:grab}#oneAiBubble[hidden]{display:none}#oneAiBubble:focus-visible{outline:3px solid white;outline-offset:3px}</style>
-<button id="oneAiBubble" type="button" hidden aria-label="ONE IA : poser une question sur la vidéo. Déplaçable au doigt ou avec les flèches du clavier.">✨ ONE IA</button>
+
+<style>
+#oneAiTab{position:fixed;z-index:13010;width:32px;height:64px;padding:3px;border:1px solid #766395;border-radius:0 11px 11px 0;background:#352450ed;color:white;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}
+#oneAiTab[hidden]{display:none}#oneAiTab .arrow{font-size:25px;line-height:1}#oneAiTab .label{font-size:10px}#oneAiTab:focus-visible{outline:2px solid white}
+#videoAiPanel{background:transparent;align-items:stretch;justify-content:flex-start;pointer-events:none}
+#videoAiPanel .videoAiSheet{pointer-events:auto;width:min(340px,calc(100vw - 40px));height:100dvh;max-height:100dvh;border-radius:0 14px 14px 0;padding:14px;box-shadow:6px 0 24px #0008}
+</style>
+<button id="oneAiTab" type="button" hidden aria-label="Ouvrir ONE IA" aria-expanded="false" aria-controls="videoAiPanel"><span class="label">IA</span><span class="arrow" aria-hidden="true">›</span></button>
 <script>
 (()=>{
- const bubble=document.getElementById('oneAiBubble');let drag=null,moved=false,context={},position={x:.8,y:.65};try{const p=JSON.parse(localStorage.getItem('one_ia_bubble_position')||'null');if(p&&Number.isFinite(p.x)&&Number.isFinite(p.y))position=p;}catch{}
- function place(){const w=Math.max(0,innerWidth-(bubble.offsetWidth||110)-12),h=Math.max(0,innerHeight-(bubble.offsetHeight||46)-90);bubble.style.left=(6+Math.max(0,Math.min(1,position.x))*w)+'px';bubble.style.top=(6+Math.max(0,Math.min(1,position.y))*h)+'px';}
- function save(){try{localStorage.setItem('one_ia_bubble_position',JSON.stringify(position));}catch{}}
- bubble.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY,px:position.x,py:position.y};moved=false;bubble.setPointerCapture(e.pointerId);};
- bubble.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>6)moved=true;if(!moved)return;position={x:Math.max(0,Math.min(1,drag.px+dx/Math.max(1,innerWidth-(bubble.offsetWidth||110)-12))),y:Math.max(0,Math.min(1,drag.py+dy/Math.max(1,innerHeight-(bubble.offsetHeight||46)-90)))};place();};
- bubble.onpointerup=()=>{drag=null;save();};bubble.onpointercancel=()=>{drag=null;moved=true;};bubble.onclick=()=>{if(moved){moved=false;return;}oneAskVideo(context.title,context.creator,context);};
- bubble.onkeydown=e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();position.x+=e.key==='ArrowRight'?.04:e.key==='ArrowLeft'?-.04:0;position.y+=e.key==='ArrowDown'?.04:e.key==='ArrowUp'?-.04:0;position.x=Math.max(0,Math.min(1,position.x));position.y=Math.max(0,Math.min(1,position.y));place();save();};
- function sync(){let found=false;const channel=document.getElementById('oneChannelHub'),player=document.getElementById('oneChannelPlayer');if(channel?.classList.contains('show')&&player&&!player.hidden&&player.querySelector('iframe')){context={title:player.querySelector('.oneChannelPlayerInfo span')?.textContent||'',creator:document.querySelector('#oneChannelIdentity h2')?.textContent||''};found=true;}
- else if(document.getElementById('playerModal')?.classList.contains('show')){context={title:document.getElementById('playerTitle').textContent,creator:document.getElementById('playerCreator').textContent};found=true;}
- else if(document.getElementById('vfeed')?.classList.contains('show')){const a=document.querySelector('.vslide[data-active="1"]');context=a?v17ItemById(a.dataset.id)||{}:{};found=!!a;}
- else{const frames=[...document.querySelectorAll('.card .media iframe')];const frame=frames.find(f=>{const r=f.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;});if(frame){context=v17ItemById(frame.closest('.card').dataset.id)||{};found=true;}}
- const panel=document.getElementById('videoAiPanel');const nativeFullscreen=!!document.fullscreenElement&&document.fullscreenElement!==document.documentElement;const hide=!found||nativeFullscreen||!panel.hidden||!document.getElementById('oneStudio').hidden;if(bubble.hidden!==hide)bubble.hidden=hide;if(!hide)place();}
- let queued=false;const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;sync();});};const observer=new MutationObserver(schedule);observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden','data-active']});window.addEventListener('resize',schedule);window.addEventListener('scroll',schedule,true);document.addEventListener('fullscreenchange',schedule);sync();
+ const tab=document.getElementById('oneAiTab'),panel=document.getElementById('videoAiPanel');let context={},queued=false;
+ panel.setAttribute('aria-modal','false');
+ const visible=m=>{const r=m.getBoundingClientRect();return r.width>0&&r.height>0&&r.bottom>70&&r.top<innerHeight-70;};
+ function current(){const expanded=document.querySelector('.oneSplitMedia,.oneLandscapeMedia');if(expanded)return expanded;const active=document.querySelector('.vfeed.show .vslide[data-active="1"] .vslideMedia');if(active)return active;return [...document.querySelectorAll('.card .media,#oneChannelPlayer')].find(m=>m.querySelector('iframe')&&visible(m));}
+ function sync(){queued=false;const media=current(),open=!panel.hidden;const native=document.fullscreenElement&&document.fullscreenElement!==document.documentElement;const hide=!!native||!document.getElementById('oneStudio').hidden||(!media&&!open);if(tab.hidden!==hide)tab.hidden=hide;if(hide)return;
+  if(media){const card=media.closest('.card,.vslide');if(card)context=v17ItemById(card.dataset.id)||{};else context={title:media.querySelector('.oneChannelPlayerInfo')?.textContent||'',creator:document.querySelector('#oneChannelIdentity h2')?.textContent||''};}
+  const r=media?.getBoundingClientRect();const left=open?panel.querySelector('.videoAiSheet').getBoundingClientRect().right:Math.max(0,r?.left||0),top=Math.max(70,Math.min(innerHeight-110,(r?r.top+r.height/2:innerHeight/2)-32));tab.style.left=Math.min(innerWidth-32,left)+'px';tab.style.top=top+'px';
+  const label=open?'Fermer ONE IA':'Ouvrir ONE IA';if(tab.getAttribute('aria-label')!==label){tab.setAttribute('aria-label',label);tab.setAttribute('aria-expanded',String(open));tab.querySelector('.arrow').textContent=open?'‹':'›';}
+ }
+ tab.onclick=()=>{if(!panel.hidden)document.getElementById('videoAiClose').click();else oneAskVideo(context.title,context.creator,context);sync();};
+ const schedule=()=>{if(!queued){queued=true;requestAnimationFrame(sync);}};
+ new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden','data-active']});window.addEventListener('scroll',schedule,true);window.addEventListener('resize',schedule);document.addEventListener('fullscreenchange',schedule);sync();
 })();
 </script>
 
@@ -2329,7 +2334,7 @@ v17ApplySound();
   const r=media.getBoundingClientRect(),top=document.querySelector('.topbar')?.getBoundingClientRect().bottom||0,bottom=document.querySelector('.bottom')?.getBoundingClientRect().top||innerHeight;
   const visible=Math.max(0,Math.min(r.bottom,bottom)-Math.max(r.top,top));return r.height>0&&r.right>0&&r.left<innerWidth?visible/r.height:0;
  }
- function start(r){if(r.active)return;trace('ONE start',r);r.active=true;r.fallbackMuted=false;if(r.ready)try{r.player.setVolume(.5);r.player.setMuted(true);r.player.play();ensureSound(r);}catch{}}
+ function start(r){if(r.active)return;trace('ONE start',r);r.active=true;r.played=false;r.fallbackMuted=false;if(r.ready)try{r.player.setVolume(.5);r.player.setMuted(true);r.player.play();ensureSound(r);}catch{}}
  window.oneGetTwitchPlayer=media=>records.get(media)?.player||v17TwitchPlayers[String(media?.closest('.vslide')?.dataset.id||'')];
  window.onePrepareTwitchView=media=>{const r=records.get(media);if(!r){try{window.oneGetTwitchPlayer(media)?.play();}catch{}return;}trace('open view',r);r.transitionUntil=Date.now()+3000;desired=media;r.active=true;for(const [m,other] of records)if(m!==media&&other.active)stop(other);if(r.ready)try{r.player.play();}catch{}};
  window.oneResumeTwitchView=media=>{
@@ -2348,11 +2353,11 @@ v17ApplySound();
  function mount(media){
   const item=v17ItemById(media.closest('.card')?.dataset.id);if(!item?.live||!item.twitchChannel||!window.Twitch?.Player)return null;
   const host=document.createElement('div');host.className='oneTwitchHost oneStableTwitchHost';host.id='one_card_tw_'+(++sequence);media.appendChild(host);media.classList.add('inline-playing','oneNativeReady');media.dataset.provider='twitch';
-  const fit=()=>{const box=media.getBoundingClientRect();if(box.width>0&&box.height>0){const scale=Math.min(box.width/960,box.height/540);host.style.setProperty('--one-twitch-scale',String(scale));}};fit();const sizeObserver=new ResizeObserver(fit);sizeObserver.observe(media);
-  const player=new Twitch.Player(host.id,{width:960,height:540,channel:item.twitchChannel,parent:[location.hostname],autoplay:true,muted:true});
+  const fit=()=>{const box=media.getBoundingClientRect();if(box.width>0&&box.height>0){const scale=Math.min(box.width/400,box.height/300);host.style.setProperty('--one-twitch-scale',String(scale));}};fit();const sizeObserver=new ResizeObserver(fit);sizeObserver.observe(media);
+  const player=new Twitch.Player(host.id,{width:400,height:300,channel:item.twitchChannel,parent:[location.hostname],autoplay:true,muted:true});
   const r={media,host,player,sizeObserver,active:true,ready:false,transitionUntil:0,fallbackMuted:false};records.set(media,r);
   player.addEventListener(Twitch.Player.READY,()=>{trace('Twitch READY',r);r.ready=true;try{player.setVolume(.5);player.setMuted(true);if(desired===media&&r.active&&eligible(media)>=.5){player.play();ensureSound(r);}else stop(r);}catch{}});
-  player.addEventListener(Twitch.Player.PLAY,()=>{trace('Twitch PLAY',r);if(desired!==media||!r.active||eligible(media)<.5)stop(r);});
+  player.addEventListener(Twitch.Player.PLAY,()=>{r.played=true;trace('Twitch PLAY',r);if(desired!==media||!r.active||eligible(media)<.5)stop(r);});
   player.addEventListener(Twitch.Player.PAUSE,()=>{trace('Twitch PAUSE',r);if(r.active&&desired===media&&r.transitionUntil>Date.now()&&document.activeElement!==media.querySelector('iframe'))window.oneCheckExpandedPlayback?.(media);});
   player.addEventListener(Twitch.Player.PLAYBACK_BLOCKED,()=>{trace('Twitch BLOCKED',r);
    if(desired!==media||!r.active||document.hidden)return;
@@ -2373,6 +2378,14 @@ v17ApplySound();
  function schedule(){if(!queued){queued=true;requestAnimationFrame(sync);}}
  new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});
  window.addEventListener('scroll',schedule,true);window.addEventListener('resize',schedule);document.addEventListener('fullscreenchange',schedule);document.addEventListener('visibilitychange',schedule);
+
+ // A touch that arrives over the next card can authorize mobile playback. Never override a manual pause.
+ function gestureStart(event){if(event.target.closest('button,a,input,textarea,select,iframe'))return;
+  const media=[...records.keys()].find(m=>m===desired),r=records.get(media);
+  if(!r?.ready||!r.active||r.played||eligible(media)<.5)return;
+  trace('gesture play',r);try{r.player.setMuted(true);r.player.play();}catch{}
+ }
+ document.addEventListener('touchend',gestureStart,{passive:true});
  window.addEventListener('pagehide',()=>{desired=null;for(const r of records.values())stop(r);});
  schedule();
  const panel=document.getElementById('oneChatPanel'),close=document.getElementById('oneChatClose'),expand=document.createElement('button');expand.id='oneChatExpand';expand.textContent='⛶ Agrandir le chat';expand.setAttribute('aria-pressed','false');close.before(expand);
@@ -2543,7 +2556,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  };
 })();
 
-// 0.13.56: reload route and touch handoff.
+// 0.13.58: reload route and touch handoff.
 (()=>{
  const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,tabsScroll:document.getElementById('chips').scrollLeft,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
@@ -2760,7 +2773,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  window.oneTwitchTrace=(event,details={})=>{events.push({t:Math.round(performance.now()),event,...details,hidden:document.hidden,viewport:[innerWidth,innerHeight],split:document.body.classList.contains('oneSplitActive'),landscape:!!document.querySelector('.oneLandscapeMedia'),fullscreen:!!document.fullscreenElement});if(events.length>100)events.shift();};
  for(const event of ['resize','orientationchange','fullscreenchange','visibilitychange'])window.addEventListener(event,()=>oneTwitchTrace(event),true);
  const button=document.createElement('button');button.type='button';button.className='close';button.textContent='Copier le diagnostic Twitch';
- button.onclick=async()=>{const report='ONE 0.13.56 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
+ button.onclick=async()=>{const report='ONE 0.13.58 — diagnostic Twitch\n'+JSON.stringify(events,null,2);try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}catch{const box=document.createElement('textarea');box.value=report;box.readOnly=true;box.style.cssText='width:100%;height:180px';button.after(box);box.select();}};
  document.getElementById('settingsModal').querySelector('.sheet,.modalBox,.modalContent')?.appendChild(button);
  if(!button.isConnected)document.getElementById('settingsModal').firstElementChild.appendChild(button);
 })();
