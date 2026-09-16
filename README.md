@@ -1,4 +1,3 @@
-# ONE 0.13.59
+# ONE 0.13.62
 
-Retour exact au lecteur Twitch de 0.13.56 : surface fixe 960×540, affichage fluide précédent. Languette ONE IA à gauche conservée.
-Lecture automatique non résolue. Diagnostic disponible dans Réglages.
+Flèches IA et chat déplaçables au doigt ou à la souris. Un simple appui conserve l’ouverture/fermeture. Position conservée sur cet appareil, séparément en portrait et paysage. Déplacement aussi avec les touches fléchées lorsque le bouton a le focus. Les boutons restent dans l’écran.
