@@ -177,3 +177,15 @@ Croix flottante pour quitter le plein écran ONE en portrait ou paysage, chat ou
 - Sources Web affichées avec la réponse.
 - État explicite quand aucune réponse fiable n'est disponible.
 - Séparation conservée entre questions ONE IA, recherche produit et création de programmes vidéo.
+
+
+## 0.13.29 — Produits / liens directs (palier 3)
+- Durcissement des liens marchands : refus des accueils et recherches génériques.
+- Suppression des anciens secours produit qui ouvraient des recherches Amazon/Fnac/Boulanger/LDLC.
+- Suppression du cas produit codé en dur ; passage par la recherche Web/Shopping normale.
+- Affichage d’un lien uniquement lorsqu’une fiche marchand directe est disponible.
+
+### 0.13.29 hotfix — ONE IA publication exacte
+- ONE IA transmet désormais l’URL/ID public du contenu actif avec le titre, le créateur et la plateforme.
+- Les questions comme « Qui c’est cette personne ? » déclenchent une recherche centrée sur la publication exacte.
+- ONE IA doit signaler l’incertitude si les sources publiques ne permettent pas d’identifier la personne.
