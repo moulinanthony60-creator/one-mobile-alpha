@@ -1,9 +1,5 @@
-# CHANGELOG
-
-## 0.13.38
-- Distingue nouveau lancement et simple refresh.
-- Refresh d’un feed vertical : recharge le même feed vertical.
-- Nouveau lancement : accueil Pour toi.
-- TikTok : arrêt/mute immédiat des lecteurs non visibles pendant le swipe.
-- Réactions verticales rendues non destructives et maintien explicite du lecteur actif.
-- Twitch : contrôle plein écran renforcé + orientation paysage + tentative automatique à 5 secondes.
+# 0.13.38
+- Retire les restaurations concurrentes de l’ancien onglet et du feed vertical.
+- Retire les remplacements de lecteur au toucher et les préchargements avec son.
+- Bloque les rappels audio des vidéos inactives et libère les anciens lecteurs.
+- Plein écran sans verrouillage paysage, un seul bouton Twitch ouverture/fermeture.

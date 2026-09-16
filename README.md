@@ -1,9 +1,7 @@
-# ONE Mobile Alpha 0.13.38 — Audio Hard Stop + Refresh State + Twitch Landscape
+# ONE 0.13.38
 
-Correctif ciblé sur les tests mobiles :
+Base : ZIP 0.13.37 fourni par Anthony. Publier le contenu de ce dossier à la racine du site comme auparavant.
 
-- nouveau lancement de ONE : accueil **Pour toi**, sans ouverture automatique du feed vertical ;
-- actualisation navigateur : conserve l’onglet courant et, si un feed vertical était ouvert, recharge ce même feed ;
-- TikTok : le lecteur visuellement actif devient immédiatement l’unique propriétaire du son pendant le swipe ;
-- J’aime / Favori / Pas pour moi : interaction non destructive, sans reconstruction du lecteur actif ;
-- Twitch : bouton plein écran visible et tentative automatique après 5 s, avec verrouillage paysage lorsque le navigateur Android l’autorise.
+À vérifier sur téléphone : ouverture sur accueil, plein écran portrait puis paysage, J’aime sans interruption, plusieurs balayages sans anciens sons, quitter et rouvrir le feed.
+
+Contrôles automatisés locaux uniquement ; le fonctionnement réel des lecteurs intégrés reste à confirmer sur Chrome Android.
