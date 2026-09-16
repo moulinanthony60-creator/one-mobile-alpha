@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.29 — Produits + IA stricte + Audio TikTok</title>
+<title>ONE Mobile Alpha 0.13.31 — Audio Swipe TikTok</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -81,7 +81,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.30 IA ROUTER + AUDIO TIKTOK</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.31 AUDIO SWIPE TIKTOK</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -2157,6 +2157,27 @@ v17ApplySound();
  function add(host,getContext){if(!host||host.querySelector('.videoAiTrigger'))return;const b=document.createElement('button');b.className='videoAiTrigger';b.type='button';b.textContent='✨ Demander à ONE IA';b.onclick=()=>{const c=getContext();oneAskVideo(c.title,c.creator,c);};host.appendChild(b);}
  function attach(){document.querySelectorAll('.card').forEach(card=>add(card.querySelector('.cardBody'),()=>v17ItemById(card.dataset.id)||{}));add(document.querySelector('.vfeedTop'),()=>{const a=document.querySelector('.vslide[data-active="1"]');return a?v17ItemById(a.dataset.id)||{}:{};});add(document.querySelector('#playerModal .playerInfo'),()=>({title:document.getElementById('playerTitle').textContent,creator:document.getElementById('playerCreator').textContent}));const channel=document.getElementById('oneChannelPlayer');if(channel&&!channel.hidden)add(channel,()=>({title:channel.querySelector('.oneChannelPlayerInfo')?.textContent||'',creator:document.querySelector('#oneChannelIdentity h2')?.textContent||''}));}
  const observer=new MutationObserver(attach);observer.observe(document.body,{childList:true,subtree:true});attach();
+})();
+</script>
+
+<script>
+// 0.13.31 — TikTok audio handoff : les players préchauffés sont créés muets.
+// Quand un player préchauffé devient actif, on réarme explicitement le son après le swipe.
+(()=>{
+ const audioKick31=(slide)=>{
+   if(!slide||slide.getAttribute('data-active')!=='1'||slide.dataset.platform!=='tiktok'||!v1814SoundAllowed())return;
+   const frame=slide.querySelector('iframe');if(!frame)return;
+   const fire=()=>{if(slide.getAttribute('data-active')==='1'&&frame.isConnected){v17SendTikTok(frame,'unMute');v17SendTikTok(frame,'play')}};
+   fire();[40,120,260,520,900].forEach(ms=>setTimeout(fire,ms));
+ };
+ const oldActivate=window.v17ActivateTikTok;
+ window.v17ActivateTikTok=function(slide){if(oldActivate)oldActivate(slide);setTimeout(()=>audioKick31(slide),0);};
+ const bind=()=>{const root=document.getElementById('vfeedScroller');if(!root||root.dataset.oneAudio31)return;root.dataset.oneAudio31='1';
+   const handoff=()=>{v1814RememberSoundGesture();setTimeout(()=>audioKick31(document.querySelector('.vslide[data-active="1"][data-platform="tiktok"]')),25);};
+   root.addEventListener('pointerup',handoff,{passive:true});root.addEventListener('touchend',handoff,{passive:true});
+ };
+ window.addEventListener('message',e=>{const d=e.data;if(!d||d['x-tiktok-player']!==true)return;if(d.type!=='onPlayerReady'&&d.type!=='onStateChange')return;const slide=[...document.querySelectorAll('.vslide[data-active="1"][data-platform="tiktok"]')].find(s=>s.querySelector('iframe')?.contentWindow===e.source);if(slide)setTimeout(()=>audioKick31(slide),20);});
+ new MutationObserver(bind).observe(document.body,{childList:true,subtree:true});bind();
 })();
 </script>
 
