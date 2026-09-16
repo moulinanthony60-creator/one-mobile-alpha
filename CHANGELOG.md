@@ -1,5 +1,5 @@
-# ONE 0.13.79 — essai de promotion
+# ONE 0.13.80
 
-Préchargement strictement inchangé. Suppression des deux remplacements pour son dans activation ; conservation de la même iframe et URL. Diagnostic promotion et commandes play/unMute.
+ONE IA : liens Markdown cliquables uniquement si URL présente dans les résultats de recherche ; sources HTTP(S) filtrées ; jusqu’à huit sources. Délai recherche limité à 25 secondes, requêtes identiques simultanées regroupées. Erreur réseau distinguée du manque de réponse fiable. Mentions de certitude produit atténuées.
 
-Attention : muted=1 du préchargement peut verrouiller le son côté TikTok. Cette version expérimentale ne garantit pas une lecture sonore ; validation vitesse ET son requise. 0.13.78 reste disponible pour revenir en arrière.
+Lecteur 0.13.79 inchangé. Aucun achat ni disponibilité marchand vérifiés ; test service distant bloqué par SSL depuis cet environnement.
