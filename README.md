@@ -1,5 +1,5 @@
-# ONE 0.13.76
+# ONE 0.13.78
 
-Préparation des lecteurs voisins avec autoplay=0 et muted=0. READY met en pause et coupe le son sans lancer les voisins. À activation, le lecteur peut être réutilisé avec unMute sans recréation. Toute commande play vers une vidéo inactive est bloquée. Fenêtre 2 suivants, actif, précédent conservée. Diagnostic TikTok conservé.
+Essai ciblé TikTok / Pour toi : activation à 55 % de visibilité au lieu de 72 %. Le chargement commence plus tôt pendant le swipe, avec arrêt précédent inchangé. Twitch, YouTube, préchargement et gestion du son inchangés. Diagnostic enrichi du pourcentage visible lors du changement.
 
-Prépare le lecteur ; la quantité de vidéo mise en mémoire dépend de TikTok. Gain et son à vérifier sur téléphone.
+Ne supprime pas le temps de chargement interne TikTok. Gain après le swipe à vérifier sur téléphone.
