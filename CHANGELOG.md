@@ -1,7 +1,7 @@
-# CHANGELOG
+# Changelog
 
-## 0.13.36
-- TikTok : le lecteur préchargé hérite désormais de l’état son et le geste de swipe transmet `unMute` au lecteur destination sans reconstruire la vidéo.
-- Navigation : sauvegarde immédiate de l’onglet et de l’état du feed vertical ; fermer le feed efface son état avant un prochain rechargement.
-- Twitch : bouton ⛶ au-dessus du lecteur et tentative plein écran paysage 5 s après l’événement PLAY du lecteur Twitch.
-- Le moteur de swipe/cache 0.12.6 n’est pas modifié.
+## 0.13.37
+- State Hard : persistance immédiate de l’onglet et priorité au dernier onglet après les chargements asynchrones.
+- TikTok Audio Stop : mute + pause explicites de tous les anciens lecteurs au changement de vidéo.
+- Réactions verticales non destructives avec relance du lecteur actif sans reconstruction.
+- Twitch Fullscreen : bouton ⛶ très visible sur les cartes + tentative paysage à 5 secondes.
