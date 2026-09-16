@@ -81,7 +81,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.37 AUDIO STOP + STATE HARD + TWITCH FS</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.38 AUDIO HARD STOP + REFRESH STATE + TWITCH LANDSCAPE</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -2544,6 +2544,59 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  new MutationObserver(install).observe(document.getElementById('feed'),{childList:true,subtree:true});install();
  // Final boot authority: persisted tab wins after older async loaders have finished.
  window.addEventListener('load',()=>setTimeout(async()=>{const f=localStorage.getItem(TAB);if(!f||f===state.filter)return;state.filter=f;state.mode=null;state.query='';document.querySelectorAll('#chips .chip').forEach(c=>c.classList.toggle('active',c.dataset.filter===f));syncTwitchFilters();if(f==='tiktok'){loadTikTokLocal();render()}else if(f==='youtube'){if(!ytApplyPersonalizedCachePool())await youtubeSearch('gaming france',false,false);render()}else if(f==='twitch'){await twitchStreams(false);render()}else if(f==='all'){render()}else render();renderCreatorResults();syncVerticalLauncher();install()},900),{once:true});
+})();
+</script>
+
+
+<style>
+/* 0.13.38 — reaction controls must never disturb the active media */
+.vrail{touch-action:manipulation}
+.oneTwFs38{position:absolute!important;right:12px!important;top:12px!important;z-index:2147483647!important;width:54px!important;height:54px!important;border-radius:50%!important;border:2px solid rgba(255,255,255,.85)!important;background:rgba(8,10,15,.92)!important;color:#fff!important;font-size:29px!important;font-weight:900!important;display:grid!important;place-items:center!important;pointer-events:auto!important;box-shadow:0 4px 18px rgba(0,0,0,.55)!important}
+</style>
+<script>
+// 0.13.38 — final authority for launch/refresh state, TikTok audio ownership and reactions.
+(()=>{
+ const STATE='one_runtime_page_v138';
+ const nav=performance.getEntriesByType?.('navigation')?.[0];
+ const isReload=nav?.type==='reload' || performance.navigation?.type===1;
+ const read=()=>{try{return JSON.parse(sessionStorage.getItem(STATE)||'null')}catch{return null}};
+ const write=()=>{try{sessionStorage.setItem(STATE,JSON.stringify({filter:state.filter||'all',mode:state.mode||null,vertical:document.getElementById('vfeed')?.classList.contains('show')?verticalFeedMode:null,ts:Date.now()}))}catch{}};
+ // A true new launch starts on Pour toi. A browser refresh restores the exact page/feed.
+ if(!isReload){
+   try{sessionStorage.removeItem(STATE)}catch{}
+   ['one_last_section_v134','one_last_section_v135','one_last_page_v136','one_current_tab_v137'].forEach(k=>localStorage.removeItem(k));
+ }
+ document.getElementById('chips')?.addEventListener('click',()=>setTimeout(write,0),true);
+ window.addEventListener('pagehide',write);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')write()});
+ const oldOpen38=window.openVerticalFeed,oldClose38=window.closeVerticalFeed;
+ if(typeof oldOpen38==='function')window.openVerticalFeed=function(){const r=oldOpen38.apply(this,arguments);setTimeout(write,0);return r};
+ if(typeof oldClose38==='function')window.closeVerticalFeed=function(){const r=oldClose38.apply(this,arguments);setTimeout(write,0);return r};
+
+ // Audio ownership follows the visually closest TikTok immediately, not the delayed active marker.
+ const sc=document.getElementById('vfeedScroller');
+ const closestTikTok=()=>{if(!sc)return null;const rr=sc.getBoundingClientRect(),cy=(rr.top+rr.bottom)/2;let best=null,dist=Infinity;sc.querySelectorAll('.vslide[data-platform="tiktok"]').forEach(sl=>{const r=sl.getBoundingClientRect(),d=Math.abs((r.top+r.bottom)/2-cy);if(d<dist){dist=d;best=sl}});return best};
+ const ownAudio=()=>{const keep=closestTikTok(),kf=keep?.querySelector('iframe');sc?.querySelectorAll('.vslide[data-platform="tiktok"] iframe').forEach(f=>{if(f!==kf){v17SendTikTok(f,'mute');v17SendTikTok(f,'pause')}});if(kf&&v1814SoundAllowed()){v17SendTikTok(kf,'unMute');v17SendTikTok(kf,'play')}};
+ if(sc){sc.addEventListener('scroll',ownAudio,{passive:true,capture:true});sc.addEventListener('pointerup',()=>{ownAudio();setTimeout(ownAudio,35);setTimeout(ownAudio,140)},{passive:true,capture:true});sc.addEventListener('touchend',()=>{ownAudio();setTimeout(ownAudio,35);setTimeout(ownAudio,140)},{passive:true,capture:true})}
+
+ // Reaction taps are UI-only: no scroll gesture, no slide rebuild, no iframe replacement.
+ document.addEventListener('pointerdown',e=>{if(e.target.closest('.vrail'))e.stopPropagation()},true);
+ document.addEventListener('touchstart',e=>{if(e.target.closest('.vrail'))e.stopPropagation()},{capture:true,passive:true});
+ const keepActiveVisible=id=>{const sl=[...document.querySelectorAll('.vslide')].find(x=>String(x.dataset.id)===String(id));if(!sl||sl.getAttribute('data-active')!=='1')return;const f=sl.querySelector('iframe'),img=sl.querySelector('.vslideMedia>img');if(f){f.style.opacity='1';f.style.pointerEvents='auto';v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')}if(img&&f)img.style.opacity='0';sl.querySelector('.vslideMedia')?.classList.add('playing')};
+ const baseRate38=window.v17Rate;window.v17Rate=function(id,type){baseRate38?.apply(this,arguments);keepActiveVisible(id);setTimeout(()=>keepActiveVisible(id),80)};
+ const baseSave38=window.v17Save;window.v17Save=function(id){baseSave38?.apply(this,arguments);keepActiveVisible(id);setTimeout(()=>keepActiveVisible(id),80)};
+
+ // Twitch fullscreen: explicit button + 5 s best-effort, locked landscape when Android permits it.
+ const fs38=async media=>{if(!media)return;try{if(!document.fullscreenElement)await media.requestFullscreen?.({navigationUI:'hide'});try{await screen.orientation?.lock?.('landscape')}catch{}}catch{toast('Android demande un appui sur ⛶ pour autoriser le plein écran')}};
+ const installFs38=()=>document.querySelectorAll('.twitch-card .media').forEach(media=>{media.querySelectorAll('.oneTwFs,.oneTwFs36,.oneTwFs37').forEach(b=>b.remove());let b=media.querySelector('.oneTwFs38');if(!b){b=document.createElement('button');b.type='button';b.className='oneTwFs38';b.textContent='⛶';b.title='Plein écran horizontal';b.setAttribute('aria-label','Plein écran Twitch horizontal');b.onclick=e=>{e.preventDefault();e.stopPropagation();fs38(media)};media.appendChild(b)}if(media.classList.contains('inline-playing')&&!media._oneFs38)media._oneFs38=setTimeout(()=>fs38(media),5000)});
+ new MutationObserver(installFs38).observe(document.getElementById('feed'),{childList:true,subtree:true});installFs38();
+ document.getElementById('feed')?.addEventListener('click',e=>{if(e.target.closest('.twitch-card .playbtn,.twitch-card .action.open'))setTimeout(installFs38,80)},true);
+
+ async function showFilter(f){state.filter=f||'all';state.mode=null;state.query='';document.querySelectorAll('#chips .chip').forEach(c=>c.classList.toggle('active',c.dataset.filter===state.filter));syncTwitchFilters();if(state.filter==='tiktok'){loadTikTokLocal();render()}else if(state.filter==='youtube'){if(!ytApplyPersonalizedCachePool())await youtubeSearch('gaming france',false,false);render()}else if(state.filter==='twitch'){await twitchStreams(false);render()}else if(state.filter==='all'){await loadUnifiedFeed()}else render();renderCreatorResults();syncVerticalLauncher();installFs38()}
+ window.addEventListener('load',()=>setTimeout(async()=>{
+   if(isReload){const d=read();if(d?.filter){await showFilter(d.filter);if(d.vertical){oldOpen38?.(d.vertical);setTimeout(()=>{ownAudio();write()},100)}return}}
+   // New launch: home Pour toi, never auto-open vertical feed.
+   if(document.getElementById('vfeed')?.classList.contains('show'))oldClose38?.();await showFilter('all');write();
+ },1500),{once:true});
 })();
 </script>
 

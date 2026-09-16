@@ -1,7 +1,9 @@
-# Changelog
+# CHANGELOG
 
-## 0.13.37
-- State Hard : persistance immédiate de l’onglet et priorité au dernier onglet après les chargements asynchrones.
-- TikTok Audio Stop : mute + pause explicites de tous les anciens lecteurs au changement de vidéo.
-- Réactions verticales non destructives avec relance du lecteur actif sans reconstruction.
-- Twitch Fullscreen : bouton ⛶ très visible sur les cartes + tentative paysage à 5 secondes.
+## 0.13.38
+- Distingue nouveau lancement et simple refresh.
+- Refresh d’un feed vertical : recharge le même feed vertical.
+- Nouveau lancement : accueil Pour toi.
+- TikTok : arrêt/mute immédiat des lecteurs non visibles pendant le swipe.
+- Réactions verticales rendues non destructives et maintien explicite du lecteur actif.
+- Twitch : contrôle plein écran renforcé + orientation paysage + tentative automatique à 5 secondes.
