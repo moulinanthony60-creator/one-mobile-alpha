@@ -8,13 +8,13 @@ const oneReloadRoute=oneReadReloadRoute();
 
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>ONE Mobile Alpha 0.13.46</title>
+<title>ONE Mobile Alpha 0.13.47</title>
 <meta name="theme-color" content="#07090d" />
 <meta name="color-scheme" content="dark" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=01346" />
+<link rel="manifest" href="./manifest.json?v=01347" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -86,7 +86,7 @@ html{background:#07090d}body{overscroll-behavior-y:none;-webkit-tap-highlight-co
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.46 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
+    <div class="brandrow"><div class="brand" role="button" tabindex="0" aria-label="Accueil ONE" id="oneHome">ONE<span>.</span><small style="font-size:10px;margin-left:8px;color:#20c997;vertical-align:middle;letter-spacing:0">MOBILE ALPHA 0.13.47 LECTURE + ACCUEIL</small></div><button class="accountBtn" id="accountBtn" type="button" aria-label="Compte ONE" title="Compte ONE">👤<span class="accountDot" aria-hidden="true"></span></button></div>
     <div class="search"><input id="search" placeholder="Gaming, musique, créateur..."/><button id="searchBtn">Chercher</button></div>
     <div class="tabsRail" aria-label="Navigation des onglets">
       <button class="tabsArrow" id="tabsLeft" type="button" aria-label="Onglets précédents">‹</button>
@@ -1877,7 +1877,7 @@ v17ApplySound();
     const i=musicPlaylist.findIndex(v=>String(v.id)===String(id));
     if(i>=0){musicPlaylist.splice(i,1);toast('Retiré de « '+active+' »');}
     else{musicPlaylist.unshift({id:x.id,p:'youtube',icon:'▶️',creator:x.creator,title:x.title,meta:x.meta||'YouTube',duration:x.duration||'YouTube',tags:[...(x.tags||[]),active],score:999,videoId:x.videoId,thumbnail:x.thumbnail||'',url:x.url||('https://www.youtube.com/watch?v='+x.videoId),published:x.published||'',publishedRaw:x.publishedRaw||''});toast('Ajouté à « '+active+' » 🎵');}
-    syncActive();render();syncVerticalLauncher();
+    syncActive();if(state.filter==='music')render();else window.oneRefreshCardActions?.();syncVerticalLauncher();
   };
   window.toggleMusicPlaylist=toggleMusicPlaylist;
 
@@ -2277,7 +2277,7 @@ v17ApplySound();
 <script>
 (()=>{
  const panel=document.getElementById('oneChatPanel'),box=document.getElementById('oneChatFrame');let opener=null;
- window.oneOpenChat=login=>{if(!/^[a-zA-Z0-9_]{1,30}$/.test(login||''))return toast('Tchat indisponible pour cette chaîne');opener=document.activeElement;box.replaceChildren();const f=document.createElement('iframe');f.title='Tchat Twitch de '+login;f.src='https://www.twitch.tv/embed/'+encodeURIComponent(login)+'/chat?parent='+encodeURIComponent(location.hostname)+'&darkpopout';box.appendChild(f);document.getElementById('oneChatTitle').textContent='Tchat · '+login;panel.hidden=false;document.getElementById('oneChatClose').focus();};
+ window.oneOpenChat=login=>{if(!/^[a-zA-Z0-9_]{1,30}$/.test(login||''))return toast('Tchat indisponible pour cette chaîne');opener=document.activeElement;box.replaceChildren();const f=document.createElement('iframe');f.title='Tchat Twitch de '+login;f.src='https://www.twitch.tv/embed/'+encodeURIComponent(login)+'/chat?parent='+encodeURIComponent(location.hostname)+'&darkpopout';box.appendChild(f);document.getElementById('oneChatTitle').textContent='Tchat · '+login;panel.hidden=false;document.getElementById('oneChatClose').focus({preventScroll:true});};
  const close=()=>{panel.hidden=true;box.replaceChildren();opener?.focus?.();};document.getElementById('oneChatClose').onclick=close;panel.onkeydown=e=>{if(e.key==='Escape')close();};
  function add(host,login){if(!host||host.querySelector('.oneChatButton')||!login)return;const b=document.createElement('button');b.className='oneChatButton';b.textContent='💬 Tchat Twitch';b.onclick=()=>oneOpenChat(login);host.appendChild(b);}
  function attach(){document.querySelectorAll('.card').forEach(card=>{const item=v17ItemById(card.dataset.id);if(item?.p==='twitch'&&item.live)add(card.querySelector('.cardBody'),item.twitchChannel);});const player=document.getElementById('oneChannelPlayer'),frame=player?.querySelector('iframe');if(frame){try{const u=new URL(frame.src);if(u.hostname==='player.twitch.tv')add(player,u.searchParams.get('channel'));}catch{}}}
@@ -2294,11 +2294,13 @@ v17ApplySound();
  function eligible(media){
   if(!media.isConnected||document.hidden)return 0;
   if(media.classList.contains('oneSplitMedia')||media.classList.contains('oneLandscapeMedia'))return 2;
+  const record=records.get(media);if(record?.active&&record.transitionUntil>Date.now())return 2;
   if(document.body.classList.contains('oneSplitActive')||document.querySelector('.oneLandscapeMedia')||document.getElementById('vfeed')?.classList.contains('show')||document.querySelector('.modal.show,.oneChannelHub.show')||!document.getElementById('oneStudio').hidden)return 0;
   const r=media.getBoundingClientRect(),top=document.querySelector('.topbar')?.getBoundingClientRect().bottom||0,bottom=document.querySelector('.bottom')?.getBoundingClientRect().top||innerHeight;
   const visible=Math.max(0,Math.min(r.bottom,bottom)-Math.max(r.top,top));return r.height>0&&r.right>0&&r.left<innerWidth?visible/r.height:0;
  }
- function start(r){if(r.active)return;r.active=true;if(r.ready)try{r.player.setMuted(true);r.player.play();}catch{}}
+ function start(r){if(r.active)return;r.active=true;r.fallbackMuted=false;if(r.ready)try{r.player.setVolume(.5);r.player.setMuted(false);r.player.play();}catch{}}
+ window.onePrepareTwitchView=media=>{const r=records.get(media);if(!r)return;r.transitionUntil=Date.now()+2000;desired=media;r.active=true;for(const [m,other] of records)if(m!==media&&other.active)stop(other);if(r.ready)try{r.player.play();}catch{}};
  window.oneResumeTwitchView=media=>{
   const r=records.get(media);if(!r||!media.isConnected||document.hidden)return;
   desired=media;for(const [other,entry] of records)if(other!==media&&entry.active)stop(entry);
@@ -2310,10 +2312,17 @@ v17ApplySound();
  function mount(media){
   const item=v17ItemById(media.closest('.card')?.dataset.id);if(!item?.live||!item.twitchChannel||!window.Twitch?.Player)return null;
   const host=document.createElement('div');host.className='oneTwitchHost';host.id='one_card_tw_'+(++sequence);media.appendChild(host);media.classList.add('inline-playing','oneNativeReady');media.dataset.provider='twitch';
-  const player=new Twitch.Player(host.id,{width:'100%',height:'100%',channel:item.twitchChannel,parent:[location.hostname],autoplay:true,muted:true});
-  const r={media,host,player,active:true,ready:false};records.set(media,r);
-  player.addEventListener(Twitch.Player.READY,()=>{r.ready=true;try{player.setVolume(.5);player.setMuted(true);if(desired===media&&r.active&&eligible(media)>=.5)player.play();else stop(r);}catch{}});
+  const player=new Twitch.Player(host.id,{width:'100%',height:'100%',channel:item.twitchChannel,parent:[location.hostname],autoplay:true,muted:false});
+  const r={media,host,player,active:true,ready:false,transitionUntil:0,fallbackMuted:false};records.set(media,r);
+  player.addEventListener(Twitch.Player.READY,()=>{r.ready=true;try{player.setVolume(.5);player.setMuted(false);if(desired===media&&r.active&&eligible(media)>=.5)player.play();else stop(r);}catch{}});
   player.addEventListener(Twitch.Player.PLAY,()=>{if(desired!==media||!r.active||eligible(media)<.5)stop(r);});
+  player.addEventListener(Twitch.Player.PAUSE,()=>{if(r.active&&desired===media&&r.transitionUntil>Date.now())setTimeout(()=>{if(r.active&&desired===media&&!document.hidden&&r.transitionUntil>Date.now())try{player.play();}catch{}},100);});
+  player.addEventListener(Twitch.Player.PLAYBACK_BLOCKED,()=>{
+   if(desired!==media||!r.active||document.hidden)return;
+   if(!r.fallbackMuted){r.fallbackMuted=true;try{player.setMuted(true);player.play();}catch{}}
+   const card=media.closest('.card'),body=card?.querySelector('.cardBody');if(!body||body.querySelector('.oneTwSound'))return;
+   const button=document.createElement('button');button.type='button';button.className='oneTwSound';button.textContent='🔊 Activer le son';button.onclick=()=>{if(desired!==media||!r.active)return;try{player.setVolume(.5);player.setMuted(false);player.play();button.remove();r.fallbackMuted=false;}catch{}};body.appendChild(button);
+  });
   return r;
  }
  function sync(){queued=false;
@@ -2353,7 +2362,7 @@ body.oneSplitActive #oneChatPanel{inset:48px 0 0 auto!important;width:35vw!impor
  function find(login){return [...document.querySelectorAll('.card .media,#oneChannelPlayer,.vslideMedia')].find(m=>channelOf(m)?.toLowerCase()===login.toLowerCase())||null;}
  const original=window.oneOpenChat;
  function restore(){if(ownsFullscreen&&document.fullscreenElement===document.documentElement)document.exitFullscreen?.().catch(()=>{});ownsFullscreen=false;media?.classList.remove('oneSplitMedia');host?.classList.remove('oneSplitHost');body.classList.remove('oneSplitActive','oneChatCollapsed');bar.hidden=true;backdrop.hidden=true;media=null;host=null;opener?.focus?.();}
- window.oneOpenChat=(login,preferredMedia)=>{const found=preferredMedia?.isConnected&&channelOf(preferredMedia)?.toLowerCase()===login.toLowerCase()?preferredMedia:find(login);if(!found){original(login);return;}if(media)restore();opener=document.activeElement;media=found;host=media.closest('.oneChannelHub')||media.closest('.vfeed');body.classList.add('oneSplitActive');media.classList.remove('oneLandscapeMedia');host?.classList.add('oneSplitHost');media.classList.add('oneSplitMedia');body.classList.remove('oneChatCollapsed');bar.textContent='›';bar.setAttribute('aria-expanded','true');bar.setAttribute('aria-label','Masquer le chat');bar.hidden=false;backdrop.hidden=false;original(login);bar.focus();document.dispatchEvent(new Event('oneTwitchLayoutChanged'));if(!document.fullscreenElement&&document.documentElement.requestFullscreen){document.documentElement.requestFullscreen({navigationUI:'hide'}).then(()=>{if(media)ownsFullscreen=true;else document.exitFullscreen?.().catch(()=>{});}).catch(()=>{});}};
+ window.oneOpenChat=(login,preferredMedia)=>{const found=preferredMedia?.isConnected&&channelOf(preferredMedia)?.toLowerCase()===login.toLowerCase()?preferredMedia:find(login);if(!found){original(login);return;}if(media)restore();window.onePrepareTwitchView?.(found);opener=document.activeElement;media=found;host=media.closest('.oneChannelHub')||media.closest('.vfeed');body.classList.add('oneSplitActive');media.classList.remove('oneLandscapeMedia');host?.classList.add('oneSplitHost');media.classList.add('oneSplitMedia');body.classList.remove('oneChatCollapsed');bar.textContent='›';bar.setAttribute('aria-expanded','true');bar.setAttribute('aria-label','Masquer le chat');bar.hidden=false;backdrop.hidden=false;original(login);bar.focus({preventScroll:true});document.dispatchEvent(new Event('oneTwitchLayoutChanged'));if(!document.fullscreenElement&&document.documentElement.requestFullscreen){document.documentElement.requestFullscreen({navigationUI:'hide'}).then(()=>{if(media){ownsFullscreen=true;window.oneResumeTwitchView?.(media);}else document.exitFullscreen?.().catch(()=>{});}).catch(()=>{});}};
  document.getElementById('oneChatClose').addEventListener('click',restore);bar.onclick=()=>{const collapsed=body.classList.toggle('oneChatCollapsed');bar.textContent=collapsed?'‹':'›';bar.setAttribute('aria-expanded',String(!collapsed));bar.setAttribute('aria-label',collapsed?'Afficher le chat':'Masquer le chat');document.dispatchEvent(new Event('oneTwitchLayoutChanged'));};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&media)document.getElementById('oneChatClose').click();});
  function current(){const candidates=[...document.querySelectorAll('.oneLandscapeMedia,#oneChannelPlayer,.card .media,.vslide[data-active="1"] .vslideMedia')];return candidates.find(m=>{if(!channelOf(m)||m.hidden)return false;const hub=m.closest('.oneChannelHub');if(hub&&!hub.classList.contains('show'))return false;const r=m.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth;});}
  shortcut.onclick=()=>{const login=channelOf(current());if(login)oneOpenChat(login);};
@@ -2482,7 +2491,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 
 
 <script>
-// 0.13.46: reload route and touch handoff.
+// 0.13.47: reload route and touch handoff.
 (()=>{
  const save=()=>{try{sessionStorage.setItem('one_reload_route',JSON.stringify({filter:state.filter,mode:state.mode,query:state.query,tabsScroll:document.getElementById('chips').scrollLeft,vertical:document.getElementById('vfeed').classList.contains('show')?verticalFeedMode:null}));}catch{}};
  window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
@@ -2609,5 +2618,54 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 </script>
 
 <style>.creatorAvatar.subAvatar{display:inline-grid;width:36px;height:36px;vertical-align:middle;overflow:hidden}.creatorAvatar.subAvatar img{display:block;width:100%;height:100%;object-fit:cover}.v133SubTabs button{min-width:0}</style>
+
+<style id="oneCompactCards">
+.card.oneCompactCard>.creator{display:flex;align-items:center;gap:10px;padding:12px;margin:0;background:#11131d}
+.card.oneCompactCard>.creator .cava{width:36px;height:36px;flex:none}
+.card.oneCompactCard>.creator .oneCreatorText{flex:1;min-width:0}
+.card.oneCompactCard>.creator .name{font-size:15px;line-height:1.35;overflow-wrap:anywhere}
+.card.oneCompactCard>.creator .name::after{display:none}
+.card.oneCompactCard>.creator .platform{font-size:11px;color:#a9a3ba;margin-top:2px}
+.oneLiveLabel{color:#ff8b9e;background:#f044641a;border:1px solid #a53d5055;border-radius:5px;font-size:9px;font-weight:800;padding:4px 5px;white-space:nowrap}
+.card.oneCompactCard .oneFollowSmall{flex:none;width:36px;height:36px;min-height:36px;padding:0;border:1px solid #615078;border-radius:50%;font-size:22px;background:#272133;color:#e9dbff}
+.card.oneCompactCard .oneFollowSmall.saved{background:#452e69;border-color:#aa86ed}
+.card.oneCompactCard .cardBody{display:flex;flex-direction:column;gap:9px;padding:10px 12px 12px}
+.card.oneCompactCard .oneCardControls{display:flex;align-items:center;gap:7px;flex-wrap:wrap;order:-3;width:100%;margin:0}
+.card.oneCompactCard .oneCardControls button{border:1px solid #58446f;border-radius:10px;background:#292036;color:#efe7ff;min-height:40px;padding:8px 10px;margin:0!important;font-size:12px;font-weight:750;cursor:pointer}
+.card.oneCompactCard .oneCardControls .oneTwPortrait{flex:1 1 100%;width:100%;min-height:42px;background:#7549e8;margin:0 0 2px!important}
+.card.oneCompactCard .oneCardControls .videoAiTrigger,.card.oneCompactCard .oneCardControls .oneChatButton{flex:1}
+.card.oneCompactCard .oneCardControls .onePlaylistSmall{margin-left:auto!important;width:40px;min-width:40px;flex:0 0 40px;padding:0;font-size:23px;border-radius:10px}
+.card.oneCompactCard .oneCardControls .onePlaylistSmall.on{background:#452e69;border-color:#aa86ed}
+.card.oneCompactCard .feedback{order:-2;padding:0 0 9px;margin:0;border-top:0;border-bottom:1px solid #282333;gap:7px}
+.card.oneCompactCard .feedback button{font-size:12px;padding:7px 9px;min-height:34px}
+.card.oneCompactCard .actions:empty{display:none}
+.card.oneCompactCard .cardBody>.title{margin:0;font-size:15px;line-height:1.4}
+.card.oneCompactCard button:focus-visible{outline:2px solid #ccb3ff;outline-offset:2px}
+</style>
+<script>
+(()=>{
+ const feed=document.getElementById('feed');let queued=false;
+ function refresh(){queued=false;for(const card of feed.querySelectorAll('.youtube-card,.twitch-card')){
+  const body=card.querySelector('.cardBody'),media=card.querySelector('.media'),item=v17ItemById(card.dataset.id);if(!body||!media||!item)continue;
+  if(!card.classList.contains('oneCompactCard'))card.classList.add('oneCompactCard');
+  const creator=card.querySelector('.creator');if(creator&&creator.parentElement===body){card.insertBefore(creator,media);creator.querySelector('.cava')?.nextElementSibling?.classList.add('oneCreatorText');}
+  if(creator&&item.live&&!creator.querySelector('.oneLiveLabel')){const label=document.createElement('span');label.className='oneLiveLabel';label.textContent='EN DIRECT';creator.appendChild(label);}
+  const follow=card.querySelector('.oneFollowSmall')||body.querySelector('.actions .action:not(.playlist):not(.open)');
+  if(follow&&creator){if(!follow.classList.contains('oneFollowSmall')){follow.classList.add('oneFollowSmall');creator.appendChild(follow);follow.removeAttribute('onclick');follow.onclick=()=>{const m=itemCreatorMeta(item);if(!m)return;const key=m.platform+':'+m.id;if(followedCreators.has(key)){followedCreators.delete(key);delete followedMeta[key];}else{followedCreators.add(key);followedMeta[key]=m;}saveFollowed();refresh();toast(followedCreators.has(key)?'Chaîne suivie':'Chaîne retirée des abonnements');};}
+   const m=itemCreatorMeta(item),on=!!m&&followedCreators.has(m.platform+':'+m.id);const label=on?'Ne plus suivre cette chaîne':'Suivre cette chaîne';if(follow.textContent!==(on?'✓':'+'))follow.textContent=on?'✓':'+';follow.classList.toggle('saved',on);follow.setAttribute('aria-label',label);follow.title=label;follow.setAttribute('aria-pressed',String(on));
+  }
+  let controls=body.querySelector('.oneCardControls');if(!controls){controls=document.createElement('div');controls.className='oneCardControls';body.prepend(controls);}
+  for(const cls of ['oneTwPortrait','videoAiTrigger','oneChatButton','oneTwSound']){const b=body.querySelector('.'+cls);if(b&&b.parentElement!==controls)controls.appendChild(b);}
+  const ai=controls.querySelector('.videoAiTrigger');if(ai&&ai.textContent!=='✨ ONE IA')ai.textContent='✨ ONE IA';
+  const chat=controls.querySelector('.oneChatButton');if(chat&&chat.textContent!=='💬 Tchat')chat.textContent='💬 Tchat';
+  if(item.p==='youtube'){const playlist=body.querySelector('.playlist');if(playlist){playlist.classList.add('onePlaylistSmall');if(playlist.parentElement!==controls)controls.appendChild(playlist);const on=musicPlaylistHas(item.id);if(playlist.textContent!==(on?'✓':'+'))playlist.textContent=on?'✓':'+';playlist.classList.toggle('on',on);playlist.setAttribute('aria-pressed',String(on));playlist.setAttribute('aria-label',on?'Retirer de la playlist':'Ajouter à la playlist');playlist.title=on?'Retirer de la playlist':'Ajouter à la playlist';}}
+  body.querySelector('.actions .open')?.remove();
+ }}
+ window.oneRefreshCardActions=refresh;
+ const schedule=()=>{if(!queued){queued=true;requestAnimationFrame(refresh);}};
+ new MutationObserver(schedule).observe(feed,{childList:true,subtree:true});refresh();
+})();
+</script>
+
 </body>
 </html>
