@@ -163,3 +163,12 @@ Bouton contextuel dans cartes, lecteur vertical, lecteur vidéo et fiches chaîn
 
 ## 0.13.26
 Croix flottante pour quitter le plein écran ONE en portrait ou paysage, chat ouvert ou replié. Empêche la réouverture immédiate du mode paysage après fermeture.
+
+
+## 0.13.27 — Twitch stabilité palier 1
+- Corrige le calcul initial de largeur/hauteur lors de l’entrée en plein écran ONE sur mobile.
+- Recalcule le viewport après fullscreen, rotation et changements du chat, avec plusieurs passes courtes pour Android.
+- Force un rafraîchissement de layout sans recharger l’iframe Twitch : le live et le chat restent en place.
+- Conserve la croix de sortie, le chat escamotable, ONE IA et le comportement Twitch existant.
+
+- Catalogue TikTok externe : limite portée à 5 000 vidéos ; liste repliée par défaut avec bouton « Gérer le catalogue ».
