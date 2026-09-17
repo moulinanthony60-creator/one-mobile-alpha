@@ -23,6 +23,7 @@
  nav.onclick=e=>{const b=e.target.closest('[data-one-space]');if(b)show(b.dataset.oneSpace);};
  shell.onclick=e=>{const source=e.target.closest('[data-source]');if(source){leave();document.querySelector('#chips [data-filter="'+source.dataset.source+'"]').click();return;}const action=e.target.closest('[data-action]')?.dataset.action;if(action==='studio'){openOneStudio();}if(action==='settings')document.getElementById('profile').click();};
  document.getElementById('chips').addEventListener('click',e=>{if(e.target.closest('[data-filter]'))leave();},true);
+ document.getElementById('chips').addEventListener('click',e=>{if(e.target.closest('[data-filter]')?.dataset.filter!=='tiktok')return;if(!document.getElementById('vfeed').classList.contains('show'))openVerticalFeed('tiktok');});
  document.getElementById('savedNav').addEventListener('click',leave,true);
  document.getElementById('oneHome').addEventListener('click',e=>{e.stopImmediatePropagation();show('one');},true);
  document.getElementById('oneHome').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopImmediatePropagation();show('one');}},true);

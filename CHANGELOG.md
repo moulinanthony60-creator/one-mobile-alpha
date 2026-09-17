@@ -5,3 +5,7 @@ Basé sur 0.13.81, sauvegardé avant refonte. Navigation ONE / Together / Party,
 Cette version est un aperçu de la nouvelle interface, pas la livraison de la phase 1 complète. Together, Social et Party sont des écrans de préparation. Pas de salons, messagerie, synchronisation, caméra/micro ou mini-player persistant dans ce lot. Naviguer vers un nouvel espace arrête encore la lecture, comme auparavant. Le bouton Retour commence à gérer les nouveaux espaces mais reste à unifier avec les lecteurs.
 
 Lecteurs conservés, fonctionnement réel et rendu mobile à vérifier. Non déployé. Rester sur 0.13.81 pour la référence stable.
+
+0.14.01 : icônes vectorielles inspirées de la référence, fichiers SVG fournis. Ce ne sont pas des fichiers officiels extraits de la capture.
+
+0.14.02 : TikTok ouvre directement le feed vertical depuis les sources et la carte de l’accueil.
