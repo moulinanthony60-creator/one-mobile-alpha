@@ -27,3 +27,5 @@ Demande complémentaire : boutons Lives et Clips masqués même lorsque la loupe
 0.14.07 : YouTube deux colonnes ; onglets Pour toi et Abonnements (deux dernières vidéos disponibles par chaîne suivie) ; recommandations mélangées par session sans bloc abonnements en tête ; lanceur feed vertical masqué. Lecture TikTok inchangée.
 
 Flèche IA fixe en bas à gauche dans les sources ; positionnement concurrent supprimé aussi hors feed vertical.
+
+0.14.08 : résolution des vidéos du pool Abonnements par le lecteur ; boutons YouTube centrés ; actualisation conserve les sources et le sous-onglet YouTube sans superposition accueil ; bouton Actualiser dans TikTok ; Quitter TikTok ouvre accueil.
