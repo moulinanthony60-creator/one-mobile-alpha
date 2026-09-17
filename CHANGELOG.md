@@ -31,3 +31,4 @@ Flèche IA fixe en bas à gauche dans les sources ; positionnement concurrent su
 0.14.08 : résolution des vidéos du pool Abonnements par le lecteur ; boutons YouTube centrés ; actualisation conserve les sources et le sous-onglet YouTube sans superposition accueil ; bouton Actualiser dans TikTok ; Quitter TikTok ouvre accueil.
 
 0.14.09 : actualisation TikTok interne, commandes compactes à droite, déduplication linéaire et préconnexion TikTok, ouverture YouTube plein écran au clic.
+0.14.10 : vérification groupée des autorisations YouTube avant affichage, cache 30 minutes, vidéos inconnues masquées ; titre du lecteur retiré en plein écran, croix conservée.
