@@ -1,3 +1,7 @@
-# ONE 0.13.81
+# ONE 0.14.00 — premier lot visuel
 
-Volet IA compact lorsque le clavier réduit la hauteur : saisie et recherche côte à côte, résultats défilants. Sources compactes, domaine et date fournie (ou mention de son absence). Consignes de recherche : distinguer setup ancien et actuel, priorité marchands Amazon.fr, Darty, Fnac, Cdiscount pour référence exacte. Ce sont des consignes au service de recherche, pas une garantie de vérification indépendante. Lecture et recherche volet fermé conservées.
+Basé sur 0.13.81, sauvegardé avant refonte. Navigation ONE / Together / Party, sources TikTok / YouTube / Twitch / Musique / Plus, espace Social. Pour toi et Ciné masqués dans la navigation. Aucun faux contenu.
+
+Cette version est un aperçu de la nouvelle interface, pas la livraison de la phase 1 complète. Together, Social et Party sont des écrans de préparation. Pas de salons, messagerie, synchronisation, caméra/micro ou mini-player persistant dans ce lot. Naviguer vers un nouvel espace arrête encore la lecture, comme auparavant. Le bouton Retour commence à gérer les nouveaux espaces mais reste à unifier avec les lecteurs.
+
+Lecteurs conservés, fonctionnement réel et rendu mobile à vérifier. Non déployé. Rester sur 0.13.81 pour la référence stable.
