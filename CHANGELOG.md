@@ -23,3 +23,7 @@ Icônes ONE, Together et Party redessinées en couleurs violet/bleu avec détail
 0.14.06 : ouverture directe TikTok sans construire le catalogue intermédiaire ; feed visible avant activation. Diagnostic clic TikTok ajouté. Twitch filtres et Lives/Clips repliés derrière une loupe. Cartes YouTube harmonisées. Le chargement initial réseau TikTok reste nécessaire.
 
 Demande complémentaire : boutons Lives et Clips masqués même lorsque la loupe est ouverte.
+
+0.14.07 : YouTube deux colonnes ; onglets Pour toi et Abonnements (deux dernières vidéos disponibles par chaîne suivie) ; recommandations mélangées par session sans bloc abonnements en tête ; lanceur feed vertical masqué. Lecture TikTok inchangée.
+
+Flèche IA fixe en bas à gauche dans les sources ; positionnement concurrent supprimé aussi hors feed vertical.
