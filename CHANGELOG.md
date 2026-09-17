@@ -29,3 +29,5 @@ Demande complémentaire : boutons Lives et Clips masqués même lorsque la loupe
 Flèche IA fixe en bas à gauche dans les sources ; positionnement concurrent supprimé aussi hors feed vertical.
 
 0.14.08 : résolution des vidéos du pool Abonnements par le lecteur ; boutons YouTube centrés ; actualisation conserve les sources et le sous-onglet YouTube sans superposition accueil ; bouton Actualiser dans TikTok ; Quitter TikTok ouvre accueil.
+
+0.14.09 : actualisation TikTok interne, commandes compactes à droite, déduplication linéaire et préconnexion TikTok, ouverture YouTube plein écran au clic.
