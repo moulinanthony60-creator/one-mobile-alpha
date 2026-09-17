@@ -19,3 +19,7 @@ Sources : suppression du recentrage automatique et du glissement hérité, taill
 0.14.05 : correction du parent tabsRail resté en grille 28px / contenu / 28px hors accueil. Rangée des sources en pleine largeur dans tous les états.
 
 Icônes ONE, Together et Party redessinées en couleurs violet/bleu avec détails et relief léger.
+
+0.14.06 : ouverture directe TikTok sans construire le catalogue intermédiaire ; feed visible avant activation. Diagnostic clic TikTok ajouté. Twitch filtres et Lives/Clips repliés derrière une loupe. Cartes YouTube harmonisées. Le chargement initial réseau TikTok reste nécessaire.
+
+Demande complémentaire : boutons Lives et Clips masqués même lorsque la loupe est ouverte.
