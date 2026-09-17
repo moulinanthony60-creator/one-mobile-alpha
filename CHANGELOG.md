@@ -15,3 +15,7 @@ Lecteurs conservés, fonctionnement réel et rendu mobile à vérifier. Non dép
 0.14.04 : loupe et cloche dans l’en-tête. Recherche masquée au démarrage, ouverte/fermée par la loupe. Panneau notifications vide, sans fausses alertes ; services Social/Together encore non connectés.
 
 Sources : suppression du recentrage automatique et du glissement hérité, tailles fixes, observation des icônes limitée aux nouveaux écrans.
+
+0.14.05 : correction du parent tabsRail resté en grille 28px / contenu / 28px hors accueil. Rangée des sources en pleine largeur dans tous les états.
+
+Icônes ONE, Together et Party redessinées en couleurs violet/bleu avec détails et relief léger.
