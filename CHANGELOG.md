@@ -9,3 +9,5 @@ Lecteurs conservés, fonctionnement réel et rendu mobile à vérifier. Non dép
 0.14.01 : icônes vectorielles inspirées de la référence, fichiers SVG fournis. Ce ne sont pas des fichiers officiels extraits de la capture.
 
 0.14.02 : TikTok ouvre directement le feed vertical depuis les sources et la carte de l’accueil.
+
+0.14.03 : sources visibles en haut comme la référence, barre basse Accueil / Créer / ONE IA / Abonnements / Réglages. Social accessible depuis accueil. Ciné reste absent selon roadmap.
