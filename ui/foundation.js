@@ -1,5 +1,20 @@
 (()=>{
  const header=document.querySelector('.topbar'),app=document.querySelector('.app');
+
+ const brandrow=header.querySelector('.brandrow'),searchBox=header.querySelector('.search'),searchInput=document.getElementById('search');
+ const tools=document.createElement('div');tools.className='oneHeaderTools';tools.innerHTML='<button type="button" id="oneSearchToggle" aria-label="Rechercher" aria-expanded="false" aria-controls="oneHeaderSearch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/></svg></button><button type="button" id="oneNotificationsToggle" aria-label="Notifications" aria-expanded="false" aria-controls="oneNotifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h14l-2-3V9a5 5 0 0 0-10 0v5Zm5 3h4M12 2v2"/></svg></button>';
+ brandrow.insertBefore(tools,document.getElementById('accountBtn'));searchBox.id='oneHeaderSearch';searchBox.hidden=true;
+ const notices=document.createElement('section');notices.id='oneNotifications';notices.hidden=true;notices.setAttribute('aria-label','Notifications');notices.innerHTML='<div class="oneNoticeHead"><b>Notifications</b><button type="button" aria-label="Fermer les notifications">×</button></div><p>Aucune notification pour le moment.</p><small>Les invitations et l’activité Social apparaîtront ici lorsque ces services seront disponibles.</small>';header.appendChild(notices);
+ const searchToggle=document.getElementById('oneSearchToggle'),noticeToggle=document.getElementById('oneNotificationsToggle');
+ function closeNotices(){notices.hidden=true;noticeToggle.setAttribute('aria-expanded','false');}
+ function setSearch(open){searchBox.hidden=!open;header.classList.toggle('oneSearchOpen',open);searchToggle.setAttribute('aria-expanded',String(open));if(open){closeNotices();searchInput.focus({preventScroll:true});}else searchInput.blur();}
+ searchToggle.onclick=()=>setSearch(searchBox.hidden);
+ noticeToggle.onclick=()=>{const open=notices.hidden;setSearch(false);notices.hidden=!open;noticeToggle.setAttribute('aria-expanded',String(open));};notices.querySelector('button').onclick=()=>{closeNotices();noticeToggle.focus();};
+ header.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!notices.hidden){closeNotices();noticeToggle.focus();}else if(!searchBox.hidden){setSearch(false);searchToggle.focus();}}});
+ document.addEventListener('click',e=>{if(!header.contains(e.target))closeNotices();});
+ // Search from the native home uses the existing all-source search flow.
+ document.getElementById('searchBtn').addEventListener('click',()=>{if(document.body.classList.contains('oneShellOpen')){leave();state.filter='all';state.mode=null;}},true);
+
  const nav=document.createElement('nav');nav.className='oneMainNav';nav.setAttribute('aria-label','Espaces ONE');
  nav.innerHTML='<button data-one-space="one"><span class="symbol">▣</span><span><b>ONE</b><small>Vidéos & créations</small></span></button><button data-one-space="together"><span class="symbol">♧</span><span><b>Together</b><small>Regarder ensemble</small></span></button><button data-one-space="party"><span class="symbol">✦</span><span><b>Party</b><small>Jouer ensemble</small></span></button>';
  header.querySelector('.brandrow').after(nav);

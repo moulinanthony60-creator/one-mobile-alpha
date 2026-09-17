@@ -11,3 +11,7 @@ Lecteurs conservés, fonctionnement réel et rendu mobile à vérifier. Non dép
 0.14.02 : TikTok ouvre directement le feed vertical depuis les sources et la carte de l’accueil.
 
 0.14.03 : sources visibles en haut comme la référence, barre basse Accueil / Créer / ONE IA / Abonnements / Réglages. Social accessible depuis accueil. Ciné reste absent selon roadmap.
+
+0.14.04 : loupe et cloche dans l’en-tête. Recherche masquée au démarrage, ouverte/fermée par la loupe. Panneau notifications vide, sans fausses alertes ; services Social/Together encore non connectés.
+
+Sources : suppression du recentrage automatique et du glissement hérité, tailles fixes, observation des icônes limitée aux nouveaux écrans.
