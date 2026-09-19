@@ -40,9 +40,8 @@ export function relaxGrip(g){
  resetGrip(g);
 }
 export function pinchCards(g,frame){
- if(!g)return;const at=frame.knuckle.clone().addScaledVector(frame.y,.018);
- for(const [name,c] of Object.entries(g.chains)){const i=['Index','Middle','Ring','Pinky'].indexOf(name);const target=at.clone().addScaledVector(frame.x,name==='Thumb'?.006:-i*.016).addScaledVector(frame.z,name==='Thumb'?-.012:.012);solve(g,c,target);}
- return at;
+ if(!g)return;graspHandle(g,frame.knuckle,frame.rotation||new T.Quaternion(),1,.48);
+ return frame.knuckle.clone().addScaledVector(frame.y,.018);
 }
 export function graspHandle(g,origin,rotation,scale=1,strength=1){
  if(!g)return;resetGrip(g);
@@ -55,14 +54,21 @@ export function graspHandle(g,origin,rotation,scale=1,strength=1){
    const inverse=b.matrixWorld.clone().invert();
    const start=point(b),next=i+1<c.bones.length?point(c.bones[i+1]):tip(c);
    const direction=next.clone().applyMatrix4(inverse).normalize();
-   const toward=(thumb?point(g.chains.Index.bones[0]):wrist).clone().sub(start);
+   const toward=thumb?point(g.chains.Index.bones[0]).sub(start):palm.z.clone();
    // Move toward the inside of the palm, preserving this finger's lane.
-   const target=start.clone().add(toward).addScaledVector(palm.z,thumb?0:.08);
+   const target=start.clone().add(toward);
    const inward=target.applyMatrix4(inverse).normalize();
    const axis=new T.Vector3().crossVectors(direction,inward);
    return axis.lengthSq()>1e-8?axis.normalize():new T.Vector3(1,0,0);
   });
-  c.bones.forEach((b,i)=>{const angles=thumb?[.45,.70,.35]:name==='Index'?[.95,1.15,.70]:[1.15,1.35,.85];b.quaternion.copy(c.rest[i]).multiply(new T.Quaternion().setFromAxisAngle(axes[i],(angles[i]||.6)*T.MathUtils.clamp(strength,0,1)));});
+  c.bones.forEach((b,i)=>{const angles=thumb?[.30,.50,.25]:name==='Index'?[1.15,1.35,.75]:[1.35,1.45,.85];b.quaternion.copy(c.rest[i]).multiply(new T.Quaternion().setFromAxisAngle(axes[i],(angles[i]||.6)*T.MathUtils.clamp(strength,0,1)));});
  }
  g.root.updateMatrixWorld(true);
+}
+
+export function handleFrame(g){
+ const frame=palmFrame(g),index=point(g.chains.Index.bones[0]),pinky=point(g.chains.Pinky.bones[0]),middle=g.chains.Middle||g.chains.Index;
+ const reach=point(middle.bones[0]).distanceTo(point(middle.bones[1]));
+ frame.center=index.clone().lerp(pinky,.5).addScaledVector(frame.y,reach*.20).addScaledVector(frame.z,reach*.48);
+ return frame;
 }

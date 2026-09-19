@@ -102,3 +102,6 @@
 
 /* Card count follows the table in front of each player. */
 #onePartyGame .bluff-person>small{position:absolute;top:calc(50% + var(--count-y, 65px));bottom:auto;left:calc(50% + var(--count-x, 0px));transform:translateX(-50%);width:max-content;max-width:120px;padding:3px 7px;border-radius:8px;background:#171016d9;color:#ffe4af;font-size:11px;line-height:1.35;white-space:nowrap;pointer-events:none}
+
+#onePartyGame .bluff-transition-frame{position:absolute;inset:0;width:100%;height:100%;z-index:7;pointer-events:none}
+#onePartyGame .bluff-transitioning .bluff-hand,#onePartyGame .bluff-transitioning .bluff-person,#onePartyGame .bluff-transitioning .bluff-loading{visibility:hidden}
