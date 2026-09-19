@@ -83,3 +83,12 @@
 
 .bluff-flying-card{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#ecdbb7;color:#281d17;border:2px solid #c7ab76;border-radius:6px;box-shadow:0 10px 22px #0008}.bluff-flying-card strong{font-size:30px}.bluff-flying-card span{position:absolute;left:6px;top:5px}
 #onePartyGame .bluff-scene .bluff-hand{bottom:12px}
+/* The HTML cards remain the keyboard and loading fallback for the 3D hand. */
+#onePartyGame .bluff-model-ready .bluff-hand{opacity:0;pointer-events:none}
+#onePartyGame .bluff-model-ready .bluff-hand .bluff-card{pointer-events:none}
+#onePartyGame .bluff-model-ready .bluff-hand:focus-within{opacity:1;pointer-events:auto}
+#onePartyGame .bluff-model-ready .bluff-hand:focus-within .bluff-card{pointer-events:auto}
+#onePartyGame .bluff-model-ready .bluff-look{bottom:8px}
+#onePartyGame .bluff-loading{position:absolute;top:45%;width:100%;text-align:center;color:#e4c796;z-index:3}
+#onePartyGame .bluff-model-failed .bluff-loading{top:48%;padding:20px;box-sizing:border-box}
+#onePartyGame .bluff-scene[data-model-error]:before{content:attr(data-model-error);position:absolute;top:40%;padding:15px;z-index:8;background:#24192eee;color:#fff}

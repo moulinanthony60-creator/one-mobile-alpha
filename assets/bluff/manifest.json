@@ -1,0 +1,80 @@
+{
+  "version": "0.14.59",
+  "originalAssets": true,
+  "coordinateSystem": "glTF Y-up",
+  "characterTimeline": {
+    "idle": [
+      0,
+      2
+    ],
+    "throw": [
+      2,
+      3.333
+    ],
+    "revolver": [
+      3.333,
+      6.533
+    ],
+    "eliminated": [
+      6.667,
+      8
+    ]
+  },
+  "assets": [
+    {
+      "file": "corbeau.glb",
+      "bytes": 957476,
+      "meshes": 1,
+      "joints": 9,
+      "animations": [
+        "Personnage"
+      ]
+    },
+    {
+      "file": "croupier.glb",
+      "bytes": 1041108,
+      "meshes": 1,
+      "joints": 9,
+      "animations": [
+        "Personnage"
+      ]
+    },
+    {
+      "file": "main.glb",
+      "bytes": 552936,
+      "meshes": 39,
+      "joints": 16,
+      "animations": [
+        "Carte_1",
+        "Carte_2",
+        "Carte_3",
+        "Carte_4",
+        "Carte_5",
+        "ONE_Main_Gauche"
+      ]
+    },
+    {
+      "file": "renard.glb",
+      "bytes": 1014840,
+      "meshes": 1,
+      "joints": 9,
+      "animations": [
+        "Personnage"
+      ]
+    },
+    {
+      "file": "revolver.glb",
+      "bytes": 52516,
+      "meshes": 14,
+      "joints": 0,
+      "animations": []
+    },
+    {
+      "file": "salon.glb",
+      "bytes": 251912,
+      "meshes": 79,
+      "joints": 0,
+      "animations": []
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 (()=>{
  const API='https://one-comments-api.moulinanthony60.workers.dev',panel=document.createElement('section');panel.id='onePartyGame';let room=null,data=null,busy=false,loading=false,version=0;
  const colors={red:'Rouge',blue:'Bleu',green:'Vert',yellow:'Jaune',wild:'Joker'},symbols={skip:'Passe',reverse:'Sens inverse',draw2:'+2',wild:'Joker'};
- const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-game.css?v=01458';document.head.append(css);
+ const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-game.css?v=01459';document.head.append(css);
  const el=(tag,text)=>{const n=document.createElement(tag);if(text)n.textContent=text;return n;},btn=(text,fn)=>{const b=el('button',text);b.type='button';b.dataset.gameControl='true';b.onclick=fn;return b;};const status=el('p'),body=el('div');status.setAttribute('role','status');panel.append(el('h2','ONE Couleurs'),status,body);
  function visible(){return !document.getElementById('oneFoundation')?.hidden&&document.querySelector('[data-one-space="party"]')?.getAttribute('aria-current')==='page';}
  function mount(){if(visible()){const shell=document.getElementById('oneFoundation');if(panel.parentNode!==shell)shell.replaceChildren(panel);if(!data)render();}}window.onePartyGameVisible=visible;
