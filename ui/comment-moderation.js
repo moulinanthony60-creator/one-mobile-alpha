@@ -1,0 +1,26 @@
+(()=>{
+ const API='https://one-comments-api.moulinanthony60.workers.dev';
+ const labels={spam:'Publicité ou spam',abuse:'Insultes ou harcèlement',hate:'Contenu haineux ou violent',other:'Autre contenu inapproprié'};
+ const style=document.createElement('style');style.textContent='.oneModDialog{box-sizing:border-box;width:min(94vw,520px);max-height:85dvh;overflow:auto;background:#121522;color:#f4efff;border:1px solid #65527e;border-radius:18px;padding:18px}.oneModDialog::backdrop{background:#000a}.oneModDialog header{display:flex;align-items:center;gap:10px}.oneModDialog h2{font-size:18px;flex:1}.oneModDialog button,.oneModDialog select{font:inherit;background:#302342;color:#fff;border:1px solid #79628e;border-radius:10px;padding:10px;min-height:42px}.oneModDialog select{width:100%;margin:12px 0}.oneModDialog article{padding:12px 0;border-top:1px solid #393044}.oneModDialog p{white-space:pre-wrap;overflow-wrap:anywhere}.oneModActions{display:flex;flex-wrap:wrap;gap:8px}.oneModDialog button:disabled{opacity:.5}.oneModDialog small{color:#c3b9d2}.oneModDialog :focus-visible{outline:2px solid #caa5ff}';document.head.append(style);
+ function el(tag,text){const n=document.createElement(tag);if(text)n.textContent=text;return n;}
+ function button(text,fn){const b=el('button',text);b.type='button';b.onclick=fn;return b;}
+ function dialog(title){const d=el('dialog');d.className='oneModDialog';const head=el('header'),h=el('h2',title);h.id='oneModTitle'+Math.random().toString(36).slice(2);d.setAttribute('aria-labelledby',h.id);const close=button('×',()=>d.close());close.setAttribute('aria-label','Fermer');head.append(h,close);d.append(head);(document.fullscreenElement||document.body).append(d);d.addEventListener('close',()=>d.remove());return d;}
+ async function api(path,method='GET'){const token=oneAccountToken();const r=await fetch(API+path,{method,headers:token?{Authorization:'Bearer '+token}:{}});const data=await r.json().catch(()=>({}));if(!r.ok||!data.ok)throw Error(data.error||'Service momentanément indisponible.');if(token!==oneAccountToken())throw Error('Le compte a changé. Rouvre ce panneau.');return data;}
+ window.oneReportComment=(id,trigger)=>{
+  const d=dialog('Signaler un commentaire'),label=el('label','Quel est le problème ?'),select=el('select'),status=el('p');status.setAttribute('role','status');select.id='oneReportReason';label.htmlFor=select.id;
+  for(const [key,text] of Object.entries(labels)){const o=el('option',text);o.value=key;select.append(o);}
+  const send=button('Envoyer le signalement',async()=>{send.disabled=true;status.textContent='Envoi…';try{const data=await api('/comments/'+encodeURIComponent(id)+'/report/'+select.value,'POST');status.textContent=data.alreadyReported?'Tu as déjà signalé ce commentaire.':'Signalement transmis à la modération. Merci.';if(trigger.isConnected){trigger.textContent='Signalé';trigger.disabled=true;}}catch(e){status.textContent=e.message;send.disabled=false;}});
+  d.append(label,select,send,status);d.showModal();
+ };
+ const entry=button('Modérer les commentaires',openModeration);entry.hidden=true;entry.id='oneModerationEntry';document.getElementById('oneAuthLoggedIn')?.append(entry);
+ let revision=0;
+ async function refreshAccess(){const own=++revision;entry.hidden=true;if(!oneAccountToken())return;try{const data=await api('/moderation/access');if(own===revision)entry.hidden=!data.moderator;}catch{}}
+ window.addEventListener('one-account-changed',()=>{document.querySelectorAll('.oneModDialog').forEach(d=>d.close());refreshAccess();});refreshAccess();
+ function openModeration(){const d=dialog('Modération ONE'),status=el('p'),list=el('div');status.setAttribute('role','status');const refresh=button('Actualiser',load);d.append(refresh,status,list);d.showModal();let generation=0;
+  async function load(){const own=++generation;status.textContent='Chargement…';list.replaceChildren();try{const data=await api('/moderation/reports');if(!d.isConnected||own!==generation)return;status.textContent=data.reports.length?'Signalements en attente · 100 commentaires maximum':'Aucun signalement en attente.';for(const r of data.reports){const card=el('article'),meta=el('small',r.count+' signalement(s) · '+String(r.reasons).split(',').map(x=>labels[x]||x).join(', ')),actions=el('div');actions.className='oneModActions';card.append(el('b',r.author),el('p',r.text),meta,el('p','Vidéo : '+r.video));
+    async function act(path,method,confirmation){if(!confirm(confirmation))return;const buttons=[...actions.querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);try{await api(path,method);if(d.isConnected)await load();}catch(e){if(d.isConnected){status.textContent=e.message;buttons.forEach(b=>b.disabled=false);}}}
+    actions.append(button('Supprimer le commentaire',()=>act('/comments/'+encodeURIComponent(r.id),'DELETE','Supprimer définitivement ce commentaire signalé ?')),button('Classer sans supprimer',()=>act('/moderation/reports/'+encodeURIComponent(r.id)+'/dismiss','POST','Classer les signalements de ce commentaire sans le supprimer ?')));card.append(actions);list.append(card);}
+   }catch(e){if(d.isConnected&&own===generation)status.textContent=e.message;}}
+  load();
+ }
+})();
