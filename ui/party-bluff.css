@@ -97,3 +97,5 @@
 #onePartyGame .bluff-scene:has(.bluff-shot-result) .bluff-look{left:12px;right:auto;bottom:12px;max-width:44%;text-align:left}
 @media(max-width:480px){#onePartyGame .bluff-scene .bluff-shot-result{right:8px;bottom:8px;padding:6px 8px;font-size:10px}#onePartyGame .bluff-scene .bluff-shot-result small{font-size:9px}}
 #onePartyGame.gameFullscreen .bluff-reveal:not([open]){max-width:min(220px,42%)}
+
+.bluff-person.bluff-camera-hidden .cg-face{visibility:hidden!important;pointer-events:none!important}
