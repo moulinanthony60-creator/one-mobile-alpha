@@ -7,7 +7,7 @@ export function createGrip(root,side='Left',firstPerson=false){
  if(!wrist)return null;
  const bind=new Map();root.traverse(o=>{if(o.isSkinnedMesh) o.skeleton.bones.forEach((b,i)=>bind.set(b,o.skeleton.boneInverses[i].clone().invert()));});
  const restOf=b=>{const m=bind.get(b),parent=bind.get(b.parent);if(!m||!parent)return b.quaternion.clone();const local=parent.clone().invert().multiply(m);const q=new T.Quaternion();local.decompose(new T.Vector3(),q,new T.Vector3());return q;};
- const chains={};for(const name of ['Index','Middle','Ring','Pinky','Thumb']){const bones=[1,2,3].map(n=>get(name,n)).filter(Boolean);if(!bones.length)continue;const last=bones.at(-1),end=get(name,4);const length=end?end.position.length():(bones.at(-1).position.length()||1)*.75;chains[name]={bones,rest:bones.map(restOf),last,end,length};}
+ const chains={};for(const name of ['Index','Middle','Ring','Pinky','Thumb']){const bones=[1,2,3].map(n=>get(name,n)).filter(Boolean);if(!bones.length)continue;const last=bones.at(-1),end=get(name,4);const length=end?end.position.length():(bones.at(-1).position.length()||1)*.75;chains[name]={bones,rest:bones.map(restOf),last,end,length,tipOffset:last.position.clone().applyQuaternion(restOf(last).invert()).normalize().multiplyScalar(length)};}
  return {root,wrist,chains,firstPerson};
 }
 export function resetGrip(g){if(!g)return;for(const c of Object.values(g.chains))c.bones.forEach((b,i)=>b.quaternion.copy(c.rest[i]));g.root.updateMatrixWorld(true);}
@@ -16,7 +16,7 @@ export function palmFrame(g){
  const y=middle.clone().sub(w).normalize(),x=index.clone().sub(pinky).normalize(),z=new T.Vector3().crossVectors(x,y).normalize();x.crossVectors(y,z).normalize();
  return {origin:w.clone().lerp(middle,.68),knuckle:middle,x,y,z,rotation:new T.Quaternion().setFromRotationMatrix(new T.Matrix4().makeBasis(x,y,z))};
 }
-function tip(c){return c.end?point(c.end):c.last.localToWorld(new T.Vector3(0,c.length,0));}
+function tip(c){return c.end?point(c.end):c.last.localToWorld(c.tipOffset.clone());}
 function solve(g,c,target){
  // Solve in the joint's local space: world quaternions cannot represent the
  // reflected transform used by the player's right hand.
@@ -44,7 +44,25 @@ export function pinchCards(g,frame){
  for(const [name,c] of Object.entries(g.chains)){const i=['Index','Middle','Ring','Pinky'].indexOf(name);const target=at.clone().addScaledVector(frame.x,name==='Thumb'?.006:-i*.016).addScaledVector(frame.z,name==='Thumb'?-.012:.012);solve(g,c,target);}
  return at;
 }
-export function graspHandle(g,origin,rotation,scale=1){
- if(!g)return;if(g.firstPerson){const palm=palmFrame(g);for(const [name,c] of Object.entries(g.chains)){const base=point(c.bones[0]);const target=palm.origin.clone().addScaledVector(palm.x,base.clone().sub(palm.origin).dot(palm.x)).addScaledVector(palm.y,.035).addScaledVector(palm.z,.025);if(name==='Thumb')target.copy(point(g.chains.Index.bones[0])).lerp(palm.origin,.3);solve(g,c,target);}return;}const x=new T.Vector3(1,0,0).applyQuaternion(rotation),y=new T.Vector3(0,1,0).applyQuaternion(rotation),z=new T.Vector3(0,0,1).applyQuaternion(rotation);
- for(const [name,c] of Object.entries(g.chains)){const i=['Index','Middle','Ring','Pinky'].indexOf(name);const target=origin.clone().addScaledVector(y,(name==='Thumb'?.025:.055-i*.038)*scale).addScaledVector(x,(name==='Thumb'?-.043:.043)*scale).addScaledVector(z,-.018*scale);solve(g,c,target);}
+export function graspHandle(g,origin,rotation,scale=1,strength=1){
+ if(!g)return;resetGrip(g);
+ const palm=palmFrame(g),wrist=point(g.wrist);
+ // One flexion plane per finger, derived in bind pose. No shared fingertip
+ // target and no unrestricted sideways rotation of the joints.
+ for(const [name,c] of Object.entries(g.chains)){
+  const thumb=name==='Thumb';
+  const axes=c.bones.map((b,i)=>{
+   const inverse=b.matrixWorld.clone().invert();
+   const start=point(b),next=i+1<c.bones.length?point(c.bones[i+1]):tip(c);
+   const direction=next.clone().applyMatrix4(inverse).normalize();
+   const toward=(thumb?point(g.chains.Index.bones[0]):wrist).clone().sub(start);
+   // Move toward the inside of the palm, preserving this finger's lane.
+   const target=start.clone().add(toward).addScaledVector(palm.z,thumb?0:.08);
+   const inward=target.applyMatrix4(inverse).normalize();
+   const axis=new T.Vector3().crossVectors(direction,inward);
+   return axis.lengthSq()>1e-8?axis.normalize():new T.Vector3(1,0,0);
+  });
+  c.bones.forEach((b,i)=>{const angles=thumb?[.45,.70,.35]:name==='Index'?[.95,1.15,.70]:[1.15,1.35,.85];b.quaternion.copy(c.rest[i]).multiply(new T.Quaternion().setFromAxisAngle(axes[i],(angles[i]||.6)*T.MathUtils.clamp(strength,0,1)));});
+ }
+ g.root.updateMatrixWorld(true);
 }

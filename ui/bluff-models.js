@@ -1,4 +1,4 @@
-import {createGrip,resetGrip,palmFrame,pinchCards,graspHandle,relaxGrip} from './hand-grip.js?v=01470';
+import {createGrip,resetGrip,palmFrame,pinchCards,graspHandle,relaxGrip} from './hand-grip.js?v=01471';
 import * as T from './vendor/three.module.js';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {clone} from './vendor/SkeletonUtils.js';
@@ -78,7 +78,7 @@ export async function mount(host,players,pending,game,slots,isCancelled,eventSta
   right.position.set(.8+reach*.05,.38+lift*.67-tableFocus*.25,2.05-reach+lift*.28);right.rotation.set(lift*.35, -lift*.12, lift*.10);right.updateMatrixWorld(true);
   const restPosition=new T.Vector3(.85,1.01,1.02),restRotation=new T.Quaternion().setFromEuler(new T.Euler(0,0,Math.PI/2));
   if(grasp>0){const heldRotation=right.quaternion.clone().multiply(pistolRotation),heldPosition=(preciseOwnRight?palmFrame(preciseOwnRight).origin:palmLocal.clone().applyMatrix4(right.matrixWorld)).sub(pistolGrip.clone().multiplyScalar(.85).applyQuaternion(heldRotation));revolver.position.copy(restPosition).lerp(heldPosition,grasp);revolver.quaternion.copy(restRotation).slerp(heldRotation,grasp);}else{revolver.position.copy(restPosition);revolver.quaternion.copy(restRotation);}
-  if(preciseOwnRight&&grasp<=.5){relaxGrip(preciseOwnRight);}if(preciseOwnRight&&grasp>.5){resetGrip(preciseOwnRight);const center=pistolGrip.clone().multiplyScalar(.85).applyQuaternion(revolver.quaternion).add(revolver.position);graspHandle(preciseOwnRight,center,revolver.quaternion,.85);}
+  if(preciseOwnRight&&grasp<=0){relaxGrip(preciseOwnRight);}if(preciseOwnRight&&grasp>0){resetGrip(preciseOwnRight);const center=pistolGrip.clone().multiplyScalar(.85).applyQuaternion(revolver.quaternion).add(revolver.position);graspHandle(preciseOwnRight,center,revolver.quaternion,.85,grasp);}
   window.ONEBluffSound?.effect(game,reduced?1:shotAge/3.2);
   const fired=shot&&game.reveal.eliminated&&shotAge>1.76&&shotAge<2.0;flash.intensity=fired&&!reduced?8*(1-(shotAge-1.76)/.24):0;flash.position.copy(victim?new T.Vector3(victim.model.position.x,1.8,victim.model.position.z+.2):revolver.position);if(fired&&!reduced)camera.rotateX(Math.sin((shotAge-1.76)/.24*Math.PI)*.025);
   revolver.visible=!proofActive;hand.visible=!proofActive&&(!mine?.eliminated||shot);right.visible=hand.visible;if(mine?.eliminated&&shot){hand.position.y-=collapse*1.2;right.position.y-=collapse*1.2;}own.forEach(c=>{if(mine?.eliminated)c.visible=false;});own.forEach(c=>{if(proofActive)c.visible=false;});
