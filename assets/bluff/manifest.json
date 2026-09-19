@@ -1,6 +1,6 @@
 {
-  "version": "0.14.62",
-  "originalAssets": true,
+  "version": "0.14.63",
+  "originalAssets": false,
   "coordinateSystem": "glTF Y-up",
   "characterTimeline": {
     "idle": [
@@ -22,8 +22,17 @@
   },
   "assets": [
     {
+      "file": "chasseur.glb",
+      "bytes": 4324216,
+      "meshes": 1,
+      "joints": 9,
+      "animations": [
+        "Personnage"
+      ]
+    },
+    {
       "file": "corbeau.glb",
-      "bytes": 957476,
+      "bytes": 4118220,
       "meshes": 1,
       "joints": 9,
       "animations": [
@@ -32,17 +41,17 @@
     },
     {
       "file": "croupier.glb",
-      "bytes": 1041108,
-      "meshes": 1,
-      "joints": 9,
+      "bytes": 16536000,
+      "meshes": 3,
+      "joints": 63,
       "animations": [
-        "Personnage"
+        "Animation"
       ]
     },
     {
       "file": "main.glb",
-      "bytes": 552936,
-      "meshes": 39,
+      "bytes": 1402696,
+      "meshes": 29,
       "joints": 16,
       "animations": [
         "Carte_1",
@@ -55,7 +64,7 @@
     },
     {
       "file": "renard.glb",
-      "bytes": 1014840,
+      "bytes": 4550612,
       "meshes": 1,
       "joints": 9,
       "animations": [
@@ -64,8 +73,8 @@
     },
     {
       "file": "revolver.glb",
-      "bytes": 52516,
-      "meshes": 14,
+      "bytes": 191712,
+      "meshes": 46,
       "joints": 0,
       "animations": []
     },
@@ -76,5 +85,9 @@
       "joints": 0,
       "animations": []
     }
-  ]
+  ],
+  "characterSources": {
+    "croupier": "Zombiegirl W Kurniawan — modèle Mixamo fourni par Anthony, pose et animations adaptées pour ONE",
+    "others": "Modèles procéduraux ONE 0.14.62"
+  }
 }
