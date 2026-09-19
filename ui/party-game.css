@@ -48,3 +48,7 @@
 body:has(#oneCallBar.gameDocked:not([hidden])) #onePartyGame.gameFullscreen{padding-bottom:env(safe-area-inset-bottom)}
 
 #onePartyGame .cg-webgl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}#onePartyGame .cg-real3d .cg-surface{display:none}#onePartyGame .cg-tools{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px}
+#onePartyGame .bluff-proof{position:absolute;left:10%;right:10%;bottom:12px;padding:8px 12px;background:#171016ed;border:1px solid #d9b573;border-radius:9px;color:#ffe4af;text-align:center;font-size:12px;z-index:6;pointer-events:none}#onePartyGame .bluff-proof[hidden]{display:none}#onePartyGame .bluff-show-proof .bluff-person,#onePartyGame .bluff-show-proof .bluff-look,#onePartyGame .bluff-show-proof .bluff-shot-result{visibility:hidden}
+
+#onePartyGame .cg-end-actions{display:flex;justify-content:center;gap:12px;padding:18px;flex-wrap:wrap}
+#onePartyGame .bluff-show-proof .bluff-target{visibility:hidden}
