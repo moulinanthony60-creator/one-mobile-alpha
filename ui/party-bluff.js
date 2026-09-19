@@ -1,5 +1,5 @@
 (()=>{
- const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-bluff.css?v=01455';document.head.append(css);
+ const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-bluff.css?v=01456';document.head.append(css);
  const ranks={A:'As',K:'Roi',Q:'Dame',J:'Joker'},symbols={A:'♠',K:'♚',Q:'♛',J:'✦'};let selection=new Set(),selectionKey='';
  window.ONEBluffRules='2 à 4 joueurs. Chaque manche distribue cinq cartes et impose As, Roi ou Dame. Pose une à trois cartes face cachée en prétendant qu’elles correspondent : les jokers sont toujours vrais. Le suivant joue à son tour ou dit « Tu mens ! » pour révéler uniquement la dernière annonce. Si elle est fausse, son auteur reçoit une erreur ; sinon, l’accusateur. Trois erreurs éliminent un joueur. Après chaque accusation, nouvelle distribution. Une main vide oblige à contester à son prochain tour. Le dernier joueur en lice gagne. Un départ du salon interrompt la partie.';
  window.renderONEBluff=({g,body,busy,command,el,btn})=>{
