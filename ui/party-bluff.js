@@ -1,5 +1,5 @@
 (()=>{
- const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-bluff.css?v=01469';document.head.append(css);
+ const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-bluff.css?v=01470';document.head.append(css);
  const ranks={A:'As',K:'Roi',Q:'Dame',J:'Joker'},symbols={A:'♠',K:'♚',Q:'♛',J:'✦'};let selection=new Set(),selectionKey='';
  window.ONEBluffRules='2 à 4 joueurs. Chaque manche distribue cinq cartes et impose As, Roi ou Dame. Pose une à trois cartes face cachée en prétendant qu’elles correspondent : les jokers sont toujours vrais. Le suivant joue à son tour ou dit « Tu mens ! » pour révéler uniquement la dernière annonce. Si elle est fausse, son auteur tente le barillet ; sinon, l’accusateur. Chaque joueur a six chambres dont une perdante, choisie au début par le serveur. Chaque tentative avance le barillet sans le remélanger. Le tir perdant élimine le personnage. Après chaque accusation, nouvelle distribution. Une main vide oblige à contester à son prochain tour. Le dernier joueur en lice gagne. Un départ du salon interrompt la partie.';
  window.renderONEBluff=({g,body,busy,command,el,btn})=>{

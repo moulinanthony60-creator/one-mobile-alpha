@@ -99,3 +99,6 @@
 #onePartyGame.gameFullscreen .bluff-reveal:not([open]){max-width:min(220px,42%)}
 
 .bluff-person.bluff-camera-hidden .cg-face{visibility:hidden!important;pointer-events:none!important}
+
+/* Card count follows the table in front of each player. */
+#onePartyGame .bluff-person>small{position:absolute;top:calc(50% + var(--count-y, 65px));bottom:auto;left:calc(50% + var(--count-x, 0px));transform:translateX(-50%);width:max-content;max-width:120px;padding:3px 7px;border-radius:8px;background:#171016d9;color:#ffe4af;font-size:11px;line-height:1.35;white-space:nowrap;pointer-events:none}
