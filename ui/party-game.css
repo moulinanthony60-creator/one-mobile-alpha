@@ -52,3 +52,7 @@ body:has(#oneCallBar.gameDocked:not([hidden])) #onePartyGame.gameFullscreen{padd
 
 #onePartyGame .cg-end-actions{display:flex;justify-content:center;gap:12px;padding:18px;flex-wrap:wrap}
 #onePartyGame .bluff-show-proof .bluff-target{visibility:hidden}
+
+#onePartyGame .bluff-blood-lens{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;overflow:hidden;border-radius:inherit}#onePartyGame .bluff-blood-lens svg{width:100%;height:100%;display:block}
+
+#onePartyGame .cg-avatar-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:100%;max-width:680px;margin:12px auto}#onePartyGame .cg-avatar{padding:0 0 10px;overflow:hidden;background:#18101b;border:2px solid #443547;border-radius:12px;color:#f4e5cf}#onePartyGame .cg-avatar[aria-pressed="true"]{border-color:#e2b968;box-shadow:0 0 0 2px #b984392f}#onePartyGame .cg-avatar img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;margin-bottom:8px}#onePartyGame .cg-avatar b{font-size:12px}@media(max-width:500px){#onePartyGame .cg-avatar-picker{grid-template-columns:repeat(2,minmax(0,1fr));max-width:350px}}
