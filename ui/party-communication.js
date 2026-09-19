@@ -7,7 +7,7 @@
  const bar=el('div');bar.id='oneCallBar';bar.hidden=true;const callStatus=el('span'),mic=btn('Couper le micro',toggleMic),cam=btn('Activer la caméra',toggleCam),leave=btn('Quitter l’appel',()=>stopCall());bar.append(callStatus,mic,cam,leave);document.body.append(bar);
  async function request(path,method='GET',body,token=oneAccountToken()){const r=await fetch(API+path,{method,headers:{Authorization:'Bearer '+token,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(12000)});const data=await r.json().catch(()=>({}));if(!r.ok||!data.ok)throw Object.assign(Error(data.error||'Communication momentanément indisponible.'),{status:r.status});if(token!==oneAccountToken())throw Error('Compte changé.');return data;}
  const chatPath=()=>'/party/chat?room='+encodeURIComponent(room.id);
- function mount(){if(room&&!document.getElementById('oneFoundation')?.hidden&&document.querySelector('[data-one-space="party"]')?.getAttribute('aria-current')==='page')document.getElementById('oneFoundation').append(chat);}
+ function mount(){if(room&&window.oneSalonIsOpen?.())window.oneSalonContainer.append(chat);}
  async function loadChat(){if(!room||chatBusy||document.hidden)return;const id=room.id;chatBusy=true;try{const data=await request(chatPath());if(room?.id!==id)return;const nearEnd=log.scrollHeight-log.scrollTop-log.clientHeight<50;const key=JSON.stringify(data.messages);if(log.dataset.messages!==key){log.dataset.messages=key;log.replaceChildren();for(const m of data.messages){const a=el('article');a.append(el('b',m.author),el('p',m.text));log.append(a);}if(nearEnd)log.scrollTop=log.scrollHeight;}}catch(e){if(room?.id===id){status.textContent=e.message;if(e.status===403){room=null;chat.remove();stopCall();}}}finally{chatBusy=false;}}
  async function sendChat(){if(!room||send.disabled||!input.value.trim())return;const id=room.id;pending=pending||{id:crypto.randomUUID(),text:input.value.trim()};const message=pending;send.disabled=true;try{await request(chatPath(),'POST',message);if(room?.id!==id)return;if(pending===message){input.value='';pending=null;}status.textContent='';await loadChat();}catch(e){if(room?.id===id)status.textContent=e.message;}finally{send.disabled=false;}}
  input.oninput=()=>pending=null;
@@ -35,7 +35,7 @@
  function parkCameras(){if(bar.parentNode!==document.body){document.body.append(bar);bar.classList.remove('gameDocked');}document.querySelectorAll('.oneCamBubble.seated').forEach(b=>{b.classList.remove('seated');document.body.append(b);});}
  function dockCameras(){
   const game=document.getElementById('onePartyGame');
-  const active=game?.isConnected&&!document.getElementById('oneFoundation')?.hidden&&document.querySelector('[data-one-space="party"]')?.getAttribute('aria-current')==='page';
+  const active=game?.isConnected&&window.oneSalonIsOpen?.();
   const dock=active?game.querySelector('#oneGameCallDock'):null;if(dock){if(bar.parentNode!==dock)dock.append(bar);bar.classList.add('gameDocked');}else if(bar.parentNode!==document.body){document.body.append(bar);bar.classList.remove('gameDocked');}
   const seats=active?[...game.querySelectorAll('[data-camera-seat]')]:[];
   document.querySelectorAll('.oneCamBubble').forEach(b=>{
@@ -44,10 +44,10 @@
    else if(b.classList.contains('seated')){b.classList.remove('seated');document.body.append(b);}
   });
  }
- window.addEventListener('one-game-before-render',parkCameras);
+ window.addEventListener('one-game-before-render',parkCameras);window.addEventListener('one-salon-visibility',()=>{mount();dockCameras();});
  window.addEventListener('one-game-rendered',dockCameras);
  window.addEventListener('one-space-open',()=>queueMicrotask(dockCameras));
  window.addEventListener('one-party-state',()=>queueMicrotask(dockCameras));
  new MutationObserver(dockCameras).observe(document.getElementById('oneFoundation'),{attributes:true,attributeFilter:['hidden']});
- window.addEventListener('one-party-state',e=>{const next=e.detail;if(room?.id!==next?.id){stopCall();input.value='';pending=null;log.replaceChildren();delete log.dataset.messages;}room=next;if(room){mount();loadChat();}else chat.remove();});window.addEventListener('one-space-open',mount);window.addEventListener('one-account-changed',()=>{room=null;stopCall();chat.remove();input.value='';pending=null;log.replaceChildren();});window.addEventListener('pagehide',stopCall);setInterval(()=>{if(chat.isConnected&&!document.getElementById('oneFoundation')?.hidden)loadChat();},4000);
+ window.addEventListener('one-party-state',e=>{const next=e.detail;if(room?.id!==next?.id){stopCall();input.value='';pending=null;log.replaceChildren();delete log.dataset.messages;}room=next;if(room){mount();loadChat();}else chat.remove();});window.addEventListener('one-space-open',mount);window.addEventListener('one-account-changed',()=>{room=null;stopCall();chat.remove();input.value='';pending=null;log.replaceChildren();});window.addEventListener('pagehide',stopCall);setInterval(()=>{if(chat.isConnected&&window.oneSalonIsOpen?.())loadChat();},4000);
 })();
