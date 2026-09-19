@@ -38,3 +38,11 @@
 #onePartyGame.gameFullscreen .cg-table{min-height:450px}
 @media(max-width:480px){#onePartyGame .cg-table,#onePartyGame.gameFullscreen .cg-table{min-height:390px}#onePartyGame .cg-face{width:60px;height:60px}#onePartyGame .cg-seat{width:80px}#onePartyGame .cg-seat b{font-size:10px;max-width:80px}#onePartyGame .cg-opponents{inset:12px 8px auto}#onePartyGame .cg-center{padding-top:163px;width:58%}#onePartyGame .cg-stacks{gap:13px}#onePartyGame .cg-stacks .cg-card,#onePartyGame .cg-stacks .cg-deck{width:65px;height:95px;flex-basis:65px}#onePartyGame .cg-surface{left:-7%;width:114%;border-width:11px;top:29%;height:78%}#onePartyGame .cg-turn{font-size:9px}#onePartyGame .cg-color{margin-top:9px}#onePartyGame .cg-center>p{font-size:10px}#onePartyGame .cg-backs i{height:25px;width:17px}}
 @media(orientation:landscape) and (max-height:600px){#onePartyGame.gameFullscreen .cg-table{min-height:300px}#onePartyGame.gameFullscreen .cg-center{padding-top:100px;margin-top:0}#onePartyGame.gameFullscreen .cg-opponents .cg-seat{top:0}#onePartyGame.gameFullscreen .cg-opponents[data-count="2"] .cg-seat,#onePartyGame.gameFullscreen .cg-opponents[data-count="3"] .cg-seat:first-child,#onePartyGame.gameFullscreen .cg-opponents[data-count="3"] .cg-seat:last-child{top:45px}#onePartyGame.gameFullscreen .cg-face{width:52px;height:52px}}
+
+/* Les commandes d'appel occupent leur propre ligne, sans masquer les cartes. */
+#onePartyGame #oneGameCallDock:empty{display:none}
+#onePartyGame #oneCallBar.gameDocked{position:static;inset:auto;z-index:auto;width:auto;margin:0 12px 12px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px;border-radius:14px}
+#onePartyGame #oneCallBar.gameDocked[hidden]{display:none}
+#onePartyGame #oneCallBar.gameDocked button{min-height:44px;margin:0;font-size:12px;flex:1 1 auto}
+#onePartyGame #oneCallBar.gameDocked>span{flex:1 0 100%;font-size:11px;color:#cbbddd}
+body:has(#oneCallBar.gameDocked:not([hidden])) #onePartyGame.gameFullscreen{padding-bottom:env(safe-area-inset-bottom)}

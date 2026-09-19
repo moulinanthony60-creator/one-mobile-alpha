@@ -32,10 +32,11 @@
  function toggleMic(){if(!call)return;call.audio.enabled=!call.audio.enabled;mic.textContent=call.audio.enabled?'Couper le micro':'Activer le micro';announce(call);}
  async function toggleCam(){const c=call;if(!c||cam.disabled)return;cam.disabled=true;try{if(c.video){const old=c.video;c.video=null;old.stop();for(const p of c.peers.values())await tracks(c,p);c.local.video.srcObject=null;c.local.show(false);cam.textContent='Activer la caméra';}else{const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:320},height:{ideal:240},facingMode:'user'},audio:false});if(call!==c){stream.getTracks().forEach(t=>t.stop());return;}c.video=stream.getVideoTracks()[0];c.local.video.srcObject=stream;c.local.show(true);for(const p of c.peers.values())await tracks(c,p);cam.textContent='Couper la caméra';}announce(c);}catch(e){if(c.video){c.video.stop();c.video=null;c.local.video.srcObject=null;c.local.show(false);announce(c);}cam.textContent='Activer la caméra';callStatus.textContent=e.name==='NotAllowedError'?'Caméra non autorisée.':e.message;}finally{cam.disabled=false;}}
 
- function parkCameras(){document.querySelectorAll('.oneCamBubble.seated').forEach(b=>{b.classList.remove('seated');document.body.append(b);});}
+ function parkCameras(){if(bar.parentNode!==document.body){document.body.append(bar);bar.classList.remove('gameDocked');}document.querySelectorAll('.oneCamBubble.seated').forEach(b=>{b.classList.remove('seated');document.body.append(b);});}
  function dockCameras(){
   const game=document.getElementById('onePartyGame');
   const active=game?.isConnected&&!document.getElementById('oneFoundation')?.hidden&&document.querySelector('[data-one-space="party"]')?.getAttribute('aria-current')==='page';
+  const dock=active?game.querySelector('#oneGameCallDock'):null;if(dock){if(bar.parentNode!==dock)dock.append(bar);bar.classList.add('gameDocked');}else if(bar.parentNode!==document.body){document.body.append(bar);bar.classList.remove('gameDocked');}
   const seats=active?[...game.querySelectorAll('[data-camera-seat]')]:[];
   document.querySelectorAll('.oneCamBubble').forEach(b=>{
    const seat=seats.find(s=>s.dataset.cameraSeat&&s.dataset.cameraSeat===b.dataset.cameraOwner);
