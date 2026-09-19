@@ -32,3 +32,6 @@ Flèche IA fixe en bas à gauche dans les sources ; positionnement concurrent su
 
 0.14.09 : actualisation TikTok interne, commandes compactes à droite, déduplication linéaire et préconnexion TikTok, ouverture YouTube plein écran au clic.
 0.14.10 : vérification groupée des autorisations YouTube avant affichage, cache 30 minutes, vidéos inconnues masquées ; titre du lecteur retiré en plein écran, croix conservée.
+
+## 0.14.60
+Mains avec peau continue et doigts plus courts. Cartes proches, sélection progressive, lancer, retournement et distribution animés. Cadrage table puis revolver. Son d'élimination. Résultat en bas à droite. Nécessite Worker v16 pour corriger la rotation des survivants après trois tentatives. Aucun SQL.

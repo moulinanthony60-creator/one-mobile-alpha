@@ -92,3 +92,8 @@
 #onePartyGame .bluff-loading{position:absolute;top:45%;width:100%;text-align:center;color:#e4c796;z-index:3}
 #onePartyGame .bluff-model-failed .bluff-loading{top:48%;padding:20px;box-sizing:border-box}
 #onePartyGame .bluff-scene[data-model-error]:before{content:attr(data-model-error);position:absolute;top:40%;padding:15px;z-index:8;background:#24192eee;color:#fff}
+/* Keep the roulette result away from the hand, in the lower-right corner. */
+#onePartyGame .bluff-scene .bluff-shot-result{left:auto;right:12px;bottom:12px;transform:none;max-width:min(240px,46%);box-sizing:border-box;text-align:right;padding:7px 10px;font-size:12px;overflow-wrap:anywhere}
+#onePartyGame .bluff-scene:has(.bluff-shot-result) .bluff-look{left:12px;right:auto;bottom:12px;max-width:44%;text-align:left}
+@media(max-width:480px){#onePartyGame .bluff-scene .bluff-shot-result{right:8px;bottom:8px;padding:6px 8px;font-size:10px}#onePartyGame .bluff-scene .bluff-shot-result small{font-size:9px}}
+#onePartyGame.gameFullscreen .bluff-reveal:not([open]){max-width:min(220px,42%)}
