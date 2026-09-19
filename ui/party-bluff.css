@@ -36,3 +36,25 @@
 #onePartyGame.gameFullscreen .bluff-scene{flex:1;min-height:380px}
 @media(max-width:480px){#onePartyGame .bluff-scene{height:370px;min-height:320px}#onePartyGame.gameFullscreen .bluff-scene{min-height:320px}#onePartyGame .bluff-controls{padding:16px 10px 8px}#onePartyGame .bluff-controls h3{font-size:14px;margin-left:0;margin-right:58px;text-align:left}#onePartyGame .bluff-controls>p{margin-right:55px;text-align:left}#onePartyGame .bluff-card{width:56px;height:88px}#onePartyGame .bluff-hand{gap:7px;min-height:118px}#onePartyGame .bluff-target strong{font-size:22px}#onePartyGame .bluff-person b{font-size:9px}#onePartyGame .bluff-person small{font-size:8px;width:106px}}
 @media(prefers-reduced-motion:reduce){#onePartyGame .bluff-card{transition:none}}
+/* Fullscreen reserves space for the hand and actions before sizing the scene. */
+#onePartyGame.gameFullscreen{box-sizing:border-box;height:100dvh;overflow:hidden}
+#onePartyGame.gameFullscreen>div{height:100%;min-height:0;display:flex;flex-direction:column}
+#onePartyGame.gameFullscreen .cg-topbar{flex:0 0 auto;padding:8px 14px}
+#onePartyGame.gameFullscreen .bluff-scene,#onePartyGame.gameFullscreen .cg-table{flex:1 1 0;height:auto;min-height:0}
+#onePartyGame.gameFullscreen .bluff-controls,#onePartyGame.gameFullscreen .cg-playerArea{flex:0 0 auto;padding-top:8px}
+#onePartyGame.gameFullscreen .bluff-hand{min-height:0;padding:18px 0 8px}
+#onePartyGame.gameFullscreen .bluff-card{height:clamp(65px,11vh,110px);width:clamp(48px,7vw,76px)}
+#onePartyGame.gameFullscreen .bluff-controls h3{margin-bottom:3px;font-size:14px}
+#onePartyGame.gameFullscreen .bluff-controls>p{margin:3px 55px 3px 0;font-size:11px}
+#onePartyGame.gameFullscreen .bluff-actions{padding:3px 0 6px}
+#onePartyGame.gameFullscreen .bluff-actions button{min-height:38px;padding:6px 10px;font-size:12px}
+#onePartyGame.gameFullscreen .bluff-reveal{position:absolute;bottom:100%;left:10px;right:10px;z-index:6;background:#17121eee}
+#onePartyGame.gameFullscreen .bluff-reveal:not([open]){max-width:260px;font-size:9px;padding:5px}
+#onePartyGame.gameFullscreen .cg-footer{padding:5px 10px;flex:0 0 auto}
+#onePartyGame.gameFullscreen .cg-footer details[open]{position:absolute;bottom:0;left:0;right:0;padding:14px;background:#181226;z-index:20;max-height:50vh;overflow:auto}
+#onePartyGame.gameFullscreen #oneCallBar.gameDocked{margin:0 8px 4px;padding:4px;gap:3px}
+#onePartyGame.gameFullscreen #oneCallBar.gameDocked>span{display:none}
+#onePartyGame.gameFullscreen #oneCallBar.gameDocked button{min-height:32px;padding:4px;font-size:10px}
+#onePartyGame .bluff-shot-result{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);padding:7px 14px;background:#1a1019d9;border:1px solid #b78b53;border-radius:8px;text-align:center;color:#f2d5a2;pointer-events:none;z-index:4;max-width:90%}
+#onePartyGame .bluff-shot-result small{display:block;font-size:10px}
+@media(orientation:landscape) and (max-height:520px){#onePartyGame.gameFullscreen.isBluff>div{display:grid;grid-template-columns:58% 42%;grid-template-rows:auto minmax(0,1fr) auto auto}#onePartyGame.gameFullscreen.isBluff .cg-topbar,#onePartyGame.gameFullscreen.isBluff #oneGameCallDock,#onePartyGame.gameFullscreen.isBluff .cg-footer{grid-column:1/-1}#onePartyGame.gameFullscreen.isBluff .bluff-scene{height:100%;min-height:0}#onePartyGame.gameFullscreen.isBluff .bluff-controls{padding:8px;min-height:0;overflow:auto}#onePartyGame.gameFullscreen .bluff-hand{gap:3px}#onePartyGame.gameFullscreen .bluff-card{height:65px;width:43px}#onePartyGame.gameFullscreen .bluff-card strong{font-size:24px}#onePartyGame.gameFullscreen .bluff-self{display:none}#onePartyGame.gameFullscreen .bluff-controls h3,#onePartyGame.gameFullscreen .bluff-controls>p{margin-right:0}#onePartyGame.gameFullscreen .bluff-actions{gap:3px}}

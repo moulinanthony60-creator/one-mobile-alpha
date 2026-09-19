@@ -35,8 +35,9 @@
  function parkCameras(){if(bar.parentNode!==document.body){document.body.append(bar);bar.classList.remove('gameDocked');}document.querySelectorAll('.oneCamBubble.seated').forEach(b=>{b.classList.remove('seated');document.body.append(b);});}
  function dockCameras(){
   const game=document.getElementById('onePartyGame');
-  const active=game?.isConnected&&window.oneSalonIsOpen?.();
+  const active=game?.isConnected&&window.onePartyGameVisible?.();
   const dock=active?game.querySelector('#oneGameCallDock'):null;if(dock){if(bar.parentNode!==dock)dock.append(bar);bar.classList.add('gameDocked');}else if(bar.parentNode!==document.body){document.body.append(bar);bar.classList.remove('gameDocked');}
+  if(!active){const bubbles=[call?.local,...(call?[...call.peers.values()].map(p=>p.bubble):[])];for(const bubble of bubbles){const node=bubble?.node;if(node?.classList.contains('seated')){node.classList.remove('seated');document.body.append(node);}}}
   const seats=active?[...game.querySelectorAll('[data-camera-seat]')]:[];
   document.querySelectorAll('.oneCamBubble').forEach(b=>{
    const seat=seats.find(s=>s.dataset.cameraSeat&&s.dataset.cameraSeat===b.dataset.cameraOwner);
