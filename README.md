@@ -1,30 +1,31 @@
-# ONE 0.14.102
+# ONE 0.14.103
 
-ONE 0.14.102 — VISUELS 3D ET POKER CONTINU
+ONE 0.14.103 — INTERFACE SIMPLIFIÉE
 
-Nouveaux visuels ONE pour les dix jeux Party disponibles.
-Intérieurs revisités : cartes en relief, plateaux, jetons, chrono,
-cadres des portraits et présentation des rôles.
-Les jeux retirés ne sont pas réintroduits.
-Poker : table et commandes réunies dans une vue compacte, adaptée au téléphone.
-Après chaque main : chacun confirme Main suivante, sans revenir au salon.
-Les réserves sont conservées et le donneur change à chaque main.
-À zéro : recharge de 100 jetons en mode gratuit ; en mode Points ONE,
-recharge de la mise initiale depuis le solde, après confirmation.
-Les points sont rendus au compte à la fin de chaque main puis remis à la table
-à la confirmation de la suivante. Un solde insuffisant bloque la reprise.
+PARTY : un seul en-tête et un menu pour les commandes secondaires.
+Sélectionner un jeu fait remonter au bloc de lancement : mise, joueurs,
+Prêt et Lancer. Ce bloc se trouve au-dessus du jeu sélectionné.
+Correction du cadrage des illustrations.
 
-1. CLOUDFLARE — Worker one-comments-api
-Ouvrir Modifier le code, remplacer le code par ONE-SERVEUR-v37.mjs et cliquer Deploy.
-Garder les liaisons actuelles. Aucun SQL manuel nécessaire.
-Vérifier que l'adresse du Worker indique version 37.
+POKER : cartes communes et cartes personnelles agrandies.
+Reprise automatique après 5 secondes, quand les joueurs connectés sont prêts.
+Bouton Pause disponible entre les mains. Les joueurs doivent avoir cette
+version pour envoyer automatiquement leur confirmation de main suivante.
+Réserve vide : recharge gratuite automatique en mode gratuit ; recharge
+payante toujours à confirmer. Un solde insuffisant bloque la reprise.
 
-2. GITHUB — dépôt one-mobile-alpha, branche main, racine
+FLUIDITÉ : suppression du double rendu après une action, conservation de la
+position de la main de cartes et suppression des mouvements de survol sur mobile.
+
+GITHUB : dépôt one-mobile-alpha, branche main, racine du dépôt.
 Décompresser PARTIE-1 et envoyer son contenu, puis Commit changes.
-Faire la même chose avec PARTIE-2. Ne pas envoyer les ZIP eux-mêmes.
-Conserver les dossiers ui et assets. Remplacer les anciens fichiers.
-Attendre le déploiement GitHub Pages puis vérifier la version 0.14.102.
+Faire la même chose avec PARTIE-2. Conserver les dossiers ui et assets.
+Remplacer les anciens fichiers. Ne pas envoyer les ZIP eux-mêmes.
+Attendre le déploiement puis vérifier la version 0.14.103.
 
-Validation locale : mains successives, réserves et solde, recharge gratuite,
-solde insuffisant, requêtes répétées, 500 mains simulées et affichage mobile.
-Cette livraison n'est pas encore publiée sur ton site.
+CLOUDFLARE : conserver le serveur v37 (livré avec 0.14.102).
+Aucun nouveau serveur et aucun SQL nécessaires pour cette version.
+
+Vérifications locales : syntaxe, sélection du jeu, dimensions des cartes et
+commandes sur écran 390 x 700, reprise automatique, pause et recharge payante.
+Livraison préparée localement, pas encore publiée sur ton site.

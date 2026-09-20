@@ -101,3 +101,42 @@
 @media(prefers-reduced-motion:no-preference){#onePartyGame .pc-connect-board .winning{animation:oneDiscWin 1.1s ease-in-out infinite alternate}@keyframes oneDiscWin{to{filter:brightness(1.35);box-shadow:0 0 14px #ffe1a2}}}
 
 #onePartyGame .pc-trio-table button.pc-trio-card{min-height:86px;height:86px}#onePartyGame .pc-codes button[data-team=red]{background:linear-gradient(#bc4259,#742c46)!important;color:#fff1d8}#onePartyGame .pc-codes button[data-team=blue]{background:linear-gradient(#386cba,#243a72)!important;color:#fff1d8}#onePartyGame .pc-codes button[data-team=assassin]{background:linear-gradient(#303044,#10101b)!important}
+
+/* 103: one header, one launch panel, larger cards. */
+#onePartyGame .cg-topbar{padding:10px 14px;position:relative;z-index:20;min-height:48px;flex-wrap:nowrap}
+#onePartyGame .cg-topbar small{display:none}#onePartyGame .cg-topbar h2{margin:0;font-size:19px}
+#onePartyGame .cg-menu{margin-left:auto;position:relative}
+#onePartyGame .cg-menu>summary{cursor:pointer;list-style:none;padding:9px 12px;border:1px solid #8a789d;border-radius:10px;font-size:13px;white-space:nowrap}
+#onePartyGame .cg-menu>summary::-webkit-details-marker{display:none}
+#onePartyGame .cg-menu .cg-tools{position:absolute;right:0;top:calc(100% + 7px);width:min(280px,80vw);display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:12px;background:#1b192d;border:1px solid #877095;border-radius:14px;box-shadow:0 14px 36px #000a;max-height:70dvh;overflow:auto;z-index:50}
+#onePartyGame .cg-menu:not([open]) .cg-tools{display:none}
+#onePartyGame .cg-menu .cg-tools button{min-height:40px;width:100%;font-size:13px;text-align:left}
+#onePartyGame .cg-menu .cg-footer{display:block!important;margin:0;padding:0;border:0;background:none}
+#onePartyGame .cg-menu .cg-footer>button{display:none}#onePartyGame .cg-menu .cg-footer details{padding:8px 0;font-size:12px}
+#onePartyGame .pl-lobby{padding:12px}#onePartyGame .pl-layout{display:block}
+#onePartyGame .pl-setup{display:grid;grid-template-columns:1fr 1fr;gap:10px;scroll-margin-top:140px;margin-bottom:12px;padding:12px;border:1px solid #9c8053;border-radius:16px;background:linear-gradient(135deg,#2c2540,#171d2e)}
+#onePartyGame .pl-setup .pl-wager,#onePartyGame .pl-setup .pl-group{padding:0;margin:0;border:0;background:none;box-shadow:none}
+#onePartyGame .pl-wager h3,#onePartyGame .pl-group h3{font-size:14px;margin:0 0 8px}
+#onePartyGame .pl-wager>p{display:none}#onePartyGame .pl-wager select{padding:9px;font-size:14px;margin:0 0 6px}
+#onePartyGame .pl-wager>small{font-size:10px}
+#onePartyGame .pl-member{padding:5px 0;min-height:0;gap:7px}#onePartyGame .pl-initial{width:25px;height:25px;font-size:11px}
+#onePartyGame .pl-member b{font-size:12px}#onePartyGame .pl-member small{font-size:10px}
+#onePartyGame .pl-group>p{font-size:11px;margin:0 0 5px}
+#onePartyGame .pl-invite{padding:5px 8px;font-size:11px;min-height:30px;margin-top:6px}
+#onePartyGame .pl-launch{grid-column:1/-1;margin:0;padding:10px 0 0;position:static;background:none;border:0;border-top:1px solid #ffffff21;display:block;box-shadow:none}
+#onePartyGame .pl-launch>div:first-child{margin-bottom:8px}#onePartyGame .pl-launch small{font-size:11px}
+#onePartyGame .pl-actions{display:flex;gap:8px}#onePartyGame .pl-actions button{flex:1;min-width:0;font-size:12px;min-height:42px;padding:8px}
+#onePartyGame .pl-customize{grid-column:1/-1;order:1;font-size:12px}#onePartyGame .pl-customize summary{cursor:pointer;padding:5px}
+#onePartyGame .pl-selected-game{display:flex;align-items:center;gap:12px;padding:10px;background:#1d1c32;border-radius:14px;margin-bottom:16px}
+#onePartyGame .pl-selected-game>.pl-art{width:120px;height:85px;flex-shrink:0;overflow:hidden}
+#onePartyGame .pl-selected-game .pl-detail{margin:0;padding:0;border:0;background:none}#onePartyGame .pl-detail h4{margin:0 0 5px;font-size:17px}#onePartyGame .pl-detail p{font-size:12px;margin:0 0 5px}#onePartyGame .pl-detail>span{font-size:10px}
+#onePartyGame .pl-art svg{overflow:hidden!important}
+#onePartyGame .pl-catalog>h3{font-size:15px;margin:10px 0}#onePartyGame .pl-filter{gap:6px;margin-bottom:10px}#onePartyGame .pl-filter button{font-size:12px;padding:7px}
+#onePartyGame .ppCommunity{width:96%}#onePartyGame.isPoker .ppCommunity .ppCard{width:clamp(40px,8.8vw,64px);height:clamp(60px,13.2vw,94px)}
+#onePartyGame.isPoker .ppCommunity .ppCorner{font-size:clamp(11px,2.5vw,16px)}#onePartyGame.isPoker .ppCommunity .ppSuit{font-size:clamp(24px,5vw,38px)}
+#onePartyGame.isPoker .ppSeat.own{width:130px}#onePartyGame.isPoker .ppSeat.own .ppCard{width:49px;height:70px}#onePartyGame.isPoker .ppSeat.own .ppCorner{font-size:12px}#onePartyGame.isPoker .ppSeat.own .ppSuit{font-size:27px}
+#onePartyGame.isPoker .ppStage{margin-top:22px;margin-bottom:18px}
+#onePartyGame .ppNext{display:grid;grid-template-columns:1fr 1fr;gap:6px}#onePartyGame .ppNext .ppTurn,#onePartyGame .ppNext .ppNextInfo{grid-column:1/-1}#onePartyGame .ppNext>button{font-size:12px}
+@media(max-width:380px){#onePartyGame .pl-setup{padding:9px;gap:8px}#onePartyGame .pl-selected-game>.pl-art{width:90px;height:74px}#onePartyGame .pl-detail p{display:none}}
+@media(max-height:630px){#onePartyGame.isPoker .ppSeat.own .ppCard{width:40px;height:58px}#onePartyGame.isPoker .ppSeat.own{width:108px}#onePartyGame.isPoker .ppStage{margin-top:16px;margin-bottom:12px}#onePartyGame.isPoker .ppCommunity .ppCard{width:39px;height:57px}}
+@media(hover:none){#onePartyGame .pl-game:hover{transform:none}#onePartyGame .pl-game:hover .pl-art svg{transform:none}}
