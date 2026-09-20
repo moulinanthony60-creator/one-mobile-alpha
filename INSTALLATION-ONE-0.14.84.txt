@@ -1,0 +1,34 @@
+ONE 0.14.84 — POINTS, JEUX ET COLLECTION
+
+INSTALLATION
+1. Si la version 0.14.83 n'a pas encore été installée, exécuter ONE-SALONS-PUBLICS.sql dans la base D1 COMMENTS, selon les instructions 0.14.83.
+2. Dans cette même base, exécuter ONE-COLLECTION.sql puis ONE-JEUX-POINTS.sql. Ce sont des ajouts ; ne pas supprimer les tables existantes.
+3. Remplacer le Worker one-comments-api par ONE-SERVEUR-v25.mjs et déployer. Garder les liaisons existantes COMMENTS et PROFILE.
+4. Extraire ONE-0.14.84-POINTS-JEUX-COLLECTION.zip. Envoyer son CONTENU à la racine du dépôt GitHub, avec le dossier ui. Conserver assets et ui/vendor déjà présents.
+5. Pour le crédit demandé : exécuter ONE-CREDIT-DIWAIIS.sql dans COMMENTS. Il ajoute UNE SEULE FOIS 500 000 points au compte ayant exactement le pseudo Diwaiis dans Amis. Il n'attribue rien si le pseudo est absent ou partagé par plusieurs comptes. Vérifier le résultat de la requête finale ; s'il est vide, ouvrir Amis avec Diwaiis ou utiliser son identifiant exact. Aucun crédit n'a été appliqué au compte réel depuis l'aperçu local.
+6. Recharger ONE après la publication GitHub Pages. Version attendue : 0.14.84.
+
+JEUX
+- Roulette européenne animée : couleur rouge/noir (retour 2 fois la mise), ou numéro entier 0–36 (retour 36 fois la mise). Le zéro perd les paris rouge/noir.
+- Blackjack simplifié : cartes et totaux visibles, As 1/11 ; croupier tire jusqu'à 17. Victoire x2, égalité x1 ; pas de split, double, assurance ni bonus blackjack naturel.
+- Machine à sous : 6 symboles équiprobables, 3 rouleaux. Triplé x10, une paire x1, sinon perte.
+- Retours mise comprise. Mises : 10, 25, 50, 100 points. Points uniquement virtuels, sans valeur monétaire.
+- Tirages et solde côté serveur. Demandes répétées protégées contre les doubles débits. Blackjack en cours conservé après fermeture/rechargement.
+- Récompense quotidienne : 100 points, une fois par date civile à Paris et par compte.
+
+PACKS ET COLLECTION
+- Packs de 5 cartes à 500 ou 1000 points ; les doublons sont conservés.
+- Répartition choisie pour cette première version, par carte : Découverte 70 % normales / 24 % rares / 5 % épiques / 1 % légendaires ; Premium 45 / 35 / 16 / 4 %. Chances affichées avant ouverture, aucune rareté garantie.
+- Catalogue des collections, Série 1 de 50 cartes. Cliquer pour ouvrir ; cartes non trouvées masquées par un point d'interrogation.
+- Nouvelles illustrations et cadres lisibles, ouverture animée puis révélation progressive. Les statistiques de combat de la planche de référence ne définissent pas encore un jeu de combat.
+- Solde commun aux packs et aux trois jeux.
+
+COMPTE
+- Croix en haut de Compte ONE ; ancien bouton Fermer du bas retiré.
+
+ENCORE À BRANCHER
+- Les gains annoncés de 1 point par minute de vidéo et de 10 points par partie Party ne sont pas inclus dans cette livraison. La récompense quotidienne et les gains des jeux Points ONE sont actifs.
+
+VÉRIFICATIONS
+- Tests serveur sur SQLite : authentification, solde, récompense quotidienne unique, débit unique même en cas de répétition, blackjack privé et repris, règlement concurrent, paris exacts 0/17 et numéro 37 refusé, ouverture de packs et crédit unique.
+- Vérification navigateur locale des trois jeux, débit et résultats, packs de cinq cartes, catalogue et masquage. L'aperçu utilise un compte fictif QA avec 500 000 points et ne crédite pas le compte Diwaiis réel.

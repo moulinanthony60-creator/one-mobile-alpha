@@ -1,0 +1,503 @@
+function casinoTotal(cards){let n=cards.reduce((a,c)=>a+Math.min(c%13+1,10),0);for(const c of cards)if(c%13===0&&n+10<=21)n+=10;return n;}
+function casinoDraw(s){s.player.push(s.deck.pop());}
+function casinoFinish(s,stake){while(casinoTotal(s.dealer)<17)s.dealer.push(s.deck.pop());const p=casinoTotal(s.player),d=casinoTotal(s.dealer);s.result=p>21?'Perdu':d>21||p>d?'Gagné':p===d?'Égalité':'Perdu';return s.result==='Gagné'?stake*2:s.result==='Égalité'?stake:0;}
+function casinoNew(kind,stake,choice){
+ if(kind==='roulette'){const n=oneRandom(37),red=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(n),color=n===0?'green':red?'red':'black';const exact=choice.startsWith('n:'),win=exact?n===Number(choice.slice(2)):color===choice;return {state:{number:n,color,choice,result:win?'Gagné':'Perdu'},payout:win?stake*(exact?36:2):0,settled:1};}
+ if(kind==='slots'){const reels=Array.from({length:3},()=>oneRandom(6)),triple=reels.every(x=>x===reels[0]),pair=new Set(reels).size===2,payout=stake*(triple?10:pair?1:0);return {state:{reels,result:triple?'Triplé !':pair?'Mise remboursée':'Perdu'},payout,settled:1};}
+ const deck=Array.from({length:52},(_,i)=>i);for(let i=51;i>0;i--){const j=oneRandom(i+1);[deck[i],deck[j]]=[deck[j],deck[i]];}const s={deck,player:[deck.pop(),deck.pop()],dealer:[deck.pop(),deck.pop()]};let settled=0,payout=0;if(casinoTotal(s.player)===21||casinoTotal(s.dealer)===21){settled=1;payout=casinoFinish(s,stake);}return {state:s,payout,settled};
+}
+function casinoPublic(row){if(!row)return null;const s=JSON.parse(row.state);delete s.deck;if(!row.settled)s.dealer=[s.dealer[0],null];return {id:row.id,kind:row.kind,stake:row.stake,settled:!!row.settled,payout:row.payout,version:row.version,...s};}
+
+const ONE_CARDS=[{"id":"one-001","number":1,"name":"Lynko","rarity":"normal"},{"id":"one-002","number":2,"name":"Flammi","rarity":"normal"},{"id":"one-003","number":3,"name":"Aquari","rarity":"normal"},{"id":"one-004","number":4,"name":"Terrako","rarity":"normal"},{"id":"one-005","number":5,"name":"Feulin","rarity":"normal"},{"id":"one-006","number":6,"name":"Aeris","rarity":"normal"},{"id":"one-007","number":7,"name":"Grak","rarity":"normal"},{"id":"one-008","number":8,"name":"Bulbix","rarity":"normal"},{"id":"one-009","number":9,"name":"Sparko","rarity":"normal"},{"id":"one-010","number":10,"name":"Nébulo","rarity":"normal"},{"id":"one-011","number":11,"name":"Rocabo","rarity":"normal"},{"id":"one-012","number":12,"name":"Poiscaille","rarity":"normal"},{"id":"one-013","number":13,"name":"Pixel","rarity":"normal"},{"id":"one-014","number":14,"name":"Mousty","rarity":"normal"},{"id":"one-015","number":15,"name":"Glacio","rarity":"normal"},{"id":"one-016","number":16,"name":"Planto","rarity":"normal"},{"id":"one-017","number":17,"name":"Fang","rarity":"normal"},{"id":"one-018","number":18,"name":"Orbix","rarity":"normal"},{"id":"one-019","number":19,"name":"Voltik","rarity":"normal"},{"id":"one-020","number":20,"name":"Sablet","rarity":"normal"},{"id":"one-021","number":21,"name":"Coralys","rarity":"normal"},{"id":"one-022","number":22,"name":"Brumy","rarity":"normal"},{"id":"one-023","number":23,"name":"Minerok","rarity":"normal"},{"id":"one-024","number":24,"name":"Feunix","rarity":"normal"},{"id":"one-025","number":25,"name":"Lunara","rarity":"normal"},{"id":"one-026","number":26,"name":"Seraphox","rarity":"rare"},{"id":"one-027","number":27,"name":"Abysk","rarity":"rare"},{"id":"one-028","number":28,"name":"Titanko","rarity":"rare"},{"id":"one-029","number":29,"name":"Orion","rarity":"rare"},{"id":"one-030","number":30,"name":"Shadowk","rarity":"rare"},{"id":"one-031","number":31,"name":"Floréal","rarity":"rare"},{"id":"one-032","number":32,"name":"Geolith","rarity":"rare"},{"id":"one-033","number":33,"name":"Hydralis","rarity":"rare"},{"id":"one-034","number":34,"name":"Pyrox","rarity":"rare"},{"id":"one-035","number":35,"name":"Cybernix","rarity":"rare"},{"id":"one-036","number":36,"name":"Zéphyr","rarity":"rare"},{"id":"one-037","number":37,"name":"Noctalis","rarity":"rare"},{"id":"one-038","number":38,"name":"Dragonis","rarity":"epic"},{"id":"one-039","number":39,"name":"Luminéa","rarity":"epic"},{"id":"one-040","number":40,"name":"Krakenor","rarity":"epic"},{"id":"one-041","number":41,"name":"Volcanys","rarity":"epic"},{"id":"one-042","number":42,"name":"Crystalys","rarity":"epic"},{"id":"one-043","number":43,"name":"Teralux","rarity":"epic"},{"id":"one-044","number":44,"name":"Eclipsor","rarity":"epic"},{"id":"one-045","number":45,"name":"Phoenixia","rarity":"epic"},{"id":"one-046","number":46,"name":"Nexus","rarity":"legendary"},{"id":"one-047","number":47,"name":"Aurastra","rarity":"legendary"},{"id":"one-048","number":48,"name":"Omegarex","rarity":"legendary"},{"id":"one-049","number":49,"name":"Chronos","rarity":"legendary"},{"id":"one-050","number":50,"name":"ONE","rarity":"legendary"}];
+const ONE_PACKS=[{id:'discovery',name:'Pack Découverte',cost:500,count:5,chances:{normal:70,rare:24,epic:5,legendary:1}},{id:'premium',name:'Pack Premium',cost:1000,count:5,chances:{normal:45,rare:35,epic:16,legendary:4}}];
+function oneRandom(limit){const max=4294967296-4294967296%limit,n=new Uint32Array(1);do{crypto.getRandomValues(n);}while(n[0]>=max);return n[0]%limit;}
+function onePackCards(pack){return Array.from({length:pack.count},()=>{let pick=oneRandom(100),rarity='normal';for(const [key,weight]of Object.entries(pack.chances)){if(pick<weight){rarity=key;break;}pick-=weight;}const pool=ONE_CARDS.filter(c=>c.rarity===rarity);return pool[oneRandom(pool.length)].id;});}
+
+const PARTY_VIDEOS={"horror":[{"id":"FUQhNGEu2KA","title":"Lights Out","author":"David F. Sandberg / ponysmasher","seconds":35,"start":125},{"id":"fjck1TNXXhI","title":"Attic Panic","author":"David F. Sandberg / ponysmasher","seconds":35,"start":70},{"id":"8yu5ymbIjaY","title":"Shadowed","author":"David F. Sandberg / ponysmasher","seconds":40,"start":137}],"laugh":[{"id":"w0ffwDYo00Q","title":"Cat Man Do","author":"Simon’s Cat","seconds":120},{"id":"4rb8aOzy9t4","title":"Let Me In","author":"Simon’s Cat","seconds":120},{"id":"EKvNqe8cKU4","title":"The Box","author":"Simon’s Cat","seconds":150}]};
+// Test period: cameras are optional. Restore camera:true here after user validation.
+const PARTY_EQUIPMENT={horror:{mic:true},laugh:{mic:true},mimevoice:{mic:true},blind:{mic:true}};
+function partyEquipment(g,p,now){const r=PARTY_EQUIPMENT[g.kind],v=g.equipment?.[p.id];return !r||!!(v&&now-v.at<45000&&(!r.camera||v.camera)&&(!r.mic||v.mic));}
+function partyClipKey(g){return g.clip.id+':'+(g.clip.start||0)+':'+g.clip.seconds;}
+function partyPauseScreen(g,now){g.position=Math.min(g.clip.seconds,(g.position||0)+Math.max(0,now-g.started)/1000);g.remaining=Math.max(0,(g.clip.seconds-g.position)*1000);g.phase='paused';}
+function partyEquipmentMissing(g,now){return g.players.filter(p=>!partyEquipment(g,p,now));}
+// ONE Party collection. Every view is explicitly projected: never return raw state.
+const PARTY_LIMITS={trio:[3,6],codes:[4,16],who:[2,2],connect:[2,2],timer:[2,16],mimevoice:[3,16],mimegesture:[3,16],horror:[2,16],laugh:[2,16],blind:[2,16],wolf:[6,16]};
+const PARTY_WORDS='LUNE SOLEIL ÉTOILE TRAIN AVION BATEAU CHÂTEAU FORÊT PLAGE MONTAGNE DRAGON CHAT CHIEN RENARD OURS LIVRE MUSIQUE PIANO GUITARE RADIO ROBOT FUSÉE PLANÈTE RIVIÈRE PONT HORLOGE CLÉ COURONNE PIRATE TRÉSOR FANTÔME JARDIN FLEUR ABEILLE PAPILLON NEIGE GLACE FEU NUAGE PLUIE ORAGE DÉSERT SABLE CAFÉ CHOCOLAT PAIN FROMAGE POMME CITRON ORANGE POISSON REQUIN BALEINE TORTUE MÉDECIN PILOTE PEINTRE DANSEUR ACTEUR CAMÉRA CINÉMA THÉÂTRE MASQUE MIROIR FENÊTRE PORTE MAISON VILLE ROUTE VÉLO BALLON RAQUETTE STADE ÉCOLE CRAYON CARTE LETTRE TÉLÉPHONE ORDINATEUR ÉCRAN SOURIS ÉPÉE BOUCLIER CASQUE BOTTES CHAPEAU LUNETTES BAGUE DIAMANT ARGENT OR CUIVRE TABLE CHAISE TASSE CUILLÈRE FOURCHETTE ASSIETTE'.split(' ');
+const PARTY_NAMES='Alex Billie Charlie Dana Eden Fanny Gab Hugo Iris Jules Kim Lou Morgan Noa Oscar Pat Quinn Robin Sam Toni Ugo Val Wally Zoé'.split(' ');
+const PARTY_FACES=PARTY_NAMES.map((name,i)=>({id:i,name,hair:['brun','blond','roux'][i%3],glasses:!!(Math.floor(i/3)%2),hat:!!(Math.floor(i/6)%2),beard:!!(Math.floor(i/12)%2)}));
+const PARTY_MIMES={mimevoice:['un chat affamé','un robot en panne','un train qui freine','une abeille','un fantôme timide','un moteur de course','une grenouille','un réveil','un coq','un loup','un bébé qui rit','une porte qui grince','un chien endormi','un orage','une sirène de bateau','un canard','un aspirateur','un avion qui décolle','un cheval','un monstre enrhumé','une chouette','un téléphone ancien','un ressort','une mouche','un lion','un rire de sorcière','une poule','une voiture qui ne démarre pas','un perroquet','un moustique'],mimegesture:['faire du ski','marcher contre le vent','chercher ses lunettes','porter une valise très lourde','promener un chien','faire une pizza','jouer du violon','pêcher un gros poisson','conduire un bus','se brosser les dents','faire du patin à glace','ouvrir un parapluie','marcher sur la lune','gonfler un ballon','danser comme un robot','escalader une montagne','faire du surf','attraper un papillon','jongler','traverser un fil','jouer au tennis','mettre un costume trop petit','nager','prendre un selfie','faire de la magie','éplucher un oignon','monter à cheval','soulever des haltères','faire du jardinage','voler comme un oiseau']};
+PARTY_FACES.push(...[{"id":24,"name":"Amir","hair":"chauve","glasses":true,"hat":false,"beard":false,"mustache":true,"longHair":false,"curly":false,"bald":true,"earrings":false,"freckles":false},{"id":25,"name":"Boris","hair":"chauve","glasses":false,"hat":false,"beard":true,"mustache":false,"longHair":false,"curly":false,"bald":true,"earrings":false,"freckles":false},{"id":26,"name":"Célia","hair":"brun","glasses":false,"hat":false,"beard":false,"mustache":false,"longHair":true,"curly":false,"bald":false,"earrings":true,"freckles":false},{"id":27,"name":"Dario","hair":"gris","glasses":true,"hat":false,"beard":false,"mustache":true,"longHair":false,"curly":false,"bald":false,"earrings":false,"freckles":false},{"id":28,"name":"Éloïse","hair":"roux","glasses":false,"hat":false,"beard":false,"mustache":false,"longHair":true,"curly":true,"bald":false,"earrings":true,"freckles":true},{"id":29,"name":"Farah","hair":"brun","glasses":true,"hat":false,"beard":false,"mustache":false,"longHair":false,"curly":true,"bald":false,"earrings":true,"freckles":false},{"id":30,"name":"Gaspard","hair":"chauve","glasses":false,"hat":false,"beard":false,"mustache":true,"longHair":false,"curly":false,"bald":true,"earrings":false,"freckles":false},{"id":31,"name":"Hana","hair":"blond","glasses":false,"hat":true,"beard":false,"mustache":false,"longHair":true,"curly":false,"bald":false,"earrings":true,"freckles":false},{"id":32,"name":"Inès","hair":"gris","glasses":false,"hat":false,"beard":false,"mustache":false,"longHair":true,"curly":true,"bald":false,"earrings":true,"freckles":false},{"id":33,"name":"Jonas","hair":"roux","glasses":true,"hat":false,"beard":true,"mustache":true,"longHair":false,"curly":true,"bald":false,"earrings":false,"freckles":true},{"id":34,"name":"Lila","hair":"brun","glasses":false,"hat":false,"beard":false,"mustache":false,"longHair":true,"curly":true,"bald":false,"earrings":true,"freckles":false},{"id":35,"name":"Malo","hair":"blond","glasses":true,"hat":false,"beard":false,"mustache":true,"longHair":false,"curly":false,"bald":false,"earrings":false,"freckles":true}]);
+function partyInt(value,min,max){const n=Number(value);if(value===null||value===''||!Number.isInteger(n)||n<min||n>max)throw Error('Choix invalide.');return n;}
+function partyText(value,max=120){const t=String(value||'').trim();if(!t||t.length>max)throw Error('Texte manquant ou trop long.');return t;}
+function partyWin(g,ids,message){g.winners=ids;g.winner=ids[0]||'draw';g.phase='finished';g.last=message;}
+function partyBest(g,low=false){const value=(low?Math.min:Math.max)(...g.players.map(p=>p.score));partyWin(g,g.players.filter(p=>p.score===value).map(p=>p.id),'Partie terminée.');}
+function partyYouTube(value){let u;try{u=new URL(value);}catch{throw Error('Colle un lien YouTube valide.');}if(u.protocol!=='https:')throw Error('Le lien doit commencer par https://.');let id;if(u.hostname==='youtu.be')id=u.pathname.slice(1);else if(['www.youtube.com','youtube.com','m.youtube.com'].includes(u.hostname))id=u.searchParams.get('v')||u.pathname.match(/^\/(?:shorts|embed)\/([^/]+)$/)?.[1];if(!/^[\w-]{11}$/.test(id||''))throw Error('Choisis le lien d’une vidéo YouTube.');return id;}
+function partyMimicRound(g,now){g.phase='perform';g.deadline=now+90000;g.prompt=g.prompts[(g.round-1)%g.prompts.length];g.last='Devinez en vocal. Seul le mime voit le défi.';}
+function partyWolfWin(g){const alive=g.players.filter(p=>p.alive),wolves=alive.filter(p=>p.role==='wolf');if(!wolves.length){partyWin(g,g.players.filter(p=>p.role!=='wolf').map(p=>p.id),'Le village gagne !');return true;}if(wolves.length>=alive.length-wolves.length){partyWin(g,g.players.filter(p=>p.role==='wolf').map(p=>p.id),'Les loups gagnent !');return true;}return false;}
+function partyWolfPhase(g,phase,now){g.phase=phase;g.votes={};g.deadline=now+(phase==='night'?60000:120000);g.last=phase==='night'?'La nuit tombe. Silence dans le vocal.':'Le village débat puis vote.';}
+function newPartyGame(kind,members,hostId,now=Date.now()){const limit=PARTY_LIMITS[kind];if(!limit||members.length<limit[0]||members.length>limit[1])throw Error('Nombre de joueurs incompatible.');const g={kind,hostId,players:members.map(m=>({id:m.account_id,name:m.display_name,score:0})),turn:0,round:1,phase:'play',winner:null,winners:[],last:'La partie commence.'};
+ if(kind==='connect')g.board=Array(42).fill(null);
+ if(kind==='who'){g.faceOrder=gameShuffle(PARTY_FACES.map(f=>f.id));g.players.forEach(p=>{p.secret=crypto.getRandomValues(new Uint32Array(1))[0]%PARTY_FACES.length;p.excluded=[];});g.history=[];}
+ if(kind==='trio'){const deck=gameShuffle(Array.from({length:36},(_,i)=>({id:i,value:Math.floor(i/3)+1}))),n={3:9,4:7,5:6,6:5}[members.length];g.players.forEach(p=>{p.hand=deck.splice(0,n).sort((a,b)=>a.value-b.value);p.trios=[];});g.table=deck;g.revealed=[];}
+ if(kind==='codes'){g.players.forEach((p,i)=>{p.team=i%2===0?'red':'blue';p.master=i<2;});const types=gameShuffle([...Array(9).fill('red'),...Array(8).fill('blue'),...Array(7).fill('neutral'),'assassin']);g.board=gameShuffle([...PARTY_WORDS]).slice(0,25).map((word,i)=>({word,type:types[i],open:false}));g.team='red';g.phase='clue';g.clue=null;}
+ if(kind==='timer'){g.phase='timing';g.target=10000;g.players.forEach(p=>{p.started=null;p.elapsed=null;});}
+ if(kind==='mimevoice'||kind==='mimegesture'){g.prompts=gameShuffle([...PARTY_MIMES[kind]]);g.phase='ready';}
+ if(kind==='horror'||kind==='laugh'){g.phase='ready';g.loser=null;g.clip={...PARTY_VIDEOS[kind][0]};g.reactions=[];}
+ if(kind==='blind'){g.phase='setup';g.video=null;g.start=0;g.buzz=[];g.answer='';g.awarded=[];g.guesses=[];}
+ if(kind==='wolf'){const roles=[...Array(Math.floor(members.length/4)).fill('wolf'),'seer','guard'];while(roles.length<members.length)roles.push('villager');gameShuffle(roles);g.players.forEach((p,i)=>{p.role=roles[i];p.alive=true;p.inspection=null;});partyWolfPhase(g,'night',now);}
+ return g;
+}
+function partyMove(g,user,action,q,isHost,now=Date.now()){
+ const me=g.players.find(p=>p.id===user);if(!me||g.winner)throw Error('Partie indisponible.');const host=()=>{if(!isHost)throw Error('Action réservée au créateur.');},turn=()=>{if(g.players[g.turn].id!==user)throw Error('Ce n’est pas ton tour.');},target=()=>{const p=g.players.find(p=>p.id===q.get('target'));if(!p)throw Error('Joueur inconnu.');return p;},next=()=>g.turn=(g.turn+1)%g.players.length;
+
+ if(action==='equipment'){
+  if(!PARTY_EQUIPMENT[g.kind])throw Error('Aucun équipement obligatoire.');
+  g.equipment=g.equipment||{};g.equipment[user]={camera:q.get('camera')==='1',mic:q.get('mic')==='1',screen:String(q.get('screen')||'').slice(0,80),at:now};
+  if(['horror','laugh'].includes(g.kind)&&g.phase==='watch'&&partyEquipmentMissing(g,now).length){partyPauseScreen(g,now);g.last='Manche en pause : caméra ou micro manquant.';}return;
+ }
+ if(PARTY_EQUIPMENT[g.kind]&&['begin','award','skip','answer','buzz','reveal-answer'].includes(action)&&partyEquipmentMissing(g,now).length)throw Error('Tous les joueurs doivent activer l’équipement demandé.');
+ if(g.kind==='connect'){turn();if(action!=='drop')throw Error('Action invalide.');const col=partyInt(q.get('slot'),0,6);let row=5;while(row>=0&&g.board[row*7+col]!==null)row--;if(row<0)throw Error('Cette colonne est pleine.');g.board[row*7+col]=g.turn;for(const [dr,dc] of [[0,1],[1,0],[1,1],[1,-1]]){let count=1;for(const sign of [-1,1]){let r=row+dr*sign,c=col+dc*sign;while(r>=0&&r<6&&c>=0&&c<7&&g.board[r*7+c]===g.turn){count++;r+=dr*sign;c+=dc*sign;}}if(count>=4){partyWin(g,[user],me.name+' aligne quatre jetons !');return;}}if(g.board.every(c=>c!==null))partyWin(g,[],'Match nul.');else next();return;}
+ if(g.kind==='who'){const other=g.players.find(p=>p!==me);if(action==='who-answer'){if(!g.pendingQuestion||g.pendingQuestion.asker===user)throw Error('Seul l’adversaire répond à la question.');const answer=q.get('answer');if(!['yes','no'].includes(answer))throw Error('Réponds oui ou non.');const asker=g.players.find(p=>p.id===g.pendingQuestion.asker);g.history.push({name:asker.name,text:g.pendingQuestion.text,yes:answer==='yes'});if(g.history.length>60)g.history.shift();g.pendingQuestion=null;next();return;}if(action==='question-text'){turn();if(g.pendingQuestion)throw Error('Attends la réponse à ta question.');const text=partyText(q.get('text'),180);g.pendingQuestion={asker:user,text};return;}if(g.pendingQuestion&&action!=='exclude')throw Error('Attends la réponse à la question.');if(action==='exclude'){const id=partyInt(q.get('slot'),0,PARTY_FACES.length-1);me.excluded=me.excluded.includes(id)?me.excluded.filter(x=>x!==id):[...me.excluded,id];return;}turn();if(action==='guess'){const id=partyInt(q.get('slot'),0,PARTY_FACES.length-1);partyWin(g,[id===other.secret?user:other.id],id===other.secret?me.name+' a trouvé !':me.name+' se trompe. '+other.name+' gagne.');return;}if(action!=='question')throw Error('Action invalide.');const trait=q.get('trait');if(!['glasses','hat','beard','brun','blond','roux','gris','bald','mustache','longHair','curly','earrings','freckles'].includes(trait))throw Error('Question inconnue.');const face=PARTY_FACES[other.secret],yes=['brun','blond','roux','gris'].includes(trait)?face.hair===trait:!!face[trait];g.history.push({name:me.name,trait,yes});if(g.history.length>60)g.history.shift();next();return;}
+ if(g.kind==='trio'){turn();if(action==='continue'){if(g.phase!=='result')throw Error('Révélation en cours.');g.revealed=[];g.phase='play';next();return;}if(action!=='trio-reveal'||g.phase!=='play')throw Error('Attends le prochain tour.');let card,owner=q.get('target');if(owner==='table'){const id=partyInt(q.get('slot'),0,35);card=g.table.find(c=>c.id===id);}else{const p=target(),available=p.hand.filter(c=>!g.revealed.some(r=>r.id===c.id));const side=q.get('side');if(!['low','high'].includes(side))throw Error('Choisis la plus petite ou la plus grande.');card=side==='low'?available[0]:available.at(-1);}if(!card||g.revealed.some(c=>c.id===card.id))throw Error('Carte indisponible.');g.revealed.push({...card,owner});if(g.revealed.some(c=>c.value!==g.revealed[0].value)){g.phase='result';g.last='Les cartes sont différentes. Fin du tour.';}else if(g.revealed.length===3){const ids=g.revealed.map(c=>c.id);for(const p of g.players)p.hand=p.hand.filter(c=>!ids.includes(c.id));g.table=g.table.filter(c=>!ids.includes(c.id));me.trios.push(card.value);me.score=me.trios.length;g.phase='result';g.last=me.name+' remporte le trio de '+card.value+'.';if(card.value===7||me.trios.length>=3)partyWin(g,[user],g.last+' Victoire !');}return;}
+ if(g.kind==='codes'){if(me.team!==g.team)throw Error('C’est à l’autre équipe.');const switchTeam=()=>{g.team=g.team==='red'?'blue':'red';g.phase='clue';g.clue=null;};if(action==='clue'){if(!me.master||g.phase!=='clue')throw Error('Seul le maître donne un indice.');const word=partyText(q.get('text'),40);if(!/^[\p{L}’-]+$/u.test(word)||g.board.some(c=>!c.open&&c.word.toLocaleLowerCase('fr')===word.toLocaleLowerCase('fr')))throw Error('Donne un seul mot, absent du plateau.');const count=partyInt(q.get('count'),1,9);g.clue={word,count};g.remaining=count+1;g.phase='guess';return;}if(me.master||g.phase!=='guess')throw Error('Les enquêteurs choisissent les mots après l’indice.');if(action==='pass'){switchTeam();return;}if(action!=='code-guess')throw Error('Action invalide.');const c=g.board[partyInt(q.get('slot'),0,24)];if(c.open)throw Error('Mot déjà découvert.');c.open=true;if(c.type==='assassin'){const winning=g.team==='red'?'blue':'red';partyWin(g,g.players.filter(p=>p.team===winning).map(p=>p.id),'L’assassin a été découvert.');return;}for(const team of ['red','blue'])if(g.board.filter(c=>c.type===team).every(c=>c.open)){partyWin(g,g.players.filter(p=>p.team===team).map(p=>p.id),'L’équipe '+(team==='red'?'rouge':'bleue')+' gagne !');return;}g.remaining--;if(c.type!==g.team||!g.remaining)switchTeam();return;}
+ if(g.kind==='timer'){if(action==='timer-start'){if(g.phase!=='timing'||me.started!==null)throw Error('Chrono déjà lancé.');me.started=now;return;}if(action==='timer-stop'){if(g.phase!=='timing'||me.started===null||me.elapsed!==null)throw Error('Chrono indisponible.');const elapsed=partyInt(q.get('elapsed'),0,60000);if(Math.abs(elapsed-(now-me.started))>5000)throw Error('Chrono désynchronisé. Utilise « Abandonner cet essai ».');me.elapsed=elapsed;me.score+=Math.abs(elapsed-g.target);}else if(action==='timer-forfeit'){if(g.phase!=='timing'||me.elapsed!==null)throw Error('Essai déjà terminé.');me.elapsed=60000;me.score+=60000;}else if(action==='next-round'){host();if(g.phase!=='result')throw Error('Attends les autres chronos.');g.round++;g.target=[10000,7000,13000][g.round-1];g.phase='timing';g.players.forEach(p=>{p.started=null;p.elapsed=null;});return;}else throw Error('Action invalide.');if(g.players.every(p=>p.elapsed!==null)){g.phase='result';if(g.round===3)partyBest(g,true);}return;}
+ if(['mimevoice','mimegesture'].includes(g.kind)){if(action==='begin'){if(!isHost&&g.players[g.turn].id!==user)throw Error('Le mime ou le créateur lance.');if(g.phase!=='ready')throw Error('Manche déjà lancée.');partyMimicRound(g,now);return;}if(action==='award'||action==='skip'){if(!isHost&&g.players[g.turn].id!==user)throw Error('Le mime ou le créateur valide.');if(g.phase!=='perform')throw Error('Manche terminée.');if(action==='award'){if(now>g.deadline)throw Error('Temps écoulé. Passe au résultat.');const p=target();if(p.id===g.players[g.turn].id)throw Error('Choisis celui qui a deviné.');p.score++;g.players[g.turn].score++;g.last=p.name+' a trouvé : '+g.prompt;}else g.last='Défi : '+g.prompt;g.phase='result';return;}if(action==='next-round'){host();if(g.phase!=='result')throw Error('Termine la manche.');if(g.round===g.players.length*2){partyBest(g);return;}g.round++;next();g.phase='ready';return;}throw Error('Action invalide.');}
+ if(['horror','laugh'].includes(g.kind)){
+  if(action==='video'){host();if(g.phase!=='ready')throw Error('Choisis la vidéo avant la manche.');const selected=PARTY_VIDEOS[g.kind].find(v=>v.id===q.get('clip'));g.clip=selected?{...selected}:{id:partyYouTube(q.get('url')),title:partyText(q.get('title')||'Vidéo du salon',80),author:'Lien choisi par le créateur',seconds:partyInt(q.get('seconds'),15,g.kind==='horror'?60:600),start:partyInt(q.get('start')||'0',0,86400)};g.last='Vidéo choisie : '+g.clip.title;return;}
+  if(action==='begin'){host();if(!['ready','paused'].includes(g.phase))throw Error('Manche déjà lancée.');const resume=g.phase==='paused';g.clip=g.clip||{...PARTY_VIDEOS[g.kind][0]};if(g.players.some(p=>g.equipment?.[p.id]?.screen!==partyClipKey(g)))throw Error('Chaque joueur doit préparer son lecteur vidéo.');g.position=resume?(g.position||0):0;g.started=now+5000;g.deadline=g.started+(g.clip.seconds-g.position)*1000;g.phase='watch';g.last=g.kind==='horror'?'Gardez votre calme…':'Gardez votre sérieux…';return;}
+  if(action==='pause-video'){host();if(g.phase!=='watch')throw Error('Lecture inactive.');partyPauseScreen(g,now);g.last='Vidéo en pause pour tout le salon.';return;}
+  if(action==='reaction'){if(g.phase!=='watch'||now<g.started||now>=g.deadline)throw Error('Manche inactive.');const kind=q.get('signal');if(!['motion','sound'].includes(kind))throw Error('Signal invalide.');g.reactions=g.reactions||[];if(g.reactions.some(r=>r.id===user&&now-r.at<12000))return;g.reactions.push({id:user,kind,at:now});g.reactions=g.reactions.slice(-32);return;}
+  if(action==='dismiss-reaction'){host();g.reactions=(g.reactions||[]).filter(r=>r.id!==q.get('target'));return;}
+  if(action==='out'){if(!['watch','paused'].includes(g.phase))throw Error('La manche n’est pas en cours.');if(g.phase==='watch'&&now<g.started)throw Error('La vidéo commence bientôt.');if(g.phase==='watch'&&now>=g.deadline)throw Error('Temps écoulé.');const p=target();if(p.id!==user&&!isHost)throw Error('Seul le joueur ou le créateur confirme une défaite.');g.loser=p.id;for(const p of g.players)if(p.id!==g.loser)p.score++;g.phase='result';g.last=p.name+(g.kind==='horror'?' a sursauté ou crié.':' a ri.');return;}
+  if(action==='draw-round'){host();if(g.phase!=='watch'||now<g.deadline)throw Error('Attends la fin de la manche.');g.phase='result';g.last='Personne n’a craqué : manche nulle.';return;}
+  if(action==='next-round'){host();if(g.phase!=='result')throw Error('Termine la manche.');if(g.round===3){partyBest(g);return;}g.round++;g.loser=null;g.reactions=[];g.clip={...PARTY_VIDEOS[g.kind][(g.round-1)%PARTY_VIDEOS[g.kind].length]};g.phase='ready';return;}throw Error('Action invalide.');
+ }
+ if(g.kind==='blind'){if(action==='answer'){if(g.phase!=='listen'||user===g.hostId)throw Error('Réponse indisponible.');if(g.awarded.includes(user))throw Error('Tu as déjà trouvé.');if(g.guesses.filter(a=>a.id===user).length>=3)throw Error('Trois essais maximum par extrait.');const text=partyText(q.get('text'),150),normal=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');const correct=g.answer.split('|').some(a=>normal(a)===normal(text));g.guesses.push({id:user,text,correct});if(correct){me.score++;g.awarded.push(user);}return;}if(action==='video'){host();if(!['setup','result'].includes(g.phase))throw Error('Termine l’extrait en cours.');g.video=partyYouTube(q.get('url'));g.start=partyInt(q.get('start'),0,86400);g.answer=String(q.get('answer')||'').trim();if(g.answer.length>150)throw Error('Réponse trop longue.');g.phase='ready';g.buzz=[];g.awarded=[];g.guesses=[];return;}if(action==='begin'){host();if(g.phase!=='ready')throw Error('Prépare un extrait.');g.phase='listen';g.started=now;return;}if(action==='buzz'){if(g.phase!=='listen'||user===g.hostId)throw Error('Buzzer indisponible.');if(g.buzz.includes(user))throw Error('Tu as déjà buzzé.');g.buzz.push(user);return;}if(action==='reveal-answer'){host();if(g.phase!=='listen')throw Error('Lance un extrait.');g.phase='result';g.last=g.answer?'Réponse : '+g.answer:'L’animateur valide les réponses.';return;}if(action==='award'){host();if(!['listen','result'].includes(g.phase))throw Error('Pas d’extrait à noter.');const p=target();if(p.id===g.hostId||g.awarded.includes(p.id))throw Error('Point déjà donné ou joueur animateur.');p.score++;g.awarded.push(p.id);return;}if(action==='next-round'){host();if(g.phase!=='result')throw Error('Révèle la réponse.');g.round++;g.phase='setup';g.video=null;return;}if(action==='finish'){host();const contestants=g.players.filter(p=>p.id!==g.hostId),best=Math.max(...contestants.map(p=>p.score));partyWin(g,contestants.filter(p=>p.score===best).map(p=>p.id),'Blind test terminé.');return;}throw Error('Action invalide.');}
+ if(g.kind==='wolf'){
+  if(action==='night-action'){if(now>g.deadline)throw Error('Le temps est écoulé.');if(g.phase!=='night'||!me.alive||me.role==='villager')throw Error('Pas de pouvoir disponible.');if(g.votes[user])throw Error('Pouvoir déjà utilisé cette nuit.');const p=target();if(!p.alive||(me.role==='wolf'&&p.role==='wolf')||(me.role==='seer'&&p.id===user))throw Error('Cible invalide.');g.votes[user]=p.id;if(me.role==='seer')me.inspection={id:p.id,wolf:p.role==='wolf',round:g.round};return;}
+  if(action==='vote'){if(now>g.deadline)throw Error('Le temps est écoulé.');if(g.phase!=='day'||!me.alive)throw Error('Vote indisponible.');if(g.votes[user])throw Error('Tu as déjà voté.');const p=target();if(!p.alive||p.id===user)throw Error('Cible invalide.');g.votes[user]=p.id;return;}
+  if(action==='resolve'){host();const acting=g.players.filter(p=>p.alive&&(g.phase==='day'||p.role!=='villager'));if(now<g.deadline&&acting.some(p=>!g.votes[p.id]))throw Error('Attends les votes ou la fin du temps.');const counts={};for(const p of acting)if((g.phase==='day'||p.role==='wolf')&&g.votes[p.id])counts[g.votes[p.id]]=(counts[g.votes[p.id]]||0)+1;const max=Math.max(0,...Object.values(counts)),targets=Object.keys(counts).filter(id=>counts[id]===max);let killed=targets.length===1?targets[0]:null;if(g.phase==='night'&&g.players.some(p=>p.alive&&p.role==='guard'&&g.votes[p.id]===killed))killed=null;if(killed)g.players.find(p=>p.id===killed).alive=false;const text=killed?g.players.find(p=>p.id===killed).name+' a été éliminé.':'Personne n’a été éliminé.';if(partyWolfWin(g))return;const phase=g.phase==='night'?'day':'night';if(phase==='night')g.round++;partyWolfPhase(g,phase,now);g.last=text+' '+g.last;return;}throw Error('Action invalide.');
+ }
+ throw Error('Jeu inconnu.');
+}
+function partyPublic(row,user,now=Date.now()){
+ const g=JSON.parse(row.state),me=g.players.find(p=>p.id===user),done=!!g.winner;const out={kind:g.kind,id:row.id,revision:row.revision,status:row.status,phase:g.phase,round:g.round,last:row.status==='cancelled'?'Un joueur a quitté le salon. Partie interrompue.':g.last,winners:g.winners,hostId:g.hostId,isHost:g.hostId===user,turn:g.players[g.turn]?.id,serverNow:now,deadline:g.deadline||null,players:g.players.map(p=>({accountId:p.id,name:p.name,isYou:p.id===user,isTurn:['connect','who','trio','mimevoice','mimegesture'].includes(g.kind)&&g.players[g.turn]===p,isWinner:g.winners.includes(p.id),score:p.score,team:p.team,master:p.master,alive:p.alive}))};
+ out.requirements=PARTY_EQUIPMENT[g.kind]||null;out.equipment=g.players.map(p=>({id:p.id,ready:partyEquipment(g,p,now)}));
+ if(g.kind==='connect')out.board=g.board;
+ if(g.kind==='who'){out.pendingQuestion=g.pendingQuestion||null;out.faces=(g.faceOrder||PARTY_FACES.map(f=>f.id)).map(id=>PARTY_FACES[id]);out.secret=me.secret;out.excluded=me.excluded;out.history=g.history;if(done)out.secrets=g.players.map(p=>({id:p.id,secret:p.secret}));}
+ if(g.kind==='trio'){out.hand=me.hand;out.table=g.table.map(c=>({id:c.id,value:g.revealed.find(r=>r.id===c.id)?.value??null}));out.revealed=g.revealed;out.players.forEach((p,i)=>{p.count=g.players[i].hand.length;p.trios=g.players[i].trios;});}
+ if(g.kind==='codes'){out.board=g.board.map(c=>({word:c.word,open:c.open,type:me.master||c.open||done?c.type:null}));out.team=g.team;out.clue=g.clue;out.remaining=g.remaining||0;out.agents={red:g.board.filter(c=>c.type==='red'&&!c.open).length,blue:g.board.filter(c=>c.type==='blue'&&!c.open).length};}
+ if(g.kind==='timer'){out.target=g.target;out.started=me.started;out.elapsed=me.elapsed;out.players.forEach((p,i)=>{p.finished=g.players[i].elapsed!==null;p.elapsed=['result','finished'].includes(g.phase)?g.players[i].elapsed:null;});}
+ if(['mimevoice','mimegesture'].includes(g.kind))out.prompt=g.players[g.turn].id===user||['result','finished'].includes(g.phase)?g.prompt:null;
+ if(['horror','laugh'].includes(g.kind)){out.loser=g.loser;out.clip=g.clip||PARTY_VIDEOS[g.kind][0];out.clips=PARTY_VIDEOS[g.kind];out.reactions=g.reactions||[];out.started=g.started||null;out.position=g.position||0;out.screenReady=g.players.filter(p=>g.equipment?.[p.id]?.screen===partyClipKey({...g,clip:out.clip})&&partyEquipment(g,p,now)).map(p=>p.id);}
+ if(g.kind==='blind'){out.video=g.phase==='ready'&&user!==g.hostId?null:g.video;out.start=g.start;out.started=g.started||null;out.answer=g.hostId===user||['result','finished'].includes(g.phase)?g.answer:null;out.buzz=g.buzz;out.awarded=g.awarded;out.guesses=g.guesses.filter(a=>user===g.hostId||a.id===user||g.phase==='result');}
+ if(g.kind==='wolf'){out.role=me.role;out.inspection=me.inspection;out.voted=!!g.votes[user];out.wolves=me.role==='wolf'?g.players.filter(p=>p.role==='wolf').map(p=>p.id):[];out.players.forEach((p,i)=>{p.role=done||!g.players[i].alive?g.players[i].role:null;p.voted=g.phase==='day'?!!g.votes[p.accountId]:undefined;});out.canResolve=now>=g.deadline||g.players.filter(p=>p.alive&&(g.phase==='day'||p.role!=='villager')).every(p=>g.votes[p.id]);}
+ return out;
+}
+
+// ONE Douze: server-authoritative numbered-card game. Hidden values never leave this module.
+function douzeDeck(){const cards=[];let id=0;for(let value=-2;value<=12;value++){const count=value===-2?5:value===0?15:10;for(let i=0;i<count;i++)cards.push({id:String(id++),value});}return gameShuffle(cards);}
+function douzeDeal(g,starter=null){g.round++;g.phase='setup';g.deck=douzeDeck();g.pile=[];g.drawn=null;g.ender=null;g.finalTurns=null;g.nextStarter=starter;g.turn=0;for(const p of g.players){p.grid=g.deck.splice(0,12).map(c=>({...c,open:false}));p.flipped=0;p.roundScore=null;p.doubled=false;}g.pile.push(g.deck.pop());g.last='Retournez chacun deux cartes pour commencer.';}
+function newDouzeGame(members){const g={kind:'douze',round:0,players:members.map(m=>({id:m.account_id,name:m.display_name,total:0,grid:[]})),history:[],winner:null,winners:[]};douzeDeal(g);return g;}
+function douzeColumns(g,p){const removed=[];for(let col=0;col<4;col++){const cells=[col,col+4,col+8],cards=cells.map(i=>p.grid[i]);if(cards.every(c=>c?.open)&&cards.every(c=>c.value===cards[0].value)){for(const i of cells){g.pile.push({id:p.grid[i].id,value:p.grid[i].value});p.grid[i]=null;}removed.push(col);}}return removed;}
+function douzeScoreRound(g){for(const p of g.players){for(const c of p.grid)if(c)c.open=true;douzeColumns(g,p);p.roundScore=p.grid.reduce((sum,c)=>sum+(c?.value||0),0);p.doubled=false;}const ender=g.players[g.ender];if(ender.roundScore>0&&g.players.some(p=>p!==ender&&p.roundScore<=ender.roundScore)){ender.roundScore*=2;ender.doubled=true;}for(const p of g.players)p.total+=p.roundScore;g.history.push({round:g.round,ender:ender.id,scores:g.players.map(p=>({id:p.id,points:p.roundScore,doubled:p.doubled,total:p.total}))});g.phase='round-end';g.drawn=null;g.last='Manche terminée. Les cartes sont révélées et les points comptés.';if(g.players.some(p=>p.total>=100)){const min=Math.min(...g.players.map(p=>p.total));g.winners=g.players.filter(p=>p.total===min).map(p=>p.id);g.winner=g.winners[0];g.phase='finished';}}
+function douzeEndTurn(g){const p=g.players[g.turn];douzeColumns(g,p);if(g.ender===null&&p.grid.every(c=>!c||c.open)){g.ender=g.turn;g.finalTurns=g.players.length-1;}else if(g.ender!==null){g.finalTurns--;if(g.finalTurns===0){douzeScoreRound(g);return;}}g.turn=(g.turn+1)%g.players.length;g.drawn=null;g.phase='turn';}
+function douzeMove(g,user,action,slot,isHost=false){
+ const p=g.players.find(p=>p.id===user);if(!p)throw Error('Tu ne participes pas à cette partie.');if(g.winner)throw Error('La partie est terminée.');
+ if(action==='next-round'){if(!isHost)throw Error('Le créateur lance la manche suivante.');if(g.phase!=='round-end')throw Error('La manche est encore en cours.');douzeDeal(g,g.ender);return;}
+ const cell=()=>{if(typeof slot!=='string'||!/^([0-9]|1[01])$/.test(slot))throw Error('Choisis une case valide.');const i=Number(slot);if(!p.grid[i])throw Error('Cette colonne a été retirée.');return i;};
+ if(g.phase==='setup'){if(action!=='reveal')throw Error('Retourne d’abord deux cartes.');if(p.flipped>=2)throw Error('Attends les autres joueurs.');const i=cell();if(p.grid[i].open)throw Error('Cette carte est déjà visible.');p.grid[i].open=true;p.flipped++;if(g.players.every(p=>p.flipped===2)){if(g.nextStarter!==null)g.turn=g.nextStarter;else{const sums=g.players.map(p=>p.grid.reduce((sum,c)=>sum+(c.open?c.value:0),0)),max=Math.max(...sums),ties=sums.map((v,i)=>v===max?i:-1).filter(i=>i>=0);g.turn=ties[crypto.getRandomValues(new Uint32Array(1))[0]%ties.length];}g.phase='turn';g.last=g.players[g.turn].name+' commence.';}return;}
+ if(g.phase==='round-end')throw Error('Attends la prochaine manche.');if(g.players[g.turn].id!==user)throw Error('Ce n’est pas ton tour.');
+ if(action==='draw'||action==='take-discard'){if(g.phase!=='turn'||g.drawn)throw Error('Choisis où jouer ta carte.');if(action==='draw'){if(!g.deck.length){if(g.pile.length<2)throw Error('La pioche est vide.');const top=g.pile.pop();g.deck=gameShuffle(g.pile);g.pile=[top];}g.drawn={card:g.deck.pop(),source:'deck',player:user};}else{if(!g.pile.length)throw Error('La défausse est vide.');g.drawn={card:g.pile.pop(),source:'discard',player:user};}g.phase='drawn';return;}
+ if(!g.drawn||g.phase!=='drawn'||g.drawn.player!==user)throw Error('Pioche une carte avant de jouer.');
+ if(action==='replace'){const i=cell(),old=p.grid[i];p.grid[i]={...g.drawn.card,open:true};g.pile.push({id:old.id,value:old.value});g.last=p.name+' a remplacé une carte.';douzeEndTurn(g);return;}
+ if(action==='discard-reveal'){if(g.drawn.source!=='deck')throw Error('Une carte prise dans la défausse doit être gardée.');const i=cell();if(p.grid[i].open)throw Error('Choisis une carte encore cachée à retourner.');g.pile.push(g.drawn.card);p.grid[i].open=true;g.last=p.name+' a retourné une carte.';douzeEndTurn(g);return;}
+ throw Error('Action invalide.');
+}
+function douzePublic(row,user){const g=JSON.parse(row.state),active=row.status==='playing';return {kind:'douze',id:row.id,revision:row.revision,status:row.status,round:g.round,phase:g.phase,players:g.players.map(p=>({accountId:p.id,name:p.name,isYou:p.id===user,isTurn:active&&['turn','drawn'].includes(g.phase)&&p.id===g.players[g.turn].id,isWinner:g.winners.includes(p.id),total:p.total,roundScore:p.roundScore,doubled:p.doubled,flipped:p.flipped,visibleScore:p.grid.reduce((sum,c)=>sum+(c?.open?c.value:0),0),grid:p.grid.map((c,index)=>c?{index,open:c.open,value:c.open?c.value:null}:{index,removed:true})})),yourTurn:active&&['turn','drawn'].includes(g.phase)&&g.players[g.turn].id===user,drawn:g.drawn&&g.drawn.player===user?{value:g.drawn.card.value,source:g.drawn.source}:null,discard:g.pile.length?g.pile.at(-1).value:null,deckCount:g.deck.length,ender:g.ender===null?null:g.players[g.ender].id,finalTurns:g.finalTurns,history:g.history,winners:g.winners,last:row.status==='cancelled'?'Un joueur a quitté le salon. Partie interrompue.':g.last};}
+
+function bluffOut(p,g){return g.rules==='roulette'?!!p.eliminated:p.faults>=3;}
+const BLUFF_RANKS=['A','K','Q'];
+function bluffDeal(g,start){
+ const deck=[];for(const rank of BLUFF_RANKS)for(let i=0;i<6;i++)deck.push({id:rank+i,rank});for(let i=0;i<2;i++)deck.push({id:'J'+i,rank:'J'});gameShuffle(deck);
+ g.round=(g.round||0)+1;g.target=BLUFF_RANKS[crypto.getRandomValues(new Uint32Array(1))[0]%3];g.pending=null;
+ for(const p of g.players)p.hand=!bluffOut(p,g)?deck.splice(0,5):[];
+ g.turn=start;while(bluffOut(g.players[g.turn],g))g.turn=(g.turn+1)%g.players.length;
+}
+function newBluffGame(members){const g={kind:'bluff',rules:'roulette',players:members.map(m=>({id:m.account_id,name:m.display_name,avatar:m.avatar||'croupier',hand:[],faults:0,shots:0,eliminated:false,chamber:1+crypto.getRandomValues(new Uint32Array(1))[0]%6})),winner:null,reveal:null,last:'La table est ouverte. Qui bluffera le premier ?'};bluffDeal(g,0);return g;}
+function bluffPublic(row,user){const g=JSON.parse(row.state);return {kind:'bluff',rules:g.rules||'three-errors',resumeAt:g.resumeAt||0,id:row.id,revision:row.revision,status:row.status,round:g.round,target:g.target,players:g.players.map(p=>({accountId:p.id,name:p.name,avatar:p.avatar||'croupier',isYou:p.id===user,count:p.hand.length,faults:p.faults,shots:p.shots||0,eliminated:bluffOut(p,g),isTurn:row.status==='playing'&&p.id===g.players[g.turn].id,isWinner:p.id===g.winner})),hand:g.players.find(p=>p.id===user)?.hand||[],yourTurn:row.status==='playing'&&!(g.resumeAt>Date.now())&&g.players[g.turn].id===user,pending:g.pending?{accountId:g.players[g.pending.player].id,name:g.players[g.pending.player].name,count:g.pending.cards.length}:null,reveal:g.reveal,last:row.status==='cancelled'?'Un joueur a quitté le salon. Partie interrompue.':g.last};}
+function bluffMove(g,user,action,cardIds){
+ if(g.winner)throw Error('La partie est terminée.');if(g.resumeAt>Date.now())throw Error('La séquence du barillet est en cours.');const current=g.players[g.turn];if(current.id!==user||bluffOut(current,g))throw Error('Ce n’est pas ton tour.');
+ if(action==='accuse'){
+  if(!g.pending)throw Error('Personne n’a encore joué.');const claim=g.pending,actor=g.players[claim.player],honest=claim.cards.every(c=>c.rank===g.target||c.rank==='J');const loser=honest?current:actor;loser.faults++;
+  if(g.rules==='roulette'){loser.shots++;loser.eliminated=loser.shots===loser.chamber;g.resumeAt=Date.now()+5800;}
+  g.reveal={name:actor.name,cards:claim.cards.map(c=>c.rank),target:g.target,honest,penalized:loser.name,accountId:loser.id,faults:loser.faults,shots:loser.shots||0,eliminated:bluffOut(loser,g),at:Date.now()};g.last=(honest?actor.name+' disait vrai. ':actor.name+' bluffait ! ')+(g.rules==='roulette'?loser.name+(loser.eliminated?' est éliminé.':' survit au barillet ('+loser.shots+'/6).'):loser.name+' reçoit une erreur ('+loser.faults+'/3).');
+  const alive=g.players.filter(p=>!bluffOut(p,g));if(alive.length===1){g.winner=alive[0].id;g.pending=null;g.last+=' '+alive[0].name+' remporte la partie !';return;}
+  bluffDeal(g,g.players.indexOf(loser));return;
+ }
+ if(action!=='bluff')throw Error('Action invalide.');
+ if(!current.hand.length)throw Error('Ta main est vide : conteste la dernière annonce.');
+ const ids=String(cardIds||'').split(',');if(ids.length<1||ids.length>3||new Set(ids).size!==ids.length)throw Error('Choisis de une à trois cartes différentes.');const cards=ids.map(id=>current.hand.find(c=>c.id===id));if(cards.some(c=>!c))throw Error('Une carte n’est pas dans ta main.');
+ current.hand=current.hand.filter(c=>!ids.includes(c.id));g.pending={player:g.turn,cards};g.last=current.name+' annonce '+cards.length+' '+({A:'as',K:'roi(s)',Q:'dame(s)'}[g.target])+'.';
+ for(let step=1;step<=g.players.length;step++){const next=(g.turn+step)%g.players.length;if(!bluffOut(g.players[next],g)){g.turn=next;return;}}throw Error('Aucun joueur actif.');
+}
+
+const GAME_COLORS=['red','blue','green','yellow'];
+function gameShuffle(cards){for(let i=cards.length-1;i>0;i--){const n=new Uint32Array(1);crypto.getRandomValues(n);const j=n[0]%(i+1);[cards[i],cards[j]]=[cards[j],cards[i]];}return cards;}
+function newCardGame(members){const deck=[];let id=0;for(const color of GAME_COLORS){for(let n=0;n<10;n++)deck.push({id:String(id++),color,value:String(n)});for(const value of ['skip','reverse','draw2'])for(let n=0;n<2;n++)deck.push({id:String(id++),color,value});}for(let n=0;n<4;n++)deck.push({id:String(id++),color:'wild',value:'wild'});gameShuffle(deck);const players=members.map(m=>({id:m.account_id,name:m.display_name,hand:deck.splice(0,7)}));const at=deck.findIndex(c=>/^\d$/.test(c.value)),top=deck.splice(at,1)[0];return {players,deck,pile:[top],color:top.color,turn:0,direction:1,winner:null,last:'La partie commence.'};}
+function gameDraw(g,player,count){for(let i=0;i<count;i++){if(!g.deck.length){if(g.pile.length<2)break;const top=g.pile.pop();g.deck=gameShuffle(g.pile);g.pile=[top];}player.hand.push(g.deck.pop());}}
+function gamePublic(row,user){if(PARTY_LIMITS[JSON.parse(row.state).kind])return partyPublic(row,user);if(JSON.parse(row.state).kind==='douze')return douzePublic(row,user);if(JSON.parse(row.state).kind==='bluff')return bluffPublic(row,user);const g=JSON.parse(row.state),top=g.pile[g.pile.length-1];return {id:row.id,revision:row.revision,status:row.status,players:g.players.map(p=>({accountId:p.id,name:p.name,isYou:p.id===user,count:p.hand.length,isTurn:row.status==='playing'&&p.id===g.players[g.turn].id,isWinner:p.id===g.winner})),hand:g.players.find(p=>p.id===user)?.hand||[],top,pendingDraw:g.pendingDraw||0,color:g.color,yourTurn:row.status==='playing'&&g.players[g.turn].id===user,last:row.status==='cancelled'?'Partie interrompue : un membre a quitté le salon.':g.last};}
+function gameMove(g,user,action,cardId,color){if(g.winner)throw Error('La partie est terminée.');const current=g.players[g.turn];if(current.id!==user)throw Error('Ce n’est pas ton tour.');const next=steps=>(g.turn+g.direction*steps+g.players.length*4)%g.players.length;
+ if(action==='draw'){const count=g.pendingDraw||1;gameDraw(g,current,count);g.pendingDraw=0;g.last=current.name+' pioche '+count+' carte(s) et passe son tour.';g.turn=next(1);return;}
+ const i=current.hand.findIndex(c=>c.id===cardId);if(i<0)throw Error('Cette carte n’est pas dans ta main.');const card=current.hand[i],top=g.pile[g.pile.length-1];if(g.pendingDraw&&card.value!=='draw2')throw Error('Ajoute un +2 ou pioche les '+g.pendingDraw+' cartes.');if(card.color!=='wild'&&card.color!==g.color&&card.value!==top.value)throw Error('Joue la même couleur ou le même symbole.');if(card.color==='wild'&&!GAME_COLORS.includes(color))throw Error('Choisis la couleur du joker.');
+ current.hand.splice(i,1);g.pile.push(card);g.color=card.color==='wild'?color:card.color;g.last=current.name+' a joué.';
+ if(!current.hand.length){g.winner=current.id;g.last=current.name+' remporte la partie !';return;}
+ let steps=1;if(card.value==='reverse'){g.direction*=-1;if(g.players.length===2)steps=2;}if(card.value==='skip')steps=2;if(card.value==='draw2'){g.pendingDraw=(g.pendingDraw||0)+2;g.last=current.name+' ajoute +2 : '+g.pendingDraw+' cartes à piocher ou un +2 pour continuer.';}g.turn=next(steps);
+}
+
+const ORIGIN='https://moulinanthony60-creator.github.io';
+const AUTH='https://one-profile-api.moulinanthony60.workers.dev/auth/me';
+const validVideo=v=>/^tiktok:\d{5,30}$/.test(v||'');
+export default {async fetch(request,env){
+ const headers={'Access-Control-Allow-Origin':ORIGIN,'Access-Control-Allow-Methods':'GET,POST,DELETE,OPTIONS','Access-Control-Allow-Headers':'Content-Type,Authorization','Cache-Control':'no-store','Content-Type':'application/json; charset=utf-8','Vary':'Origin'};
+ const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers});
+ const origin=request.headers.get('Origin');if(origin&&origin!==ORIGIN)return json({error:'Origine non autorisée'},403);
+ if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
+ const url=new URL(request.url);
+ if(url.pathname==='/')return json({ok:true,service:'ONE Comments',configured:!!env.COMMENTS,version:'25',accountService:env.PROFILE?'binding':'https'});
+ if(!env.COMMENTS)return json({error:'Commentaires ONE en cours d’activation.'},503);
+ let authStatus='anonymous';
+ const auth=async()=>{const token=request.headers.get('Authorization');if(!token?.startsWith('Bearer '))return null;
+ const unavailable=()=>Object.assign(new Error('La vérification de ton compte ONE est momentanément indisponible. Réessaie dans quelques instants.'),{status:503});
+ let r;try{const options={headers:{Authorization:token,Origin:ORIGIN},signal:AbortSignal.timeout(7000)};r=env.PROFILE?await env.PROFILE.fetch(new Request(AUTH,options)):await fetch(AUTH,options);}catch{authStatus='unavailable';throw unavailable();}
+ if(r.status===401){authStatus='expired';throw Object.assign(new Error('Ta session ONE a expiré. Reconnecte-toi depuis ton profil.'),{status:401});}
+ let d;try{d=await r.json();}catch{authStatus='unavailable';throw unavailable();}
+ if(!r.ok||!d.ok||!d.account?.id){authStatus='unavailable';throw unavailable();}
+ authStatus='authenticated';return {id:String(d.account.id),name:String(d.account.displayName||'Membre ONE').slice(0,80)};};
+ try{
+
+
+  if(url.pathname.startsWith('/friends/')){
+   const user=await auth();if(!user)return json({error:'Connecte-toi à ONE pour retrouver tes amis.'},401);
+   const db=env.COMMENTS;
+   if(url.pathname==='/friends/presence'&&request.method==='POST'){await db.prepare('CREATE TABLE IF NOT EXISTS one_presence(account_id TEXT PRIMARY KEY,last_seen INTEGER NOT NULL)').run();await db.prepare('INSERT INTO one_presence(account_id,last_seen) VALUES(?,?) ON CONFLICT(account_id) DO UPDATE SET last_seen=excluded.last_seen').bind(user.id,Date.now()).run();return json({ok:true});}
+   let profile=await db.prepare('SELECT code FROM friend_profiles WHERE account_id=?').bind(user.id).first();
+   for(let attempt=0;!profile&&attempt<5;attempt++){const bytes=crypto.getRandomValues(new Uint8Array(8));const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const code=Array.from(bytes,b=>chars[b%chars.length]).join('');await db.prepare('INSERT OR IGNORE INTO friend_profiles VALUES(?,?,?)').bind(user.id,code,user.name).run();profile=await db.prepare('SELECT code FROM friend_profiles WHERE account_id=?').bind(user.id).first();}
+   if(!profile)return json({error:'Création du code indisponible. Réessaie.'},503);
+   await db.prepare('UPDATE friend_profiles SET name=? WHERE account_id=?').bind(user.name,user.id).run();
+   if(url.pathname==='/friends/state'&&request.method==='GET'){
+    const {results}=await db.prepare("SELECT f.id,f.status,f.requester=? AS outgoing,p.name,p.code,p.account_id AS accountId FROM friendships f JOIN friend_profiles p ON p.account_id=CASE WHEN f.a=? THEN f.b ELSE f.a END WHERE (f.a=? OR f.b=?) AND f.status IN ('pending','accepted') ORDER BY p.name LIMIT 200").bind(user.id,user.id,user.id,user.id).all();let online=new Set();try{const seen=await db.prepare("SELECT p.account_id FROM one_presence p JOIN friendships f ON (f.a=p.account_id OR f.b=p.account_id) WHERE (f.a=? OR f.b=?) AND f.status='accepted' AND p.last_seen>?").bind(user.id,user.id,Date.now()-90000).all();online=new Set(seen.results.map(p=>p.account_id));}catch{}return json({ok:true,code:profile.code,relationships:results.map(r=>({...r,online:online.has(r.accountId)}))});
+   }
+   if(url.pathname==='/friends/request'&&request.method==='POST'){
+    const code=(url.searchParams.get('code')||'').toUpperCase().replace(/[\s-]/g,'');if(!/^[A-Z2-9]{8}$/.test(code))return json({error:'Saisis les 8 caractères du code ONE.'},400);
+    const target=await db.prepare('SELECT account_id FROM friend_profiles WHERE code=?').bind(code).first();if(!target)return json({error:'Code inconnu. Ton ami doit ouvrir Amis dans ONE pour obtenir son code.'},404);if(target.account_id===user.id)return json({error:'C’est ton propre code.'},400);
+    const [a,b]=[user.id,target.account_id].sort();const existing=await db.prepare('SELECT status FROM friendships WHERE a=? AND b=?').bind(a,b).first();if(existing)return json({error:existing.status==='accepted'?'Vous êtes déjà amis.':'Une demande existe déjà pour ce membre.'},409);
+    const result=await db.prepare("INSERT OR IGNORE INTO friendships SELECT ?,?,?,?,'pending',? WHERE (SELECT COUNT(*) FROM friendships WHERE requester=? AND created_at>?)<20 AND (SELECT COUNT(*) FROM friendships WHERE a=? OR b=?)<150").bind(crypto.randomUUID(),a,b,user.id,Date.now(),user.id,Date.now()-86400000,user.id,user.id).run();return result.meta.changes?json({ok:true},201):json({error:'Demande déjà envoyée ou limite de demandes atteinte. Réessaie demain.'},409);
+   }
+
+   if(url.pathname==='/friends/inbox'&&request.method==='GET'){
+    const {results}=await db.prepare("SELECT f.id,p.name,p.account_id AS accountId,(SELECT body FROM friend_messages WHERE friendship_id=f.id ORDER BY created_at DESC,id DESC LIMIT 1) AS lastText,(SELECT MAX(created_at) FROM friend_messages WHERE friendship_id=f.id) AS lastAt,(SELECT COUNT(*) FROM friend_messages m LEFT JOIN notification_reads n ON n.event_key='message:'||m.id AND n.account_id=? WHERE m.friendship_id=f.id AND m.sender_id<>? AND n.event_key IS NULL) AS unread FROM friendships f JOIN friend_profiles p ON p.account_id=CASE WHEN f.a=? THEN f.b ELSE f.a END WHERE (f.a=? OR f.b=?) AND f.status='accepted' ORDER BY lastAt DESC,p.name LIMIT 200").bind(user.id,user.id,user.id,user.id,user.id).all();return json({ok:true,conversations:results});
+   }
+   const readConversation=url.pathname.match(/^\/friends\/([a-f0-9-]{36})\/messages\/read$/i);
+   if(readConversation&&request.method==='POST'){
+    const f=await db.prepare("SELECT id FROM friendships WHERE id=? AND (a=? OR b=?) AND status='accepted'").bind(readConversation[1],user.id,user.id).first();if(!f)return json({error:'Conversation indisponible.'},403);
+    const through=Number(url.searchParams.get('through'));if(!Number.isSafeInteger(through)||through<=0||through>Date.now())return json({error:'Date invalide.'},400);
+    await db.prepare("INSERT OR IGNORE INTO notification_reads(account_id,event_key,read_at) SELECT ?,'message:'||id,? FROM friend_messages WHERE friendship_id=? AND sender_id<>? AND created_at<=?").bind(user.id,Date.now(),f.id,user.id,through).run();return json({ok:true});
+   }
+   const conversation=url.pathname.match(/^\/friends\/([a-f0-9-]{36})\/messages$/i);
+   if(conversation){
+    const friendship=await db.prepare("SELECT * FROM friendships WHERE id=? AND (a=? OR b=?) AND status='accepted'").bind(conversation[1],user.id,user.id).first();if(!friendship)return json({error:'Cette conversation est réservée à deux amis ONE.'},403);
+    if(request.method==='GET'){const {results}=await db.prepare('SELECT id,sender_id AS sender,body AS text,created_at AS createdAt FROM friend_messages WHERE friendship_id=? ORDER BY created_at DESC,id DESC LIMIT 50').bind(friendship.id).all();return json({ok:true,messages:results.reverse().map(m=>({id:m.id,text:m.text,createdAt:m.createdAt,isYou:m.sender===user.id}))});}
+    if(request.method==='POST'){
+     const reader=request.body?.getReader();if(!reader)return json({error:'Message vide.'},400);let size=0,parts=[];while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>8192){await reader.cancel();return json({error:'Message trop long.'},413);}parts.push(value);}const bytes=new Uint8Array(size);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.length;}let data;try{data=JSON.parse(new TextDecoder().decode(bytes));}catch{return json({error:'Message invalide.'},400);}const text=typeof data?.text==='string'?data.text.trim():'';
+     if(!/^[a-f0-9-]{36}$/i.test(data?.id||'')||!text||text.length>1000)return json({error:'Écris un message de 1 à 1 000 caractères.'},400);
+     const old=await db.prepare('SELECT sender_id,friendship_id FROM friend_messages WHERE id=?').bind(data.id).first();if(old)return old.sender_id===user.id&&old.friendship_id===friendship.id?json({ok:true}):json({error:'Identifiant déjà utilisé.'},409);
+     const now=Date.now();const result=await db.prepare("INSERT OR IGNORE INTO friend_messages SELECT ?,?,?,?,? WHERE EXISTS(SELECT 1 FROM friendships WHERE id=? AND status='accepted' AND (a=? OR b=?)) AND NOT EXISTS(SELECT 1 FROM friend_messages WHERE sender_id=? AND created_at>?)").bind(data.id,friendship.id,user.id,text,now,friendship.id,user.id,user.id,user.id,now-1500).run();return result.meta.changes?json({ok:true},201):json({error:'Attends un instant avant de renvoyer, puis vérifie que vous êtes toujours amis.'},429);
+    }
+    return json({error:'Méthode inconnue.'},405);
+   }
+
+   const action=url.pathname.match(/^\/friends\/([a-f0-9-]{36})\/(accept|decline|remove)$/i);
+   if(action&&request.method==='POST'){
+    const f=await db.prepare('SELECT * FROM friendships WHERE id=? AND (a=? OR b=?)').bind(action[1],user.id,user.id).first();if(!f)return json({error:'Demande indisponible.'},404);
+    if(action[2]==='remove'){await db.prepare('DELETE FROM friendships WHERE id=? AND (a=? OR b=?)').bind(f.id,user.id,user.id).run();return json({ok:true});}
+    if(f.requester===user.id||f.status!=='pending')return json({error:'Seul le destinataire peut traiter cette demande.'},403);
+    await db.prepare("UPDATE friendships SET status=? WHERE id=? AND status='pending'").bind(action[2]==='accept'?'accepted':'declined',f.id).run();return json({ok:true});
+   }
+   return json({error:'Commande inconnue.'},404);
+  }
+
+  if(url.pathname.startsWith('/points/')){
+   const user=await auth();if(!user)return json({error:'Connecte-toi à ton compte ONE.'},401);const db=env.COMMENTS,day=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+   const response=async(round=null)=>{const wallet=await db.prepare('SELECT balance FROM one_wallets WHERE account_id=?').bind(user.id).first();const daily=await db.prepare('SELECT day FROM one_daily WHERE account_id=? AND day=?').bind(user.id,day).first();return json({ok:true,balance:wallet?.balance||0,dailyClaimed:!!daily,round:casinoPublic(round)});};
+   if(url.pathname==='/points/state'&&request.method==='GET'){const round=await db.prepare('SELECT * FROM one_casino WHERE account_id=? AND settled=0').bind(user.id).first();return response(round);}
+   if(request.method!=='POST')return json({error:'Action indisponible.'},405);
+   if(url.pathname==='/points/daily'){await db.prepare('INSERT OR IGNORE INTO one_daily VALUES(?,?)').bind(user.id,day).run();return response();}
+   let body;try{body=await request.json();}catch{return json({error:'Demande invalide.'},400);}
+   const id=body.id;if(!/^[a-f0-9-]{36}$/i.test(id||''))return json({error:'Identifiant invalide.'},400);
+   if(url.pathname==='/points/play'){
+    const {kind,stake,choice}=body;if(!['roulette','blackjack','slots'].includes(kind)||![10,25,50,100].includes(stake)||(kind==='roulette'&&!['red','black'].includes(choice)&&!/^n:([0-9]|[12][0-9]|3[0-6])$/.test(choice||'')))return json({error:'Mise ou jeu invalide.'},400);
+    let row=await db.prepare('SELECT * FROM one_casino WHERE account_id=? AND id=?').bind(user.id,id).first();
+    if(!row){const active=await db.prepare('SELECT * FROM one_casino WHERE account_id=? AND settled=0').bind(user.id).first();if(active)return json({error:'Termine ton blackjack en cours.'},409);const r=casinoNew(kind,stake,choice);await db.prepare('INSERT OR IGNORE INTO one_casino(account_id,id,kind,stake,state,settled,payout) VALUES(?,?,?,?,?,?,?)').bind(user.id,id,kind,stake,JSON.stringify(r.state),r.settled,r.payout).run();row=await db.prepare('SELECT * FROM one_casino WHERE account_id=? AND id=?').bind(user.id,id).first();}
+    if(!row)return json({error:'Solde insuffisant ou partie déjà en cours.'},409);return response(row);
+   }
+   if(url.pathname==='/points/blackjack'){
+    let row=await db.prepare('SELECT * FROM one_casino WHERE account_id=? AND id=?').bind(user.id,id).first();if(!row||row.kind!=='blackjack')return json({error:'Partie introuvable.'},404);
+    if(!['hit','stand'].includes(body.action)||!Number.isInteger(body.version))return json({error:'Action invalide.'},400);
+    if(!row.settled&&row.version===body.version){const s=JSON.parse(row.state);let payout=0,settled=0;if(body.action==='hit')casinoDraw(s);if(body.action==='stand'||casinoTotal(s.player)>=21){settled=1;payout=casinoFinish(s,row.stake);}await db.prepare('UPDATE one_casino SET state=?,payout=?,settled=?,version=version+1 WHERE account_id=? AND id=? AND version=? AND settled=0').bind(JSON.stringify(s),payout,settled,user.id,id,body.version).run();row=await db.prepare('SELECT * FROM one_casino WHERE account_id=? AND id=?').bind(user.id,id).first();}return response(row);
+   }
+   return json({error:'Action inconnue.'},404);
+  }
+
+  if(url.pathname==='/collection/state'||url.pathname==='/collection/open'){
+   const user=await auth();if(!user)return json({error:'Connecte-toi pour accéder à tes Points ONE et à ta collection.'},401);const db=env.COMMENTS;
+   if(url.pathname==='/collection/state'&&request.method==='GET'){
+    const wallet=await db.prepare('SELECT balance FROM one_wallets WHERE account_id=?').bind(user.id).first();const owned=await db.prepare('SELECT card_id AS id,quantity FROM one_collection WHERE account_id=?').bind(user.id).all();
+    return json({ok:true,balance:wallet?.balance||0,packs:ONE_PACKS,cards:ONE_CARDS,owned:owned.results});
+   }
+   if(url.pathname==='/collection/open'&&request.method==='POST'){
+    const pack=ONE_PACKS.find(p=>p.id===url.searchParams.get('pack')),requestId=url.searchParams.get('request');if(!pack||!/^[-a-f0-9]{36}$/i.test(requestId||''))return json({error:'Pack ou demande invalide.'},400);
+    let opening=await db.prepare('SELECT * FROM one_pack_openings WHERE account_id=? AND request_id=?').bind(user.id,requestId).first();
+    if(!opening){const cards=onePackCards(pack);await db.prepare('INSERT OR IGNORE INTO one_pack_openings(account_id,request_id,pack_id,cost,cards,created_at) VALUES(?,?,?,?,?,?)').bind(user.id,requestId,pack.id,pack.cost,JSON.stringify(cards),Date.now()).run();opening=await db.prepare('SELECT * FROM one_pack_openings WHERE account_id=? AND request_id=?').bind(user.id,requestId).first();}
+    if(!opening)return json({error:'Tu n’as pas assez de Points ONE pour ce pack.'},409);if(opening.pack_id!==pack.id)return json({error:'Cette demande correspond à un autre pack.'},409);
+    const wallet=await db.prepare('SELECT balance FROM one_wallets WHERE account_id=?').bind(user.id).first();return json({ok:true,balance:wallet.balance,cards:JSON.parse(opening.cards),request:requestId});
+   }
+   return json({error:'Commande de collection indisponible.'},405);
+  }
+  if(url.pathname.startsWith('/party/')){
+   const user=await auth();if(!user)return json({error:'Connecte-toi à ONE pour utiliser Party.'},401);
+   const db=env.COMMENTS,now=Date.now();
+   const member=await db.prepare('SELECT r.* FROM party_members m JOIN party_rooms r ON r.id=m.room_id WHERE m.account_id=?').bind(user.id).first();
+   if(url.pathname==='/party/public'&&request.method==='GET'){
+    const query=(url.searchParams.get('q')||'').trim().slice(0,80),kind=url.searchParams.get('kind')||'',open=url.searchParams.get('open')==='1';
+    if(kind&&!['colors','bluff','douze',...Object.keys(PARTY_LIMITS).filter(k=>!['horror','laugh','blind','mimevoice','mimegesture'].includes(k))].includes(kind))return json({error:'Jeu inconnu.'},400);
+    const rows=await db.prepare("SELECT r.id,r.name,r.owner_name AS host,d.kind AS announcedKind,CASE WHEN g.status='playing' THEN COALESCE(json_extract(g.state,'$.kind'),'colors') ELSE d.kind END AS kind,CASE WHEN g.status='playing' THEN 1 ELSE 0 END AS playing,(SELECT COUNT(*) FROM party_members m WHERE m.room_id=r.id) AS count FROM party_directory d JOIN party_rooms r ON r.id=d.room_id LEFT JOIN party_games g ON g.room_id=r.id WHERE d.visibility='public' AND d.kind NOT IN ('horror','laugh','blind','mimevoice','mimegesture') AND (COALESCE(g.status,'')<>'playing' OR COALESCE(json_extract(g.state,'$.kind'),'colors') NOT IN ('horror','laugh','blind','mimevoice','mimegesture')) AND (?='' OR instr(lower(r.name),lower(?))>0 OR instr(lower(r.owner_name),lower(?))>0) AND (?='' OR CASE WHEN g.status='playing' THEN COALESCE(json_extract(g.state,'$.kind'),'colors') ELSE d.kind END=?) AND (?=0 OR (COALESCE(g.status,'')<>'playing' AND (SELECT COUNT(*) FROM party_members m WHERE m.room_id=r.id)<(CASE d.kind WHEN 'who' THEN 2 WHEN 'connect' THEN 2 WHEN 'colors' THEN 4 WHEN 'bluff' THEN 4 WHEN 'douze' THEN 4 WHEN 'trio' THEN 6 ELSE 16 END))) ORDER BY d.updated_at DESC,r.id LIMIT 51").bind(query,query,query,kind,kind,open?1:0).all();
+    return json({ok:true,rooms:rows.results.slice(0,50).map(r=>({...r,playing:!!r.playing,capacity:(PARTY_LIMITS[r.kind]||[2,4])[1]})),more:rows.results.length>50});
+   }
+   if(url.pathname==='/party/public-settings'&&request.method==='POST'){
+    if(!member||member.owner_id!==user.id)return json({error:'Seul le créateur peut modifier la visibilité.'},403);
+    const visibility=url.searchParams.get('visibility'),kind=url.searchParams.get('kind');if(!['public','private'].includes(visibility)||!['colors','bluff','douze',...Object.keys(PARTY_LIMITS).filter(k=>!['horror','laugh','blind','mimevoice','mimegesture'].includes(k))].includes(kind))return json({error:'Réglages invalides.'},400);
+    const count=await db.prepare('SELECT COUNT(*) AS n FROM party_members WHERE room_id=?').bind(member.id).first();if(count.n>(PARTY_LIMITS[kind]||[2,4])[1])return json({error:'Ce jeu ne permet pas autant de joueurs. Choisis un autre jeu proposé.'},409);
+    const r=await db.prepare("INSERT INTO party_directory(room_id,visibility,kind,updated_at) SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM party_rooms WHERE id=? AND owner_id=?) ON CONFLICT(room_id) DO UPDATE SET visibility=excluded.visibility,kind=excluded.kind,updated_at=excluded.updated_at").bind(member.id,visibility,kind,now,member.id,user.id).run();return r.meta.changes?json({ok:true}):json({error:'Salon fermé.'},409);
+   }
+   if(url.pathname==='/party/join-public'&&request.method==='POST'){
+    if(member)return json({error:'Quitte ton salon actuel avant d’en rejoindre un autre.'},409);const target=url.searchParams.get('room');
+    const result=await db.prepare("INSERT OR IGNORE INTO party_members(account_id,room_id,display_name,joined_at) SELECT ?,r.id,?,? FROM party_rooms r JOIN party_directory d ON d.room_id=r.id WHERE r.id=? AND d.visibility='public' AND d.kind NOT IN ('horror','laugh','blind','mimevoice','mimegesture') AND NOT EXISTS(SELECT 1 FROM party_members WHERE account_id=?) AND NOT EXISTS(SELECT 1 FROM party_games WHERE room_id=r.id AND status='playing') AND (SELECT COUNT(*) FROM party_members WHERE room_id=r.id)<16").bind(user.id,user.name,now,target,user.id).run();
+    return result.meta.changes?json({ok:true}):json({error:'Salon complet, privé, fermé ou partie déjà en cours. Actualise la recherche.'},409);
+   }
+   if(url.pathname.startsWith('/party/game/')){
+    if(!member||url.searchParams.get('room')!==member.id)return json({error:'Tu ne fais plus partie de ce salon.'},403);
+    const row=await db.prepare('SELECT * FROM party_games WHERE room_id=?').bind(member.id).first();
+    const members=(await db.prepare("SELECT m.account_id,m.display_name,COALESCE(r.ready,0) AS ready,COALESCE(a.avatar,'croupier') AS avatar FROM party_members m LEFT JOIN party_ready r ON r.account_id=m.account_id AND r.room_id=m.room_id LEFT JOIN party_avatars a ON a.account_id=m.account_id AND a.room_id=m.room_id WHERE m.room_id=? ORDER BY m.joined_at,m.account_id").bind(member.id).all()).results;
+    if(url.pathname==='/party/game/state'&&request.method==='GET')return json({ok:true,isHost:member.owner_id===user.id,members:members.map(m=>({accountId:m.account_id,name:m.display_name,isYou:m.account_id===user.id,ready:!!m.ready,avatar:m.avatar})),game:row?{...gamePublic(row,user.id),replayReady:JSON.parse(row.state).replayReady||[]}:null});
+    if(url.pathname==='/party/game/return-lobby'&&request.method==='POST'){
+     const game=url.searchParams.get('game');if(!row||row.id!==game)return json({error:'La partie a changé. Actualise.'},409);
+     const results=await db.batch([db.prepare('DELETE FROM party_ready WHERE room_id=? AND EXISTS(SELECT 1 FROM party_games WHERE room_id=? AND id=?)').bind(member.id,member.id,game),db.prepare('DELETE FROM party_games WHERE room_id=? AND id=?').bind(member.id,game)]);
+     return results[1].meta.changes?json({ok:true}):json({error:'La partie a changé. Actualise.'},409);
+    }
+    if(url.pathname==='/party/game/replay'&&request.method==='POST'){
+     const game=url.searchParams.get('game'),ready=url.searchParams.get('ready');if(!['0','1'].includes(ready))return json({error:'État invalide.'},400);
+     for(let attempt=0;attempt<32;attempt++){
+      const current=await db.prepare('SELECT * FROM party_games WHERE room_id=?').bind(member.id).first();
+      if(!current||current.id!==game||current.status==='playing')return json({error:'La partie a changé. Actualise.'},409);
+      const g=JSON.parse(current.state),ids=members.map(m=>m.account_id),votes=new Set((g.replayReady||[]).filter(id=>ids.includes(id)));if(ready==='1')votes.add(user.id);else votes.delete(user.id);g.replayReady=[...votes];
+      const kind=g.kind||'colors';if(['horror','laugh','blind','mimevoice','mimegesture'].includes(kind))return json({error:'Ce jeu a été retiré. Retourne au choix des jeux.'},409);const limits=PARTY_LIMITS[kind]||[2,4],restart=ids.length>=limits[0]&&ids.length<=limits[1]&&ids.every(id=>votes.has(id));
+      const next=restart?(PARTY_LIMITS[kind]?newPartyGame(kind,members,member.owner_id):kind==='douze'?newDouzeGame(members):kind==='bluff'?newBluffGame(members):newCardGame(members)):g;
+      const result=await db.prepare("UPDATE party_games SET id=?,revision=revision+1,status=?,state=? WHERE room_id=? AND id=? AND revision=? AND status<>'playing' AND (SELECT group_concat(account_id,',') FROM (SELECT account_id FROM party_members WHERE room_id=? ORDER BY account_id))=?").bind(restart?crypto.randomUUID():current.id,restart?'playing':current.status,JSON.stringify(next),member.id,current.id,current.revision,member.id,[...ids].sort().join(',')).run();
+      if(result.meta.changes)return json({ok:true,restarted:restart});
+     }
+     return json({error:'Le salon a changé. Réessaie Rejouer.'},409);
+    }
+    if(url.pathname==='/party/game/avatar'&&request.method==='POST'){
+     const avatar=url.searchParams.get('avatar');if(!['croupier','renard','corbeau','chasseur'].includes(avatar))return json({error:'Personnage inconnu.'},400);
+     if(row?.status==='playing')return json({error:'Choisis ton personnage avant la partie.'},409);
+     const results=await db.batch([db.prepare("INSERT INTO party_avatars(account_id,room_id,avatar) SELECT ?,?,? WHERE NOT EXISTS(SELECT 1 FROM party_games WHERE room_id=? AND status='playing') ON CONFLICT(account_id) DO UPDATE SET room_id=excluded.room_id,avatar=excluded.avatar").bind(user.id,member.id,avatar,member.id),db.prepare("DELETE FROM party_ready WHERE account_id=? AND room_id=? AND NOT EXISTS(SELECT 1 FROM party_games WHERE room_id=? AND status='playing')").bind(user.id,member.id,member.id)]);
+     return results[0].meta.changes?json({ok:true}):json({error:'La partie vient de commencer.'},409);
+    }
+    if(url.pathname==='/party/game/ready'&&request.method==='POST'){
+     if(row?.status==='playing')return json({error:'Une partie est en cours.'},409);const ready=url.searchParams.get('ready');if(!['0','1'].includes(ready))return json({error:'État invalide.'},400);
+     await db.prepare('INSERT INTO party_ready VALUES(?,?,?) ON CONFLICT(account_id) DO UPDATE SET room_id=excluded.room_id,ready=excluded.ready').bind(user.id,member.id,Number(ready)).run();return json({ok:true});
+    }
+    if(url.pathname==='/party/game/start'&&request.method==='POST'){
+     if(member.owner_id!==user.id)return json({error:'Seul le créateur peut lancer.'},403);
+     if(row?.status==='playing')return json({error:'Une partie est déjà en cours.'},409);
+     if(members.some(m=>!m.ready))return json({error:'Tous les joueurs doivent être prêts.'},409);
+     const kind=url.searchParams.get('kind')||'colors';if(!['colors','bluff','douze',...Object.keys(PARTY_LIMITS).filter(k=>!['horror','laugh','blind','mimevoice','mimegesture'].includes(k))].includes(kind))return json({error:'Jeu inconnu.'},400);const limits=PARTY_LIMITS[kind]||[2,4];if(members.length<limits[0]||members.length>limits[1])return json({error:'Ce jeu demande '+limits[0]+' à '+limits[1]+' joueurs.'},409);const state=PARTY_LIMITS[kind]?newPartyGame(kind,members,member.owner_id):kind==='douze'?newDouzeGame(members):kind==='bluff'?newBluffGame(members):newCardGame(members),id=crypto.randomUUID();
+     const roster=members.map(m=>m.account_id).sort().join(',');
+     const result=await db.prepare("INSERT INTO party_games(room_id,id,revision,status,state) SELECT ?,?,0,'playing',? WHERE (SELECT group_concat(account_id,',') FROM (SELECT account_id FROM party_members WHERE room_id=? ORDER BY account_id))=? AND NOT EXISTS(SELECT 1 FROM party_members m LEFT JOIN party_ready r ON m.account_id=r.account_id WHERE m.room_id=? AND COALESCE(r.ready,0)=0) ON CONFLICT(room_id) DO UPDATE SET id=excluded.id,revision=0,status='playing',state=excluded.state WHERE party_games.status<>'playing'").bind(member.id,id,JSON.stringify(state),member.id,roster,member.id).run();
+     return result.meta.changes?json({ok:true}):json({error:'Le salon a changé. Actualise avant de lancer.'},409);
+    }
+    if(url.pathname==='/party/game/reset'&&request.method==='POST'){
+     if(member.owner_id!==user.id)return json({error:'Seul le créateur peut revenir au salon.'},403);
+     await db.batch([db.prepare('DELETE FROM party_games WHERE room_id=?').bind(member.id),db.prepare('DELETE FROM party_ready WHERE room_id=?').bind(member.id)]);return json({ok:true});
+    }
+    if(url.pathname==='/party/game/play'&&request.method==='POST'){
+     const revision=Number(url.searchParams.get('revision')),gameId=url.searchParams.get('game');if(!row||row.status!=='playing'||row.id!==gameId||row.revision!==revision)return json({error:'La partie a changé. Actualise avant de jouer.'},409);
+     const action=url.searchParams.get('action');if(!['draw','card','bluff','accuse','reveal','take-discard','replace','discard-reveal','next-round','drop','exclude','guess','question','trio-reveal','continue','clue','pass','code-guess','timer-start','timer-stop','timer-forfeit','begin','award','skip','out','draw-round','video','buzz','reveal-answer','finish','night-action','vote','resolve','answer','equipment','reaction','dismiss-reaction','pause-video','question-text','who-answer'].includes(action))return json({error:'Action invalide.'},400);
+     const g=JSON.parse(row.state);try{if(PARTY_LIMITS[g.kind])partyMove(g,user.id,action,url.searchParams,member.owner_id===user.id);else if(g.kind==='douze')douzeMove(g,user.id,action,url.searchParams.get('slot'),member.owner_id===user.id);else if(g.kind==='bluff')bluffMove(g,user.id,action,url.searchParams.get('cards'));else{if(!['draw','card'].includes(action))throw Error('Action invalide.');gameMove(g,user.id,action,url.searchParams.get('card'),url.searchParams.get('color'));}}catch(e){return json({error:e.message},400);}
+     const result=await db.prepare("UPDATE party_games SET state=?,revision=revision+1,status=? WHERE room_id=? AND id=? AND revision=? AND status='playing'").bind(JSON.stringify(g),g.winner?'finished':'playing',member.id,row.id,row.revision).run();return result.meta.changes?json({ok:true}):json({error:'Un autre tour a déjà été enregistré. Actualise.'},409);
+    }
+    return json({error:'Commande de jeu inconnue.'},404);
+   }
+
+   if(url.pathname.startsWith('/party/chat')||url.pathname.startsWith('/party/call')){
+    if(!member||url.searchParams.get('room')!==member.id)return json({error:'Tu ne fais plus partie de ce salon.'},403);
+    const readBody=async()=>{let size=0,parts=[];const reader=request.body?.getReader();if(!reader)throw Object.assign(Error('Requête vide.'),{status:400});while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>32768){await reader.cancel();throw Object.assign(Error('Requête trop longue.'),{status:413});}parts.push(value);}const bytes=new Uint8Array(size);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.length;}try{const data=JSON.parse(new TextDecoder().decode(bytes));if(!data||typeof data!=='object'||Array.isArray(data))throw Error();return data;}catch{throw Object.assign(Error('Requête invalide.'),{status:400});}};
+    if(url.pathname==='/party/chat'&&request.method==='GET'){
+     const {results}=await db.prepare('SELECT id,author_name AS author,body AS text,created_at AS createdAt FROM party_messages WHERE room_id=? ORDER BY created_at DESC,id DESC LIMIT 50').bind(member.id).all();return json({ok:true,messages:results.reverse()});
+    }
+    if(url.pathname==='/party/chat'&&request.method==='POST'){
+     const data=await readBody(),text=typeof data.text==='string'?data.text.trim():'';if(!/^[a-f0-9-]{36}$/i.test(data.id||'')||!text||text.length>1000)return json({error:'Écris un message de 1 à 1 000 caractères.'},400);
+     const old=await db.prepare('SELECT author_id,room_id FROM party_messages WHERE id=?').bind(data.id).first();if(old)return old.author_id===user.id&&old.room_id===member.id?json({ok:true}):json({error:'Identifiant déjà utilisé.'},409);
+     const result=await db.prepare('INSERT INTO party_messages SELECT ?,?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM party_messages WHERE author_id=? AND created_at>?)').bind(data.id,member.id,user.id,user.name,text,now,user.id,now-1500).run();return result.meta.changes?json({ok:true},201):json({error:'Attends un instant avant un autre message.'},429);
+    }
+    if(url.pathname==='/party/call/join'&&request.method==='POST'){
+     const data=await readBody();if(!/^[a-f0-9-]{36}$/i.test(data.session||''))return json({error:'Appel invalide.'},400);
+     await db.prepare('DELETE FROM party_calls WHERE room_id=? AND updated_at<?').bind(member.id,now-45000).run();
+     const old=await db.prepare('SELECT id FROM party_calls WHERE account_id=?').bind(user.id).first();if(old&&old.id!==data.session)return json({error:'Ton compte est déjà dans un appel sur un autre onglet ou appareil. Quitte-le ou attends 45 secondes.'},409);
+     await db.prepare('INSERT INTO party_calls(id,room_id,account_id,name,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(account_id) DO UPDATE SET updated_at=excluded.updated_at').bind(data.session,member.id,user.id,user.name,now).run();
+     let iceServers=[{urls:'stun:stun.l.google.com:19302'}];if(env.PARTY_ICE_SERVERS){try{const configured=JSON.parse(env.PARTY_ICE_SERVERS);if(Array.isArray(configured)&&configured.length)iceServers=configured;}catch{}}
+     return json({ok:true,iceServers});
+    }
+    const session=url.searchParams.get('session')||'';
+    const self=await db.prepare('SELECT id FROM party_calls WHERE id=? AND account_id=? AND room_id=? AND updated_at>?').bind(session,user.id,member.id,now-45000).first();
+    if(!self)return json({error:'Appel terminé. Rejoins à nouveau le vocal.'},409);
+    if(url.pathname==='/party/call/leave'&&request.method==='POST'){await db.prepare('DELETE FROM party_calls WHERE id=? AND account_id=?').bind(session,user.id).run();return json({ok:true});}
+    if(url.pathname==='/party/call/poll'&&request.method==='GET'){
+     const after=Number(url.searchParams.get('after')||0);if(!Number.isSafeInteger(after)||after<0)return json({error:'Position invalide.'},400);
+     await db.batch([db.prepare('UPDATE party_calls SET updated_at=? WHERE id=?').bind(now,session),db.prepare('DELETE FROM party_calls WHERE room_id=? AND updated_at<?').bind(member.id,now-45000),db.prepare('DELETE FROM party_signals WHERE recipient=? AND (seq<=? OR created_at<?)').bind(session,after,now-60000)]);
+     const peers=await db.prepare('SELECT id,name,account_id AS accountId FROM party_calls WHERE room_id=? AND id<>? AND updated_at>?').bind(member.id,session,now-45000).all();
+     const signals=await db.prepare('SELECT seq,sender,payload FROM party_signals WHERE recipient=? AND seq>? ORDER BY seq LIMIT 100').bind(session,after).all();return json({ok:true,peers:peers.results,signals:signals.results});
+    }
+    if(url.pathname==='/party/call/signal'&&request.method==='POST'){
+     const data=await readBody(),p=data.payload;
+     if(!p||!['offer','answer','candidate','media'].includes(p.type))return json({error:'Signal invalide.'},400);
+     if(p.type==='media'?!(typeof p.camera==='boolean'&&typeof p.mic==='boolean'):p.type==='candidate'?!(p.candidate&&typeof p.candidate.candidate==='string'&&p.candidate.candidate.length<4000):!(typeof p.sdp==='string'&&p.sdp.length<24000))return json({error:'Signal invalide.'},400);
+     const target=await db.prepare('SELECT id FROM party_calls WHERE id=? AND room_id=? AND id<>? AND updated_at>?').bind(String(data.to||''),member.id,session,now-45000).first();if(!target)return json({error:'Ce membre a quitté l’appel.'},404);
+     const result=await db.prepare('INSERT INTO party_signals(sender,recipient,payload,created_at) SELECT ?,?,?,? WHERE (SELECT COUNT(*) FROM party_signals WHERE sender=? AND created_at>?)<960').bind(session,target.id,JSON.stringify(p),now,session,now-60000).run();return result.meta.changes?json({ok:true}):json({error:'Trop de signaux. Rejoins à nouveau l’appel.'},429);
+    }
+    return json({error:'Commande de communication introuvable.'},404);
+   }
+
+   if(url.pathname==='/party/state'&&request.method==='GET'){
+    const invitations=await db.prepare("SELECT i.id,r.name,r.owner_name AS host,i.expires_at AS expiresAt FROM party_invites i JOIN party_rooms r ON r.id=i.room_id WHERE i.recipient_id=? AND i.status='pending' AND i.expires_at>? ORDER BY i.created_at DESC LIMIT 50").bind(user.id,now).all();
+    let room=null;if(member){const members=await db.prepare('SELECT display_name AS name,account_id AS accountId,account_id=? AS isYou,account_id=? AS isHost FROM party_members WHERE room_id=? ORDER BY joined_at,account_id').bind(user.id,member.owner_id,member.id).all();let sent=[];if(member.owner_id===user.id)sent=(await db.prepare('SELECT id,recipient_id AS recipient,status,expires_at AS expiresAt FROM party_invites WHERE room_id=? ORDER BY created_at DESC LIMIT 20').bind(member.id).all()).results;const settings=await db.prepare('SELECT visibility,kind FROM party_directory WHERE room_id=?').bind(member.id).first();room={visibility:settings?.visibility||'private',gameKind:settings?.kind||'bluff',id:member.id,name:member.name,isHost:member.owner_id===user.id,members:members.results,invitations:sent};}
+    return json({ok:true,room,invitations:invitations.results});
+   }
+   if(url.pathname==='/party/create'&&request.method==='POST'){
+    const name=(url.searchParams.get('name')||'').trim();if(!name||name.length>80)return json({error:'Choisis un nom de salon de 1 à 80 caractères.'},400);
+    if(member)return json({error:'Tu as déjà rejoint un salon. Quitte-le avant d’en créer un autre.'},409);
+    const visibility=url.searchParams.get('visibility')||'private',kind=url.searchParams.get('kind')||'bluff';if(!['private','public'].includes(visibility)||!['colors','bluff','douze',...Object.keys(PARTY_LIMITS).filter(k=>!['horror','laugh','blind','mimevoice','mimegesture'].includes(k))].includes(kind))return json({error:'Réglages invalides.'},400);
+    const id=crypto.randomUUID();const results=await db.batch([db.prepare('INSERT OR IGNORE INTO party_rooms(id,owner_id,owner_name,name,created_at) SELECT ?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM party_members WHERE account_id=?)').bind(id,user.id,user.name,name,now,user.id),db.prepare('INSERT INTO party_directory(room_id,visibility,kind,updated_at) SELECT id,?,?,? FROM party_rooms WHERE id=? AND owner_id=?').bind(visibility,kind,now,id,user.id)]);
+    if(!results[0].meta.changes)return json({error:'Tu as déjà un salon.'},409);return json({ok:true,id},201);
+   }
+   if(url.pathname==='/party/leave'&&request.method==='POST'){
+    if(!member)return json({ok:true});
+    if(member.owner_id===user.id)await db.prepare('DELETE FROM party_rooms WHERE id=? AND owner_id=?').bind(member.id,user.id).run();
+    else await db.prepare('DELETE FROM party_members WHERE room_id=? AND account_id=?').bind(member.id,user.id).run();
+    return json({ok:true});
+   }
+   if(url.pathname==='/party/invite'&&request.method==='POST'){
+    if(!member||member.owner_id!==user.id)return json({error:'Seul le créateur du salon peut inviter.'},403);
+    let recipient=(url.searchParams.get('recipient')||'').trim();const short=recipient.toUpperCase().replace(/[\s-]/g,'');if(/^[A-Z2-9]{8}$/.test(short)){const found=await db.prepare('SELECT account_id FROM friend_profiles WHERE code=?').bind(short).first();if(!found)return json({error:'Code ONE inconnu.'},404);recipient=found.account_id;}if(!/^one_[a-zA-Z0-9_-]{8,64}$/.test(recipient)||recipient===user.id)return json({error:'Indique l’identifiant ONE d’un autre membre, pas son pseudo.'},400);
+    const already=await db.prepare('SELECT account_id FROM party_members WHERE account_id=? AND room_id=?').bind(recipient,member.id).first();if(already)return json({error:'Ce membre est déjà dans le salon.'},409);
+    const count=await db.prepare('SELECT COUNT(*) AS n FROM party_members WHERE room_id=?').bind(member.id).first();if(count.n>=16)return json({error:'Le salon est complet (16 membres).'},409);
+    const previous=await db.prepare('SELECT id,status,expires_at,created_at FROM party_invites WHERE room_id=? AND recipient_id=?').bind(member.id,recipient).first();
+    const recipientProfile=await db.prepare('SELECT name FROM friend_profiles WHERE account_id=?').bind(recipient).first();
+    if(previous){
+     if(previous.status==='pending'&&previous.expires_at>now)return json({ok:true,alreadyPending:true,recipient:recipientProfile?.name||recipient});
+     if(previous.created_at>now-60000)return json({error:'Attends une minute avant de réinviter ce membre.'},429);
+     const fresh=crypto.randomUUID();const renewed=await db.prepare("UPDATE party_invites SET id=?,status='pending',created_at=?,expires_at=? WHERE id=? AND (status<>'pending' OR expires_at<=?)").bind(fresh,now,now+86400000,previous.id,now).run();
+     return renewed.meta.changes?json({ok:true,id:fresh,recipient:recipientProfile?.name||recipient},201):json({ok:true,alreadyPending:true,recipient:recipientProfile?.name||recipient});
+    }
+    const id=crypto.randomUUID();const result=await db.prepare('INSERT OR IGNORE INTO party_invites(id,room_id,recipient_id,created_at,expires_at) SELECT ?,?,?,?,? WHERE EXISTS(SELECT 1 FROM party_rooms WHERE id=? AND owner_id=?) AND (SELECT COUNT(*) FROM party_invites WHERE room_id=?)<20').bind(id,member.id,recipient,now,now+86400000,member.id,user.id,member.id).run();
+    if(!result.meta.changes)return json({error:'Invitation déjà créée pour cet identifiant, ou limite de 20 invitations atteinte.'},409);
+    return json({ok:true,id,recipient:recipientProfile?.name||recipient},201);
+   }
+   const action=url.pathname.match(/^\/party\/invitations\/([a-f0-9-]{36})\/(accept|decline)$/i);
+   if(action&&request.method==='POST'){
+    const invitation=await db.prepare("SELECT * FROM party_invites WHERE id=? AND recipient_id=? AND status='pending' AND expires_at>?").bind(action[1],user.id,now).first();
+    if(!invitation)return json({error:'Cette invitation est expirée, traitée ou indisponible.'},404);
+    if(action[2]==='decline'){await db.prepare("UPDATE party_invites SET status='declined' WHERE id=? AND recipient_id=? AND status='pending'").bind(action[1],user.id).run();return json({ok:true});}
+    if(await db.prepare("SELECT id FROM party_games WHERE room_id=? AND status='playing'").bind(invitation.room_id).first())return json({error:'Une partie est en cours dans ce salon. Attends le retour au salon.'},409);
+    if(member)return json({error:'Quitte ton salon actuel avant d’accepter cette invitation.'},409);
+    const results=await db.batch([
+     db.prepare("INSERT OR IGNORE INTO party_members(account_id,room_id,display_name,joined_at) SELECT ?,room_id,?,? FROM party_invites WHERE id=? AND recipient_id=? AND status='pending' AND expires_at>?").bind(user.id,user.name,now,action[1],user.id,now),
+     db.prepare("UPDATE party_invites SET status='accepted' WHERE id=? AND recipient_id=? AND EXISTS(SELECT 1 FROM party_members WHERE account_id=? AND room_id=party_invites.room_id)").bind(action[1],user.id,user.id)
+    ]);
+    if(!results[0].meta.changes)return json({error:'Le salon est complet ou tu as déjà rejoint un autre salon.'},409);return json({ok:true});
+   }
+   return json({error:'Commande Party introuvable.'},404);
+  }
+
+  if((url.pathname==='/notifications'&&request.method==='GET')||(['/notifications/read','/notifications/dismiss'].includes(url.pathname)&&request.method==='POST')){
+   const user=await auth();if(!user)return json({error:'Connecte-toi à ONE pour voir tes notifications.'},401);
+   const admin=!!env.ADMIN_ACCOUNT_ID&&user.id===env.ADMIN_ACCOUNT_ID?1:0,now=Date.now();
+   const events="SELECT 'reply:'||c.id AS event_key,'reply' AS kind,c.author_name AS author,c.body AS text,c.video,c.created_at,p.body AS context FROM comment_replies r JOIN comments c ON c.id=r.comment_id JOIN comments p ON p.id=r.parent_id WHERE p.author_id=? AND c.author_id<>? UNION ALL SELECT 'report:'||r.rowid,'report',NULL,c.body,c.video,r.created_at,NULL FROM comment_reports r JOIN comments c ON c.id=r.comment_id WHERE r.resolved=0 AND ?=1 UNION ALL SELECT 'party:'||i.id,'party',r.owner_name,r.name,NULL,i.created_at,NULL FROM party_invites i JOIN party_rooms r ON r.id=i.room_id WHERE i.recipient_id=? AND i.status='pending' AND i.expires_at>? UNION ALL SELECT 'message:'||m.id,'message',p.name,m.body,NULL,m.created_at,f.id FROM friend_messages m JOIN friendships f ON f.id=m.friendship_id JOIN friend_profiles p ON p.account_id=m.sender_id WHERE (f.a=? OR f.b=?) AND m.sender_id<>? AND f.status='accepted'";
+   if(url.pathname==='/notifications/dismiss'){
+    const id=url.searchParams.get('id');if(!id||id.length>100)return json({error:'Notification invalide.'},400);
+    const result=await env.COMMENTS.prepare("INSERT OR IGNORE INTO notification_reads(account_id,event_key,read_at) SELECT ?,'dismissed:'||event_key,? FROM ("+events+") WHERE event_key=?").bind(user.id,now,user.id,user.id,admin,user.id,now,user.id,user.id,user.id,id).run();return result.meta.changes?json({ok:true}):json({error:'Notification déjà retirée ou indisponible.'},404);
+   }
+   if(request.method==='POST'){
+
+    const through=Number(url.searchParams.get('through'));if(!Number.isSafeInteger(through)||through<=0||through>now)return json({error:'Actualise les notifications avant de les marquer comme lues.'},400);
+    await env.COMMENTS.prepare('INSERT OR IGNORE INTO notification_reads(account_id,event_key,read_at) SELECT ?,event_key,? FROM ('+events+') WHERE created_at<=?').bind(user.id,now,user.id,user.id,admin,user.id,now,user.id,user.id,user.id,through).run();return json({ok:true});
+   }
+   const {results}=await env.COMMENTS.prepare('SELECT e.*,CASE WHEN n.event_key IS NULL THEN 0 ELSE 1 END AS isRead FROM ('+events+') e LEFT JOIN notification_reads n ON n.event_key=e.event_key AND n.account_id=? WHERE e.created_at<=? AND NOT EXISTS(SELECT 1 FROM notification_reads d WHERE d.account_id=? AND d.event_key=\'dismissed:\'||e.event_key) ORDER BY e.created_at DESC,e.event_key LIMIT 50').bind(user.id,user.id,admin,user.id,now,user.id,user.id,user.id,user.id,now,user.id).all();
+   const count=await env.COMMENTS.prepare('SELECT COUNT(*) AS total FROM ('+events+') e LEFT JOIN notification_reads n ON n.event_key=e.event_key AND n.account_id=? WHERE n.event_key IS NULL AND e.created_at<=? AND NOT EXISTS(SELECT 1 FROM notification_reads d WHERE d.account_id=? AND d.event_key=\'dismissed:\'||e.event_key)').bind(user.id,user.id,admin,user.id,now,user.id,user.id,user.id,user.id,now,user.id).first();
+   return json({ok:true,through:now,unread:count.total,notifications:results.map(n=>({id:n.event_key,kind:n.kind,author:n.author,text:n.text,context:n.context,video:n.video,createdAt:n.created_at,read:!!n.isRead}))});
+  }
+  if(url.pathname==='/moderation/access'&&request.method==='GET'){
+   const user=await auth();return json({ok:true,moderator:!!user&&!!env.ADMIN_ACCOUNT_ID&&user.id===env.ADMIN_ACCOUNT_ID});
+  }
+  if(url.pathname==='/moderation/reports'&&request.method==='GET'){
+   const user=await auth();if(!user||!env.ADMIN_ACCOUNT_ID||user.id!==env.ADMIN_ACCOUNT_ID)return json({error:'Accès réservé à la modération.'},403);
+   const {results}=await env.COMMENTS.prepare('SELECT c.id,c.video,c.author_name AS author,c.body AS text,COUNT(*) AS count,MAX(r.created_at) AS reportedAt,GROUP_CONCAT(DISTINCT r.reason) AS reasons FROM comment_reports r JOIN comments c ON c.id=r.comment_id WHERE r.resolved=0 GROUP BY c.id ORDER BY reportedAt DESC,c.id LIMIT 100').all();
+   return json({ok:true,reports:results});
+  }
+  const reportMatch=url.pathname.match(/^\/comments\/([a-f0-9-]{36})\/report\/(spam|abuse|hate|other)$/i);
+  if(reportMatch&&request.method==='POST'){
+   const user=await auth();if(!user)return json({error:'Connecte-toi à ONE pour signaler un commentaire.'},401);
+   const id=reportMatch[1],reason=reportMatch[2].toLowerCase();
+   const target=await env.COMMENTS.prepare('SELECT author_id FROM comments WHERE id=?').bind(id).first();
+   if(!target)return json({error:'Ce commentaire a déjà été supprimé.'},404);
+   if(target.author_id===user.id)return json({error:'Tu peux supprimer ton propre commentaire.'},400);
+   const existing=await env.COMMENTS.prepare('SELECT comment_id FROM comment_reports WHERE comment_id=? AND reporter_id=?').bind(id,user.id).first();
+   if(existing)return json({ok:true,alreadyReported:true});
+   const now=Date.now();
+   const result=await env.COMMENTS.prepare('INSERT OR IGNORE INTO comment_reports(comment_id,reporter_id,reason,created_at) SELECT ?,?,?,? WHERE (SELECT COUNT(*) FROM comment_reports WHERE reporter_id=? AND created_at>?)<5').bind(id,user.id,reason,now,user.id,now-60000).run();
+   if(!result.meta.changes)return json({error:'Attends une minute avant un nouveau signalement.'},429);
+   return json({ok:true},201);
+  }
+  const dismiss=url.pathname.match(/^\/moderation\/reports\/([a-f0-9-]{36})\/dismiss$/i);
+  if(dismiss&&request.method==='POST'){
+   const user=await auth();if(!user||!env.ADMIN_ACCOUNT_ID||user.id!==env.ADMIN_ACCOUNT_ID)return json({error:'Accès réservé à la modération.'},403);
+   await env.COMMENTS.prepare('UPDATE comment_reports SET resolved=1 WHERE comment_id=?').bind(dismiss[1]).run();return json({ok:true});
+  }
+  if(url.pathname==='/comments'&&request.method==='GET'){
+   const video=url.searchParams.get('video');if(!validVideo(video))return json({error:'Vidéo invalide'},400);
+   const user=await auth().catch(()=>null);const {results}=await env.COMMENTS.prepare('SELECT c.id,c.author_id,c.author_name,c.body,c.created_at,r.parent_id,p.author_name AS parent_author,p.body AS parent_text FROM comments c LEFT JOIN comment_replies r ON r.comment_id=c.id LEFT JOIN comments p ON p.id=r.parent_id WHERE c.video=? ORDER BY c.created_at DESC,c.id DESC LIMIT 50').bind(video).all();
+   return json({ok:true,authStatus,comments:results.reverse().map(c=>({id:c.id,author:c.author_name,text:c.body,createdAt:c.created_at,parentId:c.parent_id,parentAuthor:c.parent_author,parentText:c.parent_text,canReply:!!user,canReport:!!user&&user.id!==c.author_id,canDelete:!!user&&(user.id===c.author_id||user.id===env.ADMIN_ACCOUNT_ID)}))});
+  }
+  if(url.pathname==='/comments'&&request.method==='POST'){
+   const user=await auth();if(!user)return json({error:'Connecte-toi à ton compte ONE pour commenter.'},401);
+   const reader=request.body?.getReader();if(!reader)return json({error:'Commentaire manquant'},400);let chunks=[],size=0;while(true){const r=await reader.read();if(r.done)break;size+=r.value.length;if(size>8192){await reader.cancel();return json({error:'Commentaire trop long'},413);}chunks.push(r.value);}const bytes=new Uint8Array(size);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length;}let data;try{data=JSON.parse(new TextDecoder().decode(bytes));}catch{return json({error:'Requête invalide'},400);}
+   const text=typeof data.text==='string'?data.text.trim():'';if(!validVideo(data.video)||!text||text.length>1000||!/^[a-f0-9-]{36}$/i.test(data.id||''))return json({error:'Commentaire invalide (1 à 1 000 caractères).'},400);
+   const existing=await env.COMMENTS.prepare('SELECT author_id,video FROM comments WHERE id=?').bind(data.id).first();if(existing)return existing.author_id===user.id&&existing.video===data.video?json({ok:true,id:data.id}):json({error:'Identifiant déjà utilisé'},409);
+   let parent=null;if(data.parentId!=null){if(typeof data.parentId!=='string'||!/^[a-f0-9-]{36}$/i.test(data.parentId))return json({error:'Réponse invalide.'},400);parent=await env.COMMENTS.prepare('SELECT id FROM comments WHERE id=? AND video=?').bind(data.parentId,data.video).first();if(!parent)return json({error:'Ce commentaire a été supprimé. Annule la réponse pour publier un nouveau commentaire.'},404);}
+   const now=Date.now();const insert= env.COMMENTS.prepare('INSERT INTO comments(id,video,author_id,author_name,body,created_at) SELECT ?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM comments WHERE author_id=? AND created_at>?)').bind(data.id,data.video,user.id,user.name,text,now,user.id,now-10000);
+   let result;if(parent){const batch=await env.COMMENTS.batch([insert,env.COMMENTS.prepare('INSERT INTO comment_replies(comment_id,parent_id) SELECT id,? FROM comments WHERE id=? AND author_id=?').bind(parent.id,data.id,user.id)]);result=batch[0];}else result=await insert.run();
+   if(!result.meta.changes)return json({error:'Attends quelques secondes avant de commenter à nouveau.'},429);
+   return json({ok:true,id:data.id},201);
+  }
+  const match=url.pathname.match(/^\/comments\/([a-f0-9-]{36})$/i);
+  if(match&&request.method==='DELETE'){
+   const user=await auth();if(!user)return json({error:'Connexion ONE requise'},401);
+   const r=await env.COMMENTS.prepare('DELETE FROM comments WHERE id=? AND (author_id=? OR ?=?)').bind(match[1],user.id,user.id,env.ADMIN_ACCOUNT_ID||'').run();
+   return r.meta.changes?json({ok:true}):json({error:'Commentaire introuvable ou suppression non autorisée'},404);
+  }
+  return json({error:'Route introuvable'},404);
+ }catch(e){return json({error:e.status?e.message:'Commentaires momentanément indisponibles.'},e.status||503);}
+}};
+
+
