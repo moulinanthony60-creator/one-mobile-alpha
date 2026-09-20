@@ -1,4 +1,4 @@
-(()=>{const layout=document.createElement('link');layout.rel='stylesheet';layout.href='ui/salons.css?v=01497';document.head.append(layout);
+(()=>{const layout=document.createElement('link');layout.rel='stylesheet';layout.href='ui/salons.css?v=01498';document.head.append(layout);
  const tray=document.createElement('aside');tray.id='oneSalonTray';tray.hidden=true;tray.setAttribute('aria-label','Salons ONE');const trayHead=document.createElement('header'),title=document.createElement('h2'),close=document.createElement('button');title.textContent='Salons ONE';close.textContent='×';close.type='button';close.setAttribute('aria-label','Réduire le salon');trayHead.append(title,close);const shell=document.createElement('div');shell.id='oneSalonBody';tray.append(trayHead,shell);document.body.append(tray);
  window.oneSalonContainer=shell;window.oneSalonIsOpen=()=>!tray.hidden;
  window.oneOpenSalon=()=>{tray.hidden=false;mount();window.dispatchEvent(new Event('one-salon-visibility'));};

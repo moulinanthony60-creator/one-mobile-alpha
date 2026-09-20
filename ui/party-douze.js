@@ -1,5 +1,5 @@
 (()=>{
- const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-douze.css?v=01497';document.head.append(css);
+ const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-douze.css?v=01498';document.head.append(css);
  let choice='replace',choiceKey='';
  window.ONEDouzeRules='Révèle deux cartes de ta grille. À ton tour, prends la défausse et remplace une carte, ou pioche : garde la carte en échange d’une des tiennes, ou défausse-la puis révèle une carte cachée. Trois cartes identiques dans une colonne sont retirées. Quand un joueur a tout révélé, les autres jouent un dernier tour. Les cartes restantes sont révélées puis comptées. Celui qui termine double ses points de manche s’ils sont positifs et qu’il n’a pas seul le plus petit score. À partir de 100 points cumulés pour un joueur, le plus petit total gagne. Le premier tour revient à la plus forte somme révélée (égalité tirée au sort) ; les manches suivantes commencent par celui qui a terminé la précédente.';
  window.renderONEDouze=({g,body,busy,command,el,btn,isHost})=>{
