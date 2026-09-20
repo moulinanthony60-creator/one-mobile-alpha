@@ -1,36 +1,17 @@
-# ONE 0.14.98
+# ONE 0.14.99
 
-ONE 0.14.98 — GEMMES ET RÉCOMPENSES
+ONE 0.14.99 — GROS GAINS PLUS RARES
 
-1. CLOUDFLARE : Worker one-comments-api > Modifier le code.
-Remplacer tout le code par ONE-SERVEUR-v35.mjs, puis Deploy.
-Le lien Visit doit afficher "version":"35".
-Conserver les liaisons et la base existantes. Les tables sont ajoutées automatiquement.
+Trois tickets à gratter : sans gain 55 %, x1 25 %, x2 15,8 %, x5 3 %, x10 1 %, x50 0,2 %.
+Chance totale de gagner conservée à 45 %. Le gain inclut le prix du ticket.
+Les tickets déjà achetés conservent leur résultat. La répartition entre cases reste identique.
+Roulette, blackjack, machine à sous, récompenses et collection inchangés.
 
-2. GITHUB : dépôt one-mobile-alpha, branche main, racine du dépôt.
-Décompresser les deux archives et envoyer leur CONTENU, une partie à la fois.
-Conserver ui et assets, remplacer les fichiers existants. Ne pas envoyer les ZIP.
-Valider chaque envoi avec Commit changes. Attendre le déploiement GitHub Pages.
-Vérifier ensuite 0.14.98 sur le site et dans README.
+CLOUDFLARE : Worker one-comments-api, remplacer le code par ONE-SERVEUR-v36.mjs,
+puis Deploy. Visit doit afficher version 36.
 
-RÉCOMPENSES
-1 point par minute de lecture active, connecté à ONE, dans les onglets TikTok,
-YouTube et Twitch (directs et rediffusions). Le temps se cumule entre les vidéos.
-Les pauses, onglets masqués et avances dans la vidéo ne donnent pas de points.
-Les clips Twitch intégrés ne sont pas comptés : Twitch ne fournit pas leur suivi.
-10 points par partie PARTY terminée à chaque joueur humain, une seule fois.
-Pas de bonus de participation sur roulette, blackjack, grattage ou machine à sous.
-Les 100 points quotidiens existants sont conservés.
-
-GEMMES
-Rubis rouge ovale, diamant bleu, émeraude verte rectangulaire et cœur violet.
-La même illustration et son nom apparaissent dans la consigne et les cases.
-
-VALIDATION
-Tests locaux du serveur : 60 s = 1 point, reprises sans doublon, plusieurs onglets,
-aucun bonus casino, bonus Party unique par humain.
-Tests simulés des lecteurs : YouTube, TikTok, Twitch direct et rediffusion,
-pauses et onglets masqués. La lecture réelle des plateformes reste à contrôler
-sur le site publié, avec un compte connecté ; aucun déploiement distant effectué ici.
-
-Documentation Twitch : https://dev.twitch.tv/docs/embed/video-and-clips/
+GITHUB : one-mobile-alpha, branche main, racine du dépôt.
+Décompresser les deux archives. Envoyer leur CONTENU séparément en remplaçant les fichiers,
+en conservant les dossiers ui et assets. Ne pas envoyer les ZIP eux-mêmes.
+Commit changes après chaque partie. Attendre GitHub Pages et vérifier 0.14.99.
+Les deux parties forment le site complet. Le nouveau serveur est indispensable.
