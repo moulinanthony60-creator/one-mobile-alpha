@@ -17,3 +17,40 @@
 @keyframes oneCardReveal{0%{opacity:0;transform:rotateY(100deg) translateY(24px) scale(.8)}55%{opacity:1}100%{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){#onePointsPanel .oneOpeningEnvelope,#onePointsPanel .onePackReveal .oneCollectible{animation:none}}
 `;document.head.append(s);})();
+(()=>{const s=document.createElement('style');s.textContent=`
+#onePointsPanel .onePackOpening{position:relative;padding:10px 12px 30px;overflow:hidden;border-radius:24px;background:radial-gradient(ellipse at 50% 42%,#63428177,transparent 64%),linear-gradient(#170e21,#21132c);border:1px solid #a487bf44;margin:20px 0}
+#onePointsPanel .onePackOpening~.onePackList,#onePointsPanel .onePackOpening~.onePackList+p{display:none}
+#onePointsPanel .onePackPortal{height:315px;display:grid;place-items:center;perspective:900px;position:relative;isolation:isolate}
+#onePointsPanel .onePackPortal::before{content:'';position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,#fae5ad99,#b480de55 32%,transparent 70%);animation:onePortalBloom 2.1s ease-out both}
+#onePointsPanel .onePremiumPacket{width:158px;height:218px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;border:2px solid #e6cd92;border-radius:12px;background:linear-gradient(110deg,#38203f,#704979 35%,#26172d 66%,#594064);box-shadow:inset 5px 0 #ffffff15,inset -6px 0 #0005,6px 7px 0 #180e20,0 25px 25px #0008;transform-style:preserve-3d;animation:onePacketBreak 2.1s cubic-bezier(.22,.65,.3,1) both}
+#onePointsPanel .onePremiumPacket::before{content:'';position:absolute;inset:11px;border:1px solid #dfc99577;border-radius:5px;background:repeating-linear-gradient(135deg,transparent 0 15px,#d8c3a509 15px 16px);pointer-events:none}
+#onePointsPanel .onePacketCaption{font-size:9px;letter-spacing:3px;color:#dccbb0}#onePointsPanel .onePacketLogo{font:bold 35px Georgia;color:#fff0bc;letter-spacing:4px;text-shadow:0 3px 2px #0006}#onePointsPanel .onePacketSeal{color:#f5d68b;font-size:46px;text-shadow:0 0 20px #d19b5c}
+#onePointsPanel .onePacketLid{position:absolute;left:-2px;right:-2px;top:-2px;height:27px;border:2px solid #e6cd92;border-radius:10px 10px 0 0;background:repeating-linear-gradient(90deg,#b4965a 0 3px,#dcc38c 3px 5px);transform-origin:left bottom;animation:onePacketTear 2.1s ease-in both}
+#onePointsPanel .onePackSpark{position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:#fff0bb;box-shadow:0 0 12px #edcf83;animation:oneSparkBurst 1s ease-out both;animation-delay:calc(.95s + var(--spark-delay))}
+#onePointsPanel .oneOpeningCaption{font-size:13px;letter-spacing:1px;color:#e7d7ed}
+@keyframes onePacketBreak{0%{transform:translateY(22px) rotateY(-28deg) rotateZ(-6deg);opacity:0}20%{opacity:1;transform:translateY(0) rotateY(15deg) rotateZ(2deg)}50%{transform:translateY(-6px) rotateY(-7deg) rotateZ(-2deg)}75%{transform:translateY(-8px) rotateY(0deg) scale(1.06);opacity:1}100%{transform:translateY(45px) rotateX(12deg) scale(1.2);opacity:0}}
+@keyframes onePacketTear{0%,45%{transform:none;opacity:1}75%{transform:translateY(-45px) rotate(-20deg);opacity:1}100%{transform:translateY(-85px) rotate(-35deg);opacity:0}}
+@keyframes onePortalBloom{0%{transform:scale(.6);opacity:.25}50%{transform:scale(1);opacity:.65}85%{transform:scale(1.8);opacity:1}100%{transform:scale(2);opacity:0}}
+@keyframes oneSparkBurst{0%{transform:rotate(var(--spark-angle)) translateY(-30px);opacity:0}20%{opacity:1}100%{transform:rotate(var(--spark-angle)) translateY(-150px);opacity:0}}
+#onePointsPanel .onePackReveal{padding:25px 12px 30px;border:1px solid #b9976244;border-radius:20px;margin:20px 0;background:radial-gradient(ellipse at 50% 0,#6a477c44,transparent 65%),#130d1bcc;overflow:visible}
+#onePointsPanel .oneRevealEyebrow{font-size:9px;color:#dbc08c;letter-spacing:3px}#onePointsPanel .oneRevealHint{font-size:12px;color:#b9a8c4}
+#onePointsPanel .onePackReveal .oneCollectionGrid{gap:12px;align-items:stretch;padding-top:15px}
+#onePointsPanel .onePackReveal .oneCard3d{--tier-glow:#cdd7e4;--tier-rgb:205,215,228;isolation:isolate}
+#onePointsPanel .oneCard3d:not(.isLocked)[data-rarity=normal]{--tier-glow:#cdd7e4;--tier-rgb:205,215,228}
+#onePointsPanel .oneCard3d:not(.isLocked)[data-rarity=rare]{--tier-glow:#5ecbff;--tier-rgb:94,203,255}
+#onePointsPanel .oneCard3d:not(.isLocked)[data-rarity=epic]{--tier-glow:#d67eff;--tier-rgb:214,126,255}
+#onePointsPanel .oneCard3d:not(.isLocked)[data-rarity=legendary]{--tier-glow:#ffd579;--tier-rgb:255,213,121}
+#onePointsPanel .oneCard3d:not(.isLocked) .oneCollectible small{color:var(--tier-glow)}
+#onePointsPanel .onePackReveal .oneCard3d::before{content:'';position:absolute;inset:-10px;z-index:-1;pointer-events:none;border-radius:18px;opacity:0;animation:oneTierGlow 2s ease-out both;animation-delay:calc(var(--reveal-delay) + .55s)}
+#onePointsPanel .onePackReveal .oneCard3d[data-rarity=normal]::before{inset:0;background:none;box-shadow:0 0 12px #d4e2f244}
+#onePointsPanel .onePackReveal .oneCard3d[data-rarity=rare]::before{background:radial-gradient(ellipse,#39aeff70,transparent 70%);box-shadow:0 0 18px #49baff44;border:1px solid #81d9ff44}
+#onePointsPanel .onePackReveal .oneCard3d[data-rarity=epic]::before{background:conic-gradient(from 15deg,transparent,#bc5cff99 8deg,transparent 16deg,transparent 96deg,#ecb4ff99 101deg,transparent 108deg,transparent 210deg,#bc5cff99 216deg,transparent 222deg);filter:drop-shadow(0 0 7px #b869ff)}
+#onePointsPanel .onePackReveal .oneCard3d[data-rarity=legendary]::before{inset:-20px;background:repeating-conic-gradient(from 0deg,#ffdc8955 0deg,transparent 12deg,transparent 30deg);filter:drop-shadow(0 0 12px #edb144);animation-name:oneLegendaryHalo}
+#onePointsPanel .onePackReveal .oneCard3d:not(.isLocked) .oneCollectible::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 25%,rgba(var(--tier-rgb),.5) 48%,transparent 70%);transform:translateX(-140%);animation:oneTierSweep 1s ease-out both;animation-delay:calc(var(--reveal-delay) + .6s)}
+#onePointsPanel .onePackReveal .oneCard3d[data-rarity=legendary] .oneCollectible{box-shadow:inset 0 1px #fff5bf,0 0 16px #f5c86155,0 8px 18px #0008}
+@keyframes oneTierGlow{0%{opacity:0;transform:scale(.85)}30%{opacity:.85;transform:scale(1.04)}100%{opacity:.28;transform:scale(1)}}
+@keyframes oneLegendaryHalo{0%{opacity:0;transform:scale(.7) rotate(-12deg)}35%{opacity:.85}100%{opacity:.35;transform:scale(1.04) rotate(14deg)}}
+@keyframes oneTierSweep{0%{transform:translateX(-140%)}100%{transform:translateX(140%)}}
+@media(max-width:560px){#onePointsPanel .onePackReveal .oneCollectionGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 14px}#onePointsPanel .onePackReveal .oneCard3d:last-child:nth-child(odd){grid-column:1/-1;width:calc(50% - 7px);justify-self:center}#onePointsPanel .onePackReveal{padding:20px 14px}}
+@media(prefers-reduced-motion:reduce){#onePointsPanel .onePackPortal::before,#onePointsPanel .onePremiumPacket,#onePointsPanel .onePacketLid,#onePointsPanel .onePackSpark,#onePointsPanel .onePackReveal .oneCard3d::before,#onePointsPanel .onePackReveal .oneCollectible::after{animation:none!important}#onePointsPanel .onePackSpark{display:none}#onePointsPanel .onePackReveal .oneCard3d::before{opacity:.2}}
+`;document.head.append(s);})();
