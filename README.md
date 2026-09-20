@@ -1,11 +1,11 @@
-# ONE 0.14.94
+# ONE 0.14.95
 
-Collection de 100 cartes. Poker uniquement dans Party (2 à 6 joueurs).
-Grattages 10/50/100 : surface effaçable, missions et gains cohérents avec le Worker v33.
-Nouveaux visuels et retournement des cartes. Navigation et cache versionnés 0.14.94.
+Les scripts des jeux Points ONE, de la collection et les nouveaux styles sont intégrés à index.html : ils sont publiés ensemble avec le numéro de version.
 
-Installation : décompresser ONE-SITE-0.14.94.zip, envoyer tout son contenu à la racine du dépôt GitHub, puis Commit changes.
-Dans Cloudflare, remplacer le code du Worker par ONE-SERVEUR-v33.mjs puis Deploy.
-La page racine du Worker doit annoncer version 33. Le site doit afficher 0.14.94.
-Les tables nécessaires sont créées automatiquement. Conserver les liaisons COMMENTS et PROFILE.
-Les anciens tickets déjà réglés ne sont pas recalculés ; les corrections s'appliquent aux nouveaux achats.
+Décompresser le ZIP. Sur GitHub, remplacer les fichiers à la racine, en particulier index.html, README.md et sw.js, puis publier le dossier ui. Conserver assets et ui/vendor (ils sont également inclus dans cette archive complète).
+Si GitHub refuse plus de 100 fichiers à la fois, envoyer d'abord les fichiers de la racine, puis ui, puis assets séparément.
+
+Le Worker requis est ONE-SERVEUR-v33.mjs dans Cloudflare. Si la version 33 est déjà déployée, aucune nouvelle modification serveur n'est nécessaire.
+
+Vérification : ONE affiche 0.14.95. Les choix des trois tickets sont côte à côte, les cases sont claires, et le texte du ticket 100 commence par « Trouve 3 gemmes identiques dans chaque mission ».
+Les missions complètes apparaissent après achat d'un nouveau ticket. Les anciens tickets réglés ne sont pas recalculés.
