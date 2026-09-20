@@ -16,3 +16,13 @@
  .pl-group .pl-member{box-sizing:border-box;padding-right:8px}.pl-member b{font-size:11px}.pl-actions{gap:8px}.pl-actions>button{white-space:normal}
 }
 @media(max-width:350px){#onePartyGame .pl-lobby{padding:16px 8px}.pl-games{gap:6px}#onePartyGame .pl-game{padding:0 7px 10px;min-height:220px}.pl-game .pl-art{height:91px;margin:0 -7px}.pl-game>small{letter-spacing:0;font-size:6.8px}.pl-game strong{font-size:12px}.pl-game>span:not(.pl-art){font-size:9px}.pl-filter button{font-size:10px!important}}
+
+/* Vivid catalogue, crisp scalable artwork. */
+#onePartyGame .pl-game{background:radial-gradient(ellipse at 50% 0,#6249ba55,transparent 70%),linear-gradient(145deg,#292144,#121527);border-color:#7f70b277;min-height:210px}
+#onePartyGame .pl-game:nth-child(3n+2){background:radial-gradient(ellipse at 50% 0,#00c2c155,transparent 70%),linear-gradient(145deg,#1c3741,#151529)}
+#onePartyGame .pl-game:nth-child(3n){background:radial-gradient(ellipse at 50% 0,#e5aa3c55,transparent 70%),linear-gradient(145deg,#42303d,#171528)}
+#onePartyGame .pl-game[aria-pressed=true]{border-color:#ffe09b;box-shadow:inset 0 0 0 1px #ffdf9488,0 0 24px #b487fb30}
+.pl-game .pl-art{background:radial-gradient(ellipse,#9d79f92b,transparent 75%)}
+.pl-game .pl-art svg{filter:drop-shadow(0 6px 3px #0008);shape-rendering:geometricPrecision}
+#onePartyGame .pl-game strong{color:#fff7df;text-shadow:0 2px 3px #0007}
+@media(max-width:560px){#onePartyGame .pl-game{min-height:200px}.pl-game .pl-art{height:112px}}

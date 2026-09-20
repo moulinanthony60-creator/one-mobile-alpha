@@ -1,17 +1,17 @@
-ONE 0.14.84 — INSTALLATION COMPLÈTE — SERVEUR v29
+ONE 0.14.84 — INSTALLATION COMPLÈTE — SERVEUR v31
 
 1. SERVEUR CLOUDFLARE
-Remplacer le code du Worker one-comments-api par ONE-SERVEUR-v29.mjs, puis Déployer. Conserver les liaisons COMMENTS (D1) et PROFILE existantes.
+Remplacer le code du Worker one-comments-api par ONE-SERVEUR-v31.mjs, puis Déployer. Conserver les liaisons COMMENTS (D1) et PROFILE existantes.
 Le serveur crée les tables Points ONE manquantes et adapte les anciennes mises de roulette. Il conserve les soldes, les cartes et les parties existantes. Les tours gratuits sont enregistrés par compte.
-Les fichiers ONE-COLLECTION.sql et ONE-JEUX-POINTS.sql sont fournis pour une installation manuelle initiale. Le serveur v29 assure automatiquement les ajouts nécessaires au casino et aux bonus.
-Si les salons publics de la version 0.14.83 n'ont jamais été installés, exécuter ONE-SALONS-PUBLICS.sql dans la même base COMMENTS.
+Les fichiers ONE-COLLECTION.sql et ONE-JEUX-POINTS.sql sont fournis pour une installation manuelle initiale. Le serveur v31 assure automatiquement les ajouts nécessaires au casino et aux bonus.
+Le serveur v31 initialise aussi les tables des salons et du poker. ONE-SALONS-REPARATION.sql est fourni pour une installation manuelle des salons ; il ne supprime aucun salon existant.
 
 2. SITE GITHUB
 Extraire ONE-0.14.84-POINTS-JEUX-COLLECTION.zip et envoyer son CONTENU à la racine du dépôt GitHub. Inclure le dossier ui et ses trois images PNG. Conserver assets et ui/vendor déjà présents. Recharger ONE après la publication GitHub Pages.
-La mise à jour nécessite le site ET le serveur v29. Aucun déploiement en ligne n'a été effectué depuis cet aperçu.
+La mise à jour nécessite le site ET le serveur v31. Aucun déploiement en ligne n'a été effectué depuis cet aperçu.
 
-3. CRÉDIT DE TEST DEMANDÉ
-ONE-CREDIT-DIWAIIS.sql ajoute une seule fois 500 000 points au compte ayant exactement le pseudo Diwaiis dans Amis. Il n'attribue rien si le pseudo est absent ou partagé. Vérifier le résultat de la requête finale. L'aperçu local utilise un compte fictif QA ; il ne crédite pas le compte réel.
+3. CRÉDIT DE TEST DÉJÀ EFFECTUÉ
+Le crédit Diwaiis a déjà été confirmé : aucune nouvelle attribution à faire. Le fichier conservé ONE-CREDIT-DIWAIIS.sql ajoute une seule fois 500 000 points au compte ayant exactement le pseudo Diwaiis dans Amis. Il n'attribue rien si le pseudo est absent ou partagé. Vérifier le résultat de la requête finale. L'aperçu local utilise un compte fictif QA ; il ne crédite pas le compte réel.
 
 MACHINE À SOUS — GOLDEN DRAGON
 - Borne colorée bleu, violet, rouge et or, bandeau illustré, commandes intégrées et cadrage adapté au téléphone.
@@ -36,7 +36,7 @@ MACHINE À SOUS — GOLDEN DRAGON
 ROULETTE
 Table interactive : numéros 0–36, trois douzaines, trois colonnes, rouge/noir, pair/impair, 1–18 et 19–36. Plusieurs paris possibles sur le même tour, jetons de 10/25/50/100 points, total maximum 5 000. Annulation du dernier jeton et effacement des mises.
 Retours : numéro x36, douzaine/colonne x3, autres paris x2. Le zéro perd tous les paris extérieurs.
-Recentrage sur la roue et zoom au lancement. Résultat et solde actualisé après l'arrêt. Sur téléphone, la table se fait défiler horizontalement à l'intérieur de son cadre.
+Recentrage sur la roue et zoom au lancement. Résultat et solde actualisé après l'arrêt. Sur téléphone, la roue est réduite et les 37 numéros ainsi que les paris extérieurs tiennent dans la largeur du plateau.
 
 BLACKJACK
 Table en feutre et bordure, cartes avec symboles, valeurs et totaux, jetons décoratifs. Règles inchangées : As 1 ou 11, croupier tire jusqu'à 17, victoire x2, égalité x1. Pas de split, double, assurance ni bonus de blackjack naturel.
@@ -56,3 +56,34 @@ Bandeau original créé avec l'outil de génération d'images intégré. Fichier
 Prompt et emplacement de la source dans VISUEL-GOLDEN-DRAGON.txt.
 STABILITÉ DE LA MACHINE
 La hauteur des résultats, lignes gagnantes et commandes est réservée. La borne ne rejoue plus l'animation d'entrée à chaque tirage. Le défilement reste au même endroit avant, pendant et après le tour ; jackpot et bonus s'affichent au-dessus de la borne sans agrandir celle-ci.
+
+
+NOUVEAUTÉS v31 — MOBILE ET CARTES
+- Correction des rectangles sombres sur les cartes du blackjack (conflit de style avec la barre de navigation).
+- Croix de fermeture visible pendant le défilement.
+- Packs illustrés avec animation en relief, ouverture du paquet et envol des cinq dos de cartes. Retournement uniquement au toucher, effets par rareté, animations réduites si demandé par l’appareil.
+- Badge NEW sur une carte absente de la collection avant l’achat (premier exemplaire du pack).
+- Catalogue avec éventail de cartes et progression ; cartes non trouvées toujours masquées.
+- Vignettes des jeux aux couleurs plus vives, reflets et relief en illustration vectorielle.
+
+GRATTAGE — POINTS ONE > JEUX
+- Trésor ONE : ticket 10 points, trois montants identiques.
+- Numéro chance : ticket 50 points, retrouver le numéro chance.
+- Diamants : ticket 100 points, trois gemmes identiques de même valeur.
+- Grattage au doigt ou à la souris ; bouton Révéler pour l’accessibilité.
+- Pour chacun : perte 55 %, retour x1 20 %, x2 15 %, x5 7 %, x10 2 %, x50 1 %.
+- Le tirage et le gain sont enregistrés à l’achat. Gratter révèle un résultat déjà calculé, sans nouveau débit. Les derniers tickets sont récupérables après fermeture.
+
+POKER — POINTS ONE > JEUX
+- Texas Hold’em no-limit en tête-à-tête : contre l’ordinateur ou avec un ami par code privé.
+- Première version : deux joueurs, une main par table. Pas de tournoi ni table à six joueurs.
+- Réserve choisie : 100, 500 ou 1 000 Points ONE par joueur. Blindes 1 / 2 points. Suivre, parole, relancer, tapis et se coucher.
+- La réserve est débitée à l’entrée, les mises puisées dedans ; le solde restant et les gains sont recrédités automatiquement à la fin de la main. La réserve de l’ordinateur est virtuelle.
+- Le prix d’entrée d’une table amie doit être confirmé avant de rejoindre. Cartes privées calculées côté serveur, dévoilées à l’abattage uniquement.
+- Quitter une main se traduit par un abandon ; quitter l’attente rembourse la réserve. Deux minutes sans action : abandon constaté au prochain accès à la table. Une attente de plus de 30 minutes est remboursée au prochain accès.
+- Le compte peut retrouver sa table active en rouvrant Poker.
+
+VÉRIFICATIONS v31
+Tests des trois grattages (prix, gains, probabilités, résultat retrouvé sans deuxième débit), des salons sur base vide et après erreur temporaire, du poker avec deux comptes (réservation, confidentialité, tour de jeu, doubles requêtes, tapis, remboursement et règlement unique). Simulation de 200 mains avec conservation des points à la table et tests des combinaisons. Régression casino, bonus, packs et récompense quotidienne validée.
+Contrôle visuel local à 390 x 844 : blackjack corrigé avec le style de navigation qui causait le bug, plateau sans débordement horizontal, catalogue, packs illustrés, cartes cachées au départ, NEW au retournement, ticket à gratter et poker contre ordinateur.
+Le site public et son serveur ne sont pas mis à jour automatiquement : installer les DEUX fichiers ci-dessus.

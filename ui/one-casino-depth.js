@@ -75,7 +75,7 @@ const shown=new Set();window.ONEWaitRoulette=async root=>{const rotor=root.query
 #onePointsPanel .casinoCard.red{color:#a7182e}#onePointsPanel .casinoCard.back{border:4px solid #faf3df;background:repeating-linear-gradient(45deg,#36213a 0 3px,#654365 3px 4px,#302139 4px 7px)}
 #onePointsPanel .oneCardBackMark{position:absolute;inset:9px;border:1px solid #c9af77;display:grid;place-items:center;font:bold 12px Georgia;color:#d7c08c}
 #onePointsPanel .onePlayingCorner{position:absolute;left:4px;top:4px;display:flex;flex-direction:column;align-items:center;font-size:13px;line-height:1;z-index:2}.onePlayingCorner b{font-weight:normal}
-#onePointsPanel .onePlayingCorner.bottom{left:auto;top:auto;bottom:4px;right:4px;transform:rotate(180deg)}
+#onePointsPanel .onePlayingCorner.onePlayingCornerBottom{left:auto;top:auto;bottom:4px;right:4px;transform:rotate(180deg)}
 #onePointsPanel .onePlayingPips{position:absolute;inset:13px 15px 17px}.onePlayingPips i{position:absolute;font-style:normal;font-size:16px;line-height:1}
 #onePointsPanel .onePlayingCourt{display:grid;place-items:center;height:80%;font-size:43px;background:repeating-linear-gradient(45deg,#af7e2422 0 4px,transparent 4px 8px);border:1px solid #bc964b;color:inherit}
 #onePointsPanel .oneCourtSuit{position:absolute;bottom:0;left:35%;font-size:18px}#onePointsPanel .casinoCardValue{position:absolute;bottom:3px;left:22%;font-size:7px;opacity:.65}

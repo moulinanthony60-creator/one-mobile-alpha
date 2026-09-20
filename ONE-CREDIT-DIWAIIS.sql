@@ -1,5 +1,3 @@
--- À exécuter après les deux migrations Points ONE, dans la base COMMENTS.
--- Crédit unique de 500 000 points ; aucune attribution si le pseudo est absent ou ambigu.
 CREATE TABLE IF NOT EXISTS one_test_credits(account_id TEXT PRIMARY KEY,amount INTEGER NOT NULL);
 CREATE TRIGGER IF NOT EXISTS one_test_credit_award AFTER INSERT ON one_test_credits BEGIN
  INSERT INTO one_wallets VALUES(NEW.account_id,NEW.amount) ON CONFLICT(account_id) DO UPDATE SET balance=balance+NEW.amount;
