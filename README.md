@@ -1,7 +1,17 @@
-# ONE 0.14.00 — premier lot visuel
+# ONE 0.14.85 — mise à jour
 
-Basé sur 0.13.81, sauvegardé avant refonte. Navigation ONE / Together / Party, sources TikTok / YouTube / Twitch / Musique / Plus, espace Social. Pour toi et Ciné masqués dans la navigation. Aucun faux contenu.
+Version publiée du projet ONE.
 
-Cette version est un aperçu de la nouvelle interface, pas la livraison de la phase 1 complète. Together, Social et Party sont des écrans de préparation. Pas de salons, messagerie, synchronisation, caméra/micro ou mini-player persistant dans ce lot. Naviguer vers un nouvel espace arrête encore la lecture, comme auparavant. Le bouton Retour commence à gérer les nouveaux espaces mais reste à unifier avec les lecteurs.
+## Changements
 
-Lecteurs conservés, fonctionnement réel et rendu mobile à vérifier. Non déployé. Rester sur 0.13.81 pour la référence stable.
+- Grattage amélioré pour les tickets 50 et 100 Points ONE.
+- Tickets plus détaillés avec davantage de cases et de niveaux de gain.
+- Interface des jeux ONE avec navigation visuelle et retour.
+- Poker Points ONE en duel contre l’ordinateur.
+- Poker multijoueur et mises optionnelles dans les salons Party.
+- Collection étendue avec de nouvelles cartes, dont les ultra-légendaires **Aethérion** et **Nyxara**.
+- Packs et cartes optimisés pour l’affichage mobile.
+
+## Publication
+
+Le site est publié avec GitHub Pages depuis la branche `main`.
