@@ -1,5 +1,5 @@
 (()=>{
- const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='ui/party-lobby.css?v=01499';document.head.append(sheet);
+ const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href='ui/party-lobby.css?v=014100';document.head.append(sheet);
  let selected='bluff',salon='',filter='Tous';
  const games=[{id:'bluff',name:'ONE Bluff',tag:'BLUFF & TENSION',symbol:'♠',desc:'Garde ton sang-froid. Pose tes cartes, trompe tes adversaires et démasque leurs mensonges.',hint:'Cartes cachées · Personnages 3D',cards:['A','K','Q']},{id:'colors',name:'ONE Couleurs',tag:'RAPIDE & MALIN',symbol:'↔',desc:'La bonne couleur, le bon symbole. Débarrasse-toi de tes cartes avant les autres.',hint:'Couleurs · Cartes spéciales',cards:['7','+2','4']},{id:'douze',name:'ONE Douze',tag:'OBSERVATION & STRATÉGIE',symbol:'12',desc:'Révèle ta grille, échange tes cartes et vise le plus petit score.',hint:'12 cartes · Le moins de points',cards:['−2','0','12']}];
  games.forEach(g=>{g.min=2;g.max=4;g.category='Cartes';});for(const [id,g] of Object.entries(window.ONEPartyCatalog||{}).filter(([id])=>!['horror','laugh','blind','mimevoice','mimegesture'].includes(id)))games.push({id,...g,hint:(g.min===g.max?g.min:g.min+'–'+g.max)+' joueurs',category:['trio'].includes(id)?'Cartes':['who','connect','codes','wolf'].includes(id)?'Réflexion':'Ambiance'});
