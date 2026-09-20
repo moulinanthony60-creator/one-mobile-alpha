@@ -1,5 +1,5 @@
 (()=>{
- const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-collection.css?v=01481';document.head.append(css);
+ const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-collection.css?v=01482';document.head.append(css);
  const meta={
  trio:{name:'ONE Trio',min:3,max:6,tag:'MÉMOIRE',desc:'Retrouve trois nombres identiques, en demandant les extrêmes des mains.',cards:['3','3','3'],rules:'Mode simple inspiré de Trio : révèle une carte de la table, ou la plus petite/la plus grande carte encore disponible dans une main, y compris la tienne. Deux valeurs différentes terminent le tour. Trois identiques font un trio. Trois trios ou celui des 7 font gagner. Après chaque résultat, le joueur actif passe au suivant.'},
  codes:{name:'ONE Codes',min:4,max:16,tag:'EN ÉQUIPES',desc:'Des indices en un mot pour retrouver les agents de ton équipe.',cards:['?','A','?'],rules:'Inspiré de Codenames. Deux équipes attribuées en alternance, le premier joueur de chacune est maître. Il voit les couleurs et donne un mot + un nombre de 1 à 9. Les autres choisissent jusqu’à ce nombre + 1 mots. Un mauvais choix termine le tour ; l’assassin fait perdre. La première équipe à découvrir tous ses agents gagne.'},
