@@ -1,16 +1,11 @@
-# ONE 0.14.93 — mise à jour
+# ONE 0.14.94
 
-Version publiée du projet ONE.
+Collection de 100 cartes. Poker uniquement dans Party (2 à 6 joueurs).
+Grattages 10/50/100 : surface effaçable, missions et gains cohérents avec le Worker v33.
+Nouveaux visuels et retournement des cartes. Navigation et cache versionnés 0.14.94.
 
-## Changements
-
-- Collection étendue à 100 cartes, avec Aethérion et Nyxara comme ultra-légendaires.
-- Poker retiré des jeux Points ONE et conservé dans les salons Party.
-- Roulette, blackjack et tickets à gratter présentés avec une interface plus claire.
-- Tickets à gratter 10, 50 et 100 points avec symboles, couleurs et gains cumulés.
-- Dos des cartes et animations de retournement améliorés.
-- Version serveur v32 avec mises Party et règlement sécurisé.
-
-## Publication
-
-Le site est publié avec GitHub Pages depuis la branche `main`.
+Installation : décompresser ONE-SITE-0.14.94.zip, envoyer tout son contenu à la racine du dépôt GitHub, puis Commit changes.
+Dans Cloudflare, remplacer le code du Worker par ONE-SERVEUR-v33.mjs puis Deploy.
+La page racine du Worker doit annoncer version 33. Le site doit afficher 0.14.94.
+Les tables nécessaires sont créées automatiquement. Conserver les liaisons COMMENTS et PROFILE.
+Les anciens tickets déjà réglés ne sont pas recalculés ; les corrections s'appliquent aux nouveaux achats.
