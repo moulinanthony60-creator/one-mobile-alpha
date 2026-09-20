@@ -1,11 +1,29 @@
-# ONE 0.14.95
+# ONE 0.14.96 — mise à jour
 
-Les scripts des jeux Points ONE, de la collection et les nouveaux styles sont intégrés à index.html : ils sont publiés ensemble avec le numéro de version.
+ONE 0.14.96 — INSTALLATION
 
-Décompresser le ZIP. Sur GitHub, remplacer les fichiers à la racine, en particulier index.html, README.md et sw.js, puis publier le dossier ui. Conserver assets et ui/vendor (ils sont également inclus dans cette archive complète).
-Si GitHub refuse plus de 100 fichiers à la fois, envoyer d'abord les fichiers de la racine, puis ui, puis assets séparément.
+1. CLOUDFLARE : ouvrir le Worker one-comments-api, Modifier le code.
+Remplacer tout le code par ONE-SERVEUR-v34.mjs, puis Deploy.
+Le lien Visit doit afficher "version":"34". Conserver les liaisons et réglages existants.
+Cette version ajoute une correction unique des anciens tickets Trésor ONE sous-payés.
+Les tables nécessaires sont créées automatiquement ; ne pas supprimer la base.
 
-Le Worker requis est ONE-SERVEUR-v33.mjs dans Cloudflare. Si la version 33 est déjà déployée, aucune nouvelle modification serveur n'est nécessaire.
+2. GITHUB : dépôt moulinanthony60-creator/one-mobile-alpha, branche main.
+Décompresser PARTIE-1 et PARTIE-2 séparément.
+Envoyer LE CONTENU de chaque dossier à la racine du dépôt, une partie à la fois.
+Conserver les noms et l'arborescence ui et assets. Remplacer les fichiers existants.
+Ne pas envoyer les ZIP eux-mêmes. Ne pas ajouter un dossier parent PARTIE-1 au dépôt.
+Chaque archive contient moins de 100 fichiers. Les deux parties forment le site complet.
+Après chaque envoi, cliquer Commit changes et attendre le déploiement GitHub Pages.
 
-Vérification : ONE affiche 0.14.95. Les choix des trois tickets sont côte à côte, les cases sont claires, et le texte du ticket 100 commence par « Trouve 3 gemmes identiques dans chaque mission ».
-Les missions complètes apparaissent après achat d'un nouveau ticket. Les anciens tickets réglés ne sont pas recalculés.
+3. VÉRIFICATION : le site et le README indiquent 0.14.96.
+Le solde apparaît sous l'étoile Points dans la barre du haut.
+Les images de roulette, blackjack et tickets sont nouvelles.
+Le bouton Lancer se trouve au centre de la roulette ; Tous les jeux reste au-dessus de la machine.
+Les nouveaux tickets à 50 ont 3 numéros chance et 12 cases ; ceux à 100 ont 3 missions et un coffre.
+Les anciens tickets 50/100 restent archivés ; un nouvel achat utilise les nouvelles règles.
+Le Worker 34 est indispensable pour créditer les gains corrigés, le site seul ne suffit pas.
+
+Vérifications locales effectuées : calcul 100+10=110, complément crédité une seule fois,
+jeux, collection 100 cartes, poker Party, ouverture de packs et interface mobile 390 pixels.
+Les fichiers sont préparés, leur publication sur vos services reste à effectuer.
