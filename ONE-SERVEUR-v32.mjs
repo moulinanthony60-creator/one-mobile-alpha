@@ -206,7 +206,7 @@ export default {async fetch(request,env){
  const origin=request.headers.get('Origin');if(origin&&origin!==ORIGIN)return json({error:'Origine non autorisée'},403);
  if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
  const url=new URL(request.url);
- if(url.pathname==='/')return json({ok:true,service:'ONE Comments',configured:!!env.COMMENTS,version:'31',accountService:env.PROFILE?'binding':'https'});
+ if(url.pathname==='/')return json({ok:true,service:'ONE Comments',configured:!!env.COMMENTS,version:'32',accountService:env.PROFILE?'binding':'https'});
  if(!env.COMMENTS)return json({error:'Commentaires ONE en cours d’activation.'},503);
  let authStatus='anonymous';
  const auth=async()=>{const token=request.headers.get('Authorization');if(!token?.startsWith('Bearer '))return null;
