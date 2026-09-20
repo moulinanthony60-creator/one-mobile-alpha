@@ -1,5 +1,5 @@
-const CACHE='one-mobile-alpha-1480-compact-cards-twitch-v1';
-const CORE=['./ui/icons.js?v=01480','./ui/foundation.css?v=01480','./ui/foundation.js?v=01480','./','./index.html','./manifest.json','./manifest.webmanifest','./privacy.html','./terms.html','./icon-192.png','./icon-512.png'];
+const CACHE='one-mobile-alpha-1481-compact-cards-twitch-v1';
+const CORE=['./ui/icons.js?v=01481','./ui/foundation.css?v=01481','./ui/foundation.js?v=01481','./','./index.html','./manifest.json','./manifest.webmanifest','./privacy.html','./terms.html','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith("one-mobile-alpha-")&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('message',event=>{if(event.data?.type==='SKIP_WAITING')self.skipWaiting()});
