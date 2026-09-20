@@ -1,3 +1,4 @@
+(()=>{const target=document.createElement('style');target.textContent='#onePointsPanel .oneGemMission[data-gem="0"]>small{color:#ff669b}#onePointsPanel .oneGemMission[data-gem="1"]>small{color:#66d6ff}#onePointsPanel .oneGemMission[data-gem="2"]>small{color:#7dffb1}';document.head.append(target);})();
 (()=>{const s=document.createElement('style');s.textContent=`
 #onePointsPanel .oneCardsScreen{min-width:0}
 #onePointsPanel .onePackBox{position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 20%,#196c944d,transparent 65%),linear-gradient(145deg,#162236,#130f20);border-color:#67afd86b;padding:18px 14px}
@@ -32,3 +33,12 @@
 `;document.head.append(s);})();
 
 (()=>{const s=document.createElement('style');s.textContent='#onePointsPanel .oneNewCardBadge{position:absolute;top:10px;left:9px;padding:4px 7px;background:linear-gradient(120deg,#fff19c,#ffbd45);color:#342013;font:bold 9px system-ui;letter-spacing:1px;border:1px solid #fff4b6;border-radius:5px;box-shadow:0 2px 8px #0007;z-index:4}';document.head.append(s);})();
+
+(()=>{const s=document.createElement('style');s.textContent=`
+#onePointsPanel .oneCollectible[data-rarity=ultra]{border:2px solid #a8ffef;background:linear-gradient(140deg,#83dbc855,#7055b9,#111828 75%);box-shadow:0 0 18px #7ce7ec55,inset 0 0 0 1px #f6d7ff}
+#onePointsPanel .oneCard3d[data-rarity=ultra]{--tier-glow:#adfff2;--tier-rgb:173,255,242}
+#onePointsPanel .oneCard3d[data-rarity=ultra] .oneFXRing{border:2px solid #a8fff3;box-shadow:0 0 30px #9e64f788,inset 0 0 18px #8affe777;animation-duration:2.8s}
+#onePointsPanel .oneCard3d[data-rarity=ultra] .oneCardSheen{background:linear-gradient(110deg,transparent,#7ffffd77,#e39cff77,#ffee9477,transparent)}
+#onePointsPanel .oneOpenAgain{width:100%;font-size:14px;font-weight:bold;padding:12px;margin-top:20px;background:linear-gradient(110deg,#ad77df,#644dc0);border-color:#d2aeff}
+@media(max-width:560px){#onePointsPanel .onePackReveal .oneCollectionGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 7px}#onePointsPanel .onePackReveal .oneCard3d:last-child:nth-child(odd){grid-column:auto;width:auto;justify-self:stretch}#onePointsPanel .onePackReveal{padding:18px 9px}#onePointsPanel .onePackReveal .oneCollectible{padding:4px}#onePointsPanel .onePackReveal .oneCollectible h4{font-size:10px}#onePointsPanel .onePackReveal .oneCollectible small{font-size:8px}#onePointsPanel .onePackReveal .oneCardReverse{min-height:125px;font-size:15px}#onePointsPanel .onePackReveal .oneNewCardBadge{top:6px;left:5px;font-size:7px;padding:3px 4px}}
+`;document.head.append(s);})();

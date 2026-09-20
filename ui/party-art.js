@@ -2,7 +2,7 @@
  const card=(x,y,value,fill='#38263d',rotate=0)=>`<g transform="translate(${x} ${y}) rotate(${rotate} 24 34)"><rect width="48" height="68" rx="6" fill="${fill}" stroke="#e6c995" stroke-width="1.4"/><rect x="2" y="2" width="44" height="64" rx="4" fill="url(#cardFoil)"/><rect x="4" y="4" width="40" height="60" rx="3" fill="none" stroke="#ffffff66"/><path d="M5 7h38M5 61h38" stroke="#fff" opacity=".25"/><ellipse cx="24" cy="35" rx="17" ry="24" fill="#ffffff12" transform="rotate(25 24 35)"/><text x="7" y="15" font-size="9" fill="#fff2d7">${value}</text><text x="24" y="44" text-anchor="middle" font-size="26" font-family="Georgia,serif" fill="#fff2d7">${value}</text></g>`;
  const tile=(x,y,color,label='')=>`<rect x="${x}" y="${y}" width="23" height="27" rx="4" fill="${color}" stroke="#ffffff55"/>${label?`<text x="${x+11.5}" y="${y+19}" font-size="13" fill="#21182b" text-anchor="middle">${label}</text>`:''}`;
  const mic=`<rect x="77" y="26" width="26" height="46" rx="13" fill="url(#gold)"/><path d="M69 54v8a21 21 0 0 0 42 0v-8M90 84v17m-15 1h30" fill="none" stroke="#dbc1fa" stroke-width="4" stroke-linecap="round"/><path d="M81 38h18m-18 8h18m-18 8h18" stroke="#725139" stroke-width="2"/>`;
- const art={
+ const art={poker:card(43,27,'A','#184c52',-18)+card(66,21,'K','#bd6540')+card(91,29,'Q','#633ab4',18),
   bluff:card(43,27,'A','#342773',-18)+card(66,21,'K','#75369d')+card(91,29,'Q','#192c65',18),
   colors:card(39,27,'7','#ef337b',-17)+card(65,20,'+2','#8854f5')+card(94,29,'4','#00aaa5',18),
   douze:Array.from({length:12},(_,i)=>tile(40+i%4*26,20+Math.floor(i/4)*30,['#51d9f2','#97ec70','#ffcb57'][i%3],i<4?['−2','0','6','12'][i]:'')).join(''),

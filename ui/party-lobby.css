@@ -26,3 +26,5 @@
 .pl-game .pl-art svg{filter:drop-shadow(0 6px 3px #0008);shape-rendering:geometricPrecision}
 #onePartyGame .pl-game strong{color:#fff7df;text-shadow:0 2px 3px #0007}
 @media(max-width:560px){#onePartyGame .pl-game{min-height:200px}.pl-game .pl-art{height:112px}}
+
+.pl-wager{padding:16px;margin-top:20px;border:1px solid #c7a56288;border-radius:14px;background:#47365533}.pl-wager p{font-size:12px;line-height:1.6}.pl-wager select{padding:10px;background:#241a35;color:#ffebb6;border:1px solid #c7a562;border-radius:8px;width:100%;margin:10px 0}.pl-wager small{font-size:11px;color:#c6b6d1}

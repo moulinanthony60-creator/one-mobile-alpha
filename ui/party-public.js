@@ -1,5 +1,5 @@
 (()=>{
- const names={bluff:'ONE Bluff',colors:'ONE Couleurs',douze:'ONE Douze',trio:'ONE Trio',codes:'ONE Codes',who:'ONE Qui est-ce ?',connect:'ONE Puissance 4',timer:'ONE Timer',mimevoice:'Mimic Party · Voix',mimegesture:'Mimic Party · Gestes',horror:'ONE Frisson',laugh:'ONE Marrant',blind:'ONE Blind test',wolf:'ONE Loups-garous'};
+ const names={poker:'ONE Poker',bluff:'ONE Bluff',colors:'ONE Couleurs',douze:'ONE Douze',trio:'ONE Trio',codes:'ONE Codes',who:'ONE Qui est-ce ?',connect:'ONE Puissance 4',timer:'ONE Timer',mimevoice:'Mimic Party · Voix',mimegesture:'Mimic Party · Gestes',horror:'ONE Frisson',laugh:'ONE Marrant',blind:'ONE Blind test',wolf:'ONE Loups-garous'};
  for(const id of ['horror','laugh','blind','mimevoice','mimegesture'])delete names[id];
  let chosen='bluff',mode='',query='',filter='',available=true;
  const el=(tag,text)=>{const n=document.createElement(tag);if(text)n.textContent=text;return n;};
