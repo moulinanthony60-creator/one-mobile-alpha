@@ -1,4 +1,4 @@
-import {createGrip,resetGrip,palmFrame,pinchCards,graspHandle,relaxGrip,handleFrame} from './hand-grip.js?v=01483';
+import {createGrip,resetGrip,palmFrame,pinchCards,graspHandle,relaxGrip,handleFrame} from './hand-grip.js?v=01482';
 import * as T from './vendor/three.module.js';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {clone} from './vendor/SkeletonUtils.js';
