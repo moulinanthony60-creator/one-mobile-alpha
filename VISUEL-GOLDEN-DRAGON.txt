@@ -1,0 +1,6 @@
+VISUEL GOLDEN DRAGON
+Outil utilisé : génération d'images intégrée (pas de CLI).
+Fichier final du projet : C:/Users/Anthony/Documents/Codex/2026-09-15/referenced-chatgpt-conversation-this-is-an-2/work/release-01484/ui/one-slot-dragon-banner.png
+
+Prompt final :
+Create one landscape 1536x1024 raster game artwork for a colorful virtual arcade slot machine called ONE. ORIGINAL richly detailed polished 3D golden Asian fantasy dragon curling around a luminous purple orb at center, emerald gems and red/gold coins, blue electric lightning and pink neon ribbons, highly saturated royal blue, fuchsia, ruby red, bright gold, glossy exciting casino arcade illustration. Dark indigo outer corners. Main dragon head and coiled body all within central horizontal band (middle 50% image height), composition readable when cropped to a wide banner. No text, no numbers, no currency signs, no logos, no actual machine, no screen frame, no UI, no humans. Beautiful physical gilded scales and jewel-like eyes, dramatic rim lighting, premium game title-screen artwork. This is a decorative top-screen graphic to embed in our own interactive machine, not a screenshot or a mockup.

@@ -1,34 +1,58 @@
-ONE 0.14.84 — POINTS, JEUX ET COLLECTION
+ONE 0.14.84 — INSTALLATION COMPLÈTE — SERVEUR v29
 
-INSTALLATION
-1. Si la version 0.14.83 n'a pas encore été installée, exécuter ONE-SALONS-PUBLICS.sql dans la base D1 COMMENTS, selon les instructions 0.14.83.
-2. Dans cette même base, exécuter ONE-COLLECTION.sql puis ONE-JEUX-POINTS.sql. Ce sont des ajouts ; ne pas supprimer les tables existantes.
-3. Remplacer le Worker one-comments-api par ONE-SERVEUR-v25.mjs et déployer. Garder les liaisons existantes COMMENTS et PROFILE.
-4. Extraire ONE-0.14.84-POINTS-JEUX-COLLECTION.zip. Envoyer son CONTENU à la racine du dépôt GitHub, avec le dossier ui. Conserver assets et ui/vendor déjà présents.
-5. Pour le crédit demandé : exécuter ONE-CREDIT-DIWAIIS.sql dans COMMENTS. Il ajoute UNE SEULE FOIS 500 000 points au compte ayant exactement le pseudo Diwaiis dans Amis. Il n'attribue rien si le pseudo est absent ou partagé par plusieurs comptes. Vérifier le résultat de la requête finale ; s'il est vide, ouvrir Amis avec Diwaiis ou utiliser son identifiant exact. Aucun crédit n'a été appliqué au compte réel depuis l'aperçu local.
-6. Recharger ONE après la publication GitHub Pages. Version attendue : 0.14.84.
+1. SERVEUR CLOUDFLARE
+Remplacer le code du Worker one-comments-api par ONE-SERVEUR-v29.mjs, puis Déployer. Conserver les liaisons COMMENTS (D1) et PROFILE existantes.
+Le serveur crée les tables Points ONE manquantes et adapte les anciennes mises de roulette. Il conserve les soldes, les cartes et les parties existantes. Les tours gratuits sont enregistrés par compte.
+Les fichiers ONE-COLLECTION.sql et ONE-JEUX-POINTS.sql sont fournis pour une installation manuelle initiale. Le serveur v29 assure automatiquement les ajouts nécessaires au casino et aux bonus.
+Si les salons publics de la version 0.14.83 n'ont jamais été installés, exécuter ONE-SALONS-PUBLICS.sql dans la même base COMMENTS.
 
-JEUX
-- Roulette européenne animée : couleur rouge/noir (retour 2 fois la mise), ou numéro entier 0–36 (retour 36 fois la mise). Le zéro perd les paris rouge/noir.
-- Blackjack simplifié : cartes et totaux visibles, As 1/11 ; croupier tire jusqu'à 17. Victoire x2, égalité x1 ; pas de split, double, assurance ni bonus blackjack naturel.
-- Machine à sous : 6 symboles équiprobables, 3 rouleaux. Triplé x10, une paire x1, sinon perte.
-- Retours mise comprise. Mises : 10, 25, 50, 100 points. Points uniquement virtuels, sans valeur monétaire.
-- Tirages et solde côté serveur. Demandes répétées protégées contre les doubles débits. Blackjack en cours conservé après fermeture/rechargement.
-- Récompense quotidienne : 100 points, une fois par date civile à Paris et par compte.
+2. SITE GITHUB
+Extraire ONE-0.14.84-POINTS-JEUX-COLLECTION.zip et envoyer son CONTENU à la racine du dépôt GitHub. Inclure le dossier ui et ses trois images PNG. Conserver assets et ui/vendor déjà présents. Recharger ONE après la publication GitHub Pages.
+La mise à jour nécessite le site ET le serveur v29. Aucun déploiement en ligne n'a été effectué depuis cet aperçu.
 
-PACKS ET COLLECTION
-- Packs de 5 cartes à 500 ou 1000 points ; les doublons sont conservés.
-- Répartition choisie pour cette première version, par carte : Découverte 70 % normales / 24 % rares / 5 % épiques / 1 % légendaires ; Premium 45 / 35 / 16 / 4 %. Chances affichées avant ouverture, aucune rareté garantie.
-- Catalogue des collections, Série 1 de 50 cartes. Cliquer pour ouvrir ; cartes non trouvées masquées par un point d'interrogation.
-- Nouvelles illustrations et cadres lisibles, ouverture animée puis révélation progressive. Les statistiques de combat de la planche de référence ne définissent pas encore un jeu de combat.
-- Solde commun aux packs et aux trois jeux.
+3. CRÉDIT DE TEST DEMANDÉ
+ONE-CREDIT-DIWAIIS.sql ajoute une seule fois 500 000 points au compte ayant exactement le pseudo Diwaiis dans Amis. Il n'attribue rien si le pseudo est absent ou partagé. Vérifier le résultat de la requête finale. L'aperçu local utilise un compte fictif QA ; il ne crédite pas le compte réel.
 
-COMPTE
-- Croix en haut de Compte ONE ; ancien bouton Fermer du bas retiré.
+MACHINE À SOUS — GOLDEN DRAGON
+- Borne colorée bleu, violet, rouge et or, bandeau illustré, commandes intégrées et cadrage adapté au téléphone.
+- 5 rouleaux, 3 rangées, 5 lignes actives. Rotation en perspective, arrêt successif de gauche à droite. Gains affichés après l'arrêt.
+- La mise totale est divisée par 5. Les gains des lignes se cumulent ; chaque ligne paie sa meilleure combinaison consécutive depuis la gauche.
+- Gains doublés par rapport à la version précédente.
+  Symbole                 3       4       5
+  Cerise / citron        x10     x24     x60
+  Cloche                 x16     x40     x100
+  Étoile                 x24     x70     x160
+  Diamant                x36     x100    x240
+  Sept                   x50     x150    x400
+  WILD                   x60     x200    x2000
+  Multiplicateurs appliqués à la mise PAR LIGNE.
+- WILD remplace les six symboles ordinaires, pas BONUS.
+- 5 WILD sur une ligne : jackpot fixe x2000 de la mise par ligne. À 10 points de mise totale, 4 000 points par ligne. Animation dorée avec pluie de jetons ONE après l'arrêt. Ce n'est pas un jackpot progressif partagé.
+- 3 BONUS ou plus, n'importe où, accordent 10 tours gratuits. La mise de référence reste celle du déclenchement. Aucun débit pendant les tours gratuits, pas de nouveau déclenchement pendant le bonus. Les tours restants sont conservés après fermeture.
+- Probabilité par case indépendante : cerise 24 %, citron 24 %, cloche 18 %, étoile 14 %, diamant 9 %, sept 6 %, WILD 3 %, BONUS 2 %. Les probabilités restent inchangées lors du doublement des gains.
+- Exemple : mise totale de 100 points, trois citrons (WILD inclus) sur une ligne = 200 points de retour.
+- Les anciens tirages déjà réglés gardent leurs gains d'origine.
 
-ENCORE À BRANCHER
-- Les gains annoncés de 1 point par minute de vidéo et de 10 points par partie Party ne sont pas inclus dans cette livraison. La récompense quotidienne et les gains des jeux Points ONE sont actifs.
+ROULETTE
+Table interactive : numéros 0–36, trois douzaines, trois colonnes, rouge/noir, pair/impair, 1–18 et 19–36. Plusieurs paris possibles sur le même tour, jetons de 10/25/50/100 points, total maximum 5 000. Annulation du dernier jeton et effacement des mises.
+Retours : numéro x36, douzaine/colonne x3, autres paris x2. Le zéro perd tous les paris extérieurs.
+Recentrage sur la roue et zoom au lancement. Résultat et solde actualisé après l'arrêt. Sur téléphone, la table se fait défiler horizontalement à l'intérieur de son cadre.
 
-VÉRIFICATIONS
-- Tests serveur sur SQLite : authentification, solde, récompense quotidienne unique, débit unique même en cas de répétition, blackjack privé et repris, règlement concurrent, paris exacts 0/17 et numéro 37 refusé, ouverture de packs et crédit unique.
-- Vérification navigateur locale des trois jeux, débit et résultats, packs de cinq cartes, catalogue et masquage. L'aperçu utilise un compte fictif QA avec 500 000 points et ne crédite pas le compte Diwaiis réel.
+BLACKJACK
+Table en feutre et bordure, cartes avec symboles, valeurs et totaux, jetons décoratifs. Règles inchangées : As 1 ou 11, croupier tire jusqu'à 17, victoire x2, égalité x1. Pas de split, double, assurance ni bonus de blackjack naturel.
+
+POINTS, PACKS ET COLLECTION
+Points uniquement virtuels, sans valeur monétaire. Récompense quotidienne de 100 points, une fois par jour civil à Paris. Solde commun aux packs et aux jeux.
+Packs de cinq cartes : 500 / 1 000 points. Maximum deux exemplaires identiques par pack. Chances par carte : Découverte 70/24/5/1 % ; Premium 45/35/16/4 % pour normales/rares/épiques/légendaires.
+Catalogue avec Série 1 de 50 cartes, cartes non trouvées masquées. Ouverture animée, puis révélation individuelle au clic, effets de rareté distincts.
+Les récompenses de 1 point par minute de vidéo et 10 points par partie Party restent à brancher ; elles ne sont pas incluses.
+
+VALIDATION
+Tests sur SQLite : migration des anciennes mises avec conservation des soldes et de l'historique ; paris cumulés, zéro et limites ; WILD, jackpot, gains doublés, bonus de 10 tours, solde nul, mise verrouillée, absence de double débit sur répétition et protection des tours gratuits concurrents ; création initiale, récompense quotidienne et packs préservés.
+Vérification visuelle locale : ordinateur et téléphone 390 x 844, borne complète, cartes de blackjack, table de roulette, recentrage et gains masqués pendant les animations. Jackpot vérifié avec un résultat fictif dédié.
+
+ILLUSTRATION
+Bandeau original créé avec l'outil de génération d'images intégré. Fichier : ui/one-slot-dragon-banner.png.
+Prompt et emplacement de la source dans VISUEL-GOLDEN-DRAGON.txt.
+STABILITÉ DE LA MACHINE
+La hauteur des résultats, lignes gagnantes et commandes est réservée. La borne ne rejoue plus l'animation d'entrée à chaque tirage. Le défilement reste au même endroit avant, pendant et après le tour ; jackpot et bonus s'affichent au-dessus de la borne sans agrandir celle-ci.
