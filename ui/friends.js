@@ -2,7 +2,7 @@
  const API='https://one-comments-api.moulinanthony60.workers.dev';let dialog=null,dialogToken=null;
  const el=(tag,text)=>{const n=document.createElement(tag);if(text)n.textContent=text;return n;},button=(text,fn,label)=>{const b=el('button',text);b.type='button';b.onclick=fn;if(label){b.setAttribute('aria-label',label);b.title=label;}return b;},format=c=>c.slice(0,4)+'-'+c.slice(4);
  const params=new URLSearchParams(location.search),linkCode=params.get('friend');let resume=!!(linkCode&&/^[A-Z2-9]{8}$/i.test(linkCode));if(resume){sessionStorage.setItem('one_friend_pending',linkCode.toUpperCase());params.delete('friend');history.replaceState(history.state,'',location.pathname+(params.size?'?'+params:'')+location.hash);}
- const css=el('link');css.rel='stylesheet';css.href='ui/friends.css?v=014104';document.head.append(css);
+ const css=el('link');css.rel='stylesheet';css.href='ui/friends.css?v=014105';document.head.append(css);
  async function api(path,method='GET',body){const token=oneAccountToken();const r=await fetch(API+path,{method,headers:{Authorization:'Bearer '+token,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(12000)});const data=await r.json().catch(()=>({}));if(token!==oneAccountToken())throw Error('Le compte a changé.');if(!r.ok||!data.ok)throw Error(data.error||'Service indisponible. Réessaie.');return data;}
  window.oneOpenFriends=(conversationId)=>{
   if(dialog?.open){if(typeof conversationId==='string')dialog.openThread?.(conversationId);dialog.focus();return;}dialogToken=oneAccountToken();let tab=typeof conversationId==='string'?'messages':resume?'add':'friends';if(oneAccountToken())resume=false;

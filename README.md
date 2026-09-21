@@ -1,4 +1,4 @@
-# ONE 0.14.104
+# ONE 0.14.105
 
 Connexions YouTube, Twitch et TikTok depuis le compte ONE.
 Serveur séparé : one-connections-api v1. Les secrets restent côté serveur.
