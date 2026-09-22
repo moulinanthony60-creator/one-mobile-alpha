@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "checks": [
+    "Table Poker premium",
+    "Poker : deux acceptants",
+    "Cartes adverses secrètes",
+    "Relance confirmée par le moteur",
+    "Flop confirmé après suivi",
+    "Poker : abattage et résultat serveur",
+    "Cinq cartes communes",
+    "Board affiché fidèle",
+    "Bluff : sièges des participants",
+    "Bluff : annonce confirmée",
+    "Seule l’annonce contestée est révélée",
+    "Séquence déclenchée après réponse serveur",
+    "Vraie vidéo préenregistrée en lecture",
+    "Portrait figé uniquement pour les éliminés serveur",
+    "Retour à la table après la séquence",
+    "Bluff sans débordement à 360 px",
+    "Actions tactiles Bluff à 360 px",
+    "Bluff sans débordement à 390 px",
+    "Actions tactiles Bluff à 390 px",
+    "Bluff sans débordement à 430 px",
+    "Actions tactiles Bluff à 430 px",
+    "Aucune erreur JavaScript Poker/Bluff"
+  ]
+}
