@@ -6,9 +6,9 @@
  const el=(tag,text)=>{const n=document.createElement(tag);if(text)n.textContent=text;return n;},btn=(text,fn)=>{const b=el('button',text);b.type='button';b.dataset.gameControl='true';b.onclick=fn;return b;};const status=el('p'),body=el('div');status.setAttribute('role','status');body.className='oneGameBody';panel.append(el('h2','ONE Couleurs'),status,body);
  function visible(){return !document.getElementById('oneFoundation')?.hidden&&document.querySelector('[data-one-space="party"]')?.getAttribute('aria-current')==='page';}
  function mount(){if(visible()){const shell=document.getElementById('oneFoundation');if(panel.parentNode!==shell)shell.replaceChildren(panel);if(!data)render();}}window.onePartyGameVisible=visible;
- async function api(action,method='GET',params='',signal){const token=oneAccountToken(),id=room?.id;if(!id)throw Error('Salon fermé.');const response=await fetch(API+'/party/game/'+action+'?room='+encodeURIComponent(id)+params,{method,headers:{Authorization:'Bearer '+token},signal:signal||AbortSignal.timeout(12000)});const result=await response.json().catch(()=>({}));if(room?.id!==id||token!==oneAccountToken())throw Error('Le salon ou le compte a changé.');if(!response.ok||!result.ok)throw Error(result.error||'Jeu indisponible.');return result;}
+ async function api(action,method='GET',params='',signal){const token=oneAccountToken(),id=room?.id;if(!id)throw Error('Salon fermé.');const response=await fetch(API+'/party/game/'+action+'?room='+encodeURIComponent(id)+params,{method,headers:{Authorization:'Bearer '+token},signal:signal||AbortSignal.timeout(12000)});const result=await response.json().catch(()=>({}));if(room?.id!==id||token!==oneAccountToken())throw Error('Le salon ou le compte a changé.');if(!response.ok||!result.ok)throw Object.assign(Error(result.error||'Jeu indisponible.'),{status:response.status});return result;}
  // Invalidate pre-action polls. A forced read always follows the completed write.
- let readEpoch=0,readTask=null,readAbort=null;
+ let readEpoch=0,readTask=null,readAbort=null,openedGame=null;window.oneRefreshPartyGame=()=>load(true);
  async function command(action,params='',question){
   if(busy||question&&!confirm(question))return;
   busy=true;readEpoch++;readAbort?.abort();const own=version;
@@ -20,11 +20,11 @@
    const synced=await load(true);
    if(synced)status.textContent='';
    return true;
-  }catch(e){if(own===version){status.textContent=e.message;await load(true,true);}return false;}
+  }catch(e){if(own===version){if(e.status===409)await window.oneRefreshSalonState?.(true);status.textContent=e.message;await load(true,true);}return false;}
   finally{if(own===version){busy=false;panel.removeAttribute('aria-busy');render();}}
  }
  async function load(force=false,keepError=false){
-  if(!room||!force&&(busy||!visible()))return false;
+  if(!room||!force&&busy)return false;
   if(readTask){if(!force)return false;await readTask;if(!room)return false;}
   const own=version,epoch=readEpoch,controller=new AbortController();readAbort=controller;
   const task=(async()=>{try{
@@ -32,10 +32,10 @@
    if(own!==version||epoch!==readEpoch)return false;
    window.dispatchEvent(new CustomEvent('one-game-clock',{detail:{game:fresh.game,receivedAt:performance.now(),rtt:performance.now()-sentAt}}));
    const signature=d=>JSON.stringify(d?.game?{...d,game:{...d.game,serverNow:0,canResolve:undefined}}:d);
-   const changed=signature(data)!==signature(fresh);
+   if(fresh.isParticipant!==true)fresh.game=null;const changed=signature(data)!==signature(fresh);const enter=fresh.isParticipant===true&&fresh.activeGame?.status==='playing'&&fresh.game?.status==='playing'&&fresh.game.id!==openedGame;
    if(fresh.game?.status==='playing'&&(fresh.game.id!==data?.game?.id||(['horror','laugh'].includes(fresh.game.kind)&&fresh.game.phase==='watch'&&data?.game?.phase!=='watch'))){full=true;panel.classList.add('gameFullscreen');document.body.classList.add('oneGameFullscreen');}
    if(!fresh.game&&data?.game){full=false;panel.classList.remove('gameFullscreen');document.body.classList.remove('oneGameFullscreen');}
-   data=fresh;if(changed&&!busy)render();if(!keepError)status.textContent='';return true;
+   data=fresh;if(enter){openedGame=fresh.game.id;window.oneCloseSalon?.();window.oneShowSpace?.('party');mount();}if(changed&&!busy)render();if(!keepError)status.textContent='';return true;
   }catch(e){if(own===version&&epoch===readEpoch)status.textContent=e.message;return false;}})();
   readTask=task;try{return await task;}finally{if(readTask===task){readTask=null;readAbort=null;}}
  }
@@ -65,6 +65,6 @@
 
  window.addEventListener('one-party-load-error',e=>{status.textContent=e.detail;});
  window.addEventListener('one-salon-visibility',()=>{if(!visible()&&full)fullscreen(false);mount();if(visible()){render();load();}});
- window.addEventListener('one-party-state',e=>{if(room?.id!==e.detail?.id){if(full)fullscreen(false);joker=null;lastHand=null;drawnUntil.clear();version++;readEpoch++;panel.removeAttribute('aria-busy');data=null;body.replaceChildren();status.textContent='';busy=false;}room=e.detail;if(room){mount();load();}else{if(full)fullscreen(false);if(visible())mount();else panel.remove();}});window.addEventListener('one-space-open',e=>{if(e.detail!=='party'&&full)fullscreen(false);mount();if(visible())load();});window.addEventListener('one-account-changed',()=>{if(full)fullscreen(false);version++;readEpoch++;busy=false;panel.removeAttribute('aria-busy');room=null;data=null;panel.remove();});new MutationObserver(()=>{if(full&&document.getElementById('oneFoundation')?.hidden)fullscreen(false);}).observe(document.getElementById('oneFoundation'),{attributes:true,attributeFilter:['hidden']});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&full)fullscreen(false);});setInterval(()=>{if(!document.hidden&&!busy)load();},2000);if(visible()){mount();window.oneRefreshSalonState?.();}
+ window.addEventListener('one-party-state',e=>{if(room?.id!==e.detail?.id){if(full)fullscreen(false);openedGame=null;joker=null;lastHand=null;drawnUntil.clear();version++;readEpoch++;panel.removeAttribute('aria-busy');data=null;body.replaceChildren();status.textContent='';busy=false;}room=e.detail;if(room){mount();load();}else{if(full)fullscreen(false);if(visible())mount();else panel.remove();}});window.addEventListener('one-space-open',e=>{if(e.detail!=='party'&&full)fullscreen(false);mount();if(visible())load();});window.addEventListener('one-account-changed',()=>{if(full)fullscreen(false);version++;readEpoch++;busy=false;panel.removeAttribute('aria-busy');room=null;data=null;openedGame=null;panel.remove();});new MutationObserver(()=>{if(full&&document.getElementById('oneFoundation')?.hidden)fullscreen(false);}).observe(document.getElementById('oneFoundation'),{attributes:true,attributeFilter:['hidden']});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&full)fullscreen(false);});setInterval(()=>{if(!document.hidden&&!busy)load();},2000);if(visible()){mount();window.oneRefreshSalonState?.();}
 })();
 
