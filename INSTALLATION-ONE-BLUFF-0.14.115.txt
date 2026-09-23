@@ -1,0 +1,12 @@
+ONE Bluff — mise à jour visuelle 0.14.115
+
+Cette mise à jour reprend la composition mobile de la capture fournie : barre compacte, table de salon, joueurs autour du plateau, médaillon ONE, main de cartes, commandes de jeu et chat.
+
+Installation
+1. Décompresser le ZIP à la racine du site en conservant les dossiers.
+2. Remplacer les fichiers correspondants.
+3. Publier les fichiers du site puis recharger l’application. Si elle reste sur l’ancienne version, fermer puis rouvrir le site pour renouveler son cache.
+
+La mise à jour ne contient pas de changement au moteur de jeu, au backend, à Poker ou à Douze.
+
+Aperçu local : ouvrir one-bluff-mobile-preview.html dans un navigateur.
