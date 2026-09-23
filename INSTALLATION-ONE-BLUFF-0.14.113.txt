@@ -1,0 +1,6 @@
+ONE BLUFF — finition mobile 0.14.113
+
+Appliquer les fichiers en gardant les chemins : index.html, manifest.json, manifest.webmanifest, sw.js et les fichiers présents dans ui/.
+Cette passe affine uniquement l’interface ONE Bluff : les boutons d’action sont attachés à la scène, les sièges accueillent avatar/caméra et cartes, la barre supérieure est compacte, le centre et les cartes ont été retravaillés. La table est conservée pendant les mises à jour de partie.
+
+Aucune modification du moteur de jeu, du backend, du Worker, des règles, de Poker ou de Douze.

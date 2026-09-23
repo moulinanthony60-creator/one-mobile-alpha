@@ -1,0 +1,7 @@
+ONE BLUFF — mise à jour visuelle 0.14.110
+
+Appliquer ces fichiers au projet ONE, en conservant les chemins indiqués : index.html, manifest.json, manifest.webmanifest, sw.js et les 6 fichiers du dossier ui.
+
+La mise à jour concerne uniquement l’écran ONE Bluff et ses styles de présentation. Elle reprend le fond salon, le bandeau ONE BLUFF, la barre Salon/micro/caméra/menu, les sièges caméra, les annonces/cartes au centre, la main en éventail, les commandes et le chat.
+
+Aucune règle de jeu, table Poker/Douze, Worker, compte, monnaie ou donnée de partie n’est modifiée. Les actions et les médias restent reliés aux fonctions déjà présentes dans le projet.
