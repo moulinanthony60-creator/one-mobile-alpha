@@ -1,6 +1,7 @@
 ONE BLUFF — finition mobile 0.14.113
 
-Appliquer les fichiers en gardant les chemins : index.html, manifest.json, manifest.webmanifest, sw.js et les fichiers présents dans ui/.
-Cette passe affine uniquement l’interface ONE Bluff : les boutons d’action sont attachés à la scène, les sièges accueillent avatar/caméra et cartes, la barre supérieure est compacte, le centre et les cartes ont été retravaillés. La table est conservée pendant les mises à jour de partie.
+Cette mise à jour vise le site statique ONE. Décompresser le dossier one-bluff-0.14.113 à la racine du dépôt/site, puis publier le contenu selon le processus actuel du site.
 
-Aucune modification du moteur de jeu, du backend, du Worker, des règles, de Poker ou de Douze.
+La mise à jour ne concerne que l’écran ONE Bluff et les ressources partagées d’affichage. Elle ne change ni le moteur, ni le Worker/backend, ni les règles, ni les écrans Poker et Douze.
+
+Après publication, recharger le site. Dans Party, ouvrir ou rejoindre un salon, puis démarrer une partie ONE Bluff pour voir la table et ses boutons d’action. L’écran de sélection Party seul n’affiche pas les commandes de la partie.
