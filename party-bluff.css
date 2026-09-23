@@ -1,0 +1,107 @@
+#onePartyGame.isBluff{background:#100d12;border-color:#68503f}
+#onePartyGame.isBluff .cg-topbar{background:#151015;border-bottom:1px solid #ac825433}
+#onePartyGame.isBluff .cg-topbar small{color:#c6a678}
+#onePartyGame .bluff-scene{position:relative;isolation:isolate;height:460px;min-height:380px;background:radial-gradient(ellipse,#3c2b25,#100c12);overflow:hidden}
+#onePartyGame .bluff-canvas{display:block;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+#onePartyGame .bluff-target{position:absolute;top:15px;left:50%;transform:translateX(-50%);text-align:center;z-index:3;pointer-events:none;background:#160f15d9;border:1px solid #bf9d6655;border-radius:8px;padding:9px 20px;white-space:nowrap;box-shadow:0 5px 24px #0008}
+#onePartyGame .bluff-target small{display:block;font-size:9px;letter-spacing:2px;color:#bcaa92}
+#onePartyGame .bluff-target strong{font-size:27px;color:#efce92;letter-spacing:2px}
+#onePartyGame .bluff-person{position:absolute;transform:translate(-50%,-50%);width:var(--face);height:var(--face);z-index:2;text-align:center;pointer-events:none}
+#onePartyGame .bluff-person .cg-face{width:100%;height:100%;border:1px solid #bf967666;border-radius:40%;box-shadow:none;pointer-events:auto;background:#86644c}
+#onePartyGame .bluff-person .cg-avatar{font-size:20px;color:#ead4bc}
+#onePartyGame .bluff-person b,#onePartyGame .bluff-person small{position:relative;display:block;width:140px;left:50%;transform:translateX(-50%);font-size:11px;line-height:1.4;text-shadow:0 2px 3px #000,0 0 6px #000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#onePartyGame .bluff-person small{font-size:9px;color:#cfbda6}
+#onePartyGame .bluff-person.active .cg-face{border-color:#ffe3a4;box-shadow:0 0 15px #f6b96355}
+#onePartyGame .bluff-person.eliminated{opacity:.45}
+#onePartyGame .bluff-look{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#baac98;font-size:10px;pointer-events:none}
+#onePartyGame .bluff-controls{position:relative;background:linear-gradient(#21171b,#110e14);border-top:1px solid #9d775544;padding:18px 18px 10px;text-align:center}
+#onePartyGame .bluff-controls h3{font-size:18px;color:#f3d8ab;margin:0 65px 8px}
+#onePartyGame .bluff-controls p{font-size:12px;color:#c1b3bf;margin:8px 0;line-height:1.5}
+#onePartyGame .bluff-hand{display:flex;justify-content:center;gap:9px;padding:22px 0 12px;min-height:145px}
+#onePartyGame .bluff-card{display:flex;position:relative;flex-direction:column;align-items:center;justify-content:center;width:78px;height:114px;padding:6px;color:#362127;border:3px solid #c7ac82;border-radius:9px;background:linear-gradient(130deg,#f3e4c7,#cdbb97);box-shadow:0 7px 12px #0007;transition:transform .15s}
+#onePartyGame .bluff-card small{font-size:10px}
+#onePartyGame .bluff-card strong{font-size:36px}
+#onePartyGame .bluff-card span{position:absolute;top:5px;left:6px;font-size:12px;font-weight:bold}
+#onePartyGame .bluff-card.selected{transform:translateY(-14px);border-color:#ffdb78;box-shadow:0 0 20px #e6b76455}
+#onePartyGame .bluff-card:disabled{opacity:.65}
+#onePartyGame .bluff-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;padding:4px 0 12px}
+#onePartyGame .bluff-actions button{min-height:46px;background:#745238;border-color:#c09864;font-weight:700}
+#onePartyGame .bluff-actions .bluff-accuse{background:#672e3a;border-color:#ab626c}
+#onePartyGame .bluff-actions button:disabled{opacity:.4}
+#onePartyGame .bluff-self{position:absolute;right:12px;top:10px;display:flex;align-items:center;flex-direction:column;gap:3px}
+#onePartyGame .bluff-self .cg-face{width:42px;height:42px}
+#onePartyGame .bluff-self small{font-size:8px}
+#onePartyGame .bluff-reveal{font-size:11px;padding:8px;background:#08070b55;border-radius:8px;text-align:left}
+#onePartyGame .bluff-fallback-players{display:flex;justify-content:space-around;padding-top:120px;font-size:12px}
+#onePartyGame.gameFullscreen .bluff-scene{flex:1;min-height:380px}
+@media(max-width:480px){#onePartyGame .bluff-scene{height:370px;min-height:320px}#onePartyGame.gameFullscreen .bluff-scene{min-height:320px}#onePartyGame .bluff-controls{padding:16px 10px 8px}#onePartyGame .bluff-controls h3{font-size:14px;margin-left:0;margin-right:58px;text-align:left}#onePartyGame .bluff-controls>p{margin-right:55px;text-align:left}#onePartyGame .bluff-card{width:56px;height:88px}#onePartyGame .bluff-hand{gap:7px;min-height:118px}#onePartyGame .bluff-target strong{font-size:22px}#onePartyGame .bluff-person b{font-size:9px}#onePartyGame .bluff-person small{font-size:8px;width:106px}}
+@media(prefers-reduced-motion:reduce){#onePartyGame .bluff-card{transition:none}}
+/* Fullscreen reserves space for the hand and actions before sizing the scene. */
+#onePartyGame.gameFullscreen{box-sizing:border-box;height:100dvh;overflow:hidden}
+#onePartyGame.gameFullscreen>div{height:100%;min-height:0;display:flex;flex-direction:column}
+#onePartyGame.gameFullscreen .cg-topbar{flex:0 0 auto;padding:8px 14px}
+#onePartyGame.gameFullscreen .bluff-scene,#onePartyGame.gameFullscreen .cg-table{flex:1 1 0;height:auto;min-height:0}
+#onePartyGame.gameFullscreen .bluff-controls,#onePartyGame.gameFullscreen .cg-playerArea{flex:0 0 auto;padding-top:8px}
+#onePartyGame.gameFullscreen .bluff-hand{min-height:0;padding:18px 0 8px}
+#onePartyGame.gameFullscreen .bluff-card{height:clamp(65px,11vh,110px);width:clamp(48px,7vw,76px)}
+#onePartyGame.gameFullscreen .bluff-controls h3{margin-bottom:3px;font-size:14px}
+#onePartyGame.gameFullscreen .bluff-controls>p{margin:3px 55px 3px 0;font-size:11px}
+#onePartyGame.gameFullscreen .bluff-actions{padding:3px 0 6px}
+#onePartyGame.gameFullscreen .bluff-actions button{min-height:38px;padding:6px 10px;font-size:12px}
+#onePartyGame.gameFullscreen .bluff-reveal{position:absolute;bottom:100%;left:10px;right:10px;z-index:6;background:#17121eee}
+#onePartyGame.gameFullscreen .bluff-reveal:not([open]){max-width:260px;font-size:9px;padding:5px}
+#onePartyGame.gameFullscreen .cg-footer{padding:5px 10px;flex:0 0 auto}
+#onePartyGame.gameFullscreen .cg-footer details[open]{position:absolute;bottom:0;left:0;right:0;padding:14px;background:#181226;z-index:20;max-height:50vh;overflow:auto}
+#onePartyGame.gameFullscreen #oneCallBar.gameDocked{margin:0 8px 4px;padding:4px;gap:3px}
+#onePartyGame.gameFullscreen #oneCallBar.gameDocked>span{display:none}
+#onePartyGame.gameFullscreen #oneCallBar.gameDocked button{min-height:32px;padding:4px;font-size:10px}
+#onePartyGame .bluff-shot-result{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);padding:7px 14px;background:#1a1019d9;border:1px solid #b78b53;border-radius:8px;text-align:center;color:#f2d5a2;pointer-events:none;z-index:4;max-width:90%}
+#onePartyGame .bluff-shot-result small{display:block;font-size:10px}
+@media(orientation:landscape) and (max-height:520px){#onePartyGame.gameFullscreen.isBluff>div{display:grid;grid-template-columns:58% 42%;grid-template-rows:auto minmax(0,1fr) auto auto}#onePartyGame.gameFullscreen.isBluff .cg-topbar,#onePartyGame.gameFullscreen.isBluff #oneGameCallDock,#onePartyGame.gameFullscreen.isBluff .cg-footer{grid-column:1/-1}#onePartyGame.gameFullscreen.isBluff .bluff-scene{height:100%;min-height:0}#onePartyGame.gameFullscreen.isBluff .bluff-controls{padding:8px;min-height:0;overflow:auto}#onePartyGame.gameFullscreen .bluff-hand{gap:3px}#onePartyGame.gameFullscreen .bluff-card{height:65px;width:43px}#onePartyGame.gameFullscreen .bluff-card strong{font-size:24px}#onePartyGame.gameFullscreen .bluff-self{display:none}#onePartyGame.gameFullscreen .bluff-controls h3,#onePartyGame.gameFullscreen .bluff-controls>p{margin-right:0}#onePartyGame.gameFullscreen .bluff-actions{gap:3px}}
+
+/* Cards remain real focusable buttons over the first-person scene. */
+#onePartyGame .bluff-scene{height:560px;min-height:380px;background:#150d0a}
+#onePartyGame .bluff-scene:after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,transparent 42%,#09040760 100%);z-index:1}
+#onePartyGame .bluff-scene .bluff-hand{position:absolute;z-index:5;bottom:2px;left:50%;transform:translateX(-50%);min-height:0;padding:25px 15px 8px;gap:0;width:max-content;max-width:96%;pointer-events:none}
+#onePartyGame .bluff-scene .bluff-card{pointer-events:auto;flex-shrink:0;margin-left:-18px;width:76px;height:114px;transform-origin:50% 115%;transform:translateY(var(--rise)) rotate(var(--fan));border:2px solid #ae9369;border-radius:6px;background:repeating-linear-gradient(35deg,#ffffff05 0 1px,transparent 1px 4px),linear-gradient(135deg,#fff2d5,#c8ac7e);color:#211719;box-shadow:0 5px 9px #0009;transition:transform .18s,filter .18s;touch-action:manipulation}
+#onePartyGame .bluff-scene .bluff-card:first-child{margin-left:0}
+#onePartyGame .bluff-scene .bluff-card.selected{transform:translateY(calc(var(--rise) - 24px)) rotate(var(--fan));border-color:#ffe095;filter:brightness(1.12)}
+#onePartyGame .bluff-scene .bluff-card:focus-visible{outline:3px solid #fff;outline-offset:3px}
+#onePartyGame .bluff-scene .bluff-card:disabled{opacity:.85}
+#onePartyGame .bluff-scene .bluff-hand.throwing .bluff-card.selected{animation:oneBluffThrow .55s ease-in forwards}
+@keyframes oneBluffThrow{0%{transform:translateY(-24px) rotate(var(--fan))}45%{transform:translateY(-60px) rotate(var(--fan)) scale(.85)}100%{transform:translateY(-160px) rotate(100deg) scale(.24);opacity:0}}
+#onePartyGame .bluff-sound{position:absolute;right:9px;top:9px;z-index:6;padding:6px 8px;background:#1b1214cc;border:1px solid #97764b;color:#dfc6a0;border-radius:7px;font-size:10px}
+#onePartyGame .bluff-look{bottom:150px;font-size:9px}
+#onePartyGame .bluff-shot-result{bottom:170px}
+#onePartyGame.gameFullscreen .bluff-scene{height:auto;min-height:0}
+#onePartyGame .bluff-target{top:12px;padding:7px 14px}
+@media(max-width:480px){#onePartyGame .bluff-scene{height:480px}#onePartyGame .bluff-scene .bluff-card{width:60px;height:96px;margin-left:-15px}#onePartyGame .bluff-target{top:43px;padding:6px 12px}#onePartyGame .bluff-target strong{font-size:19px}#onePartyGame .bluff-look{bottom:132px}}
+@media(orientation:landscape) and (max-height:520px){#onePartyGame.gameFullscreen .bluff-scene .bluff-card{width:43px;height:65px;margin-left:-10px}#onePartyGame.gameFullscreen .bluff-target{padding:4px 8px;top:5px}#onePartyGame.gameFullscreen .bluff-target strong{font-size:16px}#onePartyGame.gameFullscreen .bluff-look{display:none}#onePartyGame.gameFullscreen .bluff-shot-result{bottom:95px;font-size:10px}#onePartyGame.gameFullscreen .bluff-sound{top:48px;font-size:9px}}
+@media(prefers-reduced-motion:reduce){#onePartyGame .bluff-scene .bluff-hand.throwing .bluff-card.selected{animation:none}#onePartyGame .bluff-scene .bluff-card{transition:none}}
+
+#onePartyGame .bluff-grip{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+
+.bluff-flying-card{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#ecdbb7;color:#281d17;border:2px solid #c7ab76;border-radius:6px;box-shadow:0 10px 22px #0008}.bluff-flying-card strong{font-size:30px}.bluff-flying-card span{position:absolute;left:6px;top:5px}
+#onePartyGame .bluff-scene .bluff-hand{bottom:12px}
+/* The HTML cards remain the keyboard and loading fallback for the 3D hand. */
+#onePartyGame .bluff-model-ready .bluff-hand{opacity:0;pointer-events:none}
+#onePartyGame .bluff-model-ready .bluff-hand .bluff-card{pointer-events:none}
+#onePartyGame .bluff-model-ready .bluff-hand:focus-within{opacity:1;pointer-events:auto}
+#onePartyGame .bluff-model-ready .bluff-hand:focus-within .bluff-card{pointer-events:auto}
+#onePartyGame .bluff-model-ready .bluff-look{bottom:8px}
+#onePartyGame .bluff-loading{position:absolute;top:45%;width:100%;text-align:center;color:#e4c796;z-index:3}
+#onePartyGame .bluff-model-failed .bluff-loading{top:48%;padding:20px;box-sizing:border-box}
+#onePartyGame .bluff-scene[data-model-error]:before{content:attr(data-model-error);position:absolute;top:40%;padding:15px;z-index:8;background:#24192eee;color:#fff}
+/* Keep the roulette result away from the hand, in the lower-right corner. */
+#onePartyGame .bluff-scene .bluff-shot-result{left:auto;right:12px;bottom:12px;transform:none;max-width:min(240px,46%);box-sizing:border-box;text-align:right;padding:7px 10px;font-size:12px;overflow-wrap:anywhere}
+#onePartyGame .bluff-scene:has(.bluff-shot-result) .bluff-look{left:12px;right:auto;bottom:12px;max-width:44%;text-align:left}
+@media(max-width:480px){#onePartyGame .bluff-scene .bluff-shot-result{right:8px;bottom:8px;padding:6px 8px;font-size:10px}#onePartyGame .bluff-scene .bluff-shot-result small{font-size:9px}}
+#onePartyGame.gameFullscreen .bluff-reveal:not([open]){max-width:min(220px,42%)}
+
+.bluff-person.bluff-camera-hidden .cg-face{visibility:hidden!important;pointer-events:none!important}
+
+/* Card count follows the table in front of each player. */
+#onePartyGame .bluff-person>small{position:absolute;top:calc(50% + var(--count-y, 65px));bottom:auto;left:calc(50% + var(--count-x, 0px));transform:translateX(-50%);width:max-content;max-width:120px;padding:3px 7px;border-radius:8px;background:#171016d9;color:#ffe4af;font-size:11px;line-height:1.35;white-space:nowrap;pointer-events:none}
+
+#onePartyGame .bluff-transition-frame{position:absolute;inset:0;width:100%;height:100%;z-index:7;pointer-events:none}
+#onePartyGame .bluff-transitioning .bluff-hand,#onePartyGame .bluff-transitioning .bluff-person,#onePartyGame .bluff-transitioning .bluff-loading{visibility:hidden}

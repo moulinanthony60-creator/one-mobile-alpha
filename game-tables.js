@@ -1,6 +1,6 @@
 /* Presentation of public game snapshots only. No game, wallet or membership writes. */
 (()=>{
- const css=document.createElement('link');css.rel='stylesheet';css.href='ui/game-tables.css?v=014113';document.head.append(css);const bluffCss=document.createElement('link');bluffCss.rel='stylesheet';bluffCss.href='ui/bluff-table-structure.css?v=014113';document.head.append(bluffCss);
+ const css=document.createElement('link');css.rel='stylesheet';css.href='ui/game-tables.css?v=014115';document.head.append(css);const bluffCss=document.createElement('link');bluffCss.rel='stylesheet';bluffCss.href='ui/bluff-table-structure.css?v=014115';document.head.append(bluffCss);
  const frozen=new Map(),seen=new Set();let gameId='',lastPoker=null,cinema=null;
  function avatar(face,p){const member=window.oneSocialRoom?.()?.members?.find(m=>m.accountId===p.accountId)||p;if(window.ONEUI)face.append(ONEUI.avatar(member));else face.textContent=p.name.slice(0,1);}
  function capture(p){const owner=p.isYou?'local':p.accountId,b=[...document.querySelectorAll('.oneCamBubble')].find(n=>n.dataset.cameraOwner===owner),v=b?.querySelector('video');if(!v||v.classList.contains('off')||v.readyState<2)return null;try{const c=document.createElement('canvas');c.width=c.height=160;const w=v.videoWidth,h=v.videoHeight,k=Math.min(w,h);if(!k)return null;c.getContext('2d').drawImage(v,(w-k)/2,(h-k)/2,k,k,0,0,160,160);return c.toDataURL('image/jpeg',.75);}catch{return null;}}
@@ -18,7 +18,7 @@
   if(gameId!==g.id){reset();gameId=g.id;}
   scene.setAttribute('aria-label','Table ONE Bluff');let seats=scene.__oneBluffSeats;
   if(!seats){seats=new Map();scene.__oneBluffSeats=seats;}
-  const rivals=g.players.filter(p=>!p.isYou),layouts={1:[[50,15,.78]],2:[[25,27,.86],[75,27,.86]],3:[[50,14,.78],[15,35,.84],[85,35,.84]],4:[[32,14,.74],[68,14,.74],[15,34,.84],[85,34,.84]],5:[[50,12,.68],[17,20,.76],[83,20,.76],[14,37,.82],[86,37,.82]]},slots=layouts[rivals.length]||layouts[5];
+  const rivals=g.players.filter(p=>!p.isYou),layouts={1:[[50,20,.82]],2:[[31,23,.84],[69,23,.84]],3:[[50,18,.82],[18,33,.86],[82,33,.86]],4:[[32,20,.78],[68,20,.78],[16,36,.84],[84,36,.84]],5:[[50,17,.72],[17,26,.78],[83,26,.78],[16,41,.82],[84,41,.82]]},slots=layouts[rivals.length]||layouts[5];
   for(const [i,p]of rivals.entries()){
    const id=String(p.accountId||p.name),[x,y,scale]=slots[i];let seat=seats.get(id);
    if(!seat){seat=el('article');seat.className='bf-player';seat.dataset.owner=id;const face=el('div');face.className='gt-portrait';face.dataset.cameraSeat=p.accountId||'';avatar(face,p);const mic=el('small','·');mic.className='gt-mic';mic.dataset.owner=id;const name=el('b'),count=el('small');count.className='bf-count';const backs=el('div');backs.className='bf-backs';seat.append(face,mic,name,count,backs);scene.append(seat);seats.set(id,seat);}
