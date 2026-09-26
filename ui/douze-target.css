@@ -75,10 +75,3 @@
 #onePartyGame.isDouze .dzp-game .dzp-result table{width:100%;font-size:12px;border-collapse:collapse}
 #onePartyGame.isDouze .dzp-game .dzp-result th,#onePartyGame.isDouze .dzp-game .dzp-result td{padding:9px 5px;text-align:left}
 #onePartyGame.isDouze .dzp-game .dzp-result>button{display:block;width:100%;min-height:44px;margin:14px 0 0;background:linear-gradient(135deg,#a14ef0,#5f28b8);border:1px solid #c68af8;color:white;border-radius:10px}
-
-/* Larger player video, including the actual seated stream. */
-#onePartyGame.isDouze .dzp-game .dzp-rival{max-width:120px}
-#onePartyGame.isDouze .dzp-game .dzp-stage[data-players="2"] .dzp-rival{width:32%!important;max-width:150px}
-#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-camera{width:100%!important;height:auto!important;aspect-ratio:4/3;border-radius:9px!important;box-sizing:border-box}
-#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-player{width:100%}
-#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-camera .oneCamBubble.seated,#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-camera .os-avatar{border-radius:8px!important;width:100%!important;height:100%!important}
