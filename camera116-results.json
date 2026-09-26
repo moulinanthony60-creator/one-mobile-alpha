@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "checks": [
+    "Joueur vivant : aucune capture",
+    "Siège associé au bon compte",
+    "Élimination : capture uniquement en mémoire",
+    "Portrait figé malgré le changement du flux",
+    "Aucune caméra vivante attachée au portrait éliminé",
+    "Capture effacée au changement de compte"
+  ],
+  "note": "Flux canvas synthétique : aucun accès à une caméra physique."
+}

@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "checks": [
+    "9 ajouts sans snapshot automatique",
+    "10e ajout : snapshot complet",
+    "Doublon non comptabilisé",
+    "20e ajout : deuxième snapshot",
+    "Réouverture IndexedDB : vidéos conservées",
+    "Réponse distante vide : conservation et signalement",
+    "Réponse réduite : aucune perte",
+    "Suppression demandée exécutée",
+    "Snapshot obligatoire avant suppression",
+    "Restauration complète sans écraser les vidéos actuelles",
+    "État avant restauration protégé",
+    "Retour après restauration : persistance",
+    "Métadonnées complètes dans les snapshots/export",
+    "Compte B isolé du catalogue privé A",
+    "Import de sauvegarde compressée sur le compte B",
+    "450 vidéos après fusion : limite destructrice de 120 supprimée",
+    "Échec de sauvegarde : suppression annulée",
+    "Déconnexion/reconnexion A : catalogue A conservé",
+    "Ajouts concurrents sérialisés sans perte"
+  ]
+}
