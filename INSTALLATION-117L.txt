@@ -1,0 +1,3 @@
+Extraire le ZIP. Importer les dossiers ui, assets et le fichier sw.js a la racine GitHub, puis Commit changes.
+Palette : -2/-1 violet, 0 bleu clair, 1-4 vert, 5-8 jaune, 9-12 rouge.
+Conserve les resultats sur la table et les commandes sociales dans le menu.
