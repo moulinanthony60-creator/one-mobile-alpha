@@ -1,3 +1,3 @@
-Decompresser puis envoyer ensemble les dossiers ui et assets et le fichier sw.js a la racine GitHub. Commit changes, attendre le deploiement, puis rouvrir ONE.
-Scene 3D revolver + camera deja active du joueur. Pas de nouvelle autorisation camera imposee. Son synchronise au verdict. Aucun Worker modifie.
-Tests de syntaxe et raccordement du flux passes. Rendu WebGL et echange reel entre appareils restent a verifier.
+Envoyer ensemble ui, assets et sw.js a la racine GitHub. Attendre le deploiement puis fermer et rouvrir ONE.
+Scene 3D immersive : decor salon, gros plan revolver, rotation du barillet, tension, recul/verdict synchronise. Camera deja active du joueur reprise dans le portrait, sinon avatar.
+Controle visuel local desktop et mobile 390x844 effectue sans vraie camera. Raccordement du flux teste par simulation. Aucun Worker modifie.

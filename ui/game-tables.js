@@ -2,7 +2,7 @@
 (()=>{
  const cinemaStyle=document.createElement('style');cinemaStyle.textContent=`#onePartyGame .bf-cinema{background:radial-gradient(ellipse at 50% 42%,#65205b99,#060711f5 70%)!important;backdrop-filter:blur(9px)!important;gap:10px;padding:24px;box-sizing:border-box;isolation:isolate}#onePartyGame .bf-cinema:before{content:'';position:absolute;inset:8%;border:1px solid #c9945933;border-radius:50%;box-shadow:0 0 70px #ad37e322;pointer-events:none;z-index:-1}#onePartyGame .bf-cinema h3{font-size:clamp(28px,7vw,48px)!important;letter-spacing:.06em;text-shadow:0 0 26px #ef306277;margin:0;text-align:center}#onePartyGame .bf-cinema p{margin:0;color:#f8ddaa;font-size:18px!important}#onePartyGame .bf-cinema .bf-cinema-face{width:72px;height:72px;border-radius:50%;overflow:hidden;border:2px solid #e4ba6c;box-shadow:0 0 26px #d48b4855;display:grid;place-items:center}#onePartyGame .bf-cinema-face>*{width:100%;height:100%;object-fit:cover}#onePartyGame .bf-cinema video{width:min(78vw,300px)!important;height:min(38dvh,300px)!important;object-fit:cover;border-radius:50%!important;border:1px solid #ad825c!important;box-shadow:0 0 50px #b66a3933!important}#onePartyGame .bf-cinema .bf-cinema-cards span{width:60px;height:84px;border:2px solid #dfc593;border-radius:9px;box-shadow:0 9px 24px #0009;transform:rotate(var(--tilt,0deg))}#onePartyGame .bf-cinema .bf-cinema-cards span:nth-child(1){--tilt:-9deg}#onePartyGame .bf-cinema .bf-cinema-cards span:nth-child(3){--tilt:9deg}#onePartyGame .bf-cinema strong{font-size:24px;text-align:center;text-shadow:0 0 20px currentColor}#onePartyGame .bf-cinema button{margin-top:10px;min-height:44px;padding:10px 24px;background:linear-gradient(135deg,#6b2ec9,#231334);border:1px solid #a778d9;border-radius:12px}#onePartyGame .bf-cinema [hidden]{display:none!important}@media(prefers-reduced-motion:no-preference){#onePartyGame .bf-cinema{animation:bfArrival .25s ease-out}#onePartyGame .bf-cinema video{animation:bfTension 2.4s ease-in-out both}#onePartyGame .bf-cinema strong:not([hidden]){animation:bfArrival .3s ease-out}@keyframes bfArrival{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}@keyframes bfTension{from{transform:scale(.85) rotate(-9deg)}to{transform:scale(1.04) rotate(3deg)}}}`;document.head.append(cinemaStyle);
  const css=document.createElement('link');css.rel='stylesheet';css.href='ui/game-tables.css?v=014117';document.head.append(css);const bluffCss=document.createElement('link');bluffCss.rel='stylesheet';bluffCss.href='ui/bluff-table-structure.css?v=014117';document.head.append(bluffCss);
- const cinemaModule=import('./bluff-cinematic.js?v=117e');cinemaModule.then(m=>m.preload()).catch(()=>{});
+ const cinemaModule=import('./bluff-cinematic.js?v=117f');cinemaModule.then(m=>m.preload()).catch(()=>{});
  const frozen=new Map(),seen=new Set();let gameId='',lastPoker=null,cinema=null;
  function avatar(face,p){const member=window.oneSocialRoom?.()?.members?.find(m=>m.accountId===p.accountId)||p;if(window.ONEUI)face.append(ONEUI.avatar(member));else face.textContent=p.name.slice(0,1);}
  function capture(p){const owner=p.isYou?'local':p.accountId,b=[...document.querySelectorAll('.oneCamBubble')].find(n=>n.dataset.cameraOwner===owner),v=b?.querySelector('video');if(!v||v.classList.contains('off')||v.readyState<2)return null;try{const c=document.createElement('canvas');c.width=c.height=160;const w=v.videoWidth,h=v.videoHeight,k=Math.min(w,h);if(!k)return null;c.getContext('2d').drawImage(v,(w-k)/2,(h-k)/2,k,k,0,0,160,160);return c.toDataURL('image/jpeg',.75);}catch{return null;}}
@@ -39,8 +39,8 @@
   if(reduced){verdict();return;}
   cards.animate([{opacity:0,transform:'perspective(500px) rotateY(90deg) translateY(20px)'},{opacity:1,transform:'perspective(500px) rotateY(0deg) translateY(0)'}],{duration:550,easing:'ease-out'});
   drum.className='bf-revolver-stage';drum.replaceChildren(el('small','Préparation de la scène…'));
-  cinemaModule.then(m=>m.mount(drum,{eliminated:r.eliminated,onImpact:verdict,isCancelled:()=>!overlay.isConnected})).then(dispose=>{disposeScene=dispose;if(!overlay.isConnected)disposeScene?.();}).catch(()=>{if(overlay.isConnected){drum.replaceChildren(el('small','Scène 3D indisponible sur cet appareil'));verdict();}});
-  timer=setTimeout(()=>{if(overlay.isConnected){title.textContent='LE VERDICT APPROCHE';overlay.classList.add('bf-spinning');}},850);
+  cinemaModule.then(m=>m.mount(drum,{eliminated:r.eliminated,onImpact:verdict,onPhase:text=>{if(overlay.isConnected)title.textContent=text;},isCancelled:()=>!overlay.isConnected})).then(dispose=>{disposeScene=dispose;if(!overlay.isConnected)disposeScene?.();}).catch(()=>{if(overlay.isConnected){drum.replaceChildren(el('small','Scène 3D indisponible sur cet appareil'));verdict();}});
+
 
  }
  function bluff(scene,g,el){
@@ -74,3 +74,18 @@
 (()=>{const s=document.createElement('style');s.textContent='#onePartyGame .bf-verdict .bf-cinema-face video{width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;border:0!important;border-radius:0!important;object-fit:cover!important;animation:none!important;transform:none!important;box-shadow:none!important}';document.head.append(s);})();
 
 (()=>{const s=document.createElement('style');s.textContent='#onePartyGame .bf-revolver-stage{width:min(90vw,620px);height:clamp(160px,32dvh,320px);display:grid;place-items:center;background:radial-gradient(ellipse,#71433733,transparent 70%)}#onePartyGame .bf-revolver-stage canvas{width:100%;height:100%;display:block}#onePartyGame .bf-verdict .bf-cinema-face{width:clamp(80px,16dvh,140px);height:clamp(80px,16dvh,140px)}#onePartyGame .bf-verdict{gap:8px}';document.head.append(s);})();
+
+(()=>{const style=document.createElement('style');style.textContent=`
+#onePartyGame .bf-verdict{display:block!important;padding:0!important;background:linear-gradient(#080411b8,#08041166 50%,#080411e8),url('ui/game-lounge-109.webp') center/cover!important;overflow:hidden;min-height:0}
+#onePartyGame .bf-verdict:before{inset:0;border:0;border-radius:0;box-shadow:inset 0 0 130px 35px #05040ce0;z-index:0}
+#onePartyGame .bf-verdict h3{position:absolute;top:5%;left:5%;right:5%;font-size:clamp(20px,4vw,32px)!important;z-index:3;color:#f5dbaa;text-transform:uppercase;letter-spacing:.08em}
+#onePartyGame .bf-verdict .bf-cinema-face{position:absolute;top:13%;left:50%;transform:translateX(-50%);width:clamp(110px,24vw,210px);height:clamp(90px,18dvh,150px);border-radius:18px;background:#171022;z-index:3;border:1px solid #b18b53;box-shadow:0 8px 40px #0008}
+#onePartyGame .bf-verdict>p{position:absolute;top:calc(13% + clamp(90px,18dvh,150px));left:10%;right:10%;text-align:center;padding-top:6px;z-index:3;font-weight:700}
+#onePartyGame .bf-verdict .bf-revolver-stage{position:absolute;inset:28% 0 8%;width:100%;height:auto;background:transparent}
+#onePartyGame .bf-verdict .bf-verdict-cards{position:absolute;left:4%;top:40%;z-index:3;gap:5px;transform:scale(.75);transform-origin:left center}
+#onePartyGame .bf-verdict strong{position:absolute;bottom:13%;left:6%;right:6%;z-index:3;text-align:center;padding:12px;background:#08071199;border-radius:12px;pointer-events:none}
+#onePartyGame .bf-verdict strong:empty{display:none}
+#onePartyGame .bf-verdict>button{position:absolute;bottom:4%;left:50%;transform:translateX(-50%);z-index:4;white-space:nowrap}
+#onePartyGame .bf-verdict.bf-resolved .bf-verdict-cards{opacity:0}
+@media(max-width:500px){#onePartyGame .bf-verdict .bf-verdict-cards{top:37%;left:2%;transform:scale(.6)}#onePartyGame .bf-verdict .bf-revolver-stage{inset:30% -12% 8%;width:124%}}
+`;document.head.append(style);})();
