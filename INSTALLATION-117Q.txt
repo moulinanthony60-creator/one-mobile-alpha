@@ -1,0 +1,2 @@
+Importer ui, assets et sw.js a la racine GitHub apres extraction. Commit changes.
+117Q : hauteur mobile adaptee, toucher declenche au relachement sans double clic, animations des cartes raccourcies. Confirmation reseau toujours necessaire.

@@ -28,3 +28,18 @@
 #onePartyGame .ogm-panel{border-color:#9f91ff!important;background:linear-gradient(135deg,#142647f5,#090d22fa 48%,#180e30f7)!important}
 #onePartyGame .ogm-panel button.ogm-danger{background:linear-gradient(110deg,#e62453,#650b2c)!important;border-color:#ff658a!important;color:#fff!important}
 #onePartyGame .ogm-panel button.ogm-danger-secondary{background:linear-gradient(110deg,#b56611,#49280f)!important;border-color:#f6b648!important}
+
+#onePartyGame .ogm-enter{position:fixed!important;inset:0!important;z-index:280!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:linear-gradient(#0b041360,#10051f88),url('bluff-lounge-117r.png') center/cover!important;animation:none!important;overflow:hidden;box-sizing:border-box;padding:24px;color:white}
+#onePartyGame .ogm-enter[data-kind=douze]{background:linear-gradient(#020b2055,#05152b88),url('douze-lounge-117p.png') center/cover!important;--launch-glow:#29cfff}
+#onePartyGame .ogm-enter{--launch-glow:#d74bff}
+#onePartyGame .ogl-launch-brand{text-align:center;position:relative;z-index:1}.ogl-launch-brand b{display:block;font:900 clamp(36px,8vw,60px)/1 Arial;letter-spacing:.02em;color:#ffe5a0;text-shadow:0 2px 0 #a06a27,0 0 24px #ffc14799}.ogl-launch-brand span{display:block;font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:#e1d6ff;margin-top:12px}
+#onePartyGame .ogl-launch-ready{margin:0;color:#f3d7ff;font-size:16px;letter-spacing:.05em}
+#onePartyGame .ogl-launch-ring{position:relative;display:grid;place-items:center;width:clamp(160px,45vw,250px);aspect-ratio:1;border:3px solid #fff4d4;border-radius:50%;background:radial-gradient(circle,#14081ed9 45%,#2e123388 70%);box-shadow:0 0 8px white,0 0 22px var(--launch-glow),0 0 65px var(--launch-glow),inset 0 0 25px var(--launch-glow)}
+#onePartyGame .ogl-launch-ring:before{content:'';position:absolute;inset:-16px;border:1px solid #e5b1ff99;border-radius:50%;box-shadow:0 0 16px var(--launch-glow)}
+#onePartyGame .ogl-launch-ring:after{content:'';position:absolute;inset:-36px;border:1px dashed #e8c67e88;border-radius:50%;animation:launchOrbit 12s linear infinite}
+#onePartyGame .ogm-enter .ogm-countdown{position:static!important;transform:none!important;font:900 clamp(76px,18vw,120px)/1 Arial!important;color:white!important;text-shadow:0 0 20px var(--launch-glow)!important;margin:0!important}
+#onePartyGame .ogm-enter>small{margin-top:25px;max-width:280px;text-align:center;font-size:12px;line-height:1.5;padding:12px 18px;border:1px solid #c198f755;border-radius:12px;background:#0d1022dc;color:#e6e6fa}
+@keyframes launchOrbit{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#onePartyGame .ogm-enter{display:none!important}.ogl-launch-ring:after{animation:none!important}}
+
+#onePartyGame .ogm-enter{font-family:Arial,sans-serif}

@@ -1,0 +1,2 @@
+Extraire puis importer ui, assets et sw.js a la racine GitHub. Commit changes.
+Table Bluff immersive, cartes et dos retravailles, eclairage du revolver ameliore, aucune rotation du barillet.
