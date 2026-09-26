@@ -1,0 +1,2 @@
+Extraire le ZIP. Importer ui, assets et sw.js a la racine GitHub puis Commit changes.
+Nouvelle table immersive Douze, decor original genere, petites cameras et palette validee conservees. Inclut le menu et le salon 117O.
