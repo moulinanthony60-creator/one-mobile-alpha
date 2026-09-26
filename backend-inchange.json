@@ -1,0 +1,46 @@
+[
+  {
+    "file": "ONE-COLLECTION.sql",
+    "unchanged": true
+  },
+  {
+    "file": "ONE-CREDIT-DIWAIIS.sql",
+    "unchanged": true
+  },
+  {
+    "file": "ONE-JEUX-POINTS.sql",
+    "unchanged": true
+  },
+  {
+    "file": "ONE-SALONS-PUBLICS.sql",
+    "unchanged": true
+  },
+  {
+    "file": "ONE-SALONS-REPARATION.sql",
+    "unchanged": true
+  },
+  {
+    "file": "ONE-SERVEUR-v25.mjs",
+    "unchanged": true
+  },
+  {
+    "file": "ONE-SERVEUR-v29.mjs",
+    "unchanged": true
+  },
+  {
+    "file": "ONE-SERVEUR-v31.mjs",
+    "unchanged": true
+  },
+  {
+    "file": "ONE-SERVEUR-v32.mjs",
+    "unchanged": true
+  },
+  {
+    "file": "ONE_PROFILE_WORKER.js",
+    "unchanged": true
+  },
+  {
+    "file": "ONE_VISION_WORKER.mjs",
+    "unchanged": true
+  }
+]

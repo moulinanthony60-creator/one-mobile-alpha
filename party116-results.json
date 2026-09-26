@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "checks": [
+    "Aucune proposition optimiste",
+    "Hôte automatiquement prêt",
+    "Pas de bouton Prêt pour l’hôte",
+    "Minimum non atteint : lancement désactivé",
+    "Exactement deux acceptants",
+    "Aucun lancement automatique au minimum",
+    "Retour au choix d’activité",
+    "409 sans acceptation inventée",
+    "Les deux participants ouvrent Bluff",
+    "Le troisième reste dans Feed ONE",
+    "Aucun jeu pour le non-participant",
+    "Le non-participant reste dans le salon",
+    "Le polling ne déplace pas le non-participant",
+    "Aucune erreur JavaScript",
+    "Mode immersif après lancement confirmé",
+    "Menu commun ouvert",
+    "Règles réelles",
+    "Réduire conserve le salon",
+    "Table Bluff premium chargée",
+    "Table sans moteur 3D",
+    "Retour au salon visible depuis le mode immersif"
+  ],
+  "errors": []
+}

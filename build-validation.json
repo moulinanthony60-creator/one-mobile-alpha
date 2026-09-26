@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "javascriptFilesAndInlineScripts": 115,
+  "offlineCoreResources": 40,
+  "entryScripts": 37,
+  "missingResources": [],
+  "note": "Site statique : aucun bundler/package.json. Validation syntaxique et des ressources du service worker."
+}
