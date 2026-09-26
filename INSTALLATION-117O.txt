@@ -1,0 +1,2 @@
+Extraire le ZIP puis importer ui, assets et sw.js a la racine du depot GitHub. Commit changes.
+Menu, salon, vignettes des jeux et cartes Douze avec dos retravailles. Couleurs vives et petites cameras conservees.

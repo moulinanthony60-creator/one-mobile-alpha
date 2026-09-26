@@ -75,3 +75,17 @@
 #onePartyGame.isDouze .dzp-game .dzp-result table{width:100%;font-size:12px;border-collapse:collapse}
 #onePartyGame.isDouze .dzp-game .dzp-result th,#onePartyGame.isDouze .dzp-game .dzp-result td{padding:9px 5px;text-align:left}
 #onePartyGame.isDouze .dzp-game .dzp-result>button{display:block;width:100%;min-height:44px;margin:14px 0 0;background:linear-gradient(135deg,#a14ef0,#5f28b8);border:1px solid #c68af8;color:white;border-radius:10px}
+
+/* 117O: larger cards, engraved backs, sharp typography. */
+#onePartyGame.isDouze .dzp-game .dzp-own{top:64%!important;width:min(78%,330px)!important;padding:9px!important;background:linear-gradient(140deg,#133757ee,#06152cf5);border-color:#68d6ff;box-shadow:0 8px 24px #0008,inset 0 1px 0 #c3edff55}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-grid{gap:5px!important}
+#onePartyGame.isDouze .dzp-game .dzp-card{border-radius:7px!important;box-shadow:inset 0 1px 1px #ffffffa0,inset 0 -2px 3px #0002,0 3px 5px #0006!important;position:relative;overflow:hidden}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-card strong{font-size:clamp(26px,7vw,36px)!important;font-weight:900;text-shadow:0 1px 1px #0002!important}
+#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=back]{background:repeating-linear-gradient(45deg,transparent 0 7px,#bda1ff0c 7px 8px),repeating-linear-gradient(-45deg,transparent 0 7px,#bda1ff0c 7px 8px),radial-gradient(ellipse at 50% 0,#503987,#1c163b 65%,#100e22)!important;border-color:#cbb073!important;box-shadow:inset 0 0 0 2px #1e1838,inset 0 0 0 3px #ac8b5155,0 3px 6px #0008!important}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-card[data-tone=back] strong{font-size:0!important}
+#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=back] strong:after{content:'ONE';font-size:17px;letter-spacing:.07em;font-weight:900;color:#ffe3a1;text-shadow:0 2px 0 #62472b,0 0 8px #f0b44d44}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-card[data-tone=back]:after{display:block!important;content:'DOUZE';position:absolute;bottom:5px;left:0;right:0;text-align:center;font:700 7px Arial;letter-spacing:.2em;color:#d9bd87}
+#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-card[data-tone=back] strong:after{font-size:6px}
+@media(max-height:720px){#onePartyGame.isDouze .dzp-game .dzp-own{width:min(72%,285px)!important}}
+
+#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-card{border-radius:3px!important}

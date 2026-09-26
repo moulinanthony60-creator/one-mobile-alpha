@@ -1,0 +1,21 @@
+/* Salon visual finish; no change to room or media behavior. */
+#oneSalonBody{background:radial-gradient(ellipse at 0 0,#24336b66,transparent 55%),linear-gradient(145deg,#13132b,#090f21);color:#f4f5ff}
+#oneSalonBody .os-choose{background:linear-gradient(145deg,#1b2340dd,#14142be8);border:1px solid #8673cb;border-radius:18px;box-shadow:inset 0 1px 0 #ffffff25,0 8px 22px #0003}
+#oneSalonBody .os-tile{border-radius:14px;border:1px solid #ac94ff;background:radial-gradient(ellipse at 45% 0,#7940ec,#211448 85%);box-shadow:inset 0 1px 0 #ffffff50,0 6px 14px #0005;color:#fff;padding:14px 9px;min-height:126px}
+#oneSalonBody .os-tile[data-kind=together]{background:radial-gradient(ellipse at 40% 0,#178ce7,#102653 85%);border-color:#55caff}
+#oneSalonBody .os-tile[data-kind=party]{background:radial-gradient(ellipse at 40% 0,#d039be,#43134e 85%);border-color:#ff87e7}
+#oneSalonBody .os-tile b{font-size:15px;letter-spacing:-.02em}#oneSalonBody .os-tile small{color:#f0e9ff;font-size:10px}
+.os-tile svg.os-brand-icon{width:48px!important;height:48px!important;display:block;margin:0 auto 10px;fill:none;stroke:#e2caff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 9px #ac68ff)}
+.os-tile[data-kind=together] svg.os-brand-icon{stroke:#a7efff;filter:drop-shadow(0 0 8px #22b7ff)}.os-tile[data-kind=party] svg.os-brand-icon{stroke:#ffd0f4;filter:drop-shadow(0 0 8px #ff43bf)}
+#oneSalonBody .os-primary{background:linear-gradient(115deg,#a34bff,#6632f3);border:1px solid #c492ff;box-shadow:inset 0 1px 0 #ffffff40,0 4px 15px #792bff44;font-weight:700}
+#oneSalonBody .os-room-tools button{background:linear-gradient(#252449,#131933);border:1px solid #7775bf;color:#e6e5ff;border-radius:11px;min-height:44px}
+#oneSalonBody .os-room-tools .os-danger{background:linear-gradient(110deg,#792443,#341528);border-color:#c65a85;color:#ffd6e5}
+#oneSalonBody .os-online{background:#063e3c;color:#60ffd6;border:1px solid #14b89755}
+#oneSalonBody .os-member-invite{background:#2c225155;border:1px dashed #b58cff;color:#e1c4ff}
+
+.pl-games .pl-game{--glow:#9464ff;position:relative;overflow:hidden;border:1px solid #9e7bda!important;background:linear-gradient(155deg,#29204a,#0d1429 75%)!important;box-shadow:inset 0 1px 0 #ffffff40,0 5px 16px #0006!important}
+.pl-games .pl-game[data-kind=douze],.pl-games .pl-game[data-kind=connect]{--glow:#24ceff}.pl-games .pl-game[data-kind=poker],.pl-games .pl-game[data-kind=timer]{--glow:#ffce48}.pl-games .pl-game[data-kind=colors]{--glow:#f353e5}
+.pl-games .pl-game .pl-art{position:relative;background:radial-gradient(ellipse at 50% 70%,color-mix(in srgb,var(--glow) 32%,transparent),transparent 72%)!important;border-bottom:1px solid #b091db55}
+.pl-games .pl-game .pl-art svg{filter:saturate(1.38) brightness(1.13) contrast(1.05) drop-shadow(0 0 7px color-mix(in srgb,var(--glow) 40%,transparent))!important}
+.pl-games .pl-game strong{color:#fff4df!important;text-shadow:0 0 10px #bfa4ff44}
+.pl-games .pl-game:focus-visible,.pl-games .pl-game:hover{border-color:#d4baff!important;box-shadow:0 0 17px color-mix(in srgb,var(--glow) 28%,transparent)!important}
