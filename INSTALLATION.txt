@@ -1,3 +1,1 @@
-Envoyer ensemble les dossiers ui et assets et sw.js a la racine GitHub. Attendre le deploiement puis fermer/rouvrir ONE.
-Douze : table bleue, cartes blanches a contours colores, grille locale 3x4, defausse a gauche. Retour visuel immediat de selection ; message Synchronisation uniquement apres 900 ms. Validation serveur conservee : aucune reduction du temps reseau garantie.
-Test visuel local mobile avec donnees de test six joueurs. Serveur reel toujours limite a quatre, aucun Worker modifie. Corrections Bluff 117F incluses.
+Envoyer ui, assets et sw.js a la racine GitHub. Resultats de manche superposes au centre de la table. Boutons colores inclus. Palette des cartes inchangee depuis 117J, en attente de precision. Aucun Worker modifie. Barre Chat/Micro/Camera/Salon sous Douze retiree, commandes conservees dans le menu du jeu.

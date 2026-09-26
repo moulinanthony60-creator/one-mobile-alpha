@@ -2,7 +2,7 @@
 (()=>{
  const cinemaStyle=document.createElement('style');cinemaStyle.textContent=`#onePartyGame .bf-cinema{background:radial-gradient(ellipse at 50% 42%,#65205b99,#060711f5 70%)!important;backdrop-filter:blur(9px)!important;gap:10px;padding:24px;box-sizing:border-box;isolation:isolate}#onePartyGame .bf-cinema:before{content:'';position:absolute;inset:8%;border:1px solid #c9945933;border-radius:50%;box-shadow:0 0 70px #ad37e322;pointer-events:none;z-index:-1}#onePartyGame .bf-cinema h3{font-size:clamp(28px,7vw,48px)!important;letter-spacing:.06em;text-shadow:0 0 26px #ef306277;margin:0;text-align:center}#onePartyGame .bf-cinema p{margin:0;color:#f8ddaa;font-size:18px!important}#onePartyGame .bf-cinema .bf-cinema-face{width:72px;height:72px;border-radius:50%;overflow:hidden;border:2px solid #e4ba6c;box-shadow:0 0 26px #d48b4855;display:grid;place-items:center}#onePartyGame .bf-cinema-face>*{width:100%;height:100%;object-fit:cover}#onePartyGame .bf-cinema video{width:min(78vw,300px)!important;height:min(38dvh,300px)!important;object-fit:cover;border-radius:50%!important;border:1px solid #ad825c!important;box-shadow:0 0 50px #b66a3933!important}#onePartyGame .bf-cinema .bf-cinema-cards span{width:60px;height:84px;border:2px solid #dfc593;border-radius:9px;box-shadow:0 9px 24px #0009;transform:rotate(var(--tilt,0deg))}#onePartyGame .bf-cinema .bf-cinema-cards span:nth-child(1){--tilt:-9deg}#onePartyGame .bf-cinema .bf-cinema-cards span:nth-child(3){--tilt:9deg}#onePartyGame .bf-cinema strong{font-size:24px;text-align:center;text-shadow:0 0 20px currentColor}#onePartyGame .bf-cinema button{margin-top:10px;min-height:44px;padding:10px 24px;background:linear-gradient(135deg,#6b2ec9,#231334);border:1px solid #a778d9;border-radius:12px}#onePartyGame .bf-cinema [hidden]{display:none!important}@media(prefers-reduced-motion:no-preference){#onePartyGame .bf-cinema{animation:bfArrival .25s ease-out}#onePartyGame .bf-cinema video{animation:bfTension 2.4s ease-in-out both}#onePartyGame .bf-cinema strong:not([hidden]){animation:bfArrival .3s ease-out}@keyframes bfArrival{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}@keyframes bfTension{from{transform:scale(.85) rotate(-9deg)}to{transform:scale(1.04) rotate(3deg)}}}`;document.head.append(cinemaStyle);
  const css=document.createElement('link');css.rel='stylesheet';css.href='ui/game-tables.css?v=014117';document.head.append(css);const bluffCss=document.createElement('link');bluffCss.rel='stylesheet';bluffCss.href='ui/bluff-table-structure.css?v=014117';document.head.append(bluffCss);
- const cinemaModule=import('./bluff-cinematic.js?v=117f');cinemaModule.then(m=>m.preload()).catch(()=>{});
+ const cinemaModule=import('./bluff-cinematic.js?v=117h');cinemaModule.then(m=>m.preload()).catch(()=>{});
  const frozen=new Map(),seen=new Set();let gameId='',lastPoker=null,cinema=null;
  function avatar(face,p){const member=window.oneSocialRoom?.()?.members?.find(m=>m.accountId===p.accountId)||p;if(window.ONEUI)face.append(ONEUI.avatar(member));else face.textContent=p.name.slice(0,1);}
  function capture(p){const owner=p.isYou?'local':p.accountId,b=[...document.querySelectorAll('.oneCamBubble')].find(n=>n.dataset.cameraOwner===owner),v=b?.querySelector('video');if(!v||v.classList.contains('off')||v.readyState<2)return null;try{const c=document.createElement('canvas');c.width=c.height=160;const w=v.videoWidth,h=v.videoHeight,k=Math.min(w,h);if(!k)return null;c.getContext('2d').drawImage(v,(w-k)/2,(h-k)/2,k,k,0,0,160,160);return c.toDataURL('image/jpeg',.75);}catch{return null;}}
@@ -19,9 +19,9 @@
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const overlay=el('section');cinema=overlay;overlay.className='bf-cinema bf-verdict';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-label','Résultat de l’accusation');
   const title=el('h3',r.honest?'ANNONCE VRAIE':'BLUFF !'),who=el('p',r.penalized),face=el('div');face.className='bf-cinema-face';const victim=g.players.find(p=>p.accountId===r.penalizedAccountId)||g.players.find(p=>p.name===r.penalized);if(victim)avatar(face,victim);
-  let preview=null;
+  let preview=null,previewFrozen=false;
   function syncPreview(){
-   if(!victim||!overlay.isConnected)return;
+   if(!victim||!overlay.isConnected||previewFrozen)return;
    const owner=victim.isYou?'local':victim.accountId;
    const source=[...document.querySelectorAll('.oneCamBubble')].find(n=>n.dataset.cameraOwner===owner)?.querySelector('video');
    const stream=source?.srcObject,track=stream?.getVideoTracks?.().find(t=>t.readyState==='live'&&t.enabled&&!t.muted);
@@ -30,16 +30,29 @@
    if(preview.srcObject!==stream){preview.srcObject=stream;preview.play().catch(()=>{});}
   }
 
+  function freezePreview(){
+   previewFrozen=true;
+   if(!victim)return;
+   let image=frozen.get(victim.accountId);
+   if(preview?.readyState>=2&&preview.videoWidth&&preview.videoHeight){try{
+    const canvas=document.createElement('canvas');canvas.width=480;canvas.height=Math.round(480*preview.videoHeight/preview.videoWidth);
+    canvas.getContext('2d').drawImage(preview,0,0,canvas.width,canvas.height);image=canvas.toDataURL('image/jpeg',.88);frozen.set(victim.accountId,image);
+   }catch{}}
+   if(preview)preview.srcObject=null;
+   if(image){const still=el('img');still.src=image;still.alt='Dernière image de '+victim.name;face.replaceChildren(still);}
+   face.dataset.frozen='true';
+   for(const seat of document.querySelectorAll('.bf-player')){if(seat.dataset.owner===(victim.isYou?'local':victim.accountId)&&image){const portrait=seat.querySelector('.gt-portrait');if(portrait){const still=el('img');still.src=image;still.alt='Dernière image de '+victim.name;portrait.replaceChildren(still);portrait.classList.add('gt-eliminated');}}}
+  }
   const cards=el('div');cards.className='bf-verdict-cards';for(const rank of r.cards){const card=el('span',rank==='J'?'★':rank);cards.append(card);}
   const drum=el('div');drum.className='bf-drum';drum.setAttribute('aria-hidden','true');for(let i=0;i<6;i++){const chamber=el('i');chamber.style.setProperty('--chamber',i);drum.append(chamber);}const hub=el('b','ONE');drum.append(hub);
   const result=el('strong','');result.setAttribute('role','status');const close=el('button','Retour à la table');close.type='button';
   let timer,previewTimer,disposeScene;const finish=()=>{disposeScene?.();clearTimeout(timer);clearInterval(previewTimer);if(preview)preview.srcObject=null;overlay.remove();if(cinema===overlay)cinema=null;};close.onclick=finish;
   overlay.append(title,face,who,cards,drum,result,close);panel.append(overlay);syncPreview();previewTimer=setInterval(()=>{if(!overlay.isConnected){clearInterval(previewTimer);if(preview)preview.srcObject=null;return;}syncPreview();},200);
-  const verdict=()=>{if(!overlay.isConnected)return;overlay.classList.add(r.eliminated?'bf-lost':'bf-saved','bf-resolved');title.textContent=r.eliminated?'ÉLIMINÉ':'SAUVÉ';result.textContent=r.eliminated?'Fin de manche pour '+r.penalized:'CLIC · '+r.penalized+' reste en jeu';window.ONEBluffSound?.effect?.(g,1,true);timer=setTimeout(finish,1500);};
+  const verdict=()=>{if(!overlay.isConnected)return;if(r.eliminated)freezePreview();overlay.classList.add(r.eliminated?'bf-lost':'bf-saved','bf-resolved');title.textContent=r.eliminated?'ÉLIMINÉ':'SAUVÉ';result.textContent=r.eliminated?'Fin de manche pour '+r.penalized:'CLIC · '+r.penalized+' reste en jeu';window.ONEBluffSound?.effect?.(g,1,true);timer=setTimeout(finish,1500);};
   if(reduced){verdict();return;}
   cards.animate([{opacity:0,transform:'perspective(500px) rotateY(90deg) translateY(20px)'},{opacity:1,transform:'perspective(500px) rotateY(0deg) translateY(0)'}],{duration:550,easing:'ease-out'});
   drum.className='bf-revolver-stage';drum.replaceChildren(el('small','Préparation de la scène…'));
-  cinemaModule.then(m=>m.mount(drum,{eliminated:r.eliminated,onImpact:verdict,onPhase:text=>{if(overlay.isConnected)title.textContent=text;},isCancelled:()=>!overlay.isConnected})).then(dispose=>{disposeScene=dispose;if(!overlay.isConnected)disposeScene?.();}).catch(()=>{if(overlay.isConnected){drum.replaceChildren(el('small','Scène 3D indisponible sur cet appareil'));verdict();}});
+  cinemaModule.then(m=>m.mount(drum,{eliminated:r.eliminated,onImpact:verdict,getTargetRect:()=>face.getBoundingClientRect(),onPhase:text=>{if(overlay.isConnected)title.textContent=text;},isCancelled:()=>!overlay.isConnected})).then(dispose=>{disposeScene=dispose;if(!overlay.isConnected)disposeScene?.();}).catch(()=>{if(overlay.isConnected){drum.replaceChildren(el('small','Scène 3D indisponible sur cet appareil'));verdict();}});
 
 
  }
