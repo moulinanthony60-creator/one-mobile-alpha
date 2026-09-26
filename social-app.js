@@ -1,5 +1,5 @@
 (()=>{
- const {el,button,tile,icon,avatar,activity,games}=ONEUI;const css=el('link');css.rel='stylesheet';css.href='ui/social.css?v=014116';document.head.append(css);
+ const {el,button,tile,icon,avatar,activity,games}=ONEUI;const css=el('link');css.rel='stylesheet';css.href='ui/social.css?v=014117';document.head.append(css);
  let room=window.oneSocialRoom?.()||null,filter='Tous',selected='bluff';
  const capsule=button('',()=>window.oneOpenSalon?.(),'os-capsule');capsule.hidden=true;capsule.id='oneRoomCapsule';document.querySelector('.topbar .brandrow').after(capsule);
  function syncRoom(){capsule.hidden=!room;capsule.replaceChildren();if(room){capsule.append(el('span','● Salon · '+room.members.length));const faces=el('span',undefined,'os-mini-avatars');room.members.slice(0,3).forEach(m=>faces.append(avatar(m)));capsule.append(faces);capsule.setAttribute('aria-label',room.name+', '+room.members.length+' membres. Ouvrir le salon.');}const banner=document.getElementById('oneRoomBanner');if(banner){banner.replaceChildren();banner.hidden=!room;if(room){banner.append(el('b','Toujours ensemble'),el('p','Tu es dans le salon « '+room.name+' ». Navigue librement avec ton groupe.'),button('Voir le salon',()=>window.oneOpenSalon?.()));}}}

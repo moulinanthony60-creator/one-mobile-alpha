@@ -33,3 +33,174 @@
 .gt-flying-chip{z-index:240;width:15px;height:9px;background:#a72d52;border:2px dashed #f2c5a2;border-radius:50%;pointer-events:none;box-shadow:0 -3px #842545,0 4px 8px #0008}
 #onePartyGame .dzp-stage{height:650px!important}#onePartyGame .dzp-turn{pointer-events:none}#onePartyGame .dzp-stage[data-players='5'],#onePartyGame .dzp-stage[data-players='6']{height:740px!important}@media(min-width:600px){#onePartyGame .dzp-stage{height:760px!important}}
 .gt-portrait.gt-eliminated{filter:none!important}.gt-eliminated>img,.gt-eliminated>.os-avatar{filter:grayscale(1)}.gt-eliminated>b{color:#ff234b!important}
+
+/* Visual pass: one compact stage, stable action regions, real media seats. */
+#onePartyGame.hasGame{overflow-anchor:none!important}
+#onePartyGame.hasGame:not(.gameFullscreen){position:relative}
+#onePartyGame.hasGame.gameFullscreen{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;max-height:100dvh!important;margin:0!important;border-radius:0!important}
+#onePartyGame.hasGame>h2{display:none!important}
+#onePartyGame.hasGame>p[role=status]{position:absolute;top:48px;left:12px;right:12px;z-index:80;margin:0;padding:6px 10px;border-radius:8px;background:#131022ee;font-size:11px;pointer-events:none}
+#onePartyGame.hasGame>p[role=status]:empty{display:none}
+#onePartyGame.hasGame .cg-topbar{height:46px!important;min-height:46px!important;padding:4px 10px!important;box-sizing:border-box!important;margin:0!important;background:#080b17cf!important;position:relative;z-index:35}
+#onePartyGame.hasGame .cg-topbar h2{font-size:19px!important;margin:0!important;line-height:1.05!important}
+#onePartyGame.hasGame .cg-topbar>div>small{display:none!important}
+#onePartyGame.isBluff .bluff-brand-banner{display:none!important}
+#onePartyGame.isBluff .bluff-salon-button{max-width:128px!important;min-height:34px!important;font-size:10px!important;padding:5px!important}
+#onePartyGame.isBluff .cg-topbar:after{content:'ONE BLUFF';position:absolute;left:50%;transform:translateX(-50%);color:#f8cf80;font-size:18px;font-weight:900;pointer-events:none;text-shadow:0 0 12px #b5741c}
+#onePartyGame.isBluff .bluff-media-tools{display:none!important}
+#onePartyGame.isBluff>.oneGameBody>.bluff-scene{height:clamp(540px,calc(100dvh - 62px),790px)!important;min-height:540px!important;max-height:790px!important;width:100%!important;max-width:700px!important;margin:auto!important;background-size:cover!important;background-position:center 48%!important}
+#onePartyGame.isBluff .bf-player:not(.bf-own){width:92px!important;transform:translateX(-50%)!important}
+#onePartyGame.isBluff .bf-player:not(.bf-own) .gt-portrait{width:66px!important;height:72px!important;border-radius:14px!important;border-color:#c7a86b!important;background:#111422e8}
+#onePartyGame.isBluff .gt-portrait>.os-avatar,#onePartyGame.isBluff .gt-portrait>img,#onePartyGame.isBluff .gt-portrait .oneCamBubble.seated{border-radius:12px!important}
+#onePartyGame.isBluff .bf-player>b{font-size:12px!important;padding:3px!important;border-radius:5px}
+#onePartyGame.isBluff .bf-player .bf-backs{height:40px;transform:perspective(320px) rotateX(18deg)}
+#onePartyGame.isBluff .bf-player .bf-backs i{width:25px;height:36px;flex-basis:25px}
+#onePartyGame.isBluff .bluff-round{left:4%!important;top:2%!important}
+#onePartyGame.isBluff .bluff-live-status{top:38%!important;left:50%!important;transform:translateX(-50%)!important;white-space:nowrap!important;font-size:11px!important}
+#onePartyGame.isBluff .bluff-target{top:44%!important;left:50%!important;transform:translateX(-50%)!important;max-width:170px!important;width:auto!important;padding:5px 12px!important;text-align:center!important}
+#onePartyGame.isBluff .bluff-target small{font-size:9px!important}
+#onePartyGame.isBluff .bluff-target strong{font-size:17px!important}
+#onePartyGame.isBluff .bf-center{top:53%!important;gap:3px!important;width:180px!important}
+#onePartyGame.isBluff .bf-center .bf-deck{width:32px;height:43px;font-size:10px;line-height:13px}
+#onePartyGame.isBluff .bf-center>b{font-size:10px!important;padding:3px 7px!important}
+#onePartyGame.isBluff .bf-center>.bf-turn{display:none!important}
+#onePartyGame.isBluff .bluff-hand{bottom:21%!important;height:100px!important;pointer-events:none!important}
+#onePartyGame.isBluff .bluff-hand .bluff-card{pointer-events:auto!important;height:98px!important;flex:0 1 64px!important;width:64px!important}
+#onePartyGame.isBluff .bf-own{bottom:10%!important;width:75px!important}
+#onePartyGame.isBluff .bf-own .gt-portrait{width:46px!important;height:46px!important;border-radius:14px!important}
+#onePartyGame.isBluff .bluff-scene>.bluff-controls{bottom:8px!important;left:3%!important;right:3%!important;height:52px!important;min-height:52px!important;display:flex!important;visibility:visible!important;opacity:1!important;z-index:40!important}
+#onePartyGame.isBluff .bluff-controls .bluff-actions{display:flex!important;visibility:visible!important;opacity:1!important}
+#onePartyGame.isBluff .bluff-actions button{display:block!important;visibility:visible!important;min-height:44px!important;height:48px!important;font-size:12px!important;white-space:normal!important}
+#onePartyGame.isBluff .bluff-actions button:disabled{opacity:.56!important}
+#onePartyGame.isBluff .bluff-accuse{background:linear-gradient(#a5143c,#480d23)!important;border-color:#eb526c!important;color:#ffe2e8!important}
+#onePartyGame.isBluff:after{display:none!important}
+#onePartyGame.isBluff .bluff-chat-dock{display:none!important}
+/* Poker controls remain immediately below the foreground seat. */
+#onePartyGame.isPoker .gt-poker{background-size:100% 100%!important}
+#onePartyGame.isPoker .gt-poker .ppStage{height:clamp(370px,calc(100dvh - 270px),600px)!important;min-height:370px!important}
+#onePartyGame.isPoker .gt-poker .ppSeat{width:78px!important}
+#onePartyGame.isPoker .gt-poker .gt-portrait{width:48px;height:52px;border-radius:12px}
+#onePartyGame.isPoker .gt-poker .gt-portrait>.os-avatar,#onePartyGame.isPoker .gt-poker .oneCamBubble.seated{border-radius:10px!important}
+#onePartyGame.isPoker .gt-poker .ppSeat.own{top:82%!important}
+#onePartyGame.isPoker .gt-poker .ppSeat.own .ppCard{width:35px!important;height:48px!important}
+#onePartyGame.isPoker .gt-poker .ppLast{height:24px!important;font-size:10px!important;padding:4px!important}
+#onePartyGame.isPoker .gt-poker .ppControls{padding:7px 10px!important;min-height:176px;box-sizing:border-box}
+#onePartyGame.isPoker .gt-poker .ppRaise{gap:3px 10px!important}
+#onePartyGame.isPoker .gt-poker .ppTurn{height:17px!important;line-height:17px;margin:0 0 3px!important;font-size:11px!important}
+#onePartyGame.isPoker .gt-poker .ppSlider{margin:0!important;min-height:32px!important}
+#onePartyGame.isPoker .gt-poker .ppAmount{padding:3px!important;min-height:32px!important}
+#onePartyGame.isPoker .gt-poker .ppPresets button{min-height:32px!important;padding:4px!important}
+#onePartyGame.isPoker .gt-poker .ppActions{margin-top:6px!important}
+/* Douze: fixed geography for every phase; foreground is always the private 3×4 grid. */
+#onePartyGame .dzp-game{padding:5px 8px 0!important;max-width:700px!important}
+#onePartyGame .dzp-heading{height:23px;align-items:center}
+#onePartyGame .dzp-heading span{padding:3px 6px!important;font-size:9px}
+#onePartyGame .dzp-stage,#onePartyGame .dzp-stage[data-players='5'],#onePartyGame .dzp-stage[data-players='6']{height:clamp(580px,calc(100dvh - 190px),730px)!important;margin-top:2px!important}
+#onePartyGame .dzp-seat.dzp-rival{width:83px!important}
+#onePartyGame .dzp-rival .dzp-camera{width:39px!important;height:43px!important;border-radius:10px!important}
+#onePartyGame .dzp-rival .dzp-player>b{font-size:10px!important}
+#onePartyGame .dzp-rival .dzp-player>small{font-size:7px!important;padding:1px 2px!important}
+#onePartyGame .dzp-rival .dzp-grid{margin-top:3px!important}
+#onePartyGame .dzp-rival .dzp-card{aspect-ratio:5/5.5!important}
+#onePartyGame .dzp-rival .dzp-card strong{font-size:14px!important}
+#onePartyGame .dzp-rival .dzp-card[data-tone=back] strong{font-size:6px!important}
+#onePartyGame .dzp-camera>.os-avatar,#onePartyGame .dzp-camera .oneCamBubble.seated{border-radius:8px!important}
+#onePartyGame .dzp-own{width:min(76%,300px)!important;bottom:0!important}
+#onePartyGame .dzp-own .dzp-grid{gap:4px!important;transform:perspective(650px) rotateX(7deg)!important}
+#onePartyGame .dzp-own .dzp-card{min-height:0!important;aspect-ratio:1.25!important;height:auto!important;padding:3px!important}
+#onePartyGame .dzp-own .dzp-card strong{font-size:26px!important}
+#onePartyGame .dzp-own .dzp-card small{font-size:6px!important}
+#onePartyGame .dzp-own .dzp-card[data-tone=back] strong{font-size:13px!important}
+#onePartyGame .dzp-own .dzp-player{height:58px!important;margin-top:4px!important;display:grid!important;grid-template-columns:44px 1fr;grid-template-rows:25px 20px;width:130px;margin-left:auto;margin-right:auto;gap:0 6px!important;text-align:left}
+#onePartyGame .dzp-own .dzp-camera{grid-row:1/3;width:40px!important;height:40px!important}
+#onePartyGame .dzp-own .dzp-player>b{align-self:end}
+#onePartyGame .dzp-own .dzp-player>small{font-size:8px!important}
+#onePartyGame .dzp-center,#onePartyGame .dzp-stage[data-players] .dzp-center{top:31%!important;gap:12px!important}
+#onePartyGame .dzp-center>div{width:43px!important}
+#onePartyGame .dzp-center .dzp-card{height:54px!important}
+#onePartyGame .dzp-turn,#onePartyGame .dzp-stage[data-players] .dzp-turn{top:48%!important;width:154px!important;padding:4px 6px!important;min-height:36px!important}
+#onePartyGame .dzp-turn b{font-size:10px!important}
+#onePartyGame .dzp-turn span{font-size:9px!important}
+#onePartyGame .dzp-held,#onePartyGame .dzp-stage[data-players] .dzp-held{top:40%!important;padding:2px 4px!important}
+#onePartyGame .dzp-held .dzp-card{height:31px!important;width:27px!important}
+#onePartyGame .dzp-tools{padding:3px 0!important}
+#onePartyGame .dzp-tools button{min-height:32px!important;padding:3px!important}
+#onePartyGame .dzp-signature{display:none!important}
+#onePartyGame .dzp-actions{margin:4px 0!important;height:44px!important}
+#onePartyGame .dzp-feedback{height:18px;min-height:18px;margin:0!important;padding:2px!important;font-size:9px}
+/* Compact glass menu, with the table perceptible around it. */
+#onePartyGame .ogm-panel{width:min(250px,calc(100vw - 96px))!important;top:52px!important;right:10px!important;padding:9px!important;max-height:calc(100dvh - 64px)!important;background:linear-gradient(145deg,#111529ed,#070a14ed)!important;border-radius:14px!important;backdrop-filter:blur(12px)!important}
+#onePartyGame .ogm-backdrop{background:#0002!important}
+#onePartyGame .ogm-panel header{padding:0 2px 7px!important}
+#onePartyGame .ogm-panel header>b{font-size:13px!important}
+#onePartyGame .ogm-panel section{padding:5px 0!important}
+#onePartyGame .ogm-panel h4{margin:0 3px 3px!important;font-size:8px!important;color:#b5a2d1!important}
+#onePartyGame .ogm-panel button.ogm-action{min-height:34px!important;height:34px!important;padding:5px 7px!important;font-size:11px!important;letter-spacing:normal!important;text-transform:none!important}
+#onePartyGame .ogm-panel .ogm-media[data-media=mic]>small,#onePartyGame .ogm-panel .ogm-media[data-media=camera]>small{position:relative!important;width:29px!important;height:17px!important;padding:0!important;box-sizing:border-box;font-size:0!important;background:#444358!important;border-radius:12px!important}
+#onePartyGame .ogm-panel .ogm-media[data-media=mic]>small:after,#onePartyGame .ogm-panel .ogm-media[data-media=camera]>small:after{content:'';position:absolute;left:2px;top:2px;width:13px;height:13px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #0007}
+#onePartyGame .ogm-panel .ogm-media[aria-pressed=true]>small{background:#14c99a!important}
+#onePartyGame .ogm-panel .ogm-media[aria-pressed=true][data-media=mic]>small:after,#onePartyGame .ogm-panel .ogm-media[aria-pressed=true][data-media=camera]>small:after{left:14px}
+/* Salon and Party use the same compact glass and illustration hierarchy. */
+.os-room-heading .os-browse{min-height:30px;padding:4px 8px;font-size:10px;background:#231c3655;border-color:#69518e55}
+.os-discover>h3{font-size:24px!important;margin:10px 0 4px!important}.os-room-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.os-room-list .os-public-room{margin:0;padding:0 10px 10px;overflow:hidden;grid-template-columns:30px 1fr;gap:6px;background:linear-gradient(145deg,#221733,#090e1d);border-color:#9865b977;box-shadow:inset 0 1px #e4bbff24,0 5px 20px #0004}.os-public-cover{grid-column:1/-1;height:86px;margin:0 -10px 5px;background:linear-gradient(0deg,#171020bb,transparent 70%),url('social-lounge-cinema.png') center/cover;position:relative}.os-room-list .os-public-room:nth-child(even) .os-public-cover{background-position:70% center;filter:hue-rotate(20deg)}.os-public-badge{position:absolute;left:7px;bottom:7px;font-size:9px;padding:3px 6px;border-radius:12px;color:#8effcb;background:#0a291ee8;border:1px solid #38c19066}.os-room-list .os-public-room>.os-avatar{width:30px;height:30px;grid-row:auto}.os-room-list .os-public-room>h4{font-size:12px!important;align-self:center}.os-room-list .os-public-room>p{grid-column:1/-1;font-size:10px}.os-room-list .os-public-room>button{font-size:11px;padding:7px;min-height:36px}.os-search input{font-size:12px!important}.os-search button{padding:8px;font-size:10px}
+#oneSalonBody .os-create>svg{display:none!important}#oneSalonBody .os-create fieldset{margin:4px 0 12px!important}#oneSalonBody .os-create fieldset>legend{font-size:10px;color:#c2a5dc;margin-bottom:4px}#oneSalonBody .os-create fieldset label{min-height:62px;margin:7px 0;padding:12px;border:1px solid #8454bd99;background:linear-gradient(120deg,#43196375,#12172d);border-radius:12px}#oneSalonBody .os-create fieldset label:has(input:checked){border-color:#c781ff;box-shadow:inset 0 0 24px #9141d52b,0 0 12px #9941e422}#oneSalonBody .os-create fieldset input{accent-color:#a548fa}#oneSalonBody .os-create>label{margin:10px 0!important}#oneSalonBody .os-create .os-primary{min-height:47px;box-shadow:0 0 16px #9238ed55,inset 0 1px #e5bcff88}
+.os-welcome-art{background-image:linear-gradient(0deg,#0c1021 3%,#0b0e2099 48%,transparent 100%),url('social-lounge-cinema.png')!important;min-height:205px!important;padding-top:95px!important;border:1px solid #ae75cf44}.os-welcome-art h2{font-size:23px!important}
+#oneSalonBody .os-room-tools{grid-template-columns:repeat(4,minmax(0,1fr))!important}#oneSalonBody .os-room-tools>.os-danger{grid-column:1/-1;min-height:33px!important;padding:6px!important;font-size:10px!important;background:#67223833}
+#onePartyGame.isBluff .bluff-scene:before{display:none!important}
+#onePartyGame.isBluff .bluff-round{transform:none!important}
+#onePartyGame.isBluff .bluff-scene:after{inset:22% 3% 19%!important;border:2px solid #bc56ed80!important;border-radius:48%!important;background:radial-gradient(ellipse,#3a124ec9,#1a0b2ed9 70%)!important;box-shadow:0 0 0 6px #27133188,0 0 22px #a335ff55,inset 0 0 38px #bd5dff28!important;z-index:1!important}
+#onePartyGame.isBluff .bf-player:before{display:none!important}
+#onePartyGame.isBluff .bf-player{border:0!important;padding:0!important;background:none!important;box-shadow:none!important}
+#onePartyGame.isBluff .bf-player .gt-portrait{box-shadow:0 0 0 3px #080d1ddc,0 0 0 4px #b6946655,0 6px 12px #0008!important}
+#onePartyGame .dzp-own{top:60%!important;bottom:auto!important}
+#onePartyGame .dzp-stage:has(.dzp-held) .dzp-center>div:first-child{visibility:hidden}
+#onePartyGame .dzp-held,#onePartyGame .dzp-stage[data-players] .dzp-held{top:31%!important;left:calc(50% - 28px)!important;display:flex!important;flex-direction:column-reverse!important;background:transparent!important;width:49px;gap:3px;padding:0!important}
+#onePartyGame .dzp-held .dzp-card{width:43px!important;height:54px!important}
+#onePartyGame .dzp-held>small{font-size:8px;text-align:center}
+#onePartyGame .dzp-actions:empty{display:flex!important}
+#onePartyGame .dzp-feedback:empty{display:block!important;visibility:hidden}
+#onePartyGame .dzp-game .dzp-tools{margin-top:0!important}
+#oneSalonBody .os-members{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(48px,1fr))!important;overflow:visible!important;gap:5px!important;height:auto!important;padding:0!important}
+#oneSalonBody .os-member{width:auto!important;min-width:0!important;flex:none!important;padding:3px!important}
+#oneSalonBody .os-member .os-face{height:auto!important;min-height:0!important;width:100%!important}
+#oneSalonBody .os-member>b{font-size:9px!important}
+#oneSalonBody .os-member>small{font-size:7px!important;line-height:1.2;display:block}
+#oneSalonBody .os-member-invite{width:auto!important;min-width:0!important;min-height:72px!important;padding:5px!important;font-size:23px!important;border-radius:10px!important}
+#oneSalonBody .os-member-invite small{display:block;font-size:8px!important}
+#oneSalonBody .os-room-heading .os-close{width:32px!important;height:32px!important;min-height:32px!important;font-size:17px!important}
+#oneSalonBody .os-room-name+.os-muted{font-size:10px!important;margin:3px 0!important}
+body[data-one-social-space=party] .oneMainNav,body[data-one-social-space=party] .tabsRail,body[data-one-social-space=party] .oneSourcesLabel{display:none!important}
+body[data-one-social-space=party] #oneFoundation{margin-top:10px!important}
+.os-party-catalog>.os-eyebrow{display:none!important}.os-party-catalog>h2{margin:0 0 5px!important;font-size:25px!important}.os-party-catalog>p{margin:0 0 12px!important;font-size:11px!important}.os-party-catalog .os-tabs{gap:7px!important;margin-bottom:12px!important}.os-party-catalog .os-tabs button{min-height:33px!important;padding:7px!important;font-size:11px!important;border-radius:9px!important}.os-party-catalog .os-tabs button[aria-pressed=true]{background:linear-gradient(#913dff,#5220b7)!important;border-color:#c284ff!important;box-shadow:0 0 14px #9d3fff55}
+.pl-art-emblem{display:grid!important;place-items:center!important}.pl-emblem-ring{display:grid;place-items:center;width:67px;height:67px;margin:19px auto;border:2px solid #d3a3ff;border-radius:20px;transform:rotate(-9deg);background:radial-gradient(at 30% 20%,#9f59db,#241639);box-shadow:inset 0 0 0 4px #f6ceff22,0 0 20px #a446db55,4px 6px 0 #130920}.pl-emblem-ring b{font:38px Georgia!important;transform:rotate(9deg);color:#efd3ff;text-shadow:0 2px #45276f}
+body[data-one-social-space=party] .app>.topbar>.tabsRail{display:none!important}
+.os-party-catalog .os-game-card .pl-emblem-ring b{font:36px Georgia!important;padding:0!important}
+#oneSalonBody .os-search{width:100%;display:flex;gap:6px}#oneSalonBody .os-search input{flex:1 1 0!important;width:0!important;min-width:0!important}#oneSalonBody .os-search button{flex:0 0 74px!important;min-width:0!important;padding:6px!important;font-size:10px!important}
+.os-appearance{border:0;padding:0;margin:12px 0!important}.os-appearance legend{font-size:12px!important;color:#e5d6f5!important;margin-bottom:7px}.os-appearance-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.os-appearance-choice{height:76px!important;padding:0!important;border:1px solid #82658e!important;border-radius:9px!important;overflow:hidden;position:relative;background:linear-gradient(0deg,#090914,transparent 75%),url('game-lounge-109.webp') center 28%/cover!important}.os-appearance-choice[data-appearance=violet]{background-image:linear-gradient(0deg,#090914,transparent 75%),url('bluff-lounge-109.webp')!important}.os-appearance-choice[data-appearance=emerald]{background-image:linear-gradient(0deg,#090914,transparent 75%),url('douze-lounge-109.webp')!important}.os-appearance-choice[aria-pressed=true]{border:2px solid #c868ff!important;box-shadow:0 0 12px #a23bfa55!important}.os-appearance-choice span{position:absolute;bottom:5px;left:0;right:0;font-size:9px;color:#f9e9ff}.os-appearance>small{font-size:9px!important;display:block;margin-top:5px}
+#oneSalonTray[data-appearance=violet] .os-choose{background:linear-gradient(#2f1235d9,#170c29ee),url('bluff-lounge-109.webp') center/cover!important}
+#oneSalonTray[data-appearance=emerald] .os-choose{background:linear-gradient(#133c33db,#091923ee),url('douze-lounge-109.webp') center/cover!important;border-color:#3db48a66!important}
+#oneSalonTray[data-appearance=lounge] .os-choose{background:linear-gradient(#281e30d9,#100e20ee),url('game-lounge-109.webp') center/cover!important}
+#oneSalonTray.os-salon{background:linear-gradient(150deg,#171329f5,#090d1bf5)!important;backdrop-filter:blur(20px);border-color:#a174d3!important}
+#oneSalonTray>header{padding:8px 12px!important}
+#oneSalonBody{padding:10px!important}
+#oneSalonBody .os-room-name{font-size:19px!important;margin:4px 0!important}
+#oneSalonBody .os-actions{gap:6px;margin:8px 0!important}
+#oneSalonBody .os-members{gap:7px;margin:12px 0!important}
+#oneSalonBody .os-member{padding:4px;border:1px solid #9772ba55;border-radius:12px;background:linear-gradient(#33244280,#0d1222a0)}
+#oneSalonBody .os-face{border-radius:10px!important;aspect-ratio:1/1.04}
+#oneSalonBody .os-face>.os-avatar,#oneSalonBody .os-face .oneCamBubble.seated{border-radius:9px!important}
+#oneSalonBody .os-member>b{margin:4px 0 2px!important}
+#oneSalonBody .os-member>small{font-size:8px!important}
+#oneSalonBody .os-choose{padding:10px!important;background:linear-gradient(145deg,#35214a80,#131a2e90)!important;border-color:#9570bc66!important}
+#oneSalonBody .os-choose>p{margin:4px 0 10px!important}
+#oneSalonBody .os-tile{min-height:112px!important;padding:10px 7px!important}
+#oneSalonBody .os-room-tools{margin-top:9px!important}
+.os-party-catalog{max-width:900px;margin:auto;padding:12px!important}
+.os-game-grid{gap:10px!important}
+#onePartyGame .os-game-card,.os-game-card{border:1px solid #936bbd88!important;border-radius:15px!important;background:radial-gradient(at 50% 10%,#70458644,transparent 75%),linear-gradient(160deg,#19132c,#090f1c)!important;box-shadow:inset 0 1px #e1c1ff33,0 6px 15px #0005!important;padding:0 0 12px!important}
+#onePartyGame .os-game-card .pl-art,.os-game-card .pl-art{height:110px!important;background:radial-gradient(ellipse at center,#b761ed20,transparent 72%);filter:drop-shadow(0 3px 8px #ab66ed40)}
+.os-game-card b{font-size:12px!important}.os-game-card small{font-size:9px!important}
+@media(min-width:700px){#onePartyGame.isBluff>.oneGameBody>.bluff-scene{height:740px!important}#onePartyGame .dzp-seat.dzp-rival{width:104px!important}#onePartyGame .dzp-rival .dzp-camera{width:52px!important;height:56px!important}#onePartyGame .dzp-stage{height:720px!important}.os-game-card .pl-art{height:145px!important}}
+
+#onePartyGame.isBluff .bluff-card>span{top:auto!important;left:auto!important;right:5px!important;bottom:5px!important;width:auto!important;height:auto!important;line-height:1!important;transform:rotate(180deg)!important}
+#onePartyGame .ogm-panel .ogm-close{width:25px!important;height:25px!important;min-height:25px!important;padding:0!important;border:1px solid #8d62b966!important;border-radius:7px!important;font-size:16px!important;background:#35214288!important;color:#fff!important}
