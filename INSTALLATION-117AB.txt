@@ -1,0 +1,6 @@
+ONE — Synchronisation des compteurs (117AB)
+Extraire le ZIP. Déposer ui, assets et sw.js à la racine GitHub puis Commit changes.
+Après la fin du déploiement, recharger une fois les pages déjà ouvertes sur PC et téléphone pour charger le nouveau code.
+Le compteur écoute chaque état reçu du serveur, indépendamment du rendu de la table. Relecture immédiate au retour dans l’onglet et suppression du cache HTTP pour les lectures de partie.
+Tests locaux : progression 0–6, retour à zéro, mise à jour sans rendu de la table, ancien jeu ignoré.
+Inclut les précédentes corrections graphiques et les sons enregistrés.

@@ -1,0 +1,6 @@
+ONE — Compteur de tirs corrigé (117AA)
+Extraire le ZIP, déposer ui, assets et sw.js à la racine du dépôt GitHub puis Commit changes.
+Cette version inclut les correctifs précédents, le revolver et les sons enregistrés.
+Correction : le compteur sous Toi est actualisé sans cibler le pictogramme du micro.
+Vérifié sur des mises à jour successives 0/6 à 6/6 et au début d’une nouvelle partie.
+Le résultat du serveur et les règles ne changent pas.
