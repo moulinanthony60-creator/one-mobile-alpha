@@ -1,0 +1,47 @@
+/* ONE Douze: blue lounge and white cards, preserving the live game contract. */
+#onePartyGame.isDouze .dzp-game{padding:0 6px!important;background:linear-gradient(#01081966,#00123455),url('game-lounge-109.webp') center/cover!important;max-width:760px;overflow:hidden}
+#onePartyGame.isDouze .cg-topbar{background:#030a18!important;border-bottom:1px solid #185b85!important}
+#onePartyGame.isDouze .cg-topbar h2{color:#70d8ff!important;text-shadow:0 0 12px #087ac6;font-size:19px!important}
+#onePartyGame.isDouze .dzp-game .dzp-heading{height:18px!important;font-size:8px;opacity:.8}
+#onePartyGame.isDouze .dzp-game .dzp-stage{height:clamp(490px,calc(100dvh - 165px),760px)!important;margin:0!important}
+#onePartyGame.isDouze .dzp-game .dzp-stage:before{content:'';position:absolute;inset:23% 2% 25%;border:2px solid #157bc0;border-radius:50%;background:radial-gradient(ellipse,#072d43dc,#010d21df);box-shadow:inset 0 0 24px #0564a655,0 0 10px #008bdb55;pointer-events:none}
+#onePartyGame.isDouze .dzp-game .dzp-felt-mark{top:30%!important;color:#157be844;font-size:24px}
+#onePartyGame.isDouze .dzp-game .dzp-rival{width:24%!important;max-width:100px;padding:3px;box-sizing:border-box;border:1px solid #077caf88;border-radius:9px;background:linear-gradient(#04111ee8,#021324d9);box-shadow:0 3px 10px #0009}
+#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-camera{width:44px!important;height:42px!important;border:1px solid #a68a54;border-radius:8px!important}
+#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-player{gap:0}
+#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-player>b{font-size:9px!important}
+#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-player>small{font-size:7px!important;white-space:normal}
+#onePartyGame.isDouze .dzp-game .dzp-grid{gap:2px!important;grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#onePartyGame.isDouze .dzp-game .dzp-card{background:linear-gradient(135deg,#fffef7,#e6dfd1)!important;color:#101c2b!important;border:2px solid var(--card-edge,#54baff)!important;border-radius:4px!important;box-shadow:0 1px 3px #0007!important;opacity:1!important;min-width:0;box-sizing:border-box}
+#onePartyGame.isDouze .dzp-game .dzp-card:before,#onePartyGame.isDouze .dzp-game .dzp-card:after{display:none!important}
+#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=negative]{--card-edge:#ec7696}#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=blue]{--card-edge:#5ab1ff}#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=green]{--card-edge:#42e6aa}#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=gold]{--card-edge:#f9ce69}#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=purple]{--card-edge:#b1a5ff}
+#onePartyGame.isDouze .dzp-game .dzp-card small{display:none!important}
+#onePartyGame.isDouze .dzp-game .dzp-card strong{font-family:Arial,sans-serif!important;text-shadow:none!important;line-height:1!important;transform:none!important}
+#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=back]{background:linear-gradient(140deg,#102e50,#041126)!important;color:#547b9c!important;border-color:#20699e!important}
+#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=back] strong{font-size:0!important}#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=back] strong:after{content:'♠';font-size:22px}
+#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-card{aspect-ratio:1.05!important;padding:0!important;height:auto!important}
+#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-card strong{font-size:11px!important}
+#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-card[data-tone=back] strong:after{font-size:9px}
+#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-setup-count{display:none}
+#onePartyGame.isDouze .dzp-game .dzp-own{top:66%!important;bottom:auto!important;width:min(66%,290px)!important;left:50%!important;padding:7px!important;border:1px solid #25a5ec;border-radius:13px;background:#02132be8;box-shadow:0 0 12px #0085dd55}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-grid{gap:4px!important;transform:none!important}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-card{aspect-ratio:1.2!important;height:auto!important;min-height:0!important;padding:1px!important}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-card strong{font-size:clamp(22px,6vw,32px)!important}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-player{position:absolute;bottom:100%;left:0;right:0;height:20px!important;width:auto!important;display:block!important;margin:0!important;text-align:center!important}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-camera{display:none!important}#onePartyGame.isDouze .dzp-game .dzp-own .dzp-player>small{display:none!important}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-player>b{font-size:10px}
+#onePartyGame.isDouze .dzp-game .dzp-center{top:39%!important;gap:13px!important}
+#onePartyGame.isDouze .dzp-game .dzp-center>div{width:48px!important}#onePartyGame.isDouze .dzp-game .dzp-center .dzp-card{height:64px!important;width:46px!important}
+#onePartyGame.isDouze .dzp-game .dzp-center b{font-size:9px!important}
+#onePartyGame.isDouze .dzp-game .dzp-turn{top:57%!important;width:58%!important;min-height:32px!important;padding:3px!important;background:#031021cc!important;border:1px solid #247295!important}
+#onePartyGame.isDouze .dzp-game .dzp-held{top:39%!important;left:calc(50% + 31px)!important;background:#03152b!important}
+#onePartyGame.isDouze .dzp-game .dzp-held .dzp-card{width:46px!important;height:64px!important}#onePartyGame.isDouze .dzp-game .dzp-held>small{display:none}
+#onePartyGame.isDouze .dzp-game .dzp-actions{margin:2px 0!important;min-height:38px!important;height:auto!important;padding:0!important;gap:6px!important}
+#onePartyGame.isDouze .dzp-game .dzp-actions button{min-height:36px!important;font-size:10px!important;background:#082644;border:1px solid #287cb0;border-radius:8px}
+#onePartyGame.isDouze .dzp-game .dzp-tools{display:flex;justify-content:space-between;gap:4px}
+#onePartyGame.isDouze .dzp-game .dzp-signature{display:none!important}
+#onePartyGame.isDouze .dzp-game .dzp-feedback:empty{display:none}
+#onePartyGame.isDouze .dzp-game .dzp-card.dzp-pending{outline:3px solid #81e8ff;outline-offset:1px;filter:brightness(1.1);transform:translateY(-2px)!important}
+@media(prefers-reduced-motion:no-preference){#onePartyGame.isDouze .dzp-game .dzp-card.dzp-pending{animation:dzpPending .7s ease-in-out infinite alternate}@keyframes dzpPending{to{box-shadow:0 0 13px #62d9ff!important}}}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-card[data-tone=back] strong,#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-card[data-tone=back] strong{font-size:0!important}
+#onePartyGame.isDouze .dzp-game .dzp-stage{height:clamp(490px,calc(100dvh - 190px),735px)!important}

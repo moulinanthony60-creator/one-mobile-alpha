@@ -12,7 +12,7 @@
  async function command(action,params='',question){
   if(busy||question&&!confirm(question))return;
   busy=true;readEpoch++;readAbort?.abort();const own=version;
-  panel.setAttribute('aria-busy','true');status.textContent='Confirmation en cours…';
+  panel.setAttribute('aria-busy','true');status.textContent='';const waiting=setTimeout(()=>{if(busy&&own===version)status.textContent='Synchronisation…';},900);
   body.querySelectorAll('button[data-game-control]').forEach(b=>b.disabled=true);
   try{
    await api(action,'POST',params);
@@ -21,7 +21,7 @@
    if(synced)status.textContent='';
    return true;
   }catch(e){if(own===version){if(e.status===409)await window.oneRefreshSalonState?.(true);status.textContent=e.message;await load(true,true);}return false;}
-  finally{if(own===version){busy=false;panel.removeAttribute('aria-busy');render();}}
+  finally{clearTimeout(waiting);if(own===version){busy=false;panel.removeAttribute('aria-busy');render();}}
  }
  async function load(force=false,keepError=false){
   if(!room||!force&&busy)return false;
