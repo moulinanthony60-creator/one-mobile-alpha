@@ -25,3 +25,16 @@
 #onePartyGame.isBluff:after{display:none!important}
 
 #onePartyGame .bf-cinema.bf-verdict{background:linear-gradient(#09051188,#090511bb),url('bluff-lounge-117r.png') center/cover!important}#onePartyGame .bf-cinema.bf-verdict:before{display:none!important}
+
+#onePartyGame.isBluff .bluff-scene .bf-player>.bf-attempts{display:block!important;position:relative!important;inset:auto!important;margin:3px auto 0!important;padding:3px 7px!important;width:max-content!important;min-width:34px;max-width:none!important;border:1px solid #d5ad63;border-radius:8px;background:#150e20ee;color:#ffe4a1;font:800 12px/1.2 Arial!important;overflow:visible!important;white-space:nowrap}
+#onePartyGame.isBluff .bluff-scene .bf-own{bottom:10%!important}
+
+#onePartyGame .bf-cinema .bf-reveal-info{position:absolute;left:8%;right:8%;bottom:17%;padding:12px;border:1px solid #c7a77288;border-radius:12px;background:#100b20e8;text-align:center;font-size:14px!important;line-height:1.5;z-index:6}
+#onePartyGame .bf-revealing .bf-verdict-cards{position:absolute!important;left:50%!important;top:43%!important;transform:translateX(-50%)!important;display:flex!important;gap:10px;perspective:700px;width:max-content!important}
+#onePartyGame .bf-revealing .bf-verdict-cards span{width:70px!important;height:100px!important;font:bold 18px Georgia!important;margin:0!important;display:grid;place-items:center}
+#onePartyGame .bf-revealing .bf-verdict-cards .bf-reveal-back{background:repeating-linear-gradient(45deg,#211331 0 7px,#32204a 7px 8px)!important;color:#f4d493!important;border:2px solid #d4b06f!important}
+#onePartyGame .bf-cinema .bf-verdict-cards span{font-size:17px!important}
+
+#onePartyGame.isBluff .bluff-scene .bluff-actions .bluff-play{background:linear-gradient(135deg,#bb48ff,#7725f5)!important;border:1px solid #e8a5ff!important;color:#fff!important;box-shadow:inset 0 1px 0 #ffffff60,0 0 15px #a02dff66!important;font-weight:800!important}
+#onePartyGame.isBluff .bluff-scene .bluff-actions .bluff-accuse{background:linear-gradient(135deg,#ff475b,#db1433)!important;border:1px solid #ffafb8!important;color:#fff!important;box-shadow:inset 0 1px 0 #ffffff60,0 0 15px #ff264c55!important;font-weight:800!important}
+#onePartyGame.isBluff .bluff-scene .bluff-actions button:disabled{opacity:.65!important;box-shadow:none!important;cursor:not-allowed}

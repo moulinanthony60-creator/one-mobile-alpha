@@ -1,0 +1,2 @@
+Importer ui, assets et sw.js a la racine GitHub apres extraction. Commit changes.
+117W : tentatives Bluff, retournement des cartes avec verdict nominatif, hauteur Douze selon espace disponible, notification de proposition de jeu.

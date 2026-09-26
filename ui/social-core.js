@@ -1,6 +1,6 @@
 /* Shared presentation; existing API contracts are unchanged. */
 (()=>{
- const polish=document.createElement('link');polish.rel='stylesheet';polish.href='ui/salon-polish.css?v=117o';document.head.append(polish);
+ const polish=document.createElement('link');polish.rel='stylesheet';polish.href='ui/salon-polish.css?v=117w';document.head.append(polish);
  const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
  const button=(text,fn,cls='os-button')=>{const n=el('button',text,cls);n.type='button';n.onclick=fn;return n;};
  async function api(path,method='GET',body){const token=window.oneAccountToken?.();if(!token)throw Error('Connecte-toi à ONE pour continuer.');const r=await fetch('https://one-comments-api.moulinanthony60.workers.dev'+path,{method,headers:{Authorization:'Bearer '+token,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(12000)});const d=await r.json().catch(()=>({}));if(token!==window.oneAccountToken?.())throw Error('Le compte a changé.');if(!r.ok||!d.ok)throw Object.assign(Error(d.error||'Connexion indisponible. Réessaie.'),{status:r.status});return d;}
@@ -22,5 +22,13 @@
  function player(m){const row=el('article',undefined,'os-member');row.dataset.member=m.isYou?'local':m.accountId;const face=el('div',undefined,'os-face');face.dataset.cameraSeat=row.dataset.member;face.append(avatar(m));const presence=el('span',undefined,'os-presence');presence.title='Membre du salon · présence instantanée non fournie';face.append(presence);const mic=el('span','🎤 —','os-member-mic');mic.setAttribute('aria-label','État micro inconnu');face.append(mic);if(m.isHost)face.append(el('span','👑','os-crown'));row.append(face,el('b',m.name),el('small',m.isHost?'Hôte · dans le salon':'Dans le salon'));return row;}
  function syncMedia(){for(const row of document.querySelectorAll('.os-member[data-member]')){const state=window.ONEPartyMedia?.memberStatus?.(row.dataset.member),mic=row.querySelector('.os-member-mic'),dot=row.querySelector('.os-presence');if(mic){mic.textContent=state?.mic===true?'🎤':state?.mic===false?'🔇':'🎤 —';mic.setAttribute('aria-label',state?.mic===true?'Micro actif':state?.mic===false?'Micro coupé':'État micro inconnu');}if(dot){dot.dataset.online=String(!!state?.connected);dot.title=state?.connected?'Dans l’appel':'Membre du salon · présence instantanée non fournie';}}}
  window.addEventListener('one-media-state',syncMedia);window.addEventListener('one-salon-rendered',syncMedia);
+
+ let proposalBanner=null,proposalKey='',dismissedProposal='';
+ window.addEventListener('one-party-state',e=>{const room=e.detail,a=room?.activity,me=room?.members?.find(m=>m.isYou),key=a?room.id+':'+a.id:'';
+  if(!a||me?.ready){proposalBanner?.remove();proposalBanner=null;proposalKey='';return;}
+  if(key===dismissedProposal||proposalBanner&&key===proposalKey)return;
+  proposalBanner?.remove();proposalKey=key;const box=el('section',undefined,'one-proposal-banner');box.setAttribute('aria-label','Jeu proposé dans le salon');const message=el('p','Le salon '+room.name+' propose '+(games().find(g=>g.id===a.kind)?.name||a.kind)+' — Prêt ?');message.setAttribute('role','status');const open=button('Prêt',async()=>{const current=window.oneSocialRoom?.();if(current?.id!==room.id||current?.activity?.id!==a.id){box.remove();proposalBanner=null;return;}open.disabled=true;try{await setReady(current,current.activity,true,message);}finally{if(open.isConnected)open.disabled=false;}},'os-primary');const dismiss=button('×',()=>{dismissedProposal=key;box.remove();proposalBanner=null;});dismiss.setAttribute('aria-label','Masquer la proposition');box.append(message,open,dismiss);document.body.append(box);proposalBanner=box;
+ });
+ window.addEventListener('one-account-changed',()=>{proposalBanner?.remove();proposalBanner=null;proposalKey='';dismissedProposal='';});
  window.ONEUI={el,button,api,icon,avatar,dialog,qr,copy,tile,games,activity,propose,player,syncMedia};
 })();

@@ -136,3 +136,13 @@
 #onePartyGame.isDouze .dzp-game .dzp-card{touch-action:manipulation;transition:transform 60ms,box-shadow 60ms!important;-webkit-user-select:none;user-select:none}
 #onePartyGame.isDouze .dzp-game .dzp-card.dzp-touch{transition:none!important;transform:translateY(-2px) scale(.97)!important;filter:brightness(1.2)}
 #onePartyGame.isDouze .dzp-game .dzp-flip,#onePartyGame.isDouze .dzp-game .dzp-replace,#onePartyGame.isDouze .dzp-game .dzp-to-discard,#onePartyGame.isDouze .dzp-game .dzp-draw-in{animation-duration:120ms!important;animation-delay:0ms!important}
+
+@media(max-width:600px){
+#onePartyGame.isDouze .dzp-game .dzp-stage{height:var(--dz-stage,calc(100dvh - 155px))!important;min-height:0!important}
+#onePartyGame.isDouze .dzp-game .dzp-own{top:61%!important;width:min(76%,clamp(164px,calc(var(--dz-stage,500px) * .39),280px))!important}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-grid{gap:4px!important}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-card strong{font-size:clamp(21px,6vw,30px)!important}
+#onePartyGame.isDouze .dzp-game .dzp-own .dzp-card[data-tone=back] strong{font-size:0!important}
+#onePartyGame.isDouze .dzp-game .dzp-actions{margin-top:4px!important}
+#onePartyGame.isDouze .oneGameBody{min-height:0!important}
+}
