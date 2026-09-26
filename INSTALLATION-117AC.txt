@@ -1,0 +1,11 @@
+ONE — Fluidité de l’interface 117AC
+Extraire le ZIP. Déposer ui, assets et sw.js à la racine du dépôt GitHub puis Commit changes.
+Après le déploiement, recharger une fois les pages ouvertes sur PC et téléphone.
+- Retour visuel immédiat à l’appui sur les boutons, liens et menus.
+- Gestes tactiles sans activation en cas de glissement ou annulation.
+- Choix Garder/Défausser de Douze mis à jour sur place : grille, focus et caméras conservés.
+- Traitements d’affichage doublés supprimés dans Bluff ; avatar conservé entre les mises à jour.
+- Boutons communs du salon : état d’attente et protection contre les doubles demandes.
+- Calcul de la hauteur mobile regroupé sur une seule image.
+Tests locaux réussis, clavier et compteur compris. La latence du serveur est inchangée.
+Inclut tous les correctifs précédents.
