@@ -1,7 +1,7 @@
 /* Catalogue controls use persistent IDs; no owner media URLs or provider credentials. */
 (()=>{
  const store=window.ONECatalogue;if(!store)return;const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
- const style=el('link');style.rel='stylesheet';style.href='ui/catalog-manager.css?v=014116';document.head.append(style);
+ const style=el('link');style.rel='stylesheet';style.href='ui/catalog-manager.css?v=014117';document.head.append(style);
  const section=el('section');section.className='one-catalogue';section.setAttribute('aria-label','Catalogue TikTok et sauvegardes');const title=el('h3','Catalogue TikTok'),status=el('p','Ouverture des sauvegardes…'),actions=el('div'),history=el('details'),summary=el('summary','Historique des sauvegardes'),list=el('div'),search=el('input'),entriesList=el('div');status.setAttribute('role','status');actions.className='one-catalogue-actions';history.append(summary,list);search.type='search';search.placeholder='Rechercher une vidéo ou un créateur';search.setAttribute('aria-label','Rechercher dans le catalogue');section.append(title,status,actions,history,search,entriesList);document.getElementById('tiktokExternalStatus')?.after(section);
  function button(text,fn,parent=actions){const b=el('button',text);b.type='button';b.onclick=async()=>{b.disabled=true;try{await fn();await paint();}catch(e){status.textContent=e.message;}finally{b.disabled=false;}};parent.append(b);return b;}
  function download(data,name){const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}
