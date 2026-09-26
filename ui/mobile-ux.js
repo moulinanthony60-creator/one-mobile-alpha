@@ -1,5 +1,5 @@
 (()=>{
- const css=document.createElement('link');css.rel='stylesheet';css.href='ui/mobile-ux.css?v=014105';document.head.append(css);
+ const css=document.createElement('link');css.rel='stylesheet';css.href='ui/mobile-ux.css?v=014117';document.head.append(css);
  // VisualViewport follows the keyboard on browsers whose layout viewport does not shrink.
  let frame=0;
  const update=()=>{frame=0;const v=window.visualViewport,s=document.documentElement.style;
