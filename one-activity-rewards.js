@@ -1,0 +1,35 @@
+(()=>{
+ const API='https://one-comments-api.moulinanthony60.workers.dev';
+ let session=crypto.randomUUID(),seq=0,token=window.oneAccountToken?.(),elapsed=0,lastTick=performance.now(),sending=false;
+ const frames=new Map(),nativeTimes=new WeakMap(),twitchPlayers=new Map();
+ window.ONETrackedTwitchPlayer=function(target,options){const player=new Twitch.Player(target,options),host=typeof target==='string'?document.getElementById(target):target;const state={host,playing:false,time:null};twitchPlayers.set(player,state);if(host)host.dataset.oneRewardTwitch='1';player.addEventListener(Twitch.Player.PLAYING,()=>state.playing=true);for(const event of [Twitch.Player.PAUSE,Twitch.Player.ENDED,Twitch.Player.OFFLINE,Twitch.Player.PLAYBACK_BLOCKED])player.addEventListener(event,()=>state.playing=false);return player;};
+ function visible(node){if(document.hidden||document.querySelector('#onePointsPanel[open]'))return false;const slide=node.closest('.vslide');if(slide&&slide.dataset.active!=='1')return false;const r=node.getBoundingClientRect();return r.width>30&&r.height>30&&r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth&&getComputedStyle(node).visibility!=='hidden'&&!!node.getClientRects().length;}
+ function eligible(node){return !!node.closest('#vfeed,#playerModal,#feed,#oneChannelPlayer,.oneSplitMedia,.oneTwMini,.oneLandscapeMedia');}
+ function arm(frame){if(frames.has(frame)||!eligible(frame))return;let url;try{url=new URL(frame.src);}catch{return;}
+  if(url.hostname==='player.twitch.tv'&&window.Twitch?.Player&&!frame.closest('[data-one-reward-twitch]')){const channel=url.searchParams.get('channel'),video=url.searchParams.get('video');if(!channel&&!video)return;const host=document.createElement('div');host.id='one_reward_tw_'+crypto.randomUUID();host.style.cssText=frame.style.cssText;host.style.width='100%';host.style.height=Math.max(300,frame.getBoundingClientRect().height)+'px';frame.replaceWith(host);new window.ONETrackedTwitchPlayer(host.id,{width:'100%',height:'100%',parent:[location.hostname],autoplay:url.searchParams.get('autoplay')!=='false',muted:url.searchParams.get('muted')==='true',...(channel?{channel}:{video})});return;}
+  if(!['www.youtube.com','www.youtube-nocookie.com','www.tiktok.com'].includes(url.hostname))return;
+  const item={time:null,progress:0,playing:false,origin:url.origin};frames.set(frame,item);
+  if(url.hostname.includes('youtube')){if(url.searchParams.get('enablejsapi')!=='1'){url.searchParams.set('enablejsapi','1');url.searchParams.set('origin',location.origin);frame.src=url.href;}
+   const subscribe=()=>{frame.contentWindow?.postMessage(JSON.stringify({event:'listening',id:'one_rewards'}),url.origin);frame.contentWindow?.postMessage(JSON.stringify({event:'command',func:'addEventListener',args:['onStateChange']}),url.origin);};frame.addEventListener('load',subscribe);subscribe();
+  }
+ }
+ window.addEventListener('message',e=>{const pair=[...frames].find(([f])=>f.contentWindow===e.source);if(!pair)return;const [frame,item]=pair;if(e.origin!==item.origin)return;let d=e.data;try{if(typeof d==='string')d=JSON.parse(d);}catch{return;}if(!d)return;
+  let time=null;if(item.origin.includes('youtube')){if(d.event==='onStateChange')item.playing=Number(d.info)===1;if(d.event==='infoDelivery'){if(d.info?.playerState!==undefined)item.playing=Number(d.info.playerState)===1;if(Number.isFinite(d.info?.currentTime))time=d.info.currentTime;}}
+  else if(d['x-tiktok-player']===true){if(d.type==='onStateChange')item.playing=Number(d.value)===1;if(d.type==='onCurrentTime')time=Number(d.value?.currentTime??d.value);}
+  if(Number.isFinite(time)){if(item.time!==null&&time>item.time&&time-item.time<4&&visible(frame)){item.progress=performance.now();item.playing=true;}item.time=time;}
+ });
+ async function pulse(){const current=window.oneAccountToken?.();if(current!==token){token=current;session=crypto.randomUUID();seq=0;elapsed=0;}if(!token||sending)return;const captured=token,activeMs=Math.min(15000,Math.floor(elapsed));elapsed=0;sending=true;
+  try{const r=await fetch(API+'/points/watch',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({session,seq:seq++,activeMs}),signal:AbortSignal.timeout(8000)});const d=await r.json();if(r.ok&&captured===window.oneAccountToken?.()){window.ONEUpdateBalance?.(d.balance);const status=document.getElementById('oneWatchProgress');if(status)status.textContent=(d.watchSeconds||0)+' / 60 s vers le prochain point';}}
+  catch{}finally{sending=false;}
+ }
+ function showRules(){const panel=document.getElementById('onePointsPanel');if(!panel||panel.querySelector('.oneActivityRules'))return;const note=document.createElement('aside');note.className='oneActivityRules';note.innerHTML='<strong>Gagne des Points ONE</strong><span>Lecture : 1 point / minute · Party : 10 points / partie terminée</span><small id="oneWatchProgress">Lecture active sur ONE, avec ton compte connecté.</small>';panel.querySelector('.onePointsTabs')?.after(note);}
+ const css=document.createElement('style');css.textContent='#onePointsPanel .oneActivityRules{margin:10px 16px 0;padding:10px 12px;border:1px solid #c8a66455;border-radius:10px;background:#0d172555;display:grid;gap:4px;text-align:left}#onePointsPanel .oneActivityRules strong{font-size:12px;color:#f6d894}#onePointsPanel .oneActivityRules span,#onePointsPanel .oneActivityRules small{font-size:10px;color:#e7dfed;line-height:1.5}';document.head.append(css);
+ setInterval(()=>{const now=performance.now(),dt=Math.min(1500,now-lastTick);lastTick=now;document.querySelectorAll('#vfeed iframe,#playerModal iframe,#feed iframe,#oneChannelPlayer iframe,.oneSplitMedia iframe,.oneTwMini iframe,.oneLandscapeMedia iframe').forEach(arm);for(const [f]of frames)if(!f.isConnected)frames.delete(f);let playing=[...frames].some(([f,x])=>visible(f)&&x.playing&&now-x.progress<2500);
+  for(const [player,state]of twitchPlayers){if(!state.host?.isConnected){twitchPlayers.delete(player);continue;}try{const t=player.getCurrentTime(),previous=state.time;state.time=t;if(!visible(state.host)||!state.playing||player.isPaused()||player.getEnded())continue;if(player.getVideo()){if(previous!==null&&t>previous&&t-previous<4)playing=true;}else{const stats=player.getPlaybackStats();if(stats.bufferSize>0&&stats.playbackRate>0&&(stats.fps===undefined||stats.fps>0))playing=true;}}catch{}}
+  document.querySelectorAll('#vfeed video,#playerModal video,#feed video').forEach(v=>{const prior=nativeTimes.get(v);nativeTimes.set(v,v.currentTime);if(!v.srcObject&&visible(v)&&!v.paused&&!v.ended&&v.readyState>=2&&prior!==undefined&&v.currentTime>prior&&v.currentTime-prior<4)playing=true;});
+  if(token===window.oneAccountToken?.()&&token&&playing)elapsed+=dt;showRules();
+ },1000);
+ window.addEventListener('one-account-changed',()=>{elapsed=0;frames.forEach(x=>{x.progress=0;x.playing=false;});pulse();});
+ document.addEventListener('visibilitychange',()=>{lastTick=performance.now();frames.forEach(x=>x.progress=0);});setInterval(pulse,10000);pulse();showRules();
+})();
+

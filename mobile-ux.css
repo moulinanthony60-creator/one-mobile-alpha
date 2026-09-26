@@ -1,0 +1,105 @@
+/* Mobile corrections shared by existing screens; colours and game rules are unchanged. */
+#onePartyGame button[data-game-control]{touch-action:manipulation}
+#onePartyGame .oneActionPending{outline:3px solid #e2c286!important;outline-offset:2px;filter:brightness(1.15)}
+#onePartyGame button[data-game-control]:active:not(:disabled){filter:brightness(1.2)}
+#onePartyGame>p[role=status]:empty{display:none}
+#onePartyGame>p[role=status]{margin:4px 10px;font-size:12px}
+#oneNotificationsList article>b{display:block;padding-right:40px;overflow-wrap:break-word}
+#oneNotificationsList article>small{display:block;margin-top:4px}
+#oneNotificationsList article{position:relative;padding:10px 8px}
+#oneNotificationsList .oneDismissNotification{position:absolute;right:0;top:4px;float:none}
+#oneNotificationsList article>p{margin:6px 0}
+#onePartyGame .onePlayerName{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#onePartyGame .pl-member b:has(.onePlayerName),#onePartyGame .dz-player-head h3:has(.onePlayerName),#onePartyGame .ppName:has(.onePlayerName){display:flex;gap:3px;min-width:0}
+#onePartyGame .ppName:has(.onePlayerName){justify-content:center}
+#onePartyGame .onePlayerName+span{flex-shrink:0;white-space:nowrap}
+@media(max-width:600px){
+ .app{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+ .app .topbar{padding:calc(6px + env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) 6px max(8px,env(safe-area-inset-left))}
+ .app .brandrow{display:flex;flex-wrap:wrap;gap:4px;min-width:0}
+ .app .brandrow .brand{font-size:26px;flex-shrink:0}
+ .app .brandrow:after{margin:0 auto 0 3px;order:0;font-size:9px}
+ .app .oneHeaderTools{gap:2px!important;flex-shrink:0;margin-left:auto}
+ .app .oneHeaderTools button,.app #oneSalonsToggle{width:40px;min-width:40px;height:44px}
+ .app .accountBtn{flex-shrink:0}
+ .app .oneMainNav{gap:5px;padding:6px 0}
+ .app .oneMainNav button{min-width:0;padding:7px 5px;gap:5px;min-height:52px}
+ .app .oneMainNav button>span:last-child{min-width:0}
+ .app .oneMainNav small{line-height:1.3}
+ .app .bottom{padding-bottom:calc(7px + env(safe-area-inset-bottom));padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+ .app .oneShell{padding:10px 8px calc(80px + env(safe-area-inset-bottom))}
+ .app .search input{min-width:0;font-size:16px}
+ #oneSalonTray{top:calc(var(--one-view-top,0px) + env(safe-area-inset-top) + 8px);bottom:auto;right:max(8px,env(safe-area-inset-right));width:calc(100% - 16px);max-width:480px;max-height:calc(var(--one-view-height,100dvh) - 90px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overscroll-behavior:contain}
+ #oneSalonTray>header{padding:6px 10px}#oneSalonTray>header h2{margin:6px 0}
+ #oneSalonBody{padding:8px}#oneSalonBody .onePartyControls{gap:6px}
+ #oneSalonBody .onePartyControls>button{margin:0;text-align:left;min-height:44px;padding:8px 10px;font-size:13px}
+ #oneSalonBody .onePartyControls article{padding:10px;margin-bottom:8px}
+ #oneSalonBody .onePartyControls h2{font-size:17px;margin:6px 0}
+ #oneSalonBody .onePartyControls h3{font-size:14px;margin:8px 0}
+ #oneSalonBody .onePartyControls p{font-size:12px;margin:6px 0}
+ #oneSalonBody .onePartyControls input,#oneSalonBody .onePartyControls select{padding:8px;margin:5px 0;min-height:44px;font-size:16px}
+ #oneSalonBody .onePartyControls button{padding:8px;min-height:44px;font-size:13px;max-width:100%}
+ #oneSalonBody .onePublicChoice{padding:10px;margin:8px 0}
+ #oneNotifications{position:fixed;top:calc(var(--one-view-top,0px) + env(safe-area-inset-top) + 8px);left:8px;right:8px;z-index:170;max-height:calc(var(--one-view-height,100dvh) - 90px - env(safe-area-inset-bottom));overflow:auto;overscroll-behavior:contain}
+ .topbar #oneNotifications{padding:10px;background:#111526}
+ #oneNotifications .oneNoticeHead{position:sticky;top:-10px;background:#111526;z-index:2;padding:6px 0}
+ #oneNotifications button{min-height:44px;margin:2px;font-size:12px}
+ #oneNotifications>div:nth-child(2){display:flex;flex-wrap:wrap;gap:4px}
+ .modal{top:var(--one-view-top,0px);bottom:auto;height:var(--one-view-height,100dvh)}
+ .modal .sheet{max-height:calc(var(--one-view-height,100dvh) - 12px);padding:14px 12px calc(16px + env(safe-area-inset-bottom))}
+ #onePartyGame.gameFullscreen{top:var(--one-view-top,0px);bottom:auto;height:var(--one-view-height,100dvh);box-sizing:border-box;padding:env(safe-area-inset-top) max(6px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
+ #onePartyGame .cg-topbar{padding:8px 4px;gap:8px}
+ #onePartyGame .cg-topbar h2{font-size:17px}
+ #onePartyGame .cg-menu>summary{min-height:44px;box-sizing:border-box;display:flex;align-items:center}
+ #onePartyGame .cg-menu .cg-tools{width:min(260px,calc(100vw - 32px));max-width:none;gap:0;padding:6px;max-height:calc(var(--one-view-height,100dvh) - 120px - env(safe-area-inset-bottom))}
+ #onePartyGame .cg-menu .cg-tools button{margin:0;padding:8px 10px;min-height:44px;border-radius:0;border:0;border-bottom:1px solid #ffffff15;background:transparent;font-size:13px;box-shadow:none;white-space:normal}
+ #onePartyGame .cg-menu .cg-close-game{width:100%;font-size:20px!important}
+ #onePartyGame .cg-menu .cg-footer details{padding:0}#onePartyGame .cg-menu summary{padding:10px;min-height:44px;box-sizing:border-box}
+ #onePartyGame .pl-setup{grid-template-columns:minmax(0,1fr);padding:10px;gap:10px}
+ #onePartyGame .pl-member>div{min-width:0;flex:1}
+ #onePartyGame .pl-member b{overflow-wrap:normal;word-break:normal;white-space:nowrap;display:block;overflow:hidden;text-overflow:ellipsis}
+ #onePartyGame .pl-selected-game{gap:8px}#onePartyGame .pl-selected-game .pl-detail{min-width:0}
+ #onePartyGame .pl-actions{flex-wrap:wrap}#onePartyGame .pl-actions button{flex:1 1 130px;min-height:44px}
+ #onePartyGame .dz-game{padding:10px 7px}
+ #onePartyGame .dz-heading{gap:6px;padding-bottom:8px;flex-wrap:wrap}
+ #onePartyGame .dz-instruction{margin:8px 0;min-height:0}
+ #onePartyGame .dz-rivals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #onePartyGame .dz-rivals .dz-seat{min-width:0;max-width:none;padding:6px}
+ #onePartyGame .dz-player-head{flex-wrap:wrap;gap:5px}
+ #onePartyGame .dz-player-head h3{overflow-wrap:normal;word-break:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-size:12px}
+ #onePartyGame .dz-scores{gap:5px;flex-wrap:wrap;margin:6px 0}
+ #onePartyGame .dz-scores>span{gap:3px}
+ #onePartyGame .dz-grid{gap:5px}
+ #onePartyGame .dz-center{padding:8px;gap:10px;margin:10px auto;box-sizing:border-box}
+ #onePartyGame .dz-center>div,#onePartyGame .dz-center .dz-card{width:58px}
+ #onePartyGame .dz-held{padding-left:7px}
+ #onePartyGame .dz-own{max-width:330px;padding:9px;margin-top:10px}
+ #onePartyGame .dz-own .dz-card{min-height:58px}
+ #onePartyGame .dz-modes{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+ #onePartyGame .dz-modes button{min-width:0;font-size:12px;padding:7px;min-height:44px}
+ #onePartyGame .dz-result{padding:8px}#onePartyGame .dz-result td,#onePartyGame .dz-result th{padding:6px 3px;overflow-wrap:break-word}
+ #onePartyGame.isPoker .ppCommunity .ppCard{width:clamp(29px,8vw,44px);height:clamp(44px,12vw,66px)}
+ #onePartyGame.isPoker .ppStage{height:450px;margin:12px 0}
+ #onePartyGame .ppActions,#onePartyGame .ppPresets{flex-wrap:wrap}
+ #onePartyGame .ppActions button{flex:1 1 75px;min-width:0;min-height:44px}
+ #onePartyGame .ppPresets button{min-height:44px;flex:1 1 60px}
+ #onePartyGame .ppNext{grid-template-columns:1fr}
+ #onePartyGame #oneGameCallDock #oneCallBar{margin:8px 0;padding:6px}
+ #oneGameExitConfirm{top:calc(var(--one-view-top,0px) + 12px);max-height:calc(var(--one-view-height,100dvh) - 24px);overflow:auto;padding:14px}
+}
+@media(max-width:600px){
+ .app .brandrow{display:grid;grid-template-columns:minmax(53px,1fr) auto 36px;gap:3px;min-height:52px}
+ .app .brandrow .brand{grid-column:1;grid-row:1;align-self:start;margin-top:3px;font-size:25px}
+ .app .brandrow:after{grid-column:1;grid-row:1;align-self:end;justify-self:start;margin:0 0 3px;font-size:8px}
+ .app .oneHeaderTools{grid-column:2;grid-row:1;gap:0!important;margin:0}
+ .app .oneHeaderTools button,.app #oneSalonsToggle{width:36px;min-width:36px;height:44px}
+ .app #onePointsToggle{width:36px!important;min-width:36px!important;padding:2px!important}
+ .app .accountBtn>*{max-width:100%}
+ .app .accountBtn{grid-column:3;grid-row:1;width:36px!important;min-width:36px!important;height:44px!important;padding:0!important}
+ #onePartyGame .pc-game{padding:12px 8px}
+ #onePartyGame .pc-arena{padding:10px 6px}
+ #onePartyGame .pc-players{gap:6px;margin:10px 0}
+ #onePartyGame .pc-player{min-width:0;max-width:100%;padding:6px}
+ #onePartyGame .pc-player b{word-break:normal;overflow-wrap:break-word}
+}
+@media(max-width:360px){.app .oneMainNav small{font-size:8px}.app .oneMainNav .oneVectorIcon{width:22px;height:22px}}
