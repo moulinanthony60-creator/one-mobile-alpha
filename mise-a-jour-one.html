@@ -1,0 +1,9 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mettre ONE à jour</title><style>body{background:#080d1c;color:#edf5ff;font:16px system-ui;max-width:480px;margin:60px auto;padding:20px}button,a{display:block;padding:16px;margin:20px 0;border-radius:12px;background:#7440ee;color:white;border:0;font:inherit;text-align:center}#status{line-height:1.6}</style><h1>Mettre ONE à jour</h1><p>Cette opération met à jour l’application. Ton catalogue, ton compte et les données enregistrées sont conservés.</p><button id="update">Lancer la mise à jour</button><p id="status" role="status"></p><a href="./?actualisation=117i" hidden id="open">Ouvrir ONE</a><script>
+const button=document.getElementById('update'),status=document.getElementById('status'),openLink=document.getElementById('open');
+button.onclick=async()=>{button.disabled=true;status.textContent='Téléchargement de la mise à jour…';try{
+ if(!navigator.serviceWorker)throw Error('Ouvre cette page dans Chrome.');
+ const reg=await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'});await reg.update();
+ const worker=reg.installing||reg.waiting;if(worker){worker.postMessage({type:'SKIP_WAITING'});await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Mise à jour encore en attente. Réessaie dans une minute.')),60000);function check(){if(worker.state==='activated'){clearTimeout(timer);resolve();}else if(worker.state==='redundant'){clearTimeout(timer);reject(Error('Installation impossible. Réessaie après le déploiement GitHub.'));}}worker.addEventListener('statechange',check);check();});}
+ status.textContent='Mise à jour installée. Ferme les autres onglets ONE, puis touche Ouvrir ONE.';openLink.hidden=false;
+ }catch(error){status.textContent=error.message;}finally{button.disabled=false;}};
+</script></html>
