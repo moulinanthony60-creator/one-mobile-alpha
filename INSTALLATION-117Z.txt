@@ -1,0 +1,6 @@
+ONE — Correctif 117Z
+Extraire le ZIP. Copier ui, assets et sw.js à la racine du dépôt GitHub, puis Commit changes.
+Attendre la fin du déploiement GitHub Pages et rouvrir le site.
+Contient les corrections précédentes + cartes révélées lisibles, annonce masquée avant revolver, modèle retravaillé, flash/recul/fumée et sons enregistrés CC0.
+Les fichiers AUDIO-LICENSE-117Z.txt indiquent les sources des sons.
+Vérifié localement ; non déployé automatiquement.

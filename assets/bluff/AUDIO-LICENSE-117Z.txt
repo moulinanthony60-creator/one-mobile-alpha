@@ -1,0 +1,7 @@
+Recorded audio, CC0 / public domain. Excerpts trimmed, mono, level adjusted.
+revolver-shot-117z.wav: Ruger Single Six, S_14P.wav, 0.65–2.75 s.
+Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney — The Free Firearm Sound Library.
+https://opengameart.org/content/the-free-firearm-sound-library
+revolver-click-117z.wav: Revolver Dryfire, 18.30–18.66 s, AugustSandberg.
+https://freesound.org/people/AugustSandberg/sounds/508745/
+https://creativecommons.org/publicdomain/zero/1.0/
