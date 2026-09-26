@@ -146,3 +146,10 @@
 #onePartyGame.isDouze .dzp-game .dzp-actions{margin-top:4px!important}
 #onePartyGame.isDouze .oneGameBody{min-height:0!important}
 }
+
+/* 117AD — engraved backs, one crisp wordmark instead of overlapping labels. */
+#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=back]{background:#07152f url('card-back-douze-117ad.svg') center/100% 100% no-repeat!important;border:1px solid #e2c078!important;box-shadow:0 3px 5px #0008,inset 0 0 0 1px #fff4!important;overflow:hidden!important}
+#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=back]>strong,#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=back]>small{display:none!important}
+#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=back]:before{display:none!important}
+#onePartyGame.isDouze .dzp-game .dzp-card[data-tone=back]:after,#onePartyGame.isDouze .dzp-game .dzp-own .dzp-card[data-tone=back]:after{content:'ONE'!important;display:grid!important;place-items:center;position:absolute;inset:0!important;color:#ffe7ac;font:900 15px/1 Arial,sans-serif!important;letter-spacing:.05em!important;text-shadow:0 1px 1px #000,0 0 6px #dcab4844;pointer-events:none}
+#onePartyGame.isDouze .dzp-game .dzp-rival .dzp-card[data-tone=back]:after{font-size:6px!important;letter-spacing:0!important}

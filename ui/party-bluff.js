@@ -1,5 +1,5 @@
 (()=>{
- const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-bluff.css?v=014117';document.head.append(css);const finish=document.createElement('link');finish.rel='stylesheet';finish.href='ui/bluff-polish.css?v=117y';document.head.append(finish);
+ const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-bluff.css?v=014117';document.head.append(css);const finish=document.createElement('link');finish.rel='stylesheet';finish.href='ui/bluff-polish.css?v=117ad';document.head.append(finish);
  const ranks={A:'As',K:'Roi',Q:'Dame',J:'Joker'},symbols={A:'♠',K:'♚',Q:'♛',J:'✦'};let selection=new Set(),selectionKey='';
  // Keep counters live even when a stable table or cinematic skips a full render.
  function syncAttemptCounters(g){

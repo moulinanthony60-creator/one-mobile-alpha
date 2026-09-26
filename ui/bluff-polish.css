@@ -45,3 +45,5 @@
 #onePartyGame .bf-cinema.bf-revealing .bf-verdict-cards span{width:clamp(74px,20vw,110px)!important;height:clamp(110px,28vw,156px)!important;background:linear-gradient(135deg,#fffdf4,#e9dfc7)!important;color:#182032!important;border:2px solid #efd19b!important;box-shadow:0 8px 22px #0009!important;font:bold clamp(24px,5vw,34px) Georgia!important}
 #onePartyGame .bf-cinema.bf-revealing .bf-verdict-cards .bf-reveal-back{background:linear-gradient(135deg,#4e286f,#170e29)!important;color:#ffe6a7!important}
 #onePartyGame .bf-cinema.bf-verdict .bf-verdict-cards[hidden],#onePartyGame .bf-cinema.bf-verdict .bf-reveal-info[hidden]{display:none!important}
+
+#onePartyGame.isBluff .bluff-scene .bf-deck,#onePartyGame.isBluff .bluff-scene .bf-backs i,#onePartyGame.isBluff .bluff-scene .bf-card-back,#onePartyGame .bf-cinema.bf-revealing .bf-verdict-cards .bf-reveal-back{background:#190d29 url('card-back-bluff-117ad.svg') center/100% 100% no-repeat!important;border-color:#efd494!important;color:#ffe5ac!important;text-shadow:0 1px 2px #000;box-shadow:0 3px 6px #0008!important}

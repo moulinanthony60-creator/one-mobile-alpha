@@ -1,5 +1,5 @@
 (()=>{
- const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-douze.css?v=014117';document.head.append(css);const targetCss=document.createElement('link');targetCss.rel='stylesheet';targetCss.href='ui/douze-target.css?v=117v';document.head.append(targetCss);
+ const css=document.createElement('link');css.rel='stylesheet';css.href='ui/party-douze.css?v=014117';document.head.append(css);const targetCss=document.createElement('link');targetCss.rel='stylesheet';targetCss.href='ui/douze-target.css?v=117ad';document.head.append(targetCss);
  let choice='replace',choiceKey='',previous=null;
  let fitFrame=0;
  function fitPhone(){if(fitFrame)return;if(!matchMedia('(max-width:600px)').matches)return;fitFrame=requestAnimationFrame(()=>{fitFrame=0;const root=document.querySelector('#onePartyGame.isDouze .dzp-game');if(!root)return;const vh=window.visualViewport?.height||window.innerHeight,top=Math.max(0,root.getBoundingClientRect().top),controls=root.querySelector('.dzp-actions')?.getBoundingClientRect().height||0,heading=root.querySelector('.dzp-heading')?.getBoundingClientRect().height||0;root.style.setProperty('--dz-stage',Math.max(300,Math.floor(vh-top-controls-heading-30))+'px');});}

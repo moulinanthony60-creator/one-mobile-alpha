@@ -1,0 +1,37 @@
+ONE — VISUELS ET RÉDUCTION DES APPELS — 117AD
+
+PACK CUMULATIF : reprend les correctifs 117AC et précédents.
+
+INSTALLATION
+1. Extraire ce ZIP.
+2. Déposer les dossiers ui et assets, ainsi que sw.js, à la racine du dépôt GitHub du site. Remplacer les fichiers existants.
+3. Valider avec Commit changes, attendre le déploiement du site, puis recharger une fois sur PC et téléphone.
+Ce fichier est prêt à installer ; il ne publie rien automatiquement.
+
+VISUELS
+- Dos des cartes Douze et Bluff : nouveaux motifs vectoriels, lignes dorées et texte plus net.
+- Salon : en-tête, membres, activités et boutons retravaillés ; hauteur adaptée au téléphone.
+- Amis : navigation, recherche, avatars et boutons plus lisibles.
+- Catalogue : vignettes plus lumineuses et accents par jeu.
+- Retirés du catalogue : Mimic Party Voix, Mimic Party Gestes, ONE Frisson, ONE Marrant, ONE Blind test.
+
+RÉDUCTION DES APPELS
+- Salon consulté toutes les 5 secondes au lieu de 2 ; notifications toutes les 30 secondes au lieu de 10.
+- Suppression de la lecture supplémentaire du jeu à chaque réponse du salon.
+- Chat du salon consulté seulement lorsqu'il est affiché.
+- Pause progressive de 8 à 60 secondes en cas de refus 429, erreur serveur, vérification de compte indisponible ou panne réseau ; respect du délai Retry-After lorsqu'il est fourni.
+- Les actions demandées par le joueur ne sont pas rejouées automatiquement.
+- Actualisation des parties conservée toutes les 2 secondes, avec lecture immédiate après les actions et au retour sur la page.
+
+CLOUDFLARE
+Ce correctif diminue les appels. Il ne réinitialise pas un quota déjà épuisé et ne modifie aucun abonnement.
+Le type exact du quota atteint reste à confirmer dans Cloudflare.
+Si c'est le quota quotidien Workers Free : 100 000 requêtes/jour, réinitialisé à minuit UTC.
+Documentation : https://developers.cloudflare.com/workers/platform/limits/#daily-requests
+
+CONTRÔLES LOCAUX
+- Requêtes bloquées pendant la pause, reprise ensuite, Retry-After en secondes et date.
+- Pas de double action tactile ; sélection et annulation tactile conservées.
+- Compteurs Bluff 0/6 à 6/6, changements de partie et caméra : 15 contrôles réussis.
+- Dix jeux conservés, recherche et invitations des amis, visuels téléphone contrôlés.
+- L'état du service Cloudflare en production ne peut pas être validé par ces essais locaux.
