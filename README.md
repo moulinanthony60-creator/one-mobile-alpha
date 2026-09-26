@@ -1,106 +1,61 @@
-# ONE 0.14.116 — frontend à tester
+# ONE 0.14.117 — passe visuelle
 
-Cette livraison part du vrai dépôt `moulinanthony60-creator/one-mobile-alpha`, version 0.14.115, commit `c0e28b77d7ce8dc19cf73188fafdeabcbc5754d5`. Les changements sont intégrés dans le site existant. Aucun Worker, moteur serveur, SQL ou portefeuille n’a été modifié.
+## Statut
 
-## 1. Réalisé
+Version frontend complète, modifiée dans le vrai projet ONE et non publiée. Cette passe est livrée pour validation visuelle par Anthony ; elle n’est pas déclarée identique pixel par pixel à la planche.
 
-- Identité ONE / Together / Party conservée. Tous les jeux existants sont de nouveau visibles dans Party, y compris les jeux d’ambiance précédemment filtrés.
-- Fiche de proposition commune avec illustration, règles/description, capacité réelle, catégorie, salon et confirmation de mise existante.
-- Lobby compact : avatars/emplacements caméra, hôte, prêts/attente, minimum, annulation et lancement manuel. Trois membres / deux prêts fonctionne dans les tests locaux du Worker fourni.
-- Transition 3 / 2 / 1 après confirmation serveur ; fullscreen facultatif, mode immersif interne en secours.
-- Bluff : commandes réparées, main en éventail, siège local centré, annonce et manche lisibles, chat compact. Cinématique existante conservée au-dessus de la table avec résultat serveur ; capture mémoire du portrait uniquement en cas d’élimination, y compris pour le joueur local.
-- Poker : dealer et SB/BB calculés selon le moteur actuel, distribution/révélation et déplacement de jetons, actions et mises existantes conservées.
-- Douze : douze cartes, mini-grilles adverses publiques conservées, zone d’instruction déplacée hors des cartes tactiles. Grilles de **3 lignes × 4 colonnes**, conformément au moteur.
-- Menu commun, réduction, retour Salon, règles, préférences, micro/caméra et distinction quitter partie / quitter salon conservés et ajustés.
+Les captures sont des captures du frontend réel exécuté localement, avec des comptes et salons de test. Les états des trois jeux proviennent du Worker existant exécuté localement avec une base de test. Les silhouettes sont les avatars réellement affichés lorsque ces comptes n’ont ni photo ni caméra. Aucune photo de maquette n’a été utilisée pour faire croire à un flux caméra.
 
-## 2. Cause des pertes TikTok
+## Changements
 
-Défaut reproduit dans le code réellement publié en 0.14.115 : `tiktokMergeExternalEntries` tronquait toute fusion à **120 vidéos**. Avec 450 vidéos et une réponse distante vide : **450 → 120, donc 330 supprimées** lors de l’application du profil cloud. La limite destructive a été supprimée.
+- **Bluff** : sièges adverses agrandis et répartis autour de la table, surface violette, main au premier plan, centre rapproché, header compact. Les deux boutons sont dans la zone visible, même désactivés lorsque ce n’est pas le tour du joueur. Les cartes restent les boutons existants, avec leurs vrais états.
+- **Poker** : table moins haute, commandes rapprochées, champs et présélections compactés. Boutons testés dans des viewports de 360/390/430 px de large et 640/740/844 px de haut.
+- **Douze** : grille locale 3×4 au premier plan, grilles adverses lisibles, pioche/défausse centrées. La carte piochée utilise la place de la pioche au lieu de chevaucher les commandes. Les emplacements et les espaces réservés restent stables entre préparation, pioche et changement de tour.
+- **Salon** : cartes membres compactes, choix « Que fait-on ? » immédiatement accessible, discussion repliée jusqu’à son ouverture. Création privé/public et vignettes d’ambiance. Le choix d’ambiance persiste localement, par salon, sur l’appareil ; il n’est pas synchronisé au groupe.
+- **Liste des salons** : accès depuis un salon actif, recherche existante conservée, cartes illustrées, retour au salon courant. Les salons privés ne sont pas exposés dans la liste publique. Les capacités et restrictions de jonction restent celles du serveur.
+- **Party** : catalogue remonté sous le header, ordre Bluff/Poker/Douze comme sur la cible, cartes et bordures harmonisées. Tous les jeux réels sont conservés.
+- **Menu** : panneau glass compact superposé, table visible derrière, sections PARTIE/SOCIAL/JEU, interrupteurs reflétant l’état média existant, actions de sortie séparées et fermeture explicite.
+- **Stabilité** : le message de confirmation n’ajoute plus une ligne au-dessus de la table. La hauteur et le défilement sont préservés pendant la reconstruction du rendu ; l’espace des indications de préparation Douze est réservé.
+- Version et cache frontend passés en 0.14.117. Le catalogue TikTok et ses protections de la version 116 sont conservés.
 
-Cela prouve un scénario réel de perte de plus de 300 vidéos. Sans journaux ni sauvegardes des deux incidents passés, leur cause historique exacte ne peut pas être certifiée. Cette livraison ne recrée pas les liens déjà perdus.
+## Vérification
 
-Autres risques traités : import de profil écrasant le catalogue, export de profil sans catalogue, sauvegarde unique, erreurs cloud masquées et encodage de gros profils. Le changement `github.io` → `one-officiel.fr` utilise toujours des stockages navigateur distincts : les données de l’ancien domaine ne migrent pas automatiquement.
+Les tests dans `tests-visuels.json` passent. Ils exécutent les actions sur le Worker local inchangé : Bluff jouer/accuser, Poker relancer/suivre, Douze révéler/pioche/remplacer/défausse. Les rectangles de la table et des commandes sont mesurés à chaque image pendant ces actions : déplacement maximal observé **0 px** dans ces scénarios. Ce résultat ne prétend pas couvrir tous les appareils ou tous les cas réseau.
 
-## 3. Fichiers
+Les dispositions Douze 2 à 6 sièges ont été vérifiées sans chevauchement des grilles. **Les scénarios 5–6 sièges sont des tests de présentation seulement : le moteur actuel autorise 2–4 participants pour Douze.** Aucun nombre de joueurs serveur n’a été changé.
 
-La liste exacte est dans `fichiers-modifies.json`. Changements fonctionnels principaux : `index.html`, `ui/catalog-store.js`, `ui/catalog-manager.js`, `ui/catalog-manager.css`, `ui/mission116.css`, `ui/social-core.js`, `ui/party.js`, `ui/game-shell.js`, `ui/game-tables.js`, `ui/party-bluff.js`, `ui/party-game.js`. Les autres différences concernent surtout les versions des ressources et les manifestes/cache PWA.
+Vérification manuelle supplémentaire : création d’un salon local, choix d’ambiance violette, application effective, conservation après rechargement ; consultation des salons publics depuis un salon actif ; captures des écrans demandés.
 
-## 4. Architecture
+`build-validation.json` contient la vérification de syntaxe des scripts et des ressources du cache. `backend-inchange.json` confirme que les 11 fichiers serveur/SQL audités sont inchangés. Aucun Worker n’a été déployé ni modifié.
 
-Les composants existants continuent d’appeler les APIs existantes. Le lobby utilise la proposition/acceptation/lancement serveur ; les tables affichent uniquement les instantanés publics et la main autorisée. Un seul système WebRTC Salon est conservé. Le compte à rebours est une transition visuelle : il ne remplace aucun délai serveur. Bluff et Douze n’exposent pas de délai de tour dans ce contrat ; aucun faux timer n’a été ajouté.
+## Caméras : test restant sur tes appareils
 
-`ONECatalogue` devient le point d’écriture du catalogue : base IndexedDB par compte, miroir localStorage pour l’ancien feed, transactions, fusion sans réduction implicite et historique. Le gestionnaire fournit recherche, lecture officielle, export/import et restauration. Aucun serveur de catalogue partagé n’a été inventé.
+Le chemin existant est conservé : le flux reçu par `RTCPeerConnection.ontrack` alimente la vidéo, puis la bulle est rattachée au siège ayant le même identifiant de compte. Les sièges et leurs vidéos sont cadrés avec `object-fit: cover`.
 
-## 5. Validation
+Le test avec deux comptes et deux caméras physiques n’a pas été réalisé ici : Anthony a indiqué qu’il le fera sur ses appareils. Vérifier dans les deux sens : caméra ON, image animée dans le bon siège, caméra OFF, puis transition salon → jeu → salon sans disparition ni changement de propriétaire du flux.
 
-**111 contrôles locaux réussis**, détaillés dans les cinq fichiers `*116-results.json` : salon/participants, Poker/Bluff, Douze, catalogue et portraits. Les jeux utilisent le Worker fourni inchangé, SQLite locale et des comptes de test. Certaines manches sont préparées en base de test pour vérifier rapidement des transitions précises ; le moteur réalise ensuite les actions.
+## Validation visuelle restante
 
-- Trois membres, deux prêts : deux participants, troisième libre dans ONE.
-- Annulation, réponse 409, pas de proposition/lancement optimiste, réduction et reprise.
-- Poker : secrets adverses, blindes heads-up, relance, suivi, flop, cinq cartes et résultat serveur.
-- Bluff : annonce, accusation, révélation autorisée, séquence vidéo et retour table.
-- Douze : révélation, pioche privée, remplacement visible chez l’adversaire, défausse, colonne, scores et manches.
-- Largeurs 360 / 390 / 430 px et desktop 1280 px sur les contrôles concernés ; instruction Douze hors des cartes.
-- Portraits : flux **synthétique canvas**, aucune caméra physique ; pas de capture d’un joueur vivant, frame conservée en mémoire seulement, effacement au changement de compte.
-- Build statique : **115 scripts analysés**, 40 ressources de cache et 37 scripts d’entrée présents. Aucun bundler n’existe dans ce dépôt.
-- Comparaison avec la sauvegarde initiale : **11 fichiers backend/SQL inchangés**, détail dans `backend-inchange.json`.
+La planche est la référence, mais les captures livrées doivent encore être validées par Anthony. Les décors et illustrations disponibles dans le projet ont été réutilisés et la composition a été refaite. Les photos de participants, valeurs de cartes, timers, mises et effectifs sont déterminés par les vrais comptes et le jeu : ils ne sont pas remplacés par les valeurs de démonstration de la maquette.
 
-Ces résultats ne constituent pas des essais sur deux téléphones physiques. Pas de mesure de 60 fps certifiée, ni de validation Android/iOS réelle.
+Les captures de la liste publique contiennent deux salons de test locaux, pas des données de production. La feuille `captures.html` rassemble uniquement des captures ; ce n’est pas un nouvel écran alternatif de l’application.
 
-## 6. Captures
+## Installation / publication
 
-Le dossier `captures` contient les écrans du vrai frontend avec les comptes locaux Test1/Diwaiis/Libre : Accueil, Salon, Party, Proposition, Lobby, Bluff, Poker, Douze, Menu. Ouvrir `galerie.html`. Les noms, cartes et points visibles proviennent des sessions de test, pas de données ajoutées au produit livré.
+1. Décompresser l’archive.
+2. Copier le **contenu de `site/`** à la racine du dépôt frontend `one-mobile-alpha`, en conservant les fichiers serveur présents dans le dépôt.
+3. Ne pas copier le dossier `site` comme sous-dossier du site. Aucun fichier Worker/SQL n’est fourni dans ce dossier.
+4. Publier via le déploiement GitHub Pages existant.
+5. Après le déploiement réussi, recharger ONE et vérifier la version **0.14.117**. Fermer et rouvrir la PWA si le cache ancien est encore utilisé. Ne pas effacer les données du navigateur.
+6. Tester sur les deux appareils : boutons Bluff, actions Poker, enchaînements Douze, caméras, retour au salon et navigation persistante.
 
-## 7. Sauvegardes TikTok
+La version en ligne n’a pas été remplacée dans cette passe. Le ZIP 0.14.116 ne contient pas ces corrections ; utiliser le ZIP **0.14.117**.
 
-- Snapshot aux 10e, 20e, 30e… nouveaux ajouts réussis ; doublons exclus du compteur.
-- Jusqu’à 12 snapshots locaux complets ; métadonnées incluses.
-- Snapshot avant suppression, import ou restauration. Si l’écriture échoue, la suppression est annulée.
-- Réponse cloud vide ou fortement réduite : vidéos locales conservées, anomalie affichée.
-- Restauration par fusion : les vidéos actuelles restent présentes.
-- Les six dernières versions sont incluses dans le profil cloud chiffré lorsque sa synchronisation réussit. **L’écriture réelle sur le service cloud de production n’a pas été validée ici**, ni ses limites de taille.
-- Export JSON indépendant du navigateur. Une base IndexedDB protège mieux que localStorage seul, mais effacer les données du navigateur peut supprimer les deux : conserver un export et vérifier la sauvegarde cloud.
-- Un bouton permet de récupérer explicitement dans son compte le catalogue ajouté en mode invité sur le même appareil.
+## Fichiers
 
-## 8. TikTok entre utilisateurs
-
-Le lecteur utilise l’ID persistant et le [lecteur officiel TikTok](https://developers.tiktok.com/docs/en/embed-player). Erreurs du lecteur vérifiées par origine/source ; blocage autoplay distingué d’une vidéo indisponible ; lien « Ouvrir sur TikTok » présent.
-
-Le code précédent utilisait déjà un embed officiel : aucune cause liée à une URL média temporaire n’a été démontrée. Le catalogue externe est privé à l’appareil/compte, et le feed OAuth concerne le compte TikTok connecté. Un second compte ne reçoit donc pas automatiquement le catalogue importé par le premier.
-
-**Test réel A/B sur deux appareils : non effectué.** L’import/export et la restauration compressée entre deux comptes ont été testés localement ; cela ne prouve pas que TikTok autorise la lecture d’une vidéo donnée sur un autre téléphone. Le partage automatique nécessite le contrat décrit dans `CONTRAINTE-CATALOGUE-PARTAGE.md`.
-
-## 9. Déploiement détecté
-
-Site statique GitHub Pages du dépôt `moulinanthony60-creator/one-mobile-alpha`, branche `main`, domaine `one-officiel.fr` conservé dans `CNAME`. Les déploiements existants sont « pages build and deployment ». Aucun nouvel hébergeur.
-
-## 10. Mise en ligne : non effectuée
-
-Le navigateur accessible n’est pas connecté à GitHub et aucun accès d’écriture authentifié n’a été établi. Le site public reste la version précédente. Le ZIP contient `site/` : c’est ce contenu qu’il faut intégrer à la racine du dépôt, en conservant les chemins.
-
-### Installation
-
-1. Extraire `ONE-0.14.116-FRONTEND.zip`.
-2. Dans une copie authentifiée du dépôt, vérifier que `main` correspond toujours à la base indiquée en haut. Si de nouveaux changements existent, fusionner les fichiers modifiés au lieu de les écraser.
-3. Copier le **contenu de `site/`** à la racine du dépôt : `index.html`, `ui/`, `assets/`, manifestes, `sw.js`, etc. Ne pas mettre un dossier `site` supplémentaire dans l’URL.
-4. Ne remplacer aucun Worker/API/SQL. Ne pas déposer le ZIP lui-même à la place des fichiers du site.
-5. Enregistrer les changements puis les envoyer sur `main`. Avec GitHub Web, utiliser « Add file → Upload files » en respectant les sous-dossiers ; pour beaucoup de fichiers, préférer une copie Git locale authentifiée.
-6. Attendre la réussite de **Actions → pages build and deployment**.
-7. Ouvrir `https://one-officiel.fr/`, recharger, vérifier **0.14.116**. Le nouveau cache PWA conserve les données du catalogue ; ne pas effacer les données du navigateur.
-8. Tester sur tes deux appareils : Salon → proposer → Prêt → lancer, caméra/micro/chat, réduire/reprendre. Ajouter un troisième membre non prêt pour vérifier qu’il reste dans ONE.
-9. Exporter un catalogue, ajouter jusqu’au prochain multiple de dix, vérifier l’historique, relancer l’app et vérifier la persistance. Tester une même vidéo publique sur les deux appareils.
-
-### Retour arrière
-
-Revenir au commit précédent pour les fichiers frontend ou utiliser `backups/ONE-main-2026-09-26-avant-mission.zip` conservé dans l’espace de travail. Exporter le catalogue avant tout retour à une ancienne version : l’ancien frontend contient encore le défaut de troncature.
-
-## 11. Reste à valider
-
-- Publication et contrôles après publication.
-- Deux appareils/comptes réels, caméra, micro, reconnexion réseau et lecture TikTok.
-- Limites et réussite de la sauvegarde cloud chiffrée en production.
-- Partage automatique du catalogue : adaptation backend séparée, non simulée.
-- Maximum serveur inchangé : Bluff/Douze 4, Poker 6 ; la disposition à six de Douze a uniquement été testée avec des données visuelles locales.
-- Les grandes nouvelles maquettes individuelles citées dans le texte ne figuraient pas dans les pièces jointes de cette mission. La planche fournie et les références précédentes ont guidé l’intégration ; aucune conformité pixel par pixel n’est annoncée.
-
-La livraison est **prête pour ces validations**, pas annoncée comme une mission entièrement validée en production.
+- `site/` : projet frontend complet.
+- `captures/01-salon.png` à `06-menu.png` : les six captures demandées.
+- `captures/07-salons-publics.png`, `08-entree-salons.png`, `09-creation-salon.png` : autres écrans des salons.
+- `tests-visuels.json`, `build-validation.json`, `backend-inchange.json` : vérifications.
+- `fichiers-modifies-depuis-116.json` : différences depuis la livraison 116.
+- `CONTRAINTE-CATALOGUE-PARTAGE.md` : contrainte backend du partage TikTok, inchangée par cette passe.
