@@ -1,6 +1,3 @@
-Correctif alignement Bluff uniquement.
-1. Envoyer ui/party-bluff.js dans le dossier ui du depot GitHub.
-2. Envoyer sw.js a la racine du depot.
-3. Attendre le deploiement puis rouvrir ONE.
-Aucun Worker modifie. Aucun stockage du catalogue supprime.
-Camera et micro : diagnostic encore en cours.
+Envoyer ensemble le dossier ui entier et sw.js a la racine GitHub, puis Commit changes. Ne pas envoyer le ZIP. Attendre le deploiement puis rouvrir ONE.
+Cartes centrales cachees apres reprise. Nouvelle presentation cinematique avec portrait et phases accusation/verdict/resultat. Video existante conservee.
+Ordre de main corrige ; chevauchement visuel restant non valide. Aucun Worker modifie.
