@@ -3,7 +3,7 @@
  const {el,button}=ONEUI;
  const sources=[['youtube','YouTube','▶'],['tiktok','TikTok','♪'],['twitch','Twitch','◉'],['audio','Musique','♫'],['one','ONE','▷']];
  function create({choose}){
-  let source='youtube',query='',cursor='',request=0,controller=null,disposed=false,canChoose=false,host=false,roomId='',loading=false,seen=new Set();
+  let source='youtube',query='',cursor='',request=0,controller=null,disposed=false,canChoose=false,host=false,roomId='',loading=false,seen=new Set(),sessionKey='';
   const root=el('details',undefined,'ot-browser');root.open=true;
   const summary=el('summary'),heading=el('span');heading.append(el('b','Que regarde-t-on ?'),el('small','Parcours les contenus · choisis pour ton salon'));
   summary.append(el('span','◈','ot-browser-icon'),heading,el('span','⌄','ot-browser-arrow'));root.append(summary);
@@ -63,7 +63,7 @@
   form.onsubmit=e=>{e.preventDefault();query=input.value.trim();load(true);};
   const onCatalogue=()=>{if(source==='tiktok'&&!loading&&root.open)load();};window.addEventListener('one-catalogue-state',onCatalogue);
   pick(source);
-  return {root,update(next){host=!!next.host;canChoose=host&&next.ready&&!next.busy;roomId=next.roomId||'';summary.querySelector('small').textContent=host?'Choisis un contenu pour ton salon':'Parcours les contenus · l’hôte pilote la séance';updateButtons();},destroy(){disposed=true;request++;controller?.abort();root.remove();window.removeEventListener('one-catalogue-state',onCatalogue);}};
+  return {root,setMedia(key){if(key===sessionKey)return;sessionKey=key;root.open=!key;},update(next){host=!!next.host;canChoose=host&&next.ready&&!next.busy;roomId=next.roomId||'';summary.querySelector('small').textContent=host?'Choisis un contenu pour ton salon':'Parcours les contenus · l’hôte pilote la séance';updateButtons();},destroy(){disposed=true;request++;controller?.abort();root.remove();window.removeEventListener('one-catalogue-state',onCatalogue);}};
  }
  window.ONETogetherBrowser={create};
 })();
