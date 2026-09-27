@@ -1,8 +1,13 @@
 [
   {
-    "fichier": "INSTALLATION-117AF.txt",
-    "octets": 2863,
-    "sha256": "b2cba9cf5aac32d970447cc4ee4d87ed6f8305068c0eef2cc5c95cba0e86ab8c"
+    "fichier": "DECOR-118.md",
+    "octets": 1849,
+    "sha256": "f327a0b62de9509114d4dafadac0b5d1e0612c513744a9e2f671b87e56415b63"
+  },
+  {
+    "fichier": "INSTALLATION-118.txt",
+    "octets": 1793,
+    "sha256": "026e4bc8c9310e3ec95fefc308d431b7b99d68236b7388bf78add422d4ca4352"
   },
   {
     "fichier": "SERVEUR/LIRE-AVANT-DEPLOIEMENT.txt",
@@ -41,18 +46,23 @@
   },
   {
     "fichier": "SITE/index.html",
-    "octets": 612221,
-    "sha256": "a95b6c9747bf348ed1e547f577d70eaddf4b9433eb33fc95cd2a166eacf21c99"
+    "octets": 612209,
+    "sha256": "3135fbfdf19455b9cea12354dd013ed95155f7b020320b8cb5a390eb96554b75"
   },
   {
     "fichier": "SITE/sw.js",
-    "octets": 2446,
-    "sha256": "5afaff991e9390fc5ad8aabd69cc0fe2c5a8573c8eac823972e8d48082dfd0d4"
+    "octets": 2467,
+    "sha256": "2475a411bed5057fea8d137b3a39a56626eeff43c9f0e760ac65d2a7ea6b4639"
   },
   {
     "fichier": "SITE/ui/blackjack-art-117af.svg",
     "octets": 1355,
     "sha256": "2adeeaddf7cb47c065f4246c6c8e522787418e030db9a0731763fe22ae09a4b2"
+  },
+  {
+    "fichier": "SITE/ui/blackjack-table-118.png",
+    "octets": 2602805,
+    "sha256": "2ef0f5a868aeab6f11bc6a1376582042ed635022a75909fbc6f9a793e0bbe806"
   },
   {
     "fichier": "SITE/ui/bluff-cinematic.js",
@@ -181,13 +191,13 @@
   },
   {
     "fichier": "SITE/ui/party-blackjack.css",
-    "octets": 8674,
-    "sha256": "b59cec450455ba2ede905f9637e4a197adb18d541576d073c29d5de5e5925507"
+    "octets": 14427,
+    "sha256": "3b6109945c2878e21c01e20508747fa5f2178baca1e05c6df9df4b0555f477ba"
   },
   {
     "fichier": "SITE/ui/party-blackjack.js",
-    "octets": 5934,
-    "sha256": "b93531eeaad4769ccc32aa1186a27b509812f86c631c9649613b70802df72119"
+    "octets": 6938,
+    "sha256": "51d748751beb3883e9ce6e418d1382902978b182e7ad6a032a4ca497748cfe50"
   },
   {
     "fichier": "SITE/ui/party-bluff.js",

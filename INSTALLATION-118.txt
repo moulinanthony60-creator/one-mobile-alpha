@@ -1,0 +1,31 @@
+ONE — BLACKJACK, TABLE ROUGE — VERSION 0.14.118
+
+POUR FAIRE APPARAÎTRE BLACKJACK
+Dans le dépôt GitHub habituel de ONE, envoie LE CONTENU du dossier SITE
+à la racine du site. Remplace notamment index.html et sw.js, ainsi que les
+fichiers ui et assets fournis. Ne crée pas un dossier SITE dans le dépôt.
+Conserve les autres fichiers du site qui ne sont pas fournis ici.
+Attends la fin du déploiement puis ferme et rouvre ONE.
+La version affichée doit être v0.14.118 et Blackjack apparaît après Poker.
+Une ancienne page index.html peut continuer à charger l'ancien catalogue.
+
+SERVEUR
+Si le serveur de TABLES-BLACKJACK-117AF a déjà été installé, il est identique :
+aucune nouvelle modification du serveur n'est nécessaire.
+Sinon, dans Cloudflare, remplace le code du Worker one-comments-api par
+SERVEUR/worker.js et déploie-le avant le site. Conserve ses connexions COMMENTS
+et PROFILE, ses secrets et ses réglages. Ne remplace pas le Worker des profils.
+Aucune commande SQL manuelle n'est nécessaire pour Blackjack.
+
+NOUVELLE TABLE
+Tapis rouge en demi-lune, rebord en cuir, sabot, réserve du croupier,
+marquages Blackjack, quatre places avec jetons, cartes et totaux sur le tapis.
+Affichage adapté au téléphone. Les règles et les jetons gratuits restent ceux
+de la version précédente : 2 à 4 joueurs contre un croupier automatique.
+Toutes les améliorations de 117AF sont comprises dans cette archive cumulative.
+
+VÉRIFICATION
+Affichage dans le site complet et présence de Blackjack dans le catalogue
+vérifiés localement. Bouton Tirer testé avec le serveur local et quatre comptes
+fictifs. Le moteur a passé les 1 200 mains de vérification et les cas ciblés.
+Aucun déploiement public n'a été effectué par l'assistant.
