@@ -62,6 +62,12 @@
 #onePartyGame .bj-controls button:focus-visible,#onePartyGame .bj-controls input:focus-visible{outline:2px solid #fff2b1;outline-offset:3px}
 #onePartyGame .bj-turn{font-size:11px;margin:0 0 7px;color:#fce9bb}
 #onePartyGame .bj-free{display:block;font-size:8px;color:#c4b299;margin-top:7px}
+#onePartyGame .bj-pause{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-height:30px;margin-top:4px;font-size:10px;color:#dfcba8;cursor:pointer;touch-action:manipulation}
+#onePartyGame .bj-pause-check{appearance:auto!important;position:static!important;opacity:1!important;width:16px!important;min-width:16px!important;height:16px!important;min-height:16px!important;padding:0!important;margin:0!important;accent-color:#e7c27a;flex:none;cursor:pointer}
+#onePartyGame .bj-pause:has(:checked){color:#ffe394}
+#onePartyGame .bj-next-note{margin:6px 0 0;color:#ffe3a1;font:700 12px/1.4 system-ui}
+#onePartyGame .bj-next-retry{margin-top:7px;padding:7px 15px}
+#onePartyGame .bj-next-retry[hidden]{display:none!important}
 #onePartyGame .bj-bet-label{display:flex;gap:10px;align-items:center;justify-content:center;font-size:12px}
 #onePartyGame .bj-amount{width:80px;padding:5px;border:1px solid #b6a580;border-radius:7px;background:#251813;color:#fff1c8;font:700 16px system-ui}
 #onePartyGame .bj-chips{display:flex;justify-content:center;gap:12px;margin:8px}
@@ -155,4 +161,15 @@
 #onePartyGame .bj-game[data-phase=betting] .bj-seat:nth-child(1),#onePartyGame .bj-game[data-phase=betting] .bj-seat:nth-child(2){top:42%}
 #onePartyGame .bj-game[data-phase=betting] .bj-seat:nth-child(3),#onePartyGame .bj-game[data-phase=betting] .bj-seat:nth-child(4){top:71%}
 }
-@media(max-height:700px) and (max-width:599px){#onePartyGame .bj-table{height:360px}}
+@media(max-height:700px) and (max-width:599px){
+#onePartyGame .bj-table,#onePartyGame .bj-game[data-phase=betting] .bj-table{height:324px}
+#onePartyGame .bj-pause{margin-top:0;min-height:26px;font-size:9px}
+#onePartyGame .bj-seat:nth-child(1),#onePartyGame .bj-seat:nth-child(2){top:40%}
+#onePartyGame .bj-seat:nth-child(3),#onePartyGame .bj-seat:nth-child(4),#onePartyGame .bj-players[data-count='3'] .bj-seat:last-child{top:69%}
+#onePartyGame .bj-game[data-phase=betting] .bj-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px}
+#onePartyGame .bj-game[data-phase=betting] .bj-status,#onePartyGame .bj-game[data-phase=betting] .bj-confirm,#onePartyGame .bj-game[data-phase=betting] .bj-pause,#onePartyGame .bj-game[data-phase=betting] .bj-free,#onePartyGame .bj-game[data-phase=betting] .bj-turn{grid-column:1/-1;margin:0}
+#onePartyGame .bj-game[data-phase=betting] .bj-bet-label{gap:5px;font-size:9px}
+#onePartyGame .bj-game[data-phase=betting] .bj-amount{width:52px;min-width:0;min-height:32px;height:32px;margin:0;padding:3px;box-sizing:border-box}
+#onePartyGame .bj-game[data-phase=betting] .bj-chips{gap:4px;margin:0}
+#onePartyGame .bj-game[data-phase=betting] .bj-chips button{width:32px;min-height:32px;height:32px;padding:0;font-size:10px}
+}

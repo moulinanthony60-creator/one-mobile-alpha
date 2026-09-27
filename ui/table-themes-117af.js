@@ -1,5 +1,5 @@
 (()=>{
- const style=document.createElement('link');style.rel='stylesheet';style.href='ui/table-themes-117af.css?v=117af';document.head.append(style);
+ const style=document.createElement('link');style.rel='stylesheet';style.href='ui/table-themes-117af.css?v=117af';document.head.append(style);const finish=document.createElement('link');finish.rel='stylesheet';finish.href='ui/game-finish-118.css?v=118r2';document.head.append(finish);
  const emblems={trio:'Ⅲ',codes:'◈',who:'?',connect:'●',timer:'◷',wolf:'☾'};
  let details=[],gameId=null;
  window.addEventListener('one-game-before-render',()=>{gameId=document.querySelector('.pc-game')?.dataset.gameId;details=[...document.querySelectorAll('.pc-arena details')].map(d=>d.open);});
