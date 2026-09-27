@@ -1,0 +1,115 @@
+/* Individual game boards; all cards, votes and counters are real game elements. */
+#onePartyGame .pc-game{--glow:#45b8ff;--surface:#092348;--edge:#79bcec;position:relative;max-width:760px;margin:auto;padding:18px 12px 24px;background:radial-gradient(ellipse at 50% 8%,color-mix(in srgb,var(--glow) 18%,transparent),transparent 50%),linear-gradient(#090c19,#040913);border:1px solid color-mix(in srgb,var(--edge) 60%,transparent);border-radius:20px;box-shadow:inset 0 0 35px #0008,0 10px 35px #0008;color:#fff5dd}
+#onePartyGame .pc-game>header{position:relative;padding:4px 0 10px;border-bottom:1px solid #f1d79a30}
+#onePartyGame .pc-game>header h3{font:850 24px/1.2 system-ui;margin:6px 0;color:#fff1b7;text-shadow:0 0 18px color-mix(in srgb,var(--glow) 60%,transparent)}
+#onePartyGame .pc-game>header>span{font-size:9px;letter-spacing:.2em;color:var(--edge)}
+#onePartyGame .pc-game>header p{font-size:11px;margin:7px 8px;color:#d2dbea}
+#onePartyGame .pc-emblem{display:grid;place-items:center;margin:0 auto 8px;width:45px;height:45px;border:1px solid #ffe19f;border-radius:13px;background:linear-gradient(140deg,var(--surface),#050b1b);box-shadow:0 0 18px color-mix(in srgb,var(--glow) 35%,transparent),inset 0 0 10px #ffffff14;color:#ffe5a1;font:700 28px Georgia}
+#onePartyGame .pc-game .pc-players{gap:6px;margin:12px 0}
+#onePartyGame .pc-game .pc-player{display:flex;flex:1 1 100px;max-width:170px;min-width:0;gap:6px;padding:7px;background:linear-gradient(135deg,#14213cde,#070e20eb);border:1px solid #65799688;border-radius:11px;box-shadow:0 3px 8px #0006}
+#onePartyGame .pc-game .pc-player b{font-size:11px;color:#f6eacb}.pc-player small{font-size:9px!important}
+#onePartyGame .pc-game .pc-player.current{border-color:#ffeab1;box-shadow:0 0 14px color-mix(in srgb,var(--glow) 45%,transparent)}
+#onePartyGame .pc-game .pc-camera{width:35px!important;height:38px!important;flex:0 0 35px!important;border:1px solid var(--edge);border-radius:8px;background:linear-gradient(145deg,#843cce,#213168);box-shadow:0 0 9px #7f55b14d;overflow:hidden;position:relative;isolation:isolate}
+#onePartyGame .pc-game .pc-arena{position:relative;isolation:isolate;margin:0 auto;max-width:100%;padding:18px 12px;border:2px solid #caa76a;border-radius:23px;background:radial-gradient(ellipse at 50% 25%,var(--surface),#050d1c);box-shadow:inset 0 0 0 3px #0a111e,inset 0 0 0 4px #f2d59a44,inset 0 0 35px #0008,0 7px 0 #21191b,0 12px 20px #0008}
+#onePartyGame .pc-game .pc-arena>h4{font:750 11px system-ui;letter-spacing:.08em;text-transform:uppercase;color:var(--edge)}
+#onePartyGame .pc-game .pc-arena>p{font-size:12px;color:#cbdaf0}
+#onePartyGame .pc-game button{min-height:42px;font:700 12px system-ui;touch-action:manipulation;transition:transform .08s,filter .08s;border:1px solid var(--edge);background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 70%,var(--glow)),var(--surface));box-shadow:inset 0 1px #fff3,0 3px 7px #0004;border-radius:9px;color:#fff8e9}
+#onePartyGame .pc-game button:active:not(:disabled){transform:scale(.97);filter:brightness(1.2)}
+#onePartyGame .pc-game button:disabled{cursor:default;box-shadow:none}
+#onePartyGame .pc-game input{font-size:16px;min-height:40px;border:1px solid var(--edge);border-radius:8px;background:#060e21;color:#fff3d0;padding:8px;max-width:100%;box-sizing:border-box}
+#onePartyGame .pc-game details{background:#091020c9;border:1px solid #c2b38360;color:#dddfed;padding:10px;font-size:12px}
+#onePartyGame .pc-game details summary{color:#fce1a3;font-size:12px;padding:4px;cursor:pointer}
+/* Trio — royal blue memory table and engraved gold cards. */
+#onePartyGame .pc-trio{--glow:#3787ff;--surface:#0c3268;--edge:#e7c575}
+#onePartyGame .pc-trio .pc-trio-table{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;padding:12px 6px;border:1px solid #99ccff30;border-radius:15px;background:radial-gradient(#144178,#071f43);box-shadow:inset 0 0 20px #020e28}
+#onePartyGame .pc-trio .pc-trio-card{position:relative;display:grid;place-items:center;min-height:70px!important;aspect-ratio:5/7;width:100%;padding:3px!important;border:1px solid #f6cf79!important;border-radius:7px!important;background:linear-gradient(145deg,#f9e9b9,#d0a559)!important;color:#122b50!important;font:800 27px Georgia!important;box-shadow:inset 0 0 0 3px #093e832b,0 4px #051733,0 6px 10px #0007!important;opacity:1!important}
+#onePartyGame .pc-trio .pc-trio-card[data-hidden=true]{font-size:0!important;background:#112b52 url('card-back-trio-117af.svg') center/100% 100%!important}
+#onePartyGame .pc-trio .pc-trio-card:disabled[data-hidden=true]{filter:brightness(.75)}
+#onePartyGame .pc-trio .pc-trio-hand{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;padding:10px;border-radius:12px;background:#020e22aa}
+#onePartyGame .pc-trio .pc-trio-hand .pc-trio-card{width:37px;min-height:53px!important;font-size:24px!important}
+#onePartyGame .pc-trio .pc-revealed{min-height:92px;align-items:center;gap:10px;border-bottom:1px solid #e5c98144;margin-bottom:12px}
+#onePartyGame .pc-trio .pc-revealed:empty:after{content:'TROUVE LES TROIS MÊMES CARTES';font:800 10px system-ui;letter-spacing:.12em;color:#b4cbed}
+#onePartyGame .pc-trio .pc-revealed strong{display:grid;place-items:center;width:49px;height:70px;padding:0;border:2px solid #ffe5a0;background:linear-gradient(#fff1c9,#dbb977);color:#102953;box-shadow:0 0 17px #ffcc4b40;border-radius:7px;font:800 34px Georgia}
+#onePartyGame .pc-trio .pc-actions:not(.pc-trio-table){display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 0;border-bottom:1px solid #6d9bca38}
+#onePartyGame .pc-trio .pc-actions>b{grid-column:1/-1;font-size:11px;color:#e2cca0}
+/* Codes — a red/blue intelligence board, readable secret keys. */
+#onePartyGame .pc-codes.pc-game{--glow:#668bff;--surface:#202843;--edge:#a3caff;display:block}
+#onePartyGame .pc-codes .pc-arena{background:radial-gradient(at 0 0,#591c32aa,transparent 60%),radial-gradient(at 100% 100%,#10397ca8,transparent 65%),#111525}
+#onePartyGame .pc-codes .pc-codes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:14px 0;padding:10px;border-radius:12px;background:#030713a3;border:1px solid #8fa3c166}
+#onePartyGame .pc-codes .pc-codes button{position:relative;min-height:68px;border:1px solid #f7db9d!important;border-radius:6px!important;padding:4px!important;background:linear-gradient(145deg,#fff3d5,#c6b494)!important;color:#17253a!important;font-size:11px!important;font-weight:850;opacity:1!important;box-shadow:0 3px #786348,inset 0 0 0 3px #ffffff33;text-transform:uppercase;overflow-wrap:anywhere}
+#onePartyGame .pc-codes .pc-codes [data-team=red]{background:linear-gradient(#ff4b6e,#a71639)!important;color:#fff!important;border-color:#ffadc0!important}
+#onePartyGame .pc-codes .pc-codes [data-team=blue]{background:linear-gradient(#249df2,#13409b)!important;color:#fff!important;border-color:#a1e7ff!important}
+#onePartyGame .pc-codes .pc-codes [data-team=neutral]{background:linear-gradient(#ddc8a7,#8f7759)!important}
+#onePartyGame .pc-codes .pc-codes [data-team=assassin]{background:linear-gradient(#282c39,#01030a)!important;color:#fbdfac!important;border-color:#bc526e!important}
+#onePartyGame .pc-codes .pc-codes .opened{box-shadow:inset 0 4px 14px #0008!important;text-decoration:none;filter:brightness(.67)}
+#onePartyGame .pc-codes .pc-codes .opened:after{content:'✓';position:absolute;right:4px;bottom:2px;font-size:12px}
+/* Qui est-ce — portrait frames on a blue detective board. */
+#onePartyGame .pc-who{--glow:#ffb92b;--surface:#092e52;--edge:#e3bf77}
+#onePartyGame .pc-who .pc-faces.pc-faces-detailed{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding:12px 9px;border-radius:15px;border:2px solid #66c0ff;background:linear-gradient(135deg,#164c83,#072341);box-shadow:0 5px #04172b,inset 0 0 16px #061329}
+#onePartyGame .pc-who .pc-faces .pc-face{opacity:1!important;min-height:0;border:1px solid #ffd995!important;background:linear-gradient(#f5d598,#906029)!important;border-radius:7px!important;padding:4px!important;box-shadow:0 3px 0 #071a31!important;transform-origin:50% 100%;transition:transform .16s,filter .16s}
+#onePartyGame .pc-who .pc-faces .pc-face strong{color:#201b17;font:800 10px system-ui;padding:3px 1px 1px}
+#onePartyGame .pc-who .pc-portrait-art{max-width:90px;width:100%;border-radius:5px;overflow:hidden}
+#onePartyGame .pc-who .pc-faces .pc-face.excluded{filter:brightness(.48) grayscale(.85);transform:scale(.9)}
+#onePartyGame .pc-who .pc-faces .pc-face.excluded:after{content:'×';position:absolute;inset:12% 0 auto;color:#ff6f88;text-shadow:0 1px 5px #000;font-size:35px}
+#onePartyGame .pc-who .pc-faces .pc-face.chosen{outline:2px solid #fff4aa;box-shadow:0 0 18px #ffcf4c!important}
+#onePartyGame .pc-who .pc-written-question{background:#061b30;border-color:#b69a64}.pc-who .pc-who-turn{background:#051528aa!important;border-left-color:#6cc4ff!important}
+/* Puissance 4 — electric blue frame, red and gold tokens. */
+#onePartyGame .pc-connect{--glow:#24b3ff;--surface:#062947;--edge:#5cd4ff}
+#onePartyGame .pc-connect .pc-arena{background:radial-gradient(ellipse at top,#07558a,#061426 65%)}
+#onePartyGame .pc-connect .pc-connect-board{background:linear-gradient(140deg,#239dff,#0752e0 48%,#09227a)!important;border:2px solid #87e4ff;border-radius:17px;box-shadow:inset 0 2px #c5edff88,0 8px #031545,0 12px 25px #0092e84a;padding:13px;gap:8px}
+#onePartyGame .pc-connect .pc-connect-board>div{background:#041326;box-shadow:inset 0 4px 8px #000,inset 0 -2px #75b8ff}
+#onePartyGame .pc-connect .pc-connect-board [data-disc='0']{background:radial-gradient(circle at 30% 20%,#ff94a1,#ff2349 45%,#98052a)!important;box-shadow:inset 0 2px 3px #ffc7d0,0 2px 5px #0009}
+#onePartyGame .pc-connect .pc-connect-board [data-disc='1']{background:radial-gradient(circle at 30% 20%,#ffffbd,#ffd320 50%,#be7300)!important;box-shadow:inset 0 2px 3px #fffcd2,0 2px 5px #0009}
+#onePartyGame .pc-connect .pc-connect-board .winning{outline:3px solid white;box-shadow:0 0 17px #fff59d!important}
+#onePartyGame .pc-connect .pc-connect-choices button{min-height:42px;background:linear-gradient(#1175c8,#063661);border-color:#62c5ff;font-size:22px;padding:3px}
+/* Timer — illuminated chronometer. No visual timing cues after 3 seconds. */
+#onePartyGame .pc-timer{--glow:#b43fff;--surface:#381263;--edge:#d8b778}
+#onePartyGame .pc-timer .pc-arena{text-align:center;background:radial-gradient(ellipse,#42206a,#120b24 70%)}
+#onePartyGame .pc-timer .pc-clock{position:relative;display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:210px;height:210px;margin:22px auto;padding:25px;border:7px solid #e4c071;border-radius:50%;font:800 23px/1.4 system-ui;color:#fff1bc;letter-spacing:-.03em;background:radial-gradient(circle,#25104e 60%,transparent 61%),repeating-conic-gradient(#f2d795 0deg 1deg,#2b164d 1deg 6deg);box-shadow:0 0 0 3px #694223,0 0 0 5px #edce9455,inset 0 0 35px #b231f044,0 0 40px #a42aef40;font-variant-numeric:tabular-nums}
+#onePartyGame .pc-timer .pc-clock:before{content:'';position:absolute;width:34px;height:13px;top:-23px;border:3px solid #d5ae63;border-radius:5px;background:linear-gradient(#edc985,#765024);box-shadow:0 0 15px #dfad6244}
+#onePartyGame .pc-timer .pc-stop{display:block;width:100%;max-width:280px;margin:16px auto 8px;background:linear-gradient(#ff457c,#be1250)!important;border:1px solid #ffafbf;box-shadow:0 0 22px #f6237444;font-size:26px;min-height:60px}
+#onePartyGame .pc-timer .pc-arena>button:not(.pc-stop){margin:5px 3px}
+/* Loups-garous — moonlit village council. */
+#onePartyGame .pc-wolf{--glow:#a177ff;--surface:#291c4b;--edge:#bba8ed;background:linear-gradient(#0c0f2355,#070b16ed 430px),url('wolf-council-117af.svg') center top/100% auto repeat-y}
+#onePartyGame .pc-wolf .pc-arena{background:linear-gradient(#151429e8,#07101fe8);border-color:#ab93d6;box-shadow:inset 0 0 30px #6b4b9a33,0 8px #090b1d}
+#onePartyGame .pc-wolf .pc-players{padding:10px 0;background:radial-gradient(ellipse,#705c9755,transparent 70%)}
+#onePartyGame .pc-wolf .pc-player{background:linear-gradient(#292138dd,#090e1edc);border-color:#88759a}
+#onePartyGame .pc-wolf .pc-player.eliminated{opacity:1;filter:none}
+#onePartyGame .pc-wolf .pc-player.eliminated .pc-camera:after{content:'×';position:absolute;inset:0;display:grid;place-items:center;color:#ff4867;font:900 45px/1 system-ui;background:#08071280;text-shadow:0 1px 4px #000;z-index:9}
+#onePartyGame .pc-wolf .pc-player.eliminated b{color:#b39bab;text-decoration:line-through}
+#onePartyGame .pc-wolf .pc-night .pc-camera:after{background:#141322}
+#onePartyGame .pc-wolf .pc-countdown{display:inline-block;padding:6px 15px;border:1px solid #b09adb66;border-radius:22px;font-size:15px;background:#080f23}
+#onePartyGame .pc-wolf .pc-wolf-targets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0}
+#onePartyGame .pc-wolf .pc-wolf-targets button{min-height:45px;text-align:left;border-color:#9875d5;background:linear-gradient(140deg,#573c85,#21183e)}
+#onePartyGame .pc-wolf .pc-wolf-targets button:before{content:'◈';color:#f1d59c;margin-right:8px}
+/* Couleurs — violet felt with four vivid illuminated rails. */
+#onePartyGame .cg-table{background:radial-gradient(ellipse at 50% 20%,#43206e66,transparent 65%),linear-gradient(#080c1c,#120823)!important;min-height:380px}
+#onePartyGame .cg-table .cg-webgl{display:none!important}
+#onePartyGame .cg-table .cg-surface{display:block!important;background:radial-gradient(ellipse,#47187d,#200d49 70%)!important;border-color:#29152f!important;box-shadow:0 12px #0f0919,0 17px #d0a459,0 30px 35px #000b,inset 0 0 0 3px #f5d596,inset 0 0 20px #b645ff,inset 0 0 0 5px #d28cff!important}
+#onePartyGame .cg-table .cg-surface:before{border:2px solid #c478ff77;box-shadow:0 0 20px #b63df440}
+#onePartyGame .cg-table .cg-surface span{color:#ebc38e55!important;font-weight:900;letter-spacing:.15em}
+#onePartyGame .cg-card[data-color=red]{background:linear-gradient(135deg,#ff657a,#ef093d 60%,#9f0633)!important}
+#onePartyGame .cg-card[data-color=blue]{background:linear-gradient(135deg,#4de6ff,#048afb 60%,#1639b3)!important}
+#onePartyGame .cg-card[data-color=green]{background:linear-gradient(135deg,#a7ff43,#42cb03 60%,#127337)!important}
+#onePartyGame .cg-card[data-color=yellow]{background:linear-gradient(135deg,#fff77d,#ffcf00 65%,#e19400)!important;color:#281a03!important}
+#onePartyGame .cg-hand .cg-card:disabled{filter:brightness(.82) saturate(.9)!important}
+#onePartyGame .cg-card.playable{box-shadow:0 0 0 2px #ffe4a3,0 0 20px #d89aff66,0 8px 10px #0009!important}
+#onePartyGame .cg-deck{background:#200b46 url('card-back-colors-117af.svg') center/100% 100%!important;border-color:#e8c078!important}
+#onePartyGame .cg-deck strong,#onePartyGame .cg-deck small{visibility:hidden}
+#onePartyGame .cg-deck span{margin-top:auto;background:#130820db;padding:4px;border-radius:5px;color:#ffedbd}
+#onePartyGame .cg-playerArea{background:linear-gradient(#1b1035,#070c1c)!important}
+@media(max-width:460px){#onePartyGame .pc-game{padding:12px 7px 18px;border-radius:16px}.pc-emblem{width:35px!important;height:35px!important;font-size:24px!important}#onePartyGame .pc-game>header h3{font-size:21px}#onePartyGame .pc-game .pc-arena{padding:13px 8px}#onePartyGame .pc-game .pc-player{flex-basis:calc(50% - 6px);max-width:none}#onePartyGame .pc-trio .pc-trio-table{gap:5px}.pc-trio-card{min-height:59px!important}#onePartyGame .pc-codes .pc-codes{gap:4px;padding:6px}#onePartyGame .pc-codes .pc-codes button{font-size:9px!important;min-height:62px}#onePartyGame .pc-who .pc-faces.pc-faces-detailed{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;padding:9px 6px}#onePartyGame .pc-who .pc-faces .pc-face strong{font-size:10px}#onePartyGame .pc-connect .pc-connect-board{gap:5px;padding:9px}#onePartyGame .pc-timer .pc-clock{width:185px;height:185px;font-size:21px}#onePartyGame .cg-opponents .cg-seat{flex-direction:column;text-align:center;gap:4px;padding:6px}.cg-opponents .cg-seat b{max-width:70px!important}}
+@media(prefers-reduced-motion:reduce){#onePartyGame .pc-game button{transition:none!important}}
+
+#onePartyGame .pc-who .pc-faces .pc-face{position:relative}
+#onePartyGame .pc-trio .pc-revealed:empty{min-height:64px}
+#onePartyGame .pc-trio .pc-players{flex-wrap:nowrap}
+#onePartyGame .pc-trio .pc-player{flex-direction:column;text-align:center;flex-basis:0;min-width:0}
+#onePartyGame .pc-trio .pc-player small{font-size:8px!important}
+
+#onePartyGame .pc-codes .pc-clue-entry{display:grid;grid-template-columns:minmax(0,1fr) 74px;gap:7px}
+#onePartyGame .pc-codes .pc-clue-entry label{font-size:11px;margin:0;min-width:0}
+#onePartyGame .pc-codes .pc-clue-entry input{display:block;width:100%;margin:6px 0 0}
+#onePartyGame .pc-codes .pc-clue-entry button{grid-column:1/-1}
+
+#onePartyGame .cg-backs i{background:#23113b url('card-back-colors-117af.svg') center/100% 100%!important;border-color:#dcba72!important}
