@@ -2,7 +2,15 @@
  const API='https://one-comments-api.moulinanthony60.workers.dev';let room=null,call=null,joining=false,epoch=0,chatBusy=false,pending=null;
  const el=(tag,text)=>{const n=document.createElement(tag);if(text)n.textContent=text;return n;};
  const btn=(text,fn)=>{const n=el('button',text);n.type='button';n.onclick=fn;return n;};
- const css=el('style');css.textContent='#onePartyChat{background:#15192b;border:1px solid #554265;border-radius:16px;padding:14px;margin:14px 0}#onePartyChat textarea{width:100%;box-sizing:border-box;background:#090d19;color:white;padding:10px;border-radius:10px;resize:vertical}#onePartyChat button,#oneCallBar button,.oneCamBubble button{background:#493068;border:1px solid #806495;border-radius:10px;color:white;padding:8px;margin:3px}#onePartyChatLog{max-height:240px;overflow:auto}#onePartyChatLog p{white-space:pre-wrap;overflow-wrap:anywhere}#onePartyChatLog article{border-top:1px solid #40314c;padding:8px}#oneCallBar{position:fixed;left:8px;right:8px;bottom:76px;z-index:180;background:#151326f5;border:1px solid #846497;border-radius:12px;padding:6px;font-size:12px;color:white}#oneCallBar[hidden]{display:none}.oneCamBubble{position:fixed;width:108px;height:142px;border:1px solid #b882ed;border-radius:20px;overflow:hidden;background:#211b32;z-index:179;color:white;box-shadow:0 4px 15px #0007}.oneCamBubble header{height:30px;touch-action:none;cursor:move;font-size:11px;overflow:hidden;padding:5px;box-sizing:border-box}.oneCamBubble video{width:108px;height:108px;object-fit:cover}.oneCamBubble .initial{position:absolute;top:54px;left:0;right:0;text-align:center;font-size:32px;pointer-events:none}.oneCamBubble button{position:absolute;bottom:0;left:0;font-size:10px}.oneCamBubble video.off{opacity:0}';document.head.append(css);
+ const css=el('style');css.textContent='#onePartyChat{background:#15192b;border:1px solid #554265;border-radius:16px;padding:14px;margin:14px 0}#onePartyChat textarea{width:100%;box-sizing:border-box;background:#090d19;color:white;padding:10px;border-radius:10px;resize:vertical}#onePartyChat button,#oneCallBar button,.oneCamBubble button{background:#493068;border:1px solid #806495;border-radius:10px;color:white;padding:8px;margin:3px}#onePartyChatLog{max-height:240px;overflow:auto}#onePartyChatLog p{white-space:pre-wrap;overflow-wrap:anywhere}#onePartyChatLog article{border-top:1px solid #40314c;padding:8px}#oneCallBar{position:fixed;left:8px;right:8px;bottom:76px;z-index:180;background:#151326f5;border:1px solid #846497;border-radius:12px;padding:6px;font-size:12px;color:white}#oneCallBar[hidden]{display:none}.oneCamBubble{position:fixed;width:108px;height:142px;border:1px solid #b882ed;border-radius:20px;overflow:hidden;background:#211b32;z-index:179;color:white;box-shadow:0 4px 15px #0007}.oneCamBubble header{height:30px;touch-action:none;cursor:move;font-size:11px;overflow:hidden;padding:5px;box-sizing:border-box}.oneCamBubble video{width:108px;height:108px;object-fit:cover}.oneCamBubble .initial{position:absolute;top:54px;left:0;right:0;text-align:center;font-size:32px;pointer-events:none}.oneCamBubble button{position:absolute;bottom:0;left:0;font-size:10px}.oneCamBubble video.off{opacity:0}';
+ /* 117AE: a docked camera is always bounded by its seat, including salon proposals. */
+ css.textContent+=`.oneCamBubble.seated{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;margin:0!important;border:0!important;border-radius:inherit!important;box-shadow:none;z-index:2;box-sizing:border-box}
+ .oneCamBubble.seated>header{display:none!important}
+ .oneCamBubble.seated>video{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover;border-radius:inherit}
+ .oneCamBubble.seated>.initial{inset:0!important;display:grid;place-items:center;font-size:24px}
+ .oneCamBubble.seated>.initial[hidden]{display:none!important}
+ .oneCamBubble.seated>button{left:0;right:0;bottom:0;width:100%;margin:0;padding:3px;border-radius:0;font-size:9px;background:#181421dd}`;
+ document.head.append(css);
  const chat=el('section');chat.id='onePartyChat';chat.hidden=true;chat.append(el('h2','Discussion du salon'));const log=el('div');log.id='onePartyChatLog';const input=el('textarea');input.maxLength=1000;input.rows=2;input.placeholder='Ton message';input.setAttribute('aria-label','Message au salon');const status=el('p');status.setAttribute('role','status');const send=btn('Envoyer',sendChat),join=btn('Rejoindre le vocal',()=>{if(call)stopCall();else joinCall();});chat.append(log,input,send,join,status);
 
  const gameVoice=btn('Rejoindre le vocal',async()=>{if(call)stopCall();else await joinCall();syncGameVoice();}),gameVoiceStatus=el('span');gameVoiceStatus.setAttribute('role','status');gameVoice.id='oneGameVoiceJoin';gameVoiceStatus.id='oneGameVoiceStatus';
@@ -43,17 +51,18 @@
   audioTrack:()=>call?.audio,
   enable:async requirements=>{if(!call)await joinCall(requirements);if(!call)throw Error(status.textContent||'Rejoins le vocal pour continuer.');if(requirements.mic&&(!call.audio?.enabled||call.audio.readyState==='ended'))await toggleMic();if(requirements.camera&&call.video?.readyState==='ended')call.video=null;if(requirements.camera&&!call.video)await toggleCam();}
  };
- function parkCameras(){if(bar.parentNode!==document.body){document.body.append(bar);bar.classList.remove('gameDocked');}document.querySelectorAll('.oneCamBubble.seated').forEach(b=>{b.classList.remove('seated');document.body.append(b);});}
+ // Keep the existing video/stream when a render replaces its previous seat.
+ function cameraNodes(){return [...new Set([...document.querySelectorAll('.oneCamBubble'),call?.local?.node,...(call?[...call.peers.values()].map(p=>p.bubble?.node):[])].filter(Boolean))];}
+ function parkCameras(){if(bar.parentNode!==document.body){document.body.append(bar);bar.classList.remove('gameDocked');}cameraNodes().forEach(b=>{if(b.classList.contains('seated')){b.classList.remove('seated');document.body.append(b);}});}
  function dockCameras(){
   const game=document.getElementById('onePartyGame');
   const active=game?.isConnected&&window.onePartyGameVisible?.();
   const dock=active?game.querySelector('#oneGameCallDock'):null;if(dock){if(bar.parentNode!==dock)dock.append(bar);bar.classList.add('gameDocked');}else if(bar.parentNode!==document.body){document.body.append(bar);bar.classList.remove('gameDocked');}
-  if(!active){const bubbles=[call?.local,...(call?[...call.peers.values()].map(p=>p.bubble):[])];for(const bubble of bubbles){const node=bubble?.node;if(node?.classList.contains('seated')){node.classList.remove('seated');document.body.append(node);}}}
   const salonSeats=window.oneSalonIsOpen?.()?[...document.querySelectorAll('#oneSalonTray [data-camera-seat]')]:[];const seats=salonSeats.length?salonSeats:active?[...game.querySelectorAll('[data-camera-seat]')]:window.oneCurrentSpace?.()==='together'?[...document.querySelectorAll('#oneTogetherMembers [data-camera-seat]')]:[];
-  document.querySelectorAll('.oneCamBubble').forEach(b=>{
+  cameraNodes().forEach(b=>{
    const seat=seats.find(s=>s.dataset.cameraSeat&&s.dataset.cameraSeat===b.dataset.cameraOwner);
    if(seat){if(b.parentNode!==seat)seat.append(b);b.classList.add('seated');}
-   else if(b.classList.contains('seated')){b.classList.remove('seated');document.body.append(b);}
+   else if(b.classList.contains('seated')||!b.isConnected){b.classList.remove('seated');document.body.append(b);}
   });
  }
  window.addEventListener('one-salon-before-render',parkCameras);window.addEventListener('one-salon-rendered',()=>{mount();dockCameras();});window.addEventListener('one-game-before-render',parkCameras);window.addEventListener('one-salon-visibility',()=>{mount();dockCameras();});

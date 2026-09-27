@@ -1,0 +1,23 @@
+ONE — POKER, LUMIÈRES ET CAMÉRAS — 0.14.117AE
+
+1. Décompresse ce fichier ZIP.
+2. Dans le dépôt du site déjà installé, envoie le contenu des dossiers ui et assets,
+   ainsi que sw.js à la racine. Remplace les fichiers portant le même nom.
+3. Valide le commit puis attends la fin du déploiement du site.
+4. Rouvre ONE sur le PC et le téléphone une fois le déploiement terminé.
+
+Il s’agit d’une mise à jour cumulative du site existant. Ne supprime pas index.html
+ni les autres fichiers du dépôt. Aucun Worker à remplacer.
+
+NOUVEAUTÉS
+- Caméras limitées à la taille de leur avatar après le retour au salon.
+- Vidéos récupérées après une élimination et les changements de vue.
+- Croix rouge persistante sur les joueurs éliminés de ONE Bluff.
+- Table ONE Poker : nouveau décor vert/or, disposition de 2 à 6 joueurs,
+  cartes nettes, jetons, pot, actions rouge/bleu/vert et relance accessible.
+- Violet plus vif, dorures et éclairages dans le salon, les amis, le catalogue,
+  les propositions de jeux, l’accueil et le menu de partie.
+- Les corrections précédentes (compteurs, tactile, quota, jeux retirés) sont incluses.
+
+Vérification locale effectuée avec données de démonstration, sans jouer de partie
+réelle. Le déploiement public reste à effectuer avec ce fichier.
