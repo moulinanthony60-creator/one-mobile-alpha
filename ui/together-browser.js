@@ -2,6 +2,15 @@
  'use strict';
  const {el,button}=ONEUI;
  const sources=[['youtube','YouTube','▶'],['tiktok','TikTok','♪'],['twitch','Twitch','◉'],['audio','Musique','♫'],['one','ONE','▷']];
+ // Same platform marks as ONE's icon set, drawn as vectors at every screen size.
+ const platformMarks={
+  youtube:'<rect x="1" y="4.5" width="22" height="15" rx="5" fill="#ff0033"/><path d="m10 8 6.5 4-6.5 4Z" fill="#fff"/>',
+  tiktok:'<path d="M14 3v12a5 5 0 1 1-5-5" fill="none" stroke="#25f4ee" stroke-width="4" transform="translate(-1 1)"/><path d="M14 3c0 4 3 6 6 6M14 3v12a5 5 0 1 1-5-5" fill="none" stroke="#fe2c55" stroke-width="3" transform="translate(1 0)"/><path d="M14 3c0 4 3 6 6 6M14 3v12a5 5 0 1 1-5-5" fill="none" stroke="#fff" stroke-width="2.5"/>',
+  twitch:'<path d="M4 2h18v13l-6 6h-5l-4 3v-3H2V6Z" fill="#9146ff"/><path d="M6 4h14v10l-4 4h-5l-3 3v-3H6Z" fill="#fff"/><path d="M10 7v6m6-6v6" stroke="#9146ff" stroke-width="2"/>',
+  audio:'<path d="M9 17V5l12-2v12M9 9l12-2" fill="none" stroke="#ff69d4" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="5.5" cy="18" rx="4" ry="3" fill="#ff69d4"/><ellipse cx="17.5" cy="16" rx="4" ry="3" fill="#6cf5ff"/>',
+  one:'<rect x="1" y="1" width="22" height="22" rx="7" fill="#713fee"/><rect x="3" y="3" width="18" height="18" rx="5.5" fill="#a06aff"/><path d="m10 7 7 5-7 5Z" fill="#fff"/><path d="M6 5h5" stroke="#e3ceff" stroke-width="1.5" stroke-linecap="round"/>'
+ };
+ function platformLogo(id){const mark=el('span',undefined,'ot-platform-logo');mark.setAttribute('aria-hidden','true');mark.innerHTML='<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">'+platformMarks[id]+'</svg>';return mark;}
  function create({choose}){
   let source='youtube',query='',cursor='',request=0,controller=null,disposed=false,canChoose=false,host=false,roomId='',loading=false,seen=new Set(),sessionKey='';
   const root=el('details',undefined,'ot-browser');root.open=true;
@@ -59,7 +68,7 @@
    hint.textContent=id==='tiktok'?'Les vidéos TikTok disponibles dans ONE. La recherche porte sur ce catalogue.':id==='twitch'?'Les directs Twitch, à regarder ensemble ici.':id==='audio'?'Retrouve ta playlist musique de ONE.':id==='one'?'Tes vidéos ONE publiées apparaîtront ici. Les aperçus locaux ne sont pas encore partagés.':'Retrouve ton flux ou recherche une vidéo YouTube.';
    discover.hidden=!['youtube','twitch'].includes(id);form.hidden=toolbar.hidden=id==='one';load();
   }
-  for(const [id,label,symbol]of sources){const b=button('',()=>pick(id));b.dataset.otSource=id;b.append(el('span',symbol),el('span',label));nav.append(b);}
+  for(const [id,label]of sources){const b=button('',()=>pick(id));b.dataset.otSource=id;b.append(platformLogo(id),el('span',label,'ot-platform-name'));nav.append(b);}
   form.onsubmit=e=>{e.preventDefault();query=input.value.trim();load(true);};
   const onCatalogue=()=>{if(source==='tiktok'&&!loading&&root.open)load();};window.addEventListener('one-catalogue-state',onCatalogue);
   pick(source);

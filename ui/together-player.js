@@ -15,7 +15,7 @@
  }
  async function create(mount,media,events,signal){
   if(media.source==='tiktok')return new Promise((resolve,reject)=>{
-   const frame=document.createElement('iframe');frame.src='https://www.tiktok.com/player/v1/'+media.id+'?controls=1&progress_bar=0&play_button=1&volume_control=1&autoplay=0&loop=0&description=1&rel=0';frame.title=media.title;frame.allow='autoplay; fullscreen; encrypted-media; picture-in-picture';frame.referrerPolicy='strict-origin-when-cross-origin';mount.append(frame);
+   const frame=document.createElement('iframe');frame.src='https://www.tiktok.com/player/v1/'+media.id+'?controls=1&progress_bar=0&play_button=1&volume_control=1&autoplay=0&loop=0&description=1&rel=0';frame.title=media.title;frame.allow='autoplay; fullscreen; encrypted-media; picture-in-picture';frame.setAttribute('allowfullscreen','');frame.referrerPolicy='strict-origin-when-cross-origin';mount.append(frame);
    let t=0,d=0,paused=true,ready=false,at=performance.now();const send=(type,value)=>frame.contentWindow?.postMessage({type,value,'x-tiktok-player':true},'https://www.tiktok.com');
    const timer=setTimeout(()=>{cleanup();reject(Error('TikTok ne répond pas. Réessaie ou choisis une autre vidéo.'));},20000);
    function cleanup(){clearTimeout(timer);window.removeEventListener('message',listen);frame.remove();}
@@ -42,9 +42,9 @@
    return new Promise((resolve,reject)=>{
     let settled=false;const timer=setTimeout(()=>{if(!settled){player.destroy();reject(Error('Impossible de charger cette vidéo YouTube.'));}},20000);
     const player=new YT.Player(mount,{host:'https://www.youtube-nocookie.com',width:'100%',height:'100%',videoId:media.id,
-     playerVars:{playsinline:1,origin:location.origin,controls:1,rel:0,fs:0},events:{
+     playerVars:{playsinline:1,origin:location.origin,controls:1,rel:0,fs:1},events:{
       onReady:e=>{settled=true;clearTimeout(timer);if(signal.aborted){e.target.destroy();resolve(null);return;}
-       const frame=e.target.getIframe();frame.title=media.title;frame.setAttribute('allow','autoplay; encrypted-media; picture-in-picture; fullscreen');frame.referrerPolicy='strict-origin-when-cross-origin';
+       const frame=e.target.getIframe();frame.title=media.title;frame.setAttribute('allow','autoplay; encrypted-media; picture-in-picture; fullscreen');frame.setAttribute('allowfullscreen','');frame.referrerPolicy='strict-origin-when-cross-origin';
        resolve({play:()=>player.playVideo(),pause:()=>player.pauseVideo(),seek:v=>player.seekTo(v,true),time:()=>player.getCurrentTime()||0,duration:()=>player.getDuration()||0,paused:()=>player.getPlayerState()!==1,mute:v=>v?player.mute():player.unMute(),destroy:()=>player.destroy()});},
       onStateChange:e=>{if(!signal.aborted&&e.data===1)events.playing?.();if(!signal.aborted&&e.data===0)events.ended();},
       onAutoplayBlocked:()=>{if(!signal.aborted)events.blocked();},

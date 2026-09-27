@@ -7,7 +7,8 @@
  const heading=el('div',undefined,'ot-salon-heading'),title=el('h3'),badge=el('small','TOGETHER · ENSEMBLE');heading.append(badge,title);
  const player=el('div',undefined,'ot-player'),status=el('p',undefined,'ot-status'),actions=el('div',undefined,'ot-salon-actions');status.setAttribute('role','status');
  const sound=button('Activer le son',activate,'os-primary'),play=button('Lire ensemble',()=>command(data?.state.playing?'pause':'play')),browse=button('Choisir une vidéo',()=>{window.oneCloseSalon?.();window.oneShowSpace?.('together');window.ONETogether?.browse?.();});
- actions.append(sound,play,browse);root.append(heading,player,status,actions);
+ const full=button('⛶ Plein écran',()=>window.ONETogetherFullscreen.toggle(player,full),'ot-fullscreen-button');full.setAttribute('aria-label','Plein écran');full.setAttribute('aria-expanded','false');
+ actions.append(sound,play,browse,full);root.append(heading,player,status,actions);
  let room=null,data=null,adapter=null,controller=null,clock=null,key='',muted=true,blocked=false,failed=false,ready=false,busy=false,pending=false,epoch=0,timer=null,lastPlay=-Infinity,lastSeek=-Infinity,lastEnd='';
  const visible=()=>!document.hidden&&!!window.oneSalonIsRoomOpen?.()&&!!room?.together&&root.isConnected;
  const time=()=>clock?clock.server+performance.now()-clock.at:Date.now();
@@ -17,10 +18,11 @@
   title.textContent=data?.state.media?.title||room.together.title;
   sound.textContent=failed?'Réessayer le lecteur':!ready?'Chargement…':blocked?'▶ Démarrer la vidéo':muted?'Activer le son':'Couper le son';
   sound.disabled=!failed&&!ready;sound.setAttribute('aria-pressed',String(!muted));
+  full.disabled=!ready||failed;
   play.hidden=!room.isHost;play.disabled=!data||busy;play.textContent=data?.state.playing?'Pause pour tous':'Lire ensemble';
   browse.textContent=room.isHost?'Choisir une vidéo':'Proposer une vidéo';
  }
- function destroyPlayer(){controller?.abort();controller=null;adapter=null;ready=false;failed=false;blocked=false;key='';lastEnd='';lastPlay=lastSeek=-Infinity;player.replaceChildren();}
+ function destroyPlayer(){window.ONETogetherFullscreen?.exit(player);controller?.abort();controller=null;adapter=null;ready=false;failed=false;blocked=false;key='';lastEnd='';lastPlay=lastSeek=-Infinity;player.replaceChildren();}
  function stop(){epoch++;clearTimeout(timer);timer=null;destroyPlayer();data=null;clock=null;pending=false;busy=false;muted=true;root.hidden=true;}
  function sync(){
   if(!visible()||!data?.state.media||!adapter||failed||blocked)return;
