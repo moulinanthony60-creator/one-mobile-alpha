@@ -1,312 +1,282 @@
 [
   {
-    "fichier": "DECOR-118.md",
-    "octets": 1849,
-    "sha256": "f327a0b62de9509114d4dafadac0b5d1e0612c513744a9e2f671b87e56415b63"
+    "fichier": "A-METTRE-A-LA-RACINE/index.html",
+    "octets": 612215,
+    "sha256": "92acdfe93bd12cbe8a4e4102a32accba02b393c47eba82fbec2610e252964206"
   },
   {
-    "fichier": "INSTALLATION-118.txt",
-    "octets": 1793,
-    "sha256": "026e4bc8c9310e3ec95fefc308d431b7b99d68236b7388bf78add422d4ca4352"
+    "fichier": "A-METTRE-A-LA-RACINE/sw.js",
+    "octets": 2477,
+    "sha256": "62883a8664f8b799b24171012fa0c00a4b86c553ae096ea8f4e8ed8b561228c8"
   },
   {
-    "fichier": "SERVEUR/LIRE-AVANT-DEPLOIEMENT.txt",
-    "octets": 265,
-    "sha256": "97e5947cd07fb00d7a19ef395be8fbffd19d734708d0d7d2e431fa42bfcd7064"
-  },
-  {
-    "fichier": "SERVEUR/worker.js",
-    "octets": 166898,
-    "sha256": "9944bd9540fdd2452a90ef7cb5f785600c78500163184387c11a7f0f975ba1d9"
-  },
-  {
-    "fichier": "SITE/assets/bluff/AUDIO-LICENSE-117Z.txt",
-    "octets": 493,
-    "sha256": "3be873352b087f9c115c6de47a9bc0ba055e26746fa53c6095574dbce8a126b4"
-  },
-  {
-    "fichier": "SITE/assets/bluff/revolver-117z.glb",
-    "octets": 667276,
-    "sha256": "0aedcec8b35a45accfd4c55f95b18c2eb738c5060935f35cb63a1f4685c38553"
-  },
-  {
-    "fichier": "SITE/assets/bluff/revolver-click-117z.wav",
-    "octets": 31796,
-    "sha256": "2dbd5d9718782495f2d4efa6beba533fc74e893c13f9ea466bf8fc4c68b9d24b"
-  },
-  {
-    "fichier": "SITE/assets/bluff/revolver-shot-117z.wav",
-    "octets": 185264,
-    "sha256": "94650cae9f2e3ab83c16a12dfa4bb6b5b4ddaf2cd11c84c184d0e7975cdfda34"
-  },
-  {
-    "fichier": "SITE/assets/bluff/revolver.glb",
-    "octets": 191712,
-    "sha256": "61b3c9138087464d4076e0cb966458dcb8d7715a05a6b97af08383a72230ac6c"
-  },
-  {
-    "fichier": "SITE/index.html",
-    "octets": 612209,
-    "sha256": "3135fbfdf19455b9cea12354dd013ed95155f7b020320b8cb5a390eb96554b75"
-  },
-  {
-    "fichier": "SITE/sw.js",
-    "octets": 2467,
-    "sha256": "2475a411bed5057fea8d137b3a39a56626eeff43c9f0e760ac65d2a7ea6b4639"
-  },
-  {
-    "fichier": "SITE/ui/blackjack-art-117af.svg",
+    "fichier": "A-METTRE-DANS-ui/blackjack-art-117af.svg",
     "octets": 1355,
     "sha256": "2adeeaddf7cb47c065f4246c6c8e522787418e030db9a0731763fe22ae09a4b2"
   },
   {
-    "fichier": "SITE/ui/blackjack-table-118.png",
+    "fichier": "A-METTRE-DANS-ui/blackjack-table-118.png",
     "octets": 2602805,
     "sha256": "2ef0f5a868aeab6f11bc6a1376582042ed635022a75909fbc6f9a793e0bbe806"
   },
   {
-    "fichier": "SITE/ui/bluff-cinematic.js",
+    "fichier": "A-METTRE-DANS-ui/bluff-cinematic.js",
     "octets": 7891,
     "sha256": "0a08e716b8957a617aa9dbd1f8d13528c3a46130732e7149e9e14d53174256a4"
   },
   {
-    "fichier": "SITE/ui/bluff-lounge-117r.png",
+    "fichier": "A-METTRE-DANS-ui/bluff-lounge-117r.png",
     "octets": 2591199,
     "sha256": "ff5e243391d675223d811649fb779e126fbe0a800b35b9439fb8c15d10084d25"
   },
   {
-    "fichier": "SITE/ui/bluff-polish.css",
+    "fichier": "A-METTRE-DANS-ui/bluff-polish.css",
     "octets": 8834,
     "sha256": "b18ae7466d49acd0bdf2d128c36cb9a03d4214fb4312af12dba88a3abd48e021"
   },
   {
-    "fichier": "SITE/ui/bluff-scene.js",
+    "fichier": "A-METTRE-DANS-ui/bluff-scene.js",
     "octets": 19638,
     "sha256": "86602c5c1d7dfc6eef8fc534b7a42afbd3e33bd947fe8e46027e75a436fe9cd0"
   },
   {
-    "fichier": "SITE/ui/card-back-blackjack-117af.svg",
+    "fichier": "A-METTRE-DANS-ui/card-back-blackjack-117af.svg",
     "octets": 1288,
     "sha256": "f842633f1588a3d5f639f282a31c8f637496cf923661454e69e1b9038e2e6c6b"
   },
   {
-    "fichier": "SITE/ui/card-back-bluff-117ad.svg",
+    "fichier": "A-METTRE-DANS-ui/card-back-bluff-117ad.svg",
     "octets": 1347,
     "sha256": "47cca19a588c0d24f78e511069c3c1058a5ac4d73e77843d0e006899919b0556"
   },
   {
-    "fichier": "SITE/ui/card-back-colors-117af.svg",
+    "fichier": "A-METTRE-DANS-ui/card-back-colors-117af.svg",
     "octets": 1287,
     "sha256": "50312a144796fc5a584a0e73fee898f75d1de8233e04dfec42058443cf2fa020"
   },
   {
-    "fichier": "SITE/ui/card-back-douze-117ad.svg",
+    "fichier": "A-METTRE-DANS-ui/card-back-douze-117ad.svg",
     "octets": 1347,
     "sha256": "318d6d93e8273745f916c095a07a41bba4aa054e14337f2ec2515c9a561b27d2"
   },
   {
-    "fichier": "SITE/ui/card-back-poker-117af.svg",
+    "fichier": "A-METTRE-DANS-ui/card-back-poker-117af.svg",
     "octets": 1284,
     "sha256": "640a86879c07c94c92dc4f1e52453e8f9aedf227fe112f35f67a70d1fb0b33b0"
   },
   {
-    "fichier": "SITE/ui/card-back-trio-117af.svg",
+    "fichier": "A-METTRE-DANS-ui/card-back-trio-117af.svg",
     "octets": 1283,
     "sha256": "70029b7f29b7b44d64c71265c1788e5df88f723791751f48fe60513efb2cd462"
   },
   {
-    "fichier": "SITE/ui/douze-lounge-117p.png",
+    "fichier": "A-METTRE-DANS-ui/douze-lounge-117p.png",
     "octets": 2441749,
     "sha256": "5d8324b13336bad3c01d95432122ab79cd6635a65d1dba6c884a4f2fbdbdce2d"
   },
   {
-    "fichier": "SITE/ui/douze-target.css",
+    "fichier": "A-METTRE-DANS-ui/douze-target.css",
     "octets": 20922,
     "sha256": "0aa4498e18602221fb5c631b19a3871ce6b4078c2b612ac79bdbcdec4a8356fd"
   },
   {
-    "fichier": "SITE/ui/friends.css",
+    "fichier": "A-METTRE-DANS-ui/friends.css",
     "octets": 7279,
     "sha256": "0a79684baa762f307daf3bb3a7f258c82a5398607856a5d9d8410d46cd02e039"
   },
   {
-    "fichier": "SITE/ui/friends.js",
+    "fichier": "A-METTRE-DANS-ui/friends.js",
     "octets": 14797,
     "sha256": "36cc7d7307d0808e61432c84ef915a1dbf02db48d9cf643651e8581a2aceb47f"
   },
   {
-    "fichier": "SITE/ui/game-lounge-109.webp",
+    "fichier": "A-METTRE-DANS-ui/game-lounge-109.webp",
     "octets": 183082,
     "sha256": "f99baa5896e004f965059a5cf75ba17147718ff728f07071ed4b7ee85f25962a"
   },
   {
-    "fichier": "SITE/ui/game-shell.css",
+    "fichier": "A-METTRE-DANS-ui/game-shell.css",
     "octets": 12300,
     "sha256": "138b63be2df67e129fa38f8185f0e30bcf012e38e51771ae597574734f5e68ca"
   },
   {
-    "fichier": "SITE/ui/game-shell.js",
+    "fichier": "A-METTRE-DANS-ui/game-shell.js",
     "octets": 8234,
     "sha256": "6103d06b3211c5115b5c8b58707cfcd54fda2ac4956aa00b6cede1a4b88d3816"
   },
   {
-    "fichier": "SITE/ui/game-tables.css",
+    "fichier": "A-METTRE-DANS-ui/game-tables.css",
     "octets": 13201,
     "sha256": "11fb92969f69dffb5bf9a1c10f3a961d25ff209b4cd3803e1fbece5ad8a5a3ba"
   },
   {
-    "fichier": "SITE/ui/game-tables.js",
+    "fichier": "A-METTRE-DANS-ui/game-tables.js",
     "octets": 27338,
     "sha256": "a2c117991547f7305e1e5d32f76879b228aa3b02511cfc3b56a17862c69ad3c2"
   },
   {
-    "fichier": "SITE/ui/mobile-ux.css",
+    "fichier": "A-METTRE-DANS-ui/mobile-ux.css",
     "octets": 9598,
     "sha256": "9b4a13313d51b8ac081e1e0dd09f0e1eda7ae5368e29dd80b652830f81fde2c8"
   },
   {
-    "fichier": "SITE/ui/mobile-ux.js",
+    "fichier": "A-METTRE-DANS-ui/mobile-ux.js",
     "octets": 1825,
     "sha256": "5e548b010af80aba572255a3b493a07afadf72a716eb77b23456c08047bb4107"
   },
   {
-    "fichier": "SITE/ui/notifications.js",
+    "fichier": "A-METTRE-DANS-ui/notifications.js",
     "octets": 7155,
     "sha256": "4951ee7280b2ed6a03a18295d72c7fcdf5c465eb83a7eca565e10d02a3e6192e"
   },
   {
-    "fichier": "SITE/ui/one-luminous-117ae.css",
+    "fichier": "A-METTRE-DANS-ui/one-luminous-117ae.css",
     "octets": 9063,
     "sha256": "2619c233b8683fd0ed47d4bfb18b87b26483fb7a203b2a54bf71c514352b3881"
   },
   {
-    "fichier": "SITE/ui/one-points.js",
+    "fichier": "A-METTRE-DANS-ui/one-points.js",
     "octets": 6999,
     "sha256": "f8af5358c1fa81ab4de71aaa7f53456adb007a157002edafb7eb880869ef722f"
   },
   {
-    "fichier": "SITE/ui/party-art.js",
+    "fichier": "A-METTRE-DANS-ui/party-art.js",
     "octets": 1252,
     "sha256": "a8f91f06dba68fb961f4899eaf508d11fe31ef0fe12992a6f215e06ca3191ee3"
   },
   {
-    "fichier": "SITE/ui/party-blackjack.css",
+    "fichier": "A-METTRE-DANS-ui/party-blackjack.css",
     "octets": 14427,
     "sha256": "3b6109945c2878e21c01e20508747fa5f2178baca1e05c6df9df4b0555f477ba"
   },
   {
-    "fichier": "SITE/ui/party-blackjack.js",
-    "octets": 6938,
-    "sha256": "51d748751beb3883e9ce6e418d1382902978b182e7ad6a032a4ca497748cfe50"
+    "fichier": "A-METTRE-DANS-ui/party-blackjack.js",
+    "octets": 6941,
+    "sha256": "1c9cc2772b3f69aee624228ee6ecfd7de98e8901fffa8226c57d6f2e3f1b5530"
   },
   {
-    "fichier": "SITE/ui/party-bluff.js",
+    "fichier": "A-METTRE-DANS-ui/party-bluff.js",
     "octets": 13677,
     "sha256": "3932b266d9d2c4095bde70da3db560ed7dc9966a19495d510bdb55bb745ef250"
   },
   {
-    "fichier": "SITE/ui/party-collection.js",
+    "fichier": "A-METTRE-DANS-ui/party-collection.js",
     "octets": 23903,
     "sha256": "2dfbaa3af0095b524b112ff989dfe537ce1a24ef28b3530176e466c9a7b20662"
   },
   {
-    "fichier": "SITE/ui/party-communication.js",
+    "fichier": "A-METTRE-DANS-ui/party-communication.js",
     "octets": 19718,
     "sha256": "bb028b9536fc03c92ff37698db643266f6365aea82d981026c0f46df9a911b7b"
   },
   {
-    "fichier": "SITE/ui/party-douze.js",
+    "fichier": "A-METTRE-DANS-ui/party-douze.js",
     "octets": 14278,
     "sha256": "df13a9b8bdbc99b5e940828aeffc72a043e9c8b59f4367bfe32810038fdcedd8"
   },
   {
-    "fichier": "SITE/ui/party-game.js",
+    "fichier": "A-METTRE-DANS-ui/party-game.js",
     "octets": 20321,
     "sha256": "362a821d5173d4a2c380a063cab0c5b15504e1a8fd044da83d969a60e58e0e64"
   },
   {
-    "fichier": "SITE/ui/party-poker.js",
+    "fichier": "A-METTRE-DANS-ui/party-poker.js",
     "octets": 11157,
     "sha256": "bb2a6b9596dbbabd9ea5894be343cdc17757ddd169e390bb3ab1dff035c3c27e"
   },
   {
-    "fichier": "SITE/ui/party-public.js",
+    "fichier": "A-METTRE-DANS-ui/party-public.js",
     "octets": 5859,
     "sha256": "fb1b5b7c0c252bd537ca6af202bbfe81a7d1847699ebc7c09ae4b06a199b646a"
   },
   {
-    "fichier": "SITE/ui/party-who.js",
+    "fichier": "A-METTRE-DANS-ui/party-who.js",
     "octets": 9326,
     "sha256": "f2f3d72c77c005d6a861f8ff506c3fff4f890bb689c2919780fa179b644afa98"
   },
   {
-    "fichier": "SITE/ui/party.js",
+    "fichier": "A-METTRE-DANS-ui/party.js",
     "octets": 17799,
     "sha256": "64237631192ba88f0c9cf7e19efbf63402bd7aece626fc9e2a2c490c458acfd1"
   },
   {
-    "fichier": "SITE/ui/poker-lounge-117ae.png",
+    "fichier": "A-METTRE-DANS-ui/poker-lounge-117ae.png",
     "octets": 2811374,
     "sha256": "7070610ce3f832ecdc38ef07f17bb6431ad15984b77bb427b943a596c3b19f63"
   },
   {
-    "fichier": "SITE/ui/poker-polish.css",
+    "fichier": "A-METTRE-DANS-ui/poker-polish.css",
     "octets": 18202,
     "sha256": "43adc43a975b58f6c2489179dae1f8c33df7eaed8ecab575c6a412f7ad25c68d"
   },
   {
-    "fichier": "SITE/ui/salon-polish.css",
+    "fichier": "A-METTRE-DANS-ui/salon-polish.css",
     "octets": 9460,
     "sha256": "3988954804bc544352f639d7280984298c702ef782ae0bb9c4bd1b0305fa42ac"
   },
   {
-    "fichier": "SITE/ui/social-app.js",
+    "fichier": "A-METTRE-DANS-ui/social-app.js",
     "octets": 4016,
     "sha256": "f83966f2f0b47bdf077083d2307aa91d6314a6234830f62adcfaff788b4fcebe"
   },
   {
-    "fichier": "SITE/ui/social-core.js",
+    "fichier": "A-METTRE-DANS-ui/social-core.js",
     "octets": 16718,
     "sha256": "4964faf87f6c93e17de2eca92237589c80e27f42bae7ceeef37c96d259c365ba"
   },
   {
-    "fichier": "SITE/ui/table-themes-117af.css",
+    "fichier": "A-METTRE-DANS-ui/table-themes-117af.css",
     "octets": 17045,
     "sha256": "056168874fe32168a42d362cc0962173cdd32dead95d7b2574648d7b95ac150e"
   },
   {
-    "fichier": "SITE/ui/table-themes-117af.js",
+    "fichier": "A-METTRE-DANS-ui/table-themes-117af.js",
     "octets": 1105,
     "sha256": "64c83614fc7dc3d993bd3541e4f279ba2755369d3d6986039e4e8328d604ef38"
   },
   {
-    "fichier": "SITE/ui/vendor/BufferGeometryUtils.js",
+    "fichier": "A-METTRE-DANS-ui/vendor/BufferGeometryUtils.js",
     "octets": 37724,
     "sha256": "6d4f4f989a5f7e810522aaa36292205e3674878eed9810563417bd13ab9ba4f2"
   },
   {
-    "fichier": "SITE/ui/vendor/GLTFLoader.js",
+    "fichier": "A-METTRE-DANS-ui/vendor/GLTFLoader.js",
     "octets": 117568,
     "sha256": "ea6945bc119f46237fab6a9228c3566fe66fff200512b3b96b1a6a32e89cb706"
   },
   {
-    "fichier": "SITE/ui/vendor/SkeletonUtils.js",
+    "fichier": "A-METTRE-DANS-ui/vendor/SkeletonUtils.js",
     "octets": 11547,
     "sha256": "eedd768765d6553f8082953ab3882e2c86dacc2eb7d180a312d1d52e86bb35c5"
   },
   {
-    "fichier": "SITE/ui/vendor/three.core.js",
+    "fichier": "A-METTRE-DANS-ui/vendor/three.core.js",
     "octets": 1458113,
     "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
   },
   {
-    "fichier": "SITE/ui/vendor/three.module.js",
+    "fichier": "A-METTRE-DANS-ui/vendor/three.module.js",
     "octets": 662772,
     "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
   },
   {
-    "fichier": "SITE/ui/wolf-council-117af.svg",
+    "fichier": "A-METTRE-DANS-ui/wolf-council-117af.svg",
     "octets": 6567,
     "sha256": "a96266d0456330bfc9d06cf152774f00d9b40c90cbf2c79049de8b88b68ff31c"
+  },
+  {
+    "fichier": "LIS-MOI-118.txt",
+    "octets": 1682,
+    "sha256": "d2ba14f88694b0e70a505a90ccb3992e779cfe91a888337f99557c113e9b2465"
+  },
+  {
+    "fichier": "SERVEUR-SI-PAS-DEJA-INSTALLE/LIRE-AVANT-DEPLOIEMENT.txt",
+    "octets": 265,
+    "sha256": "97e5947cd07fb00d7a19ef395be8fbffd19d734708d0d7d2e431fa42bfcd7064"
+  },
+  {
+    "fichier": "SERVEUR-SI-PAS-DEJA-INSTALLE/worker.js",
+    "octets": 166898,
+    "sha256": "9944bd9540fdd2452a90ef7cb5f785600c78500163184387c11a7f0f975ba1d9"
   }
 ]

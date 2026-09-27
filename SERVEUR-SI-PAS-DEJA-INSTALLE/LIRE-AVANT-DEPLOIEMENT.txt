@@ -1,0 +1,4 @@
+﻿Worker complet one-comments-api. Déployer avant le dossier SITE.
+Conserver bindings, secrets, routes et base existants.
+Base : outputs/ONE-PARTY-ACTIVITY/worker.js (22 septembre 2026).
+Ajout Blackjack gratuit ; schémas wallet et autres moteurs conservés.

@@ -1,0 +1,34 @@
+ONE 118 — CORRECTIF BLACKJACK MANQUANT
+
+Le titre de ONE est à jour, mais des fichiers du dossier ui publiés sont encore
+anciens et party-blackjack.js est absent. Cette livraison rétablit les fichiers
+nécessaires et renouvelle le cache du navigateur.
+
+1. DANS TON DÉPÔT GITHUB, OUVRE LE DOSSIER ui
+   Ajoute TOUS LES FICHIERS contenus dans A-METTRE-DANS-ui directement dans ui.
+   Ce dossier contient notamment party-blackjack.js, party-blackjack.css,
+   party-collection.js, party-game.js et les images de la nouvelle table.
+   Remplace les fichiers déjà présents, puis valide.
+
+2. REVIENS À LA RACINE DU DÉPÔT
+   Remplace index.html et sw.js par ceux du dossier A-METTRE-A-LA-RACINE.
+   Valide et attends la fin du déploiement GitHub.
+
+IMPORTANT : les dossiers A-METTRE-DANS-ui et A-METTRE-A-LA-RACINE sont des
+indications de destination. N'envoie pas ces deux dossiers sous ces noms.
+Il faut envoyer LEURS FICHIERS aux emplacements indiqués.
+
+3. ROUVRE ONE
+   Ferme puis rouvre ONE après la fin du déploiement.
+   Dans Party > Tous ou Cartes, ONE Blackjack doit apparaître entre Poker et Douze.
+   La version affichée reste 0.14.118.
+
+SERVEUR
+Si tu as déjà installé le Worker fourni avec TABLES-BLACKJACK-117AF ou ONE 118,
+il n'y a rien à changer côté serveur.
+Sinon, installe SERVEUR-SI-PAS-DEJA-INSTALLE/worker.js dans le Worker
+one-comments-api en conservant ses réglages, connexions et secrets.
+Ne remplace pas le Worker des comptes/profils. Aucun SQL manuel nécessaire.
+
+Cette livraison conserve la table rouge, les jeux précédents et les comptes.
+Aucun déploiement public n'a été effectué par l'assistant.
