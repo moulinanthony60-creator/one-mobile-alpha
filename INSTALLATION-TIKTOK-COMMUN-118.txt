@@ -1,0 +1,65 @@
+ONE 118c1 — CATALOGUE TIKTOK COMMUN ET NOUVEL EN-TÊTE
+
+1. INSTALLER LE SERVEUR
+Ouvrir CODE-SERVEUR-TIKTOK-COMMUN-118.txt et copier tout le contenu.
+Dans Cloudflare → one-comments-api → Edit code, remplacer TOUT le code,
+puis cliquer sur Deploy. Le fichier worker.mjs du ZIP serveur est identique.
+Garder les liaisons COMMENTS et PROFILE, les secrets existants, la même clé
+ONE_PUSH_VAPID_JWK et le Cron Every minute.
+Les tables du catalogue sont créées automatiquement dans la base COMMENTS.
+Ce serveur conserve le correctif d'envoi immédiat des notifications 118s4,
+ainsi que les jeux, Together et les fonctions sociales de ONE 118.
+Ne pas installer ce code dans one-profile-api ou one-tiktok-api.
+
+2. INSTALLER LE SITE
+Extraire ONE-118-TIKTOK-COMMUN-ET-ENTETE.zip.
+Envoyer index.html, sw.js et le dossier ui À LA RACINE du site ONE.
+Fusionner ui avec le dossier ui existant et remplacer les fichiers fournis.
+Ce ZIP met à jour le site ONE 118 déjà installé ; garder les autres fichiers.
+Actualiser ensuite ONE sur le PC ET les téléphones.
+
+3. PARTAGER UNE FOIS LE CATALOGUE DÉJÀ ENREGISTRÉ
+Sur l'appareil et le compte qui possèdent tes anciens liens TikTok :
+ouvrir TikTok → + Ajouter → Partager mes liens enregistrés.
+Les liens publics vérifiables sont ajoutés au catalogue commun.
+Les favoris, historiques, connexions TikTok et sauvegardes personnelles
+ne sont pas publiés. Les vidéos déjà partagées ne sont pas dupliquées.
+Les liens supprimés, privés ou non vérifiables sont signalés.
+Le catalogue serveur commence vide : cette étape permet de le remplir
+avec les liens existants, qui étaient auparavant sauvegardés par compte.
+
+4. UTILISATION
+Tous les utilisateurs peuvent voir le même catalogue, y compris les nouveaux
+comptes. Aucune connexion TikTok n'est requise pour le consulter.
+Tout compte ONE connecté peut contribuer avec + Ajouter dans le lecteur,
+Ajouter une vidéo dans le catalogue, ou Ajouter un TikTok dans Together.
+Coller jusqu'à 20 liens ou un texte de partage TikTok, puis Partager.
+Un lien complet et les liens courts vm.tiktok.com / vt.tiktok.com sont acceptés.
+La disponibilité et les informations des vidéos sont vérifiées via TikTok.
+Utiliser Actualiser / ↻ pour récupérer les derniers ajouts sur un autre appareil.
+Le catalogue commun est également disponible dans Together.
+
+5. EN-TÊTE
+Icônes colorées Boutique, Recherche, Amis, Salons et Alertes.
+Le bouton Points ONE est placé à côté du logo, au-dessus des autres outils :
+le solde complet reste dans son propre bouton, sans déborder sur Boutique.
+Les boutons existants, la photo de profil et le compteur d'alertes sont conservés.
+
+VÉRIFICATIONS
+Tests locaux réussis : compte neuf, lecture publique, ajout authentifié,
+doublons simultanés, liens courts, refus des destinations non TikTok,
+liens indisponibles, pagination, limites, confidentialité des comptes.
+Test navigateur sur la base locale : ajout par Alice visible chez Bob,
+partage d'un ancien lien, bouton dans le lecteur, affichage à 390 et 320 px
+avec soldes 394 357 et 999 999 999. Aucun débordement ni erreur JavaScript.
+Tests des notifications immédiates, des requêtes D1 et de Together réussis.
+Contrôle de types Cloudflare : aucun diagnostic.
+Les réponses TikTok sont simulées pour les tests locaux ; la lecture réelle
+des vidéos et leur vérification dépendent du service TikTok en production.
+
+PARAMÈTRES ACTUELS
+5 000 vidéos maximum dans le catalogue commun ; 500 tentatives d'ajout
+par compte ONE et par jour. Lecture publique sans identifiant du contributeur.
+Version serveur : socialVersion 118s4, catalogVersion 118c1.
+Service worker du site : one-mobile-alpha-14118c1.
+Cette livraison ne déploie pas automatiquement le site ni le serveur.

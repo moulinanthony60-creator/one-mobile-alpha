@@ -19,7 +19,7 @@
   const body=el('div',undefined,'ot-browser-body'),nav=el('nav',undefined,'ot-platforms');nav.setAttribute('aria-label','Parcourir les plateformes');
   const hint=el('p',undefined,'ot-catalog-hint'),form=el('form',undefined,'ot-search'),input=el('input'),submit=button('Rechercher');
   input.type='search';input.maxLength=120;input.setAttribute('aria-label','Rechercher un contenu');submit.type='submit';form.append(input,submit);
-  const toolbar=el('div',undefined,'ot-browse-tools'),feed=button('Mon flux ONE',()=>{input.value='';query='';load(false);}),discover=button('Découvrir',()=>{input.value='';query='';load(true);});toolbar.append(feed,discover);
+  const toolbar=el('div',undefined,'ot-browse-tools'),feed=button('Mon flux ONE',()=>{input.value='';query='';load(false);}),discover=button('Découvrir',()=>{input.value='';query='';load(true);});const contribute=button('＋ Ajouter un TikTok',()=>window.ONETikTokPublic?.open());contribute.hidden=true;toolbar.append(feed,discover,contribute);
   const status=el('p',undefined,'ot-browse-status');status.setAttribute('role','status');
   const recovery=el('div',undefined,'ot-browse-recovery'),grid=el('div',undefined,'ot-results'),more=button('Voir plus',()=>load(false,true),'ot-more');more.hidden=true;
   grid.setAttribute('aria-label','Contenus à regarder ensemble');
@@ -53,7 +53,7 @@
     for(const item of result.items)if(!seen.has(item.key)){seen.add(item.key);grid.append(card(item));}
     cursor=result.cursor;more.hidden=!cursor;
     status.textContent=seen.size?seen.size+' contenu'+(seen.size>1?'s':'')+(result.local?' de ton flux ONE':''):
-     source==='one'?'Aucune vidéo ONE publiée pour le moment.':source==='audio'?'Ta playlist est vide. Ajoute des vidéos avec « ＋ Playlist » dans YouTube sur ONE.':query?'Aucun contenu trouvé. Essaie un autre mot ou un autre créateur.':source==='tiktok'?'Aucune vidéo TikTok dans ton catalogue ONE pour le moment.':'Aucun contenu disponible pour le moment.';
+     source==='one'?'Aucune vidéo ONE publiée pour le moment.':source==='audio'?'Ta playlist est vide. Ajoute des vidéos avec « ＋ Playlist » dans YouTube sur ONE.':query?'Aucun contenu trouvé. Essaie un autre mot ou un autre créateur.':source==='tiktok'?'Aucune vidéo TikTok dans le catalogue commun ONE pour le moment.':'Aucun contenu disponible pour le moment.';
    }catch(e){
     if(disposed||own!==request||e.name==='AbortError')return;
     status.textContent=e.name==='TimeoutError'?'La plateforme met trop de temps à répondre. Réessaie dans quelques instants.':e.message;
@@ -62,17 +62,17 @@
    }finally{if(!disposed&&own===request){loading=false;grid.setAttribute('aria-busy','false');updateButtons();}}
   }
   function pick(id){
-   source=id;query='';input.value='';root.dataset.otSource=id;
+   source=id;contribute.hidden=id!=='tiktok';query='';input.value='';root.dataset.otSource=id;
    for(const b of nav.children)b.setAttribute('aria-pressed',String(b.dataset.otSource===id));
-   input.placeholder=id==='twitch'?'Rechercher une chaîne en direct…':id==='tiktok'?'Rechercher dans ton catalogue TikTok…':id==='audio'?'Rechercher dans ta playlist…':'Vidéo, thème, créateur…';
-   hint.textContent=id==='tiktok'?'Les vidéos TikTok disponibles dans ONE. La recherche porte sur ce catalogue.':id==='twitch'?'Les directs Twitch, à regarder ensemble ici.':id==='audio'?'Retrouve ta playlist musique de ONE.':id==='one'?'Tes vidéos ONE publiées apparaîtront ici. Les aperçus locaux ne sont pas encore partagés.':'Retrouve ton flux ou recherche une vidéo YouTube.';
+   input.placeholder=id==='twitch'?'Rechercher une chaîne en direct…':id==='tiktok'?'Rechercher dans le catalogue commun TikTok…':id==='audio'?'Rechercher dans ta playlist…':'Vidéo, thème, créateur…';
+   hint.textContent=id==='tiktok'?'Un catalogue commun à tous les utilisateurs ONE. Chacun peut ajouter une vidéo publique.':id==='twitch'?'Les directs Twitch, à regarder ensemble ici.':id==='audio'?'Retrouve ta playlist musique de ONE.':id==='one'?'Tes vidéos ONE publiées apparaîtront ici. Les aperçus locaux ne sont pas encore partagés.':'Retrouve ton flux ou recherche une vidéo YouTube.';
    discover.hidden=!['youtube','twitch'].includes(id);form.hidden=toolbar.hidden=id==='one';load();
   }
   for(const [id,label]of sources){const b=button('',()=>pick(id));b.dataset.otSource=id;b.append(platformLogo(id),el('span',label,'ot-platform-name'));nav.append(b);}
   form.onsubmit=e=>{e.preventDefault();query=input.value.trim();load(true);};
-  const onCatalogue=()=>{if(source==='tiktok'&&!loading&&root.open)load();};window.addEventListener('one-catalogue-state',onCatalogue);
+  const onCatalogue=()=>{if(source==='tiktok'&&!loading&&root.open)load();};window.addEventListener('one-catalogue-state',onCatalogue);window.addEventListener('one-tiktok-public-state',onCatalogue);
   pick(source);
-  return {root,setMedia(key){if(key===sessionKey)return;sessionKey=key;root.open=!key;},update(next){host=!!next.host;canChoose=!!next.roomId&&next.ready&&!next.busy;roomId=next.roomId||'';summary.querySelector('small').textContent=host?'Choisis un contenu pour ton salon':'Propose une vidéo · file commune du salon';updateButtons();},destroy(){disposed=true;request++;controller?.abort();root.remove();window.removeEventListener('one-catalogue-state',onCatalogue);}};
+  return {root,setMedia(key){if(key===sessionKey)return;sessionKey=key;root.open=!key;},update(next){host=!!next.host;canChoose=!!next.roomId&&next.ready&&!next.busy;roomId=next.roomId||'';summary.querySelector('small').textContent=host?'Choisis un contenu pour ton salon':'Propose une vidéo · file commune du salon';updateButtons();},destroy(){disposed=true;request++;controller?.abort();root.remove();window.removeEventListener('one-catalogue-state',onCatalogue);window.removeEventListener('one-tiktok-public-state',onCatalogue);}};
  }
  window.ONETogetherBrowser={create};
 })();

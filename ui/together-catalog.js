@@ -41,7 +41,7 @@
   const check=()=>{if(signal?.aborted||captured!==owner()||epoch!==generation)throw new DOMException('Recherche annulée','AbortError');};
   check();query=query.trim().slice(0,120);
   if(source==='tiktok'){
-   await window.ONECatalogue?.ready;check();window.loadTikTokLocal?.();
+   await window.ONECatalogue?.ready;check();await window.ONETikTokPublic?.refresh({force:remote});check();window.loadTikTokLocal?.();
   }
   const local=filter(snapshot(source),query);
   if(!['youtube','twitch'].includes(source)){
