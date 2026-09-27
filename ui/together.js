@@ -7,7 +7,7 @@
  const format=n=>{n=Math.floor(n||0);return Math.floor(n/60)+':'+String(n%60).padStart(2,'0');};
  function note(text){if(current())view.feedback.textContent=text;}
  function destroyPlayer(){abort?.abort();abort=null;adapter=null;mediaKey='';failed=false;endedKey='';lastSeek=-Infinity;lastPlay=-Infinity;}
- function clear(){epoch++;clearTimeout(timer);timer=null;destroyPlayer();view=null;room=null;data=null;clock=null;armed=false;busy=false;polling=false;membersKey='';queueKey='';}
+ function clear(){epoch++;clearTimeout(timer);timer=null;destroyPlayer();view?.browser?.destroy();view=null;room=null;data=null;clock=null;armed=false;busy=false;polling=false;membersKey='';queueKey='';}
  function controls(){if(!current())return;const host=!!room?.isHost,media=data?.state.media;
   view.root.dataset.host=String(host);view.root.dataset.revision=String(data?.revision??'');view.root.dataset.playing=String(!!data?.state.playing);view.root.dataset.live=String(!!media?.live);
   view.role.textContent=room?(host?'Tu pilotes la lecture du salon.':'L’hôte pilote la lecture. Le son reste personnel.'):'Crée ou rejoins un salon pour regarder ensemble.';
@@ -19,7 +19,8 @@
   view.seek.disabled=!host||!media||busy||!!media.live;view.back.disabled=view.forward.disabled=view.seek.disabled;
   view.join.hidden=!media;view.join.disabled=(!adapter&&!failed)||busy;view.join.textContent=failed?'Réessayer le lecteur':armed?'Me resynchroniser':'Rejoindre la lecture';
   view.sound.disabled=!media||!adapter;view.sound.textContent=muted?'Activer le son':'Couper le son';view.sound.setAttribute('aria-pressed',String(!muted));
-  view.full.disabled=!media;view.editor.hidden=!host;view.hostControls.hidden=!host;
+  view.full.disabled=!media;view.manual.hidden=!host;view.hostControls.hidden=!host;
+  view.browser.update({host,ready:!!data,busy,roomId:room?.id});
  }
  function sync(){if(!current()||!data?.state.media||!adapter||failed)return;
   const s=data.state,duration=adapter.duration(),target=Math.min(position(s,time()),duration?Math.max(0,duration-.1):86400);
@@ -33,7 +34,7 @@
  }
  async function mountMedia(media){
   const wasArmed=armed;destroyPlayer();armed=wasArmed;view.player.replaceChildren();
-  if(!media){view.player.append(el('span','▷','ot-empty-icon'),el('h2','Votre séance commence ici'),el('p',room?.isHost?'Ajoute un lien, puis lance la lecture pour ton salon.':'Le contenu choisi par l’hôte apparaîtra ici.'));view.status.textContent='Aucun contenu en cours.';controls();return;}
+  if(!media){view.player.append(el('span','▷','ot-empty-icon'),el('h2','Votre séance commence ici'),el('p',room?.isHost?'Choisis une vidéo dans les contenus ci-dessus, puis lance la lecture pour ton salon.':'Le contenu choisi par l’hôte apparaîtra ici.'));view.status.textContent='Aucun contenu en cours.';controls();return;}
   view.player.dataset.togetherProvider=media.source;mediaKey=media.key;const own=epoch,key=mediaKey,controller=new AbortController();abort=controller;
   const mount=el('div',undefined,'ot-mount');view.player.append(mount);view.status.textContent='Chargement du lecteur…';
   const events={blocked:()=>{if(own!==epoch||key!==mediaKey)return;armed=false;note('Ton navigateur demande un clic sur « Rejoindre la lecture ».');controls();},error:message=>{if(own!==epoch||key!==mediaKey)return;failed=true;note(message);view.status.textContent='Lecteur indisponible.';controls();},ended:()=>{if(own!==epoch||key!==mediaKey||endedKey===key)return;if(busy){setTimeout(events.ended,500);return;}endedKey=key;if(room?.isHost&&data?.state.playing)command(data.state.queue.length?'next':'pause');}};
@@ -76,11 +77,13 @@
   const titleLabel=el('label','Titre (facultatif)'),name=el('input');name.maxLength=120;name.placeholder='Notre séance';titleLabel.append(name);const actions=el('div',undefined,'ot-editor-actions'),select=button('Partager au salon',null,'os-primary'),enqueue=button('Ajouter à la file',null);select.type='submit';actions.append(select,enqueue);
   async function submit(action){if(!editor.reportValidity())return;const ok=await command(action,{media:{url:url.value.trim(),title:name.value.trim(),source:chosenSource}});if(ok){url.value='';name.value='';note(action==='select'?'Contenu partagé. Appuie sur « Lire ensemble ».':'Ajouté à la file du salon.');}}
   editor.onsubmit=e=>{e.preventDefault();submit('select');};enqueue.onclick=()=>submit('enqueue');editor.append(platforms,sourceHint,label,titleLabel,actions,el('small','Lecture via les lecteurs officiels. Le navigateur peut demander un clic pour démarrer le son.','os-muted'));
+  const manual=el('details',undefined,'ot-manual');manual.append(el('summary','Autre contenu · ajouter un lien'),editor);
+  const browser=ONETogetherBrowser.create({choose:async(action,media)=>{const ok=await command(action,{media});if(ok)note(action==='select'?'Contenu partagé. Appuie sur « Lire ensemble ».':'Ajouté à la file du salon.');return ok;}});
   const link=el('a','Ouvrir la source');link.target='_blank';link.rel='noopener noreferrer';link.className='ot-source-link';link.hidden=true;
   const members=el('div',undefined,'os-members os-together-members');members.id='oneTogetherMembers';const queue=el('ol',undefined,'ot-queue'),queueCount=el('h2','À suivre · 0');
   const tools=el('div',undefined,'os-room-tools');for(const [kind,label]of [['mic','Micro'],['camera','Caméra']]){const b=button(label,async()=>{try{await window.ONEPartyMedia.toggle(kind);}catch(e){note(e.message);}mediaButtons();});b.dataset.togetherMedia=kind;tools.append(b);}tools.append(button('Chat',()=>{window.oneOpenSalon?.();const chat=document.getElementById('onePartyChat');if(chat){chat.hidden=false;chat.scrollIntoView({block:'nearest'});}}));
-  root.append(head,player,status,local,hostControls,timeline,role,feedback,link,editor,el('h2','Dans votre salon'),members,tools,queueCount,queue);
-  view={root,player,status,feedback,role,title,source,link,local,join,sound,full,hostControls,play,back,forward,next,stop,seek,elapsed,editor,select,enqueue,members,queue,queueCount};
+  root.append(head,browser.root,player,status,local,hostControls,timeline,role,feedback,link,manual,el('h2','Dans votre salon'),members,tools,queueCount,queue);
+  view={root,player,status,feedback,role,title,source,link,local,join,sound,full,hostControls,play,back,forward,next,stop,seek,elapsed,editor,manual,browser,select,enqueue,members,queue,queueCount};
   updateRoom(window.oneSocialRoom?.()||null);if(!room)mountMedia(null);mediaButtons();
   if(localItem?.local)note('Cette création est un aperçu local. Pour la partager à distance, utilise un lien vidéo public.');
  }
