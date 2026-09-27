@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="fr">
-<head><link rel="stylesheet" href="ui/tiktok-public.css?v=118c1"><script defer src="ui/tiktok-public.js?v=118c1"></script><script defer src="ui/header-polish.js?v=118c1"></script>
+<head><link rel="stylesheet" href="ui/tiktok-public.css?v=118c1"><script defer src="ui/tiktok-public.js?v=118c1"></script><link rel="stylesheet" href="ui/tiktok-share.css?v=118c2"><script defer src="ui/tiktok-share-core.js?v=118c2"></script><script defer src="ui/tiktok-share.js?v=118c2"></script><script defer src="ui/header-polish.js?v=118c2"></script>
 <script src="ui/catalog-store.js?v=014117"></script>
 <link rel="preconnect" href="https://www.tiktok.com">
 <link rel="dns-prefetch" href="https://www.tiktok.com">
@@ -27,7 +27,7 @@ const oneReloadRoute=oneReadReloadRoute();
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="ONE" />
-<link rel="manifest" href="./manifest.json?v=014117" />
+<link rel="manifest" href="./manifest.json?v=118c2" />
 <style>
 :root{color-scheme:dark;--bg:#07090d;--panel:#11151d;--panel2:#181e29;--text:#f7f8fb;--muted:#98a2b3;--line:#242c39;--accent:#7c5cff;--danger:#ff426f;--ok:#20c997}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input{font:inherit}
@@ -2081,32 +2081,7 @@ v17ApplySound();
 })();
 </script>
 <script>try{oneAlphaRefreshAccount()}catch(e){}</script>
-<script>
-(()=>{
- const pendingKey='one_pending_share_v119';
- function receiveOneShare(){
-  const current=new URL(location.href);
-  let text='';
-  if(['share_title','share_text','share_url'].some(k=>current.searchParams.has(k))){
-   text=['share_title','share_text','share_url'].map(k=>current.searchParams.get(k)||'').join('\n').trim();
-   try{sessionStorage.setItem(pendingKey,text)}catch(e){}
-   for(const key of ['one_share','share_title','share_text','share_url'])current.searchParams.delete(key);
-   history.replaceState(null,'',current.pathname+current.search+current.hash);
-  }else{try{text=sessionStorage.getItem(pendingKey)||''}catch(e){}}
-  if(!text)return;
-  const input=document.getElementById('tiktokExternalUrl'),result=document.getElementById('tiktokImportResult');
-  const urls=tiktokImportUrls(text).filter(value=>{try{tiktokValidateUrl(value);return true}catch{return false}});
-  document.getElementById('settingsModal').classList.add('show');
-  input.value=urls.join('\n');
-  result.textContent=urls.length?'Lien reçu depuis Android. Import automatique en cours…':'Ce partage ne contient pas de lien TikTok HTTPS. Dans TikTok, partage le lien de la vidéo, puis choisis ONE.';
-  if(urls.length){requestAnimationFrame(()=>document.getElementById('addTikTokExternal')?.click())}
-  input.addEventListener('input',()=>{try{sessionStorage.setItem(pendingKey,input.value)}catch(e){}});
-  document.getElementById('addTikTokExternal').addEventListener('click',()=>{try{sessionStorage.removeItem(pendingKey)}catch(e){}});
-  requestAnimationFrame(()=>input.scrollIntoView({block:'center'}));
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',receiveOneShare,{once:true});else receiveOneShare();
-})();
-</script>
+<!-- Incoming TikTok shares are handled by ui/tiktok-share.js. -->
 <style>
 #oneStudio{position:fixed;inset:0 0 78px;z-index:38;max-width:480px;margin:auto;background:#0b0e15;overflow:auto;padding:24px 18px;box-sizing:border-box}#oneStudio[hidden]{display:none}.studioHeader{position:sticky;top:-24px;z-index:2;display:flex;align-items:center;justify-content:space-between;background:#0b0e15;padding:8px 0;gap:16px}.studioHeader h1{margin:8px 0}#studioClose{width:44px;height:44px;flex-shrink:0;border:1px solid #525b72;border-radius:50%;background:#131824;color:#fff;font-size:28px;cursor:pointer}#studioClose:focus-visible{outline:2px solid #a68aff;outline-offset:3px}.studioCard{border:1px solid #303648;border-radius:18px;padding:16px;margin:18px 0;background:#131824}.studioCard label{display:block;margin:12px 0;color:#e9ecf6}.studioCard input:not([type=checkbox]),.studioCard textarea,.studioCard select{box-sizing:border-box;width:100%;padding:12px;margin-top:8px;background:#090d15;border:1px solid #525b72;border-radius:10px;color:white;font:inherit}.studioCard small,#oneStudio p{color:#b6bed0;line-height:1.5}.studioDest{display:flex!important;gap:12px;align-items:center}.studioDest input{width:20px;height:20px}.studioDest small{display:block}.studioPreview{max-width:100%;max-height:260px;border-radius:12px}#oneStudio button:disabled{opacity:.5;cursor:not-allowed}
 </style>

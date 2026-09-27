@@ -2,6 +2,7 @@
  'use strict';
  const row=document.querySelector('.brandrow'),tools=row?.querySelector('.oneHeaderTools'),points=document.getElementById('onePointsToggle');if(!row||!tools||!points)return;
  row.classList.add('one-header-clear');row.insertBefore(points,document.getElementById('accountBtn'));
+ const roomBadge=document.getElementById('oneRoomCapsule');if(roomBadge)row.insertBefore(roomBadge,points);
  const icons={
   oneShopToggle:['Boutique','#ed9aff','<path d="M5 7h14l1 14H4L5 7Z" fill="#933dde"/><path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="#fff"/>'],
   oneSearchToggle:['Recherche','#67ddff','<circle cx="10" cy="10" r="6" fill="#1b698c"/><path d="m15 15 6 6" stroke-width="3"/>'],
@@ -16,5 +17,5 @@
   b.title=b.getAttribute('aria-label')||label;b.style.setProperty('--header-accent',color);
  }
  const label=[...points.children].find(n=>n.tagName==='SPAN'&&!n.className);if(label)label.textContent='Points ONE';
- const style=document.createElement('link');style.rel='stylesheet';style.href='ui/header-polish.css?v=118c1';document.head.append(style);
+ const style=document.createElement('link');style.rel='stylesheet';style.href='ui/header-polish.css?v=118c2';document.head.append(style);
 })();

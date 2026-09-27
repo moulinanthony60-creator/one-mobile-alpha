@@ -1,6 +1,6 @@
 {
   "id": "./",
-  "name": "ONE Mobile Alpha 0.14.117",
+  "name": "ONE",
   "short_name": "ONE",
   "description": "ONE — feed personnalisé renouvelé à chaque ouverture, créateurs suivis prioritaires et moteur vidéo Speed Finish.",
   "start_url": "./?source=pwa",
@@ -25,12 +25,13 @@
     }
   ],
   "share_target": {
-    "action": "./?one_share=1",
-    "method": "GET",
+    "action": "./share-tiktok",
+    "method": "POST",
     "params": {
       "title": "share_title",
       "text": "share_text",
       "url": "share_url"
-    }
+    },
+    "enctype": "application/x-www-form-urlencoded"
   }
 }
