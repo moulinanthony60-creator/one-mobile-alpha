@@ -9,7 +9,7 @@
  const sound=button('Activer le son',activate,'os-primary'),play=button('Lire ensemble',()=>command(data?.state.playing?'pause':'play')),browse=button('Choisir une vidéo',()=>{window.oneCloseSalon?.();window.oneShowSpace?.('together');window.ONETogether?.browse?.();});
  actions.append(sound,play,browse);root.append(heading,player,status,actions);
  let room=null,data=null,adapter=null,controller=null,clock=null,key='',muted=true,blocked=false,failed=false,ready=false,busy=false,pending=false,epoch=0,timer=null,lastPlay=-Infinity,lastSeek=-Infinity,lastEnd='';
- const visible=()=>!document.hidden&&!!window.oneSalonIsOpen?.()&&!!room?.together&&root.isConnected;
+ const visible=()=>!document.hidden&&!!window.oneSalonIsRoomOpen?.()&&!!room?.together&&root.isConnected;
  const time=()=>clock?clock.server+performance.now()-clock.at:Date.now();
  const target=()=>Math.max(0,Math.min(86400,data.state.position+(data.state.playing?Math.max(0,time()-data.state.updatedAt)/1000:0)));
  function controls(){
@@ -18,7 +18,7 @@
   sound.textContent=failed?'Réessayer le lecteur':!ready?'Chargement…':blocked?'▶ Démarrer la vidéo':muted?'Activer le son':'Couper le son';
   sound.disabled=!failed&&!ready;sound.setAttribute('aria-pressed',String(!muted));
   play.hidden=!room.isHost;play.disabled=!data||busy;play.textContent=data?.state.playing?'Pause pour tous':'Lire ensemble';
-  browse.textContent=room.isHost?'Choisir une vidéo':'Ouvrir Together';
+  browse.textContent=room.isHost?'Choisir une vidéo':'Proposer une vidéo';
  }
  function destroyPlayer(){controller?.abort();controller=null;adapter=null;ready=false;failed=false;blocked=false;key='';lastEnd='';lastPlay=lastSeek=-Infinity;player.replaceChildren();}
  function stop(){epoch++;clearTimeout(timer);timer=null;destroyPlayer();data=null;clock=null;pending=false;busy=false;muted=true;root.hidden=true;}
@@ -34,7 +34,7 @@
  async function mount(media){
   destroyPlayer();if(!media)return;
   key=media.key;const own=epoch,currentKey=key;controller=new AbortController();const signal=controller.signal;
-  player.dataset.togetherProvider=media.source;const mount=el('div',undefined,'ot-mount');player.append(mount);status.textContent='Chargement de la vidéo…';controls();const tray=document.getElementById('oneSalonTray');if(tray)tray.scrollTop=0;
+  player.dataset.togetherProvider=media.source;const mount=el('div',undefined,'ot-mount');player.append(mount);status.textContent='Chargement de la vidéo…';controls();
   const valid=()=>own===epoch&&key===currentKey&&!signal.aborted;
   const events={
    blocked(){if(!valid())return;blocked=true;status.textContent='Appuie sur « Démarrer la vidéo » ou sur ▶ dans le lecteur.';controls();},
@@ -77,7 +77,7 @@
   if(!visible()){if(key||pending)stop();else root.hidden=true;return;}
   controls();if(!data||data.state.media?.key!==room.together.key)poll();
  }
- window.addEventListener('one-party-state',refresh);window.addEventListener('one-salon-visibility',refresh);
+ window.addEventListener('one-salon-rendered',refresh);window.addEventListener('one-party-state',refresh);window.addEventListener('one-salon-visibility',refresh);
  window.addEventListener('one-account-changed',()=>{room=null;stop();});window.addEventListener('pagehide',stop);
  document.addEventListener('visibilitychange',()=>{if(document.hidden){clearTimeout(timer);adapter?.pause();}else{refresh();poll();}});
  window.addEventListener('online',()=>{if(visible())poll();});setInterval(sync,500);refresh();

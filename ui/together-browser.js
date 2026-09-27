@@ -15,7 +15,7 @@
   const recovery=el('div',undefined,'ot-browse-recovery'),grid=el('div',undefined,'ot-results'),more=button('Voir plus',()=>load(false,true),'ot-more');more.hidden=true;
   grid.setAttribute('aria-label','Contenus à regarder ensemble');
   body.append(nav,hint,form,toolbar,status,recovery,grid,more);root.append(body);
-  function updateButtons(){for(const b of grid.querySelectorAll('button'))b.disabled=!canChoose;submit.disabled=loading;more.disabled=loading;}
+  function updateButtons(){for(const b of grid.querySelectorAll('button')){b.disabled=!canChoose;b.hidden=b.dataset.otAction==='select'&&!host;}submit.disabled=loading;more.disabled=loading;}
   function card(item){
    const article=el('article',undefined,'ot-content');article.dataset.contentKey=item.key;
    const art=el('div',undefined,'ot-content-art');art.dataset.otSource=item.source;
@@ -24,7 +24,7 @@
    art.append(el('span',item.live?'● EN DIRECT':sources.find(x=>x[0]===item.source)?.[1]||'ONE','ot-content-badge'));
    const title=el('h3',item.title),creator=el('p',item.creator||'Vidéo publique'),actions=el('div',undefined,'ot-content-actions');
    async function send(action){
-    if(!canChoose||disposed)return;
+    if(!canChoose||disposed||(action==='select'&&!host))return;
     const targetRoom=roomId,generation=request;
     const ok=await choose(action,{url:item.url,title:item.title,source:item.source});
     if(disposed||targetRoom!==roomId||generation!==request)return;
@@ -32,7 +32,7 @@
     else if(ok)status.textContent='« '+item.title+' » ajouté à la file du salon.';
    }
    const watch=button('Regarder ensemble',()=>send('select'),'os-primary'),queue=button('＋ File',()=>send('enqueue'));queue.setAttribute('aria-label','Ajouter à la file : '+item.title);
-   actions.append(watch,queue);article.append(art,title,creator,actions);return article;
+   watch.dataset.otAction='select';queue.dataset.otAction='enqueue';queue.textContent='＋ Proposer';actions.append(watch,queue);article.append(art,title,creator,actions);return article;
   }
   async function load(remote=false,append=false){
    const own=++request;controller?.abort();controller=new AbortController();loading=true;recovery.replaceChildren();status.textContent='Chargement des contenus…';grid.setAttribute('aria-busy','true');
@@ -63,7 +63,7 @@
   form.onsubmit=e=>{e.preventDefault();query=input.value.trim();load(true);};
   const onCatalogue=()=>{if(source==='tiktok'&&!loading&&root.open)load();};window.addEventListener('one-catalogue-state',onCatalogue);
   pick(source);
-  return {root,setMedia(key){if(key===sessionKey)return;sessionKey=key;root.open=!key;},update(next){host=!!next.host;canChoose=host&&next.ready&&!next.busy;roomId=next.roomId||'';summary.querySelector('small').textContent=host?'Choisis un contenu pour ton salon':'Parcours les contenus · l’hôte pilote la séance';updateButtons();},destroy(){disposed=true;request++;controller?.abort();root.remove();window.removeEventListener('one-catalogue-state',onCatalogue);}};
+  return {root,setMedia(key){if(key===sessionKey)return;sessionKey=key;root.open=!key;},update(next){host=!!next.host;canChoose=!!next.roomId&&next.ready&&!next.busy;roomId=next.roomId||'';summary.querySelector('small').textContent=host?'Choisis un contenu pour ton salon':'Propose une vidéo · file commune du salon';updateButtons();},destroy(){disposed=true;request++;controller?.abort();root.remove();window.removeEventListener('one-catalogue-state',onCatalogue);}};
  }
  window.ONETogetherBrowser={create};
 })();

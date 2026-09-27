@@ -15,17 +15,17 @@
   if(selected&&view.session.nextElementSibling!==view.browser.root)view.root.insertBefore(view.session,view.browser.root);
   else if(!selected&&view.browser.root.nextElementSibling!==view.session)view.root.insertBefore(view.browser.root,view.session);
   view.root.dataset.host=String(host);view.root.dataset.revision=String(data?.revision??'');view.root.dataset.playing=String(!!data?.state.playing);view.root.dataset.live=String(!!media?.live);
-  view.role.textContent=room?(host?'Tu pilotes la lecture du salon.':'L’hôte pilote la lecture. Le son reste personnel.'):'Crée ou rejoins un salon pour regarder ensemble.';
+  view.role.textContent=room?(host?'Tu pilotes la lecture du salon.':'Propose une vidéo à la file commune. L’hôte pilote la lecture.'):'Crée ou rejoins un salon pour regarder ensemble.';
   view.play.textContent=data?.state.playing?'Ⅱ Pause pour tous':'▶ Lire ensemble';
   for(const b of [view.play,view.back,view.forward,view.stop])b.disabled=!host||!media||busy;
   view.play.disabled=view.play.disabled||!adapter||failed;
   view.next.disabled=!host||!data?.state.queue.length||busy;
-  for(const b of [view.select,view.enqueue])b.disabled=!host||!data||busy;
+  view.select.hidden=!host;view.select.disabled=!host||!data||busy;view.enqueue.disabled=!room||!data||busy;
   view.seek.disabled=!host||!media||busy||!!media.live;view.back.disabled=view.forward.disabled=view.seek.disabled;
   view.join.hidden=!selected;view.join.disabled=(!adapter&&!failed)||busy;view.join.textContent=failed?'Réessayer le lecteur':!adapter?'Chargement du lecteur…':armed?'Me resynchroniser':'▶ Rejoindre la lecture';
   view.activationHint.textContent=failed?'Réessaie le lecteur ou ouvre la source.':!adapter?'La vidéo choisie par le salon se prépare.':armed?'Le son se règle sur ton appareil.':data?.state.playing?'Appuie ici pour démarrer la vidéo sur cet appareil.':host?'La séance est en pause. « Lire ensemble » lance la vidéo pour le salon.':'L’hôte a mis la séance en pause. Tu peux activer ton lecteur en attendant.';
   view.sound.disabled=!media||!adapter;view.sound.textContent=muted?'Activer le son':'Couper le son';view.sound.setAttribute('aria-pressed',String(!muted));
-  view.full.disabled=!media;view.manual.hidden=!host;view.hostControls.hidden=!host;
+  view.full.disabled=!media;view.manual.hidden=!room;view.hostControls.hidden=!host;
   view.browser.update({host,ready:!!data,busy,roomId:room?.id});
  }
  function sync(){if(!current()||!data?.state.media||!adapter||failed)return;
@@ -53,7 +53,7 @@
   view.link.hidden=!media;if(media)view.link.href=media.url;
   if((media?.key||'')!==mediaKey||!view.player.childNodes.length)mountMedia(media);
   const sig=JSON.stringify(d.state.queue);if(sig!==queueKey){queueKey=sig;view.queue.replaceChildren();view.queueCount.textContent='À suivre · '+d.state.queue.length;
-   d.state.queue.forEach((m,i)=>{const li=el('li'),text=el('span',(i+1)+'. '+m.title);li.append(text);if(room.isHost){const remove=button('Retirer',()=>command('remove',{key:m.key}));remove.setAttribute('aria-label','Retirer '+m.title);li.append(remove);}view.queue.append(li);});
+   d.state.queue.forEach((m,i)=>{const li=el('li'),text=el('span',(i+1)+'. '+m.title+(m.proposedBy?.name?' · proposé par '+m.proposedBy.name:''));li.append(text);if(room.isHost){const actions=el('div',undefined,'ot-queue-actions');if(i===0)actions.append(button('Lire maintenant',()=>{armed=true;command('next');},'os-primary'));const remove=button('Retirer',()=>command('remove',{key:m.key}));remove.setAttribute('aria-label','Retirer '+m.title);actions.append(remove);li.append(actions);}view.queue.append(li);});
    if(!d.state.queue.length)view.queue.append(el('li','Ajoute les prochains contenus à votre file commune.','os-muted'));}
   controls();sync();
  }
@@ -64,9 +64,9 @@
   finally{if(own===epoch){polling=false;schedule();}}
  }
  function schedule(){clearTimeout(timer);if(current()&&room&&!document.hidden)timer=setTimeout(poll,errorCount?Math.min(30000,5000*2**Math.min(errorCount,3)):data?.state.playing?3000:7000);}
- async function command(action,extra={}){if(!room?.isHost||!data||busy)return false;
+ async function command(action,extra={}){if(!room||(!room.isHost&&action!=='enqueue')||!data||busy)return false;
   const own=epoch,id=room.id,revision=data.revision;busy=true;controls();note('');const start=performance.now();
-  try{const d=await api('/party/together/command?room='+encodeURIComponent(id),'POST',{action,revision,...extra});if(own!==epoch)return false;apply(d,start);schedule();if(['select','stop'].includes(action))window.oneRefreshSalonState?.(true);return true;}
+  try{const d=await api('/party/together/command?room='+encodeURIComponent(id),'POST',{action,revision,...extra});if(own!==epoch)return false;apply(d,start);schedule();if(['select','stop','next'].includes(action))window.oneRefreshSalonState?.(true);return true;}
   catch(e){if(own===epoch){note(e.message);poll();}return false;}finally{if(own===epoch){busy=false;controls();}}
  }
  async function share(action,media){
@@ -90,7 +90,7 @@
   let chosenSource='youtube';const platforms=el('nav',undefined,'ot-platforms');platforms.setAttribute('aria-label','Sources Together');const sourceHint=el('p',undefined,'os-muted');const sourceOptions=[['youtube','YouTube','Lien YouTube public'],['tiktok','TikTok','Lien complet tiktok.com/@pseudo/video/…'],['twitch','Twitch','Chaîne ou rediffusion Twitch'],['one','ONE','Lien public de ta vidéo ONE (MP4 ou WebM). Les créations locales du Feed ne sont pas encore publiées.'],['audio','Musique','Lien MP3, M4A, OGG ou vidéo musicale YouTube']];const editor=el('form',undefined,'ot-editor'),label=el('label','Lien du contenu'),url=el('input');for(const [id,text,hint]of sourceOptions){const b=button(text,()=>{chosenSource=id;for(const x of platforms.children)x.setAttribute('aria-pressed',String(x===b));sourceHint.textContent=hint;url.placeholder=id==='youtube'?'https://www.youtube.com/watch?v=…':id==='tiktok'?'https://www.tiktok.com/@pseudo/video/…':id==='twitch'?'https://www.twitch.tv/chaine':'https://…';});b.setAttribute('aria-pressed',String(id===chosenSource));platforms.append(b);}sourceHint.textContent=sourceOptions[0][2];url.type='url';url.required=true;url.placeholder='https://www.youtube.com/watch?v=…';url.setAttribute('aria-label','Lien du contenu');label.append(url);
   const titleLabel=el('label','Titre (facultatif)'),name=el('input');name.maxLength=120;name.placeholder='Notre séance';titleLabel.append(name);const actions=el('div',undefined,'ot-editor-actions'),select=button('Partager au salon',null,'os-primary'),enqueue=button('Ajouter à la file',null);select.type='submit';actions.append(select,enqueue);
   async function submit(action){if(!editor.reportValidity())return;const ok=await share(action,{url:url.value.trim(),title:name.value.trim(),source:chosenSource});if(ok){url.value='';name.value='';}}
-  editor.onsubmit=e=>{e.preventDefault();submit('select');};enqueue.onclick=()=>submit('enqueue');editor.append(platforms,sourceHint,label,titleLabel,actions,el('small','Lecture via les lecteurs officiels. Le navigateur peut demander un clic pour démarrer le son.','os-muted'));
+  editor.onsubmit=e=>{e.preventDefault();submit(room?.isHost?'select':'enqueue');};enqueue.onclick=()=>submit('enqueue');editor.append(platforms,sourceHint,label,titleLabel,actions,el('small','Lecture via les lecteurs officiels. Le navigateur peut demander un clic pour démarrer le son.','os-muted'));
   const manual=el('details',undefined,'ot-manual');manual.append(el('summary','Autre contenu · ajouter un lien'),editor);
   const browser=ONETogetherBrowser.create({choose:share});
   const link=el('a','Ouvrir la source');link.target='_blank';link.rel='noopener noreferrer';link.className='ot-source-link';link.hidden=true;

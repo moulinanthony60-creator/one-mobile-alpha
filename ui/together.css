@@ -26,3 +26,14 @@ body[data-one-social-space=together] .topbar .tabsRail,body[data-one-social-spac
 
 /* Persistent player inside the salon; kept outside the changing roster. */
 #oneSalonTogether[hidden]{display:none!important}#oneSalonTogether{margin:0 0 16px;padding:12px;border:1px solid #8160b1;border-radius:17px;background:radial-gradient(at top left,#403b7344,transparent),#111326;color:#f4eaff}#oneSalonTogether .ot-salon-heading{margin-bottom:10px}#oneSalonTogether .ot-salon-heading small{color:#81e6db;letter-spacing:.12em;font-size:9px}#oneSalonTogether .ot-salon-heading h3{margin:5px 0 0;font-size:15px;line-height:1.4;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}#oneSalonTogether .ot-player{min-height:170px;border-radius:12px}#oneSalonTogether .ot-player[data-together-provider^=twitch]{min-height:300px}#oneSalonTogether .ot-status{font-size:11px;line-height:1.4;margin:10px 0;color:#b9e8db}#oneSalonTogether .ot-salon-actions{display:flex;flex-wrap:wrap;gap:7px}#oneSalonTogether .ot-salon-actions button{flex:1;min-height:42px;padding:8px;font-size:11px;border-radius:10px}#oneSalonTogether .ot-salon-actions button:first-child{flex-basis:100%}#oneSalonTogether [hidden]{display:none!important}#oneSalonTogether button:disabled{opacity:.55}#oneSalonTogether .ot-audio-art{min-height:170px}
+
+/* 118t4: the video replaces the Together activity tile, below the members. */
+#oneSalonRoom[hidden],#oneSalonBody .os-tiles>[hidden]{display:none!important}
+#oneSalonBody .os-tiles.ot-has-video{grid-template-columns:repeat(2,minmax(0,1fr))}
+#oneSalonBody .os-tiles>#oneSalonTogether{grid-column:1/-1;min-width:0;margin:0;text-align:left;padding:10px}
+#oneSalonBody .ot-has-video>.os-tile{min-height:76px;padding:10px}
+#oneSalonBody .ot-has-video>.os-tile>svg{float:left;width:32px;height:32px;margin:5px 10px 0 0}
+#oneSalonBody .ot-has-video>.os-tile b{font-size:12px;margin-top:6px}
+#oneSalonTogether .ot-salon-heading h3{font-size:14px}
+#oneSalonTogether .ot-player{min-height:150px}
+.ot-queue-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
