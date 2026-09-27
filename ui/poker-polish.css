@@ -9,7 +9,7 @@
 #onePartyGame.isPoker .onePartyPoker.gt-poker .ppCommunity .ppCard{width:calc((100% - 16px)/5)!important;height:auto!important;aspect-ratio:5/7;box-sizing:border-box}
 #onePartyGame.isPoker .onePartyPoker.gt-poker .ppCard{border:1px solid #fff0bf!important;border-radius:6px!important;background:linear-gradient(135deg,#fffef5 0%,#fffdf8 42%,#e7ddc4 100%)!important;box-shadow:inset 0 0 0 2px #b99a6544,0 3px 1px #5e4828,0 5px 10px #0008!important;color:#112334;font-family:Georgia,serif;font-weight:800}
 #onePartyGame.isPoker .onePartyPoker.gt-poker .ppCard.ppRed{color:#d2163e}
-#onePartyGame.isPoker .onePartyPoker.gt-poker .ppCard.ppBack{background:#142034 url('card-back-douze-117ad.svg') center/100% 100%!important;color:transparent!important;border-color:#e7be67!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppCard.ppBack{background:#142034 url('card-back-poker-117af.svg') center/100% 100%!important;color:transparent!important;border-color:#e7be67!important}
 #onePartyGame.isPoker .onePartyPoker.gt-poker .ppBack:after{display:none!important}
 #onePartyGame.isPoker .onePartyPoker.gt-poker .ppCard.ppEmpty{background:linear-gradient(135deg,#173f36c9,#082c26b0)!important;border:1px solid #e4c27680!important;box-shadow:inset 0 0 12px #0007!important}
 #onePartyGame.isPoker .onePartyPoker.gt-poker .ppEmpty:after{content:'♠';color:#cdbb8290;font:21px Georgia}
@@ -73,3 +73,51 @@
 
 #onePartyGame.isPoker .cg-topbar{min-height:52px!important;box-sizing:border-box}
 #onePartyGame.isPoker .cg-topbar h2{color:#ffe3a6!important;text-shadow:0 0 14px #daa03e60;font-weight:850!important;letter-spacing:.045em;text-transform:uppercase}
+
+/* 117AF: public street bets stay on the felt, separate from each reserve. */
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppTableBet{position:absolute;z-index:4;transform:translate(-50%,-50%);width:clamp(54px,19%,88px);box-sizing:border-box;display:grid;grid-template-columns:auto auto;align-items:center;justify-content:center;column-gap:6px;row-gap:2px;padding:5px 5px 4px;border:1px solid #f9d58199;border-radius:11px;background:linear-gradient(140deg,#063b28ed,#071a16ed);box-shadow:0 4px 9px #0008,inset 0 1px #fff6;pointer-events:none}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppBetAmount{color:#ffe8a6;font:900 clamp(13px,3.8vw,19px)/1.1 system-ui;text-shadow:0 1px 2px #000;white-space:nowrap}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppBetOwner{grid-column:1/-1;text-align:center;font:700 9px/1.15 system-ui;color:#cce4cf;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppBetChips{display:flex;align-items:end;gap:2px;height:17px;width:27px}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppBetChips i{display:block;width:13px;height:6px;flex:none;box-sizing:border-box;border:2px dashed #ffe9aacc;border-radius:50%;background:#14c780;box-shadow:0 -3px #045032,0 -5px #a9e4bb,0 -7px #067a4d,0 2px 2px #0009}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppBetChips i:last-child{width:12px;background:#da2952;box-shadow:0 -3px #770e2d,0 -5px #ffc1bc,0 -8px #a4173c,0 -10px #df5574}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppAutoChoice{position:absolute;right:7px;bottom:5px;z-index:5;display:flex;align-items:center;gap:5px;width:118px;max-width:calc(50% - 65px);min-height:34px;padding:4px;box-sizing:border-box;border-radius:7px;color:#eee6cf;background:#061410cc;font:10px/1.3 system-ui;cursor:pointer;user-select:none;touch-action:manipulation;text-shadow:0 1px 2px #000}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppAutoCheckbox{appearance:auto!important;position:static!important;opacity:1!important;min-width:17px!important;width:17px!important;height:17px!important;min-height:17px!important;margin:0!important;padding:0!important;accent-color:#dabb72;cursor:pointer;flex:none}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppAutoChoice:has(:checked){color:#ffe19c;background:#2c2517ed;outline:1px solid #edc76d88}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppAutoChoice:has(:focus-visible){outline:2px solid #ffe49d;outline-offset:2px}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppReplayRetry[hidden]{display:none!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppNext{justify-items:center;padding:10px!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppNextInfo{font-size:10px;color:#b7cabb}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppReplayRetry{min-height:40px;padding:8px 15px;border:1px solid #edcd89;border-radius:9px;background:linear-gradient(#ffe1a1,#ac7c37);color:#1d231d;font-weight:750}
+@keyframes ppBetArrival{from{opacity:0;transform:translate(-50%,-70%) scale(.9)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@media(prefers-reduced-motion:no-preference){.gt-table-bet-in{animation:ppBetArrival .18s ease-out}}
+@media(max-height:680px){
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppTableBet{padding:3px;column-gap:3px;border-radius:8px}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppBetAmount{font-size:12px}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppBetOwner{font-size:8px}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppBetChips{width:18px;height:13px;gap:1px}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppBetChips i,#onePartyGame.isPoker .onePartyPoker.gt-poker .ppBetChips i:last-child{width:8px;height:5px}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppTableBet[data-own=true]{top:57%!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppSeat.own .ppTimer{left:0!important;top:0!important;transform:none!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppAutoChoice{font-size:9px}
+}
+
+@media(max-height:600px){
+#onePartyGame.isPoker .onePartyPoker.gt-poker[data-has-bets=true] .gt-chips{display:none}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppSeat:not(.own) .ppCards:has(.ppBack){display:none!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppSeat[data-side=center]:not(.own){top:12%!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppTableBet{width:50px}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppTableBet[data-row="27"]{top:29%!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppTableBet[data-row="33"]{top:25%!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppTableBet[data-side=left]{left:33%!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppTableBet[data-side=right]{left:67%!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppTableBet[data-own=true]{left:67%!important;top:70%!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppSeat.own .ppStack{left:calc(50% - 110px)!important}
+}
+
+@media(max-height:600px){
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppCommunity{top:45%!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppPot{order:2;font-size:13px;padding:3px 8px;margin-top:3px}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppCommunity>.ppCards{margin:5px 0}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppStreet{display:none}
+}
