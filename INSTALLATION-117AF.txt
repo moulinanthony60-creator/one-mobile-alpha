@@ -1,0 +1,43 @@
+﻿ONE — TABLES ET BLACKJACK — 0.14.117AF
+
+MISE À JOUR EN DEUX PARTIES
+1. SERVEUR : dans Cloudflare, ouvre le Worker one-comments-api, celui du salon
+   et des jeux. Remplace son code par SERVEUR/worker.js puis déploie.
+   Conserve ses connexions à la base COMMENTS et au service PROFILE, ses secrets
+   et ses réglages actuels. Ne remplace pas le Worker des comptes/profils.
+   Aucun SQL manuel à exécuter pour Blackjack.
+2. SITE : dans ton dépôt GitHub habituel, envoie LE CONTENU du dossier SITE à la
+   racine du site. Il faut remplacer index.html, sw.js et les fichiers ui/assets
+   fournis. Ne crée pas un sous-dossier SITE dans le dépôt.
+   Conserve les autres fichiers du site existant, puis valide le commit.
+3. Attends la fin du déploiement. Rouvre ONE sur le PC et le téléphone.
+   La version affichée doit être v0.14.117AF.
+
+NOUVEAUTÉS
+- Poker : mains automatiques ; petite case « Pause après cette main » ; mises
+  représentées par des jetons et des montants plus grands sur le tapis.
+  Une recharge utilisant des Points ONE reste à confirmer explicitement.
+- Sept plateaux personnalisés : Couleurs, Trio, Codes, Qui est-ce ?, Puissance 4,
+  Timer, Loups-garous. Cartes, couleurs, matières, cadres et éclairages améliorés.
+- Blackjack : 2 à 4 joueurs du salon contre un croupier ordinateur commun.
+  Miser, tirer, rester, doubler ; as 1/11 ; croupier reste à 17, y compris souple.
+  Blackjack payé 3:2 ; victoire 1:1 ; égalité remboursée. Variante sans séparation,
+  assurance ni abandon. Six jeux remélangés à chaque main.
+  500 jetons de table au départ, sans Points ONE engagés. Mise du salon à 0.
+  Les réserves sont conservées en rejouant ; recharge gratuite sous 10 jetons.
+- Retour au salon et autres membres inchangés. Les anciens jeux retirés restent
+  retirés. Les corrections 117AE (caméra, croix d’élimination, lumières) sont incluses.
+
+VÉRIFICATIONS
+Tests locaux : moteur Blackjack (1 200 mains + cas ciblés), serveur avec quatre
+comptes fictifs, confidentialité du croupier, double clic/révision, spectateur,
+replay, mises du salon, règles des sept jeux, poker automatique/pause/retry,
+régression des propositions, remboursements et wallet. Commandes et affichage
+vérifiés dans le navigateur en 320, 390 et 1280 pixels, dont le site complet.
+Les tests n’ont pas utilisé de parties publiques ni de vrais Points ONE.
+Les appels vidéo réels et une partie simultanée sur quatre appareils restent
+à essayer après déploiement. Aucun déploiement public n’a été effectué ici.
+
+Cette archive est une mise à jour cumulative du site EXISTANT, pas un hébergement
+indépendant. Le serveur complet fourni part de la dernière source Party Activity
+présente dans le projet (22 septembre 2026), avec ajout isolé de Blackjack.

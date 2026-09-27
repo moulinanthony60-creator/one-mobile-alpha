@@ -1,0 +1,63 @@
+#onePartyGame .bj-game{max-width:650px;margin:auto;color:#fff4d5;font-family:system-ui;background:#071719;border:1px solid #dbba6c;border-radius:22px;overflow:hidden;box-shadow:0 15px 50px #0009}
+#onePartyGame .bj-table{position:relative;isolation:isolate;padding:16px 12px 22px;background:radial-gradient(ellipse at 50% 38%,#047c6dbb,#012d2bdc 60%,#030c12e8),url('poker-lounge-117ae.png') center/cover;box-shadow:inset 0 0 0 5px #302719,inset 0 0 0 7px #d1ab59,inset 0 0 50px #000a;border-radius:20px 20px 45% 45% / 20px 20px 8% 8%}
+#onePartyGame .bj-table:before{content:'21';position:absolute;z-index:-1;inset:25% 0 auto;text-align:center;font:900 150px/1 Georgia;color:#f3dca909;transform:rotate(-12deg)}
+#onePartyGame .bj-heading{display:grid;gap:4px;text-align:center;letter-spacing:.12em;margin:4px 0 12px}
+#onePartyGame .bj-heading span{font-size:9px;color:#f2d69e}.bj-heading strong{font-size:20px;text-shadow:0 0 16px #f7c65270}.bj-heading small{font-size:10px;letter-spacing:.04em;color:#aee8d9}
+#onePartyGame .bj-dealer{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px}.bj-dealer>small{font-size:9px;color:#bcdacb}
+#onePartyGame .bj-dealer-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;border:1px solid #f2d48a;background:linear-gradient(140deg,#d9b76a,#785220);color:#092720;font-size:23px;box-shadow:0 0 16px #e9b74655}
+#onePartyGame .bj-cards{display:flex;align-items:center;justify-content:center;gap:4px;min-height:67px;padding:7px 0;flex-wrap:wrap}
+#onePartyGame .bj-card{position:relative;display:grid;place-items:center;flex:0 0 43px;width:43px;height:61px;box-sizing:border-box;border:1px solid #ffe7a8;border-radius:5px;color:#102331;background:linear-gradient(135deg,#fffef9,#eae0c6);box-shadow:inset 0 0 0 2px #b4a06a44,0 2px #968254,0 5px 8px #0008;font-family:Georgia,serif}
+#onePartyGame .bj-card.red{color:#d91445}.bj-corner{position:absolute;top:3px;left:3px;font-size:9px;letter-spacing:-.06em}.bj-corner.bj-bottom{top:auto;left:auto;bottom:3px;right:3px;transform:rotate(180deg)}.bj-suit{font-size:26px}
+#onePartyGame .bj-card.bj-back{background:#11273c url('card-back-blackjack-117af.svg') center/100% 100%}
+#onePartyGame .bj-status{width:fit-content;max-width:90%;margin:7px auto 12px;padding:7px 14px;border-radius:30px;border:1px solid #dac38277;background:#001713bc;font-size:11px;text-align:center;color:#fff1c7}
+#onePartyGame .bj-players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#onePartyGame .bj-seat{padding:8px;border:1px solid #72ceaa66;border-radius:13px;background:linear-gradient(160deg,#052b29ce,#001712d9);min-width:0;box-shadow:0 5px 12px #0005}
+#onePartyGame .bj-seat.current{border-color:#ffeab2;box-shadow:0 0 0 1px #ebc365,0 0 23px #ffd25750}.bj-seat.own{background:linear-gradient(160deg,#124c3ddd,#031c1a)}
+#onePartyGame .bj-seat-head{display:flex;gap:6px;align-items:center;min-width:0}.bj-player-label{min-width:0;display:grid;gap:3px}.bj-player-label b{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bj-player-label small{font-size:10px;color:#b9ddc7}
+#onePartyGame .bj-camera{position:relative;flex:none;width:32px;height:34px;overflow:hidden;isolation:isolate;display:grid;place-items:center;border-radius:8px;border:1px solid #dbbf76;background:linear-gradient(135deg,#8c48cf,#31256b);color:#fbdeff;font-weight:800}
+#onePartyGame .bj-camera .oneCamBubble.seated{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;margin:0!important}
+#onePartyGame .bj-seat .bj-cards{min-height:67px;gap:3px}.bj-seat .bj-card{flex-basis:36px!important;width:36px!important;height:52px!important}.bj-seat .bj-suit{font-size:24px}.bj-seat .bj-corner{font-size:8px}
+#onePartyGame .bj-seat-info{display:flex;justify-content:space-between;align-items:center;gap:5px}.bj-wager{color:#ffe19c;font-size:15px;font-weight:800;text-shadow:0 0 9px #edb74750}.bj-total{background:#012f2a;padding:3px 9px;border-radius:14px;border:1px solid #50ac8366;font-size:12px}.bj-await{font-size:10px;color:#9bbbad}.bj-stays{display:block;text-align:center;margin-top:4px;color:#a4cbbb;font-size:10px}
+#onePartyGame .bj-result{display:block;text-align:center;font-size:11px;padding:5px 0 0;color:#ffb6b6}.bj-seat[data-result=win] .bj-result,.bj-seat[data-result=blackjack] .bj-result{color:#ffe58c}.bj-seat[data-result=push] .bj-result{color:#aeeaff}
+#onePartyGame .bj-controls{padding:12px 12px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(#101d22,#071015);border-top:1px solid #b3964d55;text-align:center}
+#onePartyGame .bj-controls button{min-height:45px;border:1px solid #a1efe5;border-radius:10px;background:linear-gradient(145deg,#008ca0,#004952);color:white;font-weight:800;touch-action:manipulation;cursor:pointer;transition:transform .08s,filter .08s}
+#onePartyGame .bj-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.bj-actions button{padding:6px 3px;font-size:12px!important}#onePartyGame .bj-actions button:nth-child(2){background:linear-gradient(135deg,#ee365c,#8e122b);border-color:#ffb3c1}#onePartyGame .bj-actions button:nth-child(3){background:linear-gradient(135deg,#edd494,#b07c32);color:#172b22;border-color:#ffeab1}
+#onePartyGame .bj-controls button:disabled{opacity:.4;cursor:default}#onePartyGame .bj-controls button:active:not(:disabled){transform:scale(.97);filter:brightness(1.2)}.bj-controls button:focus-visible,.bj-controls input:focus-visible{outline:2px solid #fff2b1;outline-offset:3px}
+#onePartyGame .bj-turn{font-size:12px;margin:0 0 10px;color:#fce9bb}.bj-free{display:block;font-size:9px;color:#92aba6;margin-top:10px}.bj-bet-label{display:flex;gap:10px;align-items:center;justify-content:center;font-size:12px}.bj-amount{width:80px;padding:7px;border:1px solid #b6b280;border-radius:8px;background:#032621;color:#fff1c8;font:700 16px system-ui}.bj-chips{display:flex;justify-content:center;gap:12px;margin:12px}.bj-chips button{width:43px;border-radius:50%!important;border:3px dashed #fff4c7!important;background:radial-gradient(#278381,#024b42)!important;box-shadow:0 3px #071a19}.bj-confirm{width:100%;background:linear-gradient(#f4da96,#b8883a)!important;color:#17281a!important;border-color:#ffe3a1!important}
+@media(min-width:600px){#onePartyGame .bj-table{padding:20px 25px 30px}.bj-seat .bj-card{width:48px!important;flex-basis:48px!important;height:67px!important}.bj-heading strong{font-size:25px}.bj-players{gap:14px!important}}
+@media(prefers-reduced-motion:no-preference){.bj-reveal .bj-card{animation:bjReveal .38s ease-out both}@keyframes bjReveal{from{transform:rotateY(80deg);opacity:.3}to{transform:none;opacity:1}}}
+
+#onePartyGame .bj-total:empty{display:none}
+
+@media(min-width:600px){#onePartyGame .bj-dealer .bj-card{width:55px;flex-basis:55px;height:77px}}
+@media(max-height:680px){
+#onePartyGame .bj-table{padding:9px 8px 14px}
+#onePartyGame .bj-heading{gap:2px;margin:1px 0 6px}
+#onePartyGame .bj-heading strong{font-size:17px}
+#onePartyGame .bj-heading small,#onePartyGame .bj-dealer-icon{display:none}
+#onePartyGame .bj-dealer{gap:2px;font-size:11px}
+#onePartyGame .bj-dealer>small{font-size:8px}
+#onePartyGame .bj-cards{min-height:55px;padding:4px 0}
+#onePartyGame .bj-dealer .bj-card{width:37px;flex-basis:37px;height:53px}
+#onePartyGame .bj-status{font-size:10px;padding:5px 10px;margin:3px auto 7px}
+#onePartyGame .bj-players{gap:7px}
+#onePartyGame .bj-seat{padding:6px}
+#onePartyGame .bj-camera{width:26px;height:28px}
+#onePartyGame .bj-player-label b{font-size:10px}
+#onePartyGame .bj-player-label small{font-size:8px}
+#onePartyGame .bj-seat .bj-cards{min-height:49px;padding:4px 0}
+#onePartyGame .bj-seat .bj-card{width:31px!important;flex-basis:31px!important;height:45px!important}
+#onePartyGame .bj-seat .bj-suit{font-size:20px}
+#onePartyGame .bj-seat .bj-corner{font-size:7px}
+#onePartyGame .bj-wager{font-size:12px}
+#onePartyGame .bj-total{font-size:10px;padding:2px 7px}
+#onePartyGame .bj-controls{padding:8px 8px calc(7px + env(safe-area-inset-bottom))}
+#onePartyGame .bj-turn{font-size:10px;margin-bottom:6px}
+#onePartyGame .bj-free{font-size:8px;margin-top:6px}
+#onePartyGame .bj-chips{margin:8px}
+}
+
+#onePartyGame .bj-seat{position:relative}
+#onePartyGame .bj-seat .bj-cards{flex-wrap:nowrap;overflow-x:auto;justify-content:safe center;scrollbar-width:none}
+#onePartyGame .bj-stays{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);margin:0;font-size:8px}
+@media(max-height:680px){#onePartyGame .bj-table{padding-bottom:10px}#onePartyGame .bj-turn{margin-bottom:4px}}

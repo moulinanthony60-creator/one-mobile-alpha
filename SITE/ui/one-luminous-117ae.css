@@ -1,0 +1,57 @@
+/* Shared visual finish: steady light, polished edges, native controls. */
+body #oneSalonTray.os-salon,body dialog.oneFriendsDialog.oneFriendsDialog{background:#0b0718!important;border-color:#b975f2!important;box-shadow:0 20px 70px #000c,0 0 24px #b832ff30,inset 0 1px #ffe2ab66!important;border-radius:22px!important}
+body #oneSalonTray.os-salon>header,body .oneFriendsDialog.oneFriendsDialog header{background:radial-gradient(ellipse at 15% 0,#922cd64a,transparent 70%),linear-gradient(125deg,#251237,#0d0a20)!important;border-bottom:1px solid #ce9c6a66}
+body #oneSalonTray.os-salon>header h2,body .oneFriendsDialog.oneFriendsDialog header h2{color:#ffe7b0!important;text-shadow:0 0 16px #efb75750;font-weight:850!important;letter-spacing:-.03em}
+body #oneSalonTray.os-salon>header h2:before{width:46px;height:46px;border-radius:13px;border:1px solid #ffdf83;background:radial-gradient(ellipse at top,#734072,#25122f 65%);color:#ffe4a3;font:900 13px/1 system-ui;letter-spacing:.04em;box-shadow:inset 0 0 0 3px #241131,inset 0 1px #fff8,0 0 15px #f0b54440}
+body .oneFriendsDialog.oneFriendsDialog header h2:before{background:linear-gradient(140deg,#bd44ee,#57249b);border-color:#ffd37c;color:#ffe2a1;box-shadow:0 0 16px #b435ef66}
+body #oneSalonBody{background:radial-gradient(ellipse at 0 0,#721aa338,transparent 57%),radial-gradient(ellipse at 100% 80%,#6835b322,transparent 60%),#0c091b!important}
+body #oneSalonBody .os-room-name{color:#fff2d3;text-shadow:0 0 12px #cb89ff35}
+body #oneSalonBody .os-actions button{background:linear-gradient(140deg,#301a43,#140e27);border-color:#be8b6688;color:#f6e7cb;box-shadow:inset 0 1px #ffe3ab22}
+body #oneSalonBody .os-actions .os-primary,body .oneFriendsDialog.oneFriendsDialog .os-friend-primary,body .os-dialog .os-primary,body .os-proposal .os-primary,body .os-home-hero .os-primary{background:linear-gradient(135deg,#c448ff,#8b21f5 55%,#5020b9)!important;border:1px solid #dd9aff!important;box-shadow:inset 0 2px #ffeaff66,inset 0 -3px #34036666,0 0 18px #a62dff50!important;color:#fff!important;text-shadow:0 1px 2px #42127a;font-weight:800}
+body #oneSalonBody .os-member{background:linear-gradient(150deg,#382144cc,#120d23)!important;border-color:#b9915d88!important;box-shadow:inset 0 1px #ffedc122,0 5px 10px #0005}
+body #oneSalonBody .os-member-invite{border-color:#d088ff;background:#38154c55;color:#f0c7ff}
+body #oneSalonBody .os-choose{background:radial-gradient(ellipse at top,#4b255249,transparent 75%),#130e23!important;border-color:#b18a5d77!important;box-shadow:inset 0 1px #ffecb526,0 6px 20px #0004}
+body #oneSalonBody .os-choose h3{color:#ffebbd}
+body #oneSalonBody .os-tile{border-color:#bd8bff;box-shadow:inset 0 2px #fff6,inset 0 -14px 24px #1d074255,0 0 13px #962dff30;background:radial-gradient(ellipse at 50% 5%,#a443ff,#4e1888 65%,#231039)}
+body #oneSalonBody .os-tile[data-kind=together]{border-color:#5fe5ff;background:radial-gradient(ellipse at 50% 0,#22b3ff,#124787 63%,#101d40);box-shadow:inset 0 2px #fff6,0 0 15px #20acff30}
+body #oneSalonBody .os-tile[data-kind=party]{border-color:#ff97ee;background:radial-gradient(ellipse at 50% 0,#ed45d7,#8a1b93 63%,#3a0d4d);box-shadow:inset 0 2px #fff6,0 0 15px #eb39d63d}
+body #oneSalonBody .os-tile svg.os-brand-icon{stroke-width:2;filter:drop-shadow(0 0 6px currentColor);color:#e9c8ff}
+body #oneSalonBody .os-room-tools button{background:linear-gradient(145deg,#382049,#19102b);border-color:#aa79c280;color:#efdbff;box-shadow:inset 0 1px #ffe4ff25}
+body #oneSalonBody .os-room-tools .os-danger{background:linear-gradient(130deg,#63213a,#250f24);border-color:#cf5f86;color:#ffbed4}
+body .oneFriendsDialog.oneFriendsDialog nav{background:#110a23;border-color:#a36dd13b}
+body .oneFriendsDialog.oneFriendsDialog nav button{background:linear-gradient(#321b46,#1a102c);border-color:#7d528e;color:#e9d6f4}
+body .oneFriendsDialog.oneFriendsDialog nav [aria-current=page]{background:linear-gradient(130deg,#bb3dff,#7721d9);border-color:#d78cff;color:white;box-shadow:inset 0 1px #fff5,0 0 13px #a62cee55}
+body .oneFriendsDialog.oneFriendsDialog .friend-row:has(.friend-identity){background:linear-gradient(125deg,#2f1b3e,#140e24)!important;border-color:#9f706c66!important;box-shadow:inset 0 1px #fff1}
+body .oneFriendsDialog.oneFriendsDialog .friend-row:has([data-online=true]){border-color:#32dcb077!important;box-shadow:inset 3px 0 #22e5b2,0 0 10px #1ad9a912}
+body .oneFriendsDialog.oneFriendsDialog .os-friends-search{background:#0c091a;border-color:#835b94;color:#fff0ff}
+body .oneFriendsDialog.oneFriendsDialog .friends-content>button{background:linear-gradient(120deg,#3b194e,#1d112d);border-color:#ad788d;color:#ffe3af}
+body .os-party-catalog{border-color:#b16aef!important;background:radial-gradient(ellipse at 0 0,#65207f2e,transparent 55%),#0e0a1d!important;box-shadow:inset 0 1px #d39fff22,0 0 25px #7220ac15}
+body .os-party-catalog>h2{color:#ffe5ad;text-shadow:0 0 12px #f8c06c50;font-weight:850}
+body .os-tabs button{background:linear-gradient(#2d1c42,#181025);border-color:#8a649c;color:#eeddff}
+body .os-tabs button[aria-pressed=true]{background:linear-gradient(140deg,#b640ff,#7120d8)!important;border-color:#d68fff;box-shadow:inset 0 1px #fff6,0 0 13px #a82bff55;color:white}
+body .os-party-catalog .os-game-card{background:radial-gradient(ellipse at 50% 0%,color-mix(in srgb,var(--game-accent) 20%,transparent),transparent 70%),linear-gradient(145deg,#21122d,#0b0b18)!important;border-color:color-mix(in srgb,var(--game-accent) 72%,#a3885f)!important;box-shadow:inset 0 1px #ffe2b855,0 5px 15px #0009,0 0 10px color-mix(in srgb,var(--game-accent) 13%,transparent)!important}
+body .os-party-catalog .os-game-card .pl-art{background:radial-gradient(ellipse at 50% 70%,color-mix(in srgb,var(--game-accent) 38%,transparent),transparent 73%)!important;border-bottom-color:color-mix(in srgb,var(--game-accent) 60%,transparent)}
+body .os-party-catalog .os-game-card .pl-art svg{filter:saturate(1.25) brightness(1.16) drop-shadow(0 0 7px color-mix(in srgb,var(--game-accent) 35%,transparent));transform:scale(1.025)}
+body .os-party-catalog .os-game-card b{color:#ffedc6!important;text-shadow:0 0 10px color-mix(in srgb,var(--game-accent) 35%,transparent)}
+body .os-party-catalog .os-game-card:hover{border-color:#ffe6a8!important;box-shadow:0 0 18px color-mix(in srgb,var(--game-accent) 30%,transparent)!important}
+body .os-home-hero{border-color:#bc71e8;background-image:linear-gradient(90deg,#150924f2,#1b082ca8 55%,#200b3518),url('social-lounge-cinema.png');box-shadow:inset 0 1px #ffdfa855,0 0 25px #a52fe233}
+body .os-home-hero h1{color:#fff0d0;text-shadow:0 2px 12px #060210}
+body .os-home-hero .os-eyebrow,body .os-party-catalog .os-eyebrow{color:#e29aff;letter-spacing:.12em}
+body .os-home-links button{background:linear-gradient(145deg,#44205e,#211035);border-color:#b977e8;color:#f4e5ff;box-shadow:inset 0 1px #fff3,0 0 12px #9531d82b}
+body .ogl-lobby{border-color:#c691f0;background:linear-gradient(150deg,#2b113c,#0c0b19);box-shadow:0 0 18px #b13eff33}
+body .ogl-lobby .ogl-player{border-color:#a0796980;background:linear-gradient(145deg,#31203c,#110e20)}
+body .ogl-lobby .ogl-player[data-ready=true]{border-color:#47dfb2;box-shadow:inset 0 1px #81ffd33d,0 0 11px #18d2952e}
+body .ogl-lobby .ogl-launch{background:linear-gradient(125deg,#c44cff,#8e1eea 60%,#571ac7);border:1px solid #e6a1ff;box-shadow:inset 0 2px #ffe3ff60,0 0 20px #b233ff55;color:white}
+body .ogl-hero{border-color:#b79b6890;box-shadow:inset 0 1px #fff3,0 8px 28px #0008}
+body .ogl-hero h2,body .ogl-hero h3{color:#ffe5a6;text-shadow:0 0 16px #f5b54160}
+body #onePartyGame .ogm-panel{background:radial-gradient(ellipse at 0 0,#69308055,transparent 70%),linear-gradient(140deg,#21112f,#0d0a1d)!important;border-color:#c080f4!important;box-shadow:0 18px 70px #000b,0 0 22px #b63bff30,inset 0 1px #ffe3b94d}
+body #onePartyGame .ogm-panel header>b{color:#ffe7b0;text-shadow:0 0 14px #f5b95860}
+body #onePartyGame .ogm-panel h4{color:#e8acff;letter-spacing:.1em}
+body #onePartyGame .ogm-panel .ogm-action:not(.ogm-danger):not(.ogm-danger-secondary){background:linear-gradient(110deg,#3b215473,#120c23cc);border-color:#a66fc54d;box-shadow:inset 0 1px #fff1}
+body #onePartyGame .ogm-panel .ogm-action svg{stroke:#f2d49b;filter:drop-shadow(0 0 4px #d298dd66)}
+body #onePartyGame .ogm-close{background:linear-gradient(#6b358e,#2b1842);border-color:#cf8ff5;box-shadow:inset 0 1px #fff5}
+body #onePartyGame .ogm-panel .ogm-media[aria-pressed=true] small{background:#03df9b;border-color:#85ffcf;box-shadow:0 0 10px #00e59c4d}
+body .os-primary:disabled,body .ogl-launch:disabled{opacity:.45;box-shadow:none!important}
+body :is(.os-primary,.os-tile,.os-game-card,.os-home-links button,.os-friend-primary,.ogl-launch):active:not(:disabled){filter:brightness(1.14)}
+body :is(.os-primary,.os-tile,.os-game-card,.os-tabs button,.os-home-links button,.os-friend-primary,.ogl-launch):focus-visible{outline:2px solid #ffe39d;outline-offset:3px}
+/* No continuously animated glows: keep touch and scrolling responsive. */
