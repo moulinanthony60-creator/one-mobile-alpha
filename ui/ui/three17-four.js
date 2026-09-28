@@ -1,88 +1,375 @@
 import * as THREE from './three.module.js';
-let active=null; const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-function box(scene,x,y,z,w,h,d,color=0x242329){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:.9}));m.position.set(x,y,z);scene.add(m);return m}
-function open(){close();const shell=document.createElement('section');shell.className='three17-shell';shell.innerHTML=`<div class="three17-stage"><div class="three17-hud"><div class="three17-top"><div class="three17-clock">03:17</div><div class="three17-objective">🔒 SORTIE VERROUILLÉE<br><b>Éléments trouvés : <span data-count>0</span>/3</b><br><small data-floor>REZ-DE-CHAUSSÉE</small></div></div><button class="three17-exit" type="button">← Lobby</button><div class="three17-cross"></div><div class="three17-stick"><div class="three17-knob"></div></div><div class="three17-look"></div><div class="three17-actions"><button class="three17-btn flash" type="button">🔦</button><button class="three17-btn interact" type="button">AGIR</button></div><div class="three17-msg"></div></div><div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><p>Explorez la maison, le sous-sol et l’étage.<br>Trouvez les 3 éléments.</p><button type="button">ENTRER DANS LA MAISON</button></div></div><div class="three17-win"><div><h1>VOUS ÊTES SORTI</h1><p>Prototype 3:17 FOUR · objectif terminé</p><button class="three17-btn" type="button">OK</button></div></div></div>`;document.body.append(shell);
- const stage=shell.querySelector('.three17-stage'),scene=new THREE.Scene();scene.background=new THREE.Color(0x0d0d12);scene.fog=new THREE.Fog(0x0d0d12,11,28);const camera=new THREE.PerspectiveCamera(68,1,.05,45);let yaw=Math.PI,pitch=0,px=0,pz=7.4,floorId=0; const floorY={0:0,1:3.35,'-1':-3.35},floorName={0:'REZ-DE-CHAUSSÉE',1:'ÉTAGE','-1':'SOUS-SOL'};
- const interactables=[],items=[],colliders=[];
- const WALL=0x25242a, FLOOR=0x2b292d;
- function slab(y,c=FLOOR){box(scene,0,y-.08,0,18,.16,20,c);box(scene,0,y+3.05,0,18,.12,20,0x17171c)}
- function addCollider(x,z,w,d,floor){colliders.push({x,z,w,d,floor})}
- function wallZ(x,z,w,y,floor,color=WALL){box(scene,x,y+1.5,z,w,3,.24,color);addCollider(x,z,w,.24,floor)}
- function wallX(x,z,d,y,floor,color=WALL){box(scene,x,y+1.5,z,.24,3,d,color);addCollider(x,z,.24,d,floor)}
- function outer(y,floor){wallZ(0,-10,18,y,floor);wallZ(0,10,18,y,floor);wallX(-9,0,20,y,floor);wallX(9,0,20,y,floor)}
- function door(x,y,z,rot=0,label='Porte',floor=0){const d=box(scene,x,y+1.25,z,rot? .16:2.0,2.5,rot?2.0:.16,0x4a342d);d.userData={type:'door',label,open:false,floor};interactables.push(d);return d}
- function item(x,y,z,label,color,floor){const g=box(scene,x,y+.42,z,.3,.3,.3,color);g.material.emissive=new THREE.Color(color);g.material.emissiveIntensity=1.25;g.userData={type:'item',label,taken:false,floor};items.push(g);interactables.push(g)}
- function stairRun(x,y0,z0,toY,dir,color=0x3b3940){const steps=12, dz=3.6/steps, rise=(toY-y0)/steps;for(let i=0;i<steps;i++){const z=z0+dir*(i+.5)*dz;const y=y0+(i+.5)*rise;box(scene,x,y,z,2.0,Math.max(.18,Math.abs(rise)),dz+.03,color)} }
- // --- PLAN V12 : chaque mur visible possède exactement le même collider. ---
- // RDC : entrée au sud, couloir central, salon/cuisine au nord, cage d'escalier séparée.
- slab(0);outer(0,0);
- // couloir central x [-2,2], portes réelles dans les cloisons
- wallX(-2,-4,8,0,0); wallX(2,-4,8,0,0);
- wallX(-2,5.9,4.2,0,0); wallX(2,5.9,4.2,0,0);
- // séparation nord avec ouverture de 2m au centre
- wallZ(-5,-1.0,6,0,0); wallZ(5,-1.0,6,0,0); door(0,0,-1.0,0,'Porte du salon',0);
- // pièces latérales, ouvertures à z=3
- wallZ(-5.5,3.0,3,0,0); wallZ(-8,3.0,2,0,0); door(-6.5,0,3.0,0,'Porte cuisine',0);
- wallZ(5.5,3.0,3,0,0); wallZ(8,3.0,2,0,0); door(6.5,0,3.0,0,'Porte salle à manger',0);
- // mobilier RDC
- box(scene,-6.1,.42,-5.9,3.8,.84,1.2,0x453b40); box(scene,-6.1,.28,-4.2,1.8,.56,1.0,0x55483d);
- box(scene,6.4,.48,-6.2,3.7,.96,1.0,0x49443c); box(scene,7.8,.9,-4.6,1.0,1.8,.7,0x34343a);
- box(scene,-6.6,.5,6.1,3.5,1,1.0,0x403832); box(scene,6.5,.42,6.2,3.4,.84,1.5,0x3d332e);
- const exitDoor=door(0,0,9.82,0,'Porte principale',0); exitDoor.userData.type='exit';
- // vraies cages d'escalier : gauche vers étage, droite vers sous-sol
- wallX(-7.0,6.8,5.2,0,0); wallX(-4.5,6.8,5.2,0,0); stairRun(-5.75,0,8.8,3.35,-1);
- wallX(4.5,6.8,5.2,0,0); wallX(7.0,6.8,5.2,0,0); stairRun(5.75,0,8.8,-3.35,-1,0x303138);
- // ÉTAGE : palier + long couloir et pièces alignées avec le RDC
- slab(3.35,0x27262b);outer(3.35,1);
- wallX(-2,0,20,3.35,1); wallX(2,0,20,3.35,1);
- // ouvertures de chambres depuis le couloir
- wallZ(-5,-4.8,6,3.35,1); door(-1.9,3.35,-4.8,Math.PI/2,'Chambre nord-ouest',1);
- wallZ(5,-4.8,6,3.35,1); door(1.9,3.35,-4.8,Math.PI/2,'Chambre nord-est',1);
- wallZ(-5,1.0,6,3.35,1); door(-1.9,3.35,1.0,Math.PI/2,'Chambre ouest',1);
- wallZ(5,1.0,6,3.35,1); door(1.9,3.35,1.0,Math.PI/2,'Salle de bain',1);
- box(scene,-6.1,3.72,-7.0,3.4,.72,3.5,0x413940); box(scene,6.1,3.72,-7.0,3.4,.72,3.5,0x3b353a);
- box(scene,-6.5,4.25,4.8,1.5,1.8,.7,0x302d31); box(scene,6.3,3.7,4.8,3.0,.7,1.3,0x686970);
- // SOUS-SOL : couloir béton et trois pièces, même logique collision/visuel
- slab(-3.35,0x202126);outer(-3.35,-1);
- wallX(-2,-1.5,17,-3.35,-1); wallX(2,-1.5,17,-3.35,-1);
- wallZ(-5,-4.2,6,-3.35,-1); door(-1.9,-3.35,-4.2,Math.PI/2,'Chaufferie',-1);
- wallZ(5,-4.2,6,-3.35,-1); door(1.9,-3.35,-4.2,Math.PI/2,'Stockage',-1);
- wallZ(-5,2.2,6,-3.35,-1); door(-1.9,-3.35,2.2,Math.PI/2,'Pièce condamnée',-1);
- box(scene,-6.1,-2.55,-6.5,2.2,1.6,1.4,0x37383b); box(scene,6.2,-2.75,-6.2,3.4,1.1,1.2,0x343238); box(scene,-6.2,-2.35,5.4,1.5,2,.8,0x2c2d30);
- item(-6.4,0,-6.2,'Clé ancienne',0xd6b34a,0); item(6.3,-3.35,-6.0,'Fusible',0x5db4ff,-1); item(-6.3,3.35,4.8,'Sceau',0xb36cff,1);
- scene.add(new THREE.HemisphereLight(0xaeb8d8,0x251d24,1.15));const moon=new THREE.DirectionalLight(0xb7c8ef,1.25);moon.position.set(2,6,3);scene.add(moon);const flashlight=new THREE.SpotLight(0xf3f6ff,65,18,.58,.55,1.15);const target=new THREE.Object3D();scene.add(flashlight,target);flashlight.target=target;const fillLight=new THREE.PointLight(0xdde8ff,3.5,5,1.7);scene.add(fillLight);let flashOn=true;
- const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance',alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.15));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.65;stage.prepend(renderer.domElement);
- const keys={x:0,y:0};let drag=null,look=null,lx=0,ly=0,last=performance.now(),raf=0,count=0,msgTimer=0,lastRender=0;const FRAME_MS=1000/45;const ray=new THREE.Raycaster();
- function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix()}const ro=new ResizeObserver(resize);ro.observe(stage);resize();
- function message(t){const m=shell.querySelector('.three17-msg');m.textContent=t;m.classList.add('show');clearTimeout(msgTimer);msgTimer=setTimeout(()=>m.classList.remove('show'),1500)}
- function onUpperStairs(x,z){return x>-6.95&&x<-4.55&&z>5.15&&z<8.95}
- function onLowerStairs(x,z){return x>4.55&&x<6.95&&z>5.15&&z<8.95}
- function currentY(){
-   if(onUpperStairs(px,pz)){const t=clamp((8.8-pz)/3.6,0,1); if(t>.92)floorId=1; else if(t<.08)floorId=0; return t*3.35;}
-   if(onLowerStairs(px,pz)){const t=clamp((8.8-pz)/3.6,0,1); if(t>.92)floorId=-1; else if(t<.08)floorId=0; return -t*3.35;}
-   return floorY[floorId];
- }
- function blocked(nx,nz){
-   if(nx<-8.55||nx>8.55||nz<-9.5||nz>9.5)return true;
-   // Pendant un escalier, la cage elle-même guide le joueur; les murs de l'autre niveau ne bloquent pas.
-   if(onUpperStairs(nx,nz)||onLowerStairs(nx,nz))return false;
-   const r=.28;
-   for(const c of colliders){if(c.floor!==floorId)continue;if(Math.abs(nx-c.x)<c.w/2+r&&Math.abs(nz-c.z)<c.d/2+r)return true;}
-   for(const o of interactables){const u=o.userData;if(u.type!=='door'&&u.type!=='exit')continue;if(u.floor!==floorId||u.open)continue;const w=o.geometry.parameters.width,d=o.geometry.parameters.depth;if(Math.abs(nx-o.position.x)<w/2+r&&Math.abs(nz-o.position.z)<d/2+r)return true;}
-   return false;
- }
- function nearestInteractable(){let best=null,bd=2.25;for(const o of interactables){if(o.userData.taken)continue;const u=o.userData;if(u.floor!==undefined&&u.floor!==floorId)continue;const d=Math.hypot(o.position.x-px,o.position.z-pz);if(d<bd){best=o;bd=d}}return best}
- function interact(){const o=nearestInteractable();if(!o){message('Rien à utiliser ici');return}const u=o.userData;if(u.type==='item'){u.taken=true;o.visible=false;count++;shell.querySelector('[data-count]').textContent=count;message('✓ '+u.label+' récupéré');return}if(u.type==='door'){u.open=!u.open;o.visible=!u.open;message(u.open?'Porte ouverte':'Porte fermée');return}if(u.type==='exit'){if(count<3)message(`Il manque ${3-count} élément${3-count>1?'s':''}`);else shell.querySelector('.three17-win').classList.add('show')}}
- function frame(now){raf=requestAnimationFrame(frame);if(document.hidden||now-lastRender<FRAME_MS)return;lastRender=now;const dt=Math.min(.05,(now-last)/1000);last=now;camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;/* Le joystick utilise directement les axes REELS de la camera. Ainsi haut/bas/gauche/droite restent synchronises avec le regard, quelle que soit la rotation. */const forwardInput=-keys.y,strafeInput=keys.x,spd=2.5;/* Même formule que le joystick du lobby 3D validé sur mobile. */const sin=Math.sin(yaw),cos=Math.cos(yaw);const moveX=(-sin*forwardInput+cos*strafeInput)*spd*dt;const moveZ=(-cos*forwardInput-sin*strafeInput)*spd*dt;const nx=px+moveX,nz=pz+moveZ;if(!blocked(nx,pz))px=nx;if(!blocked(px,nz))pz=nz;const fy=currentY();camera.position.set(px,fy+1.62,pz);const f=shell.querySelector('[data-floor]');if(f)f.textContent=floorName[floorId];flashlight.visible=flashOn;fillLight.visible=flashOn;flashlight.position.copy(camera.position);fillLight.position.copy(camera.position);const dir=new THREE.Vector3();camera.getWorldDirection(dir);target.position.copy(camera.position).add(dir.multiplyScalar(5));target.updateMatrixWorld();items.forEach(i=>{if(i.visible)i.rotation.y+=dt*1.6});renderer.render(scene,camera);}raf=requestAnimationFrame(frame);
- const stick=shell.querySelector('.three17-stick'),knob=shell.querySelector('.three17-knob');function sm(e){const b=stick.getBoundingClientRect(),dx=e.clientX-(b.left+b.width/2),dy=e.clientY-(b.top+b.height/2),d=Math.hypot(dx,dy)||1,m=Math.min(38,d),nx=dx/d,ny=dy/d;keys.x=nx*(m/38);keys.y=ny*(m/38);knob.style.transform=`translate(${nx*m}px,${ny*m}px)`}stick.addEventListener('pointerdown',e=>{drag=e.pointerId;stick.setPointerCapture(drag);sm(e)});stick.addEventListener('pointermove',e=>{if(e.pointerId===drag)sm(e)});function se(e){if(e.pointerId!==drag)return;drag=null;keys.x=keys.y=0;knob.style.transform=''}stick.addEventListener('pointerup',se);stick.addEventListener('pointercancel',se)
- const lookz=shell.querySelector('.three17-look');lookz.addEventListener('pointerdown',e=>{look=e.pointerId;lx=e.clientX;ly=e.clientY;lookz.setPointerCapture(look)});lookz.addEventListener('pointermove',e=>{if(e.pointerId!==look)return;const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;yaw-=dx*.006;pitch=clamp(pitch-dy*.004,-.8,.7)});lookz.addEventListener('pointerup',e=>{if(e.pointerId===look)look=null});
- // V9 multitouch: actions fire on their OWN pointerdown, independently of joystick/camera pointers.
- const uiButtons=[...shell.querySelectorAll('button')];uiButtons.forEach(btn=>{btn.style.touchAction='manipulation';btn.addEventListener('pointerdown',e=>e.stopPropagation());btn.addEventListener('pointerup',e=>e.stopPropagation());});
- function press(el,fn){el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fn(e)},{passive:false})}
- press(shell.querySelector('.interact'),()=>interact());
- press(shell.querySelector('.flash'),()=>{flashOn=!flashOn;message(flashOn?'Lampe allumée':'Lampe éteinte')});
- press(shell.querySelector('.three17-exit'),()=>close());
- press(shell.querySelector('.three17-start button'),()=>shell.querySelector('.three17-start')?.remove());
- press(shell.querySelector('.three17-win button'),()=>close());active={shell,renderer,ro,raf};
+import { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt,
+  movePlayer, circleHitsDoor, hasLineOfSight, roomAt } from './three17-house-rdc-v13.js';
+
+let active = null;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+function patternTexture(kind) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  if (kind === 'wood') {
+    ctx.fillStyle = '#695344'; ctx.fillRect(0, 0, 128, 128);
+    for (let i = 0; i < 4; i++) {
+      ctx.fillStyle = ['#685041', '#755c48', '#624c3e', '#705747'][i];
+      ctx.fillRect(i * 32 + 1, 0, 30, 128);
+      ctx.fillStyle = '#3c3029'; ctx.fillRect(i * 32, 0, 1, 128);
+      ctx.fillRect(i * 32, i % 2 ? 68 : 15, 32, 1);
+      ctx.strokeStyle = '#ffffff09'; ctx.beginPath();
+      for (let k = 0; k < 5; k++) { ctx.moveTo(i * 32 + 5 + k * 5, 0); ctx.lineTo(i * 32 + 4 + k * 5, 128); }
+      ctx.stroke();
+    }
+  } else {
+    ctx.fillStyle = kind === 'bath' ? '#85918d' : '#716e62'; ctx.fillRect(0, 0, 128, 128);
+    ctx.fillStyle = kind === 'bath' ? '#788580' : '#5e5f58';
+    ctx.fillRect(1, 1, 62, 62); ctx.fillRect(65, 65, 62, 62);
+    ctx.strokeStyle = '#373b36'; ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, 64, 64); ctx.strokeRect(64, 64, 64, 64);
+    ctx.strokeRect(64, 0, 64, 64); ctx.strokeRect(0, 64, 64, 64);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.anisotropy = 2;
+  return texture;
 }
-function close(){if(!active)return;cancelAnimationFrame(active.raf);active.ro.disconnect();active.renderer.dispose();active.shell.remove();active=null}window.ONEThree17={open,close};window.addEventListener('pagehide',close);
+
+function buildHouseScene(scene, house) {
+  const wood = patternTexture('wood'), tile = patternTexture('tile'), bath = patternTexture('bath');
+  const materials = {};
+  const palette = {
+    plaster: 0x777167, wallBase: 0x424742, trim: 0x3e342e, ceiling: 0x333537,
+    wood: 0x66513c, fabric: 0x53605b, linen: 0xa69a83, cabinet: 0x636654,
+    stone: 0x6a6b62, dark: 0x151a1e, enamel: 0xabb4ae, metal: 0x737c82,
+    paper: 0xa69880, bathInner: 0x687f80, mirror: 0x6c7b80,
+    screen: 0x131d24, glass: 0x415b71, rug: 0x49343c, stoneFloor: 0x434649,
+  };
+  for (const [name, color] of Object.entries(palette)) {
+    materials[name] = new THREE.MeshStandardMaterial({ color, roughness: name === 'metal' ? .35 : .88,
+      metalness: name === 'metal' ? .45 : 0 });
+  }
+  for (const [name, tex, color] of [['woodFloor', wood, 0xb3a394], ['hallFloor', tile, 0x8c918e],
+    ['kitchenFloor', tile, 0xafb1a0], ['bathFloor', bath, 0xb3bdb7]]) {
+    materials[name] = new THREE.MeshStandardMaterial({ color, map: tex, roughness: .92 });
+  }
+  materials.glass.emissive.setHex(0x1b2d45); materials.glass.emissiveIntensity = .35;
+  materials.screen.emissive.setHex(0x0c1b25); materials.screen.emissiveIntensity = .2;
+  const unitBox = new THREE.BoxGeometry(1, 1, 1);
+  const batches = new Map();
+  function queue(v) {
+    if (!batches.has(v.material)) batches.set(v.material, []);
+    batches.get(v.material).push(v);
+  }
+  for (const v of house.volumes) {
+    if (v.kind === 'wall' && v.y - v.h / 2 < .01 && v.h > 2) {
+      // Le soubassement et l'enduit partitionnent le même volume solide.
+      queue({ ...v, y: .36, h: .72, material: 'wallBase' });
+      queue({ ...v, y: .72 + (v.h - .72) / 2, h: v.h - .72 });
+      queue({ ...v, y: .735, h: .035, w: v.w + .008, d: v.d + .008, material: 'trim' });
+    } else queue(v);
+  }
+  const matrix = new THREE.Matrix4(), position = new THREE.Vector3(), scale = new THREE.Vector3(), rotation = new THREE.Quaternion();
+  for (const [name, list] of batches) {
+    const mesh = new THREE.InstancedMesh(unitBox, materials[name], list.length);
+    mesh.name = 'RDC-' + name;
+    list.forEach((v, i) => { position.set(v.x, v.y, v.z); scale.set(v.w, v.h, v.d);
+      matrix.compose(position, rotation, scale); mesh.setMatrixAt(i, matrix); });
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.computeBoundingSphere(); scene.add(mesh);
+  }
+  for (const s of house.surfaces) {
+    const geometry = new THREE.PlaneGeometry(s.w, s.d);
+    const uv = geometry.attributes.uv;
+    if (s.material !== 'rug') for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * s.w / 2, uv.getY(i) * s.d / 2);
+    const mesh = new THREE.Mesh(geometry, materials[s.material]);
+    mesh.name = s.id; mesh.rotation.x = -Math.PI / 2; mesh.position.set(s.x, s.y, s.z); scene.add(mesh);
+  }
+  function cube(parent, x, y, z, w, h, d, material) {
+    const mesh = new THREE.Mesh(unitBox, material); mesh.position.set(x, y, z); mesh.scale.set(w, h, d); parent.add(mesh); return mesh;
+  }
+  const doorMeshes = new Map();
+  for (const d of house.doors) {
+    const pivot = new THREE.Group(); pivot.name = 'porte-' + d.id;
+    pivot.position.set(d.hingeX, 0, d.hingeZ); pivot.rotation.y = d.angle;
+    cube(pivot, d.width / 2, d.height / 2, 0, d.width, d.height, d.thickness, materials.wood);
+    for (const side of [-1, 1]) {
+      for (const y of [.56, 1.55]) cube(pivot, d.width / 2, y, side * .041, d.width - .22, .71, .004, materials.trim);
+      cube(pivot, d.width - .14, 1.02, side * .052, .16, .045, .05, materials.metal);
+      if (d.id === 'stairs') cube(pivot, d.width / 2, 1.33, side * .046, d.width - .08, .13, .018, materials.dark);
+    }
+    scene.add(pivot); doorMeshes.set(d.id, pivot);
+  }
+  for (const label of house.signs) {
+    const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 96;
+    const ctx = canvas.getContext('2d'); ctx.fillStyle = '#161c1b'; ctx.fillRect(0, 0, 512, 96);
+    ctx.strokeStyle = '#91927c'; ctx.lineWidth = 5; ctx.strokeRect(4, 4, 504, 88);
+    ctx.fillStyle = '#e2dcc6'; ctx.font = '600 30px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(label.text, 256, 49, 480);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
+    const mat = new THREE.MeshBasicMaterial({ map: texture, toneMapped: false });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.16, .22), mat);
+    mesh.position.set(label.x, label.y, label.z); mesh.rotation.y = label.ry; scene.add(mesh);
+  }
+  const itemMeshes = new Map();
+  for (const item of house.items) {
+    const group = new THREE.Group(); group.position.set(item.x, item.y, item.z);
+    const mat = new THREE.MeshStandardMaterial({ color: item.color, emissive: item.color, emissiveIntensity: .6, roughness: .4 });
+    if (item.id === 'key') {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(.065, .018, 6, 12), mat);
+      ring.position.y = .10; group.add(ring);
+      cube(group, 0, -.026, 0, .03, .15, .025, mat);
+      cube(group, .036, -.09, 0, .075, .025, .025, mat);
+    } else if (item.id === 'fuse') {
+      cube(group, 0, 0, 0, .09, .28, .09, mat);
+      for (const y of [-.125, .125]) cube(group, 0, y, 0, .12, .06, .12, materials.metal);
+    } else {
+      const seal = new THREE.Mesh(new THREE.CylinderGeometry(.13, .13, .06, 12), mat);
+      seal.rotation.x = .8; group.add(seal);
+    }
+    scene.add(group); itemMeshes.set(item.id, group);
+  }
+  return { doorMeshes, itemMeshes };
+}
+
+function disposeScene(scene) {
+  const geometries = new Set(), materials = new Set(), textures = new Set();
+  scene.traverse(o => {
+    if (o.geometry) geometries.add(o.geometry);
+    for (const m of (Array.isArray(o.material) ? o.material : [o.material])) if (m) materials.add(m);
+    if (o.isInstancedMesh) o.dispose();
+  });
+  for (const m of materials) for (const v of Object.values(m)) if (v?.isTexture) textures.add(v);
+  for (const t of textures) t.dispose();
+  for (const g of geometries) g.dispose();
+  for (const m of materials) m.dispose();
+  scene.clear();
+}
+
+function open() {
+  close();
+  const shell = document.createElement('section');
+  shell.className = 'three17-shell'; shell.dataset.build = 'v013-rdc';
+  shell.setAttribute('role', 'dialog'); shell.setAttribute('aria-label', '3:17 FOUR — Rez-de-chaussée');
+  shell.innerHTML = `<div class="three17-stage"><div class="three17-hud">
+    <div class="three17-top"><div><div class="three17-clock">03:17</div><div class="three17-build">${BUILD}</div></div>
+    <div class="three17-objective"><span data-lock>🔒 SORTIE VERROUILLÉE</span><br><b>Éléments trouvés : <span data-count>0</span>/3</b><br><small data-floor>RDC · HALL D’ENTRÉE</small></div></div>
+    <button class="three17-exit" type="button">← Lobby</button><div class="three17-cross"></div>
+    <div class="three17-stick" aria-label="Joystick de déplacement"><div class="three17-knob"></div></div>
+    <div class="three17-look" aria-label="Glisser pour regarder"></div>
+    <div class="three17-actions"><button class="three17-btn flash" type="button" aria-label="Éteindre la lampe" aria-pressed="true">🔦</button>
+    <button class="three17-btn interact" type="button">AGIR</button></div><div class="three17-hint"></div><div class="three17-msg" role="status"></div></div>
+    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><strong class="three17-build-label">V13 · REZ-DE-CHAUSSÉE</strong>
+    <p>Explorez les pièces du rez-de-chaussée.<br>Trouvez la clé, le fusible et le sceau.<br><small>L’escalier reste fermé pour cette étape.</small></p>
+    <button type="button">ENTRER DANS LA MAISON</button></div></div>
+    <div class="three17-win"><div><h1>VOUS ÊTES SORTI</h1><p>Les trois éléments ont ouvert la sortie.</p><button class="three17-btn" type="button">OK</button></div></div></div>`;
+  document.body.append(shell);
+  const stage = shell.querySelector('.three17-stage');
+  let renderer, scene, observer, raf = 0, stopped = false, messageTimer = 0;
+  let removeVisibility = () => {};
+  const session = { stop() {
+    if (stopped) return;
+    stopped = true; cancelAnimationFrame(raf); clearTimeout(messageTimer);
+    observer?.disconnect(); removeVisibility();
+    if (scene) disposeScene(scene);
+    renderer?.dispose(); shell.remove();
+  } };
+  active = session;
+  try {
+    const house = createGroundFloor();
+    scene = new THREE.Scene(); scene.background = new THREE.Color(0x0d0d12); scene.fog = new THREE.Fog(0x0d0d12, 11, 28);
+    const meshes = buildHouseScene(scene, house);
+    const camera = new THREE.PerspectiveCamera(68, 1, .05, 45);
+    let yaw = house.spawn.yaw, pitch = house.spawn.pitch;
+    const position = { x: house.spawn.x, z: house.spawn.z };
+    const keys = { x: 0, y: 0 };
+    let drag = null, look = null, lx = 0, ly = 0, started = false, won = false, count = 0;
+    let last = performance.now(), lastRender = 0, lastHud = 0, flashOn = true;
+    const FRAME_MS = 1000 / 45;
+    const direction = new THREE.Vector3();
+    scene.add(new THREE.HemisphereLight(0xaeb8d8, 0x251d24, 1.15));
+    const moon = new THREE.DirectionalLight(0xb7c8ef, 1.25); moon.position.set(2, 6, 3); scene.add(moon);
+    const flashlight = new THREE.SpotLight(0xf3f6ff, 65, 18, .58, .55, 1.15);
+    const target = new THREE.Object3D(); flashlight.target = target; scene.add(flashlight, target);
+    const fillLight = new THREE.PointLight(0xdde8ff, 3.5, 5, 1.7); scene.add(fillLight);
+    renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance', alpha: false });
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.15));
+    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.65;
+    stage.prepend(renderer.domElement);
+    const stick = shell.querySelector('.three17-stick'), knob = shell.querySelector('.three17-knob');
+    const flashButton = shell.querySelector('.flash'), hint = shell.querySelector('.three17-hint');
+    const floorLabel = shell.querySelector('[data-floor]'), counter = shell.querySelector('[data-count]'), lockLabel = shell.querySelector('[data-lock]');
+    const messageElement = shell.querySelector('.three17-msg');
+
+    function resize() {
+      const w = Math.max(1, stage.clientWidth), h = Math.max(1, stage.clientHeight);
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    }
+    observer = new ResizeObserver(resize); observer.observe(stage); resize();
+    function message(text) {
+      messageElement.textContent = text; messageElement.classList.add('show'); clearTimeout(messageTimer);
+      messageTimer = setTimeout(() => messageElement.classList.remove('show'), 1800);
+    }
+    function resetInputs() { drag = look = null; keys.x = keys.y = 0; knob.style.transform = ''; }
+    function refreshCamera() {
+      camera.rotation.order = 'YXZ'; camera.rotation.y = yaw; camera.rotation.x = pitch;
+      camera.position.set(position.x, EYE_HEIGHT, position.z); camera.updateMatrixWorld();
+    }
+    function selectInteraction() {
+      const from = { x: position.x, y: EYE_HEIGHT, z: position.z };
+      let best = null, score = Infinity;
+      const fx = -Math.sin(yaw), fz = -Math.cos(yaw);
+      function candidate(object, type, point) {
+        const dx = point.x - position.x, dz = point.z - position.z;
+        const distance = Math.hypot(dx, dz);
+        if (distance > 2.05) return;
+        const facing = distance < .10 ? 1 : (fx * dx + fz * dz) / distance;
+        if (facing < .38 || !hasLineOfSight(house, from, point, type === 'door' ? object.id : '')) return;
+        const rank = distance + (1 - facing) * .75;
+        if (rank < score) { best = { object, type }; score = rank; }
+      }
+      for (const item of house.items) if (!item.taken) candidate(item, 'item', item);
+      for (const door of house.doors) {
+        // Cible au centre de la FEUILLE réelle, même lorsqu'elle est ouverte.
+        const c = Math.cos(door.angle), s = Math.sin(door.angle);
+        candidate(door, 'door', { x: door.hingeX + c * door.width * .72,
+          y: 1.20, z: door.hingeZ - s * door.width * .72 });
+      }
+      return best;
+    }
+    function interactionLabel(selection) {
+      if (!selection) return '';
+      const o = selection.object;
+      if (selection.type === 'item') return 'AGIR · Prendre : ' + o.label;
+      if (o.exit) return count === 3 ? 'AGIR · Ouvrir la sortie' : 'AGIR · Sortie verrouillée';
+      if (o.locked) return 'Escalier fermé · aucun étage actif';
+      return 'AGIR · ' + (Math.abs(o.targetAngle - o.closedAngle) < .01 ? 'Ouvrir : ' : 'Fermer : ') + o.label;
+    }
+    function interact() {
+      if (!started || won) return;
+      const selection = selectInteraction();
+      if (!selection) { message('Approchez-vous et regardez la porte ou l’objet'); return; }
+      const o = selection.object;
+      if (selection.type === 'item') {
+        o.taken = true; meshes.itemMeshes.get(o.id).visible = false; count++;
+        counter.textContent = String(count); message('✓ ' + o.label + ' récupéré');
+        if (count === 3) lockLabel.textContent = '🔓 RETOURNEZ À LA SORTIE';
+      } else if (o.exit) {
+        if (count < 3) message('Il manque ' + (3 - count) + ' élément' + (count < 2 ? 's' : ''));
+        else { won = true; resetInputs(); shell.querySelector('.three17-win').classList.add('show'); }
+      } else if (o.locked) message('Escalier condamné pour cette version : explorez le RDC');
+      else {
+        const desired = Math.abs(o.targetAngle - o.closedAngle) < .01 ? o.openAngle : o.closedAngle;
+        // Ne ferme pas une porte SUR le joueur et ne le pousse pas à travers le mur.
+        for (let step = 1; step <= 18; step++) {
+          if (circleHitsDoor(position.x, position.z, PLAYER_RADIUS + .02, o, o.angle + (desired - o.angle) * step / 18)) {
+            message('Reculez un peu pour laisser passer la porte'); return;
+          }
+        }
+        o.targetAngle = desired; message(desired === o.openAngle ? 'Porte ouverte' : 'Porte fermée');
+      }
+    }
+    function animateDoors(dt) {
+      for (const d of house.doors) {
+        const delta = d.targetAngle - d.angle;
+        if (Math.abs(delta) < .0001) continue;
+        const next = d.angle + Math.sign(delta) * Math.min(Math.abs(delta), dt * 5);
+        if (circleHitsDoor(position.x, position.z, PLAYER_RADIUS + .015, d, next)) { d.targetAngle = d.angle; continue; }
+        d.angle = next; meshes.doorMeshes.get(d.id).rotation.y = d.angle;
+      }
+    }
+    function frame(now) {
+      if (stopped) return;
+      raf = requestAnimationFrame(frame);
+      if (document.hidden || now - lastRender < FRAME_MS) return;
+      lastRender = now; const dt = Math.min(.05, (now - last) / 1000); last = now;
+      if (started && !won) {
+        // Axes, vitesse et sens STRICTEMENT conservés depuis la version validée.
+        const forwardInput = -keys.y, strafeInput = keys.x, spd = 2.5;
+        const sin = Math.sin(yaw), cos = Math.cos(yaw);
+        const moveX = (-sin * forwardInput + cos * strafeInput) * spd * dt;
+        const moveZ = (-cos * forwardInput - sin * strafeInput) * spd * dt;
+        movePlayer(house, position, moveX, moveZ);
+        animateDoors(dt);
+        for (const mesh of meshes.itemMeshes.values()) if (mesh.visible) mesh.rotation.y += dt * 1.6;
+      }
+      refreshCamera();
+      flashlight.visible = fillLight.visible = flashOn;
+      flashlight.position.copy(camera.position); fillLight.position.copy(camera.position);
+      camera.getWorldDirection(direction); target.position.copy(camera.position).addScaledVector(direction, 5); target.updateMatrixWorld();
+      if (now - lastHud > 120) {
+        lastHud = now;
+        const text = 'RDC · ' + roomAt(house, position.x, position.z).name.toUpperCase();
+        if (floorLabel.textContent !== text) floorLabel.textContent = text;
+        const selectionText = started && !won ? interactionLabel(selectInteraction()) : '';
+        if (hint.textContent !== selectionText) hint.textContent = selectionText;
+      }
+      renderer.render(scene, camera);
+    }
+
+    // Joystick et caméra : mêmes zones, rayon 38, sensibilités .006 / .004.
+    function sm(e) {
+      const b = stick.getBoundingClientRect(), dx = e.clientX - (b.left + b.width / 2), dy = e.clientY - (b.top + b.height / 2);
+      const d = Math.hypot(dx, dy) || 1, m = Math.min(38, d), nx = dx / d, ny = dy / d;
+      keys.x = nx * (m / 38); keys.y = ny * (m / 38); knob.style.transform = `translate(${nx * m}px,${ny * m}px)`;
+    }
+    stick.addEventListener('pointerdown', e => { if (!started || won || drag !== null) return;
+      drag = e.pointerId; stick.setPointerCapture(drag); sm(e); });
+    stick.addEventListener('pointermove', e => { if (e.pointerId === drag) sm(e); });
+    function se(e) { if (e.pointerId !== drag) return; drag = null; keys.x = keys.y = 0; knob.style.transform = ''; }
+    for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) stick.addEventListener(event, se);
+    const lookZone = shell.querySelector('.three17-look');
+    lookZone.addEventListener('pointerdown', e => { if (!started || won || look !== null) return;
+      look = e.pointerId; lx = e.clientX; ly = e.clientY; lookZone.setPointerCapture(look); });
+    lookZone.addEventListener('pointermove', e => {
+      if (e.pointerId !== look) return;
+      const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY;
+      yaw -= dx * .006; pitch = clamp(pitch - dy * .004, -.8, .7);
+    });
+    for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) lookZone.addEventListener(event, e => { if (e.pointerId === look) look = null; });
+    // Le deuxième/troisième doigt n'est JAMAIS écarté au motif « !isPrimary ».
+    function press(el, fn) {
+      el.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(); }, { passive: false });
+      el.addEventListener('pointerup', e => e.stopPropagation());
+      // Le click tactile peut avoir detail=0 : il ne doit pas doubler le pointerdown.
+      el.addEventListener('click', e => { e.stopPropagation(); if (e.detail === 0 && !e.pointerType) fn(); });
+    }
+    press(shell.querySelector('.interact'), interact);
+    press(flashButton, () => { if (!started || won) return;
+      flashOn = !flashOn; flashButton.setAttribute('aria-pressed', String(flashOn));
+      flashButton.setAttribute('aria-label', flashOn ? 'Éteindre la lampe' : 'Allumer la lampe');
+      message(flashOn ? 'Lampe allumée' : 'Lampe éteinte'); });
+    press(shell.querySelector('.three17-exit'), close);
+    press(shell.querySelector('.three17-start button'), () => { resetInputs(); started = true;
+      shell.querySelector('.three17-start')?.remove(); message('RDC uniquement · visez les portes et utilisez AGIR'); });
+    press(shell.querySelector('.three17-win button'), close);
+    const visibility = () => { resetInputs(); last = performance.now(); };
+    document.addEventListener('visibilitychange', visibility); window.addEventListener('blur', visibility);
+    removeVisibility = () => { document.removeEventListener('visibilitychange', visibility); window.removeEventListener('blur', visibility); };
+    refreshCamera(); raf = requestAnimationFrame(frame);
+
+    // Instrumentation désactivée en production. Pas de téléportation dans le jeu.
+    if (window.__ONE317_TEST__ === true) session.debug = {
+      house, scene, renderer,
+      snapshot: () => ({ x: position.x, z: position.z, y: camera.position.y, yaw, pitch, flashOn, started, won, count,
+        drag, look, keys: { ...keys }, room: roomAt(house, position.x, position.z).id,
+        selection: selectInteraction()?.object.id, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles }),
+      place(x, z, lookYaw = yaw, lookPitch = pitch) {
+        if (blockedAt(house, x, z)) throw new Error('Point de test dans un obstacle');
+        resetInputs(); position.x = x; position.z = z; yaw = lookYaw; pitch = lookPitch; refreshCamera();
+      }, interact, selectInteraction, refreshCamera,
+    };
+  } catch (error) {
+    console.error('3:17 FOUR V13 — lancement interrompu', error);
+    session.stop();
+    const message = document.createElement('div'); message.className = 'three17-shell three17-load-error';
+    const text = document.createElement('p'); text.textContent = '3:17 FOUR V13 n’a pas pu démarrer. Fermez cette fenêtre et rechargez ONE. Si cela se reproduit, vérifiez le déploiement complet ou envoyez une capture de ce message.';
+    const button = document.createElement('button'); button.textContent = 'Fermer'; button.onclick = () => message.remove();
+    message.append(text, button); document.body.append(message);
+    active = { stop: () => message.remove() };
+  }
+}
+function close() { if (!active) return; const previous = active; active = null; previous.stop(); }
+window.ONEThree17 = { open, close, build: BUILD };
+if (window.__ONE317_TEST__ === true) Object.defineProperty(window.ONEThree17, 'debug', { get: () => active?.debug });
+window.addEventListener('pagehide', close);
