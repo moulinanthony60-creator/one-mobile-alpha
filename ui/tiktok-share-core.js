@@ -1,7 +1,6 @@
 /* Shared by the installed app and its service worker. No account tokens are stored. */
 (()=>{
  'use strict';
- const TTL=7*86400000;
  function links(text){
   const found=new Map();
   for(const raw of String(text).slice(0,40000).match(/https?:\/\/[^\s<>"']+/gi)||[]){
@@ -14,7 +13,6 @@
     found.set(id||u.href,u.href);
    }catch{}
   }
-  if(found.size>20)throw Error('Partage jusqu’à 20 vidéos à la fois.');
   return [...found.values()];
  }
  function transaction(mode,run){return new Promise((resolve,reject)=>{
@@ -30,18 +28,15 @@
  });}
  const get=id=>transaction('readonly',(store,done)=>{const r=store.get(id);r.onsuccess=()=>done(r.result);});
  const mutate=(id,change)=>transaction('readwrite',(store,done,fail)=>{
-  const r=store.get(id);r.onsuccess=()=>{try{const record=r.result;if(!record||Date.now()-record.createdAt>TTL)throw Error('Ce partage a expiré. Partage à nouveau la vidéo depuis TikTok.');change(record);store.put(record);done(record);}catch(e){fail(e);}};
+  const r=store.get(id);r.onsuccess=()=>{try{const record=r.result;if(!record)throw Error('Ce partage est introuvable. Partage à nouveau la vidéo depuis TikTok.');change(record);store.put(record);done(record);}catch(e){fail(e);}};
  });
  async function receive(text){
   const urls=links(text);if(!urls.length)throw Error('Ce partage ne contient pas de lien de vidéo TikTok publique.');
   const record={id:crypto.randomUUID(),createdAt:Date.now(),urls,owner:'',added:0,duplicates:0,lock:null};
-  await transaction('readwrite',(store,done,fail)=>{
-   const r=store.getAll();r.onsuccess=()=>{
-    const active=r.result.filter(v=>Date.now()-v.createdAt<=TTL&&v.urls.length);
-    for(const v of r.result)if(Date.now()-v.createdAt>TTL||!v.urls.length)store.delete(v.id);
-    if(active.length>=20){fail(Error('Trop de partages en attente. Termine les ajouts dans ONE avant de réessayer.'));return;}
-    store.put(record);done(record);
-   };
+  await transaction('readwrite',(store,done)=>{
+   // No pending-share quota or expiry: users can keep sending TikTok links to ONE.
+   // Completed receipts are only transport metadata; catalogue entries are stored separately.
+   store.put(record);done(record);
   });return record.id;
  }
  // A receipt is bound to the first signed-in account; another tab cannot drain it concurrently.
