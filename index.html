@@ -3604,11 +3604,11 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 import * as THREE from './ui/three.module.js';
 const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
 /**
- * 3:17 FOUR — V13. Un seul plan au sol, en mètres (X/Z), Y=0.
+ * 3:17 FOUR — R17. Rez-de-chaussée sombre, courant coupé, ambiance plus horreur.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R16 · RDC';
+const BUILD = 'R17 · NUIT';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -3947,10 +3947,10 @@ function buildHouseScene(scene, house) {
   const wood = makeTexture('parquet'), tile = makeTexture('tile'), bath = makeTexture('bath');
   const materials = {};
   const palette = {
-    plaster: 0xffffff, wallBase: 0x4c5d50, trim: 0x5b4935, ceiling: 0x57564f,
+    plaster: 0xcabfae, wallBase: 0x31413a, trim: 0x493526, ceiling: 0x3e3c37,
     wood: 0xffffff, fabric: 0xffffff, linen: 0xffffff, cabinet: 0x727667,
     stone: 0x6a6b62, dark: 0x151a1e, enamel: 0xabb4ae, metal: 0x737c82,
-    paper: 0xa69880, bathInner: 0x687f80, mirror: 0x6c7b80,
+    paper: 0x8d7d69, bathInner: 0x556668, mirror: 0x536067,
     screen: 0x131d24, glass: 0x415b71, rug: 0xffffff, stoneFloor: 0x434649, bulb: 0xffda9c,
   };
   for (const [name, color] of Object.entries(palette)) {
@@ -3958,13 +3958,13 @@ function buildHouseScene(scene, house) {
       metalness: name === 'metal' ? .45 : 0 });
   }
   for (const kind of ['plaster', 'wood', 'fabric', 'linen', 'rug']) materials[kind].map = makeTexture(kind);
-  materials.bulb.emissive.setHex(0xffd290); materials.bulb.emissiveIntensity = 1.3;
+  materials.bulb.emissive.setHex(0xe6b97a); materials.bulb.emissiveIntensity = .18;
   for (const [name, tex, color] of [['woodFloor', wood, 0xb3a394], ['hallFloor', tile, 0x8c918e],
     ['kitchenFloor', tile, 0xafb1a0], ['bathFloor', bath, 0xb3bdb7]]) {
     materials[name] = new THREE.MeshStandardMaterial({ color, map: tex, roughness: .92 });
   }
-  materials.glass.emissive.setHex(0x1b2d45); materials.glass.emissiveIntensity = .35;
-  materials.screen.emissive.setHex(0x0c1b25); materials.screen.emissiveIntensity = .2;
+  materials.glass.emissive.setHex(0x0f1822); materials.glass.emissiveIntensity = .12;
+  materials.screen.emissive.setHex(0x070b10); materials.screen.emissiveIntensity = .08;
   const unitBox = new THREE.BoxGeometry(1, 1, 1);
   const batches = new Map();
   function queue(v) {
@@ -4159,7 +4159,7 @@ function disposeScene(scene) {
 function open() {
   close();
   const shell = document.createElement('section');
-  shell.className = 'three17-shell'; shell.dataset.build = 'r16-rdc-integrated';
+  shell.className = 'three17-shell'; shell.dataset.build = 'r17-rdc-horror';
   shell.setAttribute('role', 'dialog'); shell.setAttribute('aria-label', '3:17 FOUR — Rez-de-chaussée');
   shell.innerHTML = `<div class="three17-stage"><div class="three17-hud">
     <div class="three17-top"><div><div class="three17-clock">03:17</div><div class="three17-build">${BUILD}</div></div>
@@ -4169,8 +4169,8 @@ function open() {
     <div class="three17-look" aria-label="Glisser pour regarder"></div>
     <div class="three17-actions"><button class="three17-btn flash" type="button" aria-label="Éteindre la lampe" aria-pressed="true">🔦</button>
     <button class="three17-btn interact" type="button">AGIR</button></div><div class="three17-hint"></div><div class="three17-msg" role="status"></div></div>
-    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><strong class="three17-build-label">MAISON · R16</strong>
-    <p>Un hall, un couloir et cinq pièces à explorer.<br>Trouvez la clé, le fusible et le sceau.<br><small>L’escalier reste fermé pour cette étape.</small></p>
+    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><strong class="three17-build-label">MAISON · R17</strong>
+    <p>Le courant principal est coupé.<br>Explorez le rez-de-chaussée avec votre lampe.<br><small>Trouvez la clé, le fusible et le sceau pour ouvrir la sortie.</small></p>
     <button type="button">ENTRER DANS LA MAISON</button></div></div>
     <div class="three17-win"><div><h1>VOUS ÊTES SORTI</h1><p>Les trois éléments ont ouvert la sortie.</p><button class="three17-btn" type="button">OK</button></div></div></div>`;
   document.body.append(shell);
@@ -4187,7 +4187,7 @@ function open() {
   active = session;
   try {
     const house = createGroundFloor();
-    scene = new THREE.Scene(); scene.background = new THREE.Color(0x0d0d12); scene.fog = new THREE.Fog(0x0d0d12, 11, 28);
+    scene = new THREE.Scene(); scene.background = new THREE.Color(0x06070a); scene.fog = new THREE.Fog(0x06070a, 6.5, 18.5);
     const meshes = buildHouseScene(scene, house);
     const camera = new THREE.PerspectiveCamera(68, 1, .05, 45);
     let yaw = house.spawn.yaw, pitch = house.spawn.pitch;
@@ -4197,13 +4197,15 @@ function open() {
     let last = performance.now(), lastRender = 0, lastHud = 0, flashOn = true;
     const FRAME_MS = 1000 / 45;
     const direction = new THREE.Vector3();
-    scene.add(new THREE.HemisphereLight(0xaeb8d8, 0x251d24, .72));
-    const moon = new THREE.DirectionalLight(0xb7c8ef, .55); moon.position.set(2, 6, 3); scene.add(moon);
-    const flashlight = new THREE.SpotLight(0xfff1da, 30, 18, .62, .72, 1.15);
+    scene.add(new THREE.HemisphereLight(0x8490aa, 0x151217, .16));
+    const moon = new THREE.DirectionalLight(0x8ba0ca, .18); moon.position.set(2, 6, 3); scene.add(moon);
+    const flashlight = new THREE.SpotLight(0xffefdc, 26, 17, .56, .82, 1.2);
     const target = new THREE.Object3D(); flashlight.target = target; scene.add(flashlight, target);
-    const fillLight = new THREE.PointLight(0xdde8ff, 3.5, 5, 1.7); scene.add(fillLight);
-    const roomLights = [new THREE.PointLight(0xffd09a, 8, 5.6, 2), new THREE.PointLight(0xffd09a, 6, 5.6, 2)];
+    const fillLight = new THREE.PointLight(0xdde8ff, .8, 3.8, 1.9); scene.add(fillLight);
+    const roomLights = [new THREE.PointLight(0xffb86d, 1.3, 3.8, 2), new THREE.PointLight(0xffb86d, 1.0, 3.8, 2)];
     scene.add(...roomLights);
+    const emergencyLight = new THREE.PointLight(0x8d1c1c, 1.15, 3.1, 2.1); emergencyLight.position.set(0, 2.15, 8.55); scene.add(emergencyLight);
+    const atmosphere = { flickerA: 1.0, flickerB: 1.0 };
     function updateRoomLights() {
       let a = 0, b = 1, da = Infinity, db = Infinity;
       for (let i = 0; i < meshes.lampPositions.length; i++) {
@@ -4216,7 +4218,7 @@ function open() {
     updateRoomLights();
     renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance', alpha: false });
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.15));
-    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.55;
+    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.98;
     stage.prepend(renderer.domElement);
     const stick = shell.querySelector('.three17-stick'), knob = shell.querySelector('.three17-knob');
     const flashButton = shell.querySelector('.flash'), hint = shell.querySelector('.three17-hint');
@@ -4319,6 +4321,11 @@ function open() {
       flashlight.visible = fillLight.visible = flashOn;
       flashlight.position.copy(camera.position); fillLight.position.copy(camera.position);
       camera.getWorldDirection(direction); target.position.copy(camera.position).addScaledVector(direction, 5); target.updateMatrixWorld();
+      atmosphere.flickerA = 0.72 + Math.sin(now * 0.0062) * 0.14 + (Math.random() < 0.025 ? -0.34 : 0);
+      atmosphere.flickerB = 0.64 + Math.sin(now * 0.0046 + 1.4) * 0.12 + (Math.random() < 0.016 ? -0.26 : 0);
+      roomLights[0].intensity = Math.max(0.18, 1.15 * atmosphere.flickerA);
+      roomLights[1].intensity = Math.max(0.12, 0.92 * atmosphere.flickerB);
+      emergencyLight.intensity = 0.9 + Math.sin(now * 0.0032) * 0.08;
       if (now - lastHud > 120) {
         lastHud = now; updateRoomLights();
         const text = 'RDC · ' + roomAt(house, position.x, position.z).name.toUpperCase();
@@ -4363,7 +4370,7 @@ function open() {
       message(flashOn ? 'Lampe allumée' : 'Lampe éteinte'); });
     press(shell.querySelector('.three17-exit'), close);
     press(shell.querySelector('.three17-start button'), () => { resetInputs(); started = true;
-      shell.querySelector('.three17-start')?.remove(); message('Maison R16 · visez les portes puis AGIR'); });
+      shell.querySelector('.three17-start')?.remove(); message('Courant coupé · utilisez votre lampe et AGIR'); });
     press(shell.querySelector('.three17-win button'), close);
     const visibility = () => { resetInputs(); last = performance.now(); };
     document.addEventListener('visibilitychange', visibility); window.addEventListener('blur', visibility);
@@ -4382,10 +4389,10 @@ function open() {
       }, interact, selectInteraction, refreshCamera,
     };
   } catch (error) {
-    console.error('3:17 FOUR R16 — lancement interrompu', error);
+    console.error('3:17 FOUR R17 — lancement interrompu', error);
     session.stop();
     const message = document.createElement('div'); message.className = 'three17-shell three17-load-error';
-    const text = document.createElement('p'); text.textContent = '3:17 FOUR R16 n’a pas pu démarrer. Fermez cette fenêtre et rechargez ONE. Si cela se reproduit, vérifiez le déploiement complet ou envoyez une capture de ce message.';
+    const text = document.createElement('p'); text.textContent = '3:17 FOUR R17 n’a pas pu démarrer. Fermez cette fenêtre et rechargez ONE. Si cela se reproduit, vérifiez le déploiement complet ou envoyez une capture de ce message.';
     const button = document.createElement('button'); button.textContent = 'Fermer'; button.onclick = () => message.remove();
     message.append(text, button); document.body.append(message);
     active = { stop: () => message.remove() };
@@ -4435,7 +4442,7 @@ function buildRoom(scene){
 }
 function open(ctx={}){
  close();const shell=document.createElement('section');shell.className='one3d-shell';shell.setAttribute('role','dialog');shell.setAttribute('aria-label','Lobby 3D ONE');
- const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R16</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
+ const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R17</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
  document.body.append(shell);try{screen.orientation?.lock?.('landscape').catch(()=>{});}catch{}const stage=shell.querySelector('.one3d-stage'),players=shell.querySelector('.one3d-players');members.forEach(m=>{const e=document.createElement('span');e.className='one3d-player';e.dataset.ready=String(!!m.ready);e.textContent=(m.isYou?'● ':'')+m.name+(m.ready?' ✓':'');players.append(e);});
  const scene=new THREE.Scene();buildRoom(scene);
  const camera=new THREE.PerspectiveCamera(65,1,.05,60);let yaw=0,pitch=-.08;const local=members.find(m=>m.isYou)||{name:'Toi',isYou:true};const colors=[0x7b5cff,0x49b6ff,0xff6b9e,0x58d68d];let me=null;members.forEach((m,i)=>{const a=[[-2.2,1.8],[2.2,1.8],[-2.2,-1.8],[2.2,-1.8]][i]||[0,0];const av=makeAvatar(scene,m.name,colors[i%4],a[0],a[1],m.isYou);if(m.isYou)me=av;});if(!me)me=makeAvatar(scene,local.name,colors[0],0,2,true);me.position.set(0,0,4.8);camera.position.set(0,1.65,4.8);yaw=0;pitch=-.10;
