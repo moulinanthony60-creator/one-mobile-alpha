@@ -337,7 +337,7 @@ body.oneYoutubeBrowse .youtube-card .oneCardControls{justify-content:center;alig
   <div id="tiktokStatus" class="meta" style="margin-top:10px"></div>
   <div class="ttCatalogBox">
     <b>➕ Catalogue TikTok externe</b><div class="hint">Sur Android, partage une vidéo depuis TikTok vers ONE : la vidéo est ajoutée automatiquement au catalogue. ONE doit être installée depuis Chrome pour apparaître dans les applications de partage.</div>
-    <div class="hint">Colle un ou plusieurs liens TikTok, ou le texte copié depuis Partager. ONE ajoute les vidéos au feed et ignore les doublons. Maximum 20 liens par import et 5 000 vidéos dans le catalogue. Pour les liens courts non reconnus, ouvre la vidéo dans ton navigateur et copie son adresse complète.</div>
+    <div class="hint">Colle un ou plusieurs liens TikTok, ou le texte copié depuis Partager. ONE ajoute les vidéos au feed et ignore les doublons. Pour les liens courts non reconnus, ouvre la vidéo dans ton navigateur et copie son adresse complète.</div>
     <div class="search" style="margin-top:9px"><textarea id="tiktokExternalUrl" rows="3" aria-label="Liens TikTok à importer" placeholder="Colle ici tes liens ou un texte de partage TikTok" style="flex:1;min-width:0;resize:vertical;background:transparent;color:var(--text);border:0;padding:10px;font:inherit"></textarea><button id="addTikTokExternal">Ajouter</button></div>
     <div id="tiktokImportResult" class="ttCatalogStatus" role="status" aria-live="polite"></div>
     <div class="ttCatalogStatus" id="tiktokExternalStatus">Aucun TikTok externe ajouté.</div>
@@ -1395,7 +1395,7 @@ async function tiktokResolveExternal(value){
  return {id:String(id),url:input,creator,title,thumbnail,addedAt:Date.now()};
 }
 function tiktokExternalToItem(v,n){return {id:'tt_ext_'+v.id,p:'tiktok',icon:'🎵',creator:v.creator||'Créateur TikTok',title:v.title||'Vidéo TikTok externe',meta:'TikTok externe · ajouté à ONE',duration:'TikTok',tags:['TikTok','Externe'],score:118,short:true,thumbnail:v.thumbnail||'',shareUrl:v.url||'',embedLink:'https://www.tiktok.com/player/v1/'+encodeURIComponent(v.id),url:'https://www.tiktok.com/player/v1/'+encodeURIComponent(v.id),tiktokId:String(v.id||''),tiktokPlayable:true,isTikTokExternal:true}}
-function renderTikTokExternalManager(){const entries=tiktokExternalEntries();const status=document.getElementById('tiktokExternalStatus'),list=document.getElementById('tiktokExternalList'),clear=document.getElementById('clearTikTokExternal');if(status)status.textContent=entries.length?`${entries.length} vidéo(s) TikTok externe(s) dans ONE.`:'Aucun TikTok externe ajouté.';if(clear)clear.style.display=entries.length?'block':'none';if(list){list.hidden=true;list.replaceChildren()}}
+function renderTikTokExternalManager(){const entries=tiktokExternalEntries();const status=document.getElementById('tiktokExternalStatus'),list=document.getElementById('tiktokExternalList'),clear=document.getElementById('clearTikTokExternal');if(status)status.textContent=`🎵 Catalogue commun ONE — ${entries.length.toLocaleString('fr-FR')} vidéo${entries.length>1?'s':''}`;if(clear)clear.style.display=entries.length?'block':'none';if(list){list.hidden=true;list.replaceChildren()}}
 window.removeTikTokExternal=id=>{if(!confirm('Retirer cette vidéo du catalogue TikTok ?'))return;const entries=tiktokExternalEntries().filter(v=>String(v.id)!==String(id));tiktokSaveExternalEntries(entries);loadTikTokLocal();renderTikTokExternalManager();render();toast('TikTok retiré du catalogue')};
 // Build the complete usable pool before any ranking or platform mixing.
 function oneBuildTikTokPool(raw,external){
@@ -1436,8 +1436,7 @@ document.getElementById('addTikTokExternal').onclick=async()=>{
  const input=document.getElementById('tiktokExternalUrl'),btn=document.getElementById('addTikTokExternal'),result=document.getElementById('tiktokImportResult');
  const urls=tiktokImportUrls(input.value);
  if(!urls.length){result.textContent='Colle au moins un lien TikTok commençant par https://.';return}
- if(urls.length>20){result.textContent='Importe au maximum 20 liens à la fois. Ton texte a été conservé.';return}
- btn.disabled=true;input.disabled=true;
+  btn.disabled=true;input.disabled=true;
  let added=0,duplicates=0;const failed=[],errors=[];
  try{
   for(let i=0;i<urls.length;i++){
@@ -1445,11 +1444,9 @@ document.getElementById('addTikTokExternal').onclick=async()=>{
    try{
     const u=tiktokValidateUrl(urls[i]),knownId=tiktokIdFromText(u.pathname);
     if(knownId&&tiktokExternalEntries().some(x=>String(x.id)===knownId)){duplicates++;continue}
-    if(tiktokExternalEntries().length>=5000)throw new Error('Catalogue plein (5 000 vidéos). Supprime une vidéo avant de réessayer.');
     const entry=await tiktokResolveExternal(urls[i]);
     const entries=tiktokExternalEntries();
     if(entries.some(x=>String(x.id)===entry.id)){duplicates++;continue}
-    if(entries.length>=5000)throw new Error('Catalogue plein (5 000 vidéos).');
     tiktokSaveExternalEntries([entry,...entries]);added++;
    }catch(e){failed.push(urls[i]);errors.push(e.message||'Import impossible.')}
   }
