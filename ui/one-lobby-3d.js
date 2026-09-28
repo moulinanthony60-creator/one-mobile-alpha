@@ -1,4 +1,4 @@
-import * as THREE from './three.core.js';
+import * as THREE from './three.module.js';
 
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
