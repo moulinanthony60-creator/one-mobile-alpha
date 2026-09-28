@@ -3576,7 +3576,7 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 </script><script src="ui/party-communication.js?v=118b1"></script><script src="ui/qrcode.js?v=014117"></script><script src="ui/jsQR.js?v=014117"></script><script src="ui/friend-scanner.js?v=014117"></script><script src="ui/friends.js?v=118s1"></script><script src="ui/bluff-scene.js?v=014117"></script><script src="ui/bluff-model-bridge.js?v=014117"></script><script src="ui/party-bluff.js?v=014117"></script><script src="ui/party-who.js?v=118r2"></script>
 <script src="ui/party-video-sync.js?v=014117"></script><script src="ui/party-reactions.js?v=014117"></script>
 <script src="ui/party-collection.js?v=118r2"></script>
-<script src="ui/party-art.js?v=118r2"></script><script src="ui/party-lobby.js?v=118r2"></script><link rel="stylesheet" href="ui/one-lobby-3d.css?v=008"><style id="one317-r16-style">
+<script src="ui/party-art.js?v=118r2"></script><script src="ui/party-lobby.js?v=118r2"></script><link rel="stylesheet" href="ui/one-lobby-3d.css?v=008"><style id="one317-r18-1-style">
 .three17-shell{position:fixed;inset:0;z-index:10050;background:#050507;color:#fff;font-family:system-ui,sans-serif;overflow:hidden;touch-action:none}.three17-stage{position:absolute;inset:0}.three17-stage canvas{width:100%;height:100%;display:block}.three17-hud{position:absolute;inset:0;pointer-events:none}.three17-top{position:absolute;top:max(10px,env(safe-area-inset-top));left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.three17-clock{font-size:24px;font-weight:900;letter-spacing:.08em;color:#e7e0ff;text-shadow:0 2px 10px #000}.three17-objective{max-width:55%;text-align:right;font-size:12px;background:#09090db8;border:1px solid #ffffff22;border-radius:12px;padding:8px 10px}.three17-cross{position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%)}.three17-cross:before,.three17-cross:after{content:"";position:absolute;background:#ffffffbb}.three17-cross:before{width:18px;height:2px;top:8px}.three17-cross:after{height:18px;width:2px;left:8px}.three17-stick{pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;z-index:20;position:absolute;left:22px;bottom:max(22px,env(safe-area-inset-bottom));width:112px;height:112px;border-radius:50%;background:#ffffff14;border:1px solid #ffffff2b}.three17-knob{position:absolute;left:34px;top:34px;width:44px;height:44px;border-radius:50%;background:#ffffff70;box-shadow:0 0 18px #0008}.three17-look{pointer-events:auto;touch-action:none;z-index:10;position:absolute;left:42%;right:0;top:70px;bottom:0}.three17-actions{pointer-events:auto;z-index:30;position:absolute;right:18px;bottom:max(20px,env(safe-area-inset-bottom));display:flex;gap:10px;align-items:flex-end}.three17-btn{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;width:62px;height:62px;border-radius:50%;border:1px solid #ffffff30;background:#11111dcc;color:white;font-weight:800;font-size:12px}.three17-btn.flash{font-size:24px}.three17-exit{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;position:absolute;left:14px;top:60px;border:1px solid #ffffff25;background:#09090dbd;color:white;border-radius:10px;padding:8px 11px}.three17-msg{position:absolute;left:50%;bottom:25%;transform:translateX(-50%);background:#08080ddd;border:1px solid #ffffff2a;border-radius:12px;padding:9px 13px;font-size:13px;opacity:0;transition:opacity .18s}.three17-msg.show{opacity:1}.three17-start{position:absolute;inset:0;display:grid;place-items:center;background:#020204f2;z-index:100;pointer-events:auto;touch-action:manipulation}.three17-card{text-align:center;max-width:340px;padding:28px}.three17-card h1{font-size:34px;margin:0 0 4px}.three17-card .time{font-size:56px;font-weight:950;letter-spacing:.06em;margin:8px 0;color:#d8c8ff}.three17-card p{color:#bbb;margin:8px 0 20px}.three17-card button{position:relative;z-index:101;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;border:0;border-radius:14px;background:#7657ff;color:white;padding:14px 22px;font-weight:900;font-size:16px}.three17-win{position:absolute;inset:0;display:none;place-items:center;background:#030306e8;z-index:110;pointer-events:auto;text-align:center;padding:25px}.three17-win.show{display:grid}
 
 /* V9: independent multi-touch controls */
@@ -3600,15 +3600,15 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 .three17-start{background:radial-gradient(ellipse at center,#1d251ceb,#060b0bf5)}
 .three17-card button{background:#8f7044;box-shadow:0 4px 18px #0008}
 
-</style><script type="module" id="one317-r16-module">
+</style><script type="module" id="one317-r18-1-module">
 import * as THREE from './ui/three.module.js';
-const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
+const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt, floorHeightAt, stairHeight, doorOverlapsBody } = (() => {
 /**
- * 3:17 FOUR — R17. Rez-de-chaussée sombre, courant coupé, ambiance plus horreur.
+ * 3:17 FOUR — R18.1. R17 conservée, étage et sous-sol reliés par des marches.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R17 · NUIT';
+const BUILD = 'R18.1 · ESCALIERS';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -3616,7 +3616,7 @@ const WALL_THICKNESS = 0.24;
 const TAU_QUARTER = Math.PI / 2;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-function createGroundFloor() {
+function createOriginalRdc() {
   const volumes = [], solids = [], doors = [], surfaces = [], signs = [];
   const bounds = { minX: -7, maxX: 7, minZ: -8, maxZ: 8 };
   const rooms = [
@@ -3797,6 +3797,192 @@ function createGroundFloor() {
   return { bounds, rooms, volumes, solids, doors, surfaces, signs, items, spawn: { x: 0, z: 6.2, yaw: 0, pitch: -.03 } };
 }
 
+/** R18.1 : prolongement du RDC R17, sans déplacer son mobilier. */
+function createGroundFloor() {
+  const h = createOriginalRdc();
+  const U = 3.25, B = -3.25;
+  h.spawn.y = 0;
+  for (const r of h.rooms) { r.floorY = 0; r.level = 'RDC'; }
+  for (const d of h.doors) d.bottom = 0;
+  const stairRoom = h.rooms.find(r => r.id === 'stairs');
+  stairRoom.name = 'Cage d’escalier'; stairRoom.locked = false;
+  const entry = h.doors.find(d => d.id === 'stairs');
+  entry.label = 'Escaliers'; entry.locked = false;
+  entry.angle = entry.targetAngle = entry.openAngle;
+  for (const s of h.signs) if (s.text === 'ESCALIER · FERMÉ') s.text = 'ÉTAGE / SOUS-SOL';
+  h.stairZones = [
+    { id: 'stairs-up', name: 'Escalier de l’étage', x0: 4.65, x1: 6.25, z0: -6.85, z1: -3.10,
+      low: 0, high: U, highAtNorth: true, steps: 18 },
+    { id: 'stairs-down', name: 'Escalier du sous-sol', x0: 2.75, x1: 4.15, z0: -6.85, z1: -3.10,
+      low: B, high: 0, highAtNorth: false, steps: 18 },
+  ];
+  // La même empreinte découpe les planchers, le rendu et les supports physiques.
+  const holeUp = h.stairZones[0], holeDown = h.stairZones[1];
+  const room = (id, name, level, floorY, x0, x1, z0, z1, floor, visit) =>
+    h.rooms.push({ id, name, level, floorY, x0, x1, z0, z1, floor, visit });
+  room('upper-landing', 'Palier', 'ÉTAGE', U, 1.25, 7, -8, -2, 'woodFloor', [3.8, -4]);
+  room('upper-bedroom', 'Chambre du haut', 'ÉTAGE', U, 1.25, 7, -2, 3, 'woodFloor', [3.6, .5]);
+  room('upper-attic', 'Grenier', 'ÉTAGE', U, 1.25, 7, 3, 8, 'woodFloor', [3.4, 5.2]);
+  room('basement-landing', 'Chaufferie', 'SOUS-SOL', B, 1.25, 7, -8, -2, 'stoneFloor', [2.05, -5.8]);
+  room('basement-cellar', 'Cave', 'SOUS-SOL', B, -7, 1.25, -8, -5, 'stoneFloor', [-3, -6.4]);
+  room('basement-archives', 'Archives', 'SOUS-SOL', B, -7, 1.25, -5, -2, 'stoneFloor', [-3, -3.6]);
+
+  function box(id, x, y, z, w, height, depth, material = 'wood', solid = true, kind = 'furniture') {
+    if (![x,y,z,w,height,depth].every(Number.isFinite) || Math.min(w,height,depth) <= 0) throw new Error('Volume invalide : '+id);
+    const v = { id, x, y, z, w, h: height, d: depth, material, solid, kind };
+    h.volumes.push(v); if (solid) h.solids.push(v); return v;
+  }
+  function wallPart(id, axis, fixed, a, b, bottom, height = 3) {
+    if (b - a < .001) return;
+    box(id, axis === 'x' ? (a+b)/2 : fixed, bottom+height/2,
+      axis === 'x' ? fixed : (a+b)/2, axis === 'x' ? b-a : WALL_THICKNESS,
+      height, axis === 'x' ? WALL_THICKNESS : b-a, 'plaster', true, 'wall');
+  }
+  function wall(id, axis, fixed, a, b, y, gaps = []) {
+    let cursor = a;
+    for (const g of [...gaps].sort((l,r)=>l.center-r.center)) {
+      const left = g.center-g.width/2, right = g.center+g.width/2;
+      if (left < cursor || right > b) throw new Error('Baie invalide : '+id);
+      wallPart(id+'-'+cursor,axis,fixed,cursor,left,y);
+      wallPart(id+'-lintel-'+g.id,axis,fixed,left,right,y+2.3,.7);
+      const x = axis === 'x' ? g.center : fixed, z = axis === 'x' ? fixed : g.center;
+      for (const edge of [left-.015,right+.015]) box(g.id+'-frame-'+edge,
+        axis === 'x' ? edge : fixed, y+1.15, axis === 'x' ? fixed : edge,
+        axis === 'x' ? .065 : .30,2.3,axis === 'x' ? .30 : .065,'trim',true,'frame');
+      box(g.id+'-top',x,y+2.3,z,axis==='x'?g.width+.09:.30,.10,axis==='x'?.30:g.width+.09,'trim',false,'frame');
+      if (!g.arch) {
+        const angle = axis === 'x' ? 0 : -TAU_QUARTER;
+        const d={id:g.id,label:g.label,x,z,bottom:y,hingeX:axis==='x'?x-g.width/2+.045:x,
+          hingeZ:axis==='x'?z:z-g.width/2+.045,width:g.width-.09,height:2.18,thickness:.085,
+          closedAngle:angle,openAngle:angle+(g.swing||1)*TAU_QUARTER,angle,targetAngle:angle,locked:false,exit:false};
+        if (g.open) d.angle=d.targetAngle=d.openAngle;
+        h.doors.push(d);
+      }
+      h.signs.push({text:g.label,x:axis==='x'?x:fixed+.145,z:axis==='x'?z-.145:z,y:y+2.60,ry:axis==='x'?Math.PI:TAU_QUARTER});
+      cursor=right;
+    }
+    wallPart(id+'-end',axis,fixed,cursor,b,y);
+  }
+  wall('u-north','x',-8,1.13,7.12,U); wall('u-south','x',8,1.13,7.12,U);
+  wall('u-west','z',1.25,-8,8,U); wall('u-east','z',7,-8,8,U);
+  wall('u-bedroom','x',-2,1.25,7,U,[{id:'upper-bedroom-door',label:'CHAMBRE DU HAUT',center:3.9,width:1.4,swing:1}]);
+  wall('u-attic','x',3,1.25,7,U,[{id:'upper-attic-door',label:'GRENIER',center:3.9,width:1.4,swing:-1,open:true}]);
+  wall('b-north','x',-8,-7.12,7.12,B); wall('b-south','x',-2,-7.12,7.12,B);
+  wall('b-west','z',-7,-8,-2,B); wall('b-east','z',7,-8,-2,B);
+  wall('b-cells','z',1.25,-8,-2,B,[{id:'cellar-door',label:'CAVE',center:-6.4,width:1.3,swing:-1},
+    {id:'archives-door',label:'ARCHIVES',center:-3.6,width:1.3,swing:-1,open:true}]);
+  wall('b-middle','x',-5,-7,1.25,B,[{id:'archives-arch',label:'PASSAGE',center:-2.9,width:1.4,arch:true}]);
+
+  function cut(rect,hole) {
+    const x0=Math.max(rect.x0,hole.x0), x1=Math.min(rect.x1,hole.x1);
+    const z0=Math.max(rect.z0,hole.z0), z1=Math.min(rect.z1,hole.z1);
+    if (x0>=x1 || z0>=z1) return [rect];
+    return [
+      {...rect,x1:x0},{...rect,x0:x1},
+      {...rect,x0,x1,z1:z0},{...rect,x0,x1,z0:z1}
+    ].filter(r=>r.x1-r.x0>.001 && r.z1-r.z0>.001);
+  }
+  // Supprime les deux grandes plaques R17 : leurs remplaçantes ont de vraies trémies.
+  h.volumes=h.volumes.filter(v=>v.id!=='sol-porteur' && v.id!=='plafond');
+  h.solids=h.solids.filter(v=>v.id!=='sol-porteur' && v.id!=='plafond');
+  h.surfaces=h.surfaces.filter(s=>!s.id.startsWith('sol-'));
+  h.walkable=[];
+  for (const r of h.rooms) {
+    const rect={x0:r.x0,x1:r.x1,z0:r.z0,z1:r.z1};
+    const patches = r.floorY===0 ? cut(rect,holeDown) : r.floorY===U ? cut(rect,holeUp) : [rect];
+    patches.forEach((p,i)=>{
+      h.walkable.push({...p,id:r.id+'-floor-'+i,y:r.floorY});
+      h.surfaces.push({id:'sol-'+r.id+'-'+i,x:(p.x0+p.x1)/2,z:(p.z0+p.z1)/2,
+        y:r.floorY,w:p.x1-p.x0,d:p.z1-p.z0,material:r.floor});
+    });
+  }
+  const full={x0:-7.12,x1:7.12,z0:-8.12,z1:8.12};
+  function slab(id,rect,y,holes=[]) {
+    let patches=[rect]; for(const hole of holes) patches=patches.flatMap(r=>cut(r,hole));
+    for(const [i,r] of patches.entries()) box(id+'-'+i,(r.x0+r.x1)/2,y-.129,(r.z0+r.z1)/2,
+      r.x1-r.x0,.242,r.z1-r.z0,'ceiling',true,'slab');
+  }
+  slab('rdc-slab',full,0,[holeDown]);
+  slab('upper-slab',full,U,[holeUp]);
+  slab('roof',{x0:1.13,x1:7.12,z0:-8.12,z1:8.12},U+3.25);
+  slab('basement-slab',{x0:-7.12,x1:7.12,z0:-8.12,z1:-1.88},B);
+
+  // Marches pleines : hauteur de support = dessus de la marche, pas téléportation.
+  h.rails=[];
+  for(const s of h.stairZones) {
+    const run=(s.z1-s.z0)/s.steps, rise=(s.high-s.low)/s.steps;
+    for(let i=0;i<s.steps;i++) {
+      const z=s.highAtNorth?s.z1-(i+.5)*run:s.z0+(i+.5)*run;
+      const top=s.low+(i+1)*rise;
+      box(s.id+'-step-'+i,(s.x0+s.x1)/2,(s.low+top)/2,z,s.x1-s.x0,top-s.low,run,'stoneFloor',true,'step');
+      // Bande antidérapante sur le nez de la marche (ne modifie pas les collisions).
+      const edge=s.highAtNorth?z+run/2-.02:z-run/2+.02;
+      box(s.id+'-nose-'+i,(s.x0+s.x1)/2,top+.003,edge,s.x1-s.x0,.006,.038,'trim',false,'detail');
+      for(const side of [s.x0-.055,s.x1+.055]) {
+        // Barreaudage + enveloppe de collision : le joueur ne sort pas sur le côté.
+        const guard=box(s.id+'-guard-'+i+'-'+side,side,s.low+(top-s.low+1.03)/2,z,.085,top-s.low+1.03,run,'metal',true,'guard');
+        guard.hiddenGeometry=true;
+        if(i%2===0) box(s.id+'-post-'+i+'-'+side,side,top+.48,z,.045,.96,.045,'metal',false,'detail');
+      }
+    }
+    for(const x of [s.x0-.055,s.x1+.055]) h.rails.push({
+      a:{x,y:(s.highAtNorth?s.high:s.low)+1.03,z:s.z0},
+      b:{x,y:(s.highAtNorth?s.low:s.high)+1.03,z:s.z1}
+    });
+  }
+  // Garde-corps du bord d'une trémie, côté sans escalier accessible à ce niveau.
+  function guard(id,axis,fixed,from,to,y) {
+    const w=axis==='x'?to-from:.085,d=axis==='x'?.085:to-from;
+    const x=axis==='x'?(from+to)/2:fixed,z=axis==='x'?fixed:(from+to)/2;
+    const v=box(id+'-hit',x,y+.51,z,w,1.02,d,'metal',true,'guard');v.hiddenGeometry=true;
+    const count=Math.ceil((to-from)/.45);
+    for(let i=0;i<=count;i++) box(id+'-post-'+i,axis==='x'?from+(to-from)*i/count:fixed,y+.5,
+      axis==='x'?fixed:from+(to-from)*i/count,.045,1,.045,'metal',false,'detail');
+    box(id+'-top',x,y+1.02,z,w,.065,d,'wood',false,'detail');
+  }
+  // Up : l'ouverture au nord rejoint l'étage. Down : le nord est le bas du sous-sol.
+  guard('upper-hole-end','x',holeUp.z1+.055,holeUp.x0,holeUp.x1,U);
+  guard('ground-hole-end','x',holeDown.z0-.055,holeDown.x0,holeDown.x1,0);
+  for(const x of [holeUp.x0-.055,holeUp.x1+.055]) guard('upper-edge-'+x,'z',x,holeUp.z0,holeUp.z1,U);
+  for(const x of [holeDown.x0-.055,holeDown.x1+.055]) guard('ground-edge-'+x,'z',x,holeDown.z0,holeDown.z1,0);
+
+  function bed(id,x,y,z) {
+    box(id+'-base',x,y+.23,z,1.8,.46,2.6,'wood');
+    box(id+'-mattress',x,y+.52,z,1.78,.18,2.55,'linen');
+    box(id+'-blanket',x,y+.635,z-.3,1.78,.07,1.8,'fabric');
+    box(id+'-head',x,y+.70,z+1.32,1.9,1.2,.14,'wood');
+    box(id+'-pillow',x,y+.67,z+.95,1.1,.15,.42,'linen');
+  }
+  bed('upper-bed',5.25,U,.9);
+  box('upper-wardrobe',6.35,U+1.05,-.85,.68,2.1,1.3,'wood');
+  box('upper-desk-top',2.6,U+.76,5.2,1.6,.12,.85,'wood');
+  for(const x of [1.93,3.27]) for(const z of [4.90,5.50]) box('desk-leg-'+x+z,x,U+.35,z,.10,.7,.10,'trim');
+  box('upper-crate-a',5.9,U+.35,6.3,.92,.7,.85,'wood');
+  box('upper-crate-b',5.15,U+.25,7.1,.68,.5,.65,'paper');
+  box('upper-trunk',6.4,U+.34,4.9,.65,.68,1.2,'wood');
+  box('basement-boiler',5.8,B+.94,-6.0,1.2,1.88,1.25,'metal');
+  box('basement-pipe',5.8,B+2.23,-6.0,.18,.70,.18,'metal');
+  box('basement-bench-top',5.0,B+.93,-2.85,2.4,.15,.65,'wood');
+  for(const x of [3.95,6.05]) box('bench-leg-'+x,x,B+.425,-2.85,.14,.85,.52,'metal');
+  function shelf(id,z) {
+    for(const zz of [z-.95,z+.95]) box(id+'-upright-'+zz,-6.15,B+1.05,zz,.6,2.1,.06,'wood');
+    for(const yy of [.07,.75,1.45,2.05]) box(id+'-board-'+yy,-6.15,B+yy,z,.65,.07,2,'wood');
+    for(const zz of [z-.55,z+.42]) box(id+'-box-'+zz,-6.12,B+1,zz,.46,.42,.46,'paper');
+  }
+  shelf('cellar-shelf',-6.5);shelf('archive-shelf',-3.45);
+  for(const [x,z] of [[-4.8,-7.35],[-4.2,-7.35],[-4.8,-2.65]]) box('basement-crate-'+x+z,x,B+.3,z,.52,.6,.6,'wood');
+  h.signs.push({text:'ÉTAGE ↑',x:5.45,y:1.7,z:-7.853,ry:0});
+  h.signs.push({text:'SOUS-SOL ↓',x:2.85,y:1.7,z:-7.853,ry:0});
+  h.signs.push({text:'ÉTAGE',x:3.8,y:U+2.5,z:-7.853,ry:0});
+  h.signs.push({text:'SOUS-SOL',x:3.45,y:B+2.5,z:-7.853,ry:0});
+  const key=h.items.find(i=>i.id==='key');Object.assign(key,{x:2.6,y:U+1.01,z:5.2,room:'upper-attic'});
+  const fuse=h.items.find(i=>i.id==='fuse');Object.assign(fuse,{x:4.65,y:B+1.17,z:-2.85,room:'basement-landing'});
+  // Les trois objets sont répartis entre RDC, étage et sous-sol.
+  h.lampPositions=[[0,2.55,5.8],[0,2.6,.7],[0,2.6,-5.3],[-4.5,2.55,4.5],[-4.6,2.5,-1.12],[-4.3,2.6,-5.8],[4.5,2.55,4.7],[3.6,2.6,0],
+    [2.05,2.55,-3.2],[3.6,U+2.55,-5.2],[3.5,U+2.55,.4],[3.8,U+2.55,5.5],[2.05,B+2.55,-6.5],[-3.7,B+2.55,-6.4],[-3.7,B+2.55,-3.4]];
+  return h;
+}
+
 function circleHitsBox(x, z, radius, box) {
   const dx = x - clamp(x, box.x - box.w / 2, box.x + box.w / 2);
   const dz = z - clamp(z, box.z - box.d / 2, box.z + box.d / 2);
@@ -3812,25 +3998,53 @@ function circleHitsDoor(x, z, radius, door, angle = door.angle) {
   return a * a + b * b < radius * radius - 1e-9;
 }
 
-function blockedAt(house, x, z, radius = PLAYER_RADIUS) {
-  const b = house.bounds;
-  if (x < b.minX || x > b.maxX || z < b.minZ || z > b.maxZ) return true;
-  for (const v of house.solids) {
-    // Corps debout (sans saut) : les linteaux au-dessus de la tête ne bloquent pas.
-    if (v.y - v.h / 2 >= 1.80 || v.y + v.h / 2 <= .06) continue;
-    if (circleHitsBox(x, z, radius, v)) return true;
+function stairContains(s,x,z) {
+  return x>=s.x0-1e-7 && x<=s.x1+1e-7 && z>=s.z0-1e-7 && z<=s.z1+1e-7;
+}
+function stairHeight(s,x,z) {
+  const t=clamp(s.highAtNorth?(s.z1-z)/(s.z1-s.z0):(z-s.z0)/(s.z1-s.z0),0,1);
+  const step=Math.ceil(t*s.steps-1e-7);
+  return s.low+clamp(step,0,s.steps)*(s.high-s.low)/s.steps;
+}
+function floorHeightAt(house,x,z,currentY=0) {
+  // Choisir le support le PLUS HAUT atteignable. Le sol sous un escalier ne
+  // doit pas gagner simplement parce qu'il est plus proche de l'ancienne hauteur.
+  let found=false, height=-Infinity;
+  const consider=y=>{
+    if(y-currentY<=.205 && currentY-y<=.235 && y>height) {height=y;found=true;}
+  };
+  for(const s of house.stairZones) if(stairContains(s,x,z)) consider(stairHeight(s,x,z));
+  for(const p of house.walkable) if(x>=p.x0-1e-7 && x<=p.x1+1e-7 && z>=p.z0-1e-7 && z<=p.z1+1e-7) consider(p.y);
+  return found?height:null;
+}
+function doorOverlapsBody(door,y) {
+  const bottom=door.bottom||0;
+  return bottom+door.height>y+.04 && bottom<y+1.72;
+}
+function blockedAt(house,x,z,y=0,radius=PLAYER_RADIUS) {
+  const b=house.bounds;
+  if(x<b.minX || x>b.maxX || z<b.minZ || z>b.maxZ) return true;
+  const bottom=y+.04, top=y+1.72;
+  for(const v of house.solids) {
+    // Le support des marches est résolu au centre des pieds. Un rayon appliqué
+    // aux contremarches empêcherait de monter avant d'atteindre la marche suivante.
+    if(v.kind==='step') continue;
+    if(v.kind==='slab' && v.y+v.h/2<=y+.205) continue;
+    if(v.y+v.h/2<=bottom || v.y-v.h/2>=top) continue;
+    if(circleHitsBox(x,z,radius,v)) return true;
   }
-  for (const door of house.doors) if (circleHitsDoor(x, z, radius, door)) return true;
+  for(const s of house.stairZones) if(stairContains(s,x,z) && top>s.low+.01 && bottom<stairHeight(s,x,z)-.01) return true;
+  for(const d of house.doors) if(doorOverlapsBody(d,y) && circleHitsDoor(x,z,radius,d)) return true;
   return false;
 }
-
-function movePlayer(house, position, dx, dz) {
-  // Sous-pas bornés : une image lente ne permet pas de traverser une cloison.
-  const steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / .08));
-  const sx = dx / steps, sz = dz / steps;
-  for (let i = 0; i < steps; i++) {
-    if (!blockedAt(house, position.x + sx, position.z)) position.x += sx;
-    if (!blockedAt(house, position.x, position.z + sz)) position.z += sz;
+function movePlayer(house,position,dx,dz) {
+  if(!Number.isFinite(position.y)) position.y=0;
+  const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.07)), sx=dx/steps,sz=dz/steps;
+  for(let i=0;i<steps;i++) {
+    const nx=position.x+sx, fy=floorHeightAt(house,nx,position.z,position.y);
+    if(fy!==null && !blockedAt(house,nx,position.z,fy)) {position.x=nx;position.y=fy;}
+    const nz=position.z+sz, fz=floorHeightAt(house,position.x,nz,position.y);
+    if(fz!==null && !blockedAt(house,position.x,nz,fz)) {position.z=nz;position.y=fz;}
   }
   return position;
 }
@@ -3857,17 +4071,23 @@ function hasLineOfSight(house, from, to, ignoreDoorId = '') {
     if (door.id === ignoreDoorId) continue;
     const c = Math.cos(door.angle), s = Math.sin(door.angle);
     const local = p => ({ x: (p.x - door.hingeX) * c - (p.z - door.hingeZ) * s,
-      z: (p.x - door.hingeX) * s + (p.z - door.hingeZ) * c, y: p.y });
+      z: (p.x - door.hingeX) * s + (p.z - door.hingeZ) * c, y: p.y - (door.bottom || 0) });
     if (segmentHitsBox(local(from), local(to), { x: door.width / 2, y: door.height / 2, z: 0,
       w: door.width, h: door.height, d: door.thickness })) return false;
   }
   return true;
 }
-function roomAt(house, x, z) {
-  return house.rooms.find(r => x >= r.x0 && x <= r.x1 && z >= r.z0 && z <= r.z1) || house.rooms[0];
+function roomAt(house,x,z,y=0) {
+  for(const s of house.stairZones) if(stairContains(s,x,z) && Math.abs(stairHeight(s,x,z)-y)<.21)
+    return {id:s.id,name:s.name,level:'ESCALIER',floorY:y};
+  let best=null, distance=Infinity;
+  for(const r of house.rooms) if(x>=r.x0 && x<=r.x1 && z>=r.z0 && z<=r.z1) {
+    const d=Math.abs(r.floorY-y); if(d<distance) {best=r;distance=d;}
+  }
+  return best||house.rooms[0];
 }
 
-return { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt };
+return { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt, floorHeightAt, stairHeight, doorOverlapsBody };
 })();
 
 let active = null;
@@ -3972,26 +4192,28 @@ function buildHouseScene(scene, house) {
     batches.get(v.material).push(v);
   }
   for (const v of house.volumes) {
-    if (v.id === 'bibliotheque' || v.id.startsWith('livre-')) continue;
-    if (v.kind === 'wall' && v.y - v.h / 2 < .01 && v.h > 2) {
+    if (v.hiddenGeometry || v.id === 'bibliotheque' || v.id.startsWith('livre-')) continue;
+    const baseY = v.y - v.h / 2;
+    if (v.kind === 'wall' && v.h > 2.9) {
       // Le soubassement et l'enduit partitionnent le même volume solide.
-      queue({ ...v, y: .36, h: .72, material: 'wallBase' });
-      queue({ ...v, y: .72 + (v.h - .72) / 2, h: v.h - .72 });
-      queue({ ...v, y: .735, h: .035, w: v.w + .008, d: v.d + .008, material: 'trim' });
+      queue({ ...v, y: baseY + .36, h: .72, material: 'wallBase' });
+      queue({ ...v, y: baseY + .72 + (v.h - .72) / 2, h: v.h - .72 });
+      queue({ ...v, y: baseY + .735, h: .035, w: v.w + .008, d: v.d + .008, material: 'trim' });
     } else queue(v);
   }
   // Plinthes, corniches et soubassements sur les murs existants, jamais dans les ouvertures.
   for (const v of house.volumes) {
-    if (v.kind !== 'wall' || v.y - v.h / 2 > .01 || v.h < 2) continue;
-    queue({ ...v, y: .095, h: .19, w: v.w + .024, d: v.d + .024, material: 'trim' });
-    queue({ ...v, y: 2.92, h: .10, w: v.w + .05, d: v.d + .05, material: 'trim' });
+    if (v.kind !== 'wall' || v.h < 2.9) continue;
+    const baseY = v.y - v.h / 2;
+    queue({ ...v, y: baseY + .095, h: .19, w: v.w + .024, d: v.d + .024, material: 'trim' });
+    queue({ ...v, y: baseY + v.h - .08, h: .10, w: v.w + .05, d: v.d + .05, material: 'trim' });
     const axis = v.w > v.d ? 'x' : 'z', length = axis === 'x' ? v.w : v.d;
     if (length < .8) continue;
     const panels = Math.max(1, Math.floor(length / 1.0));
     for (let i = 0; i < panels; i++) {
       const t = -length / 2 + (i + .5) * length / panels;
       queue({ ...v, x: v.x + (axis === 'x' ? t : 0), z: v.z + (axis === 'z' ? t : 0),
-        y: .40, h: .40, w: axis === 'x' ? length / panels - .16 : v.w + .014,
+        y: baseY + .40, h: .40, w: axis === 'x' ? length / panels - .16 : v.w + .014,
         d: axis === 'z' ? length / panels - .16 : v.d + .014, material: 'wallBase' });
     }
   }
@@ -4049,6 +4271,14 @@ function buildHouseScene(scene, house) {
   function cube(parent, x, y, z, w, h, d, material) {
     const mesh = new THREE.Mesh(unitBox, material); mesh.position.set(x, y, z); mesh.scale.set(w, h, d); parent.add(mesh); return mesh;
   }
+  for(const rail of house.rails) {
+    const a=new THREE.Vector3(rail.a.x,rail.a.y,rail.a.z), b=new THREE.Vector3(rail.b.x,rail.b.y,rail.b.z);
+    const delta=b.clone().sub(a);
+    const mesh=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,delta.length(),6),materials.wood);
+    mesh.position.copy(a).add(b).multiplyScalar(.5);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());
+    scene.add(mesh);
+  }
   const shadowMaterial = new THREE.MeshBasicMaterial({ map: contactTexture(), transparent: true, depthWrite: false, toneMapped: false });
   for (const [x, z, w, d] of [[-5.9,4.55,1.7,3.25],[-4.35,4.5,1.7,2.1],[-4.6,-1.12,2.5,2.15],
     [4.75,5.1,2.5,3.45],[3.15,6.2,1,1],[-6.4,-5.9,1.35,3.45],[-4.5,-7.4,3.6,1.3],[-2.12,-7.08,1.4,1.5]]) {
@@ -4061,12 +4291,11 @@ function buildHouseScene(scene, house) {
     cube(scene, -6.22, .97, z, .14, .48, .82, materials.fabric);
   }
   // Sources visibles et repères architecturaux, sans ombres temps réel coûteuses.
-  const lampPositions = [[0, 2.55, 5.8], [0, 2.6, .7], [0, 2.6, -5.3],
-    [-4.5, 2.55, 4.5], [-4.6, 2.5, -1.12], [-4.3, 2.6, -5.8], [4.5, 2.55, 4.7], [3.6, 2.6, 0]];
+  const lampPositions = house.lampPositions;
   const lampGeometry = new THREE.CylinderGeometry(.22, .37, .25, 12, 1, true);
   const bulbGeometry = new THREE.SphereGeometry(.065, 8, 6);
   for (const [x, y, z] of lampPositions) {
-    cube(scene, x, (y + 3) / 2, z, .018, 3 - y, .018, materials.dark);
+    cube(scene, x, y + .20, z, .018, .40, .018, materials.dark);
     const shade = new THREE.Mesh(lampGeometry, materials.metal); shade.position.set(x, y, z); scene.add(shade);
     const bulb = new THREE.Mesh(bulbGeometry, materials.bulb); bulb.position.set(x, y - .06, z); scene.add(bulb);
   }
@@ -4095,12 +4324,12 @@ function buildHouseScene(scene, house) {
   const doorMeshes = new Map();
   for (const d of house.doors) {
     const pivot = new THREE.Group(); pivot.name = 'porte-' + d.id;
-    pivot.position.set(d.hingeX, 0, d.hingeZ); pivot.rotation.y = d.angle;
+    pivot.position.set(d.hingeX, d.bottom || 0, d.hingeZ); pivot.rotation.y = d.angle;
     cube(pivot, d.width / 2, d.height / 2, 0, d.width, d.height, d.thickness, materials.wood);
     for (const side of [-1, 1]) {
       for (const y of [.56, 1.55]) cube(pivot, d.width / 2, y, side * .041, d.width - .22, .71, .012, materials.wood);
       cube(pivot, d.width - .14, 1.02, side * .052, .16, .045, .05, materials.metal);
-      if (d.id === 'stairs') cube(pivot, d.width / 2, 1.33, side * .046, d.width - .08, .13, .018, materials.dark);
+      if (d.id === 'stairs' && d.locked) cube(pivot, d.width / 2, 1.33, side * .046, d.width - .08, .13, .018, materials.dark);
     }
     for (const side of [-1, 1]) {
       for (const y of [.56, 1.55]) {
@@ -4159,8 +4388,8 @@ function disposeScene(scene) {
 function open() {
   close();
   const shell = document.createElement('section');
-  shell.className = 'three17-shell'; shell.dataset.build = 'r17-rdc-horror';
-  shell.setAttribute('role', 'dialog'); shell.setAttribute('aria-label', '3:17 FOUR — Rez-de-chaussée');
+  shell.className = 'three17-shell'; shell.dataset.build = 'r18-1-real-stairs';
+  shell.setAttribute('role', 'dialog'); shell.setAttribute('aria-label', '3:17 FOUR — trois niveaux');
   shell.innerHTML = `<div class="three17-stage"><div class="three17-hud">
     <div class="three17-top"><div><div class="three17-clock">03:17</div><div class="three17-build">${BUILD}</div></div>
     <div class="three17-objective"><span data-lock>🔒 SORTIE VERROUILLÉE</span><br><b>Éléments trouvés : <span data-count>0</span>/3</b><br><small data-floor>RDC · HALL D’ENTRÉE</small></div></div>
@@ -4169,8 +4398,8 @@ function open() {
     <div class="three17-look" aria-label="Glisser pour regarder"></div>
     <div class="three17-actions"><button class="three17-btn flash" type="button" aria-label="Éteindre la lampe" aria-pressed="true">🔦</button>
     <button class="three17-btn interact" type="button">AGIR</button></div><div class="three17-hint"></div><div class="three17-msg" role="status"></div></div>
-    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><strong class="three17-build-label">MAISON · R17</strong>
-    <p>Le courant principal est coupé.<br>Explorez le rez-de-chaussée avec votre lampe.<br><small>Trouvez la clé, le fusible et le sceau pour ouvrir la sortie.</small></p>
+    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><strong class="three17-build-label">MAISON · R18.1</strong>
+    <p>Explorez le RDC, l’étage et le sous-sol.<br>Montez et descendez les escaliers en marchant.<br><small>Trouvez la clé, le fusible et le sceau. La lampe reste votre alliée.</small></p>
     <button type="button">ENTRER DANS LA MAISON</button></div></div>
     <div class="three17-win"><div><h1>VOUS ÊTES SORTI</h1><p>Les trois éléments ont ouvert la sortie.</p><button class="three17-btn" type="button">OK</button></div></div></div>`;
   document.body.append(shell);
@@ -4191,7 +4420,8 @@ function open() {
     const meshes = buildHouseScene(scene, house);
     const camera = new THREE.PerspectiveCamera(68, 1, .05, 45);
     let yaw = house.spawn.yaw, pitch = house.spawn.pitch;
-    const position = { x: house.spawn.x, z: house.spawn.z };
+    const position = { x: house.spawn.x, y: house.spawn.y, z: house.spawn.z };
+    let viewY = position.y;
     const keys = { x: 0, y: 0 };
     let drag = null, look = null, lx = 0, ly = 0, started = false, won = false, count = 0;
     let last = performance.now(), lastRender = 0, lastHud = 0, flashOn = true;
@@ -4209,7 +4439,7 @@ function open() {
     function updateRoomLights() {
       let a = 0, b = 1, da = Infinity, db = Infinity;
       for (let i = 0; i < meshes.lampPositions.length; i++) {
-        const p = meshes.lampPositions[i], distance = (p[0] - position.x) ** 2 + (p[2] - position.z) ** 2;
+        const p = meshes.lampPositions[i], distance = (p[0] - position.x) ** 2 + 4 * (p[1] - (position.y + 2.55)) ** 2 + (p[2] - position.z) ** 2;
         if (distance < da) { db = da; b = a; da = distance; a = i; }
         else if (distance < db) { db = distance; b = i; }
       }
@@ -4237,16 +4467,17 @@ function open() {
     function resetInputs() { drag = look = null; keys.x = keys.y = 0; knob.style.transform = ''; }
     function refreshCamera() {
       camera.rotation.order = 'YXZ'; camera.rotation.y = yaw; camera.rotation.x = pitch;
-      camera.position.set(position.x, EYE_HEIGHT, position.z); camera.updateMatrixWorld();
+      camera.position.set(position.x, viewY + EYE_HEIGHT, position.z); camera.updateMatrixWorld();
     }
     function selectInteraction() {
-      const from = { x: position.x, y: EYE_HEIGHT, z: position.z };
+      const from = { x: position.x, y: position.y + EYE_HEIGHT, z: position.z };
       let best = null, score = Infinity;
       const fx = -Math.sin(yaw), fz = -Math.cos(yaw);
       function candidate(object, type, point) {
         const dx = point.x - position.x, dz = point.z - position.z;
         const distance = Math.hypot(dx, dz);
-        if (distance > 2.05) return;
+        const vertical = point.y - (position.y + EYE_HEIGHT);
+        if (distance > 2.05 || Math.abs(vertical) > 1.45) return;
         const facing = distance < .10 ? 1 : (fx * dx + fz * dz) / distance;
         if (facing < .38 || !hasLineOfSight(house, from, point, type === 'door' ? object.id : '')) return;
         const rank = distance + (1 - facing) * .75;
@@ -4257,7 +4488,7 @@ function open() {
         // Cible au centre de la FEUILLE réelle, même lorsqu'elle est ouverte.
         const c = Math.cos(door.angle), s = Math.sin(door.angle);
         candidate(door, 'door', { x: door.hingeX + c * door.width * .72,
-          y: 1.20, z: door.hingeZ - s * door.width * .72 });
+          y: (door.bottom || 0) + 1.20, z: door.hingeZ - s * door.width * .72 });
       }
       return best;
     }
@@ -4266,7 +4497,7 @@ function open() {
       const o = selection.object;
       if (selection.type === 'item') return 'AGIR · Prendre : ' + o.label;
       if (o.exit) return count === 3 ? 'AGIR · Ouvrir la sortie' : 'AGIR · Sortie verrouillée';
-      if (o.locked) return 'Escalier fermé · aucun étage actif';
+      if (o.locked) return 'Porte verrouillée';
       return 'AGIR · ' + (Math.abs(o.targetAngle - o.closedAngle) < .01 ? 'Ouvrir : ' : 'Fermer : ') + o.label;
     }
     function interact() {
@@ -4281,12 +4512,12 @@ function open() {
       } else if (o.exit) {
         if (count < 3) message('Il manque ' + (3 - count) + ' élément' + (count < 2 ? 's' : ''));
         else { won = true; resetInputs(); shell.querySelector('.three17-win').classList.add('show'); }
-      } else if (o.locked) message('Escalier condamné pour cette version : explorez le RDC');
+      } else if (o.locked) message('Porte verrouillée');
       else {
         const desired = Math.abs(o.targetAngle - o.closedAngle) < .01 ? o.openAngle : o.closedAngle;
         // Ne ferme pas une porte SUR le joueur et ne le pousse pas à travers le mur.
         for (let step = 1; step <= 18; step++) {
-          if (circleHitsDoor(position.x, position.z, PLAYER_RADIUS + .02, o, o.angle + (desired - o.angle) * step / 18)) {
+          if (doorOverlapsBody(o, position.y) && circleHitsDoor(position.x, position.z, PLAYER_RADIUS + .02, o, o.angle + (desired - o.angle) * step / 18)) {
             message('Reculez un peu pour laisser passer la porte'); return;
           }
         }
@@ -4298,7 +4529,7 @@ function open() {
         const delta = d.targetAngle - d.angle;
         if (Math.abs(delta) < .0001) continue;
         const next = d.angle + Math.sign(delta) * Math.min(Math.abs(delta), dt * 5);
-        if (circleHitsDoor(position.x, position.z, PLAYER_RADIUS + .015, d, next)) { d.targetAngle = d.angle; continue; }
+        if (doorOverlapsBody(d, position.y) && circleHitsDoor(position.x, position.z, PLAYER_RADIUS + .015, d, next)) { d.targetAngle = d.angle; continue; }
         d.angle = next; meshes.doorMeshes.get(d.id).rotation.y = d.angle;
       }
     }
@@ -4317,6 +4548,8 @@ function open() {
         animateDoors(dt);
         for (const mesh of meshes.itemMeshes.values()) if (mesh.visible) mesh.rotation.y += dt * 1.6;
       }
+      viewY += (position.y - viewY) * Math.min(1, dt * 18);
+      if (Math.abs(viewY - position.y) < .001) viewY = position.y;
       refreshCamera();
       flashlight.visible = fillLight.visible = flashOn;
       flashlight.position.copy(camera.position); fillLight.position.copy(camera.position);
@@ -4328,7 +4561,8 @@ function open() {
       emergencyLight.intensity = 0.9 + Math.sin(now * 0.0032) * 0.08;
       if (now - lastHud > 120) {
         lastHud = now; updateRoomLights();
-        const text = 'RDC · ' + roomAt(house, position.x, position.z).name.toUpperCase();
+        const currentRoom = roomAt(house, position.x, position.z, position.y);
+        const text = currentRoom.level + ' · ' + currentRoom.name.toUpperCase();
         if (floorLabel.textContent !== text) floorLabel.textContent = text;
         const selectionText = started && !won ? interactionLabel(selectInteraction()) : '';
         if (hint.textContent !== selectionText) hint.textContent = selectionText;
@@ -4370,7 +4604,7 @@ function open() {
       message(flashOn ? 'Lampe allumée' : 'Lampe éteinte'); });
     press(shell.querySelector('.three17-exit'), close);
     press(shell.querySelector('.three17-start button'), () => { resetInputs(); started = true;
-      shell.querySelector('.three17-start')?.remove(); message('Courant coupé · utilisez votre lampe et AGIR'); });
+      shell.querySelector('.three17-start')?.remove(); message('R18.1 · escalier au fond du couloir à droite'); });
     press(shell.querySelector('.three17-win button'), close);
     const visibility = () => { resetInputs(); last = performance.now(); };
     document.addEventListener('visibilitychange', visibility); window.addEventListener('blur', visibility);
@@ -4381,18 +4615,18 @@ function open() {
     if (window.__ONE317_TEST__ === true) session.debug = {
       house, scene, renderer,
       snapshot: () => ({ x: position.x, z: position.z, y: camera.position.y, yaw, pitch, flashOn, started, won, count,
-        drag, look, keys: { ...keys }, room: roomAt(house, position.x, position.z).id,
+        drag, look, keys: { ...keys }, floorY: position.y, room: roomAt(house, position.x, position.z, position.y).id,
         selection: selectInteraction()?.object.id, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles }),
-      place(x, z, lookYaw = yaw, lookPitch = pitch) {
-        if (blockedAt(house, x, z)) throw new Error('Point de test dans un obstacle');
-        resetInputs(); position.x = x; position.z = z; yaw = lookYaw; pitch = lookPitch; refreshCamera();
-      }, interact, selectInteraction, refreshCamera,
+      place(x, z, lookYaw = yaw, lookPitch = pitch, y = position.y) {
+        if (floorHeightAt(house, x, z, y) === null || blockedAt(house, x, z, y)) throw new Error('Point de test dans un obstacle');
+        resetInputs(); position.x = x; position.y = y; viewY = y; position.z = z; yaw = lookYaw; pitch = lookPitch; refreshCamera();
+      }, walk(dx,dz) { movePlayer(house,position,dx,dz); viewY=position.y; refreshCamera(); }, interact, selectInteraction, refreshCamera,
     };
   } catch (error) {
-    console.error('3:17 FOUR R17 — lancement interrompu', error);
+    console.error('3:17 FOUR R18.1 — lancement interrompu', error);
     session.stop();
     const message = document.createElement('div'); message.className = 'three17-shell three17-load-error';
-    const text = document.createElement('p'); text.textContent = '3:17 FOUR R17 n’a pas pu démarrer. Fermez cette fenêtre et rechargez ONE. Si cela se reproduit, vérifiez le déploiement complet ou envoyez une capture de ce message.';
+    const text = document.createElement('p'); text.textContent = '3:17 FOUR R18.1 n’a pas pu démarrer. Fermez cette fenêtre et rechargez ONE. Si cela se reproduit, vérifiez le déploiement complet ou envoyez une capture de ce message.';
     const button = document.createElement('button'); button.textContent = 'Fermer'; button.onclick = () => message.remove();
     message.append(text, button); document.body.append(message);
     active = { stop: () => message.remove() };
@@ -4403,7 +4637,7 @@ window.ONEThree17 = { open, close, build: BUILD };
 if (window.__ONE317_TEST__ === true) Object.defineProperty(window.ONEThree17, 'debug', { get: () => active?.debug });
 window.addEventListener('pagehide', close);
 
-</script><script type="module" id="one317-r16-lobby">
+</script><script type="module" id="one317-r18-1-lobby">
 import * as THREE from './ui/three.module.js';
 
 let active=null;
@@ -4442,7 +4676,7 @@ function buildRoom(scene){
 }
 function open(ctx={}){
  close();const shell=document.createElement('section');shell.className='one3d-shell';shell.setAttribute('role','dialog');shell.setAttribute('aria-label','Lobby 3D ONE');
- const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R17</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
+ const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R18.1</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
  document.body.append(shell);try{screen.orientation?.lock?.('landscape').catch(()=>{});}catch{}const stage=shell.querySelector('.one3d-stage'),players=shell.querySelector('.one3d-players');members.forEach(m=>{const e=document.createElement('span');e.className='one3d-player';e.dataset.ready=String(!!m.ready);e.textContent=(m.isYou?'● ':'')+m.name+(m.ready?' ✓':'');players.append(e);});
  const scene=new THREE.Scene();buildRoom(scene);
  const camera=new THREE.PerspectiveCamera(65,1,.05,60);let yaw=0,pitch=-.08;const local=members.find(m=>m.isYou)||{name:'Toi',isYou:true};const colors=[0x7b5cff,0x49b6ff,0xff6b9e,0x58d68d];let me=null;members.forEach((m,i)=>{const a=[[-2.2,1.8],[2.2,1.8],[-2.2,-1.8],[2.2,-1.8]][i]||[0,0];const av=makeAvatar(scene,m.name,colors[i%4],a[0],a[1],m.isYou);if(m.isYou)me=av;});if(!me)me=makeAvatar(scene,local.name,colors[0],0,2,true);me.position.set(0,0,4.8);camera.position.set(0,1.65,4.8);yaw=0;pitch=-.10;
