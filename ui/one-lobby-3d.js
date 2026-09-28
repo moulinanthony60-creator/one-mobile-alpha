@@ -12,35 +12,35 @@ function makeAvatar(scene,name,color,x,z,isYou){
  const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:labelTexture((isYou?'● ':'')+name,isYou?'#8f6cff':'#555')}));spr.scale.set(1.75,.44,1);spr.position.y=2.35;g.add(spr);g.position.set(x,0,z);scene.add(g);return g;
 }
 function buildRoom(scene){
- scene.background=new THREE.Color(0x151222);
- scene.fog=new THREE.Fog(0x151222,14,34);
- const floorMat=new THREE.MeshStandardMaterial({color:0x282232,roughness:.72,metalness:.12});
+ scene.background=new THREE.Color(0x25212e);
+ scene.fog=new THREE.Fog(0x25212e,18,42);
+ const floorMat=new THREE.MeshStandardMaterial({color:0x4b4355,roughness:.72,metalness:.12});
  const floor=new THREE.Mesh(new THREE.PlaneGeometry(18,14),floorMat);floor.rotation.x=-Math.PI/2;scene.add(floor);
  const rug=new THREE.Mesh(new THREE.CircleGeometry(3.25,48),new THREE.MeshStandardMaterial({color:0x4a2774,roughness:.82,emissive:0x170827,emissiveIntensity:.7}));rug.rotation.x=-Math.PI/2;rug.position.y=.015;scene.add(rug);
- const wallMat=new THREE.MeshStandardMaterial({color:0x24202d,roughness:.82});
+ const wallMat=new THREE.MeshStandardMaterial({color:0x4a4450,roughness:.82});
  for(const [sx,sy,sz,x,y,z] of [[18,4,.25,0,2,-7],[.25,4,14,-9,2,0],[.25,4,14,9,2,0]]){const w=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),wallMat);w.position.set(x,y,z);scene.add(w);}
- const ceiling=new THREE.Mesh(new THREE.PlaneGeometry(18,14),new THREE.MeshStandardMaterial({color:0x191621,roughness:.9,side:THREE.DoubleSide}));ceiling.rotation.x=Math.PI/2;ceiling.position.y=4;scene.add(ceiling);
+ const ceiling=new THREE.Mesh(new THREE.PlaneGeometry(18,14),new THREE.MeshStandardMaterial({color:0x35303b,roughness:.9,side:THREE.DoubleSide}));ceiling.rotation.x=Math.PI/2;ceiling.position.y=4;scene.add(ceiling);
  const screen=new THREE.Mesh(new THREE.BoxGeometry(5.6,2.65,.18),new THREE.MeshStandardMaterial({color:0x5926a1,emissive:0x4c168f,emissiveIntensity:2.1,roughness:.35}));screen.position.set(0,2.3,-6.72);scene.add(screen);
  const logo=new THREE.Sprite(new THREE.SpriteMaterial({map:labelTexture('ONE  •  JEUX','#d0b8ff')}));logo.scale.set(4.3,1.08,1);logo.position.set(0,2.32,-6.57);scene.add(logo);
- const couchMat=new THREE.MeshStandardMaterial({color:0x50485b,roughness:.82});
+ const couchMat=new THREE.MeshStandardMaterial({color:0x716979,roughness:.82});
  for(const x of [-4.8,4.8]){const c=new THREE.Mesh(new THREE.BoxGeometry(2.7,.65,1.1),couchMat);c.position.set(x,.42,-2.8);scene.add(c);const b=new THREE.Mesh(new THREE.BoxGeometry(2.7,.9,.35),couchMat);b.position.set(x,1,-3.25);scene.add(b);}
  const table=new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.3,.18,32),new THREE.MeshStandardMaterial({color:0x5a4a70,metalness:.2,roughness:.4}));table.position.set(0,.58,0);scene.add(table);
  const neonMat=new THREE.MeshStandardMaterial({color:0xb995ff,emissive:0x7a42ff,emissiveIntensity:3});
  for(const x of [-6.8,6.8]){const n=new THREE.Mesh(new THREE.BoxGeometry(.08,2.8,.08),neonMat);n.position.set(x,2,-6.48);scene.add(n);}
  const ring=new THREE.Mesh(new THREE.TorusGeometry(3.3,.045,10,64),neonMat);ring.rotation.x=Math.PI/2;ring.position.y=.04;scene.add(ring);
- scene.add(new THREE.HemisphereLight(0xc8bcff,0x30233d,3.2));
- const ambient=new THREE.AmbientLight(0xffffff,1.15);scene.add(ambient);
- const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(0,5,4);scene.add(key);
+ scene.add(new THREE.HemisphereLight(0xe8e1ff,0x5b4d67,4.6));
+ const ambient=new THREE.AmbientLight(0xffffff,2.1);scene.add(ambient);
+ const key=new THREE.DirectionalLight(0xfff4e8,3.4);key.position.set(0,5,4);scene.add(key);
  for(const p of [[-6,2.5,-4],[6,2.5,-4],[-5,2.3,3],[5,2.3,3]]){const l=new THREE.PointLight(0x9f73ff,28,10,1.6);l.position.set(...p);scene.add(l);}
  const warm=new THREE.PointLight(0xffd7a0,20,8,1.8);warm.position.set(0,2.8,2.5);scene.add(warm);
 }
 function open(ctx={}){
  close();const shell=document.createElement('section');shell.className='one3d-shell';shell.setAttribute('role','dialog');shell.setAttribute('aria-label','Lobby 3D ONE');
- const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><span>Prototype local · synchro réseau prochaine étape</span><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
- document.body.append(shell);const stage=shell.querySelector('.one3d-stage'),players=shell.querySelector('.one3d-players');members.forEach(m=>{const e=document.createElement('span');e.className='one3d-player';e.dataset.ready=String(!!m.ready);e.textContent=(m.isYou?'● ':'')+m.name+(m.ready?' ✓':'');players.append(e);});
+ const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><span></span><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
+ document.body.append(shell);try{screen.orientation?.lock?.('landscape').catch(()=>{});}catch{}const stage=shell.querySelector('.one3d-stage'),players=shell.querySelector('.one3d-players');members.forEach(m=>{const e=document.createElement('span');e.className='one3d-player';e.dataset.ready=String(!!m.ready);e.textContent=(m.isYou?'● ':'')+m.name+(m.ready?' ✓':'');players.append(e);});
  const scene=new THREE.Scene();buildRoom(scene);
- const camera=new THREE.PerspectiveCamera(65,1,.05,60);let yaw=0,pitch=-.08;const local=members.find(m=>m.isYou)||{name:'Toi',isYou:true};const colors=[0x7b5cff,0x49b6ff,0xff6b9e,0x58d68d];let me=null;members.forEach((m,i)=>{const a=[[-2.2,1.8],[2.2,1.8],[-2.2,-1.8],[2.2,-1.8]][i]||[0,0];const av=makeAvatar(scene,m.name,colors[i%4],a[0],a[1],m.isYou);if(m.isYou)me=av;});if(!me)me=makeAvatar(scene,local.name,colors[0],0,2,true);camera.position.set(me.position.x,1.65,me.position.z);yaw=0;pitch=-.04;
- const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.55;stage.prepend(renderer.domElement);
+ const camera=new THREE.PerspectiveCamera(65,1,.05,60);let yaw=0,pitch=-.08;const local=members.find(m=>m.isYou)||{name:'Toi',isYou:true};const colors=[0x7b5cff,0x49b6ff,0xff6b9e,0x58d68d];let me=null;members.forEach((m,i)=>{const a=[[-2.2,1.8],[2.2,1.8],[-2.2,-1.8],[2.2,-1.8]][i]||[0,0];const av=makeAvatar(scene,m.name,colors[i%4],a[0],a[1],m.isYou);if(m.isYou)me=av;});if(!me)me=makeAvatar(scene,local.name,colors[0],0,2,true);me.position.set(0,0,4.8);camera.position.set(0,1.65,4.8);yaw=0;pitch=-.10;
+ const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=2.15;stage.prepend(renderer.domElement);
  const keys={x:0,y:0};let raf=0,last=performance.now(),drag=null,look=null;
  function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/Math.max(h,1);camera.updateProjectionMatrix();}
  const ro=new ResizeObserver(resize);ro.observe(stage);resize();
