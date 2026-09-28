@@ -1,0 +1,167 @@
+(()=>{
+ const {el,button,api,avatar,dialog,qr,copy,tile}=ONEUI;
+ const tray=el('aside',undefined,'os-salon');tray.id='oneSalonTray';tray.hidden=true;tray.setAttribute('aria-label','Salons ONE');const head=el('header'),heading=el('h2','Salons ONE'),close=button('×',()=>window.oneCloseSalon(),'os-close');close.setAttribute('aria-label','Fermer la fenêtre du salon');head.append(heading,close);const shell=el('div');shell.id='oneSalonBody';const status=el('p',undefined,'os-status');status.setAttribute('role','status');const content=el('div'),sharedPlayer=el('section');sharedPlayer.id='oneSalonTogether';sharedPlayer.hidden=true;const roomFrame=el('div'),roomIntro=el('div'),roomGame=el('div'),roomTools=el('div'),activities=el('section',undefined,'os-choose'),tiles=el('div',undefined,'os-tiles'),togetherTile=tile('together',()=>{window.oneCloseSalon();window.oneShowSpace?.('together');});roomFrame.id='oneSalonRoom';roomFrame.hidden=true;activities.append(el('h3','Que fait-on ?'),el('p','Chacun choisit : regarder une vidéo ou rejoindre un jeu.','os-muted'),tiles);tiles.append(togetherTile,sharedPlayer);for(const kind of ['party','one'])tiles.append(tile(kind,()=>{window.oneCloseSalon();window.oneShowSpace?.(kind);}));const lobby3d=button('',()=>{const r=room;if(!r)return;const members=(r.members||[]).slice(0,4).map((m,i)=>({...m,isYou:!!(m.isYou||m.me||m.id===window.oneAccount?.id||m.id===window.oneAccountId)}));window.ONELobby3D?.open?.({room:r,data:{members}});},'os-tile');lobby3d.dataset.kind='lobby3d';lobby3d.append(el('span','◈','os-tile-icon'),el('b','Lobby 3D'),el('small','Entrer dans le salon 3D'));tiles.append(lobby3d);roomFrame.append(roomIntro,activities,roomGame,roomTools);shell.append(status,content,roomFrame);tray.append(head,shell);document.body.append(tray);
+ let room=null,invitations=[],view='welcome',busy=false,epoch=0,signature='',returnFocus=null;
+ // V14: one state request at a time, no form replacement while submitting.
+ let loadController=null,loadPromise=null,lastStateError=null,statusOrigin='';
+ let createOperation=0,createController=null,createUncertain=false,acknowledgedCreateId='';
+ let createDraft={name:'',visibility:'private',appearance:'lounge'};
+ tray.dataset.connectionVersion='14';
+ function feedback(message,origin='action'){statusOrigin=origin;status.textContent=message;}
+ function cancelStateLoad(){epoch++;loadController?.abort();loadController=null;loadPromise=null;}
+
+ const entry=button('',()=>window.oneOpenSalon(),'os-salon-toggle');entry.id='oneSalonsToggle';entry.append(ONEUI.icon('together'),el('span','Salons'));entry.setAttribute('aria-label','Ouvrir les salons');entry.setAttribute('aria-expanded','false');entry.setAttribute('aria-controls',tray.id);document.getElementById('oneNotificationsToggle')?.before(entry);
+ window.oneSalonIsRoomOpen=()=>!tray.hidden&&!roomFrame.hidden;window.oneSalonContainer=shell;window.oneSalonIsOpen=()=>!tray.hidden;window.oneSocialRoom=()=>room;
+ window.oneOpenSalon=(target)=>{returnFocus=document.activeElement;tray.hidden=false;entry.setAttribute('aria-expanded','true');if(typeof target==='string'&&!busy)view=target;if(!busy)render();close.focus({preventScroll:true});window.dispatchEvent(new Event('one-salon-visibility'));load(false,{interactive:true});};
+ window.oneCloseSalon=()=>{tray.hidden=true;entry.setAttribute('aria-expanded','false');window.dispatchEvent(new Event('one-salon-visibility'));if(returnFocus?.isConnected&&!tray.contains(returnFocus))returnFocus.focus({preventScroll:true});};
+ tray.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();window.oneCloseSalon();}});
+ function publish(next){room=next;window.dispatchEvent(new CustomEvent('one-party-state',{detail:room}));}
+ function load(force=false,options={}){
+  if(busy&&!options.fromCommand)return Promise.resolve(null);
+  if(loadPromise)return loadPromise;
+  const own=++epoch,controller=new AbortController();loadController=controller;
+  const task=Promise.resolve().then(async()=>{
+   try{
+    if(!window.oneAccountToken?.()){signature='';invitations=[];publish(null);if(!tray.hidden&&!options.silentUI)render();return null;}
+    const d=await api('/party/state','GET',undefined,{signal:controller.signal,interactive:!!options.interactive});
+    if(own!==epoch||controller.signal.aborted)return null;
+    lastStateError=null;const key=JSON.stringify(d),changed=key!==signature;signature=key;
+    invitations=d.invitations||[];publish(d.room||null);
+    if(room&&view==='create'&&!options.fromCommand){
+     // A later successful poll can confirm a previously uncertain creation.
+     if(room.isHost&&room.name===createDraft.name)saveAppearance(room.id,createDraft.appearance);
+     createUncertain=false;acknowledgedCreateId='';createDraft={name:'',visibility:'private',appearance:'lounge'};view='welcome';feedback('','');
+    }
+    if(statusOrigin==='load')feedback('','');
+    // An empty background state must not erase a name being typed, nor replace
+    // the submit button whose finally block is responsible for unlocking it.
+    const editing=!room&&(view==='create'||view==='join');
+    if(!tray.hidden&&!options.silentUI&&(force||changed)&&!editing&&(!shell.querySelector('input:focus,textarea:focus,select:focus')||room))render();
+    return d;
+   }catch(e){
+    if(own!==epoch||controller.signal.aborted)return null;
+    lastStateError=e;
+    if(!options.silentErrors){if(statusOrigin!=='action')feedback(e.message,'load');window.dispatchEvent(new CustomEvent('one-party-load-error',{detail:e.message}));}
+    return null;
+   }finally{if(loadController===controller){loadController=null;loadPromise=null;}}
+  });
+  loadPromise=task;return task;
+ }
+ async function command(path){
+  if(busy)return false;busy=true;cancelStateLoad();feedback('En cours…');tray.setAttribute('aria-busy','true');
+  const token=window.oneAccountToken?.();
+  try{
+   await api(path,'POST');if(token!==window.oneAccountToken?.())return false;
+   view='welcome';const d=await load(true,{fromCommand:true,interactive:true});
+   if(token!==window.oneAccountToken?.())return false;
+   render();
+   if(d)feedback('','');else feedback('Action envoyée. Impossible de recharger le salon pour le moment. '+(lastStateError?.message||''),'load');
+   window.dispatchEvent(new Event('one-notifications-refresh'));return true;
+  }catch(e){if(token===window.oneAccountToken?.())feedback(e.message);return false;}
+  finally{busy=false;tray.removeAttribute('aria-busy');}
+ }
+ function change(next){if(busy)return;view=next;feedback('','');render();}
+ function invites(parent){const block=el('section',undefined,'os-invites');block.append(el('h3','Invitations'));if(!invitations.length)block.append(el('p','Tes invitations apparaîtront ici.','os-muted'));for(const i of invitations){const row=el('article',undefined,'os-invite');row.append(avatar({name:i.host}),el('h4',i.name),el('p',i.host+' t’invite dans son salon.'));const a=el('div',undefined,'os-actions');a.append(button('Rejoindre',()=>command('/party/invitations/'+encodeURIComponent(i.id)+'/accept'),'os-primary'),button('Refuser',()=>command('/party/invitations/'+encodeURIComponent(i.id)+'/decline')));row.append(a);block.append(row);}parent.append(block);}
+ function render(){if(tray.hidden)return;window.dispatchEvent(new Event('one-salon-before-render'));content.replaceChildren();roomFrame.hidden=!room||view==='browse'||!window.oneAccountToken?.();heading.textContent=room&&view!=='browse'?'Salon ONE':view==='create'?'Nouveau salon':view==='join'?'Rejoindre un salon':'Salons ONE';if(!window.oneAccountToken?.()){content.append(hero(),el('p','Connecte-toi à ONE pour retrouver tes amis et tes salons.'),button('Se connecter',()=>document.getElementById('accountBtn')?.click(),'os-primary'));return;}
+  if(view==='browse'){content.append(button(room?'← Mon salon':'← Retour',()=>change('welcome'),'os-button os-back'));publicSearch(content);invites(content);}else if(room)renderRoom();else if(view==='create')create();else if(view==='join')join();else{content.append(hero(),button('＋ Créer un salon',()=>change('create'),'os-primary os-wide'),button('↗ Rejoindre un salon',()=>change('join'),'os-button os-wide'));const a=el('div',undefined,'os-actions');a.append(button('☆ Salons enregistrés',()=>window.oneOpenSavedRooms?.()),button('▦ Scanner un QR',scan),button('♧ Amis ONE',()=>window.oneOpenFriends?.()));content.append(a,button('Découvrir les salons publics',()=>change('browse'),'os-button os-wide'));invites(content);friends(content);}window.dispatchEvent(new Event('one-salon-rendered'));
+ }
+ function hero(){const h=el('section',undefined,'os-welcome-art');h.append(el('span','À PLUSIEURS, PARTOUT DANS ONE','os-eyebrow'),el('h2','Crée ton espace\navec tes amis'),el('p','Regarde, joue, discute. Tout ça ensemble.'));return h;}
+ const appearances=['lounge','violet','emerald'];
+ function roomAppearance(id){try{return JSON.parse(localStorage.getItem('one_room_appearance_v117')||'{}')[id]||'lounge';}catch{return 'lounge';}}
+ function saveAppearance(id,value){if(!id||!appearances.includes(value))return;try{const all=JSON.parse(localStorage.getItem('one_room_appearance_v117')||'{}');all[id]=value;localStorage.setItem('one_room_appearance_v117',JSON.stringify(all));}catch{}tray.dataset.appearance=value;}
+ function appearancePicker(initial,change){const box=el('fieldset',undefined,'os-appearance'),row=el('div',undefined,'os-appearance-options');box.append(el('legend','Personnalisation'),row);const labels=['Lounge doré','Néon violet','Table émeraude'];appearances.forEach((key,i)=>{const b=button('',()=>{row.querySelectorAll('button').forEach(n=>n.setAttribute('aria-pressed',String(n===b)));change(key);},'os-appearance-choice');b.dataset.appearance=key;b.setAttribute('aria-label',labels[i]);b.setAttribute('aria-pressed',String(key===initial));b.append(el('span',labels[i]));row.append(b);});box.append(el('small','Ambiance visuelle sur cet appareil.','os-muted'));return box;}
+ function create(){
+  const form=el('form',undefined,'os-create');form.append(ONEUI.icon('together'));
+  const label=el('label','Nom du salon'),input=el('input');input.name='name';input.maxLength=80;input.required=true;input.placeholder='Soirée entre amis';input.value=createDraft.name;label.append(input);form.append(label);
+  const field=el('fieldset');field.append(el('legend','Visibilité'));
+  for(const [value,text]of [['private','Privé · sur invitation'],['public','Public · visible dans la recherche']]){
+   const l=el('label',text),r=el('input');r.type='radio';r.name='visibility';r.value=value;r.checked=value===createDraft.visibility;r.onchange=()=>{if(r.checked)createDraft.visibility=value;};l.prepend(r);field.append(l);
+  }
+  form.prepend(field);
+  form.append(appearancePicker(createDraft.appearance,value=>{createDraft.appearance=value;}),el('p','Jusqu’à 16 membres · choisis une activité plus tard.','os-muted'));
+  const submit=button(createUncertain?'Vérifier mon salon':'Créer le salon',null,'os-primary os-wide');submit.type='submit';submit.dataset.salonSubmit='';
+  form.append(submit,button('Retour',()=>change('welcome')),el('small','Connexion salons · V14','os-muted'));content.append(form);
+  input.oninput=()=>{input.setCustomValidity('');createDraft.name=input.value;};
+  form.onsubmit=async e=>{
+   e.preventDefault();if(busy)return;
+   if(!input.value.trim()&&!createUncertain){input.setCustomValidity('Donne un nom à ton salon.');input.reportValidity();return;}
+   createDraft.name=input.value.trim();
+   const controls=[...form.querySelectorAll('input,button,select')],wasDisabled=controls.map(n=>n.disabled);
+   controls.forEach(n=>n.disabled=true);form.setAttribute('aria-busy','true');
+   try{await createSalon(createUncertain,message=>{if(submit.isConnected)submit.textContent=message;});}
+   finally{
+    controls.forEach((n,i)=>n.disabled=wasDisabled[i]);form.removeAttribute('aria-busy');
+    submit.textContent=createUncertain?'Vérifier mon salon':'Créer le salon';
+   }
+  };
+ }
+ async function createSalon(verifyOnly,setLabel){
+  if(busy)return false;
+  busy=true;cancelStateLoad();const own=++createOperation,token=window.oneAccountToken?.(),draft={...createDraft};
+  const controller=new AbortController();createController=controller;tray.setAttribute('aria-busy','true');
+  let sent=false,success=false;
+  const current=()=>own===createOperation&&token===window.oneAccountToken?.();
+  const progress=message=>{if(current()){setLabel(message);feedback(message);}};
+  const read=()=>load(true,{fromCommand:true,interactive:true,silentUI:true,silentErrors:true});
+  const accept=d=>{
+   if(!current()||!d?.room)return false;
+   if(d.room.isHost&&d.room.name===draft.name)saveAppearance(d.room.id,draft.appearance);
+   createUncertain=false;acknowledgedCreateId='';createDraft={name:'',visibility:'private',appearance:'lounge'};
+   view='welcome';success=true;feedback('','');window.dispatchEvent(new Event('one-notifications-refresh'));return true;
+  };
+  try{
+   // Read before any create: an earlier request may already have succeeded.
+   progress('Vérification du salon…');let d=await read();if(!current())return false;
+   if(!d)throw lastStateError||Error('Impossible de vérifier ton salon. Réessaie.');
+   if(d.room)return accept(d);
+   if(verifyOnly){
+    createUncertain=!!acknowledgedCreateId;
+    feedback(createUncertain?'Création confirmée, mais le salon n’est pas encore visible. Vérifie à nouveau dans quelques instants.':'Aucun salon trouvé. Tu peux maintenant appuyer sur « Créer le salon » pour réessayer.');
+    return false;
+   }
+   progress('Création du salon…');let failure=null;
+   try{
+    sent=true;
+    const result=await api('/party/create?'+new URLSearchParams({name:draft.name,visibility:draft.visibility}),'POST',undefined,{interactive:true,signal:controller.signal});
+    if(!current())return false;
+    acknowledgedCreateId=result.id;createUncertain=true;
+   }catch(e){
+    if(!current())return false;
+    if(!e.uncertain&&e.status!==409)throw e;
+    // Lost response / conflict: only read back the current state; never replay POST.
+    createUncertain=true;failure=e;
+   }
+   progress('Vérification de la création…');d=await read();if(!current())return false;
+   if(d?.room)return accept(d);
+   if(failure?.status===409&&d&&!d.room){createUncertain=false;feedback(failure.message);return false;}
+   const reason=lastStateError?.message||failure?.message||'Le salon n’est pas encore visible.';
+   feedback((acknowledgedCreateId?'Création confirmée. ':'Création non confirmée. ')+reason+' Appuie sur « Vérifier mon salon » avant de recommencer.');
+   return false;
+  }catch(e){
+   if(current())feedback((!sent&&!createUncertain?'Création non envoyée. ':'')+e.message);
+   return false;
+  }finally{
+   if(own===createOperation){busy=false;createController=null;tray.removeAttribute('aria-busy');if(success)render();}
+  }
+ }
+ function join(){content.append(button('← Retour',()=>change('welcome')));const form=el('form'),label=el('label','Lien ou identifiant du salon public'),input=el('input');input.placeholder='Colle le lien partagé par ton ami';label.append(input);const b=button('Rejoindre',null,'os-primary');b.type='submit';form.append(label,b,button('Scanner un QR',scan));form.onsubmit=async e=>{e.preventDefault();await joinCode(input.value);};content.append(form,el('p','Pour un salon privé, accepte l’invitation de son hôte.','os-muted'));invites(content);publicSearch(content);}
+ function roomCode(value){try{const u=new URL(value);if(u.origin!==location.origin)return '';return /^[a-f0-9-]{36}$/i.test(u.searchParams.get('salon')||'')?u.searchParams.get('salon'):'';}catch{return /^[a-f0-9-]{36}$/i.test(value.trim())?value.trim():'';}}
+ async function joinCode(value){const id=roomCode(value);if(!id){status.textContent='Utilise un lien de salon ONE ou son identifiant complet.';return;}await command('/party/join-public?room='+encodeURIComponent(id));}
+ function scan(){window.oneScanFriendQR?.(value=>{change('join');const input=content.querySelector('input');if(input)input.value=value;status.textContent='Salon lu. Appuie sur Rejoindre pour confirmer.';},{parse:roomCode,title:'Scanner un salon ONE',hint:'Vise le QR d’un salon public ONE.'});}
+ function publicSearch(parent){const section=el('section',undefined,'os-discover');section.append(el('h3','Salons publics'),el('p','Trouve un salon et partage le moment.','os-muted'));const form=el('form',undefined,'os-search'),input=el('input');input.type='search';input.placeholder='Nom du salon ou de son hôte';input.setAttribute('aria-label','Rechercher un salon');const submit=button('Rechercher',null);submit.type='submit';const list=el('div',undefined,'os-room-list');form.append(input,submit);section.append(form,list);parent.append(section);let serial=0;async function search(){const own=++serial;submit.disabled=true;list.replaceChildren(el('p','Recherche…','os-muted'));try{const d=await api('/party/public?'+new URLSearchParams({q:input.value,open:'0'}));if(own!==serial||!section.isConnected)return;list.replaceChildren();for(const r of d.rooms){const row=el('article',undefined,'os-public-room');const cover=el('div',undefined,'os-public-cover');cover.append(el('span',r.playing?'En partie':'Ouvert','os-public-badge'));row.append(cover,avatar({name:r.host}),el('h4',r.name),el('p',r.host+' · '+r.count+' membres'));const b=button(r.playing?'Rejoindre le salon':'Rejoindre',()=>command('/party/join-public?room='+encodeURIComponent(r.id)),'os-primary');b.disabled=r.count>=16;row.append(b);list.append(row);}if(!d.rooms.length)list.append(el('p','Aucun salon trouvé. Crée le tien pour réunir tes amis.','os-muted'));if(d.more)list.append(el('p','Précise ta recherche pour voir d’autres salons.','os-muted'));}catch(e){if(section.isConnected)list.replaceChildren(el('p',e.message));}finally{submit.disabled=false;}}form.onsubmit=e=>{e.preventDefault();search();};search();}
+ async function friends(parent){const section=el('section',undefined,'os-friends-preview');section.append(el('h3','Tes amis'));parent.append(section);try{const d=await api('/friends/state');if(!section.isConnected)return;const list=(d.relationships||[]).filter(f=>f.status==='accepted').sort((a,b)=>Number(b.online)-Number(a.online));for(const f of list.slice(0,5)){const row=button('',()=>window.oneOpenFriends?.(),'os-friend-mini');row.append(avatar(f),el('b',f.name),el('small',f.online?'En ligne':'Hors ligne'));section.append(row);}if(!list.length)section.append(el('p','Ajoute des amis pour commencer votre soirée.','os-muted'));}catch{section.append(el('p','Tes amis sont disponibles depuis Amis ONE.','os-muted'));}}
+ function renderRoom(){roomIntro.replaceChildren();roomGame.replaceChildren();roomTools.replaceChildren();tray.dataset.appearance=roomAppearance(room.id);const r=room,top=el('div',undefined,'os-room-heading');top.append(el('span','● Salon actif','os-online'),button('⚙',settings,'os-close'));top.lastChild.setAttribute('aria-label','Paramètres du salon');top.prepend(button('‹ Salons',()=>change('browse'),'os-button os-browse'));roomIntro.append(top,el('h3',r.name,'os-room-name'),el('p',r.members.length+'/16 membres · '+(r.visibility==='public'?'Public':'Privé'),'os-muted'));const a=el('div',undefined,'os-actions');a.append(button('▦ Code / QR',share),button('＋ Inviter',invite,'os-primary'));a.lastChild.disabled=!r.isHost;a.lastChild.title=r.isHost?'Inviter des amis':'Seul l’hôte peut inviter';roomIntro.append(a);const saved=button(r.savedGroupId?'☆ Salon enregistré · conversation':'☆ Enregistrer ce salon',()=>{window.oneCloseSalon();r.savedGroupId?window.oneOpenFriends?.('group:'+r.savedGroupId):window.oneOpenSavedRooms?.();},'hub-save-room');if(r.savedGroupId||r.isHost)roomIntro.append(saved);const members=el('div',undefined,'os-members');members.id='oneSocialMembers';members.setAttribute('aria-label','Membres du salon');for(const m of r.members)members.append(ONEUI.player(m));const add=button('＋',invite,'os-member-invite');add.append(el('small','Inviter'));add.disabled=!r.isHost;add.setAttribute('aria-label','Inviter un membre');members.append(add);roomIntro.append(members);togetherTile.hidden=!!r.together;tiles.classList.toggle('ot-has-video',!!r.together);if(r.activity)ONEUI.activity(roomGame,{room:r});const dock=el('div',undefined,'os-room-tools');const micButton=button('♩ Micro',()=>media('mic')),camButton=button('▣ Caméra',()=>media('camera'));micButton.dataset.salonMedia='mic';camButton.dataset.salonMedia='camera';dock.append(micButton,camButton,button('☏ Chat',()=>{const c=document.getElementById('onePartyChat');if(c){c.hidden=!c.hidden;if(!c.hidden)c.scrollIntoView({block:'nearest'});}}),button('♧ Membres',()=>{const d=dialog('Membres du salon');for(const m of room.members){const line=el('p',m.name+(m.isHost?' · 👑 Hôte':''));d.append(line);}}),button('Quitter',leave,'os-danger'));roomTools.append(dock);syncMediaButtons();}
+ let mediaPending=false;
+ function syncMediaButtons(){const state=window.ONEPartyMedia?.status?.()||{};for(const b of roomTools.querySelectorAll('[data-salon-media]')){const kind=b.dataset.salonMedia,on=!!state[kind],label=kind==='mic'?'Micro':'Caméra';b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',(on?'Couper le ':'Activer le ')+(kind==='mic'?'micro':'caméra'));if(kind==='camera')b.setAttribute('aria-label',(on?'Couper la ':'Activer la ')+'caméra');b.textContent=(kind==='mic'?'♩ ':'▣ ')+label+(on?' · ON':' · OFF');b.disabled=mediaPending||!!state.busy;}}
+ window.addEventListener('one-media-state',syncMediaButtons);
+ async function media(kind){if(mediaPending)return;mediaPending=true;status.textContent='';syncMediaButtons();try{await window.ONEPartyMedia?.toggle?.(kind);}catch(e){status.textContent=e.message;}finally{mediaPending=false;syncMediaButtons();}}
+ function invite(){if(!room?.isHost)return;const d=dialog('Inviter dans le salon');d.append(button('Choisir dans mes amis',()=>{d.close();window.oneOpenFriends?.();},'os-primary os-wide'));const l=el('label','ID ou code ONE de ton ami'),input=el('input');input.placeholder='ABCD-EFGH';l.append(input);const s=el('p');s.setAttribute('role','status');const send=button('Envoyer l’invitation',async()=>{if(!input.value.trim())return;send.disabled=true;try{await api('/party/invite?recipient='+encodeURIComponent(input.value.trim()),'POST');s.textContent='Invitation envoyée.';}catch(e){s.textContent=e.message;}finally{send.disabled=false;}},'os-primary');d.append(l,send,s);}
+ function share(){if(!room)return;const d=dialog('Partager le salon'),s=el('p');if(room.visibility!=='public'){d.append(el('p','Ce salon est privé. Son hôte invite les membres depuis Amis ONE.'),button('Ouvrir mes amis',()=>{d.close();window.oneOpenFriends?.();},'os-primary'));return;}const url=new URL(location.pathname,location.origin);url.searchParams.set('salon',room.id);qr(d,url.href,'QR pour rejoindre '+room.name);d.append(el('p',room.name),button('Copier le lien',()=>copy(url.href,s),'os-primary'),button('Copier l’identifiant',()=>copy(room.id,s)),s);}
+ function settings(){if(!room)return;const r=room,d=dialog('Paramètres du salon');d.append(el('h3',r.name),el('p',r.members.length+' membres · capacité actuelle : 16'),appearancePicker(roomAppearance(r.id),value=>saveAppearance(r.id,value)));if(r.isHost){const l=el('label','Visibilité'),select=el('select');for(const [v,t]of [['private','Privé · sur invitation'],['public','Public · visible dans la recherche']])select.append(new Option(t,v));select.value=r.visibility;l.append(select);const s=el('p'),save=button('Enregistrer',async()=>{save.disabled=true;try{await api('/party/public-settings?'+new URLSearchParams({visibility:select.value,kind:r.gameKind||'bluff'}),'POST');d.close();load(true);}catch(e){s.textContent=e.message;}finally{save.disabled=false;}},'os-primary');d.append(l,save,s);}d.append(button(r.isHost?'Fermer le salon pour tous':'Quitter le salon',()=>{d.close();leave();},'os-danger'));}
+ function leave(){if(!room)return;const isHost=room.isHost,d=dialog(isHost?'Fermer le salon ?':'Quitter le salon ?');d.append(el('p',isHost?'Le salon sera fermé pour tous ses membres. Les appels et la partie s’arrêteront.':'Tu quitteras ce salon et son appel.'));const yes=button(isHost?'Fermer pour tous':'Confirmer mon départ',async()=>{yes.disabled=true;if(await command('/party/leave'))d.close();else{yes.disabled=false;d.append(el('p',status.textContent));}},'os-danger');d.append(yes,button('Rester dans le salon',()=>d.close()));}
+ window.addEventListener('one-party-action-error',e=>{status.textContent=e.detail;});window.oneShareSalon=share;window.oneInviteSalon=invite;window.oneAskLeaveSalon=leave;window.oneRefreshSalonState=load;
+ window.addEventListener('one-party-refresh',()=>load(true));window.addEventListener('one-account-changed',()=>{createOperation++;createController?.abort();createController=null;cancelStateLoad();busy=false;tray.removeAttribute('aria-busy');createUncertain=false;acknowledgedCreateId='';createDraft={name:'',visibility:'private',appearance:'lounge'};signature='';invitations=[];feedback('','');publish(null);view='welcome';render();load(true);});window.addEventListener('one-space-open',()=>load());
+ let presenceBusy=false;async function presence(){if(presenceBusy||document.hidden||!window.oneAccountToken?.())return;presenceBusy=true;try{window.ONEAPIBackoff?.check();await api('/friends/presence','POST');}catch{}finally{presenceBusy=false;}}
+ setInterval(()=>{if(!document.hidden&&!busy)load();},5000);setInterval(presence,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){presence();load();}});window.addEventListener('one-account-changed',presence);window.addEventListener('online',()=>{if(!busy)load(true,{interactive:true});});presence();load();
+ const requested=new URL(location.href).searchParams.get('salon');if(requested){view='join';window.oneOpenSalon();queueMicrotask(()=>{const input=content.querySelector('input');if(input)input.value=requested;});}
+})();
