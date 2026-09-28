@@ -3602,13 +3602,13 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 
 </style><script type="module" id="one317-r16-module">
 import * as THREE from './ui/three.module.js';
-const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
+const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHeightAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
 /**
- * 3:17 FOUR — R17. Rez-de-chaussée sombre, courant coupé, ambiance plus horreur.
+ * 3:17 FOUR — R20. Trois niveaux alignés, plafonds et escaliers réparés.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R19 · FOUILLE + CACHETTES';
+const BUILD = 'R20 · MAP CORRIGÉE';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -3694,8 +3694,9 @@ function createGroundFloor() {
   function stairSteps(id, x0, x1, z0, z1, y0, y1, steps, material = 'stoneFloor') {
     const centerX = (x0 + x1) / 2, width = x1 - x0, depth = Math.abs(z1 - z0) / steps, sign = Math.sign(z1 - z0) || 1, rise = (y1 - y0) / steps;
     for (let i = 0; i < steps; i++) {
-      const z = z0 + sign * depth * (i + 0.5), yBottom = y0 + rise * i, yTop = y0 + rise * (i + 1);
-      volume(id + '-marche-' + i, centerX, (yBottom + yTop) / 2, z, width, Math.abs(yTop - yBottom), depth * 0.98, material, false, 'step');
+      const z = z0 + sign * depth * (i + 0.5), yTop = y0 + rise * (i + 1);
+      // Marches pleines, sans fentes : la marche suit une rampe de collision lisse.
+      volume(id + '-marche-' + i, centerX, (y0 + yTop) / 2, z, width, yTop - y0, depth + .002, material, false, 'step');
     }
   }
   const b = (id, x, y, z, w, h, d, mat = 'wood', solid = true) => volume(id, x, y, z, w, h, d, mat, solid);
@@ -3716,7 +3717,7 @@ function createGroundFloor() {
     { id: 'salon', label: 'SALON', center: 5.3, width: 1.5, swing: -1, open: true },
   ]);
   wallRun('g-couloir-est', 'z', 1.25, -8, 8, [
-    { id: 'stairs', label: 'ESCALIER', center: -4.7, width: 1.4, swing: 1, open: true },
+    { id: 'stairs', label: 'ESCALIER', center: -4.7, width: 1.4, arch: true },
     { id: 'bathroom', label: 'SALLE DE BAIN', center: 0, width: 1.3, swing: 1 },
     { id: 'bedroom', label: 'CHAMBRE', center: 4.8, width: 1.4, swing: 1 },
   ]);
@@ -3756,20 +3757,67 @@ function createGroundFloor() {
   wallRun('b-left-a', 'x', -4.2, -7, -1.25, [], BASEMENT_Y); wallRun('b-left-b', 'x', -.3, -7, -1.25, [], BASEMENT_Y);
   wallRun('b-right-a', 'x', -2, 1.25, 7, [], BASEMENT_Y); wallRun('b-right-b', 'x', 1.4, 1.25, 7, [], BASEMENT_Y);
 
-  // floors / ceilings
-  for (const r of rooms) surfaces.push({ id: 'sol-' + r.id, x: (r.x0 + r.x1) / 2, z: (r.z0 + r.z1) / 2, y: r.floorY, w: r.x1 - r.x0, d: r.z1 - r.z0, material: r.floor });
-  surfaces.push({ id: 'ceiling-rdc', x: 0, y: 3.02, z: 0, w: 14.24, d: 16.24, material: 'ceiling' });
-  surfaces.push({ id: 'ceiling-upper', x: 0, y: UPPER_Y + 3.02, z: 0, w: 14.24, d: 16.24, material: 'ceiling' });
-  surfaces.push({ id: 'ceiling-basement', x: 0, y: -.22, z: -2, w: 14.24, d: 12.24, material: 'ceiling' });
-  surfaces.push({ id: 'tapis-hall', x: 0, y: 0.006, z: 5.3, w: 1.60, d: 3.50, material: 'rug' });
-  surfaces.push({ id: 'tapis-salon', x: -4.7, y: 0.006, z: 4.6, w: 3.35, d: 3.9, material: 'rug' });
-  surfaces.push({ id: 'tapis-upper-master', x: 4.4, y: UPPER_Y + 0.006, z: 5.0, w: 3.1, d: 3.6, material: 'rug' });
-  surfaces.push({ id: 'tapis-upper-nursery', x: -4.3, y: UPPER_Y + 0.006, z: 5.0, w: 2.6, d: 3.0, material: 'rug' });
+  // Une seule définition des escaliers pour les marches, les trémies et le déplacement.
+  stairZone('stairs-up', 'Escalier vers l’étage', 4.45, 5.75, -7.2, -4.15, GROUND_Y, UPPER_Y);
+  stairZone('stairs-down', 'Escalier vers le sous-sol', 2.25, 3.55, -7.2, -4.15, BASEMENT_Y, GROUND_Y);
+  const floorOpenings = stairZones.map(zone => ({ ...zone, floorY: zone.y1 }));
 
-  // stairs and rails
-  stairZone('stairs-up', 'Escalier vers l’étage', 4.25, 5.55, -7.2, -4.15, GROUND_Y, UPPER_Y); stairSteps('stairs-up', 4.25, 5.55, -7.2, -4.15, GROUND_Y, UPPER_Y, 14, 'stoneFloor');
-  stairZone('stairs-down', 'Escalier vers le sous-sol', 2.05, 3.35, -7.2, -4.15, BASEMENT_Y, GROUND_Y); stairSteps('stairs-down', 2.05, 3.35, -7.2, -4.15, BASEMENT_Y, GROUND_Y, 14, 'stoneFloor');
-  b('rampe-centre', 3.80, 1.0, -5.7, .10, 2.0, 2.55, 'trim'); b('rampe-up', 5.68, 1.1, -5.7, .10, 2.2, 2.75, 'trim'); b('rampe-down', 1.92, -.55, -5.7, .10, 2.2, 2.75, 'trim');
+  // Partition rectangulaire réelle : aucun sol/plafond ne traverse l'escalier.
+  // Les surfaces obtenues servent aussi à bloquer la vue entre deux niveaux.
+  function cutSurface(id, x0, x1, z0, z1, y, material, holes = [], kind = 'floor') {
+    let parts = [{ x0, x1, z0, z1 }];
+    for (const hole of holes) {
+      const next = [];
+      for (const p of parts) {
+        const a = Math.max(p.x0, hole.x0), b = Math.min(p.x1, hole.x1);
+        const c = Math.max(p.z0, hole.z0), d = Math.min(p.z1, hole.z1);
+        if (a >= b || c >= d) { next.push(p); continue; }
+        for (const r of [
+          { x0:p.x0, x1:a, z0:p.z0, z1:p.z1 }, { x0:b, x1:p.x1, z0:p.z0, z1:p.z1 },
+          { x0:a, x1:b, z0:p.z0, z1:c }, { x0:a, x1:b, z0:d, z1:p.z1 },
+        ]) if (r.x1 - r.x0 > .00001 && r.z1 - r.z0 > .00001) next.push(r);
+      }
+      parts = next;
+    }
+    parts.forEach((p, i) => surfaces.push({ id: parts.length === 1 ? id : id + '-' + i, sourceId:id,
+      x:(p.x0+p.x1)/2, z:(p.z0+p.z1)/2, y, w:p.x1-p.x0, d:p.z1-p.z0, material, kind }));
+  }
+  for (const r of rooms) cutSurface('sol-' + r.id, r.x0, r.x1, r.z0, r.z1, r.floorY, r.floor,
+    floorOpenings.filter(h => h.floorY === r.floorY));
+  cutSurface('ceiling-rdc', -7.12, 7.12, -8.12, 8.12, GROUND_Y + WALL_HEIGHT, 'ceiling',
+    floorOpenings.filter(h => h.floorY === UPPER_Y), 'ceiling');
+  cutSurface('ceiling-upper', -7.12, 7.12, -8.12, 8.12, UPPER_Y + WALL_HEIGHT, 'ceiling', [], 'ceiling');
+  cutSurface('ceiling-basement', -7.12, 7.12, -8.12, 4.12, BASEMENT_Y + WALL_HEIGHT, 'ceiling',
+    floorOpenings.filter(h => h.floorY === GROUND_Y), 'ceiling');
+  surfaces.push({ id:'tapis-hall', x:0, y:.006, z:5.3, w:1.60, d:3.50, material:'rug', kind:'rug' });
+  surfaces.push({ id:'tapis-salon', x:-4.7, y:.006, z:4.6, w:3.35, d:3.9, material:'rug', kind:'rug' });
+  surfaces.push({ id:'tapis-upper-master', x:4.4, y:UPPER_Y+.006, z:5, w:3.1, d:3.6, material:'rug', kind:'rug' });
+  surfaces.push({ id:'tapis-upper-nursery', x:-4.3, y:UPPER_Y+.006, z:5, w:2.6, d:3, material:'rug', kind:'rug' });
+
+  for (const zone of stairZones) {
+    const { id, x0, x1, z0, z1, y0, y1 } = zone;
+    const steps = 14, depth = (z1-z0)/steps, rise = (y1-y0)/steps;
+    stairSteps(id, x0, x1, z0, z1, y0, y1, steps);
+    for (const [side, x] of [['g',x0-.045],['d',x1+.045]]) {
+      for (let i=0; i<steps; i++) {
+        const z=z0+(i+.5)*depth, top=y0+(i+1)*rise;
+        // Main courante suivant les marches. Ces volumes visibles sont solides.
+        volume(id+'-main-'+side+i, x, top+.90, z, .07, .10+rise, depth+.012, 'trim', true, 'rail');
+        if (i%2===0 || i===steps-1) volume(id+'-barreau-'+side+i, x, top+.43, z,
+          .055, .86, .055, 'metal', true, 'rail');
+      }
+      // Garde-corps du palier haut : empêche l'entrée latérale dans le vide.
+      for (const h of [.48,.98]) volume(id+'-palier-'+side+h, x, y1+h, (z0+z1)/2,
+        .07, .07, z1-z0, 'trim', true, 'rail');
+      for (let i=0; i<=4; i++) volume(id+'-poteau-'+side+i, x, y1+.49, z0+i*(z1-z0)/4,
+        .055, .98, .055, 'metal', true, 'rail');
+    }
+    for (const h of [.48,.98]) volume(id+'-palier-fond-'+h, (x0+x1)/2, y1+h, z0-.045,
+      x1-x0+.16, .07, .07, 'trim', true, 'rail');
+    // Chants de dalle autour de la trémie, fermés uniquement sur les côtés.
+    for (const [side,x] of [['g',x0-.035],['d',x1+.035]])
+      volume(id+'-chant-'+side, x, y1-.125, (z0+z1)/2, .07, .25, z1-z0, 'plaster', true, 'slab');
+  }
 
   // Ground furniture
   b('canape-assise', -5.90, .36, 4.55, 1.20, .72, 2.8, 'fabric'); b('canape-dossier', -6.38, .78, 4.55, .24, 1.18, 2.8, 'fabric'); for (const z of [3.18, 5.92]) b('canape-accoudoir-' + z, -5.90, .60, z, 1.20, .42, .22, 'fabric');
@@ -3788,7 +3836,7 @@ function createGroundFloor() {
   b('cellar-shelf-a', -6.05, BASEMENT_Y + 1.0, -6.3, .7, 2.0, 1.55, 'wood'); b('cellar-shelf-b', -3.2, BASEMENT_Y + 1.0, -6.0, .7, 2.0, 1.55, 'wood');
   b('laundry-machine', -6.0, BASEMENT_Y + .55, -2.9, 1.0, 1.1, .9, 'enamel'); b('laundry-sink', -3.8, BASEMENT_Y + .55, -2.9, 1.2, 1.1, .8, 'metal'); b('laundry-cabinet', -2.0, BASEMENT_Y + 1.0, -1.0, .8, 2.0, 1.2, 'wood');
   b('ritual-table', -4.2, BASEMENT_Y + .45, 1.9, 1.6, .9, 1.6, 'wood'); b('ritual-crate', -6.0, BASEMENT_Y + .25, 3.0, .9, .5, .9, 'wood');
-  b('storage-rack', 2.0, BASEMENT_Y + 1.0, -.4, .7, 2.0, 1.4, 'metal'); b('storage-locker', 6.15, BASEMENT_Y + 1.0, -.4, .8, 2.0, 1.1, 'metal');
+  b('storage-rack', 3.6, BASEMENT_Y + 1.0, -1.50, 1.4, 2.0, .65, 'metal'); b('storage-locker', 6.15, BASEMENT_Y + 1.0, -.4, .8, 2.0, 1.1, 'metal');
   b('boiler-body', 5.75, BASEMENT_Y + 1.0, 2.3, 1.1, 2.0, 1.05, 'metal'); b('boiler-pipe', 5.75, BASEMENT_Y + 2.15, 2.3, .16, .65, .16, 'metal'); table('boiler-bench', 3.2, BASEMENT_Y, 2.2, 1.8, .7, .72);
 
   // Decorative windows (RDC only)
@@ -3800,7 +3848,7 @@ function createGroundFloor() {
   // Items hidden in searchable furniture
   const items = [
     { id: 'key', label: 'Clé ancienne', room: 'upper-office', x: -2.1, y: UPPER_Y + .95, z: .2, color: 0xd5b567, taken: false, hidden: true },
-    { id: 'fuse', label: 'Fusible', room: 'basement-storage', x: 2.0, y: BASEMENT_Y + 1.1, z: -.4, color: 0x75c5e0, taken: false, hidden: true },
+    { id: 'fuse', label: 'Fusible', room: 'basement-storage', x: 3.6, y: BASEMENT_Y + 1.1, z: -1.50, color: 0x75c5e0, taken: false, hidden: true },
     { id: 'seal', label: 'Sceau', room: 'upper-nursery', x: -6.2, y: UPPER_Y + 1.0, z: 3.9, color: 0xb19dda, taken: false, hidden: true },
   ];
   // searchable spots
@@ -3810,7 +3858,7 @@ function createGroundFloor() {
   container('c-office-cabinet', 'Caisson de bureau', -2.1, UPPER_Y + .7, .2, 'upper-office', 'key'); container('c-office-shelf', 'Étagère', -6.25, UPPER_Y + 1.1, 1.2, 'upper-office');
   container('c-storage-crate', 'Caisse', -2.0, UPPER_Y + .3, -2.8, 'upper-storage'); container('c-master-wardrobe', 'Grande armoire', 6.2, UPPER_Y + 1.0, 3.4, 'upper-master');
   container('c-cellar-shelf', 'Étagère de cave', -6.05, BASEMENT_Y + 1.1, -6.3, 'basement-cellar'); container('c-laundry-cabinet', 'Armoire buanderie', -2.0, BASEMENT_Y + 1.0, -1.0, 'basement-laundry');
-  container('c-storage-rack', 'Étagère métallique', 2.0, BASEMENT_Y + 1.1, -.4, 'basement-storage', 'fuse'); container('c-storage-locker', 'Casier', 6.15, BASEMENT_Y + 1.0, -.4, 'basement-storage');
+  container('c-storage-rack', 'Étagère métallique', 3.6, BASEMENT_Y + 1.1, -1.50, 'basement-storage', 'fuse'); container('c-storage-locker', 'Casier', 6.15, BASEMENT_Y + 1.0, -.4, 'basement-storage');
   container('c-boiler-bench', 'Établi', 3.2, BASEMENT_Y + .8, 2.2, 'basement-boiler'); container('c-ritual-crate', 'Caisse humide', -6.0, BASEMENT_Y + .3, 3.0, 'basement-ritual');
   // hide spots
   hide('h-under-bed', 'Sous le lit', 4.75, GROUND_Y, 4.2, 'bedroom', 4.75, 3.35); hide('h-wardrobe-rdc', 'Armoire', 6.1, GROUND_Y, 3.4, 'bedroom', 5.4, 3.4);
@@ -3818,9 +3866,27 @@ function createGroundFloor() {
   hide('h-master-wardrobe', 'Dressing', 6.0, UPPER_Y, 3.4, 'upper-master', 5.2, 3.4); hide('h-cellar-shelf', 'Derrière l’étagère', -6.35, BASEMENT_Y, -6.3, 'basement-cellar', -5.3, -6.3);
   hide('h-storage-locker', 'Casier', 6.1, BASEMENT_Y, -.4, 'basement-storage', 5.2, -.4); hide('h-boiler-corner', 'Coin chaufferie', 6.2, BASEMENT_Y, 2.8, 'basement-boiler', 5.2, 2.8);
 
+  // La cible de fouille est à l'intérieur du meuble : seul son propre volume
+  // est ignoré par le rayon d'interaction, jamais un mur, un étage ou une porte.
+  const hosts = {
+    'c-buffet':['buffet'], 'c-kitchen-left':['cuisine-meubles-ouest','cuisine-plan-ouest'],
+    'c-fridge':['frigo'], 'c-bed-chevet':['chevet'], 'c-armoire-rdc':['armoire'],
+    'c-nursery-wardrobe':['nursery-wardrobe'], 'c-nursery-box':['toy-box'],
+    'c-office-cabinet':['office-cabinet'], 'c-office-shelf':['office-shelf'],
+    'c-storage-crate':['storage-crate-a'], 'c-master-wardrobe':['upper-master-wardrobe'],
+    'c-cellar-shelf':['cellar-shelf-a'], 'c-laundry-cabinet':['laundry-cabinet'],
+    'c-storage-rack':['storage-rack'], 'c-storage-locker':['storage-locker'],
+    'c-boiler-bench':['boiler-bench-plateau'], 'c-ritual-crate':['ritual-crate'],
+    'h-under-bed':['lit-sommier','lit-matelas','lit-couverture'], 'h-wardrobe-rdc':['armoire'],
+    'h-nursery-wardrobe':['nursery-wardrobe'], 'h-storage-box':['storage-crate-b'],
+    'h-master-wardrobe':['upper-master-wardrobe'], 'h-cellar-shelf':['cellar-shelf-a'],
+    'h-storage-locker':['storage-locker'], 'h-boiler-corner':['boiler-body'],
+  };
+  for (const target of [...containers, ...hideSpots]) target.occluders = hosts[target.id] || [];
+
   signs.push({ text: 'SORTIE', x: 0, y: 2.6, z: 7.853, ry: Math.PI }); signs.push({ text: '03:17', x: 0, y: 1.95, z: -7.853, ry: 0 }); signs.push({ text: 'ÉTAGE', x: 4.3, y: UPPER_Y + 2.6, z: -7.85, ry: 0 }); signs.push({ text: 'SOUS-SOL', x: 4.2, y: BASEMENT_Y + 2.55, z: -7.85, ry: 0 });
 
-  return { bounds, rooms, volumes, solids, doors, surfaces, signs, items, stairZones, lampPositions, containers, hideSpots, spawn: { x: 0, y: GROUND_Y, z: 6.2, yaw: 0, pitch: -.03 } };
+  return { bounds, rooms, volumes, solids, doors, surfaces, signs, items, stairZones, floorOpenings, wallHeight: WALL_HEIGHT, lampPositions, containers, hideSpots, spawn: { x: 0, y: GROUND_Y, z: 6.2, yaw: 0, pitch: -.03 } };
 }
 
 function circleHitsBox(x, z, radius, box) {
@@ -3843,7 +3909,12 @@ function circleHitsDoor(x, z, radius, door, angle = door.angle) {
 function blockedAt(house, x, z, y = 0, radius = PLAYER_RADIUS) {
   const b = house.bounds;
   if (x < b.minX || x > b.maxX || z < b.minZ || z > b.maxZ) return true;
+  if (![x,z,y,radius].every(Number.isFinite)) return true;
   const bodyBottom = y + .04, bodyTop = y + 1.72;
+  for (const zone of house.stairZones || []) {
+    if (x+radius > zone.x0 && x-radius < zone.x1 && z+radius > zone.z0 && z-radius < zone.z1 &&
+        y < stairHeight(zone, x, z) - .34 && bodyTop > zone.y0+.02) return true;
+  }
   for (const v of house.solids) {
     const vBottom = v.y - v.h / 2, vTop = v.y + v.h / 2;
     if (vTop <= bodyBottom || vBottom >= bodyTop) continue;
@@ -3862,16 +3933,16 @@ function stairHeight(zone, x, z) {
   return zone.y0 + (zone.y1 - zone.y0) * t;
 }
 function floorHeightAt(house, x, z, currentY = 0) {
-  const candidates = [];
-  for (const zone of (house.stairZones || [])) {
-    if (x >= Math.min(zone.x0, zone.x1) && x <= Math.max(zone.x0, zone.x1) && z >= Math.min(zone.z0, zone.z1) && z <= Math.max(zone.z0, zone.z1)) {
-      candidates.push({ y: stairHeight(zone, x, z), priority: 0 });
-    }
-  }
-  for (const room of house.rooms) if (x >= room.x0 && x <= room.x1 && z >= room.z0 && z <= room.z1) candidates.push({ y: room.floorY || 0, priority: 1, room });
-  if (!candidates.length) return currentY;
-  candidates.sort((a, b) => (Math.abs(a.y - currentY) + a.priority * .02) - (Math.abs(b.y - currentY) + b.priority * .02));
-  return candidates[0].y;
+  const onRect = r => x >= r.x0-.000001 && x <= r.x1+.000001 && z >= r.z0-.000001 && z <= r.z1+.000001;
+  // Priorité à une marche atteignable, pas au plancher qui passe dessous.
+  const ramps = (house.stairZones || []).filter(onRect).map(r => stairHeight(r,x,z))
+    .filter(y => Math.abs(y-currentY) <= .34+.000001);
+  if (ramps.length) return ramps.sort((a,b) => Math.abs(a-currentY)-Math.abs(b-currentY))[0];
+  const floors = house.rooms.filter(onRect).filter(room => !(house.floorOpenings || [])
+    .some(h => h.floorY === room.floorY && onRect(h))).map(room => room.floorY);
+  // Aucun support : refuser le déplacement plutôt que flotter ou changer d'étage.
+  if (!floors.length) return NaN;
+  return floors.sort((a,b) => Math.abs(a-currentY)-Math.abs(b-currentY))[0];
 }
 
 function movePlayer(house, position, dx, dz) {
@@ -3882,7 +3953,8 @@ function movePlayer(house, position, dx, dz) {
     if (Math.abs(yX - position.y) <= .34 && !blockedAt(house, tryX, position.z, yX)) { position.x = tryX; position.y = yX; }
     const tryZ = position.z + sz, yZ = floorHeightAt(house, position.x, tryZ, position.y);
     if (Math.abs(yZ - position.y) <= .34 && !blockedAt(house, position.x, tryZ, yZ)) { position.z = tryZ; position.y = yZ; }
-    position.y = floorHeightAt(house, position.x, position.z, position.y);
+    const support = floorHeightAt(house, position.x, position.z, position.y);
+    if (Number.isFinite(support) && Math.abs(support-position.y) <= .34) position.y = support;
   }
   return position;
 }
@@ -3903,8 +3975,16 @@ function segmentHitsBox(a, b, box) {
   }
   return near <= far;
 }
-function hasLineOfSight(house, from, to, ignoreDoorId = '') {
-  for (const v of house.solids) if (segmentHitsBox(from, to, v)) return false;
+function hasLineOfSight(house, from, to, ignoreDoorId = '', ignoreSolidIds = []) {
+  for (const v of house.volumes) if ((v.solid || v.kind === 'step') && !ignoreSolidIds.includes(v.id) && segmentHitsBox(from, to, v)) return false;
+  const dy = to.y-from.y;
+  if (Math.abs(dy) > .000001) for (const surface of house.surfaces) {
+    if (surface.material === 'rug') continue;
+    const t = (surface.y-from.y)/dy;
+    if (t <= .002 || t >= .995) continue;
+    const x=from.x+(to.x-from.x)*t, z=from.z+(to.z-from.z)*t;
+    if (Math.abs(x-surface.x) < surface.w/2 && Math.abs(z-surface.z) < surface.d/2) return false;
+  }
   for (const door of house.doors) {
     if (door.id === ignoreDoorId) continue;
     const c = Math.cos(door.angle), s = Math.sin(door.angle);
@@ -3931,7 +4011,7 @@ function roomAt(house, x, z, y = 0) {
   return candidates[0];
 }
 
-return { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt };
+return { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHeightAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt };
 })();
 
 let active = null;
@@ -4037,25 +4117,27 @@ function buildHouseScene(scene, house) {
   }
   for (const v of house.volumes) {
     if (v.id === 'bibliotheque' || v.id.startsWith('livre-')) continue;
-    if (v.kind === 'wall' && v.y - v.h / 2 < .01 && v.h > 2) {
-      // Le soubassement et l'enduit partitionnent le même volume solide.
-      queue({ ...v, y: .36, h: .72, material: 'wallBase' });
-      queue({ ...v, y: .72 + (v.h - .72) / 2, h: v.h - .72 });
-      queue({ ...v, y: .735, h: .035, w: v.w + .008, d: v.d + .008, material: 'trim' });
+    if (v.kind === 'wall' && v.h > 2) {
+      const base = v.y-v.h/2;
+      // Partition du volume à SON altitude, identique aux collisions des trois niveaux.
+      queue({ ...v, y: base+.36, h: .72, material: 'wallBase' });
+      queue({ ...v, y: base+.72+(v.h-.72)/2, h: v.h-.72 });
+      queue({ ...v, y: base+.735, h: .035, w: v.w+.008, d: v.d+.008, material: 'trim' });
     } else queue(v);
   }
   // Plinthes, corniches et soubassements sur les murs existants, jamais dans les ouvertures.
   for (const v of house.volumes) {
-    if (v.kind !== 'wall' || v.y - v.h / 2 > .01 || v.h < 2) continue;
-    queue({ ...v, y: .095, h: .19, w: v.w + .024, d: v.d + .024, material: 'trim' });
-    queue({ ...v, y: 2.92, h: .10, w: v.w + .05, d: v.d + .05, material: 'trim' });
+    if (v.kind !== 'wall' || v.h < 2) continue;
+    const base = v.y-v.h/2;
+    queue({ ...v, y: base+.095, h: .19, w: v.w+.024, d: v.d+.024, material: 'trim' });
+    queue({ ...v, y: base+v.h-.08, h: .10, w: v.w+.05, d: v.d+.05, material: 'trim' });
     const axis = v.w > v.d ? 'x' : 'z', length = axis === 'x' ? v.w : v.d;
     if (length < .8) continue;
     const panels = Math.max(1, Math.floor(length / 1.0));
     for (let i = 0; i < panels; i++) {
       const t = -length / 2 + (i + .5) * length / panels;
       queue({ ...v, x: v.x + (axis === 'x' ? t : 0), z: v.z + (axis === 'z' ? t : 0),
-        y: .40, h: .40, w: axis === 'x' ? length / panels - .16 : v.w + .014,
+        y: base+.40, h: .40, w: axis === 'x' ? length / panels - .16 : v.w + .014,
         d: axis === 'z' ? length / panels - .16 : v.d + .014, material: 'wallBase' });
     }
   }
@@ -4101,14 +4183,17 @@ function buildHouseScene(scene, house) {
     geometry.setAttribute('normal', new THREE.Float32BufferAttribute(ns, 3));
     geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
     geometry.setIndex(indices); geometry.computeBoundingSphere();
-    const mesh = new THREE.Mesh(geometry, materials[name]); mesh.name = 'RDC-' + name; scene.add(mesh);
+    const mesh = new THREE.Mesh(geometry, materials[name]); mesh.name = 'maison-' + name; scene.add(mesh);
   }
   for (const s of house.surfaces) {
     const geometry = new THREE.PlaneGeometry(s.w, s.d);
     const uv = geometry.attributes.uv;
     if (s.material !== 'rug') for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * s.w / 2, uv.getY(i) * s.d / 2);
     const mesh = new THREE.Mesh(geometry, materials[s.material]);
-    mesh.name = s.id; mesh.rotation.x = -Math.PI / 2; mesh.position.set(s.x, s.y, s.z); scene.add(mesh);
+    mesh.name = s.id;
+    // Une face de plafond regarde VERS le bas ; les sols regardent vers le haut.
+    mesh.rotation.x = s.kind === 'ceiling' ? Math.PI/2 : -Math.PI/2;
+    mesh.position.set(s.x, s.y, s.z); scene.add(mesh);
   }
   function cube(parent, x, y, z, w, h, d, material) {
     const mesh = new THREE.Mesh(unitBox, material); mesh.position.set(x, y, z); mesh.scale.set(w, h, d); parent.add(mesh); return mesh;
@@ -4129,7 +4214,10 @@ function buildHouseScene(scene, house) {
   const lampGeometry = new THREE.CylinderGeometry(.22, .37, .25, 12, 1, true);
   const bulbGeometry = new THREE.SphereGeometry(.065, 8, 6);
   for (const [x, y, z] of lampPositions) {
-    cube(scene, x, (y + 3) / 2, z, .018, 3 - y, .018, materials.dark);
+    const ceilingY = roomAt(house,x,z,y-2.5).floorY + house.wallHeight;
+    const cordLength = Math.max(.02,ceilingY-y);
+    const cord = cube(scene,x,y+cordLength/2,z,.018,cordLength,.018,materials.dark);
+    cord.name = 'suspension-' + x + '-' + y + '-' + z;
     const shade = new THREE.Mesh(lampGeometry, materials.metal); shade.position.set(x, y, z); scene.add(shade);
     const bulb = new THREE.Mesh(bulbGeometry, materials.bulb); bulb.position.set(x, y - .06, z); scene.add(bulb);
   }
@@ -4222,7 +4310,7 @@ function disposeScene(scene) {
 function open() {
   close();
   const shell = document.createElement('section');
-  shell.className = 'three17-shell'; shell.dataset.build = 'r19-search-hide';
+  shell.className = 'three17-shell'; shell.dataset.build = 'r20-map-fix';
   shell.setAttribute('role', 'dialog'); shell.setAttribute('aria-label', '3:17 FOUR — maison à plusieurs niveaux');
   shell.innerHTML = `<div class="three17-stage"><div class="three17-hud">
     <div class="three17-top"><div><div class="three17-clock">03:17</div><div class="three17-build">${BUILD}</div></div>
@@ -4232,7 +4320,7 @@ function open() {
     <div class="three17-look" aria-label="Glisser pour regarder"></div>
     <div class="three17-actions"><button class="three17-btn flash" type="button" aria-label="Éteindre la lampe" aria-pressed="true">🔦</button>
     <button class="three17-btn interact" type="button">AGIR</button></div><div class="three17-hint"></div><div class="three17-msg" role="status"></div></div>
-    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><strong class="three17-build-label">MAISON · R19</strong>
+    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><strong class="three17-build-label">MAISON · R20</strong>
     <p>La maison est plus grande, avec davantage de pièces.<br>Fouillez armoires, tiroirs et étagères.<br><small>Trouvez la clé, le fusible et le sceau, puis cachez-vous si besoin.</small></p>
     <button type="button">ENTRER DANS LA MAISON</button></div></div>
     <div class="three17-win"><div><h1>VOUS ÊTES SORTI</h1><p>Les trois éléments ont ouvert la sortie.</p><button class="three17-btn" type="button">OK</button></div></div></div>`;
@@ -4254,7 +4342,7 @@ function open() {
     const meshes = buildHouseScene(scene, house);
     const camera = new THREE.PerspectiveCamera(68, 1, .05, 45);
     let yaw = house.spawn.yaw, pitch = house.spawn.pitch;
-    const position = { x: house.spawn.x, y: house.spawn.y || 0, z: house.spawn.z }; let hidden = false, currentHide = null;
+    const position = { x: house.spawn.x, y: house.spawn.y || 0, z: house.spawn.z }; let hidden = false, currentHide = null, hideReturn = null;
     const keys = { x: 0, y: 0 };
     let drag = null, look = null, lx = 0, ly = 0, started = false, won = false, count = 0;
     let last = performance.now(), lastRender = 0, lastHud = 0, flashOn = true;
@@ -4300,20 +4388,28 @@ function open() {
     function resetInputs() { drag = look = null; keys.x = keys.y = 0; knob.style.transform = ''; }
     function refreshCamera() {
       camera.rotation.order = 'YXZ'; camera.rotation.y = yaw; camera.rotation.x = pitch;
-      camera.position.set(position.x, position.y + EYE_HEIGHT, position.z); camera.updateMatrixWorld();
+      const eye = hidden ? (currentHide?.id === 'h-under-bed' ? .30 : .90) : EYE_HEIGHT;
+      camera.position.set(position.x, position.y + eye, position.z); camera.updateMatrixWorld();
     }
     function selectInteraction() {
       const from = { x: position.x, y: position.y + EYE_HEIGHT, z: position.z };
       let best = null, score = Infinity;
       const fx = -Math.sin(yaw), fz = -Math.cos(yaw);
       function candidate(object, type, point) {
+        if (object.room) {
+          const level = house.rooms.find(room => room.id === object.room)?.floorY;
+          if (Number.isFinite(level) && Math.abs(level-position.y) > .45) return;
+        }
         const dx = point.x - position.x, dz = point.z - position.z;
         const dy = point.y - (position.y + EYE_HEIGHT);
         const distance = Math.hypot(dx, dy, dz);
         if (distance > 2.05) return;
-        const facing = distance < .10 ? 1 : (fx * dx + fz * dz) / distance;
-        if (facing < .38 || !hasLineOfSight(house, from, point, type === 'door' ? object.id : '')) return;
-        const rank = distance + (1 - facing) * .75;
+        const horizontal = Math.hypot(dx,dz);
+        const facing = horizontal < .20 ? 1 : (fx*dx+fz*dz)/horizontal;
+        if (facing < .38 || !hasLineOfSight(house,from,point,type === 'door' ? object.id : '',object.occluders || [])) return;
+        // Fouiller d'abord, se cacher ensuite : une armoire ne masque plus son objet.
+        const bias = type === 'container' ? (object.opened ? .55 : -.50) : 0;
+        const rank = distance + (1-facing)*.75 + bias;
         if (rank < score) { best = { object, type }; score = rank; }
       }
       if (hidden && currentHide) return { object: currentHide, type: 'hide' };
@@ -4335,7 +4431,7 @@ function open() {
       if (selection.type === 'container') return 'AGIR · Fouiller : ' + o.label;
       if (selection.type === 'hide') return hidden && currentHide && currentHide.id === o.id ? 'AGIR · Sortir de : ' + o.label : 'AGIR · Se cacher : ' + o.label;
       if (o.exit) return count === 3 ? 'AGIR · Ouvrir la sortie' : 'AGIR · Sortie verrouillée';
-      if (o.locked) return 'Escalier fermé · aucun étage actif';
+      if (o.locked) return 'Porte verrouillée';
       return 'AGIR · ' + (Math.abs(o.targetAngle - o.closedAngle) < .01 ? 'Ouvrir : ' : 'Fermer : ') + o.label;
     }
     function interact() {
@@ -4348,7 +4444,7 @@ function open() {
         counter.textContent = String(count); message('✓ ' + o.label + ' récupéré');
         if (count === 3) lockLabel.textContent = '🔓 RETOURNEZ À LA SORTIE';
       } else if (selection.type === 'container') {
-        o.opened = !o.opened;
+        o.opened = true;
         if (o.contains) {
           const found = house.items.find(item => item.id === o.contains);
           if (found && !found.taken) {
@@ -4359,14 +4455,20 @@ function open() {
         } else message('Vous fouillez ' + o.label + ' : rien d’utile');
       } else if (selection.type === 'hide') {
         if (hidden && currentHide && currentHide.id === o.id) {
-          hidden = false; position.x = o.exitX ?? position.x; position.z = o.exitZ ?? position.z; position.y = floorHeightAt(house, position.x, position.z, position.y); currentHide = null; message('Vous sortez de la cachette');
+          const candidates = [hideReturn,{x:o.exitX,z:o.exitZ,y:o.y}].filter(Boolean);
+          const exit = candidates.find(p => !blockedAt(house,p.x,p.z,p.y));
+          if (!exit) { message('La sortie de la cachette est bloquée'); return; }
+          hidden=false; Object.assign(position,exit); currentHide=hideReturn=null;
+          resetInputs(); refreshCamera(); message('Vous sortez de la cachette');
         } else {
-          hidden = true; currentHide = o; position.x = o.x; position.z = o.z; position.y = floorHeightAt(house, position.x, position.z, o.y || position.y); keys.x = keys.y = 0; knob.style.transform = ''; message('Vous êtes caché');
+          hideReturn = { ...position }; hidden=true; currentHide=o;
+          position.x=o.x; position.z=o.z; position.y=o.y ?? position.y;
+          resetInputs(); refreshCamera(); message('Vous êtes caché');
         }
       } else if (o.exit) {
         if (count < 3) message('Il manque ' + (3 - count) + ' élément' + (count < 2 ? 's' : ''));
         else { won = true; resetInputs(); shell.querySelector('.three17-win').classList.add('show'); }
-      } else if (o.locked) message('Escalier condamné pour cette version : explorez le RDC');
+      } else if (o.locked) message('Cette porte est verrouillée');
       else {
         const desired = Math.abs(o.targetAngle - o.closedAngle) < .01 ? o.openAngle : o.closedAngle;
         // Ne ferme pas une porte SUR le joueur et ne le pousse pas à travers le mur.
@@ -4383,7 +4485,8 @@ function open() {
         const delta = d.targetAngle - d.angle;
         if (Math.abs(delta) < .0001) continue;
         const next = d.angle + Math.sign(delta) * Math.min(Math.abs(delta), dt * 5);
-        if (circleHitsDoor(position.x, position.z, PLAYER_RADIUS + .015, d, next)) { d.targetAngle = d.angle; continue; }
+        const sameHeight = position.y+.04 < (d.bottom || 0)+d.height && position.y+1.72 > (d.bottom || 0);
+        if (sameHeight && circleHitsDoor(position.x, position.z, PLAYER_RADIUS+.015, d, next)) { d.targetAngle=d.angle; continue; }
         d.angle = next; meshes.doorMeshes.get(d.id).rotation.y = d.angle;
       }
     }
@@ -4457,7 +4560,7 @@ function open() {
       message(flashOn ? 'Lampe allumée' : 'Lampe éteinte'); });
     press(shell.querySelector('.three17-exit'), close);
     press(shell.querySelector('.three17-start button'), () => { resetInputs(); started = true;
-      shell.querySelector('.three17-start')?.remove(); message('Maison R19 · fouillez les meubles et cachez-vous'); });
+      shell.querySelector('.three17-start')?.remove(); message('Maison R20 · fouillez les meubles et explorez les trois niveaux'); });
     press(shell.querySelector('.three17-win button'), close);
     const visibility = () => { resetInputs(); last = performance.now(); };
     document.addEventListener('visibilitychange', visibility); window.addEventListener('blur', visibility);
@@ -4467,19 +4570,23 @@ function open() {
     // Instrumentation désactivée en production. Pas de téléportation dans le jeu.
     if (window.__ONE317_TEST__ === true) session.debug = {
       house, scene, renderer,
-      snapshot: () => ({ x: position.x, z: position.z, y: camera.position.y, hidden, yaw, pitch, flashOn, started, won, count,
+      snapshot: () => ({ x: position.x, z: position.z, y: camera.position.y, feetY:position.y, hidden, yaw, pitch, flashOn, started, won, count,
         drag, look, keys: { ...keys }, room: roomAt(house, position.x, position.z, position.y).id,
         selection: selectInteraction()?.object.id, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles }),
-      place(x, z, lookYaw = yaw, lookPitch = pitch) {
-        if (blockedAt(house, x, z)) throw new Error('Point de test dans un obstacle');
-        resetInputs(); position.x = x; position.z = z; yaw = lookYaw; pitch = lookPitch; refreshCamera();
-      }, interact, selectInteraction, refreshCamera,
+      place(x,z,lookYaw=yaw,lookPitch=pitch,feetY=position.y) {
+        if (blockedAt(house,x,z,feetY)) throw new Error('Point de test dans un obstacle');
+        resetInputs(); hidden=false; currentHide=hideReturn=null;
+        position.x=x; position.z=z; position.y=feetY; yaw=lookYaw; pitch=lookPitch; refreshCamera();
+      },
+      move(dx,dz) { movePlayer(house,position,dx,dz); refreshCamera(); },
+      model: { createGroundFloor, blockedAt, floorHeightAt, movePlayer, hasLineOfSight, roomAt },
+      interact, selectInteraction, refreshCamera,
     };
   } catch (error) {
-    console.error('3:17 FOUR R19 — lancement interrompu', error);
+    console.error('3:17 FOUR R20 — lancement interrompu', error);
     session.stop();
     const message = document.createElement('div'); message.className = 'three17-shell three17-load-error';
-    const text = document.createElement('p'); text.textContent = '3:17 FOUR R19 n’a pas pu démarrer. Fermez cette fenêtre et rechargez ONE. Si cela se reproduit, vérifiez le déploiement complet ou envoyez une capture de ce message.';
+    const text = document.createElement('p'); text.textContent = '3:17 FOUR R20 n’a pas pu démarrer. Fermez cette fenêtre et rechargez ONE. Si cela se reproduit, vérifiez le déploiement complet ou envoyez une capture de ce message.';
     const button = document.createElement('button'); button.textContent = 'Fermer'; button.onclick = () => message.remove();
     message.append(text, button); document.body.append(message);
     active = { stop: () => message.remove() };
@@ -4529,7 +4636,7 @@ function buildRoom(scene){
 }
 function open(ctx={}){
  close();const shell=document.createElement('section');shell.className='one3d-shell';shell.setAttribute('role','dialog');shell.setAttribute('aria-label','Lobby 3D ONE');
- const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R19</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
+ const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R20</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
  document.body.append(shell);try{screen.orientation?.lock?.('landscape').catch(()=>{});}catch{}const stage=shell.querySelector('.one3d-stage'),players=shell.querySelector('.one3d-players');members.forEach(m=>{const e=document.createElement('span');e.className='one3d-player';e.dataset.ready=String(!!m.ready);e.textContent=(m.isYou?'● ':'')+m.name+(m.ready?' ✓':'');players.append(e);});
  const scene=new THREE.Scene();buildRoom(scene);
  const camera=new THREE.PerspectiveCamera(65,1,.05,60);let yaw=0,pitch=-.08;const local=members.find(m=>m.isYou)||{name:'Toi',isYou:true};const colors=[0x7b5cff,0x49b6ff,0xff6b9e,0x58d68d];let me=null;members.forEach((m,i)=>{const a=[[-2.2,1.8],[2.2,1.8],[-2.2,-1.8],[2.2,-1.8]][i]||[0,0];const av=makeAvatar(scene,m.name,colors[i%4],a[0],a[1],m.isYou);if(m.isYou)me=av;});if(!me)me=makeAvatar(scene,local.name,colors[0],0,2,true);me.position.set(0,0,4.8);camera.position.set(0,1.65,4.8);yaw=0;pitch=-.10;
