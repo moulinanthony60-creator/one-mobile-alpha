@@ -3576,7 +3576,7 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 </script><script src="ui/party-communication.js?v=118b1"></script><script src="ui/qrcode.js?v=014117"></script><script src="ui/jsQR.js?v=014117"></script><script src="ui/friend-scanner.js?v=014117"></script><script src="ui/friends.js?v=118s1"></script><script src="ui/bluff-scene.js?v=014117"></script><script src="ui/bluff-model-bridge.js?v=014117"></script><script src="ui/party-bluff.js?v=014117"></script><script src="ui/party-who.js?v=118r2"></script>
 <script src="ui/party-video-sync.js?v=014117"></script><script src="ui/party-reactions.js?v=014117"></script>
 <script src="ui/party-collection.js?v=118r2"></script>
-<script src="ui/party-art.js?v=118r2"></script><script src="ui/party-lobby.js?v=118r2"></script><link rel="stylesheet" href="ui/one-lobby-3d.css?v=008"><style id="one317-r18-1-style">
+<script src="ui/party-art.js?v=118r2"></script><script src="ui/party-lobby.js?v=118r2"></script><link rel="stylesheet" href="ui/one-lobby-3d.css?v=008"><style id="one317-r16-style">
 .three17-shell{position:fixed;inset:0;z-index:10050;background:#050507;color:#fff;font-family:system-ui,sans-serif;overflow:hidden;touch-action:none}.three17-stage{position:absolute;inset:0}.three17-stage canvas{width:100%;height:100%;display:block}.three17-hud{position:absolute;inset:0;pointer-events:none}.three17-top{position:absolute;top:max(10px,env(safe-area-inset-top));left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.three17-clock{font-size:24px;font-weight:900;letter-spacing:.08em;color:#e7e0ff;text-shadow:0 2px 10px #000}.three17-objective{max-width:55%;text-align:right;font-size:12px;background:#09090db8;border:1px solid #ffffff22;border-radius:12px;padding:8px 10px}.three17-cross{position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%)}.three17-cross:before,.three17-cross:after{content:"";position:absolute;background:#ffffffbb}.three17-cross:before{width:18px;height:2px;top:8px}.three17-cross:after{height:18px;width:2px;left:8px}.three17-stick{pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;z-index:20;position:absolute;left:22px;bottom:max(22px,env(safe-area-inset-bottom));width:112px;height:112px;border-radius:50%;background:#ffffff14;border:1px solid #ffffff2b}.three17-knob{position:absolute;left:34px;top:34px;width:44px;height:44px;border-radius:50%;background:#ffffff70;box-shadow:0 0 18px #0008}.three17-look{pointer-events:auto;touch-action:none;z-index:10;position:absolute;left:42%;right:0;top:70px;bottom:0}.three17-actions{pointer-events:auto;z-index:30;position:absolute;right:18px;bottom:max(20px,env(safe-area-inset-bottom));display:flex;gap:10px;align-items:flex-end}.three17-btn{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;width:62px;height:62px;border-radius:50%;border:1px solid #ffffff30;background:#11111dcc;color:white;font-weight:800;font-size:12px}.three17-btn.flash{font-size:24px}.three17-exit{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;position:absolute;left:14px;top:60px;border:1px solid #ffffff25;background:#09090dbd;color:white;border-radius:10px;padding:8px 11px}.three17-msg{position:absolute;left:50%;bottom:25%;transform:translateX(-50%);background:#08080ddd;border:1px solid #ffffff2a;border-radius:12px;padding:9px 13px;font-size:13px;opacity:0;transition:opacity .18s}.three17-msg.show{opacity:1}.three17-start{position:absolute;inset:0;display:grid;place-items:center;background:#020204f2;z-index:100;pointer-events:auto;touch-action:manipulation}.three17-card{text-align:center;max-width:340px;padding:28px}.three17-card h1{font-size:34px;margin:0 0 4px}.three17-card .time{font-size:56px;font-weight:950;letter-spacing:.06em;margin:8px 0;color:#d8c8ff}.three17-card p{color:#bbb;margin:8px 0 20px}.three17-card button{position:relative;z-index:101;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;border:0;border-radius:14px;background:#7657ff;color:white;padding:14px 22px;font-weight:900;font-size:16px}.three17-win{position:absolute;inset:0;display:none;place-items:center;background:#030306e8;z-index:110;pointer-events:auto;text-align:center;padding:25px}.three17-win.show{display:grid}
 
 /* V9: independent multi-touch controls */
@@ -3600,15 +3600,15 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 .three17-start{background:radial-gradient(ellipse at center,#1d251ceb,#060b0bf5)}
 .three17-card button{background:#8f7044;box-shadow:0 4px 18px #0008}
 
-</style><script type="module" id="one317-r18-1-module">
+</style><script type="module" id="one317-r16-module">
 import * as THREE from './ui/three.module.js';
-const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt, floorHeightAt, stairHeight, doorOverlapsBody } = (() => {
+const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
 /**
- * 3:17 FOUR — R18.1. R17 conservée, étage et sous-sol reliés par des marches.
+ * 3:17 FOUR — R17. Rez-de-chaussée sombre, courant coupé, ambiance plus horreur.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R18.1 · ESCALIERS';
+const BUILD = 'R19 · FOUILLE + CACHETTES';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -3616,374 +3616,216 @@ const WALL_THICKNESS = 0.24;
 const TAU_QUARTER = Math.PI / 2;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-function createOriginalRdc() {
-  const volumes = [], solids = [], doors = [], surfaces = [], signs = [];
+
+function createGroundFloor() {
+  const volumes = [], solids = [], doors = [], surfaces = [], signs = [], stairZones = [], containers = [], hideSpots = [];
   const bounds = { minX: -7, maxX: 7, minZ: -8, maxZ: 8 };
+  const GROUND_Y = 0, UPPER_Y = 3.25, BASEMENT_Y = -3.25;
   const rooms = [
-    { id: 'hall', name: 'Hall d’entrée', x0: -1.25, x1: 1.25, z0: 3, z1: 8, floor: 'hallFloor', visit: [0, 5] },
-    { id: 'corridor', name: 'Couloir', x0: -1.25, x1: 1.25, z0: -8, z1: 3, floor: 'woodFloor', visit: [0, -2] },
-    { id: 'salon', name: 'Salon', x0: -7, x1: -1.25, z0: 1, z1: 8, floor: 'woodFloor', visit: [-3.1, 5.4] },
-    { id: 'dining', name: 'Salle à manger', x0: -7, x1: -1.25, z0: -3.5, z1: 1, floor: 'woodFloor', visit: [-2.8, -1.1] },
-    { id: 'kitchen', name: 'Cuisine', x0: -7, x1: -1.25, z0: -8, z1: -3.5, floor: 'kitchenFloor', visit: [-3.3, -5.5] },
-    { id: 'bedroom', name: 'Chambre', x0: 1.25, x1: 7, z0: 2, z1: 8, floor: 'woodFloor', visit: [2.4, 4.8] },
-    { id: 'bathroom', name: 'Salle de bain', x0: 1.25, x1: 7, z0: -2, z1: 2, floor: 'bathFloor', visit: [2.6, 0] },
-    { id: 'stairs', name: 'Cage d’escalier — fermée', x0: 1.25, x1: 7, z0: -8, z1: -2, floor: 'stoneFloor', locked: true, visit: [3, -4] },
+    { id: 'hall', name: 'Hall d’entrée', level: 'RDC', floorY: GROUND_Y, x0: -1.25, x1: 1.25, z0: 3, z1: 8, floor: 'hallFloor', visit: [0, 5] },
+    { id: 'corridor', name: 'Couloir', level: 'RDC', floorY: GROUND_Y, x0: -1.25, x1: 1.25, z0: -8, z1: 3, floor: 'woodFloor', visit: [0, -2] },
+    { id: 'salon', name: 'Salon', level: 'RDC', floorY: GROUND_Y, x0: -7, x1: -1.25, z0: 1, z1: 8, floor: 'woodFloor', visit: [-3.1, 5.4] },
+    { id: 'dining', name: 'Salle à manger', level: 'RDC', floorY: GROUND_Y, x0: -7, x1: -1.25, z0: -3.5, z1: 1, floor: 'woodFloor', visit: [-2.8, -1.1] },
+    { id: 'kitchen', name: 'Cuisine', level: 'RDC', floorY: GROUND_Y, x0: -7, x1: -1.25, z0: -8, z1: -3.5, floor: 'kitchenFloor', visit: [-3.3, -5.5] },
+    { id: 'bedroom', name: 'Chambre', level: 'RDC', floorY: GROUND_Y, x0: 1.25, x1: 7, z0: 2, z1: 8, floor: 'woodFloor', visit: [2.4, 4.8] },
+    { id: 'bathroom', name: 'Salle de bain', level: 'RDC', floorY: GROUND_Y, x0: 1.25, x1: 7, z0: -2, z1: 2, floor: 'bathFloor', visit: [2.6, 0] },
+    { id: 'stairs-ground', name: 'Cage d’escalier', level: 'RDC', floorY: GROUND_Y, x0: 1.25, x1: 7, z0: -8, z1: -2, floor: 'stoneFloor', visit: [3.6, -4.8] },
+
+    { id: 'upper-corridor', name: 'Couloir de l’étage', level: 'ÉTAGE', floorY: UPPER_Y, x0: -1.25, x1: 1.25, z0: -8, z1: 8, floor: 'woodFloor', visit: [0, 0] },
+    { id: 'upper-landing', name: 'Palier', level: 'ÉTAGE', floorY: UPPER_Y, x0: 1.25, x1: 7, z0: -8, z1: -2, floor: 'stoneFloor', visit: [4.8, -5.0] },
+    { id: 'upper-nursery', name: 'Chambre enfant', level: 'ÉTAGE', floorY: UPPER_Y, x0: -7, x1: -1.25, z0: 3, z1: 8, floor: 'woodFloor', visit: [-4.2, 5.1] },
+    { id: 'upper-office', name: 'Bureau', level: 'ÉTAGE', floorY: UPPER_Y, x0: -7, x1: -1.25, z0: -1, z1: 3, floor: 'woodFloor', visit: [-4.0, 1.0] },
+    { id: 'upper-storage', name: 'Débarras', level: 'ÉTAGE', floorY: UPPER_Y, x0: -7, x1: -1.25, z0: -8, z1: -1, floor: 'woodFloor', visit: [-4.4, -4.7] },
+    { id: 'upper-bath', name: 'Salle d’eau', level: 'ÉTAGE', floorY: UPPER_Y, x0: 1.25, x1: 7, z0: -2, z1: 1.4, floor: 'bathFloor', visit: [4.0, -0.4] },
+    { id: 'upper-master', name: 'Suite', level: 'ÉTAGE', floorY: UPPER_Y, x0: 1.25, x1: 7, z0: 1.4, z1: 8, floor: 'woodFloor', visit: [4.4, 4.8] },
+
+    { id: 'basement-corridor', name: 'Couloir du sous-sol', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: -1.25, x1: 1.25, z0: -8, z1: 4, floor: 'stoneFloor', visit: [0, -2.4] },
+    { id: 'basement-landing', name: 'Palier du sous-sol', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: 1.25, x1: 7, z0: -8, z1: -2, floor: 'stoneFloor', visit: [4.4, -4.8] },
+    { id: 'basement-storage', name: 'Réserve', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: 1.25, x1: 7, z0: -2, z1: 1.4, floor: 'stoneFloor', visit: [4.2, -0.5] },
+    { id: 'basement-boiler', name: 'Chaufferie', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: 1.25, x1: 7, z0: 1.4, z1: 4, floor: 'stoneFloor', visit: [4.8, 2.7] },
+    { id: 'basement-cellar', name: 'Cave', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: -7, x1: -1.25, z0: -8, z1: -4.2, floor: 'stoneFloor', visit: [-4.5, -6.1] },
+    { id: 'basement-laundry', name: 'Buanderie', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: -7, x1: -1.25, z0: -4.2, z1: -.3, floor: 'stoneFloor', visit: [-4.2, -2.3] },
+    { id: 'basement-ritual', name: 'Pièce murée', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: -7, x1: -1.25, z0: -.3, z1: 4, floor: 'stoneFloor', visit: [-4.1, 1.8] },
+  ];
+  const lampPositions = [
+    [0, 2.55, 5.8], [0, 2.55, .7], [-4.5, 2.55, 4.5], [4.5, 2.55, 4.7],
+    [-4.4, UPPER_Y + 2.45, 5.0], [-4.4, UPPER_Y + 2.4, -3.2], [4.7, UPPER_Y + 2.45, -5.2], [4.6, UPPER_Y + 2.45, 4.9],
+    [-4.4, BASEMENT_Y + 2.35, -6.1], [-4.4, BASEMENT_Y + 2.35, -2.1], [-4.2, BASEMENT_Y + 2.35, 1.5], [4.6, BASEMENT_Y + 2.35, -4.8], [4.6, BASEMENT_Y + 2.35, 2.4],
   ];
 
-  // Chaque volume solide sert directement à la fois au rendu ET à la physique.
   function volume(id, x, y, z, w, h, d, material, solid = true, kind = 'furniture') {
-    if (![x, y, z, w, h, d].every(Number.isFinite) || Math.min(w, h, d) <= 0) {
-      throw new Error('Volume invalide : ' + id);
-    }
-    const v = { id, x, y, z, w, h, d, material, solid, kind };
-    volumes.push(v);
-    if (solid) solids.push(v);
-    return v;
+    if (![x, y, z, w, h, d].every(Number.isFinite) || Math.min(w, h, d) <= 0) throw new Error('Volume invalide : ' + id);
+    const v = { id, x, y, z, w, h, d, material, solid, kind }; volumes.push(v); if (solid) solids.push(v); return v;
   }
   function wallPart(id, axis, fixed, from, to, bottom = 0, height = WALL_HEIGHT) {
     if (to - from < 0.001) return;
-    volume(id, axis === 'x' ? (from + to) / 2 : fixed,
-      bottom + height / 2, axis === 'x' ? fixed : (from + to) / 2,
-      axis === 'x' ? to - from : WALL_THICKNESS, height,
-      axis === 'x' ? WALL_THICKNESS : to - from, 'plaster', true, 'wall');
+    volume(id, axis === 'x' ? (from + to) / 2 : fixed, bottom + height / 2, axis === 'x' ? fixed : (from + to) / 2,
+      axis === 'x' ? to - from : WALL_THICKNESS, height, axis === 'x' ? WALL_THICKNESS : to - from, 'plaster', true, 'wall');
   }
-  function doorInGap(axis, fixed, gap) {
+  function doorInGap(axis, fixed, gap, bottom = 0) {
     const { id, label, center, width } = gap;
-    const x = axis === 'x' ? center : fixed;
-    const z = axis === 'x' ? fixed : center;
+    const x = axis === 'x' ? center : fixed, z = axis === 'x' ? fixed : center;
     const angle = axis === 'x' ? 0 : -TAU_QUARTER;
-    const hingeX = axis === 'x' ? x - width / 2 + 0.045 : x;
-    const hingeZ = axis === 'x' ? z : z - width / 2 + 0.045;
-    const d = {
-      id, label, x, z, hingeX, hingeZ, width: width - 0.09,
-      height: 2.18, thickness: 0.085, closedAngle: angle,
-      openAngle: angle + (gap.swing || 1) * TAU_QUARTER,
-      angle, targetAngle: angle, locked: !!gap.locked, exit: !!gap.exit,
-    };
-    if (gap.open && !d.locked) d.angle = d.targetAngle = d.openAngle;
-    doors.push(d);
-    return d;
+    const hingeX = axis === 'x' ? x - width / 2 + 0.045 : x, hingeZ = axis === 'x' ? z : z - width / 2 + 0.045;
+    const d = { id, label, x, z, bottom, hingeX, hingeZ, width: width - 0.09, height: 2.18, thickness: 0.085,
+      closedAngle: angle, openAngle: angle + (gap.swing || 1) * TAU_QUARTER, angle, targetAngle: angle, locked: !!gap.locked, exit: !!gap.exit };
+    if (gap.open && !d.locked) d.angle = d.targetAngle = d.openAngle; doors.push(d); return d;
   }
-  // Les ouvertures sont RETIRÉES des murs avant d'ajouter les portes.
-  function wallRun(id, axis, fixed, from, to, gaps = []) {
-    const sorted = [...gaps].sort((a, b) => a.center - b.center);
-    let cursor = from;
+  function wallRun(id, axis, fixed, from, to, gaps = [], bottom = 0, height = WALL_HEIGHT) {
+    const sorted = [...gaps].sort((a,b)=>a.center-b.center); let cursor = from;
     for (const g of sorted) {
       const a = g.center - g.width / 2, b = g.center + g.width / 2;
-      if (a < cursor - 0.001 || b > to + 0.001) throw new Error('Ouvertures superposées : ' + id);
-      wallPart(id + '-mur-' + cursor, axis, fixed, cursor, a);
-      wallPart(id + '-linteau-' + g.id, axis, fixed, a, b, 2.3, WALL_HEIGHT - 2.3);
-      // Encadrements solides ; 6 cm de chaque côté de la baie.
+      wallPart(id + '-mur-' + cursor, axis, fixed, cursor, a, bottom, height);
+      wallPart(id + '-linteau-' + g.id, axis, fixed, a, b, bottom + 2.3, height - 2.3);
       for (const edge of [a - 0.015, b + 0.015]) {
-        volume(g.id + '-montant-' + edge, axis === 'x' ? edge : fixed, 1.15,
-          axis === 'x' ? fixed : edge, axis === 'x' ? 0.065 : 0.30, 2.3,
-          axis === 'x' ? 0.30 : 0.065, 'trim', true, 'frame');
+        volume(g.id + '-montant-' + edge + '-' + bottom, axis === 'x' ? edge : fixed, bottom + 1.15, axis === 'x' ? fixed : edge,
+          axis === 'x' ? 0.065 : 0.30, 2.3, axis === 'x' ? 0.30 : 0.065, 'trim', true, 'frame');
       }
-      volume(g.id + '-traverse', axis === 'x' ? g.center : fixed, 2.3,
-        axis === 'x' ? fixed : g.center, axis === 'x' ? g.width + 0.09 : 0.30,
-        0.10, axis === 'x' ? 0.30 : g.width + 0.09, 'trim', false, 'frame');
-      if (!g.arch) doorInGap(axis, fixed, g);
+      volume(g.id + '-traverse-' + bottom, axis === 'x' ? g.center : fixed, bottom + 2.3, axis === 'x' ? fixed : g.center,
+        axis === 'x' ? g.width + 0.09 : 0.30, 0.10, axis === 'x' ? 0.30 : g.width + 0.09, 'trim', false, 'frame');
+      if (!g.arch) doorInGap(axis, fixed, g, bottom);
       if (g.sign !== false) signs.push({ text: g.label, x: axis === 'x' ? g.center : fixed + (fixed < 0 ? 0.145 : -0.145),
-        z: axis === 'x' ? fixed + 0.145 : g.center, y: 2.60, ry: axis === 'x' ? 0 : (fixed < 0 ? TAU_QUARTER : -TAU_QUARTER) });
+        z: axis === 'x' ? fixed + 0.145 : g.center, y: bottom + 2.60, ry: axis === 'x' ? 0 : (fixed < 0 ? TAU_QUARTER : -TAU_QUARTER) });
       cursor = b;
     }
-    wallPart(id + '-mur-fin', axis, fixed, cursor, to);
+    wallPart(id + '-mur-fin', axis, fixed, cursor, to, bottom, height);
   }
+  function stairZone(id, name, x0, x1, z0, z1, y0, y1, axis = 'z') { stairZones.push({ id, name, x0, x1, z0, z1, y0, y1, axis }); }
+  function stairSteps(id, x0, x1, z0, z1, y0, y1, steps, material = 'stoneFloor') {
+    const centerX = (x0 + x1) / 2, width = x1 - x0, depth = Math.abs(z1 - z0) / steps, sign = Math.sign(z1 - z0) || 1, rise = (y1 - y0) / steps;
+    for (let i = 0; i < steps; i++) {
+      const z = z0 + sign * depth * (i + 0.5), yBottom = y0 + rise * i, yTop = y0 + rise * (i + 1);
+      volume(id + '-marche-' + i, centerX, (yBottom + yTop) / 2, z, width, Math.abs(yTop - yBottom), depth * 0.98, material, false, 'step');
+    }
+  }
+  const b = (id, x, y, z, w, h, d, mat = 'wood', solid = true) => volume(id, x, y, z, w, h, d, mat, solid);
+  function table(id, x, yBase, z, w, d, top = .76, mat = 'wood') {
+    b(id + '-plateau', x, yBase + top - .06, z, w, .12, d, mat);
+    for (const sx of [-1,1]) for (const sz of [-1,1]) b(id + '-pied-' + sx + sz, x + sx * (w/2 - .10), yBase + (top - .12) / 2, z + sz * (d/2 - .10), .12, top - .12, .12, 'trim');
+  }
+  function container(id, label, x, y, z, room, contains = null) { containers.push({ id, label, x, y, z, room, contains, opened: false }); }
+  function hide(id, label, x, y, z, room, exitX, exitZ) { hideSpots.push({ id, label, x, y, z, room, hidden: false, exitX, exitZ }); }
 
-  wallRun('nord', 'x', -8, -7.12, 7.12);
-  wallRun('sud', 'x', 8, -7.12, 7.12, [{ id: 'exit', label: 'SORTIE', center: 0, width: 1.45, exit: true, locked: true, sign: false }]);
-  wallRun('ouest', 'z', -7, -8, 8);
-  wallRun('est', 'z', 7, -8, 8);
-  wallRun('couloir-ouest', 'z', -1.25, -8, 8, [
+  // RDC structure
+  wallRun('g-north', 'x', -8, -7.12, 7.12);
+  wallRun('g-south', 'x', 8, -7.12, 7.12, [{ id: 'exit', label: 'SORTIE', center: 0, width: 1.45, exit: true, locked: true, sign: false }]);
+  wallRun('g-west', 'z', -7, -8, 8); wallRun('g-east', 'z', 7, -8, 8);
+  wallRun('g-couloir-ouest', 'z', -1.25, -8, 8, [
     { id: 'kitchen', label: 'CUISINE', center: -5.6, width: 1.4, swing: -1 },
     { id: 'dining', label: 'SALLE À MANGER', center: -1.1, width: 1.4, swing: -1 },
     { id: 'salon', label: 'SALON', center: 5.3, width: 1.5, swing: -1, open: true },
   ]);
-  wallRun('couloir-est', 'z', 1.25, -8, 8, [
-    { id: 'stairs', label: 'ESCALIER · FERMÉ', center: -4.7, width: 1.4, locked: true },
+  wallRun('g-couloir-est', 'z', 1.25, -8, 8, [
+    { id: 'stairs', label: 'ESCALIER', center: -4.7, width: 1.4, swing: 1, open: true },
     { id: 'bathroom', label: 'SALLE DE BAIN', center: 0, width: 1.3, swing: 1 },
     { id: 'bedroom', label: 'CHAMBRE', center: 4.8, width: 1.4, swing: 1 },
   ]);
-  wallRun('salon-dining', 'x', 1, -7, -1.25, [{ id: 'arch-salon', label: 'SALLE À MANGER', center: -3.1, width: 1.6, arch: true, sign: false }]);
-  wallRun('dining-kitchen', 'x', -3.5, -7, -1.25, [{ id: 'kitchen-back', label: 'CUISINE', center: -3.1, width: 1.4, swing: 1, sign: false }]);
-  wallRun('bedroom-bathroom', 'x', 2, 1.25, 7);
-  wallRun('bathroom-stairs', 'x', -2, 1.25, 7);
-  wallRun('hall-arch', 'x', 3, -1.25, 1.25, [{ id: 'hall-arch', label: 'COULOIR', center: 0, width: 1.95, arch: true }]);
+  wallRun('g-salon-dining', 'x', 1, -7, -1.25, [{ id: 'arch-salon', label: 'SALLE À MANGER', center: -3.1, width: 1.6, arch: true, sign: false }]);
+  wallRun('g-dining-kitchen', 'x', -3.5, -7, -1.25, [{ id: 'kitchen-back', label: 'CUISINE', center: -3.1, width: 1.4, swing: 1, sign: false }]);
+  wallRun('g-bedroom-bathroom', 'x', 2, 1.25, 7); wallRun('g-bathroom-stairs', 'x', -2, 1.25, 7); wallRun('g-hall-arch', 'x', 3, -1.25, 1.25, [{ id: 'hall-arch', label: 'COULOIR', center: 0, width: 1.95, arch: true }]);
 
-  // Un seul sol porteur, un seul plafond. Aucune rampe ni autre altitude.
-  volume('sol-porteur', 0, -0.11, 0, 14.24, 0.20, 16.24, 'stone', false, 'floor');
-  volume('plafond', 0, 3.08, 0, 14.24, 0.16, 16.24, 'ceiling', false, 'ceiling');
-  for (const r of rooms) surfaces.push({ id: 'sol-' + r.id, x: (r.x0 + r.x1) / 2, z: (r.z0 + r.z1) / 2,
-    y: 0, w: r.x1 - r.x0, d: r.z1 - r.z0, material: r.floor });
+  // Upper floor expanded
+  wallRun('u-north', 'x', -8, -7.12, 7.12, [], UPPER_Y); wallRun('u-south', 'x', 8, -7.12, 7.12, [], UPPER_Y);
+  wallRun('u-west-ext', 'z', -7, -8, 8, [], UPPER_Y); wallRun('u-east-ext', 'z', 7, -8, 8, [], UPPER_Y);
+  wallRun('u-corridor-west', 'z', -1.25, -8, 8, [
+    { id: 'up-storage', label: 'DÉBARRAS', center: -4.5, width: 1.35, swing: -1 },
+    { id: 'up-office', label: 'BUREAU', center: 1.0, width: 1.35, swing: -1 },
+    { id: 'up-nursery', label: 'CHAMBRE ENFANT', center: 5.3, width: 1.45, swing: -1 },
+  ], UPPER_Y);
+  wallRun('u-corridor-east', 'z', 1.25, -8, 8, [
+    { id: 'up-landing', label: 'PALIER', center: -5.0, width: 1.55, arch: true, sign: false },
+    { id: 'up-bath', label: 'SALLE D’EAU', center: -0.3, width: 1.35, swing: 1 },
+    { id: 'up-master', label: 'SUITE', center: 4.7, width: 1.45, swing: 1 },
+  ], UPPER_Y);
+  wallRun('u-left-top', 'x', 3, -7, -1.25, [], UPPER_Y); wallRun('u-left-mid', 'x', -1, -7, -1.25, [], UPPER_Y);
+  wallRun('u-right-mid', 'x', 1.4, 1.25, 7, [], UPPER_Y); wallRun('u-right-low', 'x', -2, 1.25, 7, [], UPPER_Y);
+
+  // Basement expanded
+  wallRun('b-north', 'x', -8, -7.12, 7.12, [], BASEMENT_Y); wallRun('b-south', 'x', 4, -7.12, 7.12, [], BASEMENT_Y);
+  wallRun('b-west-ext', 'z', -7, -8, 4, [], BASEMENT_Y); wallRun('b-east-ext', 'z', 7, -8, 4, [], BASEMENT_Y);
+  wallRun('b-corridor-west', 'z', -1.25, -8, 4, [
+    { id: 'b-cellar', label: 'CAVE', center: -6.1, width: 1.35, swing: -1 },
+    { id: 'b-laundry', label: 'BUANDERIE', center: -2.2, width: 1.35, swing: -1 },
+    { id: 'b-ritual', label: 'PIÈCE MURÉE', center: 1.8, width: 1.35, swing: -1 },
+  ], BASEMENT_Y);
+  wallRun('b-corridor-east', 'z', 1.25, -8, 4, [
+    { id: 'b-land', label: 'PALIER', center: -4.9, width: 1.55, arch: true, sign: false },
+    { id: 'b-storage', label: 'RÉSERVE', center: -0.4, width: 1.35, swing: 1 },
+    { id: 'b-boiler', label: 'CHAUFFERIE', center: 2.4, width: 1.35, swing: 1 },
+  ], BASEMENT_Y);
+  wallRun('b-left-a', 'x', -4.2, -7, -1.25, [], BASEMENT_Y); wallRun('b-left-b', 'x', -.3, -7, -1.25, [], BASEMENT_Y);
+  wallRun('b-right-a', 'x', -2, 1.25, 7, [], BASEMENT_Y); wallRun('b-right-b', 'x', 1.4, 1.25, 7, [], BASEMENT_Y);
+
+  // floors / ceilings
+  for (const r of rooms) surfaces.push({ id: 'sol-' + r.id, x: (r.x0 + r.x1) / 2, z: (r.z0 + r.z1) / 2, y: r.floorY, w: r.x1 - r.x0, d: r.z1 - r.z0, material: r.floor });
+  surfaces.push({ id: 'ceiling-rdc', x: 0, y: 3.02, z: 0, w: 14.24, d: 16.24, material: 'ceiling' });
+  surfaces.push({ id: 'ceiling-upper', x: 0, y: UPPER_Y + 3.02, z: 0, w: 14.24, d: 16.24, material: 'ceiling' });
+  surfaces.push({ id: 'ceiling-basement', x: 0, y: -.22, z: -2, w: 14.24, d: 12.24, material: 'ceiling' });
   surfaces.push({ id: 'tapis-hall', x: 0, y: 0.006, z: 5.3, w: 1.60, d: 3.50, material: 'rug' });
   surfaces.push({ id: 'tapis-salon', x: -4.7, y: 0.006, z: 4.6, w: 3.35, d: 3.9, material: 'rug' });
+  surfaces.push({ id: 'tapis-upper-master', x: 4.4, y: UPPER_Y + 0.006, z: 5.0, w: 3.1, d: 3.6, material: 'rug' });
+  surfaces.push({ id: 'tapis-upper-nursery', x: -4.3, y: UPPER_Y + 0.006, z: 5.0, w: 2.6, d: 3.0, material: 'rug' });
 
-  // Mobilier bas, réparti PAR PIÈCE, hors des baies et des passages.
-  const b = (id, x, y, z, w, h, d, mat = 'wood', solid = true) => volume(id, x, y, z, w, h, d, mat, solid);
-  function table(id, x, z, w, d, top = .76, mat = 'wood') {
-    b(id + '-plateau', x, top - .06, z, w, .12, d, mat);
-    for (const sx of [-1, 1]) for (const sz of [-1, 1]) b(id + '-pied-' + sx + sz, x + sx * (w / 2 - .10), (top - .12) / 2,
-      z + sz * (d / 2 - .10), .12, top - .12, .12, 'trim');
-  }
-  // Salon
-  b('canape-assise', -5.90, .36, 4.55, 1.20, .72, 2.8, 'fabric');
-  b('canape-dossier', -6.38, .78, 4.55, .24, 1.18, 2.8, 'fabric');
-  for (const z of [3.18, 5.92]) b('canape-accoudoir-' + z, -5.90, .60, z, 1.20, .42, .22, 'fabric');
-  table('table-basse', -4.35, 4.5, 1.25, 1.65, .50);
-  b('meuble-tv', -3.60, .31, 7.40, 2.05, .62, .55);
-  b('tv-cadre', -3.60, 1.32, 7.72, 1.65, .95, .12, 'dark');
-  b('tv-ecran', -3.60, 1.32, 7.647, 1.50, .80, .014, 'screen', false);
-  b('bibliotheque', -6.42, 1.02, 2.0, .62, 2.04, 1.15, 'wood');
-  for (let i = 0; i < 5; i++) b('livre-' + i, -6.08, .7 + (i % 2) * .55, 1.58 + i * .18, .05, .33, .12, i % 2 ? 'fabric' : 'paper', false);
-  // Salle à manger
-  table('table-repas', -4.60, -1.12, 1.85, 1.35, .80);
-  for (const z of [-2.25, .02]) {
-    b('chaise-assise-' + z, -4.60, .45, z, .55, .12, .55);
-    b('chaise-dossier-' + z, -4.60, .80, z + (z < -1 ? -.23 : .23), .55, .70, .10);
-    for (const dx of [-.2, .2]) for (const dz of [-.2, .2]) b('chaise-pied-' + z + dx + dz, -4.60 + dx, .20, z + dz, .07, .4, .07);
-  }
-  b('buffet', -6.44, .48, -1.2, .70, .96, 2.0);
-  // Cuisine
-  b('cuisine-meubles-ouest', -6.40, .46, -5.9, .88, .92, 3.1, 'cabinet');
-  b('cuisine-plan-ouest', -6.40, .965, -5.9, .96, .09, 3.15, 'stone');
-  b('cuisine-meubles-nord', -4.50, .46, -7.40, 3.15, .92, .88, 'cabinet');
-  b('cuisine-plan-nord', -4.50, .965, -7.40, 3.2, .09, .96, 'stone');
-  b('evier', -4.6, 1.017, -7.4, .75, .015, .58, 'dark', false);
-  b('robinet', -4.6, 1.15, -7.65, .07, .28, .07, 'metal', false);
-  b('cuisiniere', -6.40, 1.016, -5.6, .76, .02, .88, 'dark', false);
-  for (const z of [-5.85, -5.4]) for (const x of [-6.61, -6.23]) b('plaque-' + x + z, x, 1.032, z, .23, .01, .24, 'metal', false);
-  b('frigo', -2.12, 1.0, -7.08, .98, 2.0, 1.1, 'enamel');
-  b('frigo-poignee', -2.40, 1.15, -6.50, .05, .60, .08, 'metal', false);
-  b('frigo-joint', -2.12, 1.43, -6.52, .93, .03, .03, 'dark', false);
-  // Chambre
-  b('lit-sommier', 4.75, .23, 5.1, 1.95, .46, 2.9, 'wood');
-  b('lit-matelas', 4.75, .52, 5.1, 1.94, .18, 2.85, 'linen');
-  b('lit-couverture', 4.75, .635, 4.75, 1.94, .07, 2.08, 'fabric');
-  b('lit-tete', 4.75, .64, 6.55, 2.05, 1.15, .17, 'wood');
-  for (const x of [4.29, 5.23]) b('oreiller-' + x, x, .65, 6.05, .75, .16, .48, 'linen');
-  b('chevet', 3.15, .32, 6.2, .65, .64, .68, 'wood');
-  b('armoire', 6.45, 1.04, 3.43, .70, 2.08, 1.65, 'wood');
-  for (const z of [3.12, 3.75]) b('armoire-poignee-' + z, 6.075, 1.15, z, .05, .26, .045, 'metal', false);
-  // Salle de bain
-  b('baignoire-base', 5.8, .17, .2, 1.5, .34, 2.35, 'enamel');
-  for (const x of [5.12, 6.48]) b('baignoire-bord-' + x, x, .49, .2, .14, .36, 2.35, 'enamel');
-  for (const z of [-.91, 1.31]) b('baignoire-bord-' + z, 5.8, .49, z, 1.5, .36, .13, 'enamel');
-  b('baignoire-interieur', 5.8, .35, .2, 1.2, .035, 2.0, 'bathInner', false);
-  b('lavabo-meuble', 3.5, .39, -1.49, 1.25, .78, .65, 'cabinet');
-  b('lavabo-vasque', 3.5, .82, -1.49, 1.28, .1, .67, 'enamel');
-  b('miroir-cadre', 3.5, 1.69, -1.84, 1.2, 1.13, .06, 'trim', false);
-  b('miroir', 3.5, 1.69, -1.801, 1.07, 1.0, .014, 'mirror', false);
-  b('wc-base', 3.6, .22, 1.18, .50, .44, .64, 'enamel');
-  b('wc-assise', 3.6, .45, 1.18, .62, .08, .74, 'enamel');
-  b('wc-reservoir', 3.6, .63, 1.57, .56, .75, .25, 'enamel');
+  // stairs and rails
+  stairZone('stairs-up', 'Escalier vers l’étage', 4.25, 5.55, -7.2, -4.15, GROUND_Y, UPPER_Y); stairSteps('stairs-up', 4.25, 5.55, -7.2, -4.15, GROUND_Y, UPPER_Y, 14, 'stoneFloor');
+  stairZone('stairs-down', 'Escalier vers le sous-sol', 2.05, 3.35, -7.2, -4.15, BASEMENT_Y, GROUND_Y); stairSteps('stairs-down', 2.05, 3.35, -7.2, -4.15, BASEMENT_Y, GROUND_Y, 14, 'stoneFloor');
+  b('rampe-centre', 3.80, 1.0, -5.7, .10, 2.0, 2.55, 'trim'); b('rampe-up', 5.68, 1.1, -5.7, .10, 2.2, 2.75, 'trim'); b('rampe-down', 1.92, -.55, -5.7, .10, 2.2, 2.75, 'trim');
 
-  // Fenêtres décoratives plaquées sur les murs : jamais de trous non protégés.
-  for (const win of [{ x: -6.865, z: 6.7, side: 'west' }, { x: -6.865, z: -6.0, side: 'west' },
-    { x: 6.865, z: 6.2, side: 'east' }, { x: 6.865, z: -.15, side: 'east' }]) {
+  // Ground furniture
+  b('canape-assise', -5.90, .36, 4.55, 1.20, .72, 2.8, 'fabric'); b('canape-dossier', -6.38, .78, 4.55, .24, 1.18, 2.8, 'fabric'); for (const z of [3.18, 5.92]) b('canape-accoudoir-' + z, -5.90, .60, z, 1.20, .42, .22, 'fabric');
+  table('table-basse', -4.35, 0, 4.5, 1.25, 1.65, .50); b('meuble-tv', -3.60, .31, 7.40, 2.05, .62, .55); b('tv-cadre', -3.60, 1.32, 7.72, 1.65, .95, .12, 'dark'); b('tv-ecran', -3.60, 1.32, 7.647, 1.50, .80, .014, 'screen', false); b('bibliotheque', -6.42, 1.02, 2.0, .62, 2.04, 1.15, 'wood');
+  table('table-repas', -4.60, 0, -1.12, 1.85, 1.35, .80); b('buffet', -6.44, .48, -1.2, .70, .96, 2.0); b('cuisine-meubles-ouest', -6.40, .46, -5.9, .88, .92, 3.1, 'cabinet'); b('cuisine-plan-ouest', -6.40, .965, -5.9, .96, .09, 3.15, 'stone'); b('cuisine-meubles-nord', -4.50, .46, -7.40, 3.15, .92, .88, 'cabinet'); b('cuisine-plan-nord', -4.50, .965, -7.40, 3.2, .09, .96, 'stone'); b('frigo', -2.12, 1.0, -7.08, .98, 2.0, 1.1, 'enamel');
+  b('lit-sommier', 4.75, .23, 5.1, 1.95, .46, 2.9, 'wood'); b('lit-matelas', 4.75, .52, 5.1, 1.94, .18, 2.85, 'linen'); b('lit-couverture', 4.75, .635, 4.75, 1.94, .07, 2.08, 'fabric'); b('lit-tete', 4.75, .64, 6.55, 2.05, 1.15, .17, 'wood'); b('chevet', 3.15, .32, 6.2, .65, .64, .68, 'wood'); b('armoire', 6.45, 1.04, 3.43, .70, 2.08, 1.65, 'wood');
+  b('baignoire-base', 5.8, .17, .2, 1.5, .34, 2.35, 'enamel'); b('lavabo-meuble', 3.5, .39, -1.49, 1.25, .78, .65, 'cabinet'); b('miroir-cadre', 3.5, 1.69, -1.84, 1.2, 1.13, .06, 'trim', false); b('miroir', 3.5, 1.69, -1.801, 1.07, 1.0, .014, 'mirror', false); b('wc-base', 3.6, .22, 1.18, .50, .44, .64, 'enamel');
+
+  // Upper furniture
+  b('nursery-bed', -5.4, UPPER_Y + .28, 5.6, 1.6, .55, 2.6, 'linen'); b('nursery-wardrobe', -6.2, UPPER_Y + 1.0, 3.9, .72, 2.0, 1.35, 'wood'); table('nursery-desk', -3.3, UPPER_Y, 4.1, 1.1, .6, .72); b('toy-box', -2.0, UPPER_Y + .25, 6.5, .9, .5, .7, 'wood');
+  b('office-shelf', -6.25, UPPER_Y + 1.0, 1.2, .7, 2.0, 1.5, 'wood'); table('office-desk', -4.1, UPPER_Y, 1.1, 1.7, .75, .76); b('office-cabinet', -2.1, UPPER_Y + .55, .2, .8, 1.1, .65, 'cabinet');
+  b('storage-shelf-a', -6.0, UPPER_Y + 1.0, -5.8, .7, 2.0, 1.5, 'wood'); b('storage-shelf-b', -3.7, UPPER_Y + 1.0, -5.2, .7, 2.0, 1.5, 'wood'); b('storage-crate-a', -2.0, UPPER_Y + .25, -2.8, .9, .5, .9, 'wood'); b('storage-crate-b', -2.8, UPPER_Y + .25, -6.8, .7, .5, .7, 'wood');
+  b('upper-vanity', 3.0, UPPER_Y + .45, -.9, 1.2, .9, .55, 'cabinet'); b('upper-bath-tub', 5.6, UPPER_Y + .18, -.3, 1.35, .36, 2.0, 'enamel'); b('upper-master-bed', 4.5, UPPER_Y + .28, 5.1, 2.1, .55, 3.2, 'linen'); b('upper-master-wardrobe', 6.2, UPPER_Y + 1.0, 3.4, .8, 2.0, 1.6, 'wood'); table('upper-master-table', 3.0, UPPER_Y, 6.4, 1.1, .7, .72);
+
+  // Basement furniture
+  b('cellar-shelf-a', -6.05, BASEMENT_Y + 1.0, -6.3, .7, 2.0, 1.55, 'wood'); b('cellar-shelf-b', -3.2, BASEMENT_Y + 1.0, -6.0, .7, 2.0, 1.55, 'wood');
+  b('laundry-machine', -6.0, BASEMENT_Y + .55, -2.9, 1.0, 1.1, .9, 'enamel'); b('laundry-sink', -3.8, BASEMENT_Y + .55, -2.9, 1.2, 1.1, .8, 'metal'); b('laundry-cabinet', -2.0, BASEMENT_Y + 1.0, -1.0, .8, 2.0, 1.2, 'wood');
+  b('ritual-table', -4.2, BASEMENT_Y + .45, 1.9, 1.6, .9, 1.6, 'wood'); b('ritual-crate', -6.0, BASEMENT_Y + .25, 3.0, .9, .5, .9, 'wood');
+  b('storage-rack', 2.0, BASEMENT_Y + 1.0, -.4, .7, 2.0, 1.4, 'metal'); b('storage-locker', 6.15, BASEMENT_Y + 1.0, -.4, .8, 2.0, 1.1, 'metal');
+  b('boiler-body', 5.75, BASEMENT_Y + 1.0, 2.3, 1.1, 2.0, 1.05, 'metal'); b('boiler-pipe', 5.75, BASEMENT_Y + 2.15, 2.3, .16, .65, .16, 'metal'); table('boiler-bench', 3.2, BASEMENT_Y, 2.2, 1.8, .7, .72);
+
+  // Decorative windows (RDC only)
+  for (const win of [{ x: -6.865, z: 6.7, side: 'west' }, { x: -6.865, z: -6.0, side: 'west' }, { x: 6.865, z: 6.2, side: 'east' }, { x: 6.865, z: -.15, side: 'east' }]) {
     const side = win.side === 'west' ? 1 : -1;
-    b('fenetre-cadre-' + win.z + side, win.x, 1.95, win.z, .07, 1.32, 1.45, 'trim', false);
-    b('fenetre-vitre-' + win.z + side, win.x + side * .043, 1.95, win.z, .012, 1.13, 1.26, 'glass', false);
-    b('fenetre-montant-' + win.z + side, win.x + side * .06, 1.95, win.z, .025, 1.14, .055, 'trim', false);
-    b('fenetre-traverse-' + win.z + side, win.x + side * .06, 1.95, win.z, .025, .055, 1.25, 'trim', false);
+    b('fenetre-cadre-' + win.z + side, win.x, 1.95, win.z, .07, 1.32, 1.45, 'trim', false); b('fenetre-vitre-' + win.z + side, win.x + side * .043, 1.95, win.z, .012, 1.13, 1.26, 'glass', false); b('fenetre-montant-' + win.z + side, win.x + side * .06, 1.95, win.z, .025, 1.14, .055, 'trim', false); b('fenetre-traverse-' + win.z + side, win.x + side * .06, 1.95, win.z, .025, .055, 1.25, 'trim', false);
   }
-  signs.push({ text: 'SORTIE', x: 0, y: 2.6, z: 7.853, ry: Math.PI });
-  signs.push({ text: '03:17', x: 0, y: 1.95, z: -7.853, ry: 0 });
 
+  // Items hidden in searchable furniture
   const items = [
-    { id: 'key', label: 'Clé ancienne', room: 'bedroom', x: 3.15, y: .91, z: 6.2, color: 0xd5b567, taken: false },
-    { id: 'fuse', label: 'Fusible', room: 'kitchen', x: -5.4, y: 1.21, z: -7.30, color: 0x75c5e0, taken: false },
-    { id: 'seal', label: 'Sceau', room: 'dining', x: -4.25, y: 1.01, z: -1.12, color: 0xb19dda, taken: false },
+    { id: 'key', label: 'Clé ancienne', room: 'upper-office', x: -2.1, y: UPPER_Y + .95, z: .2, color: 0xd5b567, taken: false, hidden: true },
+    { id: 'fuse', label: 'Fusible', room: 'basement-storage', x: 2.0, y: BASEMENT_Y + 1.1, z: -.4, color: 0x75c5e0, taken: false, hidden: true },
+    { id: 'seal', label: 'Sceau', room: 'upper-nursery', x: -6.2, y: UPPER_Y + 1.0, z: 3.9, color: 0xb19dda, taken: false, hidden: true },
   ];
-  return { bounds, rooms, volumes, solids, doors, surfaces, signs, items, spawn: { x: 0, z: 6.2, yaw: 0, pitch: -.03 } };
-}
+  // searchable spots
+  container('c-buffet', 'Buffet', -6.2, .9, -1.2, 'dining'); container('c-kitchen-left', 'Placard de cuisine', -6.1, .95, -6.4, 'kitchen'); container('c-fridge', 'Frigo', -2.15, 1.0, -7.08, 'kitchen');
+  container('c-bed-chevet', 'Table de chevet', 3.15, .7, 6.2, 'bedroom'); container('c-armoire-rdc', 'Armoire', 6.45, 1.0, 3.43, 'bedroom');
+  container('c-nursery-wardrobe', 'Armoire enfant', -6.2, UPPER_Y + 1.0, 3.9, 'upper-nursery', 'seal'); container('c-nursery-box', 'Coffre à jouets', -2.0, UPPER_Y + .3, 6.5, 'upper-nursery');
+  container('c-office-cabinet', 'Caisson de bureau', -2.1, UPPER_Y + .7, .2, 'upper-office', 'key'); container('c-office-shelf', 'Étagère', -6.25, UPPER_Y + 1.1, 1.2, 'upper-office');
+  container('c-storage-crate', 'Caisse', -2.0, UPPER_Y + .3, -2.8, 'upper-storage'); container('c-master-wardrobe', 'Grande armoire', 6.2, UPPER_Y + 1.0, 3.4, 'upper-master');
+  container('c-cellar-shelf', 'Étagère de cave', -6.05, BASEMENT_Y + 1.1, -6.3, 'basement-cellar'); container('c-laundry-cabinet', 'Armoire buanderie', -2.0, BASEMENT_Y + 1.0, -1.0, 'basement-laundry');
+  container('c-storage-rack', 'Étagère métallique', 2.0, BASEMENT_Y + 1.1, -.4, 'basement-storage', 'fuse'); container('c-storage-locker', 'Casier', 6.15, BASEMENT_Y + 1.0, -.4, 'basement-storage');
+  container('c-boiler-bench', 'Établi', 3.2, BASEMENT_Y + .8, 2.2, 'basement-boiler'); container('c-ritual-crate', 'Caisse humide', -6.0, BASEMENT_Y + .3, 3.0, 'basement-ritual');
+  // hide spots
+  hide('h-under-bed', 'Sous le lit', 4.75, GROUND_Y, 4.2, 'bedroom', 4.75, 3.35); hide('h-wardrobe-rdc', 'Armoire', 6.1, GROUND_Y, 3.4, 'bedroom', 5.4, 3.4);
+  hide('h-nursery-wardrobe', 'Armoire enfant', -6.0, UPPER_Y, 3.9, 'upper-nursery', -5.1, 3.9); hide('h-storage-box', 'Coin du débarras', -2.2, UPPER_Y, -6.7, 'upper-storage', -1.3, -6.2);
+  hide('h-master-wardrobe', 'Dressing', 6.0, UPPER_Y, 3.4, 'upper-master', 5.2, 3.4); hide('h-cellar-shelf', 'Derrière l’étagère', -6.35, BASEMENT_Y, -6.3, 'basement-cellar', -5.3, -6.3);
+  hide('h-storage-locker', 'Casier', 6.1, BASEMENT_Y, -.4, 'basement-storage', 5.2, -.4); hide('h-boiler-corner', 'Coin chaufferie', 6.2, BASEMENT_Y, 2.8, 'basement-boiler', 5.2, 2.8);
 
-/** R18.1 : prolongement du RDC R17, sans déplacer son mobilier. */
-function createGroundFloor() {
-  const h = createOriginalRdc();
-  const U = 3.25, B = -3.25;
-  h.spawn.y = 0;
-  for (const r of h.rooms) { r.floorY = 0; r.level = 'RDC'; }
-  for (const d of h.doors) d.bottom = 0;
-  const stairRoom = h.rooms.find(r => r.id === 'stairs');
-  stairRoom.name = 'Cage d’escalier'; stairRoom.locked = false;
-  const entry = h.doors.find(d => d.id === 'stairs');
-  entry.label = 'Escaliers'; entry.locked = false;
-  entry.angle = entry.targetAngle = entry.openAngle;
-  for (const s of h.signs) if (s.text === 'ESCALIER · FERMÉ') s.text = 'ÉTAGE / SOUS-SOL';
-  h.stairZones = [
-    { id: 'stairs-up', name: 'Escalier de l’étage', x0: 4.65, x1: 6.25, z0: -6.85, z1: -3.10,
-      low: 0, high: U, highAtNorth: true, steps: 18 },
-    { id: 'stairs-down', name: 'Escalier du sous-sol', x0: 2.75, x1: 4.15, z0: -6.85, z1: -3.10,
-      low: B, high: 0, highAtNorth: false, steps: 18 },
-  ];
-  // La même empreinte découpe les planchers, le rendu et les supports physiques.
-  const holeUp = h.stairZones[0], holeDown = h.stairZones[1];
-  const room = (id, name, level, floorY, x0, x1, z0, z1, floor, visit) =>
-    h.rooms.push({ id, name, level, floorY, x0, x1, z0, z1, floor, visit });
-  room('upper-landing', 'Palier', 'ÉTAGE', U, 1.25, 7, -8, -2, 'woodFloor', [3.8, -4]);
-  room('upper-bedroom', 'Chambre du haut', 'ÉTAGE', U, 1.25, 7, -2, 3, 'woodFloor', [3.6, .5]);
-  room('upper-attic', 'Grenier', 'ÉTAGE', U, 1.25, 7, 3, 8, 'woodFloor', [3.4, 5.2]);
-  room('basement-landing', 'Chaufferie', 'SOUS-SOL', B, 1.25, 7, -8, -2, 'stoneFloor', [2.05, -5.8]);
-  room('basement-cellar', 'Cave', 'SOUS-SOL', B, -7, 1.25, -8, -5, 'stoneFloor', [-3, -6.4]);
-  room('basement-archives', 'Archives', 'SOUS-SOL', B, -7, 1.25, -5, -2, 'stoneFloor', [-3, -3.6]);
+  signs.push({ text: 'SORTIE', x: 0, y: 2.6, z: 7.853, ry: Math.PI }); signs.push({ text: '03:17', x: 0, y: 1.95, z: -7.853, ry: 0 }); signs.push({ text: 'ÉTAGE', x: 4.3, y: UPPER_Y + 2.6, z: -7.85, ry: 0 }); signs.push({ text: 'SOUS-SOL', x: 4.2, y: BASEMENT_Y + 2.55, z: -7.85, ry: 0 });
 
-  function box(id, x, y, z, w, height, depth, material = 'wood', solid = true, kind = 'furniture') {
-    if (![x,y,z,w,height,depth].every(Number.isFinite) || Math.min(w,height,depth) <= 0) throw new Error('Volume invalide : '+id);
-    const v = { id, x, y, z, w, h: height, d: depth, material, solid, kind };
-    h.volumes.push(v); if (solid) h.solids.push(v); return v;
-  }
-  function wallPart(id, axis, fixed, a, b, bottom, height = 3) {
-    if (b - a < .001) return;
-    box(id, axis === 'x' ? (a+b)/2 : fixed, bottom+height/2,
-      axis === 'x' ? fixed : (a+b)/2, axis === 'x' ? b-a : WALL_THICKNESS,
-      height, axis === 'x' ? WALL_THICKNESS : b-a, 'plaster', true, 'wall');
-  }
-  function wall(id, axis, fixed, a, b, y, gaps = []) {
-    let cursor = a;
-    for (const g of [...gaps].sort((l,r)=>l.center-r.center)) {
-      const left = g.center-g.width/2, right = g.center+g.width/2;
-      if (left < cursor || right > b) throw new Error('Baie invalide : '+id);
-      wallPart(id+'-'+cursor,axis,fixed,cursor,left,y);
-      wallPart(id+'-lintel-'+g.id,axis,fixed,left,right,y+2.3,.7);
-      const x = axis === 'x' ? g.center : fixed, z = axis === 'x' ? fixed : g.center;
-      for (const edge of [left-.015,right+.015]) box(g.id+'-frame-'+edge,
-        axis === 'x' ? edge : fixed, y+1.15, axis === 'x' ? fixed : edge,
-        axis === 'x' ? .065 : .30,2.3,axis === 'x' ? .30 : .065,'trim',true,'frame');
-      box(g.id+'-top',x,y+2.3,z,axis==='x'?g.width+.09:.30,.10,axis==='x'?.30:g.width+.09,'trim',false,'frame');
-      if (!g.arch) {
-        const angle = axis === 'x' ? 0 : -TAU_QUARTER;
-        const d={id:g.id,label:g.label,x,z,bottom:y,hingeX:axis==='x'?x-g.width/2+.045:x,
-          hingeZ:axis==='x'?z:z-g.width/2+.045,width:g.width-.09,height:2.18,thickness:.085,
-          closedAngle:angle,openAngle:angle+(g.swing||1)*TAU_QUARTER,angle,targetAngle:angle,locked:false,exit:false};
-        if (g.open) d.angle=d.targetAngle=d.openAngle;
-        h.doors.push(d);
-      }
-      h.signs.push({text:g.label,x:axis==='x'?x:fixed+.145,z:axis==='x'?z-.145:z,y:y+2.60,ry:axis==='x'?Math.PI:TAU_QUARTER});
-      cursor=right;
-    }
-    wallPart(id+'-end',axis,fixed,cursor,b,y);
-  }
-  wall('u-north','x',-8,1.13,7.12,U); wall('u-south','x',8,1.13,7.12,U);
-  wall('u-west','z',1.25,-8,8,U); wall('u-east','z',7,-8,8,U);
-  wall('u-bedroom','x',-2,1.25,7,U,[{id:'upper-bedroom-door',label:'CHAMBRE DU HAUT',center:3.9,width:1.4,swing:1}]);
-  wall('u-attic','x',3,1.25,7,U,[{id:'upper-attic-door',label:'GRENIER',center:3.9,width:1.4,swing:-1,open:true}]);
-  wall('b-north','x',-8,-7.12,7.12,B); wall('b-south','x',-2,-7.12,7.12,B);
-  wall('b-west','z',-7,-8,-2,B); wall('b-east','z',7,-8,-2,B);
-  wall('b-cells','z',1.25,-8,-2,B,[{id:'cellar-door',label:'CAVE',center:-6.4,width:1.3,swing:-1},
-    {id:'archives-door',label:'ARCHIVES',center:-3.6,width:1.3,swing:-1,open:true}]);
-  wall('b-middle','x',-5,-7,1.25,B,[{id:'archives-arch',label:'PASSAGE',center:-2.9,width:1.4,arch:true}]);
-
-  function cut(rect,hole) {
-    const x0=Math.max(rect.x0,hole.x0), x1=Math.min(rect.x1,hole.x1);
-    const z0=Math.max(rect.z0,hole.z0), z1=Math.min(rect.z1,hole.z1);
-    if (x0>=x1 || z0>=z1) return [rect];
-    return [
-      {...rect,x1:x0},{...rect,x0:x1},
-      {...rect,x0,x1,z1:z0},{...rect,x0,x1,z0:z1}
-    ].filter(r=>r.x1-r.x0>.001 && r.z1-r.z0>.001);
-  }
-  // Supprime les deux grandes plaques R17 : leurs remplaçantes ont de vraies trémies.
-  h.volumes=h.volumes.filter(v=>v.id!=='sol-porteur' && v.id!=='plafond');
-  h.solids=h.solids.filter(v=>v.id!=='sol-porteur' && v.id!=='plafond');
-  h.surfaces=h.surfaces.filter(s=>!s.id.startsWith('sol-'));
-  h.walkable=[];
-  for (const r of h.rooms) {
-    const rect={x0:r.x0,x1:r.x1,z0:r.z0,z1:r.z1};
-    const patches = r.floorY===0 ? cut(rect,holeDown) : r.floorY===U ? cut(rect,holeUp) : [rect];
-    patches.forEach((p,i)=>{
-      h.walkable.push({...p,id:r.id+'-floor-'+i,y:r.floorY});
-      h.surfaces.push({id:'sol-'+r.id+'-'+i,x:(p.x0+p.x1)/2,z:(p.z0+p.z1)/2,
-        y:r.floorY,w:p.x1-p.x0,d:p.z1-p.z0,material:r.floor});
-    });
-  }
-  const full={x0:-7.12,x1:7.12,z0:-8.12,z1:8.12};
-  function slab(id,rect,y,holes=[]) {
-    let patches=[rect]; for(const hole of holes) patches=patches.flatMap(r=>cut(r,hole));
-    for(const [i,r] of patches.entries()) box(id+'-'+i,(r.x0+r.x1)/2,y-.129,(r.z0+r.z1)/2,
-      r.x1-r.x0,.242,r.z1-r.z0,'ceiling',true,'slab');
-  }
-  slab('rdc-slab',full,0,[holeDown]);
-  slab('upper-slab',full,U,[holeUp]);
-  slab('roof',{x0:1.13,x1:7.12,z0:-8.12,z1:8.12},U+3.25);
-  slab('basement-slab',{x0:-7.12,x1:7.12,z0:-8.12,z1:-1.88},B);
-
-  // Marches pleines : hauteur de support = dessus de la marche, pas téléportation.
-  h.rails=[];
-  for(const s of h.stairZones) {
-    const run=(s.z1-s.z0)/s.steps, rise=(s.high-s.low)/s.steps;
-    for(let i=0;i<s.steps;i++) {
-      const z=s.highAtNorth?s.z1-(i+.5)*run:s.z0+(i+.5)*run;
-      const top=s.low+(i+1)*rise;
-      box(s.id+'-step-'+i,(s.x0+s.x1)/2,(s.low+top)/2,z,s.x1-s.x0,top-s.low,run,'stoneFloor',true,'step');
-      // Bande antidérapante sur le nez de la marche (ne modifie pas les collisions).
-      const edge=s.highAtNorth?z+run/2-.02:z-run/2+.02;
-      box(s.id+'-nose-'+i,(s.x0+s.x1)/2,top+.003,edge,s.x1-s.x0,.006,.038,'trim',false,'detail');
-      for(const side of [s.x0-.055,s.x1+.055]) {
-        // Barreaudage + enveloppe de collision : le joueur ne sort pas sur le côté.
-        const guard=box(s.id+'-guard-'+i+'-'+side,side,s.low+(top-s.low+1.03)/2,z,.085,top-s.low+1.03,run,'metal',true,'guard');
-        guard.hiddenGeometry=true;
-        if(i%2===0) box(s.id+'-post-'+i+'-'+side,side,top+.48,z,.045,.96,.045,'metal',false,'detail');
-      }
-    }
-    for(const x of [s.x0-.055,s.x1+.055]) h.rails.push({
-      a:{x,y:(s.highAtNorth?s.high:s.low)+1.03,z:s.z0},
-      b:{x,y:(s.highAtNorth?s.low:s.high)+1.03,z:s.z1}
-    });
-  }
-  // Garde-corps du bord d'une trémie, côté sans escalier accessible à ce niveau.
-  function guard(id,axis,fixed,from,to,y) {
-    const w=axis==='x'?to-from:.085,d=axis==='x'?.085:to-from;
-    const x=axis==='x'?(from+to)/2:fixed,z=axis==='x'?fixed:(from+to)/2;
-    const v=box(id+'-hit',x,y+.51,z,w,1.02,d,'metal',true,'guard');v.hiddenGeometry=true;
-    const count=Math.ceil((to-from)/.45);
-    for(let i=0;i<=count;i++) box(id+'-post-'+i,axis==='x'?from+(to-from)*i/count:fixed,y+.5,
-      axis==='x'?fixed:from+(to-from)*i/count,.045,1,.045,'metal',false,'detail');
-    box(id+'-top',x,y+1.02,z,w,.065,d,'wood',false,'detail');
-  }
-  // Up : l'ouverture au nord rejoint l'étage. Down : le nord est le bas du sous-sol.
-  guard('upper-hole-end','x',holeUp.z1+.055,holeUp.x0,holeUp.x1,U);
-  guard('ground-hole-end','x',holeDown.z0-.055,holeDown.x0,holeDown.x1,0);
-  for(const x of [holeUp.x0-.055,holeUp.x1+.055]) guard('upper-edge-'+x,'z',x,holeUp.z0,holeUp.z1,U);
-  for(const x of [holeDown.x0-.055,holeDown.x1+.055]) guard('ground-edge-'+x,'z',x,holeDown.z0,holeDown.z1,0);
-
-  function bed(id,x,y,z) {
-    box(id+'-base',x,y+.23,z,1.8,.46,2.6,'wood');
-    box(id+'-mattress',x,y+.52,z,1.78,.18,2.55,'linen');
-    box(id+'-blanket',x,y+.635,z-.3,1.78,.07,1.8,'fabric');
-    box(id+'-head',x,y+.70,z+1.32,1.9,1.2,.14,'wood');
-    box(id+'-pillow',x,y+.67,z+.95,1.1,.15,.42,'linen');
-  }
-  bed('upper-bed',5.25,U,.9);
-  box('upper-wardrobe',6.35,U+1.05,-.85,.68,2.1,1.3,'wood');
-  box('upper-desk-top',2.6,U+.76,5.2,1.6,.12,.85,'wood');
-  for(const x of [1.93,3.27]) for(const z of [4.90,5.50]) box('desk-leg-'+x+z,x,U+.35,z,.10,.7,.10,'trim');
-  box('upper-crate-a',5.9,U+.35,6.3,.92,.7,.85,'wood');
-  box('upper-crate-b',5.15,U+.25,7.1,.68,.5,.65,'paper');
-  box('upper-trunk',6.4,U+.34,4.9,.65,.68,1.2,'wood');
-  box('basement-boiler',5.8,B+.94,-6.0,1.2,1.88,1.25,'metal');
-  box('basement-pipe',5.8,B+2.23,-6.0,.18,.70,.18,'metal');
-  box('basement-bench-top',5.0,B+.93,-2.85,2.4,.15,.65,'wood');
-  for(const x of [3.95,6.05]) box('bench-leg-'+x,x,B+.425,-2.85,.14,.85,.52,'metal');
-  function shelf(id,z) {
-    for(const zz of [z-.95,z+.95]) box(id+'-upright-'+zz,-6.15,B+1.05,zz,.6,2.1,.06,'wood');
-    for(const yy of [.07,.75,1.45,2.05]) box(id+'-board-'+yy,-6.15,B+yy,z,.65,.07,2,'wood');
-    for(const zz of [z-.55,z+.42]) box(id+'-box-'+zz,-6.12,B+1,zz,.46,.42,.46,'paper');
-  }
-  shelf('cellar-shelf',-6.5);shelf('archive-shelf',-3.45);
-  for(const [x,z] of [[-4.8,-7.35],[-4.2,-7.35],[-4.8,-2.65]]) box('basement-crate-'+x+z,x,B+.3,z,.52,.6,.6,'wood');
-  h.signs.push({text:'ÉTAGE ↑',x:5.45,y:1.7,z:-7.853,ry:0});
-  h.signs.push({text:'SOUS-SOL ↓',x:2.85,y:1.7,z:-7.853,ry:0});
-  h.signs.push({text:'ÉTAGE',x:3.8,y:U+2.5,z:-7.853,ry:0});
-  h.signs.push({text:'SOUS-SOL',x:3.45,y:B+2.5,z:-7.853,ry:0});
-  const key=h.items.find(i=>i.id==='key');Object.assign(key,{x:2.6,y:U+1.01,z:5.2,room:'upper-attic'});
-  const fuse=h.items.find(i=>i.id==='fuse');Object.assign(fuse,{x:4.65,y:B+1.17,z:-2.85,room:'basement-landing'});
-  // Les trois objets sont répartis entre RDC, étage et sous-sol.
-  h.lampPositions=[[0,2.55,5.8],[0,2.6,.7],[0,2.6,-5.3],[-4.5,2.55,4.5],[-4.6,2.5,-1.12],[-4.3,2.6,-5.8],[4.5,2.55,4.7],[3.6,2.6,0],
-    [2.05,2.55,-3.2],[3.6,U+2.55,-5.2],[3.5,U+2.55,.4],[3.8,U+2.55,5.5],[2.05,B+2.55,-6.5],[-3.7,B+2.55,-6.4],[-3.7,B+2.55,-3.4]];
-  return h;
+  return { bounds, rooms, volumes, solids, doors, surfaces, signs, items, stairZones, lampPositions, containers, hideSpots, spawn: { x: 0, y: GROUND_Y, z: 6.2, yaw: 0, pitch: -.03 } };
 }
 
 function circleHitsBox(x, z, radius, box) {
+
+
   const dx = x - clamp(x, box.x - box.w / 2, box.x + box.w / 2);
   const dz = z - clamp(z, box.z - box.d / 2, box.z + box.d / 2);
   return dx * dx + dz * dz < radius * radius - 1e-9;
@@ -3998,53 +3840,49 @@ function circleHitsDoor(x, z, radius, door, angle = door.angle) {
   return a * a + b * b < radius * radius - 1e-9;
 }
 
-function stairContains(s,x,z) {
-  return x>=s.x0-1e-7 && x<=s.x1+1e-7 && z>=s.z0-1e-7 && z<=s.z1+1e-7;
-}
-function stairHeight(s,x,z) {
-  const t=clamp(s.highAtNorth?(s.z1-z)/(s.z1-s.z0):(z-s.z0)/(s.z1-s.z0),0,1);
-  const step=Math.ceil(t*s.steps-1e-7);
-  return s.low+clamp(step,0,s.steps)*(s.high-s.low)/s.steps;
-}
-function floorHeightAt(house,x,z,currentY=0) {
-  // Choisir le support le PLUS HAUT atteignable. Le sol sous un escalier ne
-  // doit pas gagner simplement parce qu'il est plus proche de l'ancienne hauteur.
-  let found=false, height=-Infinity;
-  const consider=y=>{
-    if(y-currentY<=.205 && currentY-y<=.235 && y>height) {height=y;found=true;}
-  };
-  for(const s of house.stairZones) if(stairContains(s,x,z)) consider(stairHeight(s,x,z));
-  for(const p of house.walkable) if(x>=p.x0-1e-7 && x<=p.x1+1e-7 && z>=p.z0-1e-7 && z<=p.z1+1e-7) consider(p.y);
-  return found?height:null;
-}
-function doorOverlapsBody(door,y) {
-  const bottom=door.bottom||0;
-  return bottom+door.height>y+.04 && bottom<y+1.72;
-}
-function blockedAt(house,x,z,y=0,radius=PLAYER_RADIUS) {
-  const b=house.bounds;
-  if(x<b.minX || x>b.maxX || z<b.minZ || z>b.maxZ) return true;
-  const bottom=y+.04, top=y+1.72;
-  for(const v of house.solids) {
-    // Le support des marches est résolu au centre des pieds. Un rayon appliqué
-    // aux contremarches empêcherait de monter avant d'atteindre la marche suivante.
-    if(v.kind==='step') continue;
-    if(v.kind==='slab' && v.y+v.h/2<=y+.205) continue;
-    if(v.y+v.h/2<=bottom || v.y-v.h/2>=top) continue;
-    if(circleHitsBox(x,z,radius,v)) return true;
+function blockedAt(house, x, z, y = 0, radius = PLAYER_RADIUS) {
+  const b = house.bounds;
+  if (x < b.minX || x > b.maxX || z < b.minZ || z > b.maxZ) return true;
+  const bodyBottom = y + .04, bodyTop = y + 1.72;
+  for (const v of house.solids) {
+    const vBottom = v.y - v.h / 2, vTop = v.y + v.h / 2;
+    if (vTop <= bodyBottom || vBottom >= bodyTop) continue;
+    if (circleHitsBox(x, z, radius, v)) return true;
   }
-  for(const s of house.stairZones) if(stairContains(s,x,z) && top>s.low+.01 && bottom<stairHeight(s,x,z)-.01) return true;
-  for(const d of house.doors) if(doorOverlapsBody(d,y) && circleHitsDoor(x,z,radius,d)) return true;
+  for (const door of house.doors) {
+    const dBottom = door.bottom || 0, dTop = dBottom + door.height;
+    if (dTop <= bodyBottom || dBottom >= bodyTop) continue;
+    if (circleHitsDoor(x, z, radius, door)) return true;
+  }
   return false;
 }
-function movePlayer(house,position,dx,dz) {
-  if(!Number.isFinite(position.y)) position.y=0;
-  const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.07)), sx=dx/steps,sz=dz/steps;
-  for(let i=0;i<steps;i++) {
-    const nx=position.x+sx, fy=floorHeightAt(house,nx,position.z,position.y);
-    if(fy!==null && !blockedAt(house,nx,position.z,fy)) {position.x=nx;position.y=fy;}
-    const nz=position.z+sz, fz=floorHeightAt(house,position.x,nz,position.y);
-    if(fz!==null && !blockedAt(house,position.x,nz,fz)) {position.z=nz;position.y=fz;}
+
+function stairHeight(zone, x, z) {
+  const t = zone.axis === 'x' ? clamp((x - zone.x0) / (zone.x1 - zone.x0), 0, 1) : clamp((z - zone.z0) / (zone.z1 - zone.z0), 0, 1);
+  return zone.y0 + (zone.y1 - zone.y0) * t;
+}
+function floorHeightAt(house, x, z, currentY = 0) {
+  const candidates = [];
+  for (const zone of (house.stairZones || [])) {
+    if (x >= Math.min(zone.x0, zone.x1) && x <= Math.max(zone.x0, zone.x1) && z >= Math.min(zone.z0, zone.z1) && z <= Math.max(zone.z0, zone.z1)) {
+      candidates.push({ y: stairHeight(zone, x, z), priority: 0 });
+    }
+  }
+  for (const room of house.rooms) if (x >= room.x0 && x <= room.x1 && z >= room.z0 && z <= room.z1) candidates.push({ y: room.floorY || 0, priority: 1, room });
+  if (!candidates.length) return currentY;
+  candidates.sort((a, b) => (Math.abs(a.y - currentY) + a.priority * .02) - (Math.abs(b.y - currentY) + b.priority * .02));
+  return candidates[0].y;
+}
+
+function movePlayer(house, position, dx, dz) {
+  const steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / .07));
+  const sx = dx / steps, sz = dz / steps;
+  for (let i = 0; i < steps; i++) {
+    const tryX = position.x + sx, yX = floorHeightAt(house, tryX, position.z, position.y);
+    if (Math.abs(yX - position.y) <= .34 && !blockedAt(house, tryX, position.z, yX)) { position.x = tryX; position.y = yX; }
+    const tryZ = position.z + sz, yZ = floorHeightAt(house, position.x, tryZ, position.y);
+    if (Math.abs(yZ - position.y) <= .34 && !blockedAt(house, position.x, tryZ, yZ)) { position.z = tryZ; position.y = yZ; }
+    position.y = floorHeightAt(house, position.x, position.z, position.y);
   }
   return position;
 }
@@ -4077,17 +3915,23 @@ function hasLineOfSight(house, from, to, ignoreDoorId = '') {
   }
   return true;
 }
-function roomAt(house,x,z,y=0) {
-  for(const s of house.stairZones) if(stairContains(s,x,z) && Math.abs(stairHeight(s,x,z)-y)<.21)
-    return {id:s.id,name:s.name,level:'ESCALIER',floorY:y};
-  let best=null, distance=Infinity;
-  for(const r of house.rooms) if(x>=r.x0 && x<=r.x1 && z>=r.z0 && z<=r.z1) {
-    const d=Math.abs(r.floorY-y); if(d<distance) {best=r;distance=d;}
+function roomAt(house, x, z, y = 0) {
+  for (const zone of (house.stairZones || [])) {
+    if (x >= Math.min(zone.x0, zone.x1) && x <= Math.max(zone.x0, zone.x1) && z >= Math.min(zone.z0, zone.z1) && z <= Math.max(zone.z0, zone.z1)) {
+      const h = stairHeight(zone, x, z);
+      if (Math.abs(h - y) < .55) {
+        const level = h > 1.2 ? 'ÉTAGE' : (h < -1.2 ? 'SOUS-SOL' : 'RDC');
+        return { id: zone.id, name: zone.name, level, floorY: h };
+      }
+    }
   }
-  return best||house.rooms[0];
+  const candidates = house.rooms.filter(r => x >= r.x0 && x <= r.x1 && z >= r.z0 && z <= r.z1);
+  if (!candidates.length) return house.rooms[0];
+  candidates.sort((a, b) => Math.abs((a.floorY || 0) - y) - Math.abs((b.floorY || 0) - y));
+  return candidates[0];
 }
 
-return { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt, floorHeightAt, stairHeight, doorOverlapsBody };
+return { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt };
 })();
 
 let active = null;
@@ -4192,28 +4036,26 @@ function buildHouseScene(scene, house) {
     batches.get(v.material).push(v);
   }
   for (const v of house.volumes) {
-    if (v.hiddenGeometry || v.id === 'bibliotheque' || v.id.startsWith('livre-')) continue;
-    const baseY = v.y - v.h / 2;
-    if (v.kind === 'wall' && v.h > 2.9) {
+    if (v.id === 'bibliotheque' || v.id.startsWith('livre-')) continue;
+    if (v.kind === 'wall' && v.y - v.h / 2 < .01 && v.h > 2) {
       // Le soubassement et l'enduit partitionnent le même volume solide.
-      queue({ ...v, y: baseY + .36, h: .72, material: 'wallBase' });
-      queue({ ...v, y: baseY + .72 + (v.h - .72) / 2, h: v.h - .72 });
-      queue({ ...v, y: baseY + .735, h: .035, w: v.w + .008, d: v.d + .008, material: 'trim' });
+      queue({ ...v, y: .36, h: .72, material: 'wallBase' });
+      queue({ ...v, y: .72 + (v.h - .72) / 2, h: v.h - .72 });
+      queue({ ...v, y: .735, h: .035, w: v.w + .008, d: v.d + .008, material: 'trim' });
     } else queue(v);
   }
   // Plinthes, corniches et soubassements sur les murs existants, jamais dans les ouvertures.
   for (const v of house.volumes) {
-    if (v.kind !== 'wall' || v.h < 2.9) continue;
-    const baseY = v.y - v.h / 2;
-    queue({ ...v, y: baseY + .095, h: .19, w: v.w + .024, d: v.d + .024, material: 'trim' });
-    queue({ ...v, y: baseY + v.h - .08, h: .10, w: v.w + .05, d: v.d + .05, material: 'trim' });
+    if (v.kind !== 'wall' || v.y - v.h / 2 > .01 || v.h < 2) continue;
+    queue({ ...v, y: .095, h: .19, w: v.w + .024, d: v.d + .024, material: 'trim' });
+    queue({ ...v, y: 2.92, h: .10, w: v.w + .05, d: v.d + .05, material: 'trim' });
     const axis = v.w > v.d ? 'x' : 'z', length = axis === 'x' ? v.w : v.d;
     if (length < .8) continue;
     const panels = Math.max(1, Math.floor(length / 1.0));
     for (let i = 0; i < panels; i++) {
       const t = -length / 2 + (i + .5) * length / panels;
       queue({ ...v, x: v.x + (axis === 'x' ? t : 0), z: v.z + (axis === 'z' ? t : 0),
-        y: baseY + .40, h: .40, w: axis === 'x' ? length / panels - .16 : v.w + .014,
+        y: .40, h: .40, w: axis === 'x' ? length / panels - .16 : v.w + .014,
         d: axis === 'z' ? length / panels - .16 : v.d + .014, material: 'wallBase' });
     }
   }
@@ -4271,14 +4113,6 @@ function buildHouseScene(scene, house) {
   function cube(parent, x, y, z, w, h, d, material) {
     const mesh = new THREE.Mesh(unitBox, material); mesh.position.set(x, y, z); mesh.scale.set(w, h, d); parent.add(mesh); return mesh;
   }
-  for(const rail of house.rails) {
-    const a=new THREE.Vector3(rail.a.x,rail.a.y,rail.a.z), b=new THREE.Vector3(rail.b.x,rail.b.y,rail.b.z);
-    const delta=b.clone().sub(a);
-    const mesh=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,delta.length(),6),materials.wood);
-    mesh.position.copy(a).add(b).multiplyScalar(.5);
-    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());
-    scene.add(mesh);
-  }
   const shadowMaterial = new THREE.MeshBasicMaterial({ map: contactTexture(), transparent: true, depthWrite: false, toneMapped: false });
   for (const [x, z, w, d] of [[-5.9,4.55,1.7,3.25],[-4.35,4.5,1.7,2.1],[-4.6,-1.12,2.5,2.15],
     [4.75,5.1,2.5,3.45],[3.15,6.2,1,1],[-6.4,-5.9,1.35,3.45],[-4.5,-7.4,3.6,1.3],[-2.12,-7.08,1.4,1.5]]) {
@@ -4291,11 +4125,11 @@ function buildHouseScene(scene, house) {
     cube(scene, -6.22, .97, z, .14, .48, .82, materials.fabric);
   }
   // Sources visibles et repères architecturaux, sans ombres temps réel coûteuses.
-  const lampPositions = house.lampPositions;
+  const lampPositions = house.lampPositions || [[0, 2.55, 5.8], [0, 2.6, .7], [0, 2.6, -5.3], [-4.5, 2.55, 4.5], [-4.6, 2.5, -1.12], [-4.3, 2.6, -5.8], [4.5, 2.55, 4.7], [3.6, 2.6, 0]];
   const lampGeometry = new THREE.CylinderGeometry(.22, .37, .25, 12, 1, true);
   const bulbGeometry = new THREE.SphereGeometry(.065, 8, 6);
   for (const [x, y, z] of lampPositions) {
-    cube(scene, x, y + .20, z, .018, .40, .018, materials.dark);
+    cube(scene, x, (y + 3) / 2, z, .018, 3 - y, .018, materials.dark);
     const shade = new THREE.Mesh(lampGeometry, materials.metal); shade.position.set(x, y, z); scene.add(shade);
     const bulb = new THREE.Mesh(bulbGeometry, materials.bulb); bulb.position.set(x, y - .06, z); scene.add(bulb);
   }
@@ -4329,7 +4163,7 @@ function buildHouseScene(scene, house) {
     for (const side of [-1, 1]) {
       for (const y of [.56, 1.55]) cube(pivot, d.width / 2, y, side * .041, d.width - .22, .71, .012, materials.wood);
       cube(pivot, d.width - .14, 1.02, side * .052, .16, .045, .05, materials.metal);
-      if (d.id === 'stairs' && d.locked) cube(pivot, d.width / 2, 1.33, side * .046, d.width - .08, .13, .018, materials.dark);
+      if (d.id === 'stairs') cube(pivot, d.width / 2, 1.33, side * .046, d.width - .08, .13, .018, materials.dark);
     }
     for (const side of [-1, 1]) {
       for (const y of [.56, 1.55]) {
@@ -4366,7 +4200,7 @@ function buildHouseScene(scene, house) {
       const seal = new THREE.Mesh(new THREE.CylinderGeometry(.13, .13, .06, 12), mat);
       seal.rotation.x = .8; group.add(seal);
     }
-    scene.add(group); itemMeshes.set(item.id, group);
+    group.visible = !item.hidden; scene.add(group); itemMeshes.set(item.id, group);
   }
   return { doorMeshes, itemMeshes, lampPositions };
 }
@@ -4388,8 +4222,8 @@ function disposeScene(scene) {
 function open() {
   close();
   const shell = document.createElement('section');
-  shell.className = 'three17-shell'; shell.dataset.build = 'r18-1-real-stairs';
-  shell.setAttribute('role', 'dialog'); shell.setAttribute('aria-label', '3:17 FOUR — trois niveaux');
+  shell.className = 'three17-shell'; shell.dataset.build = 'r19-search-hide';
+  shell.setAttribute('role', 'dialog'); shell.setAttribute('aria-label', '3:17 FOUR — maison à plusieurs niveaux');
   shell.innerHTML = `<div class="three17-stage"><div class="three17-hud">
     <div class="three17-top"><div><div class="three17-clock">03:17</div><div class="three17-build">${BUILD}</div></div>
     <div class="three17-objective"><span data-lock>🔒 SORTIE VERROUILLÉE</span><br><b>Éléments trouvés : <span data-count>0</span>/3</b><br><small data-floor>RDC · HALL D’ENTRÉE</small></div></div>
@@ -4398,8 +4232,8 @@ function open() {
     <div class="three17-look" aria-label="Glisser pour regarder"></div>
     <div class="three17-actions"><button class="three17-btn flash" type="button" aria-label="Éteindre la lampe" aria-pressed="true">🔦</button>
     <button class="three17-btn interact" type="button">AGIR</button></div><div class="three17-hint"></div><div class="three17-msg" role="status"></div></div>
-    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><strong class="three17-build-label">MAISON · R18.1</strong>
-    <p>Explorez le RDC, l’étage et le sous-sol.<br>Montez et descendez les escaliers en marchant.<br><small>Trouvez la clé, le fusible et le sceau. La lampe reste votre alliée.</small></p>
+    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><strong class="three17-build-label">MAISON · R19</strong>
+    <p>La maison est plus grande, avec davantage de pièces.<br>Fouillez armoires, tiroirs et étagères.<br><small>Trouvez la clé, le fusible et le sceau, puis cachez-vous si besoin.</small></p>
     <button type="button">ENTRER DANS LA MAISON</button></div></div>
     <div class="three17-win"><div><h1>VOUS ÊTES SORTI</h1><p>Les trois éléments ont ouvert la sortie.</p><button class="three17-btn" type="button">OK</button></div></div></div>`;
   document.body.append(shell);
@@ -4420,8 +4254,7 @@ function open() {
     const meshes = buildHouseScene(scene, house);
     const camera = new THREE.PerspectiveCamera(68, 1, .05, 45);
     let yaw = house.spawn.yaw, pitch = house.spawn.pitch;
-    const position = { x: house.spawn.x, y: house.spawn.y, z: house.spawn.z };
-    let viewY = position.y;
+    const position = { x: house.spawn.x, y: house.spawn.y || 0, z: house.spawn.z }; let hidden = false, currentHide = null;
     const keys = { x: 0, y: 0 };
     let drag = null, look = null, lx = 0, ly = 0, started = false, won = false, count = 0;
     let last = performance.now(), lastRender = 0, lastHud = 0, flashOn = true;
@@ -4439,7 +4272,7 @@ function open() {
     function updateRoomLights() {
       let a = 0, b = 1, da = Infinity, db = Infinity;
       for (let i = 0; i < meshes.lampPositions.length; i++) {
-        const p = meshes.lampPositions[i], distance = (p[0] - position.x) ** 2 + 4 * (p[1] - (position.y + 2.55)) ** 2 + (p[2] - position.z) ** 2;
+        const p = meshes.lampPositions[i], distance = (p[0] - position.x) ** 2 + (p[1] - (position.y + 1.2)) ** 2 + (p[2] - position.z) ** 2;
         if (distance < da) { db = da; b = a; da = distance; a = i; }
         else if (distance < db) { db = distance; b = i; }
       }
@@ -4467,7 +4300,7 @@ function open() {
     function resetInputs() { drag = look = null; keys.x = keys.y = 0; knob.style.transform = ''; }
     function refreshCamera() {
       camera.rotation.order = 'YXZ'; camera.rotation.y = yaw; camera.rotation.x = pitch;
-      camera.position.set(position.x, viewY + EYE_HEIGHT, position.z); camera.updateMatrixWorld();
+      camera.position.set(position.x, position.y + EYE_HEIGHT, position.z); camera.updateMatrixWorld();
     }
     function selectInteraction() {
       const from = { x: position.x, y: position.y + EYE_HEIGHT, z: position.z };
@@ -4475,15 +4308,18 @@ function open() {
       const fx = -Math.sin(yaw), fz = -Math.cos(yaw);
       function candidate(object, type, point) {
         const dx = point.x - position.x, dz = point.z - position.z;
-        const distance = Math.hypot(dx, dz);
-        const vertical = point.y - (position.y + EYE_HEIGHT);
-        if (distance > 2.05 || Math.abs(vertical) > 1.45) return;
+        const dy = point.y - (position.y + EYE_HEIGHT);
+        const distance = Math.hypot(dx, dy, dz);
+        if (distance > 2.05) return;
         const facing = distance < .10 ? 1 : (fx * dx + fz * dz) / distance;
         if (facing < .38 || !hasLineOfSight(house, from, point, type === 'door' ? object.id : '')) return;
         const rank = distance + (1 - facing) * .75;
         if (rank < score) { best = { object, type }; score = rank; }
       }
-      for (const item of house.items) if (!item.taken) candidate(item, 'item', item);
+      if (hidden && currentHide) return { object: currentHide, type: 'hide' };
+      for (const spot of (house.hideSpots || [])) candidate(spot, 'hide', { x: spot.x, y: (spot.y || 0) + 1.0, z: spot.z });
+      for (const container of (house.containers || [])) candidate(container, 'container', { x: container.x, y: container.y, z: container.z });
+      for (const item of house.items) if (!item.taken && !item.hidden) candidate(item, 'item', item);
       for (const door of house.doors) {
         // Cible au centre de la FEUILLE réelle, même lorsqu'elle est ouverte.
         const c = Math.cos(door.angle), s = Math.sin(door.angle);
@@ -4496,8 +4332,10 @@ function open() {
       if (!selection) return '';
       const o = selection.object;
       if (selection.type === 'item') return 'AGIR · Prendre : ' + o.label;
+      if (selection.type === 'container') return 'AGIR · Fouiller : ' + o.label;
+      if (selection.type === 'hide') return hidden && currentHide && currentHide.id === o.id ? 'AGIR · Sortir de : ' + o.label : 'AGIR · Se cacher : ' + o.label;
       if (o.exit) return count === 3 ? 'AGIR · Ouvrir la sortie' : 'AGIR · Sortie verrouillée';
-      if (o.locked) return 'Porte verrouillée';
+      if (o.locked) return 'Escalier fermé · aucun étage actif';
       return 'AGIR · ' + (Math.abs(o.targetAngle - o.closedAngle) < .01 ? 'Ouvrir : ' : 'Fermer : ') + o.label;
     }
     function interact() {
@@ -4506,18 +4344,34 @@ function open() {
       if (!selection) { message('Approchez-vous et regardez la porte ou l’objet'); return; }
       const o = selection.object;
       if (selection.type === 'item') {
-        o.taken = true; meshes.itemMeshes.get(o.id).visible = false; count++;
+        o.taken = true; const im = meshes.itemMeshes.get(o.id); if (im) im.visible = false; count++;
         counter.textContent = String(count); message('✓ ' + o.label + ' récupéré');
         if (count === 3) lockLabel.textContent = '🔓 RETOURNEZ À LA SORTIE';
+      } else if (selection.type === 'container') {
+        o.opened = !o.opened;
+        if (o.contains) {
+          const found = house.items.find(item => item.id === o.contains);
+          if (found && !found.taken) {
+            found.taken = true; found.hidden = false; const im = meshes.itemMeshes.get(found.id); if (im) im.visible = false; count++; counter.textContent = String(count);
+            message('Vous trouvez : ' + found.label);
+            if (count === 3) lockLabel.textContent = '🔓 RETOURNEZ À LA SORTIE';
+          } else message('Vous fouillez ' + o.label + ' : rien de plus');
+        } else message('Vous fouillez ' + o.label + ' : rien d’utile');
+      } else if (selection.type === 'hide') {
+        if (hidden && currentHide && currentHide.id === o.id) {
+          hidden = false; position.x = o.exitX ?? position.x; position.z = o.exitZ ?? position.z; position.y = floorHeightAt(house, position.x, position.z, position.y); currentHide = null; message('Vous sortez de la cachette');
+        } else {
+          hidden = true; currentHide = o; position.x = o.x; position.z = o.z; position.y = floorHeightAt(house, position.x, position.z, o.y || position.y); keys.x = keys.y = 0; knob.style.transform = ''; message('Vous êtes caché');
+        }
       } else if (o.exit) {
         if (count < 3) message('Il manque ' + (3 - count) + ' élément' + (count < 2 ? 's' : ''));
         else { won = true; resetInputs(); shell.querySelector('.three17-win').classList.add('show'); }
-      } else if (o.locked) message('Porte verrouillée');
+      } else if (o.locked) message('Escalier condamné pour cette version : explorez le RDC');
       else {
         const desired = Math.abs(o.targetAngle - o.closedAngle) < .01 ? o.openAngle : o.closedAngle;
         // Ne ferme pas une porte SUR le joueur et ne le pousse pas à travers le mur.
         for (let step = 1; step <= 18; step++) {
-          if (doorOverlapsBody(o, position.y) && circleHitsDoor(position.x, position.z, PLAYER_RADIUS + .02, o, o.angle + (desired - o.angle) * step / 18)) {
+          if (circleHitsDoor(position.x, position.z, PLAYER_RADIUS + .02, o, o.angle + (desired - o.angle) * step / 18)) {
             message('Reculez un peu pour laisser passer la porte'); return;
           }
         }
@@ -4529,7 +4383,7 @@ function open() {
         const delta = d.targetAngle - d.angle;
         if (Math.abs(delta) < .0001) continue;
         const next = d.angle + Math.sign(delta) * Math.min(Math.abs(delta), dt * 5);
-        if (doorOverlapsBody(d, position.y) && circleHitsDoor(position.x, position.z, PLAYER_RADIUS + .015, d, next)) { d.targetAngle = d.angle; continue; }
+        if (circleHitsDoor(position.x, position.z, PLAYER_RADIUS + .015, d, next)) { d.targetAngle = d.angle; continue; }
         d.angle = next; meshes.doorMeshes.get(d.id).rotation.y = d.angle;
       }
     }
@@ -4539,17 +4393,16 @@ function open() {
       if (document.hidden || now - lastRender < FRAME_MS) return;
       lastRender = now; const dt = Math.min(.05, (now - last) / 1000); last = now;
       if (started && !won) {
-        // Axes, vitesse et sens STRICTEMENT conservés depuis la version validée.
-        const forwardInput = -keys.y, strafeInput = keys.x, spd = 2.5;
-        const sin = Math.sin(yaw), cos = Math.cos(yaw);
-        const moveX = (-sin * forwardInput + cos * strafeInput) * spd * dt;
-        const moveZ = (-cos * forwardInput - sin * strafeInput) * spd * dt;
-        movePlayer(house, position, moveX, moveZ);
+        if (!hidden) {
+          const forwardInput = -keys.y, strafeInput = keys.x, spd = 2.5;
+          const sin = Math.sin(yaw), cos = Math.cos(yaw);
+          const moveX = (-sin * forwardInput + cos * strafeInput) * spd * dt;
+          const moveZ = (-cos * forwardInput - sin * strafeInput) * spd * dt;
+          movePlayer(house, position, moveX, moveZ);
+        }
         animateDoors(dt);
         for (const mesh of meshes.itemMeshes.values()) if (mesh.visible) mesh.rotation.y += dt * 1.6;
       }
-      viewY += (position.y - viewY) * Math.min(1, dt * 18);
-      if (Math.abs(viewY - position.y) < .001) viewY = position.y;
       refreshCamera();
       flashlight.visible = fillLight.visible = flashOn;
       flashlight.position.copy(camera.position); fillLight.position.copy(camera.position);
@@ -4564,7 +4417,7 @@ function open() {
         const currentRoom = roomAt(house, position.x, position.z, position.y);
         const text = currentRoom.level + ' · ' + currentRoom.name.toUpperCase();
         if (floorLabel.textContent !== text) floorLabel.textContent = text;
-        const selectionText = started && !won ? interactionLabel(selectInteraction()) : '';
+        const selectionText = hidden ? 'CACHÉ · appuyez sur AGIR pour sortir' : (started && !won ? interactionLabel(selectInteraction()) : '');
         if (hint.textContent !== selectionText) hint.textContent = selectionText;
       }
       renderer.render(scene, camera);
@@ -4604,7 +4457,7 @@ function open() {
       message(flashOn ? 'Lampe allumée' : 'Lampe éteinte'); });
     press(shell.querySelector('.three17-exit'), close);
     press(shell.querySelector('.three17-start button'), () => { resetInputs(); started = true;
-      shell.querySelector('.three17-start')?.remove(); message('R18.1 · escalier au fond du couloir à droite'); });
+      shell.querySelector('.three17-start')?.remove(); message('Maison R19 · fouillez les meubles et cachez-vous'); });
     press(shell.querySelector('.three17-win button'), close);
     const visibility = () => { resetInputs(); last = performance.now(); };
     document.addEventListener('visibilitychange', visibility); window.addEventListener('blur', visibility);
@@ -4614,19 +4467,19 @@ function open() {
     // Instrumentation désactivée en production. Pas de téléportation dans le jeu.
     if (window.__ONE317_TEST__ === true) session.debug = {
       house, scene, renderer,
-      snapshot: () => ({ x: position.x, z: position.z, y: camera.position.y, yaw, pitch, flashOn, started, won, count,
-        drag, look, keys: { ...keys }, floorY: position.y, room: roomAt(house, position.x, position.z, position.y).id,
+      snapshot: () => ({ x: position.x, z: position.z, y: camera.position.y, hidden, yaw, pitch, flashOn, started, won, count,
+        drag, look, keys: { ...keys }, room: roomAt(house, position.x, position.z, position.y).id,
         selection: selectInteraction()?.object.id, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles }),
-      place(x, z, lookYaw = yaw, lookPitch = pitch, y = position.y) {
-        if (floorHeightAt(house, x, z, y) === null || blockedAt(house, x, z, y)) throw new Error('Point de test dans un obstacle');
-        resetInputs(); position.x = x; position.y = y; viewY = y; position.z = z; yaw = lookYaw; pitch = lookPitch; refreshCamera();
-      }, walk(dx,dz) { movePlayer(house,position,dx,dz); viewY=position.y; refreshCamera(); }, interact, selectInteraction, refreshCamera,
+      place(x, z, lookYaw = yaw, lookPitch = pitch) {
+        if (blockedAt(house, x, z)) throw new Error('Point de test dans un obstacle');
+        resetInputs(); position.x = x; position.z = z; yaw = lookYaw; pitch = lookPitch; refreshCamera();
+      }, interact, selectInteraction, refreshCamera,
     };
   } catch (error) {
-    console.error('3:17 FOUR R18.1 — lancement interrompu', error);
+    console.error('3:17 FOUR R19 — lancement interrompu', error);
     session.stop();
     const message = document.createElement('div'); message.className = 'three17-shell three17-load-error';
-    const text = document.createElement('p'); text.textContent = '3:17 FOUR R18.1 n’a pas pu démarrer. Fermez cette fenêtre et rechargez ONE. Si cela se reproduit, vérifiez le déploiement complet ou envoyez une capture de ce message.';
+    const text = document.createElement('p'); text.textContent = '3:17 FOUR R19 n’a pas pu démarrer. Fermez cette fenêtre et rechargez ONE. Si cela se reproduit, vérifiez le déploiement complet ou envoyez une capture de ce message.';
     const button = document.createElement('button'); button.textContent = 'Fermer'; button.onclick = () => message.remove();
     message.append(text, button); document.body.append(message);
     active = { stop: () => message.remove() };
@@ -4637,7 +4490,7 @@ window.ONEThree17 = { open, close, build: BUILD };
 if (window.__ONE317_TEST__ === true) Object.defineProperty(window.ONEThree17, 'debug', { get: () => active?.debug });
 window.addEventListener('pagehide', close);
 
-</script><script type="module" id="one317-r18-1-lobby">
+</script><script type="module" id="one317-r16-lobby">
 import * as THREE from './ui/three.module.js';
 
 let active=null;
@@ -4676,7 +4529,7 @@ function buildRoom(scene){
 }
 function open(ctx={}){
  close();const shell=document.createElement('section');shell.className='one3d-shell';shell.setAttribute('role','dialog');shell.setAttribute('aria-label','Lobby 3D ONE');
- const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R18.1</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
+ const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R19</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
  document.body.append(shell);try{screen.orientation?.lock?.('landscape').catch(()=>{});}catch{}const stage=shell.querySelector('.one3d-stage'),players=shell.querySelector('.one3d-players');members.forEach(m=>{const e=document.createElement('span');e.className='one3d-player';e.dataset.ready=String(!!m.ready);e.textContent=(m.isYou?'● ':'')+m.name+(m.ready?' ✓':'');players.append(e);});
  const scene=new THREE.Scene();buildRoom(scene);
  const camera=new THREE.PerspectiveCamera(65,1,.05,60);let yaw=0,pitch=-.08;const local=members.find(m=>m.isYou)||{name:'Toi',isYou:true};const colors=[0x7b5cff,0x49b6ff,0xff6b9e,0x58d68d];let me=null;members.forEach((m,i)=>{const a=[[-2.2,1.8],[2.2,1.8],[-2.2,-1.8],[2.2,-1.8]][i]||[0,0];const av=makeAvatar(scene,m.name,colors[i%4],a[0],a[1],m.isYou);if(m.isYou)me=av;});if(!me)me=makeAvatar(scene,local.name,colors[0],0,2,true);me.position.set(0,0,4.8);camera.position.set(0,1.65,4.8);yaw=0;pitch=-.10;
