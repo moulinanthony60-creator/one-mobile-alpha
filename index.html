@@ -3662,7 +3662,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R24 · STABILITÉ ÉCRAN';
+const BUILD = 'R27 · RDC OUVERT · PUSH DOORS · VISUAL+';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -3765,18 +3765,18 @@ function createGroundFloor() {
   wallRun('g-north', 'x', -8, -7.12, 7.12);
   wallRun('g-south', 'x', 8, -7.12, 7.12, [{ id: 'exit', label: 'SORTIE', center: 0, width: 1.45, exit: true, locked: true, sign: false }]);
   wallRun('g-west', 'z', -7, -8, 8); wallRun('g-east', 'z', 7, -8, 8);
-  wallRun('g-couloir-ouest', 'z', -1.25, -8, 8, [
+  // R27 : grande pièce de vie ouverte. On conserve seulement une courte séparation
+  // côté cuisine pour garder un angle de gameplay, mais salon + salle à manger + hall respirent.
+  wallRun('g-couloir-ouest-cuisine', 'z', -1.25, -8, -3.95, [
     { id: 'kitchen', label: 'CUISINE', center: -5.6, width: 1.4, swing: -1 },
-    { id: 'dining', label: 'SALLE À MANGER', center: -1.1, width: 1.4, swing: -1 },
-    { id: 'salon', label: 'SALON', center: 5.3, width: 1.5, swing: -1, open: true },
   ]);
   wallRun('g-couloir-est', 'z', 1.25, -8, 8, [
     { id: 'stairs', label: 'ESCALIER', center: -4.7, width: 1.4, arch: true },
     { id: 'bathroom', label: 'SALLE DE BAIN', center: 0, width: 1.3, swing: 1 },
     { id: 'bedroom', label: 'CHAMBRE', center: 4.8, width: 1.4, swing: 1 },
   ]);
-  wallRun('g-salon-dining', 'x', 1, -7, -1.25, [{ id: 'arch-salon', label: 'SALLE À MANGER', center: -3.1, width: 1.6, arch: true, sign: false }]);
-  wallRun('g-dining-kitchen', 'x', -3.5, -7, -1.25, [{ id: 'kitchen-back', label: 'CUISINE', center: -3.1, width: 1.4, swing: 1, sign: false }]);
+  // Cloisons salon/salle à manger supprimées : continuité visuelle complète.
+  // La cuisine reste délimitée par son mobilier et le court retour de mur côté couloir.
   wallRun('g-bedroom-bathroom', 'x', 2, 1.25, 7); wallRun('g-bathroom-stairs', 'x', -2, 1.25, 7); wallRun('g-hall-arch', 'x', 3, -1.25, 1.25, [{ id: 'hall-arch', label: 'COULOIR', center: 0, width: 1.95, arch: true }]);
 
   // Upper floor expanded
@@ -3875,8 +3875,8 @@ function createGroundFloor() {
 
   // Ground furniture
   b('canape-assise', -5.90, .36, 4.55, 1.20, .72, 2.8, 'fabric'); b('canape-dossier', -6.38, .78, 4.55, .24, 1.18, 2.8, 'fabric'); for (const z of [3.18, 5.92]) b('canape-accoudoir-' + z, -5.90, .60, z, 1.20, .42, .22, 'fabric');
-  table('table-basse', -4.35, 0, 4.5, 1.25, 1.65, .50); b('meuble-tv', -3.60, .31, 7.40, 2.05, .62, .55); b('tv-cadre', -3.60, 1.32, 7.72, 1.65, .95, .12, 'dark'); b('tv-ecran', -3.60, 1.32, 7.647, 1.50, .80, .014, 'screen', false); b('bibliotheque', -6.42, 1.02, 2.0, .62, 2.04, 1.15, 'wood');
-  table('table-repas', -4.60, 0, -1.12, 1.85, 1.35, .80); b('buffet', -6.44, .48, -1.2, .70, .96, 2.0); b('cuisine-meubles-ouest', -6.40, .46, -5.9, .88, .92, 3.1, 'cabinet'); b('cuisine-plan-ouest', -6.40, .965, -5.9, .96, .09, 3.15, 'stone'); b('cuisine-meubles-nord', -4.50, .46, -7.40, 3.15, .92, .88, 'cabinet'); b('cuisine-plan-nord', -4.50, .965, -7.40, 3.2, .09, .96, 'stone'); b('frigo', -2.12, 1.0, -7.08, .98, 2.0, 1.1, 'enamel');
+  table('table-basse', -4.35, 0, 4.5, 1.25, 1.65, .50); b('meuble-tv', -3.60, .31, 7.40, 2.05, .62, .55); b('tv-cadre', -3.60, 1.32, 7.72, 1.65, .95, .12, 'dark'); b('tv-ecran', -3.60, 1.32, 7.647, 1.50, .80, .014, 'screen', false); b('bibliotheque', -6.42, 1.02, 2.35, .62, 2.04, 1.15, 'wood');
+  table('table-repas', -4.35, 0, -.85, 1.85, 1.35, .80); b('buffet', -6.44, .48, -1.05, .70, .96, 2.0); b('cuisine-meubles-ouest', -6.40, .46, -5.9, .88, .92, 3.1, 'cabinet'); b('cuisine-plan-ouest', -6.40, .965, -5.9, .96, .09, 3.15, 'stone'); b('cuisine-meubles-nord', -4.50, .46, -7.40, 3.15, .92, .88, 'cabinet'); b('cuisine-plan-nord', -4.50, .965, -7.40, 3.2, .09, .96, 'stone'); b('frigo', -2.12, 1.0, -7.08, .98, 2.0, 1.1, 'enamel');
   b('lit-sommier', 4.75, .23, 5.1, 1.95, .46, 2.9, 'wood'); b('lit-matelas', 4.75, .52, 5.1, 1.94, .18, 2.85, 'linen'); b('lit-couverture', 4.75, .635, 4.75, 1.94, .07, 2.08, 'fabric'); b('lit-tete', 4.75, .64, 6.55, 2.05, 1.15, .17, 'wood'); b('chevet', 3.15, .32, 6.2, .65, .64, .68, 'wood'); b('armoire', 6.45, 1.04, 3.43, .70, 2.08, 1.65, 'wood');
   b('baignoire-base', 5.8, .17, .2, 1.5, .34, 2.35, 'enamel'); b('lavabo-meuble', 3.5, .39, -1.49, 1.25, .78, .65, 'cabinet'); b('miroir-cadre', 3.5, 1.69, -1.84, 1.2, 1.13, .06, 'trim', false); b('miroir', 3.5, 1.69, -1.801, 1.07, 1.0, .014, 'mirror', false); b('wc-base', 3.6, .22, 1.18, .50, .44, .64, 'enamel');
 
@@ -3906,7 +3906,7 @@ function createGroundFloor() {
     { id: 'seal', reveal: { x:-5.48, y:UPPER_Y+1.2, z:3.9 }, label: 'Sceau', room: 'upper-nursery', x: -6.2, y: UPPER_Y + 1.0, z: 3.9, color: 0xb19dda, taken: false, hidden: true },
   ];
   // searchable spots
-  container('c-buffet', 'Buffet', -6.2, .9, -1.2, 'dining'); container('c-kitchen-left', 'Placard de cuisine', -6.1, .95, -6.4, 'kitchen'); container('c-fridge', 'Frigo', -2.15, 1.0, -7.08, 'kitchen');
+  container('c-buffet', 'Buffet', -6.2, .9, -1.05, 'dining'); container('c-kitchen-left', 'Placard de cuisine', -6.1, .95, -6.4, 'kitchen'); container('c-fridge', 'Frigo', -2.15, 1.0, -7.08, 'kitchen');
   container('c-bed-chevet', 'Table de chevet', 3.15, .7, 6.2, 'bedroom'); container('c-armoire-rdc', 'Armoire', 6.45, 1.0, 3.43, 'bedroom');
   container('c-nursery-wardrobe', 'Armoire enfant', -6.2, UPPER_Y + 1.0, 3.9, 'upper-nursery', 'seal'); container('c-nursery-box', 'Coffre à jouets', -2.0, UPPER_Y + .3, 6.5, 'upper-nursery');
   container('c-office-cabinet', 'Caisson de bureau', -2.1, UPPER_Y + .7, .2, 'upper-office', 'key'); container('c-office-shelf', 'Étagère', -6.25, UPPER_Y + 1.1, 1.2, 'upper-office');
@@ -4446,7 +4446,7 @@ function makeTexture(kind) {
   }
   g.putImageData(image, 0, 0);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 2;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4;
   return t;
 }
 function contactTexture() {
@@ -4467,14 +4467,14 @@ function buildHouseScene(scene, house) {
     screen: 0x131d24, glass: 0x415b71, rug: 0xffffff, stoneFloor: 0x434649, bulb: 0xffda9c,
   };
   for (const [name, color] of Object.entries(palette)) {
-    materials[name] = new THREE.MeshStandardMaterial({ color, roughness: name === 'metal' ? .35 : .88,
-      metalness: name === 'metal' ? .45 : 0 });
+    materials[name] = new THREE.MeshStandardMaterial({ color, roughness: name === 'metal' ? .28 : (name === 'enamel' ? .48 : .78),
+      metalness: name === 'metal' ? .55 : 0 });
   }
   for (const kind of ['plaster', 'wood', 'fabric', 'linen', 'rug']) materials[kind].map = makeTexture(kind);
   materials.bulb.emissive.setHex(0xe6b97a); materials.bulb.emissiveIntensity = .18;
   for (const [name, tex, color] of [['woodFloor', wood, 0xb3a394], ['hallFloor', tile, 0x8c918e],
     ['kitchenFloor', tile, 0xafb1a0], ['bathFloor', bath, 0xb3bdb7]]) {
-    materials[name] = new THREE.MeshStandardMaterial({ color, map: tex, roughness: .92 });
+    materials[name] = new THREE.MeshStandardMaterial({ color, map: tex, roughness: .78 });
   }
   materials.glass.emissive.setHex(0x0f1822); materials.glass.emissiveIntensity = .12;
   materials.screen.emissive.setHex(0x070b10); materials.screen.emissiveIntensity = .08;
@@ -4698,7 +4698,7 @@ function open() {
     <div class="three17-look" aria-label="Glisser pour regarder"></div>
     <div class="three17-actions"><button class="three17-btn sound" type="button" aria-label="Couper le son" aria-pressed="true">♪</button><button class="three17-btn flash" type="button" aria-label="Éteindre la lampe" aria-pressed="true">🔦</button>
     <button class="three17-btn interact" type="button">AGIR</button></div><div class="three17-hint"></div><div class="three17-msg" role="status"></div></div>
-    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">10:00</div><strong class="three17-build-label">R26 · PORTES 2 SENS · GRAPHISMES · 10 MIN</strong>
+    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">10:00</div><strong class="three17-build-label">R27 · RDC OUVERT · PUSH · GRAPHISMES+ · 10 MIN</strong>
     <p><b>Départ aléatoire dans la maison.</b><br>Fouillez, puis ramassez les trois objets.<br>Le Parasite vous traque : cachez-vous hors de sa vue.</p>
     <div class="three17-clues">Clé : bureau · Sceau : chambre enfant<br>Fusible : réserve du sous-sol</div>
     <p data-monster-load role="status">Chargement du modèle 3D et des textures…</p><button type="button" disabled aria-busy="true">CHARGEMENT DU MONSTRE…</button><small class="three17-controls-help">Joystick + glisser pour regarder · AGIR pour fouiller / prendre / se cacher<br>Clavier : ZQSD / WASD · E : agir · F : lampe · M : son</small></div></div>
@@ -4753,8 +4753,8 @@ function open() {
     let renderWidth=0,renderHeight=0,renderRatio=0,qualityScale=1;
     const graphicsInfo={build:BUILD,contextLosses:0,contextRestores:0,resizes:0,frames:0,lastError:null};
     audio=createEncounterAudio();
-    scene.add(new THREE.HemisphereLight(0x9eacc8,0x171319,.22));
-    const moon=new THREE.DirectionalLight(0xa9bce4,.24);moon.position.set(2,6,3);scene.add(moon);
+    scene.add(new THREE.HemisphereLight(0xb7c5dd,0x171319,.32));
+    const moon=new THREE.DirectionalLight(0xb8c9ec,.34);moon.position.set(2,6,3);scene.add(moon);
     const flashlight=new THREE.SpotLight(0xffefdc,26,17,.56,.82,1.2);
     const target=new THREE.Object3D();flashlight.target=target;scene.add(flashlight,target);
     const fillLight=new THREE.PointLight(0xdde8ff,.8,3.8,1.9);scene.add(fillLight);
@@ -4771,7 +4771,7 @@ function open() {
     updateRoomLights();
     renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:false});
     renderer.outputColorSpace=THREE.SRGBColorSpace;
-    renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;stage.prepend(renderer.domElement);
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.28;stage.prepend(renderer.domElement);
     const stick=shell.querySelector('.three17-stick'),knob=shell.querySelector('.three17-knob'),lookZone=shell.querySelector('.three17-look');
     const flashButton=shell.querySelector('.flash'),soundButton=shell.querySelector('.sound'),hint=shell.querySelector('.three17-hint');
     const floorLabel=shell.querySelector('[data-floor]'),counter=shell.querySelector('[data-count]'),lockLabel=shell.querySelector('[data-lock]');
@@ -4791,8 +4791,8 @@ function open() {
       const w=Math.floor(stage.clientWidth),h=Math.floor(stage.clientHeight);
       if(w<2||h<2){viewportReady=false;syncPause();return false;}
       if(!viewportReady){viewportReady=true;last=performance.now();syncPause();}
-      const requested=Math.min(window.devicePixelRatio||1,mobileGraphics?1.40:1.70)*qualityScale;
-      const ratio=Math.min(requested,Math.sqrt(1450000/(w*h)));
+      const requested=Math.min(window.devicePixelRatio||1,mobileGraphics?1.55:1.85)*qualityScale;
+      const ratio=Math.min(requested,Math.sqrt(1850000/(w*h)));
       if(w!==renderWidth||h!==renderHeight||Math.abs(ratio-renderRatio)>.0001){
         renderer.setDrawingBufferSize(w,h,ratio);
         camera.aspect=w/h;camera.updateProjectionMatrix();
@@ -4947,12 +4947,14 @@ function open() {
         const isClosed=Math.abs(o.targetAngle-o.closedAngle)<.01;
         let desired=o.closedAngle;
         if(isClosed){
-          // La porte peut maintenant s'ouvrir dans les DEUX sens. Le côté du joueur
-          // par rapport au battant choisit automatiquement le sens opposé.
-          const dx=position.x-o.hingeX,dz=position.z-o.hingeZ;
-          const c=Math.cos(o.closedAngle),s=Math.sin(o.closedAngle);
-          const localZ=dx*s+dz*c;
-          desired=o.closedAngle+(localZ>=0?-Math.PI/2:Math.PI/2);
+          // R27 PUSH : au clic, choisir le côté où le CENTRE du battant ouvert
+          // est le plus loin du joueur. Le battant s'éloigne donc réellement de lui.
+          const half=o.width*.5;
+          const midAt=a=>({x:o.hingeX+Math.cos(a)*half,z:o.hingeZ+Math.sin(a)*half});
+          const plus=midAt(o.closedAngle+Math.PI/2),minus=midAt(o.closedAngle-Math.PI/2);
+          const dPlus=(plus.x-position.x)**2+(plus.z-position.z)**2;
+          const dMinus=(minus.x-position.x)**2+(minus.z-position.z)**2;
+          desired=o.closedAngle+(dPlus>=dMinus?Math.PI/2:-Math.PI/2);
         }
         // L'ouverture est choisie A L'OPPOSE du joueur : ne pas considérer le
         // joueur qui actionne la poignée comme un obstacle au battant. On garde
