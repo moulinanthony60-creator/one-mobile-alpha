@@ -3770,14 +3770,14 @@ function createGroundFloor() {
   wallRun('g-couloir-ouest-cuisine', 'z', -1.25, -8, -3.95, [
     { id: 'kitchen', label: 'CUISINE', center: -5.6, width: 1.4, swing: -1 },
   ]);
-  wallRun('g-couloir-est', 'z', 1.25, -8, 8, [
+  wallRun('g-couloir-est', 'z', 1.65, -8, 8, [
     { id: 'stairs', label: 'ESCALIER', center: -4.7, width: 1.4, arch: true },
     { id: 'bathroom', label: 'SALLE DE BAIN', center: 0, width: 1.3, swing: 1 },
     { id: 'bedroom', label: 'CHAMBRE', center: 4.8, width: 1.4, swing: 1 },
   ]);
   // Cloisons salon/salle à manger supprimées : continuité visuelle complète.
   // La cuisine reste délimitée par son mobilier et le court retour de mur côté couloir.
-  wallRun('g-bedroom-bathroom', 'x', 2, 1.25, 7); wallRun('g-bathroom-stairs', 'x', -2, 1.25, 7); wallRun('g-hall-arch', 'x', 3, -1.25, 1.25, [{ id: 'hall-arch', label: 'COULOIR', center: 0, width: 1.95, arch: true }]);
+  wallRun('g-bedroom-bathroom', 'x', 2, 1.65, 7); wallRun('g-bathroom-stairs', 'x', -2, 1.65, 7); wallRun('g-hall-arch', 'x', 3, -1.25, 1.65, [{ id: 'hall-arch', label: 'COULOIR', center: 0, width: 1.95, arch: true }]);
 
   // Upper floor expanded
   wallRun('u-north', 'x', -8, -7.12, 7.12, [], UPPER_Y); wallRun('u-south', 'x', 8, -7.12, 7.12, [], UPPER_Y);
@@ -3812,7 +3812,7 @@ function createGroundFloor() {
   wallRun('b-right-a', 'x', -2, 1.25, 7, [], BASEMENT_Y); wallRun('b-right-b', 'x', 1.4, 1.25, 7, [], BASEMENT_Y);
 
   // Une seule définition des escaliers pour les marches, les trémies et le déplacement.
-  stairZone('stairs-up', 'Escalier vers l’étage', 4.45, 5.75, -7.2, -4.15, GROUND_Y, UPPER_Y);
+  stairZone('stairs-up', 'Escalier vers l’étage', 4.30, 5.85, -7.2, -4.15, GROUND_Y, UPPER_Y);
   stairZone('stairs-down', 'Escalier vers le sous-sol', 2.25, 3.55, -7.2, -4.15, BASEMENT_Y, GROUND_Y);
   const floorOpenings = stairZones.map(zone => ({ ...zone, floorY: zone.y1 }));
 
@@ -3876,9 +3876,9 @@ function createGroundFloor() {
   // Ground furniture
   b('canape-assise', -5.90, .36, 4.55, 1.20, .72, 2.8, 'fabric'); b('canape-dossier', -6.38, .78, 4.55, .24, 1.18, 2.8, 'fabric'); for (const z of [3.18, 5.92]) b('canape-accoudoir-' + z, -5.90, .60, z, 1.20, .42, .22, 'fabric');
   table('table-basse', -4.35, 0, 4.5, 1.25, 1.65, .50); b('meuble-tv', -3.60, .31, 7.40, 2.05, .62, .55); b('tv-cadre', -3.60, 1.32, 7.72, 1.65, .95, .12, 'dark'); b('tv-ecran', -3.60, 1.32, 7.647, 1.50, .80, .014, 'screen', false); b('bibliotheque', -6.42, 1.02, 2.35, .62, 2.04, 1.15, 'wood');
-  table('table-repas', -4.35, 0, -.85, 1.85, 1.35, .80); b('buffet', -6.44, .48, -1.05, .70, .96, 2.0); b('cuisine-meubles-ouest', -6.40, .46, -5.9, .88, .92, 3.1, 'cabinet'); b('cuisine-plan-ouest', -6.40, .965, -5.9, .96, .09, 3.15, 'stone'); b('cuisine-meubles-nord', -4.50, .46, -7.40, 3.15, .92, .88, 'cabinet'); b('cuisine-plan-nord', -4.50, .965, -7.40, 3.2, .09, .96, 'stone'); b('frigo', -2.12, 1.0, -7.08, .98, 2.0, 1.1, 'enamel');
+  table('table-repas', -4.55, 0, -.65, 1.85, 1.35, .80); b('buffet', -6.44, .48, -1.05, .70, .96, 2.0); b('cuisine-meubles-ouest', -6.40, .46, -5.9, .88, .92, 3.1, 'cabinet'); b('cuisine-plan-ouest', -6.40, .965, -5.9, .96, .09, 3.15, 'stone'); b('cuisine-meubles-nord', -4.50, .46, -7.40, 3.15, .92, .88, 'cabinet'); b('cuisine-plan-nord', -4.50, .965, -7.40, 3.2, .09, .96, 'stone'); b('frigo', -2.38, 1.0, -7.08, .98, 2.0, 1.1, 'enamel');
   b('lit-sommier', 4.75, .23, 5.1, 1.95, .46, 2.9, 'wood'); b('lit-matelas', 4.75, .52, 5.1, 1.94, .18, 2.85, 'linen'); b('lit-couverture', 4.75, .635, 4.75, 1.94, .07, 2.08, 'fabric'); b('lit-tete', 4.75, .64, 6.55, 2.05, 1.15, .17, 'wood'); b('chevet', 3.15, .32, 6.2, .65, .64, .68, 'wood'); b('armoire', 6.45, 1.04, 3.43, .70, 2.08, 1.65, 'wood');
-  b('baignoire-base', 5.8, .17, .2, 1.5, .34, 2.35, 'enamel'); b('lavabo-meuble', 3.5, .39, -1.49, 1.25, .78, .65, 'cabinet'); b('miroir-cadre', 3.5, 1.69, -1.84, 1.2, 1.13, .06, 'trim', false); b('miroir', 3.5, 1.69, -1.801, 1.07, 1.0, .014, 'mirror', false); b('wc-base', 3.6, .22, 1.18, .50, .44, .64, 'enamel');
+  b('baignoire-base', 5.8, .17, .2, 1.5, .34, 2.35, 'enamel'); b('lavabo-meuble', 3.85, .39, -1.49, 1.25, .78, .65, 'cabinet'); b('miroir-cadre', 3.85, 1.69, -1.84, 1.2, 1.13, .06, 'trim', false); b('miroir', 3.85, 1.69, -1.801, 1.07, 1.0, .014, 'mirror', false); b('wc-base', 3.6, .22, 1.18, .50, .44, .64, 'enamel');
 
   // Upper furniture
   b('nursery-bed', -5.4, UPPER_Y + .28, 5.6, 1.6, .55, 2.6, 'linen'); b('nursery-wardrobe', -6.2, UPPER_Y + 1.0, 3.9, .72, 2.0, 1.35, 'wood'); table('nursery-desk', -3.3, UPPER_Y, 4.1, 1.1, .6, .72); b('toy-box', -2.0, UPPER_Y + .25, 6.5, .9, .5, .7, 'wood');
@@ -4214,7 +4214,7 @@ function createMonsterController(house,hooks={},spawn=null) {
     seen:false,memory:0,knownHide:null,lastSeen:null,path:[],pathIndex:0,walked:0,moving:false,
     target:null,patrolIndex:0,search:0,repath:0,sense:0,attack:0,captured:false,waitDoor:0};
   if(spawn)m.patrolIndex=patrol.reduce((best,p,i)=>Math.hypot(p.x-spawn.x,p.y-spawn.y,p.z-spawn.z)<Math.hypot(patrol[best].x-spawn.x,patrol[best].y-spawn.y,patrol[best].z-spawn.z)?i:best,0);
-  let visibleNow=false,lastInput=null,stuck=0,lastStep=0;
+  let visibleNow=false,lastInput=null,stuck=0,lastStep=0,stuckRetries=0;
   const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
   function canSee(player,flashOn=true,hidden=false){
     if(hidden||m.grace>0||m.captured)return false;
@@ -4329,8 +4329,24 @@ function createMonsterController(house,hooks={},spawn=null) {
         const travelled=Math.hypot(m.position.x-before.x,m.position.z-before.z);
         m.walked+=travelled;m.moving=travelled>.0001;
         if(m.walked-lastStep>.68){lastStep=m.walked;hooks.step?.(dist(m.position,input.player));}
-        stuck=travelled<.001&&!doorAhead?stuck+dt:0;
-        if(stuck>1.2){m.repath=0;stuck=0;}
+        stuck=travelled<.006&&!doorAhead?stuck+dt:0;
+        if(travelled>.025){stuckRetries=0;}
+        if(stuck>.72&&!doorAhead){
+          stuckRetries++;
+          // R28 anti-blocage: ne pas recalculer éternellement le même segment.
+          // Essaie d'abord un pas latéral des deux côtés, puis saute le nœud fautif.
+          const sideX=-nz,sideZ=nx;let escaped=false;
+          for(const sign of (stuckRetries%2?[1,-1]:[-1,1])){
+            const probe={...m.position};
+            movePlayer(house,probe,sideX*sign*.32,sideZ*sign*.32);
+            if(Math.hypot(probe.x-m.position.x,probe.z-m.position.z)>.08){Object.assign(m.position,probe);escaped=true;break;}
+          }
+          if(!escaped||stuckRetries>=3){
+            if(m.pathIndex<m.path.length-1)m.pathIndex++;
+            else if(m.state==='patrol'){m.patrolIndex=(m.patrolIndex+1)%patrol.length;setTarget(patrol[m.patrolIndex],true);}
+          }
+          m.repath=0;stuck=0;
+        }
       }
     }
     const point=input.hidden&&m.knownHide?m.knownHide.point:input.player;
