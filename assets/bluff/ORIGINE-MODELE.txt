@@ -1,0 +1,18 @@
+PARASITE L STARKIE — modèle fourni par l’utilisateur
+
+Source : Parasite L Starkie.fbx, reçu dans la conversation.
+SHA-256 de l’original : 6e1631c239760756d74f895475116e65d7b7258b34a3a3ad2ac8a4788783bc3b
+
+Le fichier FBX original n’est pas modifié. Le GLB conserve le maillage, les UV,
+les 69 os et toutes les pondérations du squelette. Les textures sont intégrées
+et redimensionnées pour le jeu. La carte de brillance est adaptée en rugosité ;
+il ne s’agit pas d’une reproduction exacte de tous les réglages du matériau FBX.
+
+Le FBX contient seulement une pose fixe, pas de cycle de locomotion.
+Idle_Procedural, Stalk_Procedural et Chase_Procedural sont des animations
+simples ajoutées pour cette intégration, pas des animations Mixamo fournies.
+
+Aucun document de licence du personnage n’était joint au fichier reçu.
+Sa page d’origine et son autorisation d’utilisation n’ont pas été vérifiées.
+La licence MIT des bibliothèques Three.js ne couvre pas le modèle du personnage.
+Aucune nouvelle licence n’est attribuée au modèle par ce correctif.
