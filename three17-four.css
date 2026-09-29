@@ -50,3 +50,7 @@
 .three17-cross{transform:scale(.82);opacity:.52}
 .three17-actions{opacity:.90}
 @media (max-width:760px){.three17-objective{background:#080a09c9;backdrop-filter:blur(9px)}}
+
+/* V4 — environment first */
+.three17-objective{background:linear-gradient(#090b0ad8,#030504e8)!important}
+.three17-actions{opacity:.86}.three17-stick{opacity:.72}.three17-cross{opacity:.42}

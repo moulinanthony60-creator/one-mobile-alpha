@@ -204,6 +204,62 @@ function buildHouseScene(scene, house) {
     for(let k=0;k<4;k++){const r=.025+.018*k;const s=new THREE.Mesh(new THREE.DodecahedronGeometry(r,0),debrisMat);
       s.position.set(x+k*.07,y+r,z+((k%2)*.08));s.rotation.set(k*.7,k*.4,k*.2);s.castShadow=true;detail.add(s);}
   }
+
+  // V4 — detailed procedural furniture/assets, render-only: gameplay/collisions unchanged.
+  const asset=new THREE.Group(), G=new THREE.BoxGeometry(1,1,1);
+  asset.name='RDC-detailed-assets';
+  const mw=new THREE.MeshStandardMaterial({color:0x2e2119,roughness:.86}), md=new THREE.MeshStandardMaterial({color:0x171310,roughness:.9});
+  const cloth=new THREE.MeshStandardMaterial({color:0x30352f,roughness:1}), sheet=new THREE.MeshStandardMaterial({color:0x817a6c,roughness:1});
+  const brass=new THREE.MeshStandardMaterial({color:0x6f5935,roughness:.4,metalness:.65}), ceramic=new THREE.MeshStandardMaterial({color:0x747970,roughness:.64});
+  function bx(x,y,z,w,h,d,m=mw,ry=0){const q=new THREE.Mesh(G,m);q.position.set(x,y,z);q.scale.set(w,h,d);q.rotation.y=ry;q.castShadow=q.receiveShadow=true;asset.add(q);return q}
+  function cy(x,y,z,r,h,m=mw){const q=new THREE.Mesh(new THREE.CylinderGeometry(r*.82,r,h,12),m);q.position.set(x,y,z);q.castShadow=q.receiveShadow=true;asset.add(q);return q}
+  function soft(x,y,z,sx,sy,sz,m){const q=new THREE.Mesh(new THREE.SphereGeometry(.5,14,10),m);q.position.set(x,y,z);q.scale.set(sx,sy,sz);q.castShadow=q.receiveShadow=true;asset.add(q);return q}
+  function pic(x,y,z,w,h,ry=0){const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=ry;const p=new THREE.Mesh(new THREE.PlaneGeometry(w-.07,h-.07),new THREE.MeshStandardMaterial({color:0x29261f,roughness:1}));p.position.z=.018;g.add(p);for(const a of [[0,h/2,w,.04],[0,-h/2,w,.04],[-w/2,0,.04,h],[w/2,0,.04,h]]){const q=new THREE.Mesh(G,md);q.position.set(a[0],a[1],0);q.scale.set(a[2],a[3],.045);g.add(q)}asset.add(g)}
+  // Bedroom: soft mattress, pillows, blanket folds, headboard slats, lamp, wardrobe panels.
+  soft(4.75,.56,5.10,1.92,.24,2.82,sheet);
+  for(const x of [4.30,5.20]) soft(x,.70,6.02,.72,.20,.46,sheet);
+  for(let i=0;i<7;i++) soft(4.75,.68+Math.sin(i)*.012,4.0+i*.25,1.88,.055,.34,cloth);
+  for(let x=3.92;x<5.65;x+=.28) bx(x,.98,6.62,.055,.84,.06,mw); bx(4.75,1.38,6.62,1.92,.08,.07,md);
+  for(const x of [3.86,5.64])for(const z of [3.72,6.48])cy(x,.26,z,.065,.52,md);
+  for(const y of [.22,.44]){bx(3.15,y,5.845,.52,.18,.035,mw);const k=new THREE.Mesh(new THREE.SphereGeometry(.025,8,6),brass);k.position.set(3.15,y,5.80);asset.add(k)}
+  cy(3.15,.86,6.20,.14,.07,brass);cy(3.15,1.03,6.20,.018,.32,brass);
+  const sh=new THREE.Mesh(new THREE.CylinderGeometry(.10,.22,.22,18,1,true),new THREE.MeshStandardMaterial({color:0x756c58,roughness:1,side:THREE.DoubleSide}));sh.position.set(3.15,1.22,6.20);asset.add(sh);
+  for(const z of [3.08,3.78]){bx(6.075,1.08,z,.035,1.72,.57,mw);bx(6.05,1.08,z,.022,1.48,.42,md);cy(6.01,1.10,z,.025,.05,brass).rotation.z=Math.PI/2} bx(6.42,2.10,3.43,.80,.11,1.76,md);
+  pic(6.86,1.72,5.15,.55,.78,-Math.PI/2);
+  // Living room: rounded cushions, detailed coffee table and clutter.
+  for(let z=3.45;z<=5.65;z+=.73){soft(-5.86,.59,z,1.05,.27,.64,cloth);const q=soft(-6.28,.96,z,.34,.62,.64,cloth);q.rotation.z=-.10}
+  for(const z of [3.17,5.93])soft(-5.86,.66,z,1.10,.48,.30,cloth);
+  bx(-4.35,.52,4.50,1.34,.07,1.74,md);for(const x of [-4.88,-3.82])for(const z of [3.84,5.16])cy(x,.27,z,.07,.48,mw);
+  cy(-4.58,.61,4.35,.06,.12,ceramic);for(let i=0;i<3;i++)bx(-4.05,.585+i*.025,4.72,.34,.025,.25,i%2?mw:md,.04*(i-1));
+  pic(-6.865,1.78,3.15,.65,.86,Math.PI/2);
+  // Dining: table lip/turned legs, chair slats, plates and candle.
+  bx(-4.60,.81,-1.12,1.94,.09,1.44,md);for(const x of [-5.38,-3.82])for(const z of [-1.64,-.60])cy(x,.39,z,.07,.70,mw);
+  for(const z of [-2.25,.02])for(let x=-4.78;x<=-4.42;x+=.18)bx(x,.94,z+(z<0?-.28:.28),.045,.52,.055,mw);
+  for(const x of [-4.95,-4.25]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.14,.14,.018,20),ceramic);p.position.set(x,.865,-1.12);asset.add(p)} cy(-4.60,1.01,-1.12,.02,.30,brass);
+  // Kitchen: cabinet faces/handles, backsplash, sink, bottles.
+  for(let z=-7.05;z<=-4.75;z+=.58){bx(-5.945,.52,z,.035,.68,.48,materials.cabinet);cy(-5.91,.57,z,.016,.12,brass).rotation.z=Math.PI/2}
+  for(let x=-5.75;x<=-3.25;x+=.62){bx(x,.52,-6.945,.48,.68,.035,materials.cabinet);cy(x,.57,-6.91,.016,.12,brass).rotation.x=Math.PI/2}
+  for(let x=-5.8;x<=-3.2;x+=.28)for(let y=1.10;y<=1.62;y+=.26)bx(x,y,-7.865,.26,.24,.012,materials.bathFloor);
+  const sink=new THREE.Mesh(new THREE.CylinderGeometry(.28,.34,.10,20),new THREE.MeshStandardMaterial({color:0x333636,roughness:.42,metalness:.6}));sink.scale.z=.72;sink.position.set(-4.6,.98,-7.40);asset.add(sink);
+  cy(-4.60,1.20,-7.67,.018,.36,brass);const tap=cy(-4.60,1.36,-7.55,.018,.25,brass);tap.rotation.x=Math.PI/2;
+  for(const [x,z,h] of [[-5.35,-7.35,.24],[-3.85,-7.38,.18],[-6.35,-5.45,.12]])cy(x,1.08+h/2,z,.055,h,ceramic);
+  // Bathroom: softened basin, towel, bottles.
+  const basin=new THREE.Mesh(new THREE.SphereGeometry(.5,20,12,0,Math.PI*2,0,Math.PI/2),materials.enamel);basin.scale.set(1.15,.24,.56);basin.position.set(3.5,.87,-1.49);asset.add(basin);
+  cy(3.50,1.08,-1.68,.018,.28,brass);const bt=cy(3.50,1.20,-1.57,.018,.20,brass);bt.rotation.x=Math.PI/2;
+  bx(6.82,1.15,.85,.025,.55,.72,new THREE.MeshStandardMaterial({color:0x5b5449,roughness:1}));
+  // Hall/corridor: framed art, radiator and floor litter.
+  pic(-1.105,1.68,6.10,.62,.78,Math.PI/2);pic(1.105,1.75,-.80,.54,.68,-Math.PI/2);pic(-1.105,1.62,-4.10,.46,.60,Math.PI/2);
+  for(let i=0;i<9;i++)cy(.82,.55,4.00+i*.075,.025,.82,new THREE.MeshStandardMaterial({color:0x242626,roughness:.5,metalness:.5}));
+  const paper=new THREE.MeshStandardMaterial({color:0x82765e,roughness:1,side:THREE.DoubleSide});
+  for(const a of [[-5.1,2.15,.2],[-3.2,6.6,-.3],[-2.1,-4.4,.5],[2.0,3.5,-.2],[5.7,2.6,.7],[-4.1,-2.8,.2]]){const p=new THREE.Mesh(new THREE.PlaneGeometry(.22,.15),paper);p.rotation.set(-Math.PI/2,.08,a[2]);p.position.set(a[0],.018,a[1]);asset.add(p)}
+  // Curtains at all decorative windows.
+  const curtainMat=new THREE.MeshStandardMaterial({color:0x34332d,roughness:1,side:THREE.DoubleSide});
+  for(const [x,z,ry] of [[-6.79,6.7,Math.PI/2],[-6.79,-6,Math.PI/2],[6.79,6.2,-Math.PI/2],[6.79,-.15,-Math.PI/2]]){
+    bx(x,1.30,z,.035,.07,1.62,md);
+    for(const dz of [-.72,.72]){const c=new THREE.Mesh(new THREE.PlaneGeometry(.70,1.72,5,8),curtainMat);c.rotation.y=ry;c.position.set(x,1.78,z+dz);asset.add(c)}
+  }
+  scene.add(asset);
+
   scene.add(detail);
   return { doorMeshes, itemMeshes };
 }
@@ -253,7 +309,7 @@ function open() {
   active = session;
   try {
     const house = createGroundFloor();
-    scene = new THREE.Scene(); scene.background = new THREE.Color(0x020403); scene.fog = new THREE.FogExp2(0x050807, .058);
+    scene = new THREE.Scene(); scene.background = new THREE.Color(0x020403); scene.fog = new THREE.FogExp2(0x050807, .046);
     const meshes = buildHouseScene(scene, house);
     const dustGeo=new THREE.BufferGeometry(), dustCount=220, dustPos=new Float32Array(dustCount*3);
     for(let i=0;i<dustCount;i++){dustPos[i*3]=(Math.random()-.5)*18;dustPos[i*3+1]=.12+Math.random()*2.5;dustPos[i*3+2]=(Math.random()-.5)*18;}
@@ -278,7 +334,7 @@ function open() {
     const fillLight = new THREE.PointLight(0x93a29b, .58, 2.8, 2.0); scene.add(fillLight);
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', alpha: false });
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6));
-    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .72; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .80; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     stage.prepend(renderer.domElement);
     const stick = shell.querySelector('.three17-stick'), knob = shell.querySelector('.three17-knob');
     const flashButton = shell.querySelector('.flash'), hint = shell.querySelector('.three17-hint');
