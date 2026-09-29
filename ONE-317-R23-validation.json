@@ -1,0 +1,129 @@
+{
+  "build": "R23 · PARASITE 3D",
+  "base": "R22 · HORREUR + SPAWN",
+  "date": "2026-09-29",
+  "source": {
+    "source_file": "Parasite L Starkie.fbx",
+    "source_bytes": 15772080,
+    "source_sha256": "6e1631c239760756d74f895475116e65d7b7258b34a3a3ad2ac8a4788783bc3b",
+    "fbx_version": 7700,
+    "source_meshes": 1,
+    "source_control_points": 5703,
+    "source_polygons": {
+      "3": 400,
+      "4": 5228
+    },
+    "converted_vertices": 12500,
+    "triangles": 10856,
+    "joints": 69,
+    "materials": 2,
+    "maximum_source_skin_influences": 4,
+    "maximum_discarded_weight": 0.0,
+    "bind_matrix_error": 8.526512829121202e-14,
+    "float32_bind_error": 2.384185791015625e-07,
+    "source_animation": "Fixed reference pose, 2 identical keys at 0 and 1/30 second, no locomotion",
+    "new_animations": [
+      "Idle_Procedural",
+      "Stalk_Procedural",
+      "Chase_Procedural"
+    ],
+    "textures": [
+      {
+        "source": "parasiteZombie_body_diffuse.png",
+        "converted": "body diffuse",
+        "size": [
+          2048,
+          2048
+        ],
+        "bytes": 779351,
+        "mime": "image/jpeg"
+      },
+      {
+        "source": "parasiteZombie_diffuse.png",
+        "converted": "head / clothing diffuse + alpha",
+        "size": [
+          1024,
+          1024
+        ],
+        "bytes": 1401722,
+        "mime": "image/png"
+      },
+      {
+        "source": "parasiteZombie_specular.png",
+        "converted": "roughness (derived from supplied specular map)",
+        "size": [
+          512,
+          512
+        ],
+        "bytes": 127359,
+        "mime": "image/png"
+      },
+      {
+        "source": "parasiteZombie_normal.png",
+        "converted": "normal",
+        "size": [
+          1024,
+          1024
+        ],
+        "bytes": 1233799,
+        "mime": "image/png"
+      }
+    ],
+    "glb_bytes": 4405672,
+    "glb_sha256": "36944ac9918fc34f997cd5b3961523659f9f94f1a194389cfc5bf1c687bcb1f4",
+    "model_bind_bounds_m": [
+      [
+        -1.1224618530273438,
+        -0.016621475219726563,
+        -0.28357437133789065
+      ],
+      [
+        1.1224619293212892,
+        2.0118559265136717,
+        0.2541822814941406
+      ]
+    ],
+    "license": "No license document included in the uploaded FBX. User supplied the asset; no new license is assigned."
+  },
+  "original_files_changed": [
+    "index.html",
+    "sw.js"
+  ],
+  "new_runtime_files": [
+    "ui/three17-parasite-r23.js",
+    "assets/317/parasite-starkie-r23.glb"
+  ],
+  "shipped_file_sha256": {
+    "index.html": "285076640b923da83ac69d88f962504d4fe1fc33c8d9fd5cf33fa8711493307d",
+    "sw.js": "22561ce0f7ad0b28367d2ed35e21b3dca10738a96823860faf5dcd0481abbdd7",
+    "ui/three17-parasite-r23.js": "fdc87f01d15726a0de716c7f372c56c6ecbcaddc07ec18fcd82c2e7bb6b3c893",
+    "ui/GLTFLoader.js": "ea6945bc119f46237fab6a9228c3566fe66fff200512b3b96b1a6a32e89cb706",
+    "ui/BufferGeometryUtils.js": "6d4f4f989a5f7e810522aaa36292205e3674878eed9810563417bd13ab9ba4f2",
+    "ui/SkeletonUtils.js": "eedd768765d6553f8082953ab3882e2c86dacc2eb7d180a312d1d52e86bb35c5",
+    "ui/THREE-LICENSE-R23.txt": "c5d71d5ecdf49d52681e04e8a1a35a4ce7d4ef6abcbc6bd6ff60a25f2b921065",
+    "assets/317/parasite-starkie-r23.glb": "36944ac9918fc34f997cd5b3961523659f9f94f1a194389cfc5bf1c687bcb1f4",
+    "assets/317/ORIGINE-MODELE.txt": "e3dcddc82f71585f80ef4b88bd760e9cdb403606a11b834a2b402e3ae1981137",
+    "LIRE-MOI-317-R23.txt": "a0f242dd109cabaa034aa84d8466daf39ff487ff1d6c0eef9c5c4bbca2fce1a0"
+  },
+  "checks_by_suite": {
+    "logic": 37,
+    "spawn": 70,
+    "integration": 34,
+    "asset": 19,
+    "mobile": 5,
+    "layout": 17,
+    "static": 8
+  },
+  "tests_passed": 190,
+  "errors": [],
+  "viewports": [
+    "1100x620",
+    "1000x480",
+    "780x360",
+    "640x320",
+    "390x844",
+    "360x640"
+  ],
+  "preserved": "House, collision and AI/spawn source identical except R22 -> R23 comments; other scripts unchanged. Inventory, hides, stairs, 197-second countdown retained.",
+  "limits": "Local Chromium WebGL2/SwiftShader; exact engine and model bytes loaded in memory, GLB HTTP response mocked. No real HTTP deployment, service-worker installation, physical phone, production account/server tests or multiplayer synchronisation. Skeletal clips are newly authored procedural animation; FBX contained a fixed pose only. Model licence document not supplied."
+}

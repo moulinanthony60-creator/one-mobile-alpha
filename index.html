@@ -3639,15 +3639,17 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 
 @media(max-height:450px){.three17-card{max-width:610px;width:calc(100% - 28px);box-sizing:border-box}.three17-card h1{display:inline-block;font-size:21px;margin:0 12px 0 0}.three17-card>.time{display:inline-block;font-size:28px;line-height:1}.three17-card .three17-build-label{font-size:10px}.three17-card p{font-size:11px;line-height:1.35}.three17-clues{font-size:10px}}
 @media(max-height:380px){.three17-controls-help{display:none!important}}
+
+.three17-start [data-monster-load]{font-size:10px!important;line-height:1.2!important;color:#b7c5b1;margin:5px 0!important}.three17-start button:disabled{opacity:.5;cursor:wait}
 </style><script type="module" id="one317-r16-module">
 import * as THREE from './ui/three.module.js';
 const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHeightAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
 /**
- * 3:17 FOUR — R21. Géométrie R20 préservée, monstre et objets jouables.
+ * 3:17 FOUR — R23. Géométrie R20 préservée, monstre et objets jouables.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R21 · MONSTRE + OBJETS';
+const BUILD = 'R23 · PARASITE 3D';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -4113,14 +4115,92 @@ function monsterNavigation() {
   }
   return sharedMonsterNav={points,nearest,route};
 }
-function createMonsterController(house,hooks={}) {
+// R23: room-based spawns use the SAME collision model and connected navigation
+// as normal movement. No teleport into stairs, furnishings or a moving door.
+const SPAWN_ROOM_IDS = Object.freeze(['salon','dining','kitchen','bedroom','bathroom',
+  'upper-nursery','upper-office','upper-storage','upper-bath','upper-master',
+  'basement-storage','basement-boiler','basement-cellar','basement-laundry','basement-ritual']);
+const SPAWN_RULES = Object.freeze({clearance:.44,minDistance:8,minRoute:14});
+const spawnCatalogs = new WeakMap();
+function spawnCandidates(house) {
+  if(spawnCatalogs.has(house))return spawnCatalogs.get(house);
+  const nav=monsterNavigation(),rooms=[];
+  function safe(p){
+    if(blockedAt(house,p.x,p.z,p.y,SPAWN_RULES.clearance))return false;
+    if(Math.abs(floorHeightAt(house,p.x,p.z,p.y)-p.y)>.001)return false;
+    if(house.stairZones.some(s=>p.x>s.x0-.5&&p.x<s.x1+.5&&p.z>s.z0-.5&&p.z<s.z1+.5))return false;
+    for(const d of house.doors){
+      if(Math.abs((d.bottom||0)-p.y)>.4)continue;
+      for(let step=0;step<=16;step++){
+        const angle=d.closedAngle+(d.openAngle-d.closedAngle)*step/16;
+        if(circleHitsDoor(p.x,p.z,.40,d,angle))return false;
+      }
+    }
+    return true;
+  }
+  for(const id of SPAWN_ROOM_IDS){
+    const room=house.rooms.find(r=>r.id===id);if(!room)continue;
+    const candidates=nav.points.filter(p=>Math.abs(p.y-room.floorY)<.001&&
+      p.x>room.x0+.65&&p.x<room.x1-.65&&p.z>room.z0+.65&&p.z<room.z1-.65)
+      .sort((a,b)=>Math.hypot(a.x-room.visit[0],a.z-room.visit[1])-Math.hypot(b.x-room.visit[0],b.z-room.visit[1]));
+    const points=[];
+    for(const p of candidates){
+      if(points.some(q=>Math.hypot(q.x-p.x,q.z-p.z)<.8)||!safe(p))continue;
+      points.push({...p,roomId:id,roomName:room.name,level:room.level});
+      if(points.length===4)break;
+    }
+    if(points.length)rooms.push({id,points});
+  }
+  if(rooms.length<2)throw new Error('Pas assez de pièces sûres pour les apparitions.');
+  spawnCatalogs.set(house,rooms);return rooms;
+}
+function spawnFacing(house,p){
+  let yaw=0,clearance=-1;
+  for(let i=0;i<32;i++){
+    const a=i*Math.PI/16;let clear=0;
+    for(let d=.15;d<=2.85;d+=.15){
+      const x=p.x-Math.sin(a)*d,z=p.z-Math.cos(a)*d;
+      if(blockedAt(house,x,z,p.y)||Math.abs(floorHeightAt(house,x,z,p.y)-p.y)>.1)break;
+      clear=d;
+    }
+    if(clear>clearance){clearance=clear;yaw=a;}
+  }
+  return {yaw,pitch:-.035,forwardClearance:clearance};
+}
+function chooseHouseSpawns(house,rng=Math.random,previousRoom=null){
+  const rand=()=>{const v=Number(rng());return Number.isFinite(v)?Math.max(0,Math.min(.999999999,v)):0;};
+  const pick=list=>list[Math.floor(rand()*list.length)];
+  const rooms=spawnCandidates(house),nav=monsterNavigation();
+  const choices=rooms.filter(r=>r.id!==previousRoom);
+  const room=pick(choices.length?choices:rooms),p=pick(room.points);
+  const player={...p,...spawnFacing(house,p)};
+  const eye=(q,h)=>({x:q.x,y:q.y+h,z:q.z});
+  const candidates=rooms.filter(r=>r.id!==room.id).flatMap(r=>r.points).filter(q=>
+    Math.hypot(q.x-p.x,q.y-p.y,q.z-p.z)>=SPAWN_RULES.minDistance&&
+    !hasLineOfSight(house,eye(p,1.6),eye(q,1.85))&&
+    !hasLineOfSight(house,eye(p,1.6),eye(q,1.05)));
+  // Shuffle once, then accept the first sufficiently long, connected route.
+  for(let i=candidates.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[candidates[i],candidates[j]]=[candidates[j],candidates[i]];}
+  for(const q of candidates){
+    const route=nav.route(q,p);if(route.length<2)continue;
+    let length=0;for(let i=1;i<route.length;i++)length+=Math.hypot(route[i].x-route[i-1].x,route[i].y-route[i-1].y,route[i].z-route[i-1].z);
+    if(length<SPAWN_RULES.minRoute)continue;
+    return {player,monster:{...q,...spawnFacing(house,q)},routeLength:length};
+  }
+  // Fail visibly rather than silently create an unfair / invalid spawn if the
+  // map is edited in a future release. All 59 R23 points have safe partners.
+  throw new Error('Aucune apparition éloignée du monstre dans cette version de la maison.');
+}
+
+function createMonsterController(house,hooks={},spawn=null) {
   const nav=monsterNavigation(), rules=MONSTER_RULES;
   const patrol=[{x:0,y:0,z:2.0},{x:-3.0,y:0,z:5.3},{x:0,y:0,z:-5.8},
     {x:0,y:3.25,z:4.8},{x:-4.0,y:3.25,z:1.0},{x:4.8,y:3.25,z:-4.0},
     {x:0,y:-3.25,z:-2.2},{x:4.6,y:-3.25,z:2.5},{x:0,y:0,z:-3.0}];
-  const m={position:{x:0,y:0,z:-6.4},yaw:Math.PI,state:'dormant',grace:rules.grace,
+  const m={position:spawn?{x:spawn.x,y:spawn.y,z:spawn.z}:{x:0,y:0,z:-6.4},yaw:spawn?.yaw??Math.PI,state:'dormant',grace:rules.grace,
     seen:false,memory:0,knownHide:null,lastSeen:null,path:[],pathIndex:0,walked:0,moving:false,
     target:null,patrolIndex:0,search:0,repath:0,sense:0,attack:0,captured:false,waitDoor:0};
+  if(spawn)m.patrolIndex=patrol.reduce((best,p,i)=>Math.hypot(p.x-spawn.x,p.y-spawn.y,p.z-spawn.z)<Math.hypot(patrol[best].x-spawn.x,patrol[best].y-spawn.y,patrol[best].z-spawn.z)?i:best,0);
   let visibleNow=false,lastInput=null,stuck=0,lastStep=0;
   const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
   function canSee(player,flashOn=true,hidden=false){
@@ -4206,9 +4286,32 @@ function createMonsterController(house,hooks={}) {
           }
         }
         if(doorAhead){
-          m.waitDoor+=dt;
-          // A shut door buys the player a short head start. The leaf still animates.
-          if(m.waitDoor>=.75&&doorAhead.targetAngle!==doorAhead.openAngle){doorAhead.targetAngle=doorAhead.openAngle;hooks.door?.(doorAhead);}
+          // R23: an enemy starting INSIDE a room must step out of the door's
+          // opening arc before pushing it. Otherwise the actor and leaf would
+          // keep blocking each other forever (the old hall-only spawn hid it).
+          const inSwing=p=>{
+            for(let i=0;i<=16;i++)if(circleHitsDoor(p.x,p.z,PLAYER_RADIUS+.075,doorAhead,
+              doorAhead.angle+(doorAhead.openAngle-doorAhead.angle)*i/16))return true;
+            return false;
+          };
+          if(inSwing(m.position)){
+            doorAhead.targetAngle=doorAhead.angle;m.waitDoor=0;
+            const c=Math.cos(doorAhead.closedAngle),s=Math.sin(doorAhead.closedAngle);
+            const side=Math.sign((m.position.x-doorAhead.x)*s+(m.position.z-doorAhead.z)*c)||1;
+            let best=null,bestScore=-Infinity;
+            for(const along of [0,.7,-.7,1.4,-1.4]){
+              const ax=s*side+c*along,az=c*side-s*along,norm=Math.hypot(ax,az),p={...m.position};
+              movePlayer(house,p,ax/norm*rules.searchSpeed*dt,az/norm*rules.searchSpeed*dt);
+              if(Math.hypot(p.x-m.position.x,p.z-m.position.z)<.0001)continue;
+              const score=Math.hypot(p.x-doorAhead.hingeX,p.z-doorAhead.hingeZ)+(inSwing(p)?0:5);
+              if(score>bestScore){best=p;bestScore=score;}
+            }
+            if(best)Object.assign(m.position,best);
+          }else{
+            m.waitDoor+=dt;
+            // A shut door still buys a short head start; it never teleports.
+            if(m.waitDoor>=.75&&doorAhead.targetAngle!==doorAhead.openAngle){doorAhead.targetAngle=doorAhead.openAngle;hooks.door?.(doorAhead);}
+          }
         }else {m.waitDoor=0;movePlayer(house,m.position,nx*length,nz*length);}
         const travelled=Math.hypot(m.position.x-before.x,m.position.z-before.z);
         m.walked+=travelled;m.moving=travelled>.0001;
@@ -4232,67 +4335,16 @@ function createMonsterController(house,hooks={}) {
 // R21_ENCOUNTER_END
 
 function createMonsterMesh(scene) {
-  const root=new THREE.Group();root.name='monstre-veilleur';
-  const unit=new THREE.BoxGeometry(1,1,1),orb=new THREE.SphereGeometry(1,8,6),limb=new THREE.CylinderGeometry(1,1,1,7);
-  const coat=new THREE.MeshStandardMaterial({color:0x29312c,roughness:.95,emissive:0x111917,emissiveIntensity:.13});
-  const bone=new THREE.MeshStandardMaterial({color:0xaaa08a,roughness:.85,flatShading:true,emissive:0x827563,emissiveIntensity:.065});
-  const dark=new THREE.MeshStandardMaterial({color:0x07090a,roughness:1});
-  const red=new THREE.MeshBasicMaterial({color:0xff5d37,toneMapped:false});
-  function part(parent,g,x,y,z,sx,sy,sz,mat,rz=0){const mesh=new THREE.Mesh(g,mat);mesh.position.set(x,y,z);mesh.scale.set(sx,sy,sz);mesh.rotation.z=rz;parent.add(mesh);return mesh;}
-  // Batch every rigid part by material; animation uses a handful of pivots, not a heavy external model.
-  function batch(parent){
-    const groups=new Map();
-    for(const mesh of [...parent.children]){
-      if(!mesh.isMesh)continue;mesh.updateMatrix();
-      const geo=mesh.geometry.clone().applyMatrix4(mesh.matrix),p=geo.attributes.position,n=geo.attributes.normal;
-      let b=groups.get(mesh.material);if(!b){b={p:[],n:[],i:[]};groups.set(mesh.material,b);}
-      const at=b.p.length/3;
-      for(let i=0;i<p.count;i++){b.p.push(p.getX(i),p.getY(i),p.getZ(i));b.n.push(n.getX(i),n.getY(i),n.getZ(i));}
-      if(geo.index)for(let i=0;i<geo.index.count;i++)b.i.push(at+geo.index.getX(i));
-      else for(let i=0;i<p.count;i++)b.i.push(at+i);
-      parent.remove(mesh);geo.dispose();
-    }
-    for(const [mat,b]of groups){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(b.p,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(b.n,3));g.setIndex(b.i);g.computeBoundingSphere();parent.add(new THREE.Mesh(g,mat));}
-  }
-  const torso=new THREE.Group();root.add(torso);
-  part(torso,orb,0,1.25,.04,.235,.45,.15,coat);
-  part(torso,unit,0,.90,.02,.32,.28,.25,coat);
-  part(torso,limb,0,1.66,-.035,.063,.20,.063,bone);
-  for(let y=1.12;y<1.44;y+=.13)part(torso,unit,-.07,y,-.12,.105,.023,.018,dark,.35);
-  batch(torso);
-  const head=new THREE.Group();head.position.set(0,1.87,-.065);root.add(head);
-  part(head,orb,0,.015,.035,.22,.275,.175,coat);
-  part(head,orb,0,0,-.045,.153,.235,.14,bone);
-  for(const s of [-1,1]){
-    part(head,unit,s*.061,.035,-.174,.070,.027,.018,dark,s*.18);
-    part(head,unit,s*.061,.035,-.187,.013,.018,.010,red,s*.18);
-  }
-  part(head,unit,0,-.095,-.177,.016,.12,.017,dark,-.16);
-  part(head,unit,-.015,.155,-.147,.017,.09,.018,dark,.38);
-  batch(head);
-  const arms=[],legs=[];
-  for(const s of [-1,1]){
-    const arm=new THREE.Group();arm.position.set(s*.255,1.51,.04);root.add(arm);arms.push(arm);
-    part(arm,limb,s*.006,-.235,0,.066,.49,.066,coat,s*.04);
-    part(arm,orb,s*.025,-.47,0,.067,.075,.067,bone);
-    part(arm,limb,s*.018,-.66,-.045,.042,.38,.042,bone,-s*.06);
-    part(arm,unit,s*.03,-.885,-.060,.094,.15,.065,bone);
-    for(let f=0;f<3;f++)part(arm,unit,s*.03+(f-1)*.031,-1.005,-.07,.018,.15+(f===1?.035:0),.026,dark);
-    batch(arm);
-    const leg=new THREE.Group();leg.position.set(s*.115,.86,.02);root.add(leg);legs.push(leg);
-    part(leg,limb,0,-.345,0,.069,.69,.069,coat);
-    part(leg,unit,0,-.795,-.06,.15,.13,.28,dark);batch(leg);
-  }
-  unit.dispose();orb.dispose();limb.dispose();scene.add(root);
-  return {root,animate(m,dt){
-    root.position.set(m.position.x,m.position.y,m.position.z);root.rotation.y=m.yaw;
-    const stride=m.walked*7.8,amount=m.moving?1:0;
-    torso.rotation.z=Math.sin(stride*.5)*.025*amount;
-    head.rotation.z=-.10+Math.sin(m.walked*2.5)*.035;
-    arms.forEach((a,i)=>{a.rotation.x=Math.sin(stride+i*Math.PI)*.28*amount-.06;a.rotation.z=(i?1:-1)*.05;});
-    legs.forEach((l,i)=>l.rotation.x=Math.sin(stride+i*Math.PI)*.28*amount);
-    root.userData.state=m.state;
-  }};
+  const root=new THREE.Group();root.name='monstre-parasite';root.visible=false;scene.add(root);
+  let controller=null,disposed=false,lastState=null;
+  const ready=import('./ui/three17-parasite-r23.js').then(m=>m.loadParasite(root)).then(value=>{
+    if(disposed){value.dispose();disposeScene(root);return false;}
+    controller=value;if(lastState)controller.animate(lastState,0);return true;
+  });
+  return {root,ready,
+    animate(state,dt){lastState=state;controller?.animate(state,dt);},
+    dispose(){if(disposed)return;disposed=true;controller?.dispose();controller=null;disposeScene(root);root.removeFromParent();}
+  };
 }
 
 function createEncounterAudio() {
@@ -4318,6 +4370,7 @@ function createEncounterAudio() {
 }
 
 let active = null;
+let previousStartRoom = null;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 // Textures locales, déterministes : aucun téléchargement d'asset externe.
@@ -4598,14 +4651,17 @@ function buildHouseScene(scene, house) {
 }
 
 function disposeScene(scene) {
-  const geometries = new Set(), materials = new Set(), textures = new Set();
+  const geometries = new Set(), materials = new Set(), textures = new Set(), skeletons = new Set(), images = new Set();
   scene.traverse(o => {
     if (o.geometry) geometries.add(o.geometry);
+    if (o.skeleton) skeletons.add(o.skeleton);
     for (const m of (Array.isArray(o.material) ? o.material : [o.material])) if (m) materials.add(m);
     if (o.isInstancedMesh) o.dispose();
   });
   for (const m of materials) for (const v of Object.values(m)) if (v?.isTexture) textures.add(v);
-  for (const t of textures) t.dispose();
+  for (const t of textures) { if(t.source?.data?.close)images.add(t.source.data);t.dispose(); }
+  for (const image of images) image.close();
+  for (const skeleton of skeletons) skeleton.dispose();
   for (const g of geometries) g.dispose();
   for (const m of materials) m.dispose();
   scene.clear();
@@ -4614,41 +4670,54 @@ function disposeScene(scene) {
 function open() {
   close();
   const shell=document.createElement('section');
-  shell.className='three17-shell';shell.dataset.build='r21-monstre-objets';
+  shell.className='three17-shell';shell.dataset.build='r23-parasite-3d';
   shell.setAttribute('role','dialog');shell.setAttribute('aria-modal','true');
-  shell.setAttribute('aria-label','3:17 FOUR — Le Veilleur');shell.tabIndex=-1;
+  shell.setAttribute('aria-label','3:17 FOUR — Le Parasite');shell.tabIndex=-1;
   shell.innerHTML=`<div class="three17-stage"><div class="three17-hud">
     <div class="three17-tension"></div>
     <div class="three17-top"><div><div class="three17-clock" aria-label="Temps restant">03:17</div><div class="three17-build">${BUILD}</div></div>
     <div class="three17-objective"><span data-lock>🔒 SORTIE VERROUILLÉE</span><br><b>Objets : <span data-count>0</span>/3</b>
     <div class="three17-inventory" aria-label="Inventaire"><span data-inventory="key" title="Dans le caisson du bureau, à l’étage">◌ Clé</span><span data-inventory="fuse" title="Sur l’étagère de la réserve, au sous-sol">◌ Fusible</span><span data-inventory="seal" title="Dans l’armoire de la chambre enfant, à l’étage">◌ Sceau</span></div>
     <small data-floor>RDC · HALL D’ENTRÉE</small></div></div>
-    <button class="three17-exit" type="button">← Lobby</button><div class="three17-threat" role="status">LE VEILLEUR SOMMEILLE</div>
+    <button class="three17-exit" type="button">← Lobby</button><div class="three17-threat" role="status">LE PARASITE SOMMEILLE</div>
     <div class="three17-cross"></div>
     <div class="three17-stick" aria-label="Joystick de déplacement"><div class="three17-knob"></div></div>
     <div class="three17-look" aria-label="Glisser pour regarder"></div>
     <div class="three17-actions"><button class="three17-btn sound" type="button" aria-label="Couper le son" aria-pressed="true">♪</button><button class="three17-btn flash" type="button" aria-label="Éteindre la lampe" aria-pressed="true">🔦</button>
     <button class="three17-btn interact" type="button">AGIR</button></div><div class="three17-hint"></div><div class="three17-msg" role="status"></div></div>
-    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><strong class="three17-build-label">R21 · LE VEILLEUR</strong>
-    <p>Fouillez les meubles, puis <b>ramassez les trois objets</b>.<br>Le Veilleur entend le bruit et vous poursuit s’il vous voit.<br>Brisez sa ligne de vue avant de vous cacher.</p>
+    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">03:17</div><strong class="three17-build-label">R23 · LE PARASITE</strong>
+    <p><b>Départ aléatoire dans la maison.</b><br>Fouillez, puis ramassez les trois objets.<br>Le Parasite vous traque : cachez-vous hors de sa vue.</p>
     <div class="three17-clues">Clé : bureau · Sceau : chambre enfant<br>Fusible : réserve du sous-sol</div>
-    <button type="button">ENTRER DANS LA MAISON</button><small class="three17-controls-help">Joystick + glisser pour regarder · AGIR pour fouiller / prendre / se cacher<br>Clavier : ZQSD / WASD · E : agir · F : lampe · M : son</small></div></div>
+    <p data-monster-load role="status">Chargement du modèle 3D et des textures…</p><button type="button" disabled aria-busy="true">CHARGEMENT DU MONSTRE…</button><small class="three17-controls-help">Joystick + glisser pour regarder · AGIR pour fouiller / prendre / se cacher<br>Clavier : ZQSD / WASD · E : agir · F : lampe · M : son</small></div></div>
     <div class="three17-win"><div class="three17-result"><div class="three17-result-kicker">3:17 FOUR</div><h1>VOUS ÊTES SORTI</h1><p>Les trois objets ont ouvert la sortie.</p><div class="three17-result-actions"><button type="button" data-retry>REJOUER</button><button type="button" data-lobby>LOBBY</button></div></div></div>
-    <div class="three17-loss"><div class="three17-result"><div class="three17-result-kicker">LE VEILLEUR</div><h1 data-loss-title>IL VOUS A TROUVÉ</h1><p data-loss-text>Coupez sa ligne de vue avant de vous cacher.</p><div class="three17-result-actions"><button type="button" data-retry>RÉESSAYER</button><button type="button" data-lobby>LOBBY</button></div></div></div></div>`;
+    <div class="three17-loss"><div class="three17-result"><div class="three17-result-kicker">LE PARASITE</div><h1 data-loss-title>IL VOUS A TROUVÉ</h1><p data-loss-text>Coupez sa ligne de vue avant de vous cacher.</p><div class="three17-result-actions"><button type="button" data-retry>RÉESSAYER</button><button type="button" data-lobby>LOBBY</button></div></div></div></div>`;
   const previousFocus=document.activeElement;document.body.append(shell);shell.focus({preventScroll:true});
   const stage=shell.querySelector('.three17-stage');
-  let renderer,scene,observer,audio,raf=0,stopped=false,messageTimer=0;
+  let renderer,scene,observer,audio,monsterVisual,raf=0,stopped=false,messageTimer=0;
   let removeEvents=()=>{};
   const session={stop(){
     if(stopped)return;stopped=true;cancelAnimationFrame(raf);clearTimeout(messageTimer);
-    observer?.disconnect();removeEvents();audio?.stop();if(scene)disposeScene(scene);
+    observer?.disconnect();removeEvents();audio?.stop();monsterVisual?.dispose();if(scene)disposeScene(scene);
     renderer?.dispose();renderer?.forceContextLoss();shell.remove();if(previousFocus?.isConnected)previousFocus.focus?.({preventScroll:true});
   }};
   active=session;
   try {
     const house=createGroundFloor();
+    const spawns=chooseHouseSpawns(house,Math.random,previousStartRoom);
+    house.spawn={...spawns.player};
     scene=new THREE.Scene();scene.background=new THREE.Color(0x06070a);scene.fog=new THREE.Fog(0x06070a,6.5,18.5);
-    const meshes=buildHouseScene(scene,house),monsterVisual=createMonsterMesh(scene);
+    const meshes=buildHouseScene(scene,house);monsterVisual=createMonsterMesh(scene);
+    let modelReady=false,modelFailed=false;
+    const startButton=shell.querySelector('.three17-start button'),modelStatus=shell.querySelector('[data-monster-load]');
+    monsterVisual.ready.then(ready=>{
+      if(stopped||!ready)return;modelReady=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
+      startButton.textContent='ENTRER DANS LA MAISON';modelStatus.textContent='PARASITE 3D · PRÊT';
+    }).catch(error=>{
+      if(stopped)return;modelFailed=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
+      startButton.textContent='RÉESSAYER LE CHARGEMENT';
+      modelStatus.textContent='Monstre non chargé. Vérifiez les dossiers assets/317 et ui de la R23, puis réessayez.';
+      console.warn('3:17 R23 — modèle non chargé',error);
+    });
     const camera=new THREE.PerspectiveCamera(68,1,.05,45);
     let yaw=house.spawn.yaw,pitch=house.spawn.pitch;
     const position={x:house.spawn.x,y:house.spawn.y||0,z:house.spawn.z};
@@ -4684,12 +4753,12 @@ function open() {
     const floorLabel=shell.querySelector('[data-floor]'),counter=shell.querySelector('[data-count]'),lockLabel=shell.querySelector('[data-lock]');
     const clock=shell.querySelector('.three17-clock'),threat=shell.querySelector('.three17-threat'),messageElement=shell.querySelector('.three17-msg');
     const monster=createMonsterController(house,{
-      awake:()=>message('Le Veilleur s’est réveillé. Évitez le bruit.'),
+      awake:()=>message('Le Parasite s’est réveillé. Évitez le bruit.'),
       spotted:()=>{message('Il vous a vu ! Brisez sa ligne de vue.');audio.tone(75,.45,.035,'triangle',32);},
       caught:()=>finish('caught'),
       door:d=>{if(Math.hypot(d.x-position.x,d.z-position.z)<5&&Math.abs((d.bottom||0)-position.y)<1)audio.tone(105,.23,.012,'triangle',45);},
       step:d=>{if(d<7&&Math.abs(monster.state.position.y-position.y)<1.4)audio.tone(52,.13,.025*(1-d/7),'sine',28);}
-    });
+    },spawns.monster);
     monsterVisual.animate(monster.state,0);
     function resize(){const w=Math.max(1,stage.clientWidth),h=Math.max(1,stage.clientHeight);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
     observer=new ResizeObserver(resize);observer.observe(stage);resize();
@@ -4814,10 +4883,10 @@ function open() {
       if(floorLabel.textContent!==text)floorLabel.textContent=text;
       const secs=Math.ceil(remaining);clock.textContent=String(Math.floor(secs/60)).padStart(2,'0')+':'+String(secs%60).padStart(2,'0');clock.classList.toggle('urgent',remaining<=30);
       const m=monster.state;let state='calm',label='ÉVITEZ LE BRUIT';
-      if(paused){label='PAUSE';}else if(!started||m.grace>0){label='LE VEILLEUR SOMMEILLE';}
+      if(paused){label='PAUSE';}else if(!started||m.grace>0){label='LE PARASITE SOMMEILLE';}
       else if(hidden){state=m.knownHide?'danger':'hidden';label=m.knownHide?'IL SAIT OÙ VOUS ÊTES':'CACHÉ · RESTEZ DISCRET';}
       else if(m.state==='chase'){state='danger';label='REPÉRÉ · CACHEZ-VOUS HORS DE SA VUE';}
-      else if(m.state==='investigate'||m.state==='search'){state='search';label='LE VEILLEUR CHERCHE';}
+      else if(m.state==='investigate'||m.state==='search'){state='search';label='LE PARASITE CHERCHE';}
       if(threat.textContent!==label)threat.textContent=label;shell.dataset.threat=ended?'calm':state;
       const s=started&&!ended?selectInteraction():null;
       const selectionText=hidden?'CACHÉ · AGIR pour sortir':interactionLabel(s);if(hint.textContent!==selectionText)hint.textContent=selectionText;
@@ -4858,7 +4927,7 @@ function open() {
       flashButton.setAttribute('aria-label',flashOn?'Éteindre la lampe':'Allumer la lampe');message(flashOn?'Lampe allumée · visible de plus loin':'Lampe éteinte · restez hors de sa vue');
     }
     function toggleSound(){const muted=audio.toggle();soundButton.setAttribute('aria-pressed',String(!muted));soundButton.setAttribute('aria-label',muted?'Activer le son':'Couper le son');soundButton.textContent=muted?'♪×':'♪';}
-    function start(){if(started)return;resetInputs();started=true;paused=document.hidden;last=performance.now();audio.start();shell.querySelector('.three17-start')?.remove();message('Vous avez 3 min 17. Fouillez, ramassez les trois objets, puis revenez à l’entrée.');}
+    function start(){if(started||stopped)return;if(modelFailed){open();return;}if(!modelReady)return;previousStartRoom=spawns.player.roomId;resetInputs();started=true;paused=document.hidden;last=performance.now();audio.start();shell.querySelector('.three17-start')?.remove();message('Départ : '+spawns.player.roomName+' · '+spawns.player.level+'. Le Parasite dort encore 10 s.');}
     press(shell.querySelector('.interact'),interact);press(flashButton,toggleFlash);press(soundButton,toggleSound);
     press(shell.querySelector('.three17-exit'),close);press(shell.querySelector('.three17-start button'),start);
     shell.querySelectorAll('[data-retry]').forEach(el=>press(el,open));shell.querySelectorAll('[data-lobby]').forEach(el=>press(el,close));
@@ -4880,7 +4949,8 @@ function open() {
     refreshCamera();updateHud();raf=requestAnimationFrame(frame);
     // Explicit local test flag only: no debug globals, teleportation or invulnerability in normal play.
     if(window.__ONE317_TEST__===true)session.debug={
-      house,scene,renderer,monster,
+      house,scene,renderer,monster,spawns,monsterVisual,
+      modelStatus:()=>({ready:modelReady,failed:modelFailed}),
       snapshot:()=>({x:position.x,z:position.z,y:camera.position.y,feetY:position.y,hidden,yaw,pitch,flashOn,started,won,ended,count,remaining,paused,
         drag,look,keys:{...keys},room:roomAt(house,position.x,position.z,position.y).id,selection:selectInteraction()?.object.id,
         monster:monster.snapshot(),calls:renderer.info.render.calls,triangles:renderer.info.render.triangles}),
@@ -4889,7 +4959,7 @@ function open() {
         position.x=x;position.z=z;position.y=feetY;yaw=lookYaw;pitch=lookPitch;refreshCamera();
       },
       move(dx,dz){movePlayer(house,position,dx,dz);refreshCamera();},
-      model:{createGroundFloor,blockedAt,floorHeightAt,movePlayer,hasLineOfSight,roomAt,createMonsterController},
+      model:{createGroundFloor,blockedAt,floorHeightAt,movePlayer,hasLineOfSight,circleHitsDoor,roomAt,createMonsterController,chooseHouseSpawns,spawnCandidates,SPAWN_RULES},
       interact,selectInteraction,refreshCamera,animateDoors,updateHud,
       freeze(value=true){testPaused=value;last=performance.now();},
       advance(seconds){for(let t=0;t<seconds-1e-8&&!ended;t+=.05)updateWorld(Math.min(.05,seconds-t));refreshCamera();updateHud();},
@@ -4899,9 +4969,9 @@ function open() {
       pause,resume,
     };
   }catch(error){
-    console.error('3:17 FOUR R21 — lancement interrompu',error);session.stop();
+    console.error('3:17 FOUR R23 — lancement interrompu',error);session.stop();
     const message=document.createElement('div');message.className='three17-shell three17-load-error';
-    const text=document.createElement('p');text.textContent='3:17 FOUR R21 n’a pas pu démarrer. Rechargez ONE et vérifiez que index.html et sw.js ont été remplacés ensemble.';
+    const text=document.createElement('p');text.textContent='3:17 FOUR R23 n’a pas pu démarrer. Rechargez ONE et vérifiez que index.html, sw.js et les dossiers ui et assets/317 de la R23 ont bien été copiés.';
     const button=document.createElement('button');button.textContent='Fermer';button.onclick=()=>message.remove();message.append(text,button);document.body.append(message);active={stop:()=>message.remove()};
   }
 }
@@ -4950,7 +5020,7 @@ function buildRoom(scene){
 }
 function open(ctx={}){
  close();const shell=document.createElement('section');shell.className='one3d-shell';shell.setAttribute('role','dialog');shell.setAttribute('aria-label','Lobby 3D ONE');
- const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R21</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
+ const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R22</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
  document.body.append(shell);try{screen.orientation?.lock?.('landscape').catch(()=>{});}catch{}const stage=shell.querySelector('.one3d-stage'),players=shell.querySelector('.one3d-players');members.forEach(m=>{const e=document.createElement('span');e.className='one3d-player';e.dataset.ready=String(!!m.ready);e.textContent=(m.isYou?'● ':'')+m.name+(m.ready?' ✓':'');players.append(e);});
  const scene=new THREE.Scene();buildRoom(scene);
  const camera=new THREE.PerspectiveCamera(65,1,.05,60);let yaw=0,pitch=-.08;const local=members.find(m=>m.isYou)||{name:'Toi',isYou:true};const colors=[0x7b5cff,0x49b6ff,0xff6b9e,0x58d68d];let me=null;members.forEach((m,i)=>{const a=[[-2.2,1.8],[2.2,1.8],[-2.2,-1.8],[2.2,-1.8]][i]||[0,0];const av=makeAvatar(scene,m.name,colors[i%4],a[0],a[1],m.isYou);if(m.isYou)me=av;});if(!me)me=makeAvatar(scene,local.name,colors[0],0,2,true);me.position.set(0,0,4.8);camera.position.set(0,1.65,4.8);yaw=0;pitch=-.10;
