@@ -3662,7 +3662,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R30 · RDC GRAND OUVERT · ESCALIER STABLE · VISUAL+';
+const BUILD = 'R31 · ESCALIER COMPACT · GRANDS PALIERS · VISUAL+';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -3776,7 +3776,7 @@ function createGroundFloor() {
   ]);
   // Seules les pièces privées restent cloisonnées.
   wallRun('g-bedroom-bathroom', 'x', 2, 1.65, 7);
-  wallRun('g-bathroom-stairs', 'x', -2, 1.65, 7);
+  wallRun('g-bathroom-stairs', 'x', 0.25, 1.65, 7); // R31 : palier RDC agrandi
 
   // Upper floor expanded
   wallRun('u-north', 'x', -8, -7.12, 7.12, [], UPPER_Y); wallRun('u-south', 'x', 8, -7.12, 7.12, [], UPPER_Y);
@@ -3792,7 +3792,7 @@ function createGroundFloor() {
     { id: 'up-master', label: 'SUITE', center: 4.7, width: 1.45, swing: 1 },
   ], UPPER_Y);
   wallRun('u-left-top', 'x', 3, -7, -1.25, [], UPPER_Y); wallRun('u-left-mid', 'x', -1, -7, -1.25, [], UPPER_Y);
-  wallRun('u-right-mid', 'x', 1.4, 1.25, 7, [], UPPER_Y); wallRun('u-right-low', 'x', -2, 1.25, 7, [], UPPER_Y);
+  wallRun('u-right-mid', 'x', 1.4, 1.25, 7, [], UPPER_Y); wallRun('u-right-low', 'x', 0.35, 1.25, 7, [], UPPER_Y); // R31 : grand palier étage
 
   // Basement expanded
   wallRun('b-north', 'x', -8, -7.12, 7.12, [], BASEMENT_Y); wallRun('b-south', 'x', 4, -7.12, 7.12, [], BASEMENT_Y);
@@ -3808,11 +3808,12 @@ function createGroundFloor() {
     { id: 'b-boiler', label: 'CHAUFFERIE', center: 2.4, width: 1.35, swing: 1 },
   ], BASEMENT_Y);
   wallRun('b-left-a', 'x', -4.2, -7, -1.25, [], BASEMENT_Y); wallRun('b-left-b', 'x', -.3, -7, -1.25, [], BASEMENT_Y);
-  wallRun('b-right-a', 'x', -2, 1.25, 7, [], BASEMENT_Y); wallRun('b-right-b', 'x', 1.4, 1.25, 7, [], BASEMENT_Y);
+  wallRun('b-right-a', 'x', 0.25, 1.25, 7, [], BASEMENT_Y); // R31 : grand palier sous-sol
+  wallRun('b-right-b', 'x', 1.4, 1.25, 7, [], BASEMENT_Y);
 
   // Une seule définition des escaliers pour les marches, les trémies et le déplacement.
-  stairZone('stairs-up', 'Escalier vers l’étage', 4.30, 5.85, -7.2, -4.15, GROUND_Y, UPPER_Y);
-  stairZone('stairs-down', 'Escalier vers le sous-sol', 2.25, 3.55, -7.2, -4.15, BASEMENT_Y, GROUND_Y);
+  stairZone('stairs-up', 'Escalier vers l’étage', 3.95, 5.50, -7.2, -4.15, GROUND_Y, UPPER_Y);
+  stairZone('stairs-down', 'Escalier vers le sous-sol', 2.40, 3.85, -7.2, -4.15, BASEMENT_Y, GROUND_Y); // R31 : volées presque collées
   const floorOpenings = stairZones.map(zone => ({ ...zone, floorY: zone.y1 }));
 
   // Partition rectangulaire réelle : aucun sol/plafond ne traverse l'escalier.
@@ -3859,14 +3860,10 @@ function createGroundFloor() {
         if (i%2===0 || i===steps-1) volume(id+'-barreau-'+side+i, x, top+.43, z,
           .055, .86, .055, 'metal', true, 'rail');
       }
-      // Garde-corps du palier haut : empêche l'entrée latérale dans le vide.
-      for (const h of [.48,.98]) volume(id+'-palier-'+side+h, x, y1+h, (z0+z1)/2,
-        .07, .07, z1-z0, 'trim', true, 'rail');
-      for (let i=0; i<=4; i++) volume(id+'-poteau-'+side+i, x, y1+.49, z0+i*(z1-z0)/4,
-        .055, .98, .055, 'metal', true, 'rail');
+      // R31 : pas de double garde-corps sur le palier. La main courante des marches
+      // protège la volée sans transformer l'arrivée en couloir étroit.
     }
-    for (const h of [.48,.98]) volume(id+'-palier-fond-'+h, (x0+x1)/2, y1+h, z0-.045,
-      x1-x0+.16, .07, .07, 'trim', true, 'rail');
+    // R31 : arrivée de marche laissée ouverte ; garde-corps uniquement le long des volées.
     // Chants de dalle autour de la trémie, fermés uniquement sur les côtés.
     for (const [side,x] of [['g',x0-.035],['d',x1+.035]])
       volume(id+'-chant-'+side, x, y1-.125, (z0+z1)/2, .07, .25, z1-z0, 'plaster', true, 'slab');
