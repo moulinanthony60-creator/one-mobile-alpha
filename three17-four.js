@@ -7,10 +7,10 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 function patternTexture(kind) {
   const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = 128;
+  canvas.width = canvas.height = 256;
   const ctx = canvas.getContext('2d');
   if (kind === 'wood') {
-    ctx.fillStyle = '#33281f'; ctx.fillRect(0, 0, 128, 128);
+    ctx.fillStyle = '#2b211a'; ctx.fillRect(0, 0, 128, 128);
     for (let i = 0; i < 4; i++) {
       ctx.fillStyle = ['#30251d', '#3b2c21', '#281f19', '#35281f'][i];
       ctx.fillRect(i * 32 + 1, 0, 30, 128);
@@ -21,7 +21,7 @@ function patternTexture(kind) {
       ctx.stroke();
     }
   } else {
-    ctx.fillStyle = kind === 'bath' ? '#555d59' : '#4b4941'; ctx.fillRect(0, 0, 128, 128);
+    ctx.fillStyle = kind === 'bath' ? '#4c5752' : '#403f39'; ctx.fillRect(0, 0, 128, 128);
     ctx.fillStyle = kind === 'bath' ? '#788580' : '#5e5f58';
     ctx.fillRect(1, 1, 62, 62); ctx.fillRect(65, 65, 62, 62);
     ctx.strokeStyle = '#373b36'; ctx.lineWidth = 2;
@@ -31,7 +31,7 @@ function patternTexture(kind) {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-  texture.anisotropy = 2;
+  texture.anisotropy = 8;
   return texture;
 }
 
@@ -46,15 +46,15 @@ function buildHouseScene(scene, house) {
     screen: 0x0a1115, glass: 0x203544, rug: 0x342426, stoneFloor: 0x303331,
   };
   for (const [name, color] of Object.entries(palette)) {
-    materials[name] = new THREE.MeshStandardMaterial({ color, roughness: name === 'metal' ? .35 : .88,
-      metalness: name === 'metal' ? .45 : 0 });
+    materials[name] = new THREE.MeshStandardMaterial({ color, roughness: name === 'metal' ? .26 : (name === 'glass' ? .22 : .94),
+      metalness: name === 'metal' ? .62 : 0 });
   }
   for (const [name, tex, color] of [['woodFloor', wood, 0xb3a394], ['hallFloor', tile, 0x8c918e],
     ['kitchenFloor', tile, 0xafb1a0], ['bathFloor', bath, 0xb3bdb7]]) {
-    materials[name] = new THREE.MeshStandardMaterial({ color, map: tex, roughness: .92 });
+    materials[name] = new THREE.MeshStandardMaterial({ color, map: tex, roughness: .88 });
   }
-  materials.glass.emissive.setHex(0x1b2d45); materials.glass.emissiveIntensity = .16;
-  materials.screen.emissive.setHex(0x0c1b25); materials.screen.emissiveIntensity = .2;
+  materials.glass.emissive.setHex(0x1b2d45); materials.glass.emissiveIntensity = .08; materials.glass.transparent = true; materials.glass.opacity = .84;
+  materials.screen.emissive.setHex(0x0c1b25); materials.screen.emissiveIntensity = .12;
   const unitBox = new THREE.BoxGeometry(1, 1, 1);
   const batches = new Map();
   function queue(v) {
@@ -76,17 +76,17 @@ function buildHouseScene(scene, house) {
     list.forEach((v, i) => { position.set(v.x, v.y, v.z); scale.set(v.w, v.h, v.d);
       matrix.compose(position, rotation, scale); mesh.setMatrixAt(i, matrix); });
     mesh.instanceMatrix.needsUpdate = true;
-    mesh.computeBoundingSphere(); scene.add(mesh);
+    mesh.computeBoundingSphere(); mesh.castShadow=true; mesh.receiveShadow=true; scene.add(mesh);
   }
   for (const s of house.surfaces) {
     const geometry = new THREE.PlaneGeometry(s.w, s.d);
     const uv = geometry.attributes.uv;
     if (s.material !== 'rug') for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * s.w / 2, uv.getY(i) * s.d / 2);
     const mesh = new THREE.Mesh(geometry, materials[s.material]);
-    mesh.name = s.id; mesh.rotation.x = -Math.PI / 2; mesh.position.set(s.x, s.y, s.z); scene.add(mesh);
+    mesh.name=s.id; mesh.rotation.x=-Math.PI/2; mesh.position.set(s.x,s.y,s.z); mesh.receiveShadow=true; scene.add(mesh);
   }
   function cube(parent, x, y, z, w, h, d, material) {
-    const mesh = new THREE.Mesh(unitBox, material); mesh.position.set(x, y, z); mesh.scale.set(w, h, d); parent.add(mesh); return mesh;
+    const mesh=new THREE.Mesh(unitBox,material); mesh.position.set(x,y,z); mesh.scale.set(w,h,d); mesh.castShadow=true; mesh.receiveShadow=true; parent.add(mesh); return mesh;
   }
   const doorMeshes = new Map();
   for (const d of house.doors) {
@@ -177,8 +177,13 @@ function open() {
   active = session;
   try {
     const house = createGroundFloor();
-    scene = new THREE.Scene(); scene.background = new THREE.Color(0x050807); scene.fog = new THREE.FogExp2(0x070b0a, .045);
+    scene = new THREE.Scene(); scene.background = new THREE.Color(0x020403); scene.fog = new THREE.FogExp2(0x050807, .058);
     const meshes = buildHouseScene(scene, house);
+    const dustGeo=new THREE.BufferGeometry(), dustCount=220, dustPos=new Float32Array(dustCount*3);
+    for(let i=0;i<dustCount;i++){dustPos[i*3]=(Math.random()-.5)*18;dustPos[i*3+1]=.12+Math.random()*2.5;dustPos[i*3+2]=(Math.random()-.5)*18;}
+    dustGeo.setAttribute('position',new THREE.BufferAttribute(dustPos,3));
+    const dust=new THREE.Points(dustGeo,new THREE.PointsMaterial({color:0xb9aa8d,size:.012,transparent:true,opacity:.18,depthWrite:false}));
+    scene.add(dust);
     const camera = new THREE.PerspectiveCamera(68, 1, .05, 45);
     let yaw = house.spawn.yaw, pitch = house.spawn.pitch;
     const position = { x: house.spawn.x, z: house.spawn.z };
@@ -187,16 +192,16 @@ function open() {
     let last = performance.now(), lastRender = 0, lastHud = 0, flashOn = true;
     const FRAME_MS = 1000 / 45;
     const direction = new THREE.Vector3();
-    scene.add(new THREE.HemisphereLight(0x536675, 0x130f0b, .32));
-    const moon = new THREE.DirectionalLight(0x7890a8, .42); moon.position.set(2, 6, 3); scene.add(moon);
-    const practicals = [[-4.7,1.65,4.8,0xd1a56d,5.0,4.2],[3.2,1.7,5.9,0xc89862,3.8,3.2],[-4.6,1.8,-5.7,0xb98b58,4.5,3.6],[3.5,1.65,-1.45,0xc29b70,2.8,2.8]];
+    scene.add(new THREE.HemisphereLight(0x35484e, 0x0d0907, .19));
+    const moon = new THREE.DirectionalLight(0x7891a5, .31); moon.position.set(2,6,3); moon.castShadow=true; moon.shadow.mapSize.set(512,512); scene.add(moon);
+    const practicals = [[-4.7,1.65,4.8,0xc9975c,3.6,3.8],[3.2,1.7,5.9,0xb9824d,2.8,3.0],[-4.6,1.8,-5.7,0xac7546,3.3,3.3],[3.5,1.65,-1.45,0xb88d61,2.0,2.5]];
     for (const [x,y,z,c,i,d] of practicals){const l=new THREE.PointLight(c,i,d,2);l.position.set(x,y,z);scene.add(l);}
-    const flashlight = new THREE.SpotLight(0xe7dfcc, 52, 16, .46, .62, 1.45);
+    const flashlight = new THREE.SpotLight(0xe4dbc6,46,14,.39,.72,1.65); flashlight.castShadow=true; flashlight.shadow.mapSize.set(512,512); flashlight.shadow.bias=-.0005;
     const target = new THREE.Object3D(); flashlight.target = target; scene.add(flashlight, target);
-    const fillLight = new THREE.PointLight(0xa8b3aa, 1.05, 3.2, 2.0); scene.add(fillLight);
-    renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance', alpha: false });
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.15));
-    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .92;
+    const fillLight = new THREE.PointLight(0x93a29b, .58, 2.8, 2.0); scene.add(fillLight);
+    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', alpha: false });
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6));
+    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .78; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     stage.prepend(renderer.domElement);
     const stick = shell.querySelector('.three17-stick'), knob = shell.querySelector('.three17-knob');
     const flashButton = shell.querySelector('.flash'), hint = shell.querySelector('.three17-hint');

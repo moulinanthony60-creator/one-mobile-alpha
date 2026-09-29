@@ -28,3 +28,17 @@
 .three17-card .time{color:#bca77b;text-shadow:0 0 24px #8a683744}.three17-card p{color:#aaa494}
 .three17-card button{background:linear-gradient(#51452f,#29271e);border:1px solid #806f4c;color:#eee6d4;border-radius:4px;box-shadow:0 8px 25px #000}
 .three17-build,.three17-build-label{color:#8d877a}
+
+/* 3:17 FOUR — MAX GRAPHICS PASS */
+.three17-shell{background:#010202;color:#e4ddcf}
+.three17-stage:before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 0 28%,rgba(0,0,0,.18) 58%,rgba(0,0,0,.76) 110%);box-shadow:inset 0 0 120px #0009}
+.three17-stage:after{z-index:3!important;opacity:.76;background:repeating-linear-gradient(0deg,#ffffff02 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 25%,#0003 64%,#000b 115%)!important}
+.three17-hud{z-index:5}.three17-clock{font-family:Georgia,serif;font-weight:500;letter-spacing:.14em;color:#d3c8b2}
+.three17-objective,.three17-hint,.three17-msg{background:linear-gradient(#0d100de8,#030504f2);border:1px solid #8b795348;border-radius:3px;color:#ddd5c5;box-shadow:0 12px 34px #000b;backdrop-filter:blur(7px) saturate(.7)}
+.three17-stick{background:radial-gradient(circle,#15181488,#030504b8);border-color:#9b89633b;box-shadow:inset 0 0 30px #000d,0 8px 25px #0008}
+.three17-knob{background:#a79b8048;border:1px solid #c7b99724}
+.three17-btn,.three17-exit{background:linear-gradient(#171914f2,#050706fa);border-color:#927d534f;color:#ded6c5;box-shadow:0 8px 25px #000b,inset 0 1px #ffffff0a}
+.three17-start,.three17-win{background:radial-gradient(ellipse at 50% 39%,#211d164d,transparent 28%),radial-gradient(ellipse,#0a0d0b,#020302 62%,#000)}
+.three17-card{background:linear-gradient(#0e100de8,#030504f2);border:1px solid #8a754c45;border-radius:2px;box-shadow:0 35px 100px #000;backdrop-filter:blur(9px)}
+.three17-card h1,.three17-card .time{font-family:Georgia,serif;font-weight:500}.three17-card h1{letter-spacing:.08em}.three17-card .time{color:#b9a477;letter-spacing:.14em;text-shadow:0 0 28px #a87c3e2e}
+.three17-card p{color:#aaa293;line-height:1.55}.three17-card button{border-radius:2px;background:linear-gradient(#4a402d,#211f18);border:1px solid #7a6743;color:#e7decb;letter-spacing:.055em}
