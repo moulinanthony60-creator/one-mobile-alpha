@@ -3662,7 +3662,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R29 · ESCALIERS OUVERTS · PUSH · VISUAL+';
+const BUILD = 'R30 · RDC GRAND OUVERT · ESCALIER STABLE · VISUAL+';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -3765,19 +3765,18 @@ function createGroundFloor() {
   wallRun('g-north', 'x', -8, -7.12, 7.12);
   wallRun('g-south', 'x', 8, -7.12, 7.12, [{ id: 'exit', label: 'SORTIE', center: 0, width: 1.45, exit: true, locked: true, sign: false }]);
   wallRun('g-west', 'z', -7, -8, 8); wallRun('g-east', 'z', 7, -8, 8);
-  // R27 : grande pièce de vie ouverte. On conserve seulement une courte séparation
-  // côté cuisine pour garder un angle de gameplay, mais salon + salle à manger + hall respirent.
-  wallRun('g-couloir-ouest-cuisine', 'z', -1.25, -8, -3.95, [
-    { id: 'kitchen', label: 'CUISINE', center: -5.6, width: 1.4, swing: -1 },
-  ]);
-  wallRun('g-couloir-est', 'z', 1.65, -8, 8, [
-    { id: 'stairs', label: 'ESCALIER', center: -4.7, width: 1.4, arch: true },
+  // R30 : le RDC devient une vraie grande pièce ouverte.
+  // Suppression de la cloison/porte de cuisine et du retour hall : salon, salle à manger,
+  // cuisine, hall et accès escalier communiquent sans porte ni couloir artificiel.
+  // On ne conserve le mur longitudinal droit qu'à partir de la salle de bain : la zone
+  // escalier (z -8 à -2) est donc entièrement dégagée côté pièce de vie.
+  wallRun('g-couloir-est-prive', 'z', 1.65, -2, 8, [
     { id: 'bathroom', label: 'SALLE DE BAIN', center: 0, width: 1.3, swing: 1 },
     { id: 'bedroom', label: 'CHAMBRE', center: 4.8, width: 1.4, swing: 1 },
   ]);
-  // Cloisons salon/salle à manger supprimées : continuité visuelle complète.
-  // La cuisine reste délimitée par son mobilier et le court retour de mur côté couloir.
-  wallRun('g-bedroom-bathroom', 'x', 2, 1.65, 7); wallRun('g-bathroom-stairs', 'x', -2, 1.65, 7); wallRun('g-hall-arch', 'x', 3, -1.25, 1.65, [{ id: 'hall-arch', label: 'COULOIR', center: 0, width: 1.95, arch: true }]);
+  // Seules les pièces privées restent cloisonnées.
+  wallRun('g-bedroom-bathroom', 'x', 2, 1.65, 7);
+  wallRun('g-bathroom-stairs', 'x', -2, 1.65, 7);
 
   // Upper floor expanded
   wallRun('u-north', 'x', -8, -7.12, 7.12, [], UPPER_Y); wallRun('u-south', 'x', 8, -7.12, 7.12, [], UPPER_Y);
@@ -3812,10 +3811,8 @@ function createGroundFloor() {
   wallRun('b-right-a', 'x', -2, 1.25, 7, [], BASEMENT_Y); wallRun('b-right-b', 'x', 1.4, 1.25, 7, [], BASEMENT_Y);
 
   // Une seule définition des escaliers pour les marches, les trémies et le déplacement.
-  // R29 : vraie respiration autour de la cage d'escalier. Les deux volées sont écartées
-  // pour créer un palier central large et lisible, au lieu d'un passage en couloir.
-  stairZone('stairs-up', 'Escalier vers l’étage', 4.55, 5.95, -7.2, -4.15, GROUND_Y, UPPER_Y);
-  stairZone('stairs-down', 'Escalier vers le sous-sol', 1.95, 3.25, -7.2, -4.15, BASEMENT_Y, GROUND_Y);
+  stairZone('stairs-up', 'Escalier vers l’étage', 4.30, 5.85, -7.2, -4.15, GROUND_Y, UPPER_Y);
+  stairZone('stairs-down', 'Escalier vers le sous-sol', 2.25, 3.55, -7.2, -4.15, BASEMENT_Y, GROUND_Y);
   const floorOpenings = stairZones.map(zone => ({ ...zone, floorY: zone.y1 }));
 
   // Partition rectangulaire réelle : aucun sol/plafond ne traverse l'escalier.
@@ -3862,15 +3859,11 @@ function createGroundFloor() {
         if (i%2===0 || i===steps-1) volume(id+'-barreau-'+side+i, x, top+.43, z,
           .055, .86, .055, 'metal', true, 'rail');
       }
-      // R29 : le palier central reste ouvert. On ne garde le garde-corps longitudinal
-      // que sur le côté extérieur de chaque volée afin d'éviter le double couloir de barrières.
-      const outerSide = (id === 'stairs-up' && side === 'd') || (id === 'stairs-down' && side === 'g');
-      if (outerSide) {
-        for (const h of [.48,.98]) volume(id+'-palier-'+side+h, x, y1+h, (z0+z1)/2,
-          .07, .07, z1-z0, 'trim', true, 'rail');
-        for (let i=0; i<=4; i++) volume(id+'-poteau-'+side+i, x, y1+.49, z0+i*(z1-z0)/4,
-          .055, .98, .055, 'metal', true, 'rail');
-      }
+      // Garde-corps du palier haut : empêche l'entrée latérale dans le vide.
+      for (const h of [.48,.98]) volume(id+'-palier-'+side+h, x, y1+h, (z0+z1)/2,
+        .07, .07, z1-z0, 'trim', true, 'rail');
+      for (let i=0; i<=4; i++) volume(id+'-poteau-'+side+i, x, y1+.49, z0+i*(z1-z0)/4,
+        .055, .98, .055, 'metal', true, 'rail');
     }
     for (const h of [.48,.98]) volume(id+'-palier-fond-'+h, (x0+x1)/2, y1+h, z0-.045,
       x1-x0+.16, .07, .07, 'trim', true, 'rail');
@@ -4720,7 +4713,7 @@ function open() {
     <div class="three17-look" aria-label="Glisser pour regarder"></div>
     <div class="three17-actions"><button class="three17-btn sound" type="button" aria-label="Couper le son" aria-pressed="true">♪</button><button class="three17-btn flash" type="button" aria-label="Éteindre la lampe" aria-pressed="true">🔦</button>
     <button class="three17-btn interact" type="button">AGIR</button></div><div class="three17-hint"></div><div class="three17-msg" role="status"></div></div>
-    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">10:00</div><strong class="three17-build-label">R29 · ESCALIERS OUVERTS · PUSH · GRAPHISMES+ · 10 MIN</strong>
+    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">10:00</div><strong class="three17-build-label">R27 · RDC OUVERT · PUSH · GRAPHISMES+ · 10 MIN</strong>
     <p><b>Départ aléatoire dans la maison.</b><br>Fouillez, puis ramassez les trois objets.<br>Le Parasite vous traque : cachez-vous hors de sa vue.</p>
     <div class="three17-clues">Clé : bureau · Sceau : chambre enfant<br>Fusible : réserve du sous-sol</div>
     <p data-monster-load role="status">Chargement du modèle 3D et des textures…</p><button type="button" disabled aria-busy="true">CHARGEMENT DU MONSTRE…</button><small class="three17-controls-help">Joystick + glisser pour regarder · AGIR pour fouiller / prendre / se cacher<br>Clavier : ZQSD / WASD · E : agir · F : lampe · M : son</small></div></div>
