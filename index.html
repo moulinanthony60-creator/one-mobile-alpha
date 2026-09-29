@@ -3662,7 +3662,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R35 · PALIERS ÉLARGIS · +4 M AU NORD';
+const BUILD = 'R36 · +4 M · CACHETTES · PARASITE AUDIO+';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -3673,12 +3673,12 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 function createGroundFloor() {
   const volumes = [], solids = [], doors = [], surfaces = [], signs = [], stairZones = [], containers = [], hideSpots = [];
-  // R35 : le mur devant le pied des marches est au nord (Z), pas à l'est (X).
-  // Une définition commune aux murs, aux pièces, aux sols et aux collisions.
-  // Les deux volées gardent exactement leurs coordonnées R32.
-  const layout = Object.freeze({ west:-7, east:13.5, north:-12, south:9.5,
-    basementSouth:5.5, privateStart:-.5, groundBathEnd:3.5, upperBathEnd:2.9 });
-  const bounds = { minX:layout.west, maxX:layout.east, minZ:layout.north, maxZ:layout.south };
+  // R35 : le mur devant LE PIED DES MARCHES est au nord (Z), pas à l'est (X).
+  // Ces cotes pilotent les murs visibles, les pièces/supports, les plafonds et
+  // les limites de collision. Les deux volées gardent EXACTEMENT leurs cotes R32.
+  const layout = Object.freeze({ west: -7, east: 13.5, north: -12, south: 9.5,
+    basementSouth: 5.5, privateStart: -.5, groundBathEnd: 3.5, upperBathEnd: 2.9 });
+  const bounds = { minX: layout.west, maxX: layout.east, minZ: layout.north, maxZ: layout.south };
   const GROUND_Y = 0, UPPER_Y = 3.25, BASEMENT_Y = -3.25;
   const rooms = [
     { id: 'hall', name: 'Hall d’entrée', level: 'RDC', floorY: GROUND_Y, x0: -1.25, x1: 1.65, z0: 3, z1: layout.south, floor: 'hallFloor', visit: [0, 6.5] },
@@ -3707,13 +3707,14 @@ function createGroundFloor() {
     { id: 'basement-ritual', name: 'Pièce murée', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: layout.west, x1: -1.25, z0: -.3, z1: layout.basementSouth, floor: 'stoneFloor', visit: [-4.1, 1.8] },
   ];
   const lampPositions = [
-    [0,2.55,6.8], [0,2.55,.7], [-4.5,2.55,4.5], [-4.4,2.55,-9.4], [7.5,2.55,6.2],
-    [-4.4,UPPER_Y+2.45,5.0], [-4.4,UPPER_Y+2.4,-8.2], [7.5,UPPER_Y+2.45,6.4],
-    [-4.4,BASEMENT_Y+2.35,-9.1], [-4.4,BASEMENT_Y+2.35,-2.1], [-4.2,BASEMENT_Y+2.35,1.5], [7.5,BASEMENT_Y+2.35,4.2],
+    [0, 2.55, 6.8], [0, 2.55, .7], [-4.5, 2.55, 4.5], [-4.4, 2.55, -9.4], [7.5, 2.55, 6.2],
+    [-4.4, UPPER_Y + 2.45, 5.0], [-4.4, UPPER_Y + 2.4, -8.2], [7.5, UPPER_Y + 2.45, 6.4],
+    [-4.4, BASEMENT_Y + 2.35, -9.1], [-4.4, BASEMENT_Y + 2.35, -2.1], [-4.2, BASEMENT_Y + 2.35, 1.5], [7.5, BASEMENT_Y + 2.35, 4.2],
   ];
-  // Deux grands paliers par niveau ; seules deux lampes sont actives au rendu.
-  for (const y of [GROUND_Y,UPPER_Y,BASEMENT_Y])
-    lampPositions.push([4.5,y+2.5,-9.5],[4.5,y+2.5,-2.1],[9.5,y+2.5,-6]);
+  // Deux grands paliers éclairés par niveau ; toujours deux lampes actives au rendu.
+  for (const y of [GROUND_Y, UPPER_Y, BASEMENT_Y]) {
+    lampPositions.push([4.5, y + 2.5, -9.5], [4.5, y + 2.5, -2.1], [9.5, y + 2.5, -6]);
+  }
 
   function volume(id, x, y, z, w, h, d, material, solid = true, kind = 'furniture') {
     if (![x, y, z, w, h, d].every(Number.isFinite) || Math.min(w, h, d) <= 0) throw new Error('Volume invalide : ' + id);
@@ -3769,56 +3770,56 @@ function createGroundFloor() {
   function container(id, label, x, y, z, room, contains = null) { containers.push({ id, label, x, y, z, room, contains, opened: false }); }
   function hide(id, label, x, y, z, room, exitX, exitZ) { hideSpots.push({ id, label, x, y, z, room, hidden: false, exitX, exitZ }); }
 
-  // R35 : structure principale, sans seconde scène ni murs superposés.
-  function exterior(prefix, floorY, south, exit=false) {
-    wallRun(prefix+'-north','x',layout.north,layout.west-.12,layout.east+.12,[],floorY);
-    wallRun(prefix+'-south','x',south,layout.west-.12,layout.east+.12,
-      exit?[{id:'exit',label:'SORTIE',center:0,width:1.45,exit:true,locked:true,sign:false}]:[],floorY);
-    wallRun(prefix+'-west','z',layout.west,layout.north,south,[],floorY);
-    wallRun(prefix+'-east','z',layout.east,layout.north,south,[],floorY);
+  // R35 : structure principale, jamais une seconde scène ni des murs superposés.
+  function exterior(prefix, floorY, south, exit = false) {
+    wallRun(prefix + '-north', 'x', layout.north, layout.west-.12, layout.east+.12, [], floorY);
+    wallRun(prefix + '-south', 'x', south, layout.west-.12, layout.east+.12,
+      exit ? [{ id:'exit', label:'SORTIE', center:0, width:1.45, exit:true, locked:true, sign:false }] : [], floorY);
+    wallRun(prefix + '-west', 'z', layout.west, layout.north, south, [], floorY);
+    wallRun(prefix + '-east', 'z', layout.east, layout.north, south, [], floorY);
   }
-  exterior('g',GROUND_Y,layout.south,true);
-  // Salon/cuisine/hall ouverts ; pièces privées séparées, reculées de 1,5 m.
-  wallRun('g-couloir-est-prive','z',1.65,layout.privateStart,layout.south,[
-    {id:'bathroom',label:'SALLE DE BAIN',center:1.5,width:1.3,swing:1},
-    {id:'bedroom',label:'CHAMBRE',center:6.3,width:1.4,swing:1},
+  exterior('g', GROUND_Y, layout.south, true);
+  // Cuisine/salon/hall restent ouverts. Les pièces privées restent séparées.
+  wallRun('g-couloir-est-prive', 'z', 1.65, layout.privateStart, layout.south, [
+    { id:'bathroom', label:'SALLE DE BAIN', center:1.5, width:1.3, swing:1 },
+    { id:'bedroom', label:'CHAMBRE', center:6.3, width:1.4, swing:1 },
   ]);
-  wallRun('g-bedroom-bathroom','x',layout.groundBathEnd,1.65,layout.east);
-  wallRun('g-bathroom-stairs','x',layout.privateStart,1.65,layout.east);
+  wallRun('g-bedroom-bathroom', 'x', layout.groundBathEnd, 1.65, layout.east);
+  wallRun('g-bathroom-stairs', 'x', layout.privateStart, 1.65, layout.east);
 
-  exterior('u',UPPER_Y,layout.south);
-  wallRun('u-corridor-west','z',-1.25,layout.north,layout.south,[
-    {id:'up-storage',label:'DÉBARRAS',center:-4.5,width:1.35,swing:-1},
-    {id:'up-office',label:'BUREAU',center:1.0,width:1.35,swing:-1},
-    {id:'up-nursery',label:'CHAMBRE ENFANT',center:5.3,width:1.45,swing:-1},
-  ],UPPER_Y);
-  wallRun('u-corridor-east','z',1.25,layout.north,layout.south,[
-    {id:'up-north-landing',label:'PALIER',center:-9.4,width:2.6,arch:true,sign:false},
-    {id:'up-landing',label:'PALIER',center:-2.25,width:2.2,arch:true,sign:false},
-    {id:'up-bath',label:'SALLE D’EAU',center:1.2,width:1.35,swing:1},
-    {id:'up-master',label:'SUITE',center:6.2,width:1.45,swing:1},
-  ],UPPER_Y);
-  wallRun('u-left-top','x',3,layout.west,-1.25,[],UPPER_Y);
-  wallRun('u-left-mid','x',-1,layout.west,-1.25,[],UPPER_Y);
-  wallRun('u-right-mid','x',layout.upperBathEnd,1.25,layout.east,[],UPPER_Y);
-  wallRun('u-right-low','x',layout.privateStart,1.25,layout.east,[],UPPER_Y);
+  exterior('u', UPPER_Y, layout.south);
+  wallRun('u-corridor-west', 'z', -1.25, layout.north, layout.south, [
+    { id:'up-storage', label:'DÉBARRAS', center:-4.5, width:1.35, swing:-1 },
+    { id:'up-office', label:'BUREAU', center:1.0, width:1.35, swing:-1 },
+    { id:'up-nursery', label:'CHAMBRE ENFANT', center:5.3, width:1.45, swing:-1 },
+  ], UPPER_Y);
+  wallRun('u-corridor-east', 'z', 1.25, layout.north, layout.south, [
+    { id:'up-north-landing', label:'PALIER', center:-9.4, width:2.6, arch:true, sign:false },
+    { id:'up-landing', label:'PALIER', center:-2.25, width:2.2, arch:true, sign:false },
+    { id:'up-bath', label:'SALLE D’EAU', center:1.2, width:1.35, swing:1 },
+    { id:'up-master', label:'SUITE', center:6.2, width:1.45, swing:1 },
+  ], UPPER_Y);
+  wallRun('u-left-top', 'x', 3, layout.west, -1.25, [], UPPER_Y);
+  wallRun('u-left-mid', 'x', -1, layout.west, -1.25, [], UPPER_Y);
+  wallRun('u-right-mid', 'x', layout.upperBathEnd, 1.25, layout.east, [], UPPER_Y);
+  wallRun('u-right-low', 'x', layout.privateStart, 1.25, layout.east, [], UPPER_Y);
 
-  exterior('b',BASEMENT_Y,layout.basementSouth);
-  wallRun('b-corridor-west','z',-1.25,layout.north,layout.basementSouth,[
-    {id:'b-cellar',label:'CAVE',center:-6.1,width:1.35,swing:-1},
-    {id:'b-laundry',label:'BUANDERIE',center:-2.2,width:1.35,swing:-1},
-    {id:'b-ritual',label:'PIÈCE MURÉE',center:1.8,width:1.35,swing:-1},
-  ],BASEMENT_Y);
-  wallRun('b-corridor-east','z',1.25,layout.north,layout.basementSouth,[
-    {id:'b-north-landing',label:'PALIER',center:-9.4,width:2.6,arch:true,sign:false},
-    {id:'b-land',label:'PALIER',center:-2.25,width:2.2,arch:true,sign:false},
-    {id:'b-storage',label:'RÉSERVE',center:1.1,width:1.35,swing:1},
-    {id:'b-boiler',label:'CHAUFFERIE',center:3.9,width:1.35,swing:1},
-  ],BASEMENT_Y);
-  wallRun('b-left-a','x',-4.2,layout.west,-1.25,[],BASEMENT_Y);
-  wallRun('b-left-b','x',-.3,layout.west,-1.25,[],BASEMENT_Y);
-  wallRun('b-right-a','x',layout.privateStart,1.25,layout.east,[],BASEMENT_Y);
-  wallRun('b-right-b','x',layout.upperBathEnd,1.25,layout.east,[],BASEMENT_Y);
+  exterior('b', BASEMENT_Y, layout.basementSouth);
+  wallRun('b-corridor-west', 'z', -1.25, layout.north, layout.basementSouth, [
+    { id:'b-cellar', label:'CAVE', center:-6.1, width:1.35, swing:-1 },
+    { id:'b-laundry', label:'BUANDERIE', center:-2.2, width:1.35, swing:-1 },
+    { id:'b-ritual', label:'PIÈCE MURÉE', center:1.8, width:1.35, swing:-1 },
+  ], BASEMENT_Y);
+  wallRun('b-corridor-east', 'z', 1.25, layout.north, layout.basementSouth, [
+    { id:'b-north-landing', label:'PALIER', center:-9.4, width:2.6, arch:true, sign:false },
+    { id:'b-land', label:'PALIER', center:-2.25, width:2.2, arch:true, sign:false },
+    { id:'b-storage', label:'RÉSERVE', center:1.1, width:1.35, swing:1 },
+    { id:'b-boiler', label:'CHAUFFERIE', center:3.9, width:1.35, swing:1 },
+  ], BASEMENT_Y);
+  wallRun('b-left-a', 'x', -4.2, layout.west, -1.25, [], BASEMENT_Y);
+  wallRun('b-left-b', 'x', -.3, layout.west, -1.25, [], BASEMENT_Y);
+  wallRun('b-right-a', 'x', layout.privateStart, 1.25, layout.east, [], BASEMENT_Y);
+  wallRun('b-right-b', 'x', layout.upperBathEnd, 1.25, layout.east, [], BASEMENT_Y);
 
   // Une seule définition des escaliers pour les marches, les trémies et le déplacement.
   stairZone('stairs-up', 'Escalier vers l’étage', 3.95, 5.50, -7.2, -4.15, GROUND_Y, UPPER_Y);
@@ -3885,11 +3886,17 @@ function createGroundFloor() {
   b('lit-sommier', 4.75, .23, 6.6, 1.95, .46, 2.9, 'wood'); b('lit-matelas', 4.75, .52, 6.6, 1.94, .18, 2.85, 'linen'); b('lit-couverture', 4.75, .635, 6.25, 1.94, .07, 2.08, 'fabric'); b('lit-tete', 4.75, .64, 8.05, 2.05, 1.15, .17, 'wood'); b('chevet', 3.15, .32, 7.7, .65, .64, .68, 'wood'); b('armoire', 12.92, 1.04, 4.93, .70, 2.08, 1.65, 'wood');
   b('baignoire-base', 12.3, .17, 1.7, 1.5, .34, 2.35, 'enamel'); b('lavabo-meuble', 3.85, .39, 0.01, 1.25, .78, .65, 'cabinet'); b('miroir-cadre', 3.85, 1.69, -0.34, 1.2, 1.13, .06, 'trim', false); b('miroir', 3.85, 1.69, -0.301, 1.07, 1.0, .014, 'mirror', false); b('wc-base', 3.6, .22, 2.68, .50, .44, .64, 'enamel');
 
+  // R36: meubler les nouveaux +4 m sans refermer les axes de circulation des escaliers.
+  b('rdc-palier-armoire', 12.78, 1.02, -9.75, .72, 2.04, 1.55, 'wood');
+  b('rdc-palier-banc', 9.35, .28, -11.25, 2.15, .56, .58, 'wood');
+  b('rdc-palier-console', 7.15, .43, -11.28, 1.55, .86, .52, 'cabinet');
+
   // Upper furniture
   b('nursery-bed', -5.4, UPPER_Y + .28, 5.6, 1.6, .55, 2.6, 'linen'); b('nursery-wardrobe', -6.2, UPPER_Y + 1.0, 3.9, .72, 2.0, 1.35, 'wood'); table('nursery-desk', -3.3, UPPER_Y, 4.1, 1.1, .6, .72); b('toy-box', -2, UPPER_Y + .25, 6.5, .9, .5, .7, 'wood');
   b('office-shelf', -6.25, UPPER_Y + 1.0, 1.2, .7, 2.0, 1.5, 'wood'); table('office-desk', -4.1, UPPER_Y, 1.1, 1.7, .75, .76); b('office-cabinet', -2.1, UPPER_Y + .55, 0.2, .8, 1.1, .65, 'cabinet');
   b('storage-shelf-a', -6, UPPER_Y + 1.0, -9.8, .7, 2.0, 1.5, 'wood'); b('storage-shelf-b', -3.7, UPPER_Y + 1.0, -9.2, .7, 2.0, 1.5, 'wood'); b('storage-crate-a', -2, UPPER_Y + .25, -6.8, .9, .5, .9, 'wood'); b('storage-crate-b', -2.8, UPPER_Y + .25, -10.8, .7, .5, .7, 'wood');
   b('upper-vanity', 3, UPPER_Y + .45, 0.6, 1.2, .9, .55, 'cabinet'); b('upper-bath-tub', 12.3, UPPER_Y + .18, 1.2, 1.35, .36, 2.0, 'enamel'); b('upper-master-bed', 4.5, UPPER_Y + .28, 6.6, 2.1, .55, 3.2, 'linen'); b('upper-master-wardrobe', 12.85, UPPER_Y + 1.0, 4.9, .8, 2.0, 1.6, 'wood'); table('upper-master-table', 3, UPPER_Y, 7.9, 1.1, .7, .72);
+  b('upper-palier-armoire', 12.78, UPPER_Y + 1.02, -9.7, .72, 2.04, 1.55, 'wood'); b('upper-palier-commode', 9.25, UPPER_Y + .43, -11.28, 1.75, .86, .52, 'cabinet'); table('upper-palier-table', 7.0, UPPER_Y, -10.85, 1.15, .65, .68);
 
   // Basement furniture
   b('cellar-shelf-a', -6.05, BASEMENT_Y + 1.0, -10.3, .7, 2.0, 1.55, 'wood'); b('cellar-shelf-b', -3.2, BASEMENT_Y + 1.0, -10, .7, 2.0, 1.55, 'wood');
@@ -3897,6 +3904,7 @@ function createGroundFloor() {
   b('ritual-table', -4.2, BASEMENT_Y + .45, 1.9, 1.6, .9, 1.6, 'wood'); b('ritual-crate', -6, BASEMENT_Y + .25, 3, .9, .5, .9, 'wood');
   b('storage-rack', 3.6, BASEMENT_Y + 1.0, 0, 1.4, 2.0, .65, 'metal'); b('storage-locker', 12.85, BASEMENT_Y + 1.0, 1.1, .8, 2.0, 1.1, 'metal');
   b('boiler-body', 12.6, BASEMENT_Y + 1.0, 3.8, 1.1, 2.0, 1.05, 'metal'); b('boiler-pipe', 12.6, BASEMENT_Y + 2.15, 3.8, .16, .65, .16, 'metal'); table('boiler-bench', 3.2, BASEMENT_Y, 3.7, 1.8, .7, .72);
+  b('basement-palier-rack', 12.78, BASEMENT_Y + 1.0, -9.65, .72, 2.0, 1.65, 'metal'); b('basement-palier-crate-a', 9.8, BASEMENT_Y + .32, -11.15, 1.05, .64, .9, 'wood'); b('basement-palier-crate-b', 8.55, BASEMENT_Y + .25, -11.25, .78, .5, .72, 'wood');
 
   // Decorative windows (RDC only)
   for (const win of [{ x: -6.865, z: 6.7, side: 'west' }, { x: layout.west+.135, z: -10.0, side: 'west' }, { x: layout.east-.135, z: 7.7, side: 'east' }, { x: layout.east-.135, z: 1.35, side: 'east' }]) {
@@ -3919,11 +3927,13 @@ function createGroundFloor() {
   container('c-cellar-shelf', 'Étagère de cave', -6.05, BASEMENT_Y + 1.1, -10.3, 'basement-cellar'); container('c-laundry-cabinet', 'Armoire buanderie', -2.0, BASEMENT_Y + 1.0, -1, 'basement-laundry');
   container('c-storage-rack', 'Étagère métallique', 3.6, BASEMENT_Y + 1.1, 0, 'basement-storage', 'fuse'); container('c-storage-locker', 'Casier', 12.65, BASEMENT_Y + 1.0, 1.1, 'basement-storage');
   container('c-boiler-bench', 'Établi', 3.2, BASEMENT_Y + .8, 3.7, 'basement-boiler'); container('c-ritual-crate', 'Caisse humide', -6.0, BASEMENT_Y + .3, 3, 'basement-ritual');
+  container('c-rdc-palier-console', 'Console du palier', 7.15, .7, -11.28, 'stairs-ground'); container('c-upper-palier-commode', 'Commode du palier', 9.25, UPPER_Y + .7, -11.28, 'upper-landing'); container('c-basement-palier-crate', 'Caisse du palier', 9.8, BASEMENT_Y + .45, -11.15, 'basement-landing');
   // hide spots
   hide('h-under-bed', 'Sous le lit', 4.75, GROUND_Y, 5.7, 'bedroom', 4.75, 4.85); hide('h-wardrobe-rdc', 'Armoire', 12.72, GROUND_Y, 4.9, 'bedroom', 11.8, 4.9);
   hide('h-nursery-wardrobe', 'Armoire enfant', -6.0, UPPER_Y, 3.9, 'upper-nursery', -5.1, 3.9); hide('h-storage-box', 'Coin du débarras', -2.2, UPPER_Y, -10.7, 'upper-storage', -1.8, -10.2);
   hide('h-master-wardrobe', 'Dressing', 12.65, UPPER_Y, 4.9, 'upper-master', 11.8, 4.9); hide('h-cellar-shelf', 'Derrière l’étagère', -6.35, BASEMENT_Y, -10.3, 'basement-cellar', -5.3, -10.3);
   hide('h-storage-locker', 'Casier', 12.65, BASEMENT_Y, 1.1, 'basement-storage', 11.8, 1.1); hide('h-boiler-corner', 'Coin chaufferie', 12.7, BASEMENT_Y, 4.8, 'basement-boiler', 11.6, 4.8);
+  hide('h-rdc-palier-armoire', 'Armoire du palier', 12.55, GROUND_Y, -9.75, 'stairs-ground', 11.45, -9.75); hide('h-upper-palier-armoire', 'Armoire du grand palier', 12.55, UPPER_Y, -9.7, 'upper-landing', 11.45, -9.7); hide('h-basement-palier-rack', 'Derrière le rayonnage', 12.52, BASEMENT_Y, -9.65, 'basement-landing', 11.35, -9.65);
 
   // La cible de fouille est à l'intérieur du meuble : seul son propre volume
   // est ignoré par le rayon d'interaction, jamais un mur, un étage ou une porte.
@@ -3935,11 +3945,11 @@ function createGroundFloor() {
     'c-storage-crate':['storage-crate-a'], 'c-master-wardrobe':['upper-master-wardrobe'],
     'c-cellar-shelf':['cellar-shelf-a'], 'c-laundry-cabinet':['laundry-cabinet'],
     'c-storage-rack':['storage-rack'], 'c-storage-locker':['storage-locker'],
-    'c-boiler-bench':['boiler-bench-plateau'], 'c-ritual-crate':['ritual-crate'],
+    'c-boiler-bench':['boiler-bench-plateau'], 'c-ritual-crate':['ritual-crate'], 'c-rdc-palier-console':['rdc-palier-console'], 'c-upper-palier-commode':['upper-palier-commode'], 'c-basement-palier-crate':['basement-palier-crate-a'],
     'h-under-bed':['lit-sommier','lit-matelas','lit-couverture'], 'h-wardrobe-rdc':['armoire'],
     'h-nursery-wardrobe':['nursery-wardrobe'], 'h-storage-box':['storage-crate-b'],
     'h-master-wardrobe':['upper-master-wardrobe'], 'h-cellar-shelf':['cellar-shelf-a'],
-    'h-storage-locker':['storage-locker'], 'h-boiler-corner':['boiler-body'],
+    'h-storage-locker':['storage-locker'], 'h-boiler-corner':['boiler-body'], 'h-rdc-palier-armoire':['rdc-palier-armoire'], 'h-upper-palier-armoire':['upper-palier-armoire'], 'h-basement-palier-rack':['basement-palier-rack'],
   };
   for (const target of [...containers, ...hideSpots]) target.occluders = hosts[target.id] || [];
 
@@ -4399,7 +4409,19 @@ function createEncounterAudio() {
       o.start(t);o.stop(t+duration+.02);o.onended=()=>{o.disconnect();g.disconnect();};
     }catch{/* Sound must never interrupt the game. */}
   }
-  return {start,tone,get muted(){return muted;},toggle(){muted=!muted;if(!muted)start();return muted;},
+  function monsterStep(distance=6,mode='patrol',sameFloor=true){
+    if(!context||muted||closed||context.state!=='running'||!sameFloor)return;
+    const proximity=Math.max(0,1-distance/13); if(proximity<=0)return;
+    const chase=mode==='chase';
+    tone(chase?43:38,chase ? .12 : .16,(chase ? .040 : .026)*proximity,'sine',chase?28:24);
+    setTimeout(()=>tone(chase?58:51,.055,(chase ? .018 : .010)*proximity,'triangle',34),chase?62:82);
+  }
+  function monsterVoice(distance=8,mode='search',sameFloor=true){
+    if(!context||muted||closed||context.state!=='running')return;
+    const proximity=Math.max(0,1-distance/18)*(sameFloor?1:.32); if(proximity<=0)return;
+    const chase=mode==='chase'; tone(chase?72:62,chase ? .42 : .55,(chase ? .022 : .012)*proximity,'sawtooth',chase?31:25);
+  }
+  return {start,tone,monsterStep,monsterVoice,get muted(){return muted;},toggle(){muted=!muted;if(!muted)start();return muted;},
     pause(){if(context?.state==='running')context.suspend().catch(()=>{});},
     stop(){closed=true;if(context&&context.state!=='closed')context.close().catch(()=>{});context=null;}};
 }
@@ -4533,26 +4555,27 @@ function buildHouseScene(scene, house) {
     }
   }
   function detail(id, x, y, z, w, h, d, material) { queue({id, x, y, z, w, h, d, material}); }
-  // Détails ancrés aux meubles réels, pas à leurs anciennes coordonnées.
-  const host=id=>house.volumes.find(v=>v.id===id), shelf=host('bibliotheque');
-  if(shelf){
-    detail('bibliotheque-fond',shelf.x-.28,shelf.y,shelf.z,.055,shelf.h,shelf.d,'wood');
-    for(const dz of [-.54,.54])detail('biblio-joue',shelf.x,shelf.y,shelf.z+dz,shelf.w,shelf.h,.06,'wood');
-    for(const y of [.045,.68,1.34,2.01])detail('biblio-tablette',shelf.x,y,shelf.z,shelf.w,.065,shelf.d,'wood');
-    for(const y of [.71,1.37])for(let i=0;i<8;i++){
+  // Détails ancrés aux meubles réels : jamais à leurs anciennes coordonnées R27.
+  const host = id => house.volumes.find(v => v.id === id);
+  const shelf = host('bibliotheque');
+  if (shelf) {
+    detail('bibliotheque-fond', shelf.x-.28, shelf.y, shelf.z, .055, shelf.h, shelf.d, 'wood');
+    for (const dz of [-.54,.54]) detail('biblio-joue', shelf.x, shelf.y, shelf.z+dz, shelf.w, shelf.h, .06, 'wood');
+    for (const y of [.045,.68,1.34,2.01]) detail('biblio-tablette', shelf.x, y, shelf.z, shelf.w, .065, shelf.d, 'wood');
+    for (const y of [.71,1.37]) for (let i=0;i<8;i++) {
       const h=.30+(i%3)*.045;
-      detail('livre',shelf.x+.12,y+h/2,shelf.z-.42+i*.12,.30,h,.08,['paper','fabric','wood'][i%3]);
+      detail('livre', shelf.x+.12, y+h/2, shelf.z-.42+i*.12, .30, h, .08, ['paper','fabric','wood'][i%3]);
     }
   }
-  const westKitchen=host('cuisine-meubles-ouest'),northKitchen=host('cuisine-meubles-nord');
-  for(let i=0;i<5;i++){
-    const z=westKitchen.z-1.2+i*.6,x=westKitchen.x+westKitchen.w/2;
+  const westKitchen = host('cuisine-meubles-ouest'), northKitchen = host('cuisine-meubles-nord');
+  for (let i=0;i<5;i++) {
+    const z=westKitchen.z-1.2+i*.6, x=westKitchen.x+westKitchen.w/2;
     detail('facade-ouest',x+.011,.48,z,.020,.78,.566,'cabinet');
     detail('joint-ouest',x+.025,.48,z-.284,.009,.78,.014,'dark');
     detail('poignee-ouest',x+.047,.77,z,.06,.035,.19,'metal');
   }
-  for(let i=0;i<4;i++){
-    const x=northKitchen.x-1.17+i*.78,z=northKitchen.z+northKitchen.d/2;
+  for (let i=0;i<4;i++) {
+    const x=northKitchen.x-1.17+i*.78, z=northKitchen.z+northKitchen.d/2;
     detail('facade-nord',x,.48,z+.011,.738,.78,.020,'cabinet');
     detail('joint-nord',x-.37,.48,z+.025,.014,.78,.009,'dark');
     detail('poignee-nord',x,.77,z+.047,.19,.035,.06,'metal');
@@ -4593,7 +4616,7 @@ function buildHouseScene(scene, house) {
     const mesh = new THREE.Mesh(unitBox, material); mesh.position.set(x, y, z); mesh.scale.set(w, h, d); parent.add(mesh); return mesh;
   }
   const shadowMaterial = new THREE.MeshBasicMaterial({ map: contactTexture(), transparent: true, depthWrite: false, toneMapped: false });
-  for(const id of ['canape-assise','table-basse-plateau','table-repas-plateau','lit-sommier','chevet','cuisine-meubles-ouest','cuisine-meubles-nord','frigo']){
+  for (const id of ['canape-assise','table-basse-plateau','table-repas-plateau','lit-sommier','chevet','cuisine-meubles-ouest','cuisine-meubles-nord','frigo']) {
     const v=house.volumes.find(v=>v.id===id);if(!v)continue;
     const shadow=new THREE.Mesh(new THREE.PlaneGeometry(v.w+.45,v.d+.45),shadowMaterial);
     shadow.rotation.x=-Math.PI/2;shadow.position.set(v.x,.014,v.z);scene.add(shadow);
@@ -4749,8 +4772,7 @@ function open() {
     const house=createGroundFloor();
     session.layoutInfo=()=>({build:BUILD,bounds:{...house.bounds},northWall:house.layout.north,
       bottomLanding:Math.round((house.stairZones[0].z0-house.bounds.minZ-.12)*100)/100,
-      topLanding:Math.round((house.layout.privateStart-.12-house.stairZones[0].z1)*100)/100,
-      stairs:house.stairZones.map(z=>({...z}))});
+      topLanding:Math.round((house.layout.privateStart-.12-house.stairZones[0].z1)*100)/100,stairs:house.stairZones.map(z=>({...z}))});
     const spawns=chooseHouseSpawns(house,Math.random,previousStartRoom);
     house.spawn={...spawns.player};
     scene=new THREE.Scene();scene.background=new THREE.Color(0x06070a);scene.fog=new THREE.Fog(0x06070a,6.5,18.5);
@@ -4809,8 +4831,8 @@ function open() {
       awake:()=>message('Le Parasite s’est réveillé. Évitez le bruit.'),
       spotted:()=>{message('Il vous a vu ! Brisez sa ligne de vue.');audio.tone(75,.45,.035,'triangle',32);},
       caught:()=>finish('caught'),
-      door:d=>{if(Math.hypot(d.x-position.x,d.z-position.z)<5&&Math.abs((d.bottom||0)-position.y)<1)audio.tone(105,.23,.012,'triangle',45);},
-      step:d=>{if(d<7&&Math.abs(monster.state.position.y-position.y)<1.4)audio.tone(52,.13,.025*(1-d/7),'sine',28);}
+      door:d=>{if(Math.hypot(d.x-position.x,d.z-position.z)<7&&Math.abs((d.bottom||0)-position.y)<1.4)audio.tone(105,.23,.014,'triangle',45);},
+      step:d=>audio.monsterStep(d,monster.state.state,Math.abs(monster.state.position.y-position.y)<1.4)
     },spawns.monster);
     monsterVisual.animate(monster.state,0);
     // R24: resizing clears the canvas. Only resize inside the very frame that
@@ -4850,7 +4872,7 @@ function open() {
       graphicsState='error';graphicsInfo.lastError=String(error?.message||error||'Erreur de rendu').slice(0,500);
       syncPause();resetInputs();
       showGraphicsPanel('AFFICHAGE INTERROMPU','La partie est en pause. Réessayez l’affichage sans déplacer le fichier du Parasite.','G02 · Erreur de rendu 3D');
-      console.warn('3:17 R35 — affichage suspendu',error);
+      console.warn('3:17 R36 — affichage suspendu',error);
     }
     function onContextLost(event){
       event.preventDefault();if(stopped)return;
@@ -5015,7 +5037,7 @@ function open() {
       }
       animateDoors(dt);monster.update(dt,{player:position,hidden,flashOn});monsterVisual.animate(monster.state,dt);
       for(const mesh of meshes.itemMeshes.values())if(mesh.visible){mesh.rotation.y+=dt*.9;if(!reducedMotion)mesh.position.y=mesh.userData.baseY+Math.sin((ROUND_SECONDS-remaining)*2.5)*.025;}
-      beat-=dt;if(monster.state.state==='chase'&&beat<=0){beat=.8;audio.tone(48,.13,.018,'sine',34);}
+      beat-=dt;if(beat<=0){const md=Math.hypot(monster.state.position.x-position.x,monster.state.position.z-position.z),same=Math.abs(monster.state.position.y-position.y)<1.4;if(monster.state.state==='chase'){beat=1.7;audio.monsterVoice(md,'chase',same);}else if(monster.state.state==='search'){beat=3.8;audio.monsterVoice(md,'search',same);}else beat=2.4;}
     }
     function updateWorld(elapsed){
       if(!started||ended||paused||!Number.isFinite(elapsed)||elapsed<=0)return;
