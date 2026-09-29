@@ -3662,7 +3662,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R32 · CLOISONS RESTAURÉES · ESCALIER COMPACT · VISUAL+';
+const BUILD = 'R33 · MAISON ÉLARGIE · GRANDS PALIERS · VISUAL+';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -3673,7 +3673,7 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 function createGroundFloor() {
   const volumes = [], solids = [], doors = [], surfaces = [], signs = [], stairZones = [], containers = [], hideSpots = [];
-  const bounds = { minX: -7, maxX: 7, minZ: -8, maxZ: 8 };
+  const bounds = { minX: -7, maxX: 9.5, minZ: -8, maxZ: 8 };
   const GROUND_Y = 0, UPPER_Y = 3.25, BASEMENT_Y = -3.25;
   const rooms = [
     { id: 'hall', name: 'Hall d’entrée', level: 'RDC', floorY: GROUND_Y, x0: -1.25, x1: 1.25, z0: 3, z1: 8, floor: 'hallFloor', visit: [0, 5] },
@@ -3681,22 +3681,22 @@ function createGroundFloor() {
     { id: 'salon', name: 'Salon', level: 'RDC', floorY: GROUND_Y, x0: -7, x1: -1.25, z0: 1, z1: 8, floor: 'woodFloor', visit: [-3.1, 5.4] },
     { id: 'dining', name: 'Salle à manger', level: 'RDC', floorY: GROUND_Y, x0: -7, x1: -1.25, z0: -3.5, z1: 1, floor: 'woodFloor', visit: [-2.8, -1.1] },
     { id: 'kitchen', name: 'Cuisine', level: 'RDC', floorY: GROUND_Y, x0: -7, x1: -1.25, z0: -8, z1: -3.5, floor: 'kitchenFloor', visit: [-3.3, -5.5] },
-    { id: 'bedroom', name: 'Chambre', level: 'RDC', floorY: GROUND_Y, x0: 1.25, x1: 7, z0: 2, z1: 8, floor: 'woodFloor', visit: [2.4, 4.8] },
-    { id: 'bathroom', name: 'Salle de bain', level: 'RDC', floorY: GROUND_Y, x0: 1.25, x1: 7, z0: -2, z1: 2, floor: 'bathFloor', visit: [2.6, 0] },
-    { id: 'stairs-ground', name: 'Cage d’escalier', level: 'RDC', floorY: GROUND_Y, x0: 1.25, x1: 7, z0: -8, z1: -2, floor: 'stoneFloor', visit: [3.6, -4.8] },
+    { id: 'bedroom', name: 'Chambre', level: 'RDC', floorY: GROUND_Y, x0: 1.25, x1: 9.5, z0: 2, z1: 8, floor: 'woodFloor', visit: [2.4, 4.8] },
+    { id: 'bathroom', name: 'Salle de bain', level: 'RDC', floorY: GROUND_Y, x0: 1.25, x1: 9.5, z0: -2, z1: 2, floor: 'bathFloor', visit: [2.6, 0] },
+    { id: 'stairs-ground', name: 'Cage d’escalier', level: 'RDC', floorY: GROUND_Y, x0: 1.25, x1: 9.5, z0: -8, z1: -2, floor: 'stoneFloor', visit: [3.6, -4.8] },
 
     { id: 'upper-corridor', name: 'Couloir de l’étage', level: 'ÉTAGE', floorY: UPPER_Y, x0: -1.25, x1: 1.25, z0: -8, z1: 8, floor: 'woodFloor', visit: [0, 0] },
-    { id: 'upper-landing', name: 'Palier', level: 'ÉTAGE', floorY: UPPER_Y, x0: 1.25, x1: 7, z0: -8, z1: -2, floor: 'stoneFloor', visit: [4.8, -5.0] },
+    { id: 'upper-landing', name: 'Palier', level: 'ÉTAGE', floorY: UPPER_Y, x0: 1.25, x1: 9.5, z0: -8, z1: -2, floor: 'stoneFloor', visit: [4.8, -5.0] },
     { id: 'upper-nursery', name: 'Chambre enfant', level: 'ÉTAGE', floorY: UPPER_Y, x0: -7, x1: -1.25, z0: 3, z1: 8, floor: 'woodFloor', visit: [-4.2, 5.1] },
     { id: 'upper-office', name: 'Bureau', level: 'ÉTAGE', floorY: UPPER_Y, x0: -7, x1: -1.25, z0: -1, z1: 3, floor: 'woodFloor', visit: [-4.0, 1.0] },
     { id: 'upper-storage', name: 'Débarras', level: 'ÉTAGE', floorY: UPPER_Y, x0: -7, x1: -1.25, z0: -8, z1: -1, floor: 'woodFloor', visit: [-4.4, -4.7] },
-    { id: 'upper-bath', name: 'Salle d’eau', level: 'ÉTAGE', floorY: UPPER_Y, x0: 1.25, x1: 7, z0: -2, z1: 1.4, floor: 'bathFloor', visit: [4.0, -0.4] },
-    { id: 'upper-master', name: 'Suite', level: 'ÉTAGE', floorY: UPPER_Y, x0: 1.25, x1: 7, z0: 1.4, z1: 8, floor: 'woodFloor', visit: [4.4, 4.8] },
+    { id: 'upper-bath', name: 'Salle d’eau', level: 'ÉTAGE', floorY: UPPER_Y, x0: 1.25, x1: 9.5, z0: -2, z1: 1.4, floor: 'bathFloor', visit: [4.0, -0.4] },
+    { id: 'upper-master', name: 'Suite', level: 'ÉTAGE', floorY: UPPER_Y, x0: 1.25, x1: 9.5, z0: 1.4, z1: 8, floor: 'woodFloor', visit: [4.4, 4.8] },
 
     { id: 'basement-corridor', name: 'Couloir du sous-sol', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: -1.25, x1: 1.25, z0: -8, z1: 4, floor: 'stoneFloor', visit: [0, -2.4] },
-    { id: 'basement-landing', name: 'Palier du sous-sol', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: 1.25, x1: 7, z0: -8, z1: -2, floor: 'stoneFloor', visit: [4.4, -4.8] },
-    { id: 'basement-storage', name: 'Réserve', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: 1.25, x1: 7, z0: -2, z1: 1.4, floor: 'stoneFloor', visit: [4.2, -0.5] },
-    { id: 'basement-boiler', name: 'Chaufferie', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: 1.25, x1: 7, z0: 1.4, z1: 4, floor: 'stoneFloor', visit: [4.8, 2.7] },
+    { id: 'basement-landing', name: 'Palier du sous-sol', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: 1.25, x1: 9.5, z0: -8, z1: -2, floor: 'stoneFloor', visit: [4.4, -4.8] },
+    { id: 'basement-storage', name: 'Réserve', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: 1.25, x1: 9.5, z0: -2, z1: 1.4, floor: 'stoneFloor', visit: [4.2, -0.5] },
+    { id: 'basement-boiler', name: 'Chaufferie', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: 1.25, x1: 9.5, z0: 1.4, z1: 4, floor: 'stoneFloor', visit: [4.8, 2.7] },
     { id: 'basement-cellar', name: 'Cave', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: -7, x1: -1.25, z0: -8, z1: -4.2, floor: 'stoneFloor', visit: [-4.5, -6.1] },
     { id: 'basement-laundry', name: 'Buanderie', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: -7, x1: -1.25, z0: -4.2, z1: -.3, floor: 'stoneFloor', visit: [-4.2, -2.3] },
     { id: 'basement-ritual', name: 'Pièce murée', level: 'SOUS-SOL', floorY: BASEMENT_Y, x0: -7, x1: -1.25, z0: -.3, z1: 4, floor: 'stoneFloor', visit: [-4.1, 1.8] },
@@ -3762,9 +3762,9 @@ function createGroundFloor() {
   function hide(id, label, x, y, z, room, exitX, exitZ) { hideSpots.push({ id, label, x, y, z, room, hidden: false, exitX, exitZ }); }
 
   // RDC structure
-  wallRun('g-north', 'x', -8, -7.12, 7.12);
-  wallRun('g-south', 'x', 8, -7.12, 7.12, [{ id: 'exit', label: 'SORTIE', center: 0, width: 1.45, exit: true, locked: true, sign: false }]);
-  wallRun('g-west', 'z', -7, -8, 8); wallRun('g-east', 'z', 7, -8, 8);
+  wallRun('g-north', 'x', -8, -7.12, 9.62);
+  wallRun('g-south', 'x', 8, -7.12, 9.62, [{ id: 'exit', label: 'SORTIE', center: 0, width: 1.45, exit: true, locked: true, sign: false }]);
+  wallRun('g-west', 'z', -7, -8, 8); wallRun('g-east', 'z', 9.5, -8, 8);
   // R30 : le RDC devient une vraie grande pièce ouverte.
   // Suppression de la cloison/porte de cuisine et du retour hall : salon, salle à manger,
   // cuisine, hall et accès escalier communiquent sans porte ni couloir artificiel.
@@ -3775,12 +3775,12 @@ function createGroundFloor() {
     { id: 'bedroom', label: 'CHAMBRE', center: 4.8, width: 1.4, swing: 1 },
   ]);
   // Seules les pièces privées restent cloisonnées.
-  wallRun('g-bedroom-bathroom', 'x', 2, 1.65, 7);
-  wallRun('g-bathroom-stairs', 'x', -2, 1.65, 7); // R32 : cloison RDC restaurée
+  wallRun('g-bedroom-bathroom', 'x', 2, 1.65, 9.5);
+  wallRun('g-bathroom-stairs', 'x', -2, 1.65, 9.5); // R32 : cloison RDC restaurée
 
   // Upper floor expanded
-  wallRun('u-north', 'x', -8, -7.12, 7.12, [], UPPER_Y); wallRun('u-south', 'x', 8, -7.12, 7.12, [], UPPER_Y);
-  wallRun('u-west-ext', 'z', -7, -8, 8, [], UPPER_Y); wallRun('u-east-ext', 'z', 7, -8, 8, [], UPPER_Y);
+  wallRun('u-north', 'x', -8, -7.12, 9.62, [], UPPER_Y); wallRun('u-south', 'x', 8, -7.12, 9.62, [], UPPER_Y);
+  wallRun('u-west-ext', 'z', -7, -8, 8, [], UPPER_Y); wallRun('u-east-ext', 'z', 9.5, -8, 8, [], UPPER_Y);
   wallRun('u-corridor-west', 'z', -1.25, -8, 8, [
     { id: 'up-storage', label: 'DÉBARRAS', center: -4.5, width: 1.35, swing: -1 },
     { id: 'up-office', label: 'BUREAU', center: 1.0, width: 1.35, swing: -1 },
@@ -3792,11 +3792,11 @@ function createGroundFloor() {
     { id: 'up-master', label: 'SUITE', center: 4.7, width: 1.45, swing: 1 },
   ], UPPER_Y);
   wallRun('u-left-top', 'x', 3, -7, -1.25, [], UPPER_Y); wallRun('u-left-mid', 'x', -1, -7, -1.25, [], UPPER_Y);
-  wallRun('u-right-mid', 'x', 1.4, 1.25, 7, [], UPPER_Y); wallRun('u-right-low', 'x', -2, 1.25, 7, [], UPPER_Y); // R32 : cloison étage restaurée
+  wallRun('u-right-mid', 'x', 1.4, 1.25, 9.5, [], UPPER_Y); wallRun('u-right-low', 'x', -2, 1.25, 9.5, [], UPPER_Y); // R32 : cloison étage restaurée
 
   // Basement expanded
-  wallRun('b-north', 'x', -8, -7.12, 7.12, [], BASEMENT_Y); wallRun('b-south', 'x', 4, -7.12, 7.12, [], BASEMENT_Y);
-  wallRun('b-west-ext', 'z', -7, -8, 4, [], BASEMENT_Y); wallRun('b-east-ext', 'z', 7, -8, 4, [], BASEMENT_Y);
+  wallRun('b-north', 'x', -8, -7.12, 9.62, [], BASEMENT_Y); wallRun('b-south', 'x', 4, -7.12, 9.62, [], BASEMENT_Y);
+  wallRun('b-west-ext', 'z', -7, -8, 4, [], BASEMENT_Y); wallRun('b-east-ext', 'z', 9.5, -8, 4, [], BASEMENT_Y);
   wallRun('b-corridor-west', 'z', -1.25, -8, 4, [
     { id: 'b-cellar', label: 'CAVE', center: -6.1, width: 1.35, swing: -1 },
     { id: 'b-laundry', label: 'BUANDERIE', center: -2.2, width: 1.35, swing: -1 },
@@ -3808,8 +3808,8 @@ function createGroundFloor() {
     { id: 'b-boiler', label: 'CHAUFFERIE', center: 2.4, width: 1.35, swing: 1 },
   ], BASEMENT_Y);
   wallRun('b-left-a', 'x', -4.2, -7, -1.25, [], BASEMENT_Y); wallRun('b-left-b', 'x', -.3, -7, -1.25, [], BASEMENT_Y);
-  wallRun('b-right-a', 'x', 0.25, 1.25, 7, [], BASEMENT_Y); // R31 : grand palier sous-sol
-  wallRun('b-right-b', 'x', 1.4, 1.25, 7, [], BASEMENT_Y);
+  wallRun('b-right-a', 'x', 0.25, 1.25, 9.5, [], BASEMENT_Y); // R31 : grand palier sous-sol
+  wallRun('b-right-b', 'x', 1.4, 1.25, 9.5, [], BASEMENT_Y);
 
   // Une seule définition des escaliers pour les marches, les trémies et le déplacement.
   stairZone('stairs-up', 'Escalier vers l’étage', 3.95, 5.50, -7.2, -4.15, GROUND_Y, UPPER_Y);
@@ -3838,10 +3838,10 @@ function createGroundFloor() {
   }
   for (const r of rooms) cutSurface('sol-' + r.id, r.x0, r.x1, r.z0, r.z1, r.floorY, r.floor,
     floorOpenings.filter(h => h.floorY === r.floorY));
-  cutSurface('ceiling-rdc', -7.12, 7.12, -8.12, 8.12, GROUND_Y + WALL_HEIGHT, 'ceiling',
+  cutSurface('ceiling-rdc', -7.12, 9.62, -8.12, 8.12, GROUND_Y + WALL_HEIGHT, 'ceiling',
     floorOpenings.filter(h => h.floorY === UPPER_Y), 'ceiling');
-  cutSurface('ceiling-upper', -7.12, 7.12, -8.12, 8.12, UPPER_Y + WALL_HEIGHT, 'ceiling', [], 'ceiling');
-  cutSurface('ceiling-basement', -7.12, 7.12, -8.12, 4.12, BASEMENT_Y + WALL_HEIGHT, 'ceiling',
+  cutSurface('ceiling-upper', -7.12, 9.62, -8.12, 8.12, UPPER_Y + WALL_HEIGHT, 'ceiling', [], 'ceiling');
+  cutSurface('ceiling-basement', -7.12, 9.62, -8.12, 4.12, BASEMENT_Y + WALL_HEIGHT, 'ceiling',
     floorOpenings.filter(h => h.floorY === GROUND_Y), 'ceiling');
   surfaces.push({ id:'tapis-hall', x:0, y:.006, z:5.3, w:1.60, d:3.50, material:'rug', kind:'rug' });
   surfaces.push({ id:'tapis-salon', x:-4.7, y:.006, z:4.6, w:3.35, d:3.9, material:'rug', kind:'rug' });
@@ -3873,24 +3873,24 @@ function createGroundFloor() {
   b('canape-assise', -5.90, .36, 4.55, 1.20, .72, 2.8, 'fabric'); b('canape-dossier', -6.38, .78, 4.55, .24, 1.18, 2.8, 'fabric'); for (const z of [3.18, 5.92]) b('canape-accoudoir-' + z, -5.90, .60, z, 1.20, .42, .22, 'fabric');
   table('table-basse', -4.35, 0, 4.5, 1.25, 1.65, .50); b('meuble-tv', -3.60, .31, 7.40, 2.05, .62, .55); b('tv-cadre', -3.60, 1.32, 7.72, 1.65, .95, .12, 'dark'); b('tv-ecran', -3.60, 1.32, 7.647, 1.50, .80, .014, 'screen', false); b('bibliotheque', -6.42, 1.02, 2.35, .62, 2.04, 1.15, 'wood');
   table('table-repas', -4.55, 0, -.65, 1.85, 1.35, .80); b('buffet', -6.44, .48, -1.05, .70, .96, 2.0); b('cuisine-meubles-ouest', -6.40, .46, -5.9, .88, .92, 3.1, 'cabinet'); b('cuisine-plan-ouest', -6.40, .965, -5.9, .96, .09, 3.15, 'stone'); b('cuisine-meubles-nord', -4.50, .46, -7.40, 3.15, .92, .88, 'cabinet'); b('cuisine-plan-nord', -4.50, .965, -7.40, 3.2, .09, .96, 'stone'); b('frigo', -2.38, 1.0, -7.08, .98, 2.0, 1.1, 'enamel');
-  b('lit-sommier', 4.75, .23, 5.1, 1.95, .46, 2.9, 'wood'); b('lit-matelas', 4.75, .52, 5.1, 1.94, .18, 2.85, 'linen'); b('lit-couverture', 4.75, .635, 4.75, 1.94, .07, 2.08, 'fabric'); b('lit-tete', 4.75, .64, 6.55, 2.05, 1.15, .17, 'wood'); b('chevet', 3.15, .32, 6.2, .65, .64, .68, 'wood'); b('armoire', 6.45, 1.04, 3.43, .70, 2.08, 1.65, 'wood');
-  b('baignoire-base', 5.8, .17, .2, 1.5, .34, 2.35, 'enamel'); b('lavabo-meuble', 3.85, .39, -1.49, 1.25, .78, .65, 'cabinet'); b('miroir-cadre', 3.85, 1.69, -1.84, 1.2, 1.13, .06, 'trim', false); b('miroir', 3.85, 1.69, -1.801, 1.07, 1.0, .014, 'mirror', false); b('wc-base', 3.6, .22, 1.18, .50, .44, .64, 'enamel');
+  b('lit-sommier', 4.75, .23, 5.1, 1.95, .46, 2.9, 'wood'); b('lit-matelas', 4.75, .52, 5.1, 1.94, .18, 2.85, 'linen'); b('lit-couverture', 4.75, .635, 4.75, 1.94, .07, 2.08, 'fabric'); b('lit-tete', 4.75, .64, 6.55, 2.05, 1.15, .17, 'wood'); b('chevet', 3.15, .32, 6.2, .65, .64, .68, 'wood'); b('armoire', 8.70, 1.04, 3.43, .70, 2.08, 1.65, 'wood');
+  b('baignoire-base', 8.10, .17, .2, 1.5, .34, 2.35, 'enamel'); b('lavabo-meuble', 3.85, .39, -1.49, 1.25, .78, .65, 'cabinet'); b('miroir-cadre', 3.85, 1.69, -1.84, 1.2, 1.13, .06, 'trim', false); b('miroir', 3.85, 1.69, -1.801, 1.07, 1.0, .014, 'mirror', false); b('wc-base', 3.6, .22, 1.18, .50, .44, .64, 'enamel');
 
   // Upper furniture
   b('nursery-bed', -5.4, UPPER_Y + .28, 5.6, 1.6, .55, 2.6, 'linen'); b('nursery-wardrobe', -6.2, UPPER_Y + 1.0, 3.9, .72, 2.0, 1.35, 'wood'); table('nursery-desk', -3.3, UPPER_Y, 4.1, 1.1, .6, .72); b('toy-box', -2.0, UPPER_Y + .25, 6.5, .9, .5, .7, 'wood');
   b('office-shelf', -6.25, UPPER_Y + 1.0, 1.2, .7, 2.0, 1.5, 'wood'); table('office-desk', -4.1, UPPER_Y, 1.1, 1.7, .75, .76); b('office-cabinet', -2.1, UPPER_Y + .55, .2, .8, 1.1, .65, 'cabinet');
   b('storage-shelf-a', -6.0, UPPER_Y + 1.0, -5.8, .7, 2.0, 1.5, 'wood'); b('storage-shelf-b', -3.7, UPPER_Y + 1.0, -5.2, .7, 2.0, 1.5, 'wood'); b('storage-crate-a', -2.0, UPPER_Y + .25, -2.8, .9, .5, .9, 'wood'); b('storage-crate-b', -2.8, UPPER_Y + .25, -6.8, .7, .5, .7, 'wood');
-  b('upper-vanity', 3.0, UPPER_Y + .45, -.9, 1.2, .9, .55, 'cabinet'); b('upper-bath-tub', 5.6, UPPER_Y + .18, -.3, 1.35, .36, 2.0, 'enamel'); b('upper-master-bed', 4.5, UPPER_Y + .28, 5.1, 2.1, .55, 3.2, 'linen'); b('upper-master-wardrobe', 6.2, UPPER_Y + 1.0, 3.4, .8, 2.0, 1.6, 'wood'); table('upper-master-table', 3.0, UPPER_Y, 6.4, 1.1, .7, .72);
+  b('upper-vanity', 3.0, UPPER_Y + .45, -.9, 1.2, .9, .55, 'cabinet'); b('upper-bath-tub', 8.0, UPPER_Y + .18, -.3, 1.35, .36, 2.0, 'enamel'); b('upper-master-bed', 4.5, UPPER_Y + .28, 5.1, 2.1, .55, 3.2, 'linen'); b('upper-master-wardrobe', 8.65, UPPER_Y + 1.0, 3.4, .8, 2.0, 1.6, 'wood'); table('upper-master-table', 3.0, UPPER_Y, 6.4, 1.1, .7, .72);
 
   // Basement furniture
   b('cellar-shelf-a', -6.05, BASEMENT_Y + 1.0, -6.3, .7, 2.0, 1.55, 'wood'); b('cellar-shelf-b', -3.2, BASEMENT_Y + 1.0, -6.0, .7, 2.0, 1.55, 'wood');
   b('laundry-machine', -6.0, BASEMENT_Y + .55, -2.9, 1.0, 1.1, .9, 'enamel'); b('laundry-sink', -3.8, BASEMENT_Y + .55, -2.9, 1.2, 1.1, .8, 'metal'); b('laundry-cabinet', -2.0, BASEMENT_Y + 1.0, -1.0, .8, 2.0, 1.2, 'wood');
   b('ritual-table', -4.2, BASEMENT_Y + .45, 1.9, 1.6, .9, 1.6, 'wood'); b('ritual-crate', -6.0, BASEMENT_Y + .25, 3.0, .9, .5, .9, 'wood');
-  b('storage-rack', 3.6, BASEMENT_Y + 1.0, -1.50, 1.4, 2.0, .65, 'metal'); b('storage-locker', 6.15, BASEMENT_Y + 1.0, -.4, .8, 2.0, 1.1, 'metal');
-  b('boiler-body', 5.75, BASEMENT_Y + 1.0, 2.3, 1.1, 2.0, 1.05, 'metal'); b('boiler-pipe', 5.75, BASEMENT_Y + 2.15, 2.3, .16, .65, .16, 'metal'); table('boiler-bench', 3.2, BASEMENT_Y, 2.2, 1.8, .7, .72);
+  b('storage-rack', 3.6, BASEMENT_Y + 1.0, -1.50, 1.4, 2.0, .65, 'metal'); b('storage-locker', 8.55, BASEMENT_Y + 1.0, -.4, .8, 2.0, 1.1, 'metal');
+  b('boiler-body', 8.35, BASEMENT_Y + 1.0, 2.3, 1.1, 2.0, 1.05, 'metal'); b('boiler-pipe', 8.35, BASEMENT_Y + 2.15, 2.3, .16, .65, .16, 'metal'); table('boiler-bench', 3.2, BASEMENT_Y, 2.2, 1.8, .7, .72);
 
   // Decorative windows (RDC only)
-  for (const win of [{ x: -6.865, z: 6.7, side: 'west' }, { x: -6.865, z: -6.0, side: 'west' }, { x: 6.865, z: 6.2, side: 'east' }, { x: 6.865, z: -.15, side: 'east' }]) {
+  for (const win of [{ x: -6.865, z: 6.7, side: 'west' }, { x: -6.865, z: -6.0, side: 'west' }, { x: 9.365, z: 6.2, side: 'east' }, { x: 9.365, z: -.15, side: 'east' }]) {
     const side = win.side === 'west' ? 1 : -1;
     b('fenetre-cadre-' + win.z + side, win.x, 1.95, win.z, .07, 1.32, 1.45, 'trim', false); b('fenetre-vitre-' + win.z + side, win.x + side * .043, 1.95, win.z, .012, 1.13, 1.26, 'glass', false); b('fenetre-montant-' + win.z + side, win.x + side * .06, 1.95, win.z, .025, 1.14, .055, 'trim', false); b('fenetre-traverse-' + win.z + side, win.x + side * .06, 1.95, win.z, .025, .055, 1.25, 'trim', false);
   }
@@ -4204,8 +4204,8 @@ function chooseHouseSpawns(house,rng=Math.random,previousRoom=null){
 function createMonsterController(house,hooks={},spawn=null) {
   const nav=monsterNavigation(), rules=MONSTER_RULES;
   const patrol=[{x:0,y:0,z:2.0},{x:-3.0,y:0,z:5.3},{x:0,y:0,z:-5.8},
-    {x:0,y:3.25,z:4.8},{x:-4.0,y:3.25,z:1.0},{x:4.8,y:3.25,z:-4.0},
-    {x:0,y:-3.25,z:-2.2},{x:4.6,y:-3.25,z:2.5},{x:0,y:0,z:-3.0}];
+    {x:0,y:3.25,z:4.8},{x:-4.0,y:3.25,z:1.0},{x:6.4,y:3.25,z:-4.8},
+    {x:0,y:-3.25,z:-2.2},{x:6.4,y:-3.25,z:-4.8},{x:6.4,y:-3.25,z:2.5},{x:0,y:0,z:-3.0}];
   const m={position:spawn?{x:spawn.x,y:spawn.y,z:spawn.z}:{x:0,y:0,z:-6.4},yaw:spawn?.yaw??Math.PI,state:'dormant',grace:rules.grace,
     seen:false,memory:0,knownHide:null,lastSeen:null,path:[],pathIndex:0,walked:0,moving:false,
     target:null,patrolIndex:0,search:0,repath:0,sense:0,attack:0,captured:false,waitDoor:0};
