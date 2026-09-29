@@ -260,6 +260,42 @@ function buildHouseScene(scene, house) {
   }
   scene.add(asset);
 
+  // V5 COMPLETE VISUAL OVERHAUL — detail pass, still render-only.
+  const dress=new THREE.Group();dress.name='RDC-dressing-v5';
+  const plasterDirty=new THREE.MeshStandardMaterial({color:0x3a3933,roughness:1,transparent:true,opacity:.28,depthWrite:false});
+  const rust=new THREE.MeshStandardMaterial({color:0x3b2117,roughness:.95,metalness:.08});
+  const glassDirty=new THREE.MeshStandardMaterial({color:0x1b2527,roughness:.32,metalness:0,transparent:true,opacity:.38});
+  function plane(x,y,z,w,h,m,ry=0){const q=new THREE.Mesh(new THREE.PlaneGeometry(w,h),m);q.position.set(x,y,z);q.rotation.y=ry;q.receiveShadow=true;dress.add(q);return q}
+  // Large irregular damp patches and old wallpaper seams.
+  const patches=[
+    [-6.84,1.15,4.15,.52,.72,Math.PI/2],[-6.84,.65,-2.7,.64,.46,Math.PI/2],
+    [6.84,.72,4.7,.58,.52,-Math.PI/2],[6.84,1.35,-3.7,.46,.68,-Math.PI/2],
+    [-2.7,1.18,7.84,.70,.82,0],[2.8,.62,-7.84,.76,.48,Math.PI]
+  ];
+  for(const p of patches)plane(...p.slice(0,5),plasterDirty,p[5]);
+  // Pipe runs in basement/corridor.
+  const pipeMat=new THREE.MeshStandardMaterial({color:0x2a2c29,roughness:.58,metalness:.55});
+  for(const x of [-.82,.82]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,5.7,8),pipeMat);p.rotation.x=Math.PI/2;p.position.set(x,2.34,-4.4);p.castShadow=true;dress.add(p)}
+  for(let z=-6.8;z<-2;z+=1.15){const ring=new THREE.Mesh(new THREE.TorusGeometry(.055,.012,6,12),rust);ring.rotation.x=Math.PI/2;ring.position.set(.82,2.34,z);dress.add(ring)}
+  // Dirty window panes and crossbars.
+  for(const [x,z,ry] of [[-6.77,6.7,Math.PI/2],[-6.77,-6,Math.PI/2],[6.77,6.2,-Math.PI/2],[6.77,-.15,-Math.PI/2]]){
+    plane(x,1.72,z,.90,1.10,glassDirty,ry);
+    const bar1=new THREE.Mesh(new THREE.BoxGeometry(.025,1.08,.025),md);bar1.position.set(x,1.72,z);bar1.rotation.y=ry;dress.add(bar1);
+    const bar2=new THREE.Mesh(new THREE.BoxGeometry(.025,.90,.025),md);bar2.rotation.z=Math.PI/2;bar2.rotation.y=ry;bar2.position.set(x,1.72,z);dress.add(bar2);
+  }
+  // Cobweb-like corner strands: tiny line segments, extremely cheap.
+  const webMat=new THREE.LineBasicMaterial({color:0xb9b6a8,transparent:true,opacity:.13});
+  for(const [x,y,z] of [[-6.6,2.35,7.5],[6.6,2.35,-7.4],[-1,2.35,-7.5]]){
+    const pts=[];for(let i=0;i<8;i++){pts.push(new THREE.Vector3(x,y,z),new THREE.Vector3(x+(i-3.5)*.06,y-.34,z+(i%2?.22:-.22)))}
+    const gg=new THREE.BufferGeometry().setFromPoints(pts);dress.add(new THREE.LineSegments(gg,webMat));
+  }
+  // Ceiling/floor trim adds contact detail around rooms.
+  const trimMat=new THREE.MeshStandardMaterial({color:0x241c17,roughness:.9});
+  for(const z of [-7.72,7.72]){bx(0,.07,z,13.45,.14,.055,trimMat);bx(0,2.43,z,13.45,.09,.05,trimMat)}
+  for(const x of [-6.72,6.72]){bx(x,.07,0,.055,.14,15.4,trimMat);bx(x,2.43,0,.05,.09,15.4,trimMat)}
+  scene.add(dress);
+
+
   scene.add(detail);
   return { doorMeshes, itemMeshes };
 }
@@ -333,8 +369,8 @@ function open() {
     const flashSpill=new THREE.SpotLight(0xb8c0b5,8.5,9,.72,.95,2.0);flashSpill.target=target;scene.add(flashSpill);
     const fillLight = new THREE.PointLight(0x93a29b, .58, 2.8, 2.0); scene.add(fillLight);
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', alpha: false });
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6));
-    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .80; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.45));
+    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .76; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     stage.prepend(renderer.domElement);
     const stick = shell.querySelector('.three17-stick'), knob = shell.querySelector('.three17-knob');
     const flashButton = shell.querySelector('.flash'), hint = shell.querySelector('.three17-hint');

@@ -54,3 +54,13 @@
 /* V4 — environment first */
 .three17-objective{background:linear-gradient(#090b0ad8,#030504e8)!important}
 .three17-actions{opacity:.86}.three17-stick{opacity:.72}.three17-cross{opacity:.42}
+
+/* V5 COMPLETE — filmic UI integration */
+.three17-stage{background:#010201}
+.three17-stage:before{background:
+ radial-gradient(circle at 50% 52%,transparent 0 30%,rgba(0,0,0,.10) 55%,rgba(0,0,0,.60) 100%),
+ linear-gradient(180deg,rgba(6,8,7,.05),transparent 58%,rgba(0,0,0,.16))!important}
+.three17-clock{font-size:clamp(27px,4.3vw,48px);text-shadow:0 2px 8px #000}
+.three17-objective{border-color:#7b6a4840!important;box-shadow:0 16px 42px #0009!important}
+.three17-btn,.three17-exit{border-color:#75644355!important}
+.three17-hint{font-size:clamp(12px,1.8vw,18px);background:#090b09d9!important}
