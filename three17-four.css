@@ -42,3 +42,11 @@
 .three17-card{background:linear-gradient(#0e100de8,#030504f2);border:1px solid #8a754c45;border-radius:2px;box-shadow:0 35px 100px #000;backdrop-filter:blur(9px)}
 .three17-card h1,.three17-card .time{font-family:Georgia,serif;font-weight:500}.three17-card h1{letter-spacing:.08em}.three17-card .time{color:#b9a477;letter-spacing:.14em;text-shadow:0 0 28px #a87c3e2e}
 .three17-card p{color:#aaa293;line-height:1.55}.three17-card button{border-radius:2px;background:linear-gradient(#4a402d,#211f18);border:1px solid #7a6743;color:#e7decb;letter-spacing:.055em}
+
+/* V3 cinematic rebuild: less game-like HUD dominance */
+.three17-top{filter:saturate(.72)}
+.three17-objective{max-width:min(310px,42vw);font-size:clamp(11px,1.55vw,15px)}
+.three17-build{letter-spacing:.04em;color:#b8a67f!important}
+.three17-cross{transform:scale(.82);opacity:.52}
+.three17-actions{opacity:.90}
+@media (max-width:760px){.three17-objective{background:#080a09c9;backdrop-filter:blur(9px)}}

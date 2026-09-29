@@ -37,6 +37,11 @@ function patternTexture(kind) {
 
 function buildHouseScene(scene, house) {
   const wood = patternTexture('wood'), tile = patternTexture('tile'), bath = patternTexture('bath');
+  const pc=document.createElement('canvas');pc.width=pc.height=256;const px=pc.getContext('2d');
+  px.fillStyle='#77736a';px.fillRect(0,0,256,256);
+  for(let i=0;i<1200;i++){const v=90+Math.random()*65,a=.025+Math.random()*.055;px.fillStyle=`rgba(${v},${v-3},${v-8},${a})`;px.fillRect(Math.random()*256,Math.random()*256,1+Math.random()*3,1+Math.random()*5);}
+  for(let i=0;i<26;i++){const x=Math.random()*256,y=Math.random()*256,r=8+Math.random()*35,g=px.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(35,40,33,.13)');g.addColorStop(1,'rgba(80,80,70,0)');px.fillStyle=g;px.fillRect(x-r,y-r,r*2,r*2);}
+  const plasterTex=new THREE.CanvasTexture(pc);plasterTex.colorSpace=THREE.SRGBColorSpace;plasterTex.wrapS=plasterTex.wrapT=THREE.RepeatWrapping;plasterTex.repeat.set(3,2);plasterTex.anisotropy=8;
   const materials = {};
   const palette = {
     plaster: 0x514d43, wallBase: 0x242a26, trim: 0x30251d, ceiling: 0x242523,
@@ -53,6 +58,7 @@ function buildHouseScene(scene, house) {
     ['kitchenFloor', tile, 0xafb1a0], ['bathFloor', bath, 0xb3bdb7]]) {
     materials[name] = new THREE.MeshStandardMaterial({ color, map: tex, roughness: .88 });
   }
+  materials.plaster.map=plasterTex; materials.plaster.bumpMap=plasterTex; materials.plaster.bumpScale=.018; materials.wallBase.bumpMap=plasterTex; materials.wallBase.bumpScale=.012;
   materials.glass.emissive.setHex(0x1b2d45); materials.glass.emissiveIntensity = .08; materials.glass.transparent = true; materials.glass.opacity = .84;
   materials.screen.emissive.setHex(0x0c1b25); materials.screen.emissiveIntensity = .12;
   const unitBox = new THREE.BoxGeometry(1, 1, 1);
@@ -129,6 +135,76 @@ function buildHouseScene(scene, house) {
     }
     scene.add(group); itemMeshes.set(item.id, group);
   }
+  
+  // --- CINEMATIC REBUILD: architectural detail without changing collision/gameplay ---
+  const detail = new THREE.Group(); detail.name = 'RDC-cinematic-detail';
+  const detailBox = new THREE.BoxGeometry(1,1,1);
+  function db(x,y,z,w,h,d,mat){
+    const m=new THREE.Mesh(detailBox,mat);m.position.set(x,y,z);m.scale.set(w,h,d);
+    m.castShadow=true;m.receiveShadow=true;detail.add(m);return m;
+  }
+  // Age the walls physically: baseboards, crown moulding and irregular damp marks.
+  const dampMat=new THREE.MeshStandardMaterial({color:0x171b17,roughness:1,transparent:true,opacity:.28,depthWrite:false});
+  const stainMat=new THREE.MeshStandardMaterial({color:0x2a2019,roughness:1,transparent:true,opacity:.20,depthWrite:false});
+  let wallIndex=0;
+  for(const v of house.volumes){
+    if(v.kind!=='wall' || v.h<2) continue;
+    const alongX=v.w>=v.d, len=alongX?v.w:v.d;
+    // Real raised skirting/cornice; very shallow so it never affects gameplay.
+    if(alongX){
+      db(v.x,.105,v.z+(v.d/2+.009),len,.20,.025,materials.trim);
+      db(v.x,.105,v.z-(v.d/2+.009),len,.20,.025,materials.trim);
+      db(v.x,v.h-.075,v.z+(v.d/2+.010),len,.13,.028,materials.trim);
+      db(v.x,v.h-.075,v.z-(v.d/2+.010),len,.13,.028,materials.trim);
+    }else{
+      db(v.x+(v.w/2+.009),.105,v.z,.025,.20,len,materials.trim);
+      db(v.x-(v.w/2+.009),.105,v.z,.025,.20,len,materials.trim);
+      db(v.x+(v.w/2+.010),v.h-.075,v.z,.028,.13,len,materials.trim);
+      db(v.x-(v.w/2+.010),v.h-.075,v.z,.028,.13,len,materials.trim);
+    }
+    // Deterministic-looking patches: broken-up wall color, especially low on walls.
+    const seed=(wallIndex++*1.618)%1;
+    for(let k=0;k<2;k++){
+      const t=((seed+k*.43)%1-.5)*len*.72, yy=.42+k*.39;
+      if(alongX){
+        const p=new THREE.Mesh(new THREE.PlaneGeometry(.38+k*.17,.42+k*.10),k?stainMat:dampMat);
+        p.position.set(v.x+t,yy,v.z+(v.d/2+.015));detail.add(p);
+      }else{
+        const p=new THREE.Mesh(new THREE.PlaneGeometry(.38+k*.17,.42+k*.10),k?stainMat:dampMat);
+        p.rotation.y=Math.PI/2;p.position.set(v.x+(v.w/2+.015),yy,v.z+t);detail.add(p);
+      }
+    }
+  }
+  // Door surrounds and old-fashioned lintels.
+  for(const d of house.doors){
+    const g=new THREE.Group();g.position.set(d.hingeX,0,d.hingeZ);g.rotation.y=d.closedAngle||0;
+    const W=d.width,H=d.height;
+    db; // keep minifier/parser happy
+    const mat=materials.trim;
+    const left=new THREE.Mesh(detailBox,mat), right=new THREE.Mesh(detailBox,mat), top=new THREE.Mesh(detailBox,mat);
+    left.scale.set(.075,H+.10,.075);left.position.set(-.04,(H+.10)/2,0);
+    right.scale.set(.075,H+.10,.075);right.position.set(W+.04,(H+.10)/2,0);
+    top.scale.set(W+.16,.09,.085);top.position.set(W/2,H+.045,0);
+    for(const q of [left,right,top]){q.castShadow=true;q.receiveShadow=true;g.add(q)}
+    detail.add(g);
+  }
+  // Practical fixtures: shades + bulbs make the light sources visible instead of "floating".
+  const fixtures=[[-4.7,1.65,4.8,0xc9975c],[3.2,1.7,5.9,0xb9824d],[-4.6,1.8,-5.7,0xac7546],[3.5,1.65,-1.45,0xb88d61]];
+  for(const [x,y,z,c] of fixtures){
+    const cord=new THREE.Mesh(new THREE.CylinderGeometry(.008,.008,.42,6),materials.dark);cord.position.set(x,y+.42,z);detail.add(cord);
+    const shade=new THREE.Mesh(new THREE.CylinderGeometry(.09,.23,.18,16,1,true),new THREE.MeshStandardMaterial({color:0x3a3831,roughness:.62,metalness:.18,side:THREE.DoubleSide}));
+    shade.position.set(x,y+.10,z);shade.castShadow=true;detail.add(shade);
+    const bulb=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),new THREE.MeshBasicMaterial({color:c,toneMapped:false}));
+    bulb.position.set(x,y,z);detail.add(bulb);
+  }
+  // Small debris clusters along walls break the sterile empty-floor silhouette.
+  const debrisMat=new THREE.MeshStandardMaterial({color:0x26231d,roughness:1});
+  const debris=[[-4.9,.035,1.7],[4.8,.035,-3.0],[-2.8,.035,-6.0],[4.6,.035,6.1],[-5.0,.035,-5.0]];
+  for(const [x,y,z] of debris){
+    for(let k=0;k<4;k++){const r=.025+.018*k;const s=new THREE.Mesh(new THREE.DodecahedronGeometry(r,0),debrisMat);
+      s.position.set(x+k*.07,y+r,z+((k%2)*.08));s.rotation.set(k*.7,k*.4,k*.2);s.castShadow=true;detail.add(s);}
+  }
+  scene.add(detail);
   return { doorMeshes, itemMeshes };
 }
 
@@ -184,7 +260,7 @@ function open() {
     dustGeo.setAttribute('position',new THREE.BufferAttribute(dustPos,3));
     const dust=new THREE.Points(dustGeo,new THREE.PointsMaterial({color:0xb9aa8d,size:.012,transparent:true,opacity:.18,depthWrite:false}));
     scene.add(dust);
-    const camera = new THREE.PerspectiveCamera(68, 1, .05, 45);
+    const camera = new THREE.PerspectiveCamera(64, 1, .05, 45);
     let yaw = house.spawn.yaw, pitch = house.spawn.pitch;
     const position = { x: house.spawn.x, z: house.spawn.z };
     const keys = { x: 0, y: 0 };
@@ -198,10 +274,11 @@ function open() {
     for (const [x,y,z,c,i,d] of practicals){const l=new THREE.PointLight(c,i,d,2);l.position.set(x,y,z);scene.add(l);}
     const flashlight = new THREE.SpotLight(0xe4dbc6,46,14,.39,.72,1.65); flashlight.castShadow=true; flashlight.shadow.mapSize.set(512,512); flashlight.shadow.bias=-.0005;
     const target = new THREE.Object3D(); flashlight.target = target; scene.add(flashlight, target);
+    const flashSpill=new THREE.SpotLight(0xb8c0b5,8.5,9,.72,.95,2.0);flashSpill.target=target;scene.add(flashSpill);
     const fillLight = new THREE.PointLight(0x93a29b, .58, 2.8, 2.0); scene.add(fillLight);
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', alpha: false });
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6));
-    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .78; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .72; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     stage.prepend(renderer.domElement);
     const stick = shell.querySelector('.three17-stick'), knob = shell.querySelector('.three17-knob');
     const flashButton = shell.querySelector('.flash'), hint = shell.querySelector('.three17-hint');
@@ -302,7 +379,7 @@ function open() {
       }
       refreshCamera();
       flashlight.visible = fillLight.visible = flashOn;
-      flashlight.position.copy(camera.position); fillLight.position.copy(camera.position);
+      flashlight.position.copy(camera.position); flashSpill.position.copy(camera.position); fillLight.position.copy(camera.position);
       camera.getWorldDirection(direction); target.position.copy(camera.position).addScaledVector(direction, 5); target.updateMatrixWorld();
       if (now - lastHud > 120) {
         lastHud = now;
