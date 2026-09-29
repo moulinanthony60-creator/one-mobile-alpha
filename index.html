@@ -3662,7 +3662,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R31 · ESCALIER COMPACT · GRANDS PALIERS · VISUAL+';
+const BUILD = 'R32 · CLOISONS RESTAURÉES · ESCALIER COMPACT · VISUAL+';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -3776,7 +3776,7 @@ function createGroundFloor() {
   ]);
   // Seules les pièces privées restent cloisonnées.
   wallRun('g-bedroom-bathroom', 'x', 2, 1.65, 7);
-  wallRun('g-bathroom-stairs', 'x', 0.25, 1.65, 7); // R31 : palier RDC agrandi
+  wallRun('g-bathroom-stairs', 'x', -2, 1.65, 7); // R32 : cloison RDC restaurée
 
   // Upper floor expanded
   wallRun('u-north', 'x', -8, -7.12, 7.12, [], UPPER_Y); wallRun('u-south', 'x', 8, -7.12, 7.12, [], UPPER_Y);
@@ -3792,7 +3792,7 @@ function createGroundFloor() {
     { id: 'up-master', label: 'SUITE', center: 4.7, width: 1.45, swing: 1 },
   ], UPPER_Y);
   wallRun('u-left-top', 'x', 3, -7, -1.25, [], UPPER_Y); wallRun('u-left-mid', 'x', -1, -7, -1.25, [], UPPER_Y);
-  wallRun('u-right-mid', 'x', 1.4, 1.25, 7, [], UPPER_Y); wallRun('u-right-low', 'x', 0.35, 1.25, 7, [], UPPER_Y); // R31 : grand palier étage
+  wallRun('u-right-mid', 'x', 1.4, 1.25, 7, [], UPPER_Y); wallRun('u-right-low', 'x', -2, 1.25, 7, [], UPPER_Y); // R32 : cloison étage restaurée
 
   // Basement expanded
   wallRun('b-north', 'x', -8, -7.12, 7.12, [], BASEMENT_Y); wallRun('b-south', 'x', 4, -7.12, 7.12, [], BASEMENT_Y);
