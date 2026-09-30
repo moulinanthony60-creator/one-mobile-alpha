@@ -94,7 +94,7 @@
 </style></head><body>
 <main><small>R42 · Ensemble dans la maison</small><h1>3:17</h1><p>Dix minutes. Trois objets. Une seule sortie.</p><nav><button id="jouer">Entrer dans la maison</button><a href="./index.html">Ouvrir ONE</a></nav></main>
 <script type="module">
-import { installCoop, createCoopRuntime } from './ui/three17-r42-coop.js';
+import { installCoop, createCoopRuntime } from './ui/three17-r43-coop.js';
 import * as THREE from './ui/three.module.js';
 import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './ui/three17-r40-visuals.js?v=r41';
 import { createHorrorAudio } from './ui/three17-r41-audio.js';
@@ -105,7 +105,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R42 · ENSEMBLE DANS LA MAISON';
+const BUILD = 'R43 · DU LOBBY À LA MAISON';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -1515,7 +1515,7 @@ function open(options={}) {
         graphicsInfo.frames++;
         if(modelLoaded&&!modelReady&&!modelFailed){
           modelReady=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
-          startButton.textContent=coop?'JE SUIS PRÊT':'ENTRER DANS LA MAISON';modelStatus.textContent='MAISON R42 · PRÊTE';
+          startButton.textContent=coop?'JE SUIS PRÊT':'ENTRER DANS LA MAISON';modelStatus.textContent='MAISON R43 · PRÊTE';
         }
         if(graphicsState==='warming'){
           graphicsState='ready';last=performance.now();syncPause();
@@ -1544,14 +1544,15 @@ function open(options={}) {
     function toggleSound(){const muted=audio.toggle();soundButton.setAttribute('aria-pressed',String(!muted));soundButton.setAttribute('aria-label',muted?'Activer le son':'Couper le son');soundButton.textContent=muted?'♪×':'♪';}
     function start(){if(started||stopped)return;if(modelFailed){if(coop){close();window.ONEThree17Coop.open();}else open();return;}if(!modelReady||graphicsState!=='ok')return;if(coop){audio.start();audio.pause();startButton.disabled=true;startButton.textContent='PRÊT · ATTENTE DU GROUPE';coop.ready();return;}previousStartRoom=spawns.player.roomId;resetInputs();started=true;syncPause();last=performance.now();if(!paused)audio.start();shell.querySelector('.three17-start')?.remove();message('Départ : '+spawns.player.roomName+' · '+spawns.player.level+'. Le Parasite dort encore 10 s.');}
     press(shell.querySelector('.interact'),interact);press(flashButton,toggleFlash);press(soundButton,toggleSound);
-    press(shell.querySelector('.three17-exit'),close);press(shell.querySelector('.three17-start button'),start);
+    const returnToLobby=()=>{close();if(coopConfig)window.ONEOpen3DLobby?.();else window.oneOpenSalon?.();};
+    press(shell.querySelector('.three17-exit'),returnToLobby);press(shell.querySelector('.three17-start button'),start);
     const replay=()=>{if(coop){close();window.ONEThree17Coop.open();}else open();};
     press(graphicsButton,retryGraphics);press(shell.querySelector('[data-render-restart]'),replay);
-    shell.querySelectorAll('[data-retry]').forEach(el=>{if(coopConfig)el.textContent='RETOUR AU GROUPE';press(el,replay);});shell.querySelectorAll('[data-lobby]').forEach(el=>press(el,close));
+    shell.querySelectorAll('[data-retry]').forEach(el=>{if(coopConfig)el.textContent='RETOUR AU GROUPE';press(el,replay);});shell.querySelectorAll('[data-lobby]').forEach(el=>press(el,returnToLobby));
     const movementCodes=new Set(['KeyW','KeyZ','KeyA','KeyQ','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']);
     function onKeyDown(e){
       if(e.ctrlKey||e.metaKey||e.altKey)return;
-      if(e.code==='Escape'){e.preventDefault();close();return;}
+      if(e.code==='Escape'){e.preventDefault();returnToLobby();return;}
       if(!started||ended||paused)return;
       if(movementCodes.has(e.code)){e.preventDefault();pressed.add(e.code);}
       else if(!e.repeat&&['KeyE','KeyF','KeyM'].includes(e.code)){e.preventDefault();({KeyE:interact,KeyF:toggleFlash,KeyM:toggleSound}[e.code])();}
@@ -1624,9 +1625,9 @@ function open(options={}) {
       pause,resume,
     };
   }catch(error){
-    console.error('3:17 FOUR R42 — lancement interrompu',error);session.stop();
+    console.error('3:17 FOUR R43 — lancement interrompu',error);session.stop();
     const message=document.createElement('div');message.className='three17-shell three17-load-error';
-    const text=document.createElement('p');text.textContent='3:17 FOUR R42 n’a pas pu démarrer. Rechargez ONE et vérifiez que tous les fichiers et dossiers du correctif R42 ont bien été copiés.';
+    const text=document.createElement('p');text.textContent='3:17 FOUR R43 n’a pas pu démarrer. Rechargez ONE et vérifiez que tous les fichiers et dossiers du correctif R43 ont bien été copiés.';
     const button=document.createElement('button');button.textContent='Fermer';button.onclick=()=>message.remove();message.append(text,button);document.body.append(message);active={stop:()=>message.remove()};
   }
 }
