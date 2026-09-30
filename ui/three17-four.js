@@ -349,7 +349,7 @@ function open() {
     const meshes = buildHouseScene(scene, house);
 
     // REAL 3D ASSETS: detailed models are visual only; existing geometry keeps collisions/gameplay.
-    const realAssetRoot='../assets/three17/';
+    const realAssetRoot='../assets/317/';
     async function getGLTFLoader(){
       if(THREE.GLTFLoader)return THREE.GLTFLoader;
       await new Promise((ok,bad)=>{const s=document.createElement('script');
