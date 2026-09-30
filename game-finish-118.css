@@ -1,0 +1,73 @@
+/* ONE 118 — finitions communes, sans modifier la place des éléments de jeu. */
+#onePartyGame.gameFullscreen{scrollbar-gutter:stable}
+#onePartyGame.isPoker.gameFullscreen>.oneGameBody>.cg-topbar{flex:0 0 46px!important;height:46px!important;min-height:46px!important;box-sizing:border-box}
+#onePartyGame.isPoker.gameFullscreen .onePartyPoker.gt-poker{flex:0 0 auto!important;width:100%;margin:0 auto!important}
+#onePartyGame.isPoker.gameFullscreen .onePartyPoker.gt-poker .ppStage{height:clamp(280px,calc(var(--one-view-height,100dvh) - 258px),650px)!important}
+#onePartyGame .ppOneStake{position:absolute;left:8px;top:8px;border:1px solid #dec08099;border-radius:7px;padding:4px 7px;background:#102318de;color:#ffe6a2;font:700 9px system-ui;z-index:4}
+#onePartyGame .pc-game{border-color:color-mix(in srgb,var(--glow) 65%,#d2b678);box-shadow:inset 0 1px #ffffff26,0 0 24px color-mix(in srgb,var(--glow) 12%,transparent),0 14px 35px #0008}
+#onePartyGame .pc-game>header h3{letter-spacing:.035em;text-shadow:0 2px #020616,0 0 22px color-mix(in srgb,var(--glow) 60%,transparent)}
+#onePartyGame .pc-game .pc-arena{border-color:#dfbd79;box-shadow:inset 0 0 0 3px #07111f,inset 0 0 0 4px #ffe7b570,inset 0 1px 28px color-mix(in srgb,var(--glow) 15%,transparent),0 5px #19161a,0 11px 24px #0008}
+#onePartyGame .pc-game .pc-player.current{background:linear-gradient(135deg,color-mix(in srgb,var(--surface) 65%,var(--glow)),#0b1123);box-shadow:0 0 0 1px #ffe8a9,0 0 18px color-mix(in srgb,var(--glow) 40%,transparent)}
+#onePartyGame .pc-game .pc-emblem{background:radial-gradient(at 30% 15%,#ffffff30,transparent 65%),linear-gradient(135deg,var(--surface),#070c20);border-color:#ffe5a2;box-shadow:inset 0 1px #fff9,inset 0 -3px #0005,0 5px 12px #0008,0 0 20px color-mix(in srgb,var(--glow) 40%,transparent)}
+#onePartyGame .pc-game .pc-arena>button:not(:disabled),#onePartyGame .pc-game .pc-actions>button:not(:disabled){border-color:color-mix(in srgb,var(--edge) 80%,white);box-shadow:inset 0 2px #ffffff44,inset 0 -2px #0004,0 3px 9px #0006}
+#onePartyGame .pc-game button:focus-visible{outline:2px solid #fff2bb;outline-offset:3px}
+/* Papier ivoire, symboles contrastés et tranche dorée sur les jeux de cartes. */
+#onePartyGame.isBluff .bluff-scene .bluff-hand button.bluff-card,#onePartyGame.isPoker .onePartyPoker.gt-poker .ppCard:not(.ppBack):not(.ppEmpty),#onePartyGame .bj-game .bj-card:not(.bj-back){background:radial-gradient(ellipse at 10% 0,#fffffffa,transparent 63%),repeating-linear-gradient(105deg,#ffffff0a 0 1px,#ae916405 1px 3px),linear-gradient(145deg,#fffdf4,#f6eddb)!important;border-color:#ffe9b9!important;box-shadow:inset 0 0 0 2px #ac8b4d38,0 2px #b79656,0 4px 7px #0009!important}
+#onePartyGame .bj-card .bj-suit,#onePartyGame .ppCard .ppSuit,#onePartyGame .bluff-card>strong{text-shadow:0 1px #fff,0 2px 2px #20162b12}
+#onePartyGame.isBluff .bluff-scene .bluff-hand button.bluff-card.selected{box-shadow:0 0 0 2px #dc9aff,0 0 20px #b244e58c,0 5px 9px #000a!important;border-color:#edbcff!important}
+#onePartyGame .bj-card.bj-back{background:#2a0617 url('card-back-blackjack-118.svg') center/100% 100%!important}
+#onePartyGame.isPoker .onePartyPoker.gt-poker .ppCard.ppBack{background:#052d23 url('card-back-poker-118.svg') center/100% 100%!important}
+#onePartyGame.isBluff .bluff-scene .bf-player .bf-backs i,#onePartyGame.isBluff .bluff-scene .bf-center .bf-card-back{background:#250d41 url('card-back-bluff-118.svg') center/100% 100%!important;border-color:#e9c078!important}
+#onePartyGame.isBluff .bluff-scene .bf-center .bf-deck{background:#250d41 url('card-back-bluff-118.svg') center/100% 100%!important;color:transparent!important}
+#onePartyGame.isBluff .bf-backs i,#onePartyGame.isBluff .bf-card-back{color:transparent!important}
+#onePartyGame.isBluff .bf-backs i:after{content:none!important}
+#onePartyGame.isDouze.hasGame .dzp-game .dzp-card[data-tone=back]{background:#072849 url('card-back-douze-118.svg') center/100% 100%!important;border-color:#f3d992!important}
+#onePartyGame.isDouze.hasGame .dzp-game .dzp-card[data-tone=back]>strong,#onePartyGame.isDouze.hasGame .dzp-game .dzp-card[data-tone=back]>small{visibility:hidden}
+#onePartyGame .pc-trio .pc-trio-card[data-hidden=true]{background:#0b2864 url('card-back-trio-118.svg') center/100% 100%!important}
+#onePartyGame .cg-deck,#onePartyGame .cg-backs i{background:#3a0e57 url('card-back-colors-118.svg') center/100% 100%!important}
+/* ONE Douze : chaque famille garde sa couleur et gagne de la profondeur. */
+#onePartyGame.isDouze.hasGame .dzp-game .dzp-card[data-tone=negative]{--card-light:#dd99ff;--card-main:#8c2bcc;--card-deep:#56259c}
+#onePartyGame.isDouze.hasGame .dzp-game .dzp-card[data-tone=blue]{--card-light:#73eaff;--card-main:#059de9;--card-deep:#175ba9}
+#onePartyGame.isDouze.hasGame .dzp-game .dzp-card[data-tone=green]{--card-light:#c2ff58;--card-main:#6ad507;--card-deep:#339600}
+#onePartyGame.isDouze.hasGame .dzp-game .dzp-card[data-tone=gold]{--card-light:#fff789;--card-main:#ffda16;--card-deep:#e8a200;color:#30250b!important}
+#onePartyGame.isDouze.hasGame .dzp-game .dzp-card[data-tone=red]{--card-light:#ff9296;--card-main:#ff3045;--card-deep:#c81636}
+#onePartyGame.isDouze.hasGame .dzp-game .dzp-card:not([data-tone=back]){background:radial-gradient(ellipse at 18% 5%,#ffffff60,transparent 52%),linear-gradient(145deg,var(--card-light),var(--card-main) 55%,var(--card-deep))!important;border-color:#fff0c9!important;box-shadow:inset 0 0 0 2px #fff6,inset 0 -3px #0002,0 3px #142c45,0 5px 9px #0006!important}
+#onePartyGame.isDouze.hasGame .dzp-game .dzp-card:not([data-tone=back])>strong{font-weight:900;text-shadow:0 2px 1px #0003}
+#onePartyGame .cg-card{border:2px solid #fff0ca!important;box-shadow:inset 0 0 0 2px #ffffff70,inset 0 -3px #0002,0 4px #1c1230,0 8px 12px #0008!important}
+#onePartyGame .cg-card strong{font-weight:900;text-shadow:0 2px 2px #0005}
+#onePartyGame .cg-card.playable{border-color:#ffe592!important;box-shadow:inset 0 0 0 2px #fff6,0 0 0 1px #ffda7d,0 0 17px #b571fa77,0 7px 9px #0008!important}
+/* Trio : faces royales et numéros gravés. */
+#onePartyGame .pc-trio .pc-trio-card:not([data-hidden=true]),#onePartyGame .pc-trio .pc-revealed strong{background:radial-gradient(ellipse at 18% 5%,#fff,transparent 65%),linear-gradient(145deg,#fff3d0,#e6bf72)!important;box-shadow:inset 0 0 0 3px #fff7,inset 0 0 0 4px #95632966,0 3px #86602a,0 6px 9px #0007!important;text-shadow:0 1px #fff9}
+/* Codes : plaques lisibles, code couleur et état révélé distinct. */
+#onePartyGame .pc-codes .pc-codes button{box-shadow:inset 0 0 0 3px #ffffff35,inset 0 1px #fff,0 3px #776246,0 5px 8px #0007;letter-spacing:.025em}
+#onePartyGame .pc-codes .pc-codes [data-team=red]{background:radial-gradient(at 15% 0,#ffacb655,transparent 65%),linear-gradient(135deg,#ff547a,#c81842)!important}
+#onePartyGame .pc-codes .pc-codes [data-team=blue]{background:radial-gradient(at 15% 0,#a5f6ff66,transparent 65%),linear-gradient(135deg,#279bff,#1749b9)!important}
+#onePartyGame .pc-codes .pc-codes .opened{filter:brightness(.84);box-shadow:inset 0 2px 9px #0006!important}
+/* Qui est-ce : cadres satinés, noms contrastés, portraits mieux détachés. */
+#onePartyGame .pc-who .pc-faces .pc-face{background:linear-gradient(145deg,#fff1c6,#cfad64 45%,#90602b)!important;box-shadow:inset 0 1px #fff9,0 3px #05254a,0 5px 7px #0007!important}
+#onePartyGame .pc-who .pc-faces .pc-face strong{background:#0a213be8;color:#fff1cf;border-radius:0 0 4px 4px;align-self:stretch;padding:4px 2px;font-size:10px;line-height:1.2}
+#onePartyGame .pc-who .pc-portrait-art{box-shadow:inset 0 1px #fff3,0 1px 4px #0005}
+#onePartyGame .pc-who .pc-faces .pc-face.chosen{box-shadow:0 0 0 2px #ffe3a2,0 0 19px #ffd56d99!important}
+/* Puissance 4 : plastique brillant et jetons biseautés. */
+#onePartyGame .pc-connect .pc-connect-board{background:linear-gradient(140deg,#44b8ff,#1461ed 48%,#102775)!important;border-color:#a0e9ff;box-shadow:inset 0 3px #e1faff99,inset 0 -4px #061a6544,0 7px #061740,0 0 22px #168aff38,0 12px 22px #0007}
+#onePartyGame .pc-connect .pc-connect-board [data-disc='0']:after,#onePartyGame .pc-connect .pc-connect-board [data-disc='1']:after{inset:15%;border:2px solid #fff5;box-shadow:inset 0 2px 4px #0003,0 1px #0004}
+/* Timer : cadran statique, aucun nouvel indice pour compter les secondes. */
+#onePartyGame .pc-timer .pc-clock{border-color:#f7d486;color:#fff3c1;background:radial-gradient(at 34% 25%,#77429f55,transparent 50%),radial-gradient(circle,#261142 59%,transparent 60%),repeating-conic-gradient(#f6dda3 0deg 1deg,#2b164d 1deg 6deg);box-shadow:0 0 0 2px #89602f,0 0 0 4px #f3d89066,inset 0 0 35px #9b45e44d,0 0 38px #982ee645,0 7px 15px #0007}
+#onePartyGame .pc-wolf .pc-arena{border-color:#c8b0fa;background:radial-gradient(ellipse at 50% 0,#77509c35,transparent 58%),linear-gradient(#17152eea,#081022f5);box-shadow:inset 0 1px #ebe4ff55,inset 0 0 30px #68549626,0 5px #080915,0 0 20px #6740a633}
+#onePartyGame .pc-wolf .pc-wolf-targets button{background:linear-gradient(145deg,#68409d,#29204d);border-color:#c399f3;box-shadow:inset 0 1px #ead9ff55,0 3px #0a0d22}
+@media(hover:hover){#onePartyGame .pc-game button:not(:disabled):hover{filter:brightness(1.1)}#onePartyGame .pc-game .pc-face:hover{filter:brightness(1.08)}}
+@media(prefers-reduced-motion:reduce){#onePartyGame .pc-game button,#onePartyGame .cg-card{transition:none!important}}
+/* Tabletop depth: raised playing pieces, inset felt and light from above. */
+#onePartyGame .pc-game .pc-arena{background-image:radial-gradient(ellipse at 35% 0,color-mix(in srgb,var(--glow) 18%,transparent),transparent 60%),repeating-linear-gradient(0deg,#ffffff03 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,#ffffff02 0 1px,transparent 1px 4px),linear-gradient(135deg,var(--surface),#040b18);border-width:4px;border-style:ridge;perspective:1200px}
+#onePartyGame .pc-game .pc-trio-table,#onePartyGame .pc-game .pc-faces,#onePartyGame .pc-game .pc-codes{perspective:900px}
+#onePartyGame .pc-trio .pc-trio-card{transform:perspective(500px) rotateX(7deg);transform-origin:50% 100%;transition:transform .16s,filter .16s}
+#onePartyGame .pc-who .pc-face:not(.excluded){transform:perspective(600px) rotateX(-5deg);transform-origin:50% 100%}
+#onePartyGame .pc-connect .pc-connect-board{transform:perspective(900px) rotateX(5deg);transform-origin:50% 90%;border-bottom-width:8px}
+#onePartyGame .pc-connect .pc-connect-board [data-disc='0'],#onePartyGame .pc-connect .pc-connect-board [data-disc='1']{box-shadow:inset 1px 3px 6px #0008,0 1px #fff4}
+#onePartyGame .pc-codes .pc-codes button:not(.opened){transform:perspective(700px) rotateX(4deg);transform-origin:50% 100%}
+#onePartyGame .pc-timer .pc-clock{transform:perspective(900px) rotateX(8deg);border-width:7px;border-style:ridge;text-shadow:0 2px 2px #000}
+#onePartyGame .bj-game .bj-card{transform:perspective(550px) rotateX(7deg);transform-origin:50% 100%}
+@media(hover:hover) and (pointer:fine){#onePartyGame .pc-trio .pc-trio-card:not(:disabled):hover,#onePartyGame .pc-who .pc-face:not(.excluded):hover,#onePartyGame .pc-codes .pc-codes button:not(:disabled):hover{transform:perspective(700px) translateY(-3px) rotateX(0deg)}}
+@media(prefers-reduced-motion:reduce){#onePartyGame .pc-trio .pc-trio-card{transition:none}}
+
+
