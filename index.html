@@ -3663,7 +3663,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R38 · PBR COULEURS + ÉCHELLES';
+const BUILD = 'R39 · TEXTURES PBR FORCÉES';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -4780,13 +4780,19 @@ function open() {
     // et continuent donc à piloter collisions/interactions.
     const furnitureLoader=new GLTFLoader();
     furnitureLoader.setPath('./assets/317/');
-    function placeFurniture(file,target,pos,ry=0){
+    const furnitureTex=new THREE.TextureLoader();
+    function loadFurnitureMap(name,srgb=false){
+      const t=furnitureTex.load('./assets/317/'+name);
+      t.flipY=false;
+      if(srgb)t.colorSpace=THREE.SRGBColorSpace;
+      return t;
+    }
+    function placeFurniture(file,target,pos,ry=0,maps={}){
       furnitureLoader.load(file,gltf=>{
         const root=gltf.scene;
         root.updateMatrixWorld(true);
         let box=new THREE.Box3().setFromObject(root), size=new THREE.Vector3();
         box.getSize(size);
-        // Scale by horizontal footprint after intended rotation; preserve the model's proportions.
         root.rotation.y=ry; root.updateMatrixWorld(true);
         box=new THREE.Box3().setFromObject(root); box.getSize(size);
         const scale=Math.min(target.x/Math.max(size.x,.001),target.z/Math.max(size.z,.001));
@@ -4796,23 +4802,30 @@ function open() {
         root.position.x += pos.x-center.x;
         root.position.z += pos.z-center.z;
         root.position.y += pos.y-box.min.y;
+        const diff=maps.diff?loadFurnitureMap(maps.diff,true):null;
+        const normal=maps.normal?loadFurnitureMap(maps.normal,false):null;
+        const rough=maps.rough?loadFurnitureMap(maps.rough,false):null;
+        const arm=maps.arm?loadFurnitureMap(maps.arm,false):null;
         root.traverse(o=>{if(o.isMesh){
           o.castShadow=false;o.receiveShadow=true;
           const mats=Array.isArray(o.material)?o.material:[o.material];
           for(const m of mats){if(!m)continue;
-            if(m.map){m.map.colorSpace=THREE.SRGBColorSpace;m.map.needsUpdate=true;}
-            m.color?.setRGB(1,1,1); // don't tint the authored diffuse map
-            m.roughness=Math.max(.38,Math.min(1,m.roughness??.75));
-            m.metalness=Math.max(0,Math.min(1,m.metalness??0));
-            m.needsUpdate=true;
+            if(diff)m.map=diff;
+            if(normal){m.normalMap=normal;m.normalScale.set(1,1);}
+            if(rough)m.roughnessMap=rough;
+            if(arm){m.aoMap=arm;m.roughnessMap=arm;m.metalnessMap=arm;m.aoMapIntensity=1;}
+            m.color.setRGB(1,1,1);m.roughness=.82;m.metalness=.05;m.needsUpdate=true;
           }
         }});
         scene.add(root);
-      },undefined,error=>console.error('[3:17 R37 meuble]',file,error));
+      },undefined,error=>console.error('[3:17 R39 meuble]',file,error));
     }
-    placeFurniture('sofa_03_2k.gltf',new THREE.Vector3(1.28,1.20,2.72),new THREE.Vector3(-5.88,.02,4.55),Math.PI/2);
-    placeFurniture('GothicBed_01_2k.gltf',new THREE.Vector3(1.92,1.55,2.82),new THREE.Vector3(4.75,.02,5.10),Math.PI);
-    placeFurniture('GothicCommode_01_2k.gltf',new THREE.Vector3(.72,1.05,.62),new THREE.Vector3(3.15,.02,6.18),Math.PI);
+    placeFurniture('sofa_03_2k.gltf',new THREE.Vector3(1.28,1.20,2.72),new THREE.Vector3(-5.88,.02,4.55),Math.PI/2,
+      {diff:'sofa_03_diff_2k.jpg',normal:'sofa_03_nor_gl_2k.jpg',rough:'sofa_03_rough_2k.jpg'});
+    placeFurniture('GothicBed_01_2k.gltf',new THREE.Vector3(1.92,1.55,2.82),new THREE.Vector3(4.75,.02,5.10),Math.PI,
+      {diff:'GothicBed_01_diff_2k.jpg',normal:'GothicBed_01_nor_gl_2k.jpg',arm:'GothicBed_01_arm_2k.jpg'});
+    placeFurniture('GothicCommode_01_2k.gltf',new THREE.Vector3(.72,1.05,.62),new THREE.Vector3(3.15,.02,6.18),Math.PI,
+      {diff:'GothicCommode_01_diff_2k.jpg',normal:'GothicCommode_01_nor_gl_2k.jpg',arm:'GothicCommode_01_arm_2k.jpg'});
     monsterVisual=createMonsterMesh(scene);
     let modelLoaded=false,modelReady=false,modelFailed=false;
     const startButton=shell.querySelector('.three17-start button'),modelStatus=shell.querySelector('[data-monster-load]');
