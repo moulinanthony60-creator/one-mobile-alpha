@@ -2,3 +2,67 @@
 
 /* V9: independent multi-touch controls */
 .three17-stick{touch-action:none!important}.three17-look{touch-action:none!important}.three17-btn,.three17-exit,.three17-start button,.three17-win button{touch-action:manipulation!important;pointer-events:auto!important}
+
+/* V13 : repères de version/pièce sans modifier les zones tactiles validées. */
+.three17-build{font-size:10px;font-weight:700;letter-spacing:.08em;color:#b9b5b0;margin-top:2px}
+.three17-build-label{display:block;font-size:12px;letter-spacing:.09em;color:#cabda7;margin:9px 0}
+.three17-hint{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);max-width:68%;padding:6px 12px;border-radius:8px;background:#121713df;color:#ece6d7;font-size:12px;text-align:center;pointer-events:none}
+.three17-hint:empty{display:none}
+.three17-exit{z-index:30;top:65px}
+.three17-card small{display:inline-block;margin-top:8px;font-size:12px;color:#aaa89e}
+.three17-btn.flash[aria-pressed=false]{background:#080a0ee8;border-color:#777}
+.three17-load-error{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:30px;text-align:center}
+.three17-load-error button{padding:12px 24px;border:1px solid #888;border-radius:10px;color:white;background:#4a3d68}
+@media (max-height:450px){.three17-card{padding:12px 24px;max-width:420px}.three17-card h1{font-size:24px}.three17-card .time{font-size:32px;margin:0}.three17-card p{font-size:13px;margin:8px 0 12px}.three17-card button{font-size:14px;padding:12px 20px}.three17-hint{bottom:92px;font-size:11px}.three17-msg{bottom:39%}}
+
+/* 317 cinematic horror art pass */
+.three17-shell{background:#030504;color:#e7e0d1}
+.three17-stage:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at 50% 47%,transparent 20%,rgba(0,0,0,.18) 58%,rgba(0,0,0,.68) 100%),linear-gradient(180deg,rgba(4,9,10,.08),transparent 50%,rgba(14,7,3,.15));mix-blend-mode:multiply}
+.three17-hud{z-index:3}.three17-clock{color:#d2c5aa;text-shadow:0 2px 12px #000,0 0 16px #6b563833}
+.three17-objective,.three17-msg{background:#090c0ad9;border-color:#71634b66;color:#ddd4c2;box-shadow:0 8px 24px #0008;backdrop-filter:blur(5px)}
+.three17-cross:before,.three17-cross:after{background:#d8d0bd88}
+.three17-stick{background:#0a0d0bb8;border-color:#7c715744;box-shadow:inset 0 0 24px #000b}.three17-knob{background:#8c836c66}
+.three17-btn,.three17-exit{background:#0b0e0ce6;border-color:#75684e88;color:#e8dfcd;box-shadow:0 5px 18px #0009,inset 0 1px #ffffff0b}
+.three17-start,.three17-win{background:radial-gradient(circle at 50% 42%,#11130f 0,#050706 45%,#010201 100%)}
+.three17-card{background:#080a08cc;border:1px solid #665b4655;border-radius:4px;box-shadow:0 25px 80px #000;padding:32px}
+.three17-card .time{color:#bca77b;text-shadow:0 0 24px #8a683744}.three17-card p{color:#aaa494}
+.three17-card button{background:linear-gradient(#51452f,#29271e);border:1px solid #806f4c;color:#eee6d4;border-radius:4px;box-shadow:0 8px 25px #000}
+.three17-build,.three17-build-label{color:#8d877a}
+
+/* 3:17 FOUR — MAX GRAPHICS PASS */
+.three17-shell{background:#010202;color:#e4ddcf}
+.three17-stage:before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 0 28%,rgba(0,0,0,.18) 58%,rgba(0,0,0,.76) 110%);box-shadow:inset 0 0 120px #0009}
+.three17-stage:after{z-index:3!important;opacity:.76;background:repeating-linear-gradient(0deg,#ffffff02 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 25%,#0003 64%,#000b 115%)!important}
+.three17-hud{z-index:5}.three17-clock{font-family:Georgia,serif;font-weight:500;letter-spacing:.14em;color:#d3c8b2}
+.three17-objective,.three17-hint,.three17-msg{background:linear-gradient(#0d100de8,#030504f2);border:1px solid #8b795348;border-radius:3px;color:#ddd5c5;box-shadow:0 12px 34px #000b;backdrop-filter:blur(7px) saturate(.7)}
+.three17-stick{background:radial-gradient(circle,#15181488,#030504b8);border-color:#9b89633b;box-shadow:inset 0 0 30px #000d,0 8px 25px #0008}
+.three17-knob{background:#a79b8048;border:1px solid #c7b99724}
+.three17-btn,.three17-exit{background:linear-gradient(#171914f2,#050706fa);border-color:#927d534f;color:#ded6c5;box-shadow:0 8px 25px #000b,inset 0 1px #ffffff0a}
+.three17-start,.three17-win{background:radial-gradient(ellipse at 50% 39%,#211d164d,transparent 28%),radial-gradient(ellipse,#0a0d0b,#020302 62%,#000)}
+.three17-card{background:linear-gradient(#0e100de8,#030504f2);border:1px solid #8a754c45;border-radius:2px;box-shadow:0 35px 100px #000;backdrop-filter:blur(9px)}
+.three17-card h1,.three17-card .time{font-family:Georgia,serif;font-weight:500}.three17-card h1{letter-spacing:.08em}.three17-card .time{color:#b9a477;letter-spacing:.14em;text-shadow:0 0 28px #a87c3e2e}
+.three17-card p{color:#aaa293;line-height:1.55}.three17-card button{border-radius:2px;background:linear-gradient(#4a402d,#211f18);border:1px solid #7a6743;color:#e7decb;letter-spacing:.055em}
+
+/* V3 cinematic rebuild: less game-like HUD dominance */
+.three17-top{filter:saturate(.72)}
+.three17-objective{max-width:min(310px,42vw);font-size:clamp(11px,1.55vw,15px)}
+.three17-build{letter-spacing:.04em;color:#b8a67f!important}
+.three17-cross{transform:scale(.82);opacity:.52}
+.three17-actions{opacity:.90}
+@media (max-width:760px){.three17-objective{background:#080a09c9;backdrop-filter:blur(9px)}}
+
+/* V4 — environment first */
+.three17-objective{background:linear-gradient(#090b0ad8,#030504e8)!important}
+.three17-actions{opacity:.86}.three17-stick{opacity:.72}.three17-cross{opacity:.42}
+
+/* V5 COMPLETE — filmic UI integration */
+.three17-stage{background:#010201}
+.three17-stage:before{background:
+ radial-gradient(circle at 50% 52%,transparent 0 30%,rgba(0,0,0,.10) 55%,rgba(0,0,0,.60) 100%),
+ linear-gradient(180deg,rgba(6,8,7,.05),transparent 58%,rgba(0,0,0,.16))!important}
+.three17-clock{font-size:clamp(27px,4.3vw,48px);text-shadow:0 2px 8px #000}
+.three17-objective{border-color:#7b6a4840!important;box-shadow:0 16px 42px #0009!important}
+.three17-btn,.three17-exit{border-color:#75644355!important}
+.three17-hint{font-size:clamp(12px,1.8vw,18px);background:#090b09d9!important}
+
+/* real GLTF test */
