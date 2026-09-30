@@ -2077,7 +2077,7 @@ v17ApplySound();
  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;install?.classList.add('show')});
  install?.addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();try{await deferredPrompt.userChoice}catch{}deferredPrompt=null;install.classList.remove('show')});
  window.addEventListener('appinstalled',()=>install?.classList.remove('show'));
- if('serviceWorker' in navigator){navigator.serviceWorker.addEventListener('controllerchange',()=>location.reload());navigator.serviceWorker.ready.then(reg=>{reg.addEventListener('updatefound',()=>{const w=reg.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)update?.classList.add('show')})})}).catch(()=>{});update?.addEventListener('click',async()=>{const reg=await navigator.serviceWorker.getRegistration();reg?.waiting?.postMessage({type:'SKIP_WAITING'});location.reload()})}
+ if('serviceWorker' in navigator){navigator.serviceWorker.addEventListener('controllerchange',()=>{update?.classList.add('show');});navigator.serviceWorker.ready.then(reg=>{reg.addEventListener('updatefound',()=>{const w=reg.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)update?.classList.add('show')})})}).catch(()=>{});update?.addEventListener('click',async()=>{const reg=await navigator.serviceWorker.getRegistration();reg?.waiting?.postMessage({type:'SKIP_WAITING'});location.reload()})}
 })();
 </script>
 <script>try{oneAlphaRefreshAccount()}catch(e){}</script>
@@ -3639,7 +3639,7 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
   async reconnect(){room=window.oneSocialRoom?.()||room;if(joining)throw Error('Connexion déjà en cours…');if(call?.audio||call?.video)throw Error('Quitte puis rejoins le vocal pour rétablir sa connexion.');if(call){const c=call;await request(path(c,'leave'),'POST',undefined,c.token).catch(()=>{});stopCall();}await joinCall({data:true,mic:false});if(!call)throw Error(status.textContent||'Connexion indisponible.');},
   peers(){return call?[...call.peers.values()].filter(p=>p.accountId).map(p=>({accountId:p.accountId,connected:p.data?.readyState==='open',state:p.pc.connectionState})):[];},
   send(to,packet){if(!call||packet?.game!=='317'||packet.v!==1)return false;const data=JSON.stringify(packet);if(data.length>24000)return false;
-   const p=[...call.peers.values()].find(p=>p.accountId===to);if(!p||p.data?.readyState!=='open'||p.data.bufferedAmount>131072)return false;try{p.data.send(data);return true;}catch{return false;}},
+   const p=[...call.peers.values()].find(p=>p.accountId===to&&p.data?.readyState==='open'&&p.data.bufferedAmount<=131072);if(!p)return false;try{p.data.send(data);return true;}catch{return false;}},
   subscribe(listener){gameListeners.add(listener);return()=>gameListeners.delete(listener);}
  };
  window.ONEPartyMedia={memberStatus:id=>{if(!call)return {};if(id==='local')return {connected:true,mic:!!call.audio?.enabled,camera:!!call.video?.enabled};const p=[...call.peers.values()].find(p=>p.bubble.node.dataset.cameraOwner===id);return p?{connected:p.pc.connectionState==='connected',mic:p.bubble.node.dataset.mic==='true'?true:p.bubble.node.dataset.mic==='false'?false:undefined}:{};},toggle:async kind=>{if(mediaPending||joining||!['mic','camera'].includes(kind))return;mediaPending=true;window.dispatchEvent(new Event('one-media-state'));try{if(!call){await joinCall({mic:kind==='mic',camera:kind==='camera'});if(!call)throw Error(status.textContent||'Appel indisponible.');return;}if(kind==='mic')await toggleMic();else await toggleCam();}finally{mediaPending=false;window.dispatchEvent(new Event('one-media-state'));}},
@@ -3706,7 +3706,7 @@ if(window.ONEPartyGameLink)document.documentElement.dataset.oneLobbyNetwork="r43
 @media(max-width:650px){.one3d-controls{display:none}.one3d-session{padding:10px}.one3d-session p{font-size:11px;margin:6px 0;min-height:30px}.one3d-actions button{font-size:11px;min-height:39px}.one3d-bottom{width:min(315px,calc(100vw - 130px))}.one3d-top small{display:block;font-size:9px}.one3d-players{max-width:73%}.one3d-game{font-size:9px}}
 @media(max-width:420px) and (orientation:portrait){.one3d-actions{flex-direction:column}.one3d-controls{display:none}}
 
-.one3d-shell{--one-lobby-release:r45;background:#11121a}.one3d-top b::after{content:" · R45";font-size:9px;color:#c8b0fa}
+.one3d-shell{--one-lobby-release:r46;background:#11121a}.one3d-top b::after{content:" · R46";font-size:9px;color:#c8b0fa}
 .one3d-visual-status{position:absolute;z-index:6;left:50%;top:75px;transform:translateX(-50%);padding:7px 12px;border-radius:8px;background:#111827cc;color:#e1d9ce;font:11px system-ui;text-align:center;pointer-events:none}
 .one3d-visual-status[hidden]{display:none}.one3d-session{background:linear-gradient(145deg,#1b1d2beF,#171420ef);border-color:#8f779b66;backdrop-filter:none}
 .one3d-top{background:#141722ed;backdrop-filter:none}.one3d-actions [data-start]{background:#705770}
@@ -3817,9 +3817,10 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
 @keyframes one317scare{0%{opacity:0;transform:scale(.98)}10%{opacity:1;transform:scale(1.025)}78%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.three17-scare.show{animation:none;opacity:.80}.three17-hide-view{transition:none}}
 </style><script type="module" id="one317-r16-module">
-import {createRenderBudget} from './ui/three17-r44-render.js';
+import {prepareScene} from './ui/three17-r46-warmup.js';
+import {createRenderBudget,createDoorPresenter} from './ui/three17-r46-render.js';
 
-import { installCoop, createCoopRuntime } from './ui/three17-r44-coop.js';
+import { installCoop, createCoopRuntime } from './ui/three17-r46-coop.js';
 import * as THREE from './ui/three.module.js';
 import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './ui/three17-r44-visuals.js';
 import { createHorrorAudio } from './ui/three17-r41-audio.js';
@@ -3830,7 +3831,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R44 · MATIÈRES ET FLUIDITÉ';
+const BUILD = 'R46 · MATIÈRES ET FLUIDITÉ';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -4143,6 +4144,23 @@ function circleHitsDoor(x, z, radius, door, angle = door.angle) {
   return a * a + b * b < radius * radius - 1e-9;
 }
 
+// The static house never moves. Doors remain outside this conservative broad phase.
+const collisionGrids=new WeakMap();
+function nearbySolids(house,x,z,radius){
+ let grid=collisionGrids.get(house);
+ if(!grid||grid.source!==house.solids||grid.length!==house.solids.length){
+  const cells=new Map();
+  for(const v of house.solids)for(let ix=Math.floor((v.x-v.w/2)/2);ix<=Math.floor((v.x+v.w/2)/2);ix++)
+   for(let iz=Math.floor((v.z-v.d/2)/2);iz<=Math.floor((v.z+v.d/2)/2);iz++){
+    const key=ix+','+iz;if(!cells.has(key))cells.set(key,[]);cells.get(key).push(v);
+   }
+  grid={source:house.solids,length:house.solids.length,cells};collisionGrids.set(house,grid);
+ }
+ const x0=Math.floor((x-radius)/2),x1=Math.floor((x+radius)/2),z0=Math.floor((z-radius)/2),z1=Math.floor((z+radius)/2);
+ if(x0===x1&&z0===z1)return grid.cells.get(x0+','+z0)||[];
+ const result=new Set();for(let ix=x0;ix<=x1;ix++)for(let iz=z0;iz<=z1;iz++)for(const v of grid.cells.get(ix+','+iz)||[])result.add(v);
+ return result;
+}
 function blockedAt(house, x, z, y = 0, radius = PLAYER_RADIUS) {
   const b = house.bounds;
   if (x < b.minX || x > b.maxX || z < b.minZ || z > b.maxZ) return true;
@@ -4152,7 +4170,7 @@ function blockedAt(house, x, z, y = 0, radius = PLAYER_RADIUS) {
     if (x+radius > zone.x0 && x-radius < zone.x1 && z+radius > zone.z0 && z-radius < zone.z1 &&
         y < stairHeight(zone, x, z) - .34 && bodyTop > zone.y0+.02) return true;
   }
-  for (const v of house.solids) {
+  for (const v of nearbySolids(house,x,z,radius)) {
     const vBottom = v.y - v.h / 2, vTop = v.y + v.h / 2;
     if (vTop <= bodyBottom || vBottom >= bodyTop) continue;
     if (circleHitsBox(x, z, radius, v)) return true;
@@ -4197,9 +4215,11 @@ function movePlayer(house, position, dx, dz) {
 }
 
 // Intersection segment / boîte. Le paramètre est dans [0,1], pas en mètres.
+const boxAxes=[['x','w'],['y','h'],['z','d']];
 function segmentHitsBox(a, b, box) {
+  if(Math.max(a.x,b.x)<box.x-box.w/2||Math.min(a.x,b.x)>box.x+box.w/2||Math.max(a.z,b.z)<box.z-box.d/2||Math.min(a.z,b.z)>box.z+box.d/2||Math.max(a.y,b.y)<box.y-box.h/2||Math.min(a.y,b.y)>box.y+box.h/2)return false;
   let near = .002, far = .995;
-  for (const [axis, span] of [['x', 'w'], ['y', 'h'], ['z', 'd']]) {
+  for (const [axis, span] of boxAxes) {
     const low = box[axis] - box[span] / 2, high = box[axis] + box[span] / 2;
     const delta = b[axis] - a[axis];
     if (Math.abs(delta) < 1e-9) { if (a[axis] < low || a[axis] > high) return false; }
@@ -4898,13 +4918,16 @@ function open(options={}) {
     const visualReady=addR40Details(scene,house,meshes,()=>!stopped);
     monsterVisual=createMonsterMesh(scene);
     let modelLoaded=false,modelReady=false,modelFailed=false;
+    const doorPresenter=createDoorPresenter();
     const startButton=shell.querySelector('.three17-start button'),modelStatus=shell.querySelector('[data-monster-load]');
-    Promise.all([monsterVisual.ready,visualReady]).then(([ready])=>{
-      if(stopped||!ready)return;modelLoaded=true;budget.reset();
+    Promise.all([monsterVisual.ready,visualReady]).then(async ([ready])=>{
+      if(stopped||!ready)return;budget.reset();
       modelStatus.textContent='Préparation de la maison et du Parasite…';
       scares.prepare();
       const anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
       const seen=new Set();scene.traverse(o=>{for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m)for(const t of Object.values(m))if(t?.isTexture&&!seen.has(t)){seen.add(t);t.anisotropy=anisotropy;t.needsUpdate=true;}});
+      await prepareScene(renderer,scene,camera,()=>!stopped);
+      if(stopped)return;modelLoaded=true;last=performance.now();budget.reset();
     }).catch(error=>{
       if(stopped)return;modelFailed=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
       startButton.textContent='RÉESSAYER LE CHARGEMENT';
@@ -4956,8 +4979,8 @@ function open(options={}) {
     }
     updateRoomLights();
     renderer=new THREE.WebGLRenderer({antialias:!mobileGraphics,powerPreference:'high-performance',alpha:false});
-    renderer.shadowMap.enabled=!mobileGraphics;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-    flashlight.castShadow=!mobileGraphics;flashlight.shadow.mapSize.set(1024,1024);flashlight.shadow.bias=-.0003;flashlight.shadow.normalBias=.025;
+    renderer.shadowMap.enabled=false;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    flashlight.castShadow=false;flashlight.shadow.mapSize.set(1024,1024);flashlight.shadow.bias=-.0003;flashlight.shadow.normalBias=.025;
     environmentDispose=createR40Environment(scene,renderer);
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;stage.prepend(renderer.domElement);
@@ -4982,8 +5005,8 @@ function open(options={}) {
       const w=Math.floor(stage.clientWidth),h=Math.floor(stage.clientHeight);
       if(w<2||h<2){viewportReady=false;syncPause();return false;}
       if(!viewportReady){viewportReady=true;last=performance.now();syncPause();}
-      const requested=Math.min(window.devicePixelRatio||1,mobileGraphics?1.25:1.65)*qualityScale*budget.scale;
-      const ratio=Math.min(requested,Math.sqrt((mobileGraphics?950000:1850000)*budget.scale*budget.scale/(w*h)));
+      const requested=Math.min(window.devicePixelRatio||1,mobileGraphics?1:1.2)*qualityScale*budget.scale;
+      const ratio=Math.min(requested,Math.sqrt((mobileGraphics?620000:1150000)*budget.scale*budget.scale/(w*h)));
       if(w!==renderWidth||h!==renderHeight||Math.abs(ratio-renderRatio)>.0001){
         renderer.setDrawingBufferSize(w,h,ratio);
         camera.aspect=w/h;camera.updateProjectionMatrix();
@@ -5114,7 +5137,7 @@ function open(options={}) {
       else message('✓ '+item.label+' récupéré · '+count+'/3');
     }
     function interact(){
-      if(!started||ended||paused)return;if(coop){coop.action('interact');return;}const selection=selectInteraction();
+      if(!started||ended||paused)return;if(coop){coop.action('interact',currentControls());return;}const selection=selectInteraction();
       if(!selection){message('Approchez-vous et regardez la porte ou l’objet');return;}const o=selection.object;
       if(selection.type==='item')collect(o);
       else if(selection.type==='container'){
@@ -5144,7 +5167,7 @@ function open(options={}) {
           // R27 PUSH : au clic, choisir le côté où le CENTRE du battant ouvert
           // est le plus loin du joueur. Le battant s'éloigne donc réellement de lui.
           const half=o.width*.5;
-          const midAt=a=>({x:o.hingeX+Math.cos(a)*half,z:o.hingeZ+Math.sin(a)*half});
+          const midAt=a=>({x:o.hingeX+Math.cos(a)*half,z:o.hingeZ-Math.sin(a)*half});
           const plus=midAt(o.closedAngle+Math.PI/2),minus=midAt(o.closedAngle-Math.PI/2);
           const dPlus=(plus.x-position.x)**2+(plus.z-position.z)**2;
           const dMinus=(minus.x-position.x)**2+(minus.z-position.z)**2;
@@ -5183,6 +5206,9 @@ function open(options={}) {
       for(const mesh of meshes.itemMeshes.values())if(mesh.visible){mesh.rotation.y+=dt*.9;if(!reducedMotion)mesh.position.y=mesh.userData.baseY+Math.sin((ROUND_SECONDS-remaining)*2.5)*.025;}
       beat-=dt;if(beat<=0){const md=Math.hypot(monster.state.position.x-position.x,monster.state.position.z-position.z),same=Math.abs(monster.state.position.y-position.y)<1.4;if(monster.state.state==='chase'){beat=1.7;audio.monsterVoice(md,'chase',same);}else if(monster.state.state==='search'){beat=3.8;audio.monsterVoice(md,'search',same);}else beat=2.4;}
     }
+    function currentControls(){return {
+      x:keys.x+(pressed.has('KeyD')||pressed.has('ArrowRight')?1:0)-(pressed.has('KeyA')||pressed.has('KeyQ')||pressed.has('ArrowLeft')?1:0),
+      forward:-keys.y+(pressed.has('KeyW')||pressed.has('KeyZ')||pressed.has('ArrowUp')?1:0)-(pressed.has('KeyS')||pressed.has('ArrowDown')?1:0),yaw,pitch,paused};}
     function updateWorld(elapsed){
       if(!started||ended||paused||!Number.isFinite(elapsed)||elapsed<=0)return;
       if(coop){
@@ -5217,15 +5243,18 @@ function open(options={}) {
       shell.querySelector('.interact').classList.toggle('available',!!s&&!ended);
     }
     function frame(now){
-      if(stopped)return;raf=requestAnimationFrame(frame);
+      if(stopped)return;raf=requestAnimationFrame(frame);if(!modelLoaded){last=now;return;}
       if(document.hidden||graphicsState==='lost'||graphicsState==='error'){last=now;return;}
+      // Controls/physics continue at up to 60 Hz even if rendering falls to 30 Hz.
+      const elapsed=Math.max(0,(now-last)/1000);
+      if(elapsed>=1/60-.0006){last=now;if(!testPaused)updateWorld(elapsed);}
       if(!budget.shouldRender(now,resizePending))return;const renderBegan=performance.now();
       try{
         if(renderer.getContext().isContextLost()){onContextLost({preventDefault(){}});last=now;return;}
         if(!applyResize()){last=now;return;}
         // Time spent restoring the GPU is never charged to the 10-minute round.
-        const elapsed=Math.max(0,(now-last)/1000);last=now;
-        if(!testPaused)updateWorld(elapsed);refreshCamera();
+        refreshCamera();
+        if(coop)for(const d of house.doors)meshes.doorMeshes.get(d.id).rotation.y=doorPresenter.angle(d.id,now);
         // Keep the light list stable: intensity 0, not visible=false. Toggling
         // the torch should not recompile every lit material while playing.
         flashlight.intensity=flashOn?32:0;fillLight.intensity=flashOn?.38:0;
@@ -5240,7 +5269,7 @@ function open(options={}) {
         graphicsInfo.frames++;if(modelReady)budget.record(now,performance.now()-renderBegan);
         if(modelLoaded&&!modelReady&&!modelFailed){
           modelReady=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
-          startButton.textContent=coop?'JE SUIS PRÊT':'ENTRER DANS LA MAISON';modelStatus.textContent='MAISON R44 · PRÊTE';
+          startButton.textContent=coop?'JE SUIS PRÊT':'ENTRER DANS LA MAISON';modelStatus.textContent='MAISON R46 · PRÊTE';
         }
         if(graphicsState==='warming'){
           graphicsState='ready';last=performance.now();syncPause();
@@ -5265,7 +5294,7 @@ function open(options={}) {
       el.addEventListener('click',e=>{e.stopPropagation();if(e.detail===0&&!e.pointerType)fn();});
     }
     function syncFlash(){flashButton.setAttribute('aria-pressed',String(flashOn));flashButton.setAttribute('aria-label',hidden?'Lampe éteinte dans la cachette':flashOn?'Éteindre la lampe':'Allumer la lampe');flashButton.disabled=hidden;}
-    function toggleFlash(){if(!started||ended||paused||hidden)return;if(coop){coop.action('flash');return;}flashOn=!flashOn;syncFlash();message(flashOn?'Lampe allumée · visible de plus loin':'Lampe éteinte · restez hors de sa vue');}
+    function toggleFlash(){if(!started||ended||paused||hidden)return;if(coop){coop.action('flash',currentControls());return;}flashOn=!flashOn;syncFlash();message(flashOn?'Lampe allumée · visible de plus loin':'Lampe éteinte · restez hors de sa vue');}
     function toggleSound(){const muted=audio.toggle();soundButton.setAttribute('aria-pressed',String(!muted));soundButton.setAttribute('aria-label',muted?'Activer le son':'Couper le son');soundButton.textContent=muted?'♪×':'♪';}
     function start(){if(started||stopped)return;if(modelFailed){if(coop){close();window.ONEThree17Coop.open();}else open();return;}if(!modelReady||graphicsState!=='ok')return;if(coop){audio.start();audio.pause();startButton.disabled=true;startButton.textContent='PRÊT · ATTENTE DU GROUPE';coop.ready();return;}previousStartRoom=spawns.player.roomId;resetInputs();started=true;syncPause();last=performance.now();if(!paused)audio.start();shell.querySelector('.three17-start')?.remove();message('Départ : '+spawns.player.roomName+' · '+spawns.player.level+'. Le Parasite dort encore 10 s.');}
     press(shell.querySelector('.interact'),interact);press(flashButton,toggleFlash);press(soundButton,toggleSound);
@@ -5311,7 +5340,7 @@ function open(options={}) {
           count=state.items.filter(i=>i.taken).length;if(counter.textContent!==String(count))counter.textContent=String(count);
           for(const item of house.items){const mesh=meshes.itemMeshes.get(item.id);mesh.visible=!item.hidden&&!item.taken;mesh.position.set(item.x,item.y,item.z);mesh.userData.baseY=item.y;
             const label=shell.querySelector('[data-inventory="'+item.id+'"]');const text=(item.taken?'✓ ':'◌ ')+({key:'Clé',fuse:'Fusible',seal:'Sceau'}[item.id]);if(label.textContent!==text){label.classList.toggle('found',item.taken);label.textContent=text;}}
-          if(count===3&&lockLabel.textContent!=='🔓 REJOIGNEZ LA SORTIE')lockLabel.textContent='🔓 REJOIGNEZ LA SORTIE';for(const d of house.doors)meshes.doorMeshes.get(d.id).rotation.y=d.angle;
+          if(count===3&&lockLabel.textContent!=='🔓 REJOIGNEZ LA SORTIE')lockLabel.textContent='🔓 REJOIGNEZ LA SORTIE';for(const d of house.doors)doorPresenter.push(d,performance.now(),hosting);
         },
         event:(event,local)=>{
           const own=event.who===coopConfig.self,d=event.at?Math.hypot(event.at.x-position.x,event.at.z-position.z):0,same=!event.at||Math.abs(event.at.y-position.y)<1.4;
@@ -5350,9 +5379,9 @@ function open(options={}) {
       pause,resume,
     };
   }catch(error){
-    console.error('3:17 FOUR R44 — lancement interrompu',error);session.stop();
+    console.error('3:17 FOUR R46 — lancement interrompu',error);session.stop();
     const message=document.createElement('div');message.className='three17-shell three17-load-error';
-    const text=document.createElement('p');text.textContent='3:17 FOUR R44 n’a pas pu démarrer. Rechargez ONE et vérifiez que tous les fichiers et dossiers du correctif R44 ont bien été copiés.';
+    const text=document.createElement('p');text.textContent='3:17 FOUR R46 n’a pas pu démarrer. Rechargez ONE et vérifiez que tous les fichiers et dossiers du correctif R46 ont bien été copiés.';
     const button=document.createElement('button');button.textContent='Fermer';button.onclick=()=>message.remove();message.append(text,button);document.body.append(message);active={stop:()=>message.remove()};
   }
 }
@@ -5367,8 +5396,8 @@ window.addEventListener('pagehide', close);
 </script><script id="one317-r43-entry">
 (()=>{let opening=false;window.ONEOpen3DLobby=async context=>{
  if(opening)return;opening=true;
- try{const module=await import('./ui/one-lobby-r45.js');module.open(context||{room:window.oneSocialRoom?.()});window.oneCloseSalon?.();}
- catch(error){console.error('Lobby 3D R45',error);const box=document.createElement('section');box.className='one3d-shell one3d-load-error';box.setAttribute('role','alertdialog');const p=document.createElement('p');p.textContent='Le lobby n’a pas pu charger ses fichiers. Copie tout le dossier ui du correctif R45 à la racine du site, puis recharge ONE.';const b=document.createElement('button');b.textContent='Retour au salon';b.onclick=()=>{box.remove();window.oneOpenSalon?.();};const retry=document.createElement('button');retry.textContent='Recharger ONE';retry.onclick=()=>location.reload();box.append(p,retry,b);document.body.append(box);}
+ try{const module=await import('./ui/one-lobby-r46.js');module.open(context||{room:window.oneSocialRoom?.()});window.oneCloseSalon?.();}
+ catch(error){console.error('Lobby 3D R45',error);const box=document.createElement('section');box.className='one3d-shell one3d-load-error';box.setAttribute('role','alertdialog');const p=document.createElement('p');p.textContent='Le lobby n’a pas pu charger ses fichiers. Copie tout le dossier ui du correctif R46 à la racine du site, puis recharge ONE.';const b=document.createElement('button');b.textContent='Retour au salon';b.onclick=()=>{box.remove();window.oneOpenSalon?.();};const retry=document.createElement('button');retry.textContent='Recharger ONE';retry.onclick=()=>location.reload();box.append(p,retry,b);document.body.append(box);}
  finally{opening=false;}
 };})();
 </script>

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a0c0d"><title>3:17 · R44 — Ensemble dans la maison</title>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a0c0d"><title>3:17 · R46 — Ensemble dans la maison</title>
 <style>html,body{margin:0;min-height:100%;background:#0a0c0d;color:#d8d5c9;font-family:system-ui,sans-serif}main{min-height:100vh;display:grid;place-content:center;text-align:center;padding:24px;box-sizing:border-box}h1{font-size:clamp(64px,15vw,120px);font-weight:400;letter-spacing:.08em;margin:0}p{color:#aaa69b;line-height:1.6}small{letter-spacing:.2em;text-transform:uppercase}nav{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:24px}nav button,nav a{font:inherit;color:inherit;border:1px solid #6d6250;border-radius:8px;background:#242019;padding:14px 22px;text-decoration:none;cursor:pointer}</style>
 <style>
 .three17-shell{position:fixed;inset:0;z-index:10050;background:#050507;color:#fff;font-family:system-ui,sans-serif;overflow:hidden;touch-action:none}.three17-stage{position:absolute;inset:0}.three17-stage canvas{width:100%;height:100%;display:block}.three17-hud{position:absolute;inset:0;pointer-events:none}.three17-top{position:absolute;top:max(10px,env(safe-area-inset-top));left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.three17-clock{font-size:24px;font-weight:900;letter-spacing:.08em;color:#e7e0ff;text-shadow:0 2px 10px #000}.three17-objective{max-width:55%;text-align:right;font-size:12px;background:#09090db8;border:1px solid #ffffff22;border-radius:12px;padding:8px 10px}.three17-cross{position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%)}.three17-cross:before,.three17-cross:after{content:"";position:absolute;background:#ffffffbb}.three17-cross:before{width:18px;height:2px;top:8px}.three17-cross:after{height:18px;width:2px;left:8px}.three17-stick{pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;z-index:20;position:absolute;left:22px;bottom:max(22px,env(safe-area-inset-bottom));width:112px;height:112px;border-radius:50%;background:#ffffff14;border:1px solid #ffffff2b}.three17-knob{position:absolute;left:34px;top:34px;width:44px;height:44px;border-radius:50%;background:#ffffff70;box-shadow:0 0 18px #0008}.three17-look{pointer-events:auto;touch-action:none;z-index:10;position:absolute;left:42%;right:0;top:70px;bottom:0}.three17-actions{pointer-events:auto;z-index:30;position:absolute;right:18px;bottom:max(20px,env(safe-area-inset-bottom));display:flex;gap:10px;align-items:flex-end}.three17-btn{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;width:62px;height:62px;border-radius:50%;border:1px solid #ffffff30;background:#11111dcc;color:white;font-weight:800;font-size:12px}.three17-btn.flash{font-size:24px}.three17-exit{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;position:absolute;left:14px;top:60px;border:1px solid #ffffff25;background:#09090dbd;color:white;border-radius:10px;padding:8px 11px}.three17-msg{position:absolute;left:50%;bottom:25%;transform:translateX(-50%);background:#08080ddd;border:1px solid #ffffff2a;border-radius:12px;padding:9px 13px;font-size:13px;opacity:0;transition:opacity .18s}.three17-msg.show{opacity:1}.three17-start{position:absolute;inset:0;display:grid;place-items:center;background:#020204f2;z-index:100;pointer-events:auto;touch-action:manipulation}.three17-card{text-align:center;max-width:340px;padding:28px}.three17-card h1{font-size:34px;margin:0 0 4px}.three17-card .time{font-size:56px;font-weight:950;letter-spacing:.06em;margin:8px 0;color:#d8c8ff}.three17-card p{color:#bbb;margin:8px 0 20px}.three17-card button{position:relative;z-index:101;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;border:0;border-radius:14px;background:#7657ff;color:white;padding:14px 22px;font-weight:900;font-size:16px}.three17-win{position:absolute;inset:0;display:none;place-items:center;background:#030306e8;z-index:110;pointer-events:auto;text-align:center;padding:25px}.three17-win.show{display:grid}
@@ -92,11 +92,12 @@
 @keyframes one317scare{0%{opacity:0;transform:scale(.98)}10%{opacity:1;transform:scale(1.025)}78%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.three17-scare.show{animation:none;opacity:.80}.three17-hide-view{transition:none}}
 </style></head><body>
-<main><small>R44 · Ensemble dans la maison</small><h1>3:17</h1><p>Dix minutes. Trois objets. Une seule sortie.</p><nav><button id="jouer">Entrer dans la maison</button><a href="./index.html">Ouvrir ONE</a></nav></main>
+<main><small>R46 · Ensemble dans la maison</small><h1>3:17</h1><p>Dix minutes. Trois objets. Une seule sortie.</p><nav><button id="jouer">Entrer dans la maison</button><a href="./index.html">Ouvrir ONE</a></nav></main>
 <script type="module">
-import {createRenderBudget} from './ui/three17-r44-render.js';
+import {prepareScene} from './ui/three17-r46-warmup.js';
+import {createRenderBudget,createDoorPresenter} from './ui/three17-r46-render.js';
 
-import { installCoop, createCoopRuntime } from './ui/three17-r44-coop.js';
+import { installCoop, createCoopRuntime } from './ui/three17-r46-coop.js';
 import * as THREE from './ui/three.module.js';
 import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './ui/three17-r44-visuals.js';
 import { createHorrorAudio } from './ui/three17-r41-audio.js';
@@ -107,7 +108,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R44 · MATIÈRES ET FLUIDITÉ';
+const BUILD = 'R46 · MATIÈRES ET FLUIDITÉ';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -420,6 +421,23 @@ function circleHitsDoor(x, z, radius, door, angle = door.angle) {
   return a * a + b * b < radius * radius - 1e-9;
 }
 
+// The static house never moves. Doors remain outside this conservative broad phase.
+const collisionGrids=new WeakMap();
+function nearbySolids(house,x,z,radius){
+ let grid=collisionGrids.get(house);
+ if(!grid||grid.source!==house.solids||grid.length!==house.solids.length){
+  const cells=new Map();
+  for(const v of house.solids)for(let ix=Math.floor((v.x-v.w/2)/2);ix<=Math.floor((v.x+v.w/2)/2);ix++)
+   for(let iz=Math.floor((v.z-v.d/2)/2);iz<=Math.floor((v.z+v.d/2)/2);iz++){
+    const key=ix+','+iz;if(!cells.has(key))cells.set(key,[]);cells.get(key).push(v);
+   }
+  grid={source:house.solids,length:house.solids.length,cells};collisionGrids.set(house,grid);
+ }
+ const x0=Math.floor((x-radius)/2),x1=Math.floor((x+radius)/2),z0=Math.floor((z-radius)/2),z1=Math.floor((z+radius)/2);
+ if(x0===x1&&z0===z1)return grid.cells.get(x0+','+z0)||[];
+ const result=new Set();for(let ix=x0;ix<=x1;ix++)for(let iz=z0;iz<=z1;iz++)for(const v of grid.cells.get(ix+','+iz)||[])result.add(v);
+ return result;
+}
 function blockedAt(house, x, z, y = 0, radius = PLAYER_RADIUS) {
   const b = house.bounds;
   if (x < b.minX || x > b.maxX || z < b.minZ || z > b.maxZ) return true;
@@ -429,7 +447,7 @@ function blockedAt(house, x, z, y = 0, radius = PLAYER_RADIUS) {
     if (x+radius > zone.x0 && x-radius < zone.x1 && z+radius > zone.z0 && z-radius < zone.z1 &&
         y < stairHeight(zone, x, z) - .34 && bodyTop > zone.y0+.02) return true;
   }
-  for (const v of house.solids) {
+  for (const v of nearbySolids(house,x,z,radius)) {
     const vBottom = v.y - v.h / 2, vTop = v.y + v.h / 2;
     if (vTop <= bodyBottom || vBottom >= bodyTop) continue;
     if (circleHitsBox(x, z, radius, v)) return true;
@@ -474,9 +492,11 @@ function movePlayer(house, position, dx, dz) {
 }
 
 // Intersection segment / boîte. Le paramètre est dans [0,1], pas en mètres.
+const boxAxes=[['x','w'],['y','h'],['z','d']];
 function segmentHitsBox(a, b, box) {
+  if(Math.max(a.x,b.x)<box.x-box.w/2||Math.min(a.x,b.x)>box.x+box.w/2||Math.max(a.z,b.z)<box.z-box.d/2||Math.min(a.z,b.z)>box.z+box.d/2||Math.max(a.y,b.y)<box.y-box.h/2||Math.min(a.y,b.y)>box.y+box.h/2)return false;
   let near = .002, far = .995;
-  for (const [axis, span] of [['x', 'w'], ['y', 'h'], ['z', 'd']]) {
+  for (const [axis, span] of boxAxes) {
     const low = box[axis] - box[span] / 2, high = box[axis] + box[span] / 2;
     const delta = b[axis] - a[axis];
     if (Math.abs(delta) < 1e-9) { if (a[axis] < low || a[axis] > high) return false; }
@@ -1175,13 +1195,16 @@ function open(options={}) {
     const visualReady=addR40Details(scene,house,meshes,()=>!stopped);
     monsterVisual=createMonsterMesh(scene);
     let modelLoaded=false,modelReady=false,modelFailed=false;
+    const doorPresenter=createDoorPresenter();
     const startButton=shell.querySelector('.three17-start button'),modelStatus=shell.querySelector('[data-monster-load]');
-    Promise.all([monsterVisual.ready,visualReady]).then(([ready])=>{
-      if(stopped||!ready)return;modelLoaded=true;budget.reset();
+    Promise.all([monsterVisual.ready,visualReady]).then(async ([ready])=>{
+      if(stopped||!ready)return;budget.reset();
       modelStatus.textContent='Préparation de la maison et du Parasite…';
       scares.prepare();
       const anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
       const seen=new Set();scene.traverse(o=>{for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m)for(const t of Object.values(m))if(t?.isTexture&&!seen.has(t)){seen.add(t);t.anisotropy=anisotropy;t.needsUpdate=true;}});
+      await prepareScene(renderer,scene,camera,()=>!stopped);
+      if(stopped)return;modelLoaded=true;last=performance.now();budget.reset();
     }).catch(error=>{
       if(stopped)return;modelFailed=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
       startButton.textContent='RÉESSAYER LE CHARGEMENT';
@@ -1233,8 +1256,8 @@ function open(options={}) {
     }
     updateRoomLights();
     renderer=new THREE.WebGLRenderer({antialias:!mobileGraphics,powerPreference:'high-performance',alpha:false});
-    renderer.shadowMap.enabled=!mobileGraphics;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-    flashlight.castShadow=!mobileGraphics;flashlight.shadow.mapSize.set(1024,1024);flashlight.shadow.bias=-.0003;flashlight.shadow.normalBias=.025;
+    renderer.shadowMap.enabled=false;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    flashlight.castShadow=false;flashlight.shadow.mapSize.set(1024,1024);flashlight.shadow.bias=-.0003;flashlight.shadow.normalBias=.025;
     environmentDispose=createR40Environment(scene,renderer);
     renderer.outputColorSpace=THREE.SRGBColorSpace;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;stage.prepend(renderer.domElement);
@@ -1259,8 +1282,8 @@ function open(options={}) {
       const w=Math.floor(stage.clientWidth),h=Math.floor(stage.clientHeight);
       if(w<2||h<2){viewportReady=false;syncPause();return false;}
       if(!viewportReady){viewportReady=true;last=performance.now();syncPause();}
-      const requested=Math.min(window.devicePixelRatio||1,mobileGraphics?1.25:1.65)*qualityScale*budget.scale;
-      const ratio=Math.min(requested,Math.sqrt((mobileGraphics?950000:1850000)*budget.scale*budget.scale/(w*h)));
+      const requested=Math.min(window.devicePixelRatio||1,mobileGraphics?1:1.2)*qualityScale*budget.scale;
+      const ratio=Math.min(requested,Math.sqrt((mobileGraphics?620000:1150000)*budget.scale*budget.scale/(w*h)));
       if(w!==renderWidth||h!==renderHeight||Math.abs(ratio-renderRatio)>.0001){
         renderer.setDrawingBufferSize(w,h,ratio);
         camera.aspect=w/h;camera.updateProjectionMatrix();
@@ -1391,7 +1414,7 @@ function open(options={}) {
       else message('✓ '+item.label+' récupéré · '+count+'/3');
     }
     function interact(){
-      if(!started||ended||paused)return;if(coop){coop.action('interact');return;}const selection=selectInteraction();
+      if(!started||ended||paused)return;if(coop){coop.action('interact',currentControls());return;}const selection=selectInteraction();
       if(!selection){message('Approchez-vous et regardez la porte ou l’objet');return;}const o=selection.object;
       if(selection.type==='item')collect(o);
       else if(selection.type==='container'){
@@ -1421,7 +1444,7 @@ function open(options={}) {
           // R27 PUSH : au clic, choisir le côté où le CENTRE du battant ouvert
           // est le plus loin du joueur. Le battant s'éloigne donc réellement de lui.
           const half=o.width*.5;
-          const midAt=a=>({x:o.hingeX+Math.cos(a)*half,z:o.hingeZ+Math.sin(a)*half});
+          const midAt=a=>({x:o.hingeX+Math.cos(a)*half,z:o.hingeZ-Math.sin(a)*half});
           const plus=midAt(o.closedAngle+Math.PI/2),minus=midAt(o.closedAngle-Math.PI/2);
           const dPlus=(plus.x-position.x)**2+(plus.z-position.z)**2;
           const dMinus=(minus.x-position.x)**2+(minus.z-position.z)**2;
@@ -1460,6 +1483,9 @@ function open(options={}) {
       for(const mesh of meshes.itemMeshes.values())if(mesh.visible){mesh.rotation.y+=dt*.9;if(!reducedMotion)mesh.position.y=mesh.userData.baseY+Math.sin((ROUND_SECONDS-remaining)*2.5)*.025;}
       beat-=dt;if(beat<=0){const md=Math.hypot(monster.state.position.x-position.x,monster.state.position.z-position.z),same=Math.abs(monster.state.position.y-position.y)<1.4;if(monster.state.state==='chase'){beat=1.7;audio.monsterVoice(md,'chase',same);}else if(monster.state.state==='search'){beat=3.8;audio.monsterVoice(md,'search',same);}else beat=2.4;}
     }
+    function currentControls(){return {
+      x:keys.x+(pressed.has('KeyD')||pressed.has('ArrowRight')?1:0)-(pressed.has('KeyA')||pressed.has('KeyQ')||pressed.has('ArrowLeft')?1:0),
+      forward:-keys.y+(pressed.has('KeyW')||pressed.has('KeyZ')||pressed.has('ArrowUp')?1:0)-(pressed.has('KeyS')||pressed.has('ArrowDown')?1:0),yaw,pitch,paused};}
     function updateWorld(elapsed){
       if(!started||ended||paused||!Number.isFinite(elapsed)||elapsed<=0)return;
       if(coop){
@@ -1494,15 +1520,18 @@ function open(options={}) {
       shell.querySelector('.interact').classList.toggle('available',!!s&&!ended);
     }
     function frame(now){
-      if(stopped)return;raf=requestAnimationFrame(frame);
+      if(stopped)return;raf=requestAnimationFrame(frame);if(!modelLoaded){last=now;return;}
       if(document.hidden||graphicsState==='lost'||graphicsState==='error'){last=now;return;}
+      // Controls/physics continue at up to 60 Hz even if rendering falls to 30 Hz.
+      const elapsed=Math.max(0,(now-last)/1000);
+      if(elapsed>=1/60-.0006){last=now;if(!testPaused)updateWorld(elapsed);}
       if(!budget.shouldRender(now,resizePending))return;const renderBegan=performance.now();
       try{
         if(renderer.getContext().isContextLost()){onContextLost({preventDefault(){}});last=now;return;}
         if(!applyResize()){last=now;return;}
         // Time spent restoring the GPU is never charged to the 10-minute round.
-        const elapsed=Math.max(0,(now-last)/1000);last=now;
-        if(!testPaused)updateWorld(elapsed);refreshCamera();
+        refreshCamera();
+        if(coop)for(const d of house.doors)meshes.doorMeshes.get(d.id).rotation.y=doorPresenter.angle(d.id,now);
         // Keep the light list stable: intensity 0, not visible=false. Toggling
         // the torch should not recompile every lit material while playing.
         flashlight.intensity=flashOn?32:0;fillLight.intensity=flashOn?.38:0;
@@ -1517,7 +1546,7 @@ function open(options={}) {
         graphicsInfo.frames++;if(modelReady)budget.record(now,performance.now()-renderBegan);
         if(modelLoaded&&!modelReady&&!modelFailed){
           modelReady=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
-          startButton.textContent=coop?'JE SUIS PRÊT':'ENTRER DANS LA MAISON';modelStatus.textContent='MAISON R44 · PRÊTE';
+          startButton.textContent=coop?'JE SUIS PRÊT':'ENTRER DANS LA MAISON';modelStatus.textContent='MAISON R46 · PRÊTE';
         }
         if(graphicsState==='warming'){
           graphicsState='ready';last=performance.now();syncPause();
@@ -1542,7 +1571,7 @@ function open(options={}) {
       el.addEventListener('click',e=>{e.stopPropagation();if(e.detail===0&&!e.pointerType)fn();});
     }
     function syncFlash(){flashButton.setAttribute('aria-pressed',String(flashOn));flashButton.setAttribute('aria-label',hidden?'Lampe éteinte dans la cachette':flashOn?'Éteindre la lampe':'Allumer la lampe');flashButton.disabled=hidden;}
-    function toggleFlash(){if(!started||ended||paused||hidden)return;if(coop){coop.action('flash');return;}flashOn=!flashOn;syncFlash();message(flashOn?'Lampe allumée · visible de plus loin':'Lampe éteinte · restez hors de sa vue');}
+    function toggleFlash(){if(!started||ended||paused||hidden)return;if(coop){coop.action('flash',currentControls());return;}flashOn=!flashOn;syncFlash();message(flashOn?'Lampe allumée · visible de plus loin':'Lampe éteinte · restez hors de sa vue');}
     function toggleSound(){const muted=audio.toggle();soundButton.setAttribute('aria-pressed',String(!muted));soundButton.setAttribute('aria-label',muted?'Activer le son':'Couper le son');soundButton.textContent=muted?'♪×':'♪';}
     function start(){if(started||stopped)return;if(modelFailed){if(coop){close();window.ONEThree17Coop.open();}else open();return;}if(!modelReady||graphicsState!=='ok')return;if(coop){audio.start();audio.pause();startButton.disabled=true;startButton.textContent='PRÊT · ATTENTE DU GROUPE';coop.ready();return;}previousStartRoom=spawns.player.roomId;resetInputs();started=true;syncPause();last=performance.now();if(!paused)audio.start();shell.querySelector('.three17-start')?.remove();message('Départ : '+spawns.player.roomName+' · '+spawns.player.level+'. Le Parasite dort encore 10 s.');}
     press(shell.querySelector('.interact'),interact);press(flashButton,toggleFlash);press(soundButton,toggleSound);
@@ -1588,7 +1617,7 @@ function open(options={}) {
           count=state.items.filter(i=>i.taken).length;if(counter.textContent!==String(count))counter.textContent=String(count);
           for(const item of house.items){const mesh=meshes.itemMeshes.get(item.id);mesh.visible=!item.hidden&&!item.taken;mesh.position.set(item.x,item.y,item.z);mesh.userData.baseY=item.y;
             const label=shell.querySelector('[data-inventory="'+item.id+'"]');const text=(item.taken?'✓ ':'◌ ')+({key:'Clé',fuse:'Fusible',seal:'Sceau'}[item.id]);if(label.textContent!==text){label.classList.toggle('found',item.taken);label.textContent=text;}}
-          if(count===3&&lockLabel.textContent!=='🔓 REJOIGNEZ LA SORTIE')lockLabel.textContent='🔓 REJOIGNEZ LA SORTIE';for(const d of house.doors)meshes.doorMeshes.get(d.id).rotation.y=d.angle;
+          if(count===3&&lockLabel.textContent!=='🔓 REJOIGNEZ LA SORTIE')lockLabel.textContent='🔓 REJOIGNEZ LA SORTIE';for(const d of house.doors)doorPresenter.push(d,performance.now(),hosting);
         },
         event:(event,local)=>{
           const own=event.who===coopConfig.self,d=event.at?Math.hypot(event.at.x-position.x,event.at.z-position.z):0,same=!event.at||Math.abs(event.at.y-position.y)<1.4;
@@ -1627,9 +1656,9 @@ function open(options={}) {
       pause,resume,
     };
   }catch(error){
-    console.error('3:17 FOUR R44 — lancement interrompu',error);session.stop();
+    console.error('3:17 FOUR R46 — lancement interrompu',error);session.stop();
     const message=document.createElement('div');message.className='three17-shell three17-load-error';
-    const text=document.createElement('p');text.textContent='3:17 FOUR R44 n’a pas pu démarrer. Rechargez ONE et vérifiez que tous les fichiers et dossiers du correctif R44 ont bien été copiés.';
+    const text=document.createElement('p');text.textContent='3:17 FOUR R46 n’a pas pu démarrer. Rechargez ONE et vérifiez que tous les fichiers et dossiers du correctif R46 ont bien été copiés.';
     const button=document.createElement('button');button.textContent='Fermer';button.onclick=()=>message.remove();message.append(text,button);document.body.append(message);active={stop:()=>message.remove()};
   }
 }
