@@ -3706,7 +3706,13 @@ if(window.ONEPartyGameLink)document.documentElement.dataset.oneLobbyNetwork="r43
 @media(max-width:650px){.one3d-controls{display:none}.one3d-session{padding:10px}.one3d-session p{font-size:11px;margin:6px 0;min-height:30px}.one3d-actions button{font-size:11px;min-height:39px}.one3d-bottom{width:min(315px,calc(100vw - 130px))}.one3d-top small{display:block;font-size:9px}.one3d-players{max-width:73%}.one3d-game{font-size:9px}}
 @media(max-width:420px) and (orientation:portrait){.one3d-actions{flex-direction:column}.one3d-controls{display:none}}
 
-.one3d-shell{--one-lobby-release:r43b}.one3d-top b::after{content:" · R43b";font-size:9px;color:#c8b0fa}
+.one3d-shell{--one-lobby-release:r44;background:#11121a}.one3d-top b::after{content:" · R44";font-size:9px;color:#c8b0fa}
+.one3d-visual-status{position:absolute;z-index:6;left:50%;top:75px;transform:translateX(-50%);padding:7px 12px;border-radius:8px;background:#111827cc;color:#e1d9ce;font:11px system-ui;text-align:center;pointer-events:none}
+.one3d-visual-status[hidden]{display:none}.one3d-session{background:linear-gradient(145deg,#1b1d2beF,#171420ef);border-color:#8f779b66;backdrop-filter:none}
+.one3d-top{background:#141722ed;backdrop-filter:none}.one3d-actions [data-start]{background:#705770}
+html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
+.one3d-top>div,.one3d-player,.one3d-game,.one3d-top button,.one3d-bottom button{backdrop-filter:none}
+
 </style><style id="one317-r16-style">
 .three17-shell{position:fixed;inset:0;z-index:10050;background:#050507;color:#fff;font-family:system-ui,sans-serif;overflow:hidden;touch-action:none}.three17-stage{position:absolute;inset:0}.three17-stage canvas{width:100%;height:100%;display:block}.three17-hud{position:absolute;inset:0;pointer-events:none}.three17-top{position:absolute;top:max(10px,env(safe-area-inset-top));left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.three17-clock{font-size:24px;font-weight:900;letter-spacing:.08em;color:#e7e0ff;text-shadow:0 2px 10px #000}.three17-objective{max-width:55%;text-align:right;font-size:12px;background:#09090db8;border:1px solid #ffffff22;border-radius:12px;padding:8px 10px}.three17-cross{position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%)}.three17-cross:before,.three17-cross:after{content:"";position:absolute;background:#ffffffbb}.three17-cross:before{width:18px;height:2px;top:8px}.three17-cross:after{height:18px;width:2px;left:8px}.three17-stick{pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;z-index:20;position:absolute;left:22px;bottom:max(22px,env(safe-area-inset-bottom));width:112px;height:112px;border-radius:50%;background:#ffffff14;border:1px solid #ffffff2b}.three17-knob{position:absolute;left:34px;top:34px;width:44px;height:44px;border-radius:50%;background:#ffffff70;box-shadow:0 0 18px #0008}.three17-look{pointer-events:auto;touch-action:none;z-index:10;position:absolute;left:42%;right:0;top:70px;bottom:0}.three17-actions{pointer-events:auto;z-index:30;position:absolute;right:18px;bottom:max(20px,env(safe-area-inset-bottom));display:flex;gap:10px;align-items:flex-end}.three17-btn{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;width:62px;height:62px;border-radius:50%;border:1px solid #ffffff30;background:#11111dcc;color:white;font-weight:800;font-size:12px}.three17-btn.flash{font-size:24px}.three17-exit{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;position:absolute;left:14px;top:60px;border:1px solid #ffffff25;background:#09090dbd;color:white;border-radius:10px;padding:8px 11px}.three17-msg{position:absolute;left:50%;bottom:25%;transform:translateX(-50%);background:#08080ddd;border:1px solid #ffffff2a;border-radius:12px;padding:9px 13px;font-size:13px;opacity:0;transition:opacity .18s}.three17-msg.show{opacity:1}.three17-start{position:absolute;inset:0;display:grid;place-items:center;background:#020204f2;z-index:100;pointer-events:auto;touch-action:manipulation}.three17-card{text-align:center;max-width:340px;padding:28px}.three17-card h1{font-size:34px;margin:0 0 4px}.three17-card .time{font-size:56px;font-weight:950;letter-spacing:.06em;margin:8px 0;color:#d8c8ff}.three17-card p{color:#bbb;margin:8px 0 20px}.three17-card button{position:relative;z-index:101;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;border:0;border-radius:14px;background:#7657ff;color:white;padding:14px 22px;font-weight:900;font-size:16px}.three17-win{position:absolute;inset:0;display:none;place-items:center;background:#030306e8;z-index:110;pointer-events:auto;text-align:center;padding:25px}.three17-win.show{display:grid}
 
@@ -3798,9 +3804,11 @@ if(window.ONEPartyGameLink)document.documentElement.dataset.oneLobbyNetwork="r43
 @keyframes one317scare{0%{opacity:0;transform:scale(.98)}10%{opacity:1;transform:scale(1.025)}78%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.three17-scare.show{animation:none;opacity:.80}.three17-hide-view{transition:none}}
 </style><script type="module" id="one317-r16-module">
-import { installCoop, createCoopRuntime } from './ui/three17-r43-coop.js';
+import {createRenderBudget} from './ui/three17-r44-render.js';
+
+import { installCoop, createCoopRuntime } from './ui/three17-r44-coop.js';
 import * as THREE from './ui/three.module.js';
-import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './ui/three17-r40-visuals.js?v=r41';
+import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './ui/three17-r44-visuals.js';
 import { createHorrorAudio } from './ui/three17-r41-audio.js';
 import { createScareEffects } from './ui/three17-r41-scares.js';
 const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHeightAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
@@ -3809,7 +3817,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R43 · DU LOBBY À LA MAISON';
+const BUILD = 'R44 · MATIÈRES ET FLUIDITÉ';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -4705,7 +4713,7 @@ function buildHouseScene(scene, house) {
     geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
     geometry.setAttribute('uv1',geometry.attributes.uv.clone());
     geometry.setIndex(indices); geometry.computeBoundingSphere();
-    const mesh = new THREE.Mesh(geometry, materials[name]); mesh.name = 'maison-' + name; mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);
+    const mesh = new THREE.Mesh(geometry, materials[name]); mesh.name = 'maison-' + name; mesh.castShadow=true;mesh.receiveShadow=true;mesh.updateMatrix();mesh.matrixAutoUpdate=false;scene.add(mesh);
   }
   for (const s of house.surfaces) {
     const geometry = new THREE.PlaneGeometry(s.w, s.d);
@@ -4716,7 +4724,7 @@ function buildHouseScene(scene, house) {
     mesh.name = s.id;
     // Une face de plafond regarde VERS le bas ; les sols regardent vers le haut.
     mesh.rotation.x = s.kind === 'ceiling' ? Math.PI/2 : -Math.PI/2;
-    mesh.position.set(s.x, s.y, s.z); scene.add(mesh);
+    mesh.position.set(s.x, s.y, s.z);mesh.updateMatrix();mesh.matrixAutoUpdate=false;scene.add(mesh);
   }
   function cube(parent, x, y, z, w, h, d, material) {
     const mesh = new THREE.Mesh(unitBox, material); mesh.position.set(x, y, z); mesh.scale.set(w, h, d); parent.add(mesh); return mesh;
@@ -4872,18 +4880,18 @@ function open(options={}) {
     const teamSpawns=coopConfig?spawnCandidates(house).flatMap(r=>r.points).filter(p=>Math.abs(p.y-spawns.player.y)<.1&&Math.hypot(p.x-spawns.player.x,p.z-spawns.player.z)<7&&Math.hypot(p.x-spawns.monster.x,p.y-spawns.monster.y,p.z-spawns.monster.z)>=SPAWN_RULES.minDistance).sort((a,b)=>Math.hypot(a.x-spawns.player.x,a.z-spawns.player.z)-Math.hypot(b.x-spawns.player.x,b.z-spawns.player.z)).slice(0,coopConfig.players.length).map(p=>({...p,...spawnFacing(house,p)})):[];
     if(coopConfig){while(teamSpawns.length<coopConfig.players.length)teamSpawns.push({...spawns.player});spawns.player={...spawns.player,...teamSpawns[coopConfig.players.findIndex(p=>p.id===coopConfig.self)]};}
     house.spawn={...spawns.player};
-    scene=new THREE.Scene();scene.background=new THREE.Color(0x06070a);scene.fog=new THREE.Fog(0x06070a,7.5,22);
+    scene=new THREE.Scene();scene.background=new THREE.Color(0x06070a);scene.fog=new THREE.Fog(0x06070a,9,24);
     const meshes=buildHouseScene(scene,house);
     const visualReady=addR40Details(scene,house,meshes,()=>!stopped);
     monsterVisual=createMonsterMesh(scene);
     let modelLoaded=false,modelReady=false,modelFailed=false;
     const startButton=shell.querySelector('.three17-start button'),modelStatus=shell.querySelector('[data-monster-load]');
     Promise.all([monsterVisual.ready,visualReady]).then(([ready])=>{
-      if(stopped||!ready)return;modelLoaded=true;
+      if(stopped||!ready)return;modelLoaded=true;budget.reset();
       modelStatus.textContent='Préparation de la maison et du Parasite…';
       scares.prepare();
       const anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
-      scene.traverse(o=>{for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m)for(const t of Object.values(m))if(t?.isTexture){t.anisotropy=anisotropy;t.needsUpdate=true;}});
+      const seen=new Set();scene.traverse(o=>{for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m)for(const t of Object.values(m))if(t?.isTexture&&!seen.has(t)){seen.add(t);t.anisotropy=anisotropy;t.needsUpdate=true;}});
     }).catch(error=>{
       if(stopped)return;modelFailed=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
       startButton.textContent='RÉESSAYER LE CHARGEMENT';
@@ -4906,13 +4914,14 @@ function open(options={}) {
     const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
     // R24: limit fill-rate on touch devices without changing monster/house geometry.
     const mobileGraphics=r40Mobile;
-    const FRAME_MS=1000/(mobileGraphics?30:45),direction=new THREE.Vector3();
+    const direction=new THREE.Vector3();
     let blurred=false,viewportReady=true,graphicsState='ok',resizePending=true;
     let renderWidth=0,renderHeight=0,renderRatio=0,qualityScale=1;
+    const budget=createRenderBudget({mobile:mobileGraphics,onChange:()=>resizePending=true});
     const graphicsInfo={build:BUILD,contextLosses:0,contextRestores:0,resizes:0,frames:0,lastError:null};
     audio=createEncounterAudio();
-    scene.add(new THREE.HemisphereLight(0x9eafc4,0x201912,.16));
-    const moon=new THREE.DirectionalLight(0xa6bfd8,.11);moon.position.set(2,6,3);scene.add(moon);
+    scene.add(new THREE.HemisphereLight(0x9eafc4,0x201912,.21));
+    const moon=new THREE.DirectionalLight(0xa6bfd8,.16);moon.position.set(2,6,3);scene.add(moon);
     const flashlight=new THREE.SpotLight(0xffe2b9,32,16,.50,.88,1.65);
     const target=new THREE.Object3D();flashlight.target=target;scene.add(flashlight,target);
     const fillLight=new THREE.PointLight(0xc4d2dc,.38,3.2,2);scene.add(fillLight);
@@ -4934,11 +4943,11 @@ function open(options={}) {
     }
     updateRoomLights();
     renderer=new THREE.WebGLRenderer({antialias:!mobileGraphics,powerPreference:'high-performance',alpha:false});
-    renderer.shadowMap.enabled=!mobileGraphics;renderer.shadowMap.type=THREE.PCFShadowMap;
+    renderer.shadowMap.enabled=!mobileGraphics;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     flashlight.castShadow=!mobileGraphics;flashlight.shadow.mapSize.set(1024,1024);flashlight.shadow.bias=-.0003;flashlight.shadow.normalBias=.025;
     environmentDispose=createR40Environment(scene,renderer);
     renderer.outputColorSpace=THREE.SRGBColorSpace;
-    renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;stage.prepend(renderer.domElement);
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;stage.prepend(renderer.domElement);
     scares=createScareEffects(shell,renderer,monsterVisual.root,audio,reducedMotion);
     const stick=shell.querySelector('.three17-stick'),knob=shell.querySelector('.three17-knob'),lookZone=shell.querySelector('.three17-look');
     const flashButton=shell.querySelector('.flash'),soundButton=shell.querySelector('.sound'),hint=shell.querySelector('.three17-hint');
@@ -4956,11 +4965,12 @@ function open(options={}) {
     // redraws it, never in a ResizeObserver callback or at a temporary 0x0 size.
     function resize(){resizePending=true;}
     function applyResize(){
+      if(!resizePending&&viewportReady)return true;
       const w=Math.floor(stage.clientWidth),h=Math.floor(stage.clientHeight);
       if(w<2||h<2){viewportReady=false;syncPause();return false;}
       if(!viewportReady){viewportReady=true;last=performance.now();syncPause();}
-      const requested=Math.min(window.devicePixelRatio||1,mobileGraphics?1.25:1.65)*qualityScale;
-      const ratio=Math.min(requested,Math.sqrt((mobileGraphics?950000:1850000)/(w*h)));
+      const requested=Math.min(window.devicePixelRatio||1,mobileGraphics?1.25:1.65)*qualityScale*budget.scale;
+      const ratio=Math.min(requested,Math.sqrt((mobileGraphics?950000:1850000)*budget.scale*budget.scale/(w*h)));
       if(w!==renderWidth||h!==renderHeight||Math.abs(ratio-renderRatio)>.0001){
         renderer.setDrawingBufferSize(w,h,ratio);
         camera.aspect=w/h;camera.updateProjectionMatrix();
@@ -4976,7 +4986,7 @@ function open(options={}) {
     const graphicsCode=shell.querySelector('[data-render-code]');
     function syncPause(){
       const next=document.hidden||blurred||!viewportReady||graphicsState!=='ok';
-      if(next!==paused){paused=next;last=performance.now();resetInputs();
+      if(next!==paused){paused=next;last=performance.now();budget.reset();resetInputs();
         if(paused)audio.pause();else if(started&&!ended)audio.start();}
     }
     function showGraphicsPanel(title,text,code){
@@ -5030,7 +5040,7 @@ function open(options={}) {
       const details=gl.getProgramInfoLog(program)||gl.getShaderInfoLog(vertex)||gl.getShaderInfoLog(fragment)||'Shader non compilé';
       renderFailure(new Error(details));
     };
-    session.graphicsInfo=()=>({...graphicsInfo,state:graphicsState,width:renderWidth,height:renderHeight,pixelRatio:renderRatio,targetFPS:mobileGraphics?30:45});
+    session.graphicsInfo=()=>({...graphicsInfo,state:graphicsState,width:renderWidth,height:renderHeight,pixelRatio:renderRatio,...budget.inspect(),calls:renderer.info.render.calls,triangles:renderer.info.render.triangles});
     function message(text){messageElement.textContent=text;messageElement.classList.add('show');clearTimeout(messageTimer);messageTimer=setTimeout(()=>messageElement.classList.remove('show'),2400);}
     function resetInputs(){
       for(const [el,id]of [[stick,drag],[lookZone,look]]){try{if(id!==null&&el.hasPointerCapture(id))el.releasePointerCapture(id);}catch{}}
@@ -5196,9 +5206,7 @@ function open(options={}) {
     function frame(now){
       if(stopped)return;raf=requestAnimationFrame(frame);
       if(document.hidden||graphicsState==='lost'||graphicsState==='error'){last=now;return;}
-      const interval=now-lastRender;
-      if(!resizePending&&interval<FRAME_MS-.5)return;
-      lastRender=now-(interval>FRAME_MS?interval%FRAME_MS:0);
+      if(!budget.shouldRender(now,resizePending))return;const renderBegan=performance.now();
       try{
         if(renderer.getContext().isContextLost()){onContextLost({preventDefault(){}});last=now;return;}
         if(!applyResize()){last=now;return;}
@@ -5216,10 +5224,10 @@ function open(options={}) {
         if(now-lastHud>120){lastHud=now;updateRoomLights();updateHud();}
         renderer.render(scene,camera);
         if(graphicsState==='lost'||graphicsState==='error')return;
-        graphicsInfo.frames++;
+        graphicsInfo.frames++;if(modelReady)budget.record(now,performance.now()-renderBegan);
         if(modelLoaded&&!modelReady&&!modelFailed){
           modelReady=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
-          startButton.textContent=coop?'JE SUIS PRÊT':'ENTRER DANS LA MAISON';modelStatus.textContent='MAISON R43 · PRÊTE';
+          startButton.textContent=coop?'JE SUIS PRÊT':'ENTRER DANS LA MAISON';modelStatus.textContent='MAISON R44 · PRÊTE';
         }
         if(graphicsState==='warming'){
           graphicsState='ready';last=performance.now();syncPause();
@@ -5287,10 +5295,10 @@ function open(options={}) {
           else{position.x+=(view.position.x-position.x)*.12;position.y=view.position.y;position.z+=(view.position.z-position.z)*.12;}
           if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}
           flashOn=spectator?false:local.flash;syncFlash();
-          count=state.items.filter(i=>i.taken).length;counter.textContent=String(count);
+          count=state.items.filter(i=>i.taken).length;if(counter.textContent!==String(count))counter.textContent=String(count);
           for(const item of house.items){const mesh=meshes.itemMeshes.get(item.id);mesh.visible=!item.hidden&&!item.taken;mesh.position.set(item.x,item.y,item.z);mesh.userData.baseY=item.y;
-            const label=shell.querySelector('[data-inventory="'+item.id+'"]');label.classList.toggle('found',item.taken);label.textContent=(item.taken?'✓ ':'◌ ')+({key:'Clé',fuse:'Fusible',seal:'Sceau'}[item.id]);}
-          if(count===3)lockLabel.textContent='🔓 REJOIGNEZ LA SORTIE';for(const d of house.doors)meshes.doorMeshes.get(d.id).rotation.y=d.angle;
+            const label=shell.querySelector('[data-inventory="'+item.id+'"]');const text=(item.taken?'✓ ':'◌ ')+({key:'Clé',fuse:'Fusible',seal:'Sceau'}[item.id]);if(label.textContent!==text){label.classList.toggle('found',item.taken);label.textContent=text;}}
+          if(count===3&&lockLabel.textContent!=='🔓 REJOIGNEZ LA SORTIE')lockLabel.textContent='🔓 REJOIGNEZ LA SORTIE';for(const d of house.doors)meshes.doorMeshes.get(d.id).rotation.y=d.angle;
         },
         event:(event,local)=>{
           const own=event.who===coopConfig.self,d=event.at?Math.hypot(event.at.x-position.x,event.at.z-position.z):0,same=!event.at||Math.abs(event.at.y-position.y)<1.4;
@@ -5329,9 +5337,9 @@ function open(options={}) {
       pause,resume,
     };
   }catch(error){
-    console.error('3:17 FOUR R43 — lancement interrompu',error);session.stop();
+    console.error('3:17 FOUR R44 — lancement interrompu',error);session.stop();
     const message=document.createElement('div');message.className='three17-shell three17-load-error';
-    const text=document.createElement('p');text.textContent='3:17 FOUR R43 n’a pas pu démarrer. Rechargez ONE et vérifiez que tous les fichiers et dossiers du correctif R43 ont bien été copiés.';
+    const text=document.createElement('p');text.textContent='3:17 FOUR R44 n’a pas pu démarrer. Rechargez ONE et vérifiez que tous les fichiers et dossiers du correctif R44 ont bien été copiés.';
     const button=document.createElement('button');button.textContent='Fermer';button.onclick=()=>message.remove();message.append(text,button);document.body.append(message);active={stop:()=>message.remove()};
   }
 }
@@ -5342,10 +5350,11 @@ window.ONEThree17 = { open, close, build: BUILD, layoutInfo:()=>active?.layoutIn
 if (window.__ONE317_TEST__ === true) Object.defineProperty(window.ONEThree17, 'debug', { get: () => active?.debug });
 window.addEventListener('pagehide', close);
 
+
 </script><script id="one317-r43-entry">
 (()=>{let opening=false;window.ONEOpen3DLobby=async context=>{
  if(opening)return;opening=true;
- try{const module=await import('./ui/one-lobby-r43.js');module.open(context||{room:window.oneSocialRoom?.()});window.oneCloseSalon?.();}
+ try{const module=await import('./ui/one-lobby-r44.js');module.open(context||{room:window.oneSocialRoom?.()});window.oneCloseSalon?.();}
  catch(error){console.error('Lobby 3D R43',error);const box=document.createElement('section');box.className='one3d-shell one3d-load-error';box.setAttribute('role','alertdialog');const p=document.createElement('p');p.textContent='Le lobby ne se charge pas. Vérifie que le dossier ui du correctif R43 a été copié, puis recharge ONE.';const b=document.createElement('button');b.textContent='Retour au salon';b.onclick=()=>{box.remove();window.oneOpenSalon?.();};box.append(p,b);document.body.append(box);}
  finally{opening=false;}
 };})();
