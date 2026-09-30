@@ -3656,14 +3656,14 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 @media(max-height:380px){.three17-render-warning .three17-result{padding:12px 16px}.three17-render-warning h1{font-size:19px;margin:6px 0}.three17-render-warning p{margin:7px 0 12px}.three17-render-warning .three17-render-restart{margin-top:4px}.three17-render-warning small{margin-top:4px}}
 </style><script type="module" id="one317-r16-module">
 import * as THREE from './ui/three.module.js';
-import { GLTFLoader } from './ui/GLTFLoader.js';
+import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './ui/three17-r40-visuals.js';
 const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHeightAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
 /**
  * 3:17 FOUR — R23. Géométrie R20 préservée, monstre et objets jouables.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R39 · TEXTURES PBR FORCÉES';
+const BUILD = 'R40 · LA MAISON OUBLIÉE';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -4523,6 +4523,9 @@ function buildHouseScene(scene, house) {
   }
   materials.glass.emissive.setHex(0x0f1822); materials.glass.emissiveIntensity = .12;
   materials.screen.emissive.setHex(0x070b10); materials.screen.emissiveIntensity = .08;
+  const pbrReady = applyR40Materials(materials);
+  // A rejection is observed immediately; the launch gate also handles it.
+  pbrReady.catch(()=>{});
   const unitBox = new THREE.BoxGeometry(1, 1, 1);
   const batches = new Map();
   function queue(v) {
@@ -4530,7 +4533,7 @@ function buildHouseScene(scene, house) {
     batches.get(v.material).push(v);
   }
   for (const v of house.volumes) {
-    if (v.id === 'bibliotheque' || v.id.startsWith('livre-')) continue;
+    if (replaceR40Volume(v) || v.id === 'bibliotheque' || v.id.startsWith('livre-')) continue;
     if (['canape-assise','canape-dossier','canape-accoudoir-3.18','canape-accoudoir-5.92',
          'lit-sommier','lit-matelas','lit-couverture','lit-tete','chevet'].includes(v.id)) continue;
     if (v.kind === 'wall' && v.h > 2) {
@@ -4602,14 +4605,16 @@ function buildHouseScene(scene, house) {
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
     geometry.setAttribute('normal', new THREE.Float32BufferAttribute(ns, 3));
     geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    geometry.setAttribute('uv1',geometry.attributes.uv.clone());
     geometry.setIndex(indices); geometry.computeBoundingSphere();
-    const mesh = new THREE.Mesh(geometry, materials[name]); mesh.name = 'maison-' + name; scene.add(mesh);
+    const mesh = new THREE.Mesh(geometry, materials[name]); mesh.name = 'maison-' + name; mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);
   }
   for (const s of house.surfaces) {
     const geometry = new THREE.PlaneGeometry(s.w, s.d);
     const uv = geometry.attributes.uv;
     if (s.material !== 'rug') for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * s.w / 2, uv.getY(i) * s.d / 2);
-    const mesh = new THREE.Mesh(geometry, materials[s.material]);
+    geometry.setAttribute('uv1',geometry.attributes.uv.clone());
+    const mesh = new THREE.Mesh(geometry, materials[s.material]); mesh.receiveShadow=true;mesh.castShadow=s.kind==='ceiling';
     mesh.name = s.id;
     // Une face de plafond regarde VERS le bas ; les sols regardent vers le haut.
     mesh.rotation.x = s.kind === 'ceiling' ? Math.PI/2 : -Math.PI/2;
@@ -4627,16 +4632,6 @@ function buildHouseScene(scene, house) {
   // Canapé remplacé par le modèle glTF réel.
   // Sources visibles et repères architecturaux, sans ombres temps réel coûteuses.
   const lampPositions = house.lampPositions || [[0, 2.55, 5.8], [0, 2.6, .7], [0, 2.6, -5.3], [-4.5, 2.55, 4.5], [-4.6, 2.5, -1.12], [-4.3, 2.6, -5.8], [4.5, 2.55, 4.7], [3.6, 2.6, 0]];
-  const lampGeometry = new THREE.CylinderGeometry(.22, .37, .25, 12, 1, true);
-  const bulbGeometry = new THREE.SphereGeometry(.065, 8, 6);
-  for (const [x, y, z] of lampPositions) {
-    const ceilingY = roomAt(house,x,z,y-2.5).floorY + house.wallHeight;
-    const cordLength = Math.max(.02,ceilingY-y);
-    const cord = cube(scene,x,y+cordLength/2,z,.018,cordLength,.018,materials.dark);
-    cord.name = 'suspension-' + x + '-' + y + '-' + z;
-    const shade = new THREE.Mesh(lampGeometry, materials.metal); shade.position.set(x, y, z); scene.add(shade);
-    const bulb = new THREE.Mesh(bulbGeometry, materials.bulb); bulb.position.set(x, y - .06, z); scene.add(bulb);
-  }
   function mergeDoorParts(pivot) {
     const byMaterial = new Map();
     for (const part of pivot.children) {
@@ -4707,7 +4702,7 @@ function buildHouseScene(scene, house) {
     group.name = 'objet-' + item.id; group.scale.setScalar(1.3); group.userData.baseY = item.y;
     group.visible = !item.hidden; scene.add(group); itemMeshes.set(item.id, group);
   }
-  return { doorMeshes, itemMeshes, lampPositions };
+  return { doorMeshes, itemMeshes, lampPositions, materials, pbrReady };
 }
 
 function disposeScene(scene) {
@@ -4748,7 +4743,7 @@ function open() {
     <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">10:00</div><strong class="three17-build-label">${BUILD}</strong>
     <p><b>Départ aléatoire dans la maison.</b><br>Fouillez, puis ramassez les trois objets.<br>Le Parasite vous traque : cachez-vous hors de sa vue.</p>
     <div class="three17-clues">Paliers : 4,7 m devant les marches · 3,5 m à l’arrivée<br>Clé : bureau · Sceau : chambre enfant<br>Fusible : réserve du sous-sol</div>
-    <p data-monster-load role="status">Chargement du modèle 3D et des textures…</p><button type="button" disabled aria-busy="true">CHARGEMENT DU MONSTRE…</button><small class="three17-controls-help">Joystick + glisser pour regarder · AGIR pour fouiller / prendre / se cacher<br>Clavier : ZQSD / WASD · E : agir · F : lampe · M : son</small></div></div>
+    <p data-monster-load role="status">Chargement de la maison, des meubles et du Parasite…</p><button type="button" disabled aria-busy="true">CHARGEMENT DE LA MAISON…</button><small class="three17-controls-help">Joystick + glisser pour regarder · AGIR pour fouiller / prendre / se cacher<br>Clavier : ZQSD / WASD · E : agir · F : lampe · M : son</small></div></div>
     <div class="three17-render-warning" hidden role="alertdialog" aria-modal="true" aria-labelledby="three17-render-title">
       <div class="three17-result"><div class="three17-result-kicker">3:17 · PROTECTION AFFICHAGE</div><h1 id="three17-render-title">AFFICHAGE INTERROMPU</h1>
       <p data-render-text>La partie est en pause pendant le rétablissement de la 3D.</p>
@@ -4760,10 +4755,10 @@ function open() {
   const previousFocus=document.activeElement;document.body.append(shell);shell.focus({preventScroll:true});
   const stage=shell.querySelector('.three17-stage');
   let renderer,scene,observer,audio,monsterVisual,raf=0,stopped=false,messageTimer=0;
-  let removeEvents=()=>{};
+  let removeEvents=()=>{}, environmentDispose=()=>{};
   const session={stop(){
     if(stopped)return;stopped=true;cancelAnimationFrame(raf);clearTimeout(messageTimer);
-    observer?.disconnect();removeEvents();audio?.stop();monsterVisual?.dispose();if(scene)disposeScene(scene);
+    observer?.disconnect();removeEvents();audio?.stop();monsterVisual?.dispose();environmentDispose();if(scene)disposeScene(scene);
     renderer?.dispose();renderer?.forceContextLoss();shell.remove();if(previousFocus?.isConnected)previousFocus.focus?.({preventScroll:true});
   }};
   active=session;
@@ -4774,68 +4769,21 @@ function open() {
       topLanding:Math.round((house.layout.privateStart-.12-house.stairZones[0].z1)*100)/100,stairs:house.stairZones.map(z=>({...z}))});
     const spawns=chooseHouseSpawns(house,Math.random,previousStartRoom);
     house.spawn={...spawns.player};
-    scene=new THREE.Scene();scene.background=new THREE.Color(0x06070a);scene.fog=new THREE.Fog(0x06070a,6.5,18.5);
+    scene=new THREE.Scene();scene.background=new THREE.Color(0x06070a);scene.fog=new THREE.Fog(0x06070a,7.5,22);
     const meshes=buildHouseScene(scene,house);
-    // R37 — vrais meubles glTF/PBR. Les volumes supprimés ci-dessus restent dans house
-    // et continuent donc à piloter collisions/interactions.
-    const furnitureLoader=new GLTFLoader();
-    furnitureLoader.setPath('./assets/317/');
-    const furnitureTex=new THREE.TextureLoader();
-    function loadFurnitureMap(name,srgb=false){
-      const t=furnitureTex.load('./assets/317/'+name);
-      t.flipY=false;
-      if(srgb)t.colorSpace=THREE.SRGBColorSpace;
-      return t;
-    }
-    function placeFurniture(file,target,pos,ry=0,maps={}){
-      furnitureLoader.load(file,gltf=>{
-        const root=gltf.scene;
-        root.updateMatrixWorld(true);
-        let box=new THREE.Box3().setFromObject(root), size=new THREE.Vector3();
-        box.getSize(size);
-        root.rotation.y=ry; root.updateMatrixWorld(true);
-        box=new THREE.Box3().setFromObject(root); box.getSize(size);
-        const scale=Math.min(target.x/Math.max(size.x,.001),target.z/Math.max(size.z,.001));
-        root.scale.setScalar(scale); root.updateMatrixWorld(true);
-        box=new THREE.Box3().setFromObject(root);
-        const center=new THREE.Vector3(); box.getCenter(center);
-        root.position.x += pos.x-center.x;
-        root.position.z += pos.z-center.z;
-        root.position.y += pos.y-box.min.y;
-        const diff=maps.diff?loadFurnitureMap(maps.diff,true):null;
-        const normal=maps.normal?loadFurnitureMap(maps.normal,false):null;
-        const rough=maps.rough?loadFurnitureMap(maps.rough,false):null;
-        const arm=maps.arm?loadFurnitureMap(maps.arm,false):null;
-        root.traverse(o=>{if(o.isMesh){
-          o.castShadow=false;o.receiveShadow=true;
-          const mats=Array.isArray(o.material)?o.material:[o.material];
-          for(const m of mats){if(!m)continue;
-            if(diff)m.map=diff;
-            if(normal){m.normalMap=normal;m.normalScale.set(1,1);}
-            if(rough)m.roughnessMap=rough;
-            if(arm){m.aoMap=arm;m.roughnessMap=arm;m.metalnessMap=arm;m.aoMapIntensity=1;}
-            m.color.setRGB(1,1,1);m.roughness=.82;m.metalness=.05;m.needsUpdate=true;
-          }
-        }});
-        scene.add(root);
-      },undefined,error=>console.error('[3:17 R39 meuble]',file,error));
-    }
-    placeFurniture('sofa_03_2k.gltf',new THREE.Vector3(1.28,1.20,2.72),new THREE.Vector3(-5.88,.02,4.55),Math.PI/2,
-      {diff:'sofa_03_diff_2k.jpg',normal:'sofa_03_nor_gl_2k.jpg',rough:'sofa_03_rough_2k.jpg'});
-    placeFurniture('GothicBed_01_2k.gltf',new THREE.Vector3(1.92,1.55,2.82),new THREE.Vector3(4.75,.02,5.10),Math.PI,
-      {diff:'GothicBed_01_diff_2k.jpg',normal:'GothicBed_01_nor_gl_2k.jpg',arm:'GothicBed_01_arm_2k.jpg'});
-    placeFurniture('GothicCommode_01_2k.gltf',new THREE.Vector3(.72,1.05,.62),new THREE.Vector3(3.15,.02,6.18),Math.PI,
-      {diff:'GothicCommode_01_diff_2k.jpg',normal:'GothicCommode_01_nor_gl_2k.jpg',arm:'GothicCommode_01_arm_2k.jpg'});
+    const visualReady=addR40Details(scene,house,meshes,()=>!stopped);
     monsterVisual=createMonsterMesh(scene);
     let modelLoaded=false,modelReady=false,modelFailed=false;
     const startButton=shell.querySelector('.three17-start button'),modelStatus=shell.querySelector('[data-monster-load]');
-    monsterVisual.ready.then(ready=>{
+    Promise.all([monsterVisual.ready,visualReady]).then(([ready])=>{
       if(stopped||!ready)return;modelLoaded=true;
-      modelStatus.textContent='Préparation de l’affichage 3D…';
+      modelStatus.textContent='Préparation de la maison et du Parasite…';
+      const anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+      scene.traverse(o=>{for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m)for(const t of Object.values(m))if(t?.isTexture){t.anisotropy=anisotropy;t.needsUpdate=true;}});
     }).catch(error=>{
       if(stopped)return;modelFailed=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
       startButton.textContent='RÉESSAYER LE CHARGEMENT';
-      modelStatus.textContent='Monstre non chargé. Vérifiez les dossiers assets/317 et ui de la R23, puis réessayez.';
+      modelStatus.textContent='Une ressource de la maison n’a pas pu être chargée. Vérifiez la connexion et réessayez.';
       console.warn('3:17 R23 — modèle non chargé',error);
     });
     const camera=new THREE.PerspectiveCamera(68,1,.05,45);
@@ -4848,31 +4796,40 @@ function open() {
     let last=performance.now(),lastRender=0,lastHud=0,flashOn=true;
     const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
     // R24: limit fill-rate on touch devices without changing monster/house geometry.
-    const mobileGraphics=window.matchMedia?.('(pointer: coarse)').matches||false;
+    const mobileGraphics=r40Mobile;
     const FRAME_MS=1000/(mobileGraphics?30:45),direction=new THREE.Vector3();
     let blurred=false,viewportReady=true,graphicsState='ok',resizePending=true;
     let renderWidth=0,renderHeight=0,renderRatio=0,qualityScale=1;
     const graphicsInfo={build:BUILD,contextLosses:0,contextRestores:0,resizes:0,frames:0,lastError:null};
     audio=createEncounterAudio();
-    scene.add(new THREE.HemisphereLight(0xb7c5dd,0x171319,.32));
-    const moon=new THREE.DirectionalLight(0xb8c9ec,.34);moon.position.set(2,6,3);scene.add(moon);
-    const flashlight=new THREE.SpotLight(0xffefdc,26,17,.56,.82,1.2);
+    scene.add(new THREE.HemisphereLight(0x9eafc4,0x201912,.16));
+    const moon=new THREE.DirectionalLight(0xa6bfd8,.11);moon.position.set(2,6,3);scene.add(moon);
+    const flashlight=new THREE.SpotLight(0xffe2b9,32,16,.50,.88,1.65);
     const target=new THREE.Object3D();flashlight.target=target;scene.add(flashlight,target);
-    const fillLight=new THREE.PointLight(0xdde8ff,.8,3.8,1.9);scene.add(fillLight);
-    const roomLights=[new THREE.PointLight(0xffb86d,1.3,3.8,2),new THREE.PointLight(0xffb86d,1.0,3.8,2)];scene.add(...roomLights);
+    const fillLight=new THREE.PointLight(0xc4d2dc,.38,3.2,2);scene.add(fillLight);
+    const roomLights=[new THREE.PointLight(0xffbd7a,8,6,2),new THREE.PointLight(0xffcf98,6,6,2)];scene.add(...roomLights);
     const emergencyLight=new THREE.PointLight(0x8d1c1c,1.15,3.1,2.1);emergencyLight.position.set(0,2.15,house.bounds.maxZ-.35);scene.add(emergencyLight);
+    const windowLight=new THREE.PointLight(0x729bbe,0,5.5,2);scene.add(windowLight);
+    const windows=house.volumes.filter(v=>v.id.startsWith('fenetre-cadre-'));
     function updateRoomLights(){
+      const nearest=windows.reduce((best,v)=>!best||Math.hypot(v.x-position.x,v.z-position.z)<Math.hypot(best.x-position.x,best.z-position.z)?v:best,null);
+      windowLight.intensity=Math.abs(position.y)<1?4.5:0;
+      if(nearest)windowLight.position.set(nearest.x+(nearest.x<0?.42:-.42),2.05,nearest.z);
       let a=0,b=1,da=Infinity,db=Infinity;
       for(let i=0;i<meshes.lampPositions.length;i++){
-        const p=meshes.lampPositions[i],d=(p[0]-position.x)**2+(p[1]-(position.y+1.2))**2+(p[2]-position.z)**2;
+        const p=meshes.lampPositions[i];if(Math.abs((p[1]-2.5)-position.y)>1.5)continue;
+        const d=(p[0]-position.x)**2+(p[1]-(position.y+1.2))**2+(p[2]-position.z)**2;
         if(d<da){db=da;b=a;da=d;a=i;}else if(d<db){db=d;b=i;}
       }
       for(let i=0;i<2;i++){const p=meshes.lampPositions[i===0?a:b];roomLights[i].position.set(p[0],p[1]-.22,p[2]);}
     }
     updateRoomLights();
-    renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:false});
+    renderer=new THREE.WebGLRenderer({antialias:!mobileGraphics,powerPreference:'high-performance',alpha:false});
+    renderer.shadowMap.enabled=!mobileGraphics;renderer.shadowMap.type=THREE.PCFShadowMap;
+    flashlight.castShadow=!mobileGraphics;flashlight.shadow.mapSize.set(1024,1024);flashlight.shadow.bias=-.0003;flashlight.shadow.normalBias=.025;
+    environmentDispose=createR40Environment(scene,renderer);
     renderer.outputColorSpace=THREE.SRGBColorSpace;
-    renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.28;stage.prepend(renderer.domElement);
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;stage.prepend(renderer.domElement);
     const stick=shell.querySelector('.three17-stick'),knob=shell.querySelector('.three17-knob'),lookZone=shell.querySelector('.three17-look');
     const flashButton=shell.querySelector('.flash'),soundButton=shell.querySelector('.sound'),hint=shell.querySelector('.three17-hint');
     const floorLabel=shell.querySelector('[data-floor]'),counter=shell.querySelector('[data-count]'),lockLabel=shell.querySelector('[data-lock]');
@@ -4892,8 +4849,8 @@ function open() {
       const w=Math.floor(stage.clientWidth),h=Math.floor(stage.clientHeight);
       if(w<2||h<2){viewportReady=false;syncPause();return false;}
       if(!viewportReady){viewportReady=true;last=performance.now();syncPause();}
-      const requested=Math.min(window.devicePixelRatio||1,mobileGraphics?1.55:1.85)*qualityScale;
-      const ratio=Math.min(requested,Math.sqrt(1850000/(w*h)));
+      const requested=Math.min(window.devicePixelRatio||1,mobileGraphics?1.25:1.65)*qualityScale;
+      const ratio=Math.min(requested,Math.sqrt((mobileGraphics?950000:1850000)/(w*h)));
       if(w!==renderWidth||h!==renderHeight||Math.abs(ratio-renderRatio)>.0001){
         renderer.setDrawingBufferSize(w,h,ratio);
         camera.aspect=w/h;camera.updateProjectionMatrix();
@@ -5122,11 +5079,11 @@ function open() {
         if(!testPaused)updateWorld(elapsed);refreshCamera();
         // Keep the light list stable: intensity 0, not visible=false. Toggling
         // the torch should not recompile every lit material while playing.
-        flashlight.intensity=flashOn?26:0;fillLight.intensity=flashOn?.8:0;
+        flashlight.intensity=flashOn?32:0;fillLight.intensity=flashOn?.38:0;
         flashlight.position.copy(camera.position);fillLight.position.copy(camera.position);camera.getWorldDirection(direction);
         target.position.copy(camera.position).addScaledVector(direction,5);target.updateMatrixWorld();
-        roomLights[0].intensity=.91+(reducedMotion?0:Math.sin(now*.0015)*.09);
-        roomLights[1].intensity=.73+(reducedMotion?0:Math.sin(now*.0012+1.4)*.07);
+        roomLights[0].intensity=7.6+(reducedMotion?0:Math.sin(now*.0015)*.3);
+        roomLights[1].intensity=5.8+(reducedMotion?0:Math.sin(now*.0012+1.4)*.2);
         emergencyLight.intensity=.9;
         if(now-lastHud>120){lastHud=now;updateRoomLights();updateHud();}
         renderer.render(scene,camera);
@@ -5134,7 +5091,7 @@ function open() {
         graphicsInfo.frames++;
         if(modelLoaded&&!modelReady&&!modelFailed){
           modelReady=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
-          startButton.textContent='ENTRER DANS LA MAISON';modelStatus.textContent='PARASITE 3D · PRÊT';
+          startButton.textContent='ENTRER DANS LA MAISON';modelStatus.textContent='MAISON R40 · PRÊTE';
         }
         if(graphicsState==='warming'){
           graphicsState='ready';last=performance.now();syncPause();
@@ -5208,9 +5165,9 @@ function open() {
       pause,resume,
     };
   }catch(error){
-    console.error('3:17 FOUR R35 — lancement interrompu',error);session.stop();
+    console.error('3:17 FOUR R40 — lancement interrompu',error);session.stop();
     const message=document.createElement('div');message.className='three17-shell three17-load-error';
-    const text=document.createElement('p');text.textContent='3:17 FOUR R35 n’a pas pu démarrer. Rechargez ONE et vérifiez que index.html, sw.js et les dossiers ui et assets/317 de la R23 ont bien été copiés.';
+    const text=document.createElement('p');text.textContent='3:17 FOUR R40 n’a pas pu démarrer. Rechargez ONE et vérifiez que tous les fichiers et dossiers du ZIP R40 ont bien été copiés.';
     const button=document.createElement('button');button.textContent='Fermer';button.onclick=()=>message.remove();message.append(text,button);document.body.append(message);active={stop:()=>message.remove()};
   }
 }
@@ -5259,7 +5216,7 @@ function buildRoom(scene){
 }
 function open(ctx={}){
  close();const shell=document.createElement('section');shell.className='one3d-shell';shell.setAttribute('role','dialog');shell.setAttribute('aria-label','Lobby 3D ONE');
- const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R24</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
+ const members=(ctx.data?.members||[]).slice(0,4);shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small>${ctx.room?.name||'Salon'} · ${members.length}/4 joueurs</small></div><button type="button" data-close>Quitter la 3D</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">${ctx.game?.name||'Choix du jeu'}</div></div><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Zone pour regarder"></div><div class="one3d-tip">Joystick gauche · glisse à droite pour regarder</div></div><footer class="one3d-bottom"><button type="button" data-317>3:17 FOUR · R40</button><button type="button" data-ready>${members.find(m=>m.isYou)?.ready?'✓ Prêt':'Je suis prêt'}</button></footer>`;
  document.body.append(shell);try{screen.orientation?.lock?.('landscape').catch(()=>{});}catch{}const stage=shell.querySelector('.one3d-stage'),players=shell.querySelector('.one3d-players');members.forEach(m=>{const e=document.createElement('span');e.className='one3d-player';e.dataset.ready=String(!!m.ready);e.textContent=(m.isYou?'● ':'')+m.name+(m.ready?' ✓':'');players.append(e);});
  const scene=new THREE.Scene();buildRoom(scene);
  const camera=new THREE.PerspectiveCamera(65,1,.05,60);let yaw=0,pitch=-.08;const local=members.find(m=>m.isYou)||{name:'Toi',isYou:true};const colors=[0x7b5cff,0x49b6ff,0xff6b9e,0x58d68d];let me=null;members.forEach((m,i)=>{const a=[[-2.2,1.8],[2.2,1.8],[-2.2,-1.8],[2.2,-1.8]][i]||[0,0];const av=makeAvatar(scene,m.name,colors[i%4],a[0],a[1],m.isYou);if(m.isYou)me=av;});if(!me)me=makeAvatar(scene,local.name,colors[0],0,2,true);me.position.set(0,0,4.8);camera.position.set(0,1.65,4.8);yaw=0;pitch=-.10;
