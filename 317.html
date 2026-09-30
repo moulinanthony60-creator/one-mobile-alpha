@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a0c0d"><title>3:17 · R41 — Le Parasite écoute</title>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a0c0d"><title>3:17 · R42 — Ensemble dans la maison</title>
 <style>html,body{margin:0;min-height:100%;background:#0a0c0d;color:#d8d5c9;font-family:system-ui,sans-serif}main{min-height:100vh;display:grid;place-content:center;text-align:center;padding:24px;box-sizing:border-box}h1{font-size:clamp(64px,15vw,120px);font-weight:400;letter-spacing:.08em;margin:0}p{color:#aaa69b;line-height:1.6}small{letter-spacing:.2em;text-transform:uppercase}nav{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:24px}nav button,nav a{font:inherit;color:inherit;border:1px solid #6d6250;border-radius:8px;background:#242019;padding:14px 22px;text-decoration:none;cursor:pointer}</style>
 <style>
 .three17-shell{position:fixed;inset:0;z-index:10050;background:#050507;color:#fff;font-family:system-ui,sans-serif;overflow:hidden;touch-action:none}.three17-stage{position:absolute;inset:0}.three17-stage canvas{width:100%;height:100%;display:block}.three17-hud{position:absolute;inset:0;pointer-events:none}.three17-top{position:absolute;top:max(10px,env(safe-area-inset-top));left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.three17-clock{font-size:24px;font-weight:900;letter-spacing:.08em;color:#e7e0ff;text-shadow:0 2px 10px #000}.three17-objective{max-width:55%;text-align:right;font-size:12px;background:#09090db8;border:1px solid #ffffff22;border-radius:12px;padding:8px 10px}.three17-cross{position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%)}.three17-cross:before,.three17-cross:after{content:"";position:absolute;background:#ffffffbb}.three17-cross:before{width:18px;height:2px;top:8px}.three17-cross:after{height:18px;width:2px;left:8px}.three17-stick{pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;z-index:20;position:absolute;left:22px;bottom:max(22px,env(safe-area-inset-bottom));width:112px;height:112px;border-radius:50%;background:#ffffff14;border:1px solid #ffffff2b}.three17-knob{position:absolute;left:34px;top:34px;width:44px;height:44px;border-radius:50%;background:#ffffff70;box-shadow:0 0 18px #0008}.three17-look{pointer-events:auto;touch-action:none;z-index:10;position:absolute;left:42%;right:0;top:70px;bottom:0}.three17-actions{pointer-events:auto;z-index:30;position:absolute;right:18px;bottom:max(20px,env(safe-area-inset-bottom));display:flex;gap:10px;align-items:flex-end}.three17-btn{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;width:62px;height:62px;border-radius:50%;border:1px solid #ffffff30;background:#11111dcc;color:white;font-weight:800;font-size:12px}.three17-btn.flash{font-size:24px}.three17-exit{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;position:absolute;left:14px;top:60px;border:1px solid #ffffff25;background:#09090dbd;color:white;border-radius:10px;padding:8px 11px}.three17-msg{position:absolute;left:50%;bottom:25%;transform:translateX(-50%);background:#08080ddd;border:1px solid #ffffff2a;border-radius:12px;padding:9px 13px;font-size:13px;opacity:0;transition:opacity .18s}.three17-msg.show{opacity:1}.three17-start{position:absolute;inset:0;display:grid;place-items:center;background:#020204f2;z-index:100;pointer-events:auto;touch-action:manipulation}.three17-card{text-align:center;max-width:340px;padding:28px}.three17-card h1{font-size:34px;margin:0 0 4px}.three17-card .time{font-size:56px;font-weight:950;letter-spacing:.06em;margin:8px 0;color:#d8c8ff}.three17-card p{color:#bbb;margin:8px 0 20px}.three17-card button{position:relative;z-index:101;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;border:0;border-radius:14px;background:#7657ff;color:white;padding:14px 22px;font-weight:900;font-size:16px}.three17-win{position:absolute;inset:0;display:none;place-items:center;background:#030306e8;z-index:110;pointer-events:auto;text-align:center;padding:25px}.three17-win.show{display:grid}
@@ -92,8 +92,9 @@
 @keyframes one317scare{0%{opacity:0;transform:scale(.98)}10%{opacity:1;transform:scale(1.025)}78%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.three17-scare.show{animation:none;opacity:.80}.three17-hide-view{transition:none}}
 </style></head><body>
-<main><small>R41 · Le Parasite écoute</small><h1>3:17</h1><p>Dix minutes. Trois objets. Une seule sortie.</p><nav><button id="jouer">Entrer dans la maison</button><a href="./index.html">Ouvrir ONE</a></nav></main>
+<main><small>R42 · Ensemble dans la maison</small><h1>3:17</h1><p>Dix minutes. Trois objets. Une seule sortie.</p><nav><button id="jouer">Entrer dans la maison</button><a href="./index.html">Ouvrir ONE</a></nav></main>
 <script type="module">
+import { installCoop, createCoopRuntime } from './ui/three17-r42-coop.js';
 import * as THREE from './ui/three.module.js';
 import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './ui/three17-r40-visuals.js?v=r41';
 import { createHorrorAudio } from './ui/three17-r41-audio.js';
@@ -104,7 +105,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R41 · LE PARASITE ÉCOUTE';
+const BUILD = 'R42 · ENSEMBLE DANS LA MAISON';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -1115,8 +1116,9 @@ function disposeScene(scene) {
   scene.clear();
 }
 
-function open() {
+function open(options={}) {
   close();
+  const coopConfig=options?.coop||null;let coop=null;
   const shell=document.createElement('section');
   shell.className='three17-shell';shell.dataset.build='r35-paliers-nord-4m';
   shell.setAttribute('role','dialog');shell.setAttribute('aria-modal','true');
@@ -1151,7 +1153,7 @@ function open() {
   let removeEvents=()=>{}, environmentDispose=()=>{},scares=null;
   const session={stop(){
     if(stopped)return;stopped=true;cancelAnimationFrame(raf);clearTimeout(messageTimer);
-    observer?.disconnect();removeEvents();scares?.dispose();audio?.stop();monsterVisual?.dispose();environmentDispose();if(scene)disposeScene(scene);
+    observer?.disconnect();removeEvents();coop?.dispose();scares?.dispose();audio?.stop();monsterVisual?.dispose();environmentDispose();if(scene)disposeScene(scene);
     renderer?.dispose();renderer?.forceContextLoss();shell.remove();if(previousFocus?.isConnected)previousFocus.focus?.({preventScroll:true});
   }};
   active=session;
@@ -1160,7 +1162,11 @@ function open() {
     session.layoutInfo=()=>({build:BUILD,bounds:{...house.bounds},northWall:house.layout.north,
       bottomLanding:Math.round((house.stairZones[0].z0-house.bounds.minZ-.12)*100)/100,
       topLanding:Math.round((house.layout.privateStart-.12-house.stairZones[0].z1)*100)/100,stairs:house.stairZones.map(z=>({...z}))});
-    const spawns=chooseHouseSpawns(house,Math.random,previousStartRoom);
+    let spawnSeed=coopConfig?.seed??0;
+    const spawnRandom=coopConfig?()=>((spawnSeed=(Math.imul(spawnSeed,1664525)+1013904223)>>>0)/4294967296):Math.random;
+    const spawns=chooseHouseSpawns(house,spawnRandom,coopConfig?null:previousStartRoom);
+    const teamSpawns=coopConfig?spawnCandidates(house).flatMap(r=>r.points).filter(p=>Math.abs(p.y-spawns.player.y)<.1&&Math.hypot(p.x-spawns.player.x,p.z-spawns.player.z)<7&&Math.hypot(p.x-spawns.monster.x,p.y-spawns.monster.y,p.z-spawns.monster.z)>=SPAWN_RULES.minDistance).sort((a,b)=>Math.hypot(a.x-spawns.player.x,a.z-spawns.player.z)-Math.hypot(b.x-spawns.player.x,b.z-spawns.player.z)).slice(0,coopConfig.players.length).map(p=>({...p,...spawnFacing(house,p)})):[];
+    if(coopConfig){while(teamSpawns.length<coopConfig.players.length)teamSpawns.push({...spawns.player});spawns.player={...spawns.player,...teamSpawns[coopConfig.players.findIndex(p=>p.id===coopConfig.self)]};}
     house.spawn={...spawns.player};
     scene=new THREE.Scene();scene.background=new THREE.Color(0x06070a);scene.fog=new THREE.Fog(0x06070a,7.5,22);
     const meshes=buildHouseScene(scene,house);
@@ -1235,11 +1241,11 @@ function open() {
     const floorLabel=shell.querySelector('[data-floor]'),counter=shell.querySelector('[data-count]'),lockLabel=shell.querySelector('[data-lock]');
     const clock=shell.querySelector('.three17-clock'),threat=shell.querySelector('.three17-threat'),messageElement=shell.querySelector('.three17-msg');
     const monster=createMonsterController(house,{
-      awake:()=>message('Le Parasite s’est réveillé. Évitez le bruit.'),
-      spotted:()=>{message('Il vous a vu ! Brisez sa ligne de vue.');audio.spotted();},
-      caught:()=>finish('caught'),
+      awake:()=>{if(!coopConfig)message('Le Parasite s’est réveillé. Évitez le bruit.');},
+      spotted:()=>{if(!coopConfig){message('Il vous a vu ! Brisez sa ligne de vue.');audio.spotted();}},
+      caught:()=>{if(!coopConfig)finish('caught');},
       door:d=>{if(Math.hypot(d.x-position.x,d.z-position.z)<7&&Math.abs((d.bottom||0)-position.y)<1.4)audio.door(true,Math.hypot(d.x-position.x,d.z-position.z));},
-      step:d=>audio.monsterStep(d,monster.state.state,Math.abs(monster.state.position.y-position.y)<1.4)
+      step:d=>!coopConfig&&audio.monsterStep(d,monster.state.state,Math.abs(monster.state.position.y-position.y)<1.4)
     },spawns.monster);
     monsterVisual.animate(monster.state,0);
     // R24: resizing clears the canvas. Only resize inside the very frame that
@@ -1340,6 +1346,7 @@ function open() {
         shell.querySelector('.three17-loss').classList.add('show');audio.tone(65,.6,.035,'triangle',24);}
     }
     function selectInteraction(){
+      if(coop?.local&&(coop.local.dead||coop.local.escaped))return null;
       const from={x:position.x,y:position.y+EYE_HEIGHT,z:position.z};
       let best=null,score=Infinity;const fx=-Math.sin(yaw),fz=-Math.cos(yaw);
       function candidate(object,type,point){
@@ -1380,7 +1387,7 @@ function open() {
       else message('✓ '+item.label+' récupéré · '+count+'/3');
     }
     function interact(){
-      if(!started||ended||paused)return;const selection=selectInteraction();
+      if(!started||ended||paused)return;if(coop){coop.action('interact');return;}const selection=selectInteraction();
       if(!selection){message('Approchez-vous et regardez la porte ou l’objet');return;}const o=selection.object;
       if(selection.type==='item')collect(o);
       else if(selection.type==='container'){
@@ -1451,6 +1458,17 @@ function open() {
     }
     function updateWorld(elapsed){
       if(!started||ended||paused||!Number.isFinite(elapsed)||elapsed<=0)return;
+      if(coop){
+        const sx=keys.x+(pressed.has('KeyD')||pressed.has('ArrowRight')?1:0)-(pressed.has('KeyA')||pressed.has('KeyQ')||pressed.has('ArrowLeft')?1:0);
+        const forward=-keys.y+(pressed.has('KeyW')||pressed.has('KeyZ')||pressed.has('ArrowUp')?1:0)-(pressed.has('KeyS')||pressed.has('ArrowDown')?1:0);
+        coop.step(elapsed,{x:sx,forward,yaw,pitch,paused});
+        audio.update({listener:position,yaw,monster:monster.state.position,state:monster.state.state,hidden});monsterVisual.animate(monster.state,Math.min(elapsed,.1));
+        const md=Math.hypot(monster.state.position.x-position.x,monster.state.position.z-position.z),same=Math.abs(monster.state.position.y-position.y)<1.4;
+        if(monster.state.walked-coopMonsterStep>.68){coopMonsterStep=monster.state.walked;audio.monsterStep(md,monster.state.state,same);}
+        beat-=elapsed;if(beat<=0){beat=monster.state.state==='chase'?1.7:3.8;audio.monsterVoice(md,monster.state.state,same);}
+        for(const mesh of meshes.itemMeshes.values())if(mesh.visible){mesh.rotation.y+=elapsed*.9;if(!reducedMotion)mesh.position.y=mesh.userData.baseY+Math.sin((ROUND_SECONDS-remaining)*2.5)*.025;}
+        return;
+      }
       remaining=Math.max(0,remaining-elapsed);if(remaining===0){finish('time');return;}
       let left=Math.min(elapsed,.25);while(left>.000001&&!ended){const dt=Math.min(.05,left);tick(dt);left-=dt;}
     }
@@ -1463,6 +1481,9 @@ function open() {
       else if(hidden){state=m.knownHide?'danger':'hidden';label=m.knownHide?'IL SAIT OÙ VOUS ÊTES':'CACHÉ · RESTEZ DISCRET';}
       else if(m.state==='chase'){state='danger';label='REPÉRÉ · CACHEZ-VOUS HORS DE SA VUE';}
       else if(m.state==='investigate'||m.state==='search'){state='search';label='LE PARASITE CHERCHE';}
+      if(coop){const local=coop.local;if(local?.dead||local?.escaped){state='calm';label=local.escaped?'VOUS ÊTES SORTI · OBSERVEZ L’ÉQUIPE':'ATTRAPÉ · OBSERVEZ L’ÉQUIPE';}
+        else if(local?.hidden){state=local.known?'danger':'hidden';label=local.known?'IL SAIT OÙ VOUS ÊTES':'CACHÉ · RESTEZ DISCRET';}
+        else if(m.state==='chase'&&coop.state?.targetId!==coopConfig.self){state='search';label='LE PARASITE POURSUIT UN COÉQUIPIER';}}
       if(threat.textContent!==label)threat.textContent=label;shell.dataset.threat=ended?'calm':state;
       const s=started&&!ended?selectInteraction():null;
       const selectionText=hidden?'CACHÉ · AGIR pour sortir':interactionLabel(s);if(hint.textContent!==selectionText)hint.textContent=selectionText;
@@ -1494,7 +1515,7 @@ function open() {
         graphicsInfo.frames++;
         if(modelLoaded&&!modelReady&&!modelFailed){
           modelReady=true;startButton.disabled=false;startButton.removeAttribute('aria-busy');
-          startButton.textContent='ENTRER DANS LA MAISON';modelStatus.textContent='MAISON R41 · PRÊTE';
+          startButton.textContent=coop?'JE SUIS PRÊT':'ENTRER DANS LA MAISON';modelStatus.textContent='MAISON R42 · PRÊTE';
         }
         if(graphicsState==='warming'){
           graphicsState='ready';last=performance.now();syncPause();
@@ -1519,13 +1540,14 @@ function open() {
       el.addEventListener('click',e=>{e.stopPropagation();if(e.detail===0&&!e.pointerType)fn();});
     }
     function syncFlash(){flashButton.setAttribute('aria-pressed',String(flashOn));flashButton.setAttribute('aria-label',hidden?'Lampe éteinte dans la cachette':flashOn?'Éteindre la lampe':'Allumer la lampe');flashButton.disabled=hidden;}
-    function toggleFlash(){if(!started||ended||paused||hidden)return;flashOn=!flashOn;syncFlash();message(flashOn?'Lampe allumée · visible de plus loin':'Lampe éteinte · restez hors de sa vue');}
+    function toggleFlash(){if(!started||ended||paused||hidden)return;if(coop){coop.action('flash');return;}flashOn=!flashOn;syncFlash();message(flashOn?'Lampe allumée · visible de plus loin':'Lampe éteinte · restez hors de sa vue');}
     function toggleSound(){const muted=audio.toggle();soundButton.setAttribute('aria-pressed',String(!muted));soundButton.setAttribute('aria-label',muted?'Activer le son':'Couper le son');soundButton.textContent=muted?'♪×':'♪';}
-    function start(){if(started||stopped)return;if(modelFailed){open();return;}if(!modelReady||graphicsState!=='ok')return;previousStartRoom=spawns.player.roomId;resetInputs();started=true;syncPause();last=performance.now();if(!paused)audio.start();shell.querySelector('.three17-start')?.remove();message('Départ : '+spawns.player.roomName+' · '+spawns.player.level+'. Le Parasite dort encore 10 s.');}
+    function start(){if(started||stopped)return;if(modelFailed){if(coop){close();window.ONEThree17Coop.open();}else open();return;}if(!modelReady||graphicsState!=='ok')return;if(coop){audio.start();audio.pause();startButton.disabled=true;startButton.textContent='PRÊT · ATTENTE DU GROUPE';coop.ready();return;}previousStartRoom=spawns.player.roomId;resetInputs();started=true;syncPause();last=performance.now();if(!paused)audio.start();shell.querySelector('.three17-start')?.remove();message('Départ : '+spawns.player.roomName+' · '+spawns.player.level+'. Le Parasite dort encore 10 s.');}
     press(shell.querySelector('.interact'),interact);press(flashButton,toggleFlash);press(soundButton,toggleSound);
     press(shell.querySelector('.three17-exit'),close);press(shell.querySelector('.three17-start button'),start);
-    press(graphicsButton,retryGraphics);press(shell.querySelector('[data-render-restart]'),open);
-    shell.querySelectorAll('[data-retry]').forEach(el=>press(el,open));shell.querySelectorAll('[data-lobby]').forEach(el=>press(el,close));
+    const replay=()=>{if(coop){close();window.ONEThree17Coop.open();}else open();};
+    press(graphicsButton,retryGraphics);press(shell.querySelector('[data-render-restart]'),replay);
+    shell.querySelectorAll('[data-retry]').forEach(el=>{if(coopConfig)el.textContent='RETOUR AU GROUPE';press(el,replay);});shell.querySelectorAll('[data-lobby]').forEach(el=>press(el,close));
     const movementCodes=new Set(['KeyW','KeyZ','KeyA','KeyQ','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']);
     function onKeyDown(e){
       if(e.ctrlKey||e.metaKey||e.altKey)return;
@@ -1542,10 +1564,46 @@ function open() {
     window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
     window.addEventListener('keydown',onKeyDown);window.addEventListener('keyup',onKeyUp);
     removeEvents=()=>{resetInputs();document.removeEventListener('visibilitychange',onVisibility);window.removeEventListener('blur',pause);window.removeEventListener('focus',resume);window.removeEventListener('keydown',onKeyDown);window.removeEventListener('keyup',onKeyUp);window.removeEventListener('resize',resize);window.removeEventListener('orientationchange',resize);renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('webglcontextrestored',onContextRestored);};
+    let coopMonsterStep=0;
+    if(coopConfig){
+      shell.querySelector('.three17-card h1').textContent='3:17 · '+coopConfig.players.length+' JOUEURS';
+      shell.querySelector('.three17-card p').textContent='Retrouvez les trois objets ensemble, puis chaque survivant doit rejoindre la sortie. Une cachette accueille une personne.';
+      coop=createCoopRuntime(coopConfig,{
+        house,monster,scene,shell,spawns:teamSpawns,position,
+        model:{movePlayer,blockedAt,hasLineOfSight,circleHitsDoor,PLAYER_RADIUS},
+        paused:()=>paused||graphicsState!=='ok',
+        wait:(ready,total)=>{if(modelReady&&startButton.disabled)modelStatus.textContent=ready+'/'+total+' prêts · la partie démarre quand tout le monde est prêt.';},
+        begin:()=>{if(started||stopped)return;started=true;last=performance.now();resetInputs();shell.querySelector('.three17-start')?.remove();syncPause();if(!paused)audio.start();message('Vous êtes ensemble. Retrouvez les trois objets et sortez !');},
+        apply:(state,local,hosting)=>{
+          remaining=state.remaining;const wasHidden=hidden;hidden=!!local.hidden;currentHide=house.hideSpots.find(h=>h.id===local.hideId)||null;
+          const spectator=local.dead||local.escaped,view=spectator?(state.players.find(p=>p.connected&&!p.dead&&!p.escaped)||local):local;
+          const error=Math.hypot(view.position.x-position.x,view.position.y-position.y,view.position.z-position.z);
+          if(hosting||hidden||wasHidden!==hidden||spectator||error>.85)Object.assign(position,view.position);
+          else{position.x+=(view.position.x-position.x)*.12;position.y=view.position.y;position.z+=(view.position.z-position.z)*.12;}
+          if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}
+          flashOn=spectator?false:local.flash;syncFlash();
+          count=state.items.filter(i=>i.taken).length;counter.textContent=String(count);
+          for(const item of house.items){const mesh=meshes.itemMeshes.get(item.id);mesh.visible=!item.hidden&&!item.taken;mesh.position.set(item.x,item.y,item.z);mesh.userData.baseY=item.y;
+            const label=shell.querySelector('[data-inventory="'+item.id+'"]');label.classList.toggle('found',item.taken);label.textContent=(item.taken?'✓ ':'◌ ')+({key:'Clé',fuse:'Fusible',seal:'Sceau'}[item.id]);}
+          if(count===3)lockLabel.textContent='🔓 REJOIGNEZ LA SORTIE';for(const d of house.doors)meshes.doorMeshes.get(d.id).rotation.y=d.angle;
+        },
+        event:(event,local)=>{
+          const own=event.who===coopConfig.self,d=event.at?Math.hypot(event.at.x-position.x,event.at.z-position.z):0,same=!event.at||Math.abs(event.at.y-position.y)<1.4;
+          if(event.kind==='step'&&same&&d<5){const room=roomAt(house,event.at.x,event.at.z,event.at.y);audio.playerStep(/kitchen|bath/.test(room.id)?'tile':event.at.y<0?'stone':'wood');}
+          if(event.kind==='door'&&same&&d<8)audio.door(event.open,d);
+          if(event.kind==='search'&&own){audio.search();scares.furniture(event.container,event.seconds);}
+          if(event.kind==='collect')audio.tone(650,.20,.022,'sine',920);
+          if(event.kind==='caught'&&own){scares.finish();audio.spotted();}
+          if(event.text&&(own||['collect','caught','escaped','left'].includes(event.kind)))message(event.text);
+        },
+        finish:reason=>{finish(reason);if(reason==='win')shell.querySelector('.three17-win p').textContent='L’équipe a réuni les trois objets et les survivants ont atteint la sortie.';},
+        abort:text=>{finish('network');shell.querySelector('[data-loss-title]').textContent='PARTIE INTERROMPUE';shell.querySelector('[data-loss-text]').textContent=text;}
+      });
+    }
     refreshCamera();updateHud();raf=requestAnimationFrame(frame);
     // Explicit local test flag only: no debug globals, teleportation or invulnerability in normal play.
     if(window.__ONE317_TEST__===true)session.debug={
-      house,scene,renderer,monster,spawns,monsterVisual,audio,scares,
+      house,scene,renderer,monster,spawns,monsterVisual,audio,scares,coop,
       graphics:session.graphicsInfo,resize,
       modelStatus:()=>({ready:modelReady,failed:modelFailed}),
       snapshot:()=>({x:position.x,z:position.z,y:camera.position.y,feetY:position.y,hidden,yaw,pitch,flashOn,started,won,ended,count,remaining,paused,
@@ -1566,14 +1624,15 @@ function open() {
       pause,resume,
     };
   }catch(error){
-    console.error('3:17 FOUR R41 — lancement interrompu',error);session.stop();
+    console.error('3:17 FOUR R42 — lancement interrompu',error);session.stop();
     const message=document.createElement('div');message.className='three17-shell three17-load-error';
-    const text=document.createElement('p');text.textContent='3:17 FOUR R41 n’a pas pu démarrer. Rechargez ONE et vérifiez que tous les fichiers et dossiers du correctif R41 ont bien été copiés.';
+    const text=document.createElement('p');text.textContent='3:17 FOUR R42 n’a pas pu démarrer. Rechargez ONE et vérifiez que tous les fichiers et dossiers du correctif R42 ont bien été copiés.';
     const button=document.createElement('button');button.textContent='Fermer';button.onclick=()=>message.remove();message.append(text,button);document.body.append(message);active={stop:()=>message.remove()};
   }
 }
 
 function close() { if (!active) return; const previous = active; active = null; previous.stop(); }
+installCoop(open);
 window.ONEThree17 = { open, close, build: BUILD, layoutInfo:()=>active?.layoutInfo?.()||null, graphicsInfo:()=>active?.graphicsInfo?.()||null };
 if (window.__ONE317_TEST__ === true) Object.defineProperty(window.ONEThree17, 'debug', { get: () => active?.debug });
 window.addEventListener('pagehide', close);
