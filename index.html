@@ -3656,13 +3656,14 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 @media(max-height:380px){.three17-render-warning .three17-result{padding:12px 16px}.three17-render-warning h1{font-size:19px;margin:6px 0}.three17-render-warning p{margin:7px 0 12px}.three17-render-warning .three17-render-restart{margin-top:4px}.three17-render-warning small{margin-top:4px}}
 </style><script type="module" id="one317-r16-module">
 import * as THREE from './ui/three.module.js';
+import { GLTFLoader } from './ui/GLTFLoader.js';
 const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHeightAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
 /**
  * 3:17 FOUR — R23. Géométrie R20 préservée, monstre et objets jouables.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R36 · +4 M · CACHETTES · PARASITE AUDIO+';
+const BUILD = 'R37 · VRAIS MEUBLES 3D · PBR';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -4530,6 +4531,8 @@ function buildHouseScene(scene, house) {
   }
   for (const v of house.volumes) {
     if (v.id === 'bibliotheque' || v.id.startsWith('livre-')) continue;
+    if (['canape-assise','canape-dossier','canape-accoudoir-3.18','canape-accoudoir-5.92',
+         'lit-sommier','lit-matelas','lit-couverture','lit-tete','chevet'].includes(v.id)) continue;
     if (v.kind === 'wall' && v.h > 2) {
       const base = v.y-v.h/2;
       // Partition du volume à SON altitude, identique aux collisions des trois niveaux.
@@ -4621,11 +4624,7 @@ function buildHouseScene(scene, house) {
     const shadow=new THREE.Mesh(new THREE.PlaneGeometry(v.w+.45,v.d+.45),shadowMaterial);
     shadow.rotation.x=-Math.PI/2;shadow.position.set(v.x,.014,v.z);scene.add(shadow);
   }
-  // Coussins distincts du canapé, dans son emprise d'origine.
-  for (const z of [3.66, 4.55, 5.44]) {
-    cube(scene, -5.83, .745, z, .94, .10, .82, materials.fabric);
-    cube(scene, -6.22, .97, z, .14, .48, .82, materials.fabric);
-  }
+  // Canapé remplacé par le modèle glTF réel.
   // Sources visibles et repères architecturaux, sans ombres temps réel coûteuses.
   const lampPositions = house.lampPositions || [[0, 2.55, 5.8], [0, 2.6, .7], [0, 2.6, -5.3], [-4.5, 2.55, 4.5], [-4.6, 2.5, -1.12], [-4.3, 2.6, -5.8], [4.5, 2.55, 4.7], [3.6, 2.6, 0]];
   const lampGeometry = new THREE.CylinderGeometry(.22, .37, .25, 12, 1, true);
@@ -4776,7 +4775,32 @@ function open() {
     const spawns=chooseHouseSpawns(house,Math.random,previousStartRoom);
     house.spawn={...spawns.player};
     scene=new THREE.Scene();scene.background=new THREE.Color(0x06070a);scene.fog=new THREE.Fog(0x06070a,6.5,18.5);
-    const meshes=buildHouseScene(scene,house);monsterVisual=createMonsterMesh(scene);
+    const meshes=buildHouseScene(scene,house);
+    // R37 — vrais meubles glTF/PBR. Les volumes supprimés ci-dessus restent dans house
+    // et continuent donc à piloter collisions/interactions.
+    const furnitureLoader=new GLTFLoader();
+    furnitureLoader.setPath('./assets/317/');
+    function placeFurniture(file,target,pos,ry=0){
+      furnitureLoader.load(file,gltf=>{
+        const root=gltf.scene;
+        root.updateMatrixWorld(true);
+        let box=new THREE.Box3().setFromObject(root), size=new THREE.Vector3();
+        box.getSize(size);
+        const scale=Math.min(target.x/Math.max(size.x,.001),target.y/Math.max(size.y,.001),target.z/Math.max(size.z,.001));
+        root.scale.setScalar(scale); root.rotation.y=ry; root.updateMatrixWorld(true);
+        box=new THREE.Box3().setFromObject(root);
+        const center=new THREE.Vector3(); box.getCenter(center);
+        root.position.x += pos.x-center.x;
+        root.position.z += pos.z-center.z;
+        root.position.y += pos.y-box.min.y;
+        root.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
+        scene.add(root);
+      },undefined,error=>console.error('[3:17 R37 meuble]',file,error));
+    }
+    placeFurniture('sofa_03_2k.gltf',new THREE.Vector3(1.30,1.25,2.82),new THREE.Vector3(-5.90,.02,4.55),Math.PI/2);
+    placeFurniture('GothicBed_01_2k.gltf',new THREE.Vector3(2.10,1.55,3.05),new THREE.Vector3(4.75,.02,6.60),Math.PI);
+    placeFurniture('GothicCommode_01_2k.gltf',new THREE.Vector3(.72,1.05,.70),new THREE.Vector3(3.15,.02,7.70),Math.PI);
+    monsterVisual=createMonsterMesh(scene);
     let modelLoaded=false,modelReady=false,modelFailed=false;
     const startButton=shell.querySelector('.three17-start button'),modelStatus=shell.querySelector('[data-monster-load]');
     monsterVisual.ready.then(ready=>{
