@@ -1,3 +1,4 @@
+import { replaceR41Volume, addR41Furniture } from './three17-r41-furniture.js';
 import * as THREE from './three.module.js';
 import { GLTFLoader } from './GLTFLoader.js';
 import { mergeGeometries } from './BufferGeometryUtils.js';
@@ -10,7 +11,7 @@ const replacements = new Set(['armoire','rdc-palier-armoire','upper-palier-armoi
   'nursery-wardrobe','upper-master-wardrobe','upper-master-bed','nursery-bed',
   'rdc-palier-console','upper-palier-commode','rdc-palier-banc','baignoire-base','upper-bath-tub','wc-base']);
 export function replaceR40Volume(v) {
-  return replacements.has(v.id) || /^(table-basse-|table-repas-|upper-master-table-|upper-palier-table-|fenetre-)/.test(v.id);
+  return replaceR41Volume(v) || replacements.has(v.id) || /^(table-basse-|table-repas-|upper-master-table-|upper-palier-table-|fenetre-)/.test(v.id);
 }
 
 export function applyR40Materials(materials) {
@@ -73,6 +74,7 @@ export async function addR40Details(scene, house, parts, alive) {
   const unit=new THREE.BoxGeometry(1,1,1);
   const host=id=>house.volumes.find(v=>v.id===id);
   const records=[];
+  addR41Furniture(decor,house,mat);
   function mesh(geometry,material,x,y,z,parent=decor){
     const o=new THREE.Mesh(geometry,material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;
   }
@@ -159,8 +161,7 @@ export async function addR40Details(scene, house, parts, alive) {
   box(north.x+.5,.47,north.z+.46,.76,.48,.025,iron);
   box(north.x+.5,.76,north.z+.49,.62,.035,.08,brass);
   for(const dx of [-.25,-.08,.08,.25])sphere(north.x+.5+dx,.85,north.z+.49,.025,.025,.018,brass);
-  const fridge=host('frigo');box(fridge.x,.65,fridge.z+.557,.91,.024,.015,iron);
-  for(const y of [.45,1.22])box(fridge.x-.3,y,fridge.z+.59,.038,.27,.04,brass);
+  const fridge=host('frigo');
 
   // Sparse, seeded marks: no random gameplay state is consumed.
   let seed=31740;const random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
@@ -170,7 +171,9 @@ export async function addR40Details(scene, house, parts, alive) {
   const stainMap=new THREE.CanvasTexture(stainCanvas);
   const stain=new THREE.MeshStandardMaterial({color:0x35351e,map:stainMap,transparent:true,opacity:.57,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,roughness:1});
   const blood=stain.clone();blood.color.set(0x460f0a);blood.opacity=.86;blood.roughness=.52;
-  const fridgeGrime=mesh(new THREE.PlaneGeometry(.9,1.72),stain,fridge.x,.97,fridge.z+.563);fridgeGrime.castShadow=false;
+  const fridgeGrime=mesh(new THREE.PlaneGeometry(.9,1.72),stain,fridge.x,.97,fridge.z+.591);fridgeGrime.castShadow=false;
+  const washer=host('laundry-machine');
+  const washerGrime=mesh(new THREE.PlaneGeometry(.89,.95),stain,washer.x,washer.y,washer.z+.456);washerGrime.castShadow=false;
   house.rooms.forEach((r,i)=>{
     const x=(r.x0+r.x1)/2,z=(r.z0+r.z1)/2;
     const spot=mesh(new THREE.PlaneGeometry(1.0+random(),.7+random()),i%5===0?blood:stain,x,r.floorY+.016,z);
@@ -196,6 +199,14 @@ export async function addR40Details(scene, house, parts, alive) {
   function asset(file,id,w,h,d,yaw=0,offsetY=0){const v=host(id);specs.push({file,id,x:v.x,y:v.y-v.h/2+offsetY,z:v.z,w:w??v.w,h:h??v.h,d:d??v.d,yaw});}
   asset('gothic_coffee_table','table-basse-plateau',1.22,.49,1.62,Math.PI/2,-.38);
   asset('dining_table','table-repas-plateau',1.82,.79,1.32,0,-.68);
+  asset('GothicCommode_01_2k.gltf','buffet',.70,.96,2.0,Math.PI/2);
+  asset('GothicCommode_01_2k.gltf','meuble-tv',2.05,.62,.55,Math.PI);
+  asset('GothicCommode_01_2k.gltf','office-cabinet',.80,1.10,.65,0);
+  asset('GothicCabinet_01','laundry-cabinet',.80,2.0,1.2,Math.PI/2);
+  asset('gallinera_table','office-desk-plateau',1.70,.76,.75,0,-.64);
+  asset('chinese_tea_table','nursery-desk-plateau',1.10,.72,.60,0,-.60);
+  asset('dining_table','ritual-table',1.60,.90,1.60,0);
+  asset('gallinera_table','boiler-bench-plateau',1.80,.72,.70,0,-.60);
   for(const id of ['armoire','rdc-palier-armoire','upper-palier-armoire','upper-master-wardrobe'])asset('GothicCabinet_01',id,null,null,null,-Math.PI/2);
   asset('GothicCabinet_01','nursery-wardrobe',null,null,null,Math.PI/2);
   asset('gallinera_table','upper-palier-table-plateau',1.12,.66,.62,0,-.56);
@@ -229,7 +240,9 @@ export async function addR40Details(scene, house, parts, alive) {
       object.updateMatrixWorld(true);let bounds=new THREE.Box3().setFromObject(object),size=bounds.getSize(new THREE.Vector3());
       // Respect collision footprints. Height can vary naturally for decorative tops.
       const maxHeight=/bed|lit-|armoire|wardrobe|canape/.test(s.id)?2.7:s.h;
-      object.scale.setScalar(Math.min(s.w/size.x,s.d/size.z,maxHeight/size.y));object.updateMatrixWorld(true);
+      object.scale.setScalar(Math.min(s.w/size.x,s.d/size.z,maxHeight/size.y));
+      if(/armoire|wardrobe|laundry-cabinet/.test(s.id))object.scale.y*=Math.min(1.85,s.h*.96/(size.y*object.scale.y));
+      object.updateMatrixWorld(true);
       bounds=new THREE.Box3().setFromObject(object);const center=bounds.getCenter(new THREE.Vector3());
       object.position.set(s.x-center.x,s.y-bounds.min.y,s.z-center.z);object.updateMatrixWorld(true);
       object.traverse(o=>{if(o.isMesh){o.castShadow=!s.id.startsWith('luminaire');o.receiveShadow=true;}});
