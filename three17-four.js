@@ -207,7 +207,7 @@ function buildHouseScene(scene, house) {
 
   // V4 — detailed procedural furniture/assets, render-only: gameplay/collisions unchanged.
   const asset=new THREE.Group(), G=new THREE.BoxGeometry(1,1,1);
-  asset.name='RDC-detailed-assets';
+  asset.name='RDC-detailed-assets'; asset.visible=false;
   const mw=new THREE.MeshStandardMaterial({color:0x2e2119,roughness:.86}), md=new THREE.MeshStandardMaterial({color:0x171310,roughness:.9});
   const cloth=new THREE.MeshStandardMaterial({color:0x30352f,roughness:1}), sheet=new THREE.MeshStandardMaterial({color:0x817a6c,roughness:1});
   const brass=new THREE.MeshStandardMaterial({color:0x6f5935,roughness:.4,metalness:.65}), ceramic=new THREE.MeshStandardMaterial({color:0x747970,roughness:.64});
@@ -347,6 +347,32 @@ function open() {
     const house = createGroundFloor();
     scene = new THREE.Scene(); scene.background = new THREE.Color(0x020403); scene.fog = new THREE.FogExp2(0x050807, .046);
     const meshes = buildHouseScene(scene, house);
+
+    // REAL 3D ASSETS: detailed models are visual only; existing geometry keeps collisions/gameplay.
+    const realAssetRoot='three17-assets/';
+    async function getGLTFLoader(){
+      if(THREE.GLTFLoader)return THREE.GLTFLoader;
+      await new Promise((ok,bad)=>{const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js';
+        s.onload=ok;s.onerror=bad;document.head.appendChild(s);});
+      return THREE.GLTFLoader;
+    }
+    function fitRealModel(root,target,pos,ry){
+      root.updateMatrixWorld(true);
+      let b=new THREE.Box3().setFromObject(root),sz=new THREE.Vector3();b.getSize(sz);
+      const sc=Math.min(target.x/Math.max(sz.x,.001),target.y/Math.max(sz.y,.001),target.z/Math.max(sz.z,.001));
+      root.scale.setScalar(sc);root.rotation.y=ry;root.updateMatrixWorld(true);
+      b=new THREE.Box3().setFromObject(root);const c=new THREE.Vector3();b.getCenter(c);
+      root.position.x+=pos.x-c.x;root.position.z+=pos.z-c.z;root.position.y+=pos.y-b.min.y;
+      root.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+      scene.add(root);
+    }
+    getGLTFLoader().then(()=>{const L=new THREE.GLTFLoader();L.setPath(realAssetRoot);
+      L.load('GothicBed_01_2k.gltf',g=>fitRealModel(g.scene,new THREE.Vector3(2.15,1.55,3.05),new THREE.Vector3(4.75,.03,5.10),Math.PI));
+      L.load('GothicCommode_01_2k.gltf',g=>fitRealModel(g.scene,new THREE.Vector3(.82,1.18,.62),new THREE.Vector3(3.15,.03,6.18),Math.PI));
+      L.load('sofa_03_2k.gltf',g=>fitRealModel(g.scene,new THREE.Vector3(1.75,1.18,2.72),new THREE.Vector3(-5.72,.03,4.55),Math.PI/2));
+    }).catch(e=>console.error('3:17 real asset loader',e));
+
     const dustGeo=new THREE.BufferGeometry(), dustCount=220, dustPos=new Float32Array(dustCount*3);
     for(let i=0;i<dustCount;i++){dustPos[i*3]=(Math.random()-.5)*18;dustPos[i*3+1]=.12+Math.random()*2.5;dustPos[i*3+2]=(Math.random()-.5)*18;}
     dustGeo.setAttribute('position',new THREE.BufferAttribute(dustPos,3));
