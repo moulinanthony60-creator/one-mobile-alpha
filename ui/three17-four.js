@@ -349,12 +349,11 @@ function open() {
     const meshes = buildHouseScene(scene, house);
 
     // REAL 3D ASSETS: detailed models are visual only; existing geometry keeps collisions/gameplay.
-    const realAssetRoot='three17-assets/';
+    const realAssetRoot='../assets/three17/';
     async function getGLTFLoader(){
       if(THREE.GLTFLoader)return THREE.GLTFLoader;
       await new Promise((ok,bad)=>{const s=document.createElement('script');
-        s.src='https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js';
-        s.onload=ok;s.onerror=bad;document.head.appendChild(s);});
+        s.src='GLTFLoader.js'; s.onload=ok; s.onerror=bad; document.head.appendChild(s);});
       return THREE.GLTFLoader;
     }
     function fitRealModel(root,target,pos,ry){
