@@ -5659,7 +5659,50 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
  sync();
 })();
 </script>
-\n<script id="one-thread-return-discussions-fix">\n(()=>{\n  function returnToDiscussions(dialog){\n    try{ dialog?.close?.(); }catch{}\n    if(dialog){ dialog.classList.remove('oneThreadFullscreen'); dialog.hidden=true; }\n    document.querySelectorAll('dialog.oneFriendsDialog').forEach(d=>{\n      try{d.close?.()}catch{} d.classList.remove('oneThreadFullscreen'); d.hidden=true;\n    });\n    document.body.classList.remove('friends-open','oneFriendsOpen');\n    if(typeof window.oneOpenSwipeDiscussions==='function') window.oneOpenSwipeDiscussions();\n    else if(typeof window.oneShowSpace==='function') window.oneShowSpace('social');\n    requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('one-social-integrated-ready')));\n  }\n  document.addEventListener('click',e=>{\n    const back=e.target.closest('dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>button:first-child');\n    if(!back)return;\n    e.preventDefault(); e.stopImmediatePropagation();\n    returnToDiscussions(back.closest('dialog.oneFriendsDialog'));\n  },true);\n  window.oneReturnFromThreadToDiscussions=returnToDiscussions;\n})();\n</script>\n</body>
+\n<script id="one-thread-return-discussions-fix">\n(()=>{\n  function returnToDiscussions(dialog){\n    try{ dialog?.close?.(); }catch{}\n    if(dialog){ dialog.classList.remove('oneThreadFullscreen'); dialog.hidden=true; }\n    document.querySelectorAll('dialog.oneFriendsDialog').forEach(d=>{\n      try{d.close?.()}catch{} d.classList.remove('oneThreadFullscreen'); d.hidden=true;\n    });\n    document.body.classList.remove('friends-open','oneFriendsOpen');\n    if(typeof window.oneOpenSwipeDiscussions==='function') window.oneOpenSwipeDiscussions();\n    else if(typeof window.oneShowSpace==='function') window.oneShowSpace('social');\n    requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('one-social-integrated-ready')));\n  }\n  document.addEventListener('click',e=>{\n    const back=e.target.closest('dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>button:first-child');\n    if(!back)return;\n    e.preventDefault(); e.stopImmediatePropagation();\n    returnToDiscussions(back.closest('dialog.oneFriendsDialog'));\n  },true);\n  window.oneReturnFromThreadToDiscussions=returnToDiscussions;\n})();\n</script>\n
+
+<!-- ONE chat media V6 — accès caméra direct façon messagerie mobile -->
+<style id="one-chat-camera-direct-v6-css">
+.oneFriendsDialog.oneThreadFullscreen .friends-content>label{padding-left:118px!important}
+.oneFriendsDialog.oneThreadFullscreen .oneMediaPick{left:12px!important;font-size:0!important}
+.oneFriendsDialog.oneThreadFullscreen .oneMediaPick::before{content:'＋';font-size:30px;line-height:1}
+.oneCameraDirect{position:absolute!important;z-index:9!important;left:64px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;width:46px!important;height:46px!important;min-height:46px!important;padding:0!important;border:1px solid #454960!important;border-radius:50%!important;background:#171b2a!important;color:#fff!important;font-size:22px!important;display:grid!important;place-items:center!important}
+.oneCameraDirect:active,.oneMediaPick:active{transform:scale(.94)}
+@media(max-width:390px){.oneFriendsDialog.oneThreadFullscreen .friends-content>label{padding-left:112px!important}.oneCameraDirect{left:62px!important;width:44px!important;height:44px!important}.oneFriendsDialog.oneThreadFullscreen .oneMediaPick{width:44px!important;height:44px!important}}
+</style>
+<script id="one-chat-camera-direct-v6-js">
+(()=>{
+ function upgrade(d){
+   if(!d.classList.contains('oneThreadFullscreen'))return;
+   const box=d.querySelector('.friends-content');
+   const plus=box?.querySelector('.oneMediaPick');
+   if(!box||!plus||box.querySelector('.oneCameraDirect'))return;
+   const inputs=[...box.querySelectorAll('input[type="file"]')];
+   const gallery=inputs.find(i=>!i.hasAttribute('capture'));
+   const camera=inputs.find(i=>i.hasAttribute('capture'));
+   if(gallery){
+     plus.setAttribute('aria-label','Choisir une photo ou une vidéo');
+     plus.title='Photo / vidéo';
+     plus.onclick=e=>{e.preventDefault();e.stopPropagation();gallery.click();};
+   }
+   if(camera){
+     camera.accept='image/*,video/*';
+     camera.setAttribute('capture','environment');
+     const b=document.createElement('button');
+     b.type='button';b.className='oneCameraDirect';b.textContent='📷';
+     b.setAttribute('aria-label','Ouvrir la caméra');b.title='Caméra';
+     b.onclick=e=>{e.preventDefault();e.stopPropagation();camera.click();};
+     plus.insertAdjacentElement('afterend',b);
+   }
+   const tray=box.querySelector('.oneMediaTray');if(tray)tray.hidden=true;
+ }
+ const sync=()=>document.querySelectorAll('dialog.oneFriendsDialog').forEach(upgrade);
+ new MutationObserver(sync).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+ document.addEventListener('click',()=>requestAnimationFrame(sync),true);sync();
+})();
+</script>
+
+</body>
 </html>
 
 <style>#accountModal .oneAccountHead{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:-18px;z-index:5;background:#10141c;padding:10px 0}#accountModal .oneAccountHead h3{margin:0}#accountModal #closeAccount{display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;margin:0;padding:0;background:#30213f;color:#f7f0ff;border:1px solid #765695;border-radius:12px;font-size:28px;cursor:pointer}#accountModal #closeAccount:focus-visible{outline:2px solid #c9a4ff;outline-offset:3px}</style>
