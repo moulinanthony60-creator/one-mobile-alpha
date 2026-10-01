@@ -1791,10 +1791,22 @@ function v1328WebAnswerHtml(data,context){
 }
 
 async function oneResearchProduct(question,instruction){let data=await v1841WebResearch(instruction);if(v1841ExtractModel(question,data))return data;const retry=await v1841WebResearch(question+' modèle matériel source créateur — Réponds à la question avec les sources. Distingue matériel documenté, ancien matériel et usage actuel non confirmé. Ne donne pas de prix.');if(!retry?.answer)return data;return retry;}
+function oneExplicitBoutiqueIntent(q){
+ const t=String(q||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ return /\b(acheter|achat|commande|commander|prix|tarif|promo|promotion|offre|boutique|magasin|vendeur|marchand|ou trouver|ou acheter|lien d'achat|lien achat|disponible a l'achat)\b/.test(t);
+}
+function oneSimpleChatReply(q){
+ const t=String(q||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[!?.]+$/,'');
+ if(/^(salut|bonjour|bonsoir|hello|hey|coucou|yo)$/.test(t)) return 'Salut 👋 Je suis ONE IA. Pose-moi une question, je te répondrai directement. Je n’ouvre la Boutique que si tu me demandes explicitement un achat, un prix ou une offre.';
+ if(/^(merci|merci beaucoup|thx|thanks)$/.test(t)) return 'Avec plaisir 🙂';
+ if(/^(ca va|comment ca va|comment vas tu|comment vas-tu)$/.test(t)) return 'Ça va bien 🙂 Que veux-tu savoir ?';
+ return '';
+}
 async function answerOne(){
  const q=document.getElementById('aiQuestion').value.trim(); const a=document.getElementById('aiAnswer');
  if(!q){a.innerHTML='<div class="empty">Écris ce que tu veux regarder.</div>';return}
- if(window.ONEBoutiqueCatalog?.handles(q)){await window.ONEBoutiqueCatalog.answer(q,a);return;}
+ const simpleReply=oneSimpleChatReply(q);if(simpleReply){a.innerHTML='<div class="aiProductBox"><div class="aiProductHead"><div class="aiProductIcon">✨</div><div><div class="aiProductName">ONE IA</div><span class="aiConfidence">Conversation</span></div></div><div style="margin-top:12px;line-height:1.55">'+v17Escape(simpleReply)+'</div></div>';return;}
+ if(oneExplicitBoutiqueIntent(q)&&window.ONEBoutiqueCatalog?.handles(q)){await window.ONEBoutiqueCatalog.answer(q,a);return;}
  const clarification=oneClarifyQuestion(q);if(clarification){oneAiShowClarification(a,q,clarification);if(oneProductRequest(q))a.insertAdjacentHTML('beforeend',oneAmazonSearchHtml(q));return;}
  const low=q.toLowerCase();
  const productIntent=oneProductRequest(q);
@@ -2166,7 +2178,7 @@ v17ApplySound();
  const fresh=document.createElement('button');fresh.type='button';fresh.textContent='Nouvelle recherche';fresh.className='oneAiNewSearch';search.insertAdjacentElement('afterend',fresh);fresh.onclick=()=>{request++;search.disabled=false;question.value='';answer.textContent='';sources.innerHTML='';if(pendingContext)setContext(...pendingContext);};
  const close=()=>{panel.hidden=true;question.blur();returnFocus?.focus?.({preventScroll:true});};document.getElementById('videoAiClose').onclick=close;panel.onclick=e=>{if(e.target===panel)close();};panel.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();close();}if(e.key==='Tab'){const focusable=[...panel.querySelectorAll('button,input,textarea,a[href]')].filter(n=>!n.disabled);const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}};
  search.onclick=async()=>{const q=question.value.trim();if(!q){question.focus();return;}const token=++request;search.disabled=true;answer.textContent='Recherche web…';sources.innerHTML='';try{
-  if(window.ONEBoutiqueCatalog?.handles(q)){await window.ONEBoutiqueCatalog.answer(q,answer);return;}
+  if(oneExplicitBoutiqueIntent(q)&&window.ONEBoutiqueCatalog?.handles(q)){await window.ONEBoutiqueCatalog.answer(q,answer);return;}
   const clarification=oneClarifyQuestion(q);if(clarification){oneAiShowClarification(answer,q,clarification);if(oneProductRequest(q))sources.innerHTML=oneAmazonSearchHtml(q);return;}
   const low=q.toLowerCase();
   const productIntent=oneProductRequest(q);
