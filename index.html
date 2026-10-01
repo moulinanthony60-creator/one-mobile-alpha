@@ -3364,7 +3364,7 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
     if (external?.aborted) abort();
     else external?.addEventListener('abort', abort, { once: true });
     let timedOut = false;
-    const timer = setTimeout(() => { timedOut = true; controller.abort(); }, writing ? 25000 : 15000);
+    const timer = setTimeout(() => { timedOut = true; controller.abort(); }, writing ? 12000 : 7000);
     try {
       const response = await fetch(API + path, {
         method, cache: 'no-store',
@@ -3413,7 +3413,7 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
     }
   }
   window.ONEUI.api = salonApi;
-  window.ONESalonNetwork = Object.freeze({ version: '15', stateTimeoutMs: 15000, createTimeoutMs: 25000 });
+  window.ONESalonNetwork = Object.freeze({ version: '15.1', stateTimeoutMs: 7000, createTimeoutMs: 12000 });
 })();
 
 </script><script src="ui/game-shell.js?v=014117"></script><script id="one-salons-v15">
@@ -3531,16 +3531,23 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
    view='welcome';success=true;feedback('','');window.dispatchEvent(new Event('one-notifications-refresh'));return true;
   };
   try{
-   // Read before any create: an earlier request may already have succeeded.
-   progress('Vérification du salon…');let d=await read();if(!current())return false;
-   if(!d)throw lastStateError||Error('Impossible de vérifier ton salon. Réessaie.');
-   if(d.room)return accept(d);
+   // Si un salon est déjà chargé localement, inutile de refaire une requête avant le POST.
+   if(room)return accept({room});
+
+   // "Vérifier mon salon" fait bien une lecture serveur, mais seulement à la demande.
    if(verifyOnly){
+    progress('Vérification…');
+    const checked=await read();if(!current())return false;
+    if(checked?.room)return accept(checked);
+    if(!checked)throw lastStateError||Error('Impossible de vérifier ton salon. Réessaie.');
     createUncertain=!!acknowledgedCreateId;
-    feedback(createUncertain?'Création confirmée, mais le salon n’est pas encore visible. Vérifie à nouveau dans quelques instants.':'Aucun salon trouvé. Tu peux maintenant appuyer sur « Créer le salon » pour réessayer.');
+    feedback(createUncertain?'Création confirmée, mais le salon n’est pas encore visible. Réessaie dans quelques instants.':'Aucun salon trouvé. Tu peux appuyer sur « Créer le salon ».');
     return false;
    }
-   progress('Création du salon…');let failure=null;
+
+   // Création directe : auparavant ONE faisait d'abord un GET pouvant bloquer 15 s.
+   progress('Création…');
+   let failure=null;
    try{
     sent=true;
     const result=await api('/party/create?'+new URLSearchParams({name:draft.name,visibility:draft.visibility}),'POST',undefined,{interactive:true,signal:controller.signal});
@@ -3549,17 +3556,22 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
    }catch(e){
     if(!current())return false;
     if(!e.uncertain&&e.status!==409)throw e;
-    // Lost response / conflict: only read back the current state; never replay POST.
     createUncertain=true;failure=e;
    }
-   progress('Vérification de la création…');d=await read();if(!current())return false;
-   if(d?.room)return accept(d);
-   if(failure?.status===409&&d&&!d.room){createUncertain=false;feedback(failure.message);return false;}
+
+   // Une seule confirmation après le POST.
+   progress('Ouverture…');
+   const checked=await read();if(!current())return false;
+   if(checked?.room)return accept(checked);
+
+   if(failure?.status===409&&checked&&!checked.room){
+    createUncertain=false;feedback(failure.message);return false;
+   }
    const reason=lastStateError?.message||failure?.message||'Le salon n’est pas encore visible.';
-   feedback((acknowledgedCreateId?'Création confirmée. ':'Création non confirmée. ')+reason+' Appuie sur « Vérifier mon salon » avant de recommencer.');
+   feedback((acknowledgedCreateId?'Salon créé. ':'Création non confirmée. ')+reason+' Appuie sur « Vérifier mon salon ».');
    return false;
   }catch(e){
-   if(current())feedback((!sent&&!createUncertain?'Création non envoyée. ':'')+e.message);
+   if(current())feedback((!sent&&!createUncertain?'Création non envoyée. ':'')+(e.message||'Impossible de créer le salon.'));
    return false;
   }finally{
    if(own===createOperation){busy=false;createController=null;tray.removeAttribute('aria-busy');if(success)render();}
@@ -6965,12 +6977,15 @@ body.oneProviderPage .app{
    delete document.body.dataset.oneProvider;
  }
 
- function enterProvider(provider){
+ function enterProvider(provider,push=true){
    if(provider!=='youtube'&&provider!=='twitch'){clearProvider();return}
    document.body.classList.add('oneProviderPage');
    document.body.classList.toggle('oneProviderYoutube',provider==='youtube');
    document.body.classList.toggle('oneProviderTwitch',provider==='twitch');
    document.body.dataset.oneProvider=provider;
+   if(push&&history.state?.oneProvider!==provider){
+     history.pushState({...history.state,oneProvider:provider},'');
+   }
 
    if(provider==='youtube'){
      badge.innerHTML='<svg class="oneProviderLogo oneProviderYoutubeLogo" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="5" width="21" height="14" rx="4.5" fill="#ff0033"/><path d="m10 9 6 3-6 3Z" fill="#fff"/></svg>';
@@ -7008,26 +7023,29 @@ body.oneProviderPage .app{
    setTimeout(()=>enterProvider(p),0);
  },false);
 
- // Retour = toujours Accueil natif, jamais une page Twitch/YouTube intermédiaire.
- function returnProviderHome(){
-   const all=chips.querySelector('[data-filter="all"]');
+ // Retour = toujours le même Accueil que le bouton Accueil de la barre du bas.
+ function paintProviderHome(){
    clearProvider();
-   document.body.classList.remove('oneTwToolsOpen','oneYoutubeBrowse');
-   if(all){
-     all.click();
-   }else{
-     state.filter='all';
-     state.mode=null;
-     state.query='';
-     try{render()}catch{}
-   }
+   document.body.classList.remove('oneTwToolsOpen','oneYoutubeBrowse','oneTwitchBrowse');
+   state.filter='all';state.mode=null;state.query='';
+   try{document.getElementById('search').value=''}catch{}
+   try{render()}catch{}
+   const home=document.getElementById('oneHomeNav');
+   if(home)home.click();
    requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'auto'}));
+ }
+ function returnProviderHome(fromHistory=false){
+   if(!fromHistory&&history.state?.oneProvider){
+     history.back();
+     return;
+   }
+   paintProviderHome();
  }
 
  head.querySelector('#oneProviderBack').onclick=e=>{
    e.preventDefault();
    e.stopPropagation();
-   returnProviderHome();
+   returnProviderHome(false);
  };
 
  // Quitter la page dédiée si on utilise la navigation du bas ou les espaces du haut.
@@ -7035,25 +7053,28 @@ body.oneProviderPage .app{
    if(e.target.closest('#oneProviderHeader'))return;
    if(e.target.closest('.bottom .nav,.oneMainNav [data-one-space]')){
      clearProvider();
+     if(history.state?.oneProvider){
+       const next={...history.state};delete next.oneProvider;history.replaceState(next,'');
+     }
    }
  },true);
 
  window.addEventListener('popstate',()=>{
-   // Si on était dans la page dédiée Twitch/YouTube, le retour système revient à Accueil.
+   // Retour Android / navigateur : si une page provider était visible, on revient à Accueil.
    if(document.body.classList.contains('oneProviderPage')){
-     setTimeout(returnProviderHome,0);
+     setTimeout(()=>returnProviderHome(true),0);
      return;
    }
    setTimeout(()=>{
      const f=activeFilter();
-     if(f==='youtube'||f==='twitch')returnProviderHome();
+     if(f==='youtube'||f==='twitch')returnProviderHome(true);
      else clearProvider();
    },0);
  });
 
  // Si la page recharge déjà sur YouTube/Twitch.
  const initial=activeFilter();
- if(initial==='youtube'||initial==='twitch')enterProvider(initial);
+ if(initial==='youtube'||initial==='twitch')enterProvider(initial,false);
 })();
 </script>
 
