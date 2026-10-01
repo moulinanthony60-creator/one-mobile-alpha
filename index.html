@@ -2791,7 +2791,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  const social=document.createElement('button');social.type='button';social.className='nav oneSocialNav';social.innerHTML='<span class="ico">☏</span>Social';social.onclick=()=>show('social');social.className='oneSecondary oneSocialEntry';social.innerHTML='Social · Amis et messages';
  const home=document.createElement('button');home.type='button';home.className='nav';home.id='oneHomeNav';home.innerHTML='<span class="ico">⌂</span>Accueil';home.onclick=()=>show('home');document.querySelector('.bottom').prepend(home);
  const sourceGrid='<div class="oneSourceGrid"><button data-source="tiktok"><span>♪</span>TikTok</button><button data-source="youtube"><span>▶</span>YouTube</button><button data-source="twitch"><span>▣</span>Twitch</button><button data-source="music"><span>♫</span>Musique</button></div>';
- const screens={shop:'<section id="oneShop" aria-label="Boutique ONE"></section>',home:'<section id="oneUniversalHome"></section>',
+ const screens={shop:'<section id="oneShop" aria-label="Boutique ONE"></section>',home:'<section id="oneUniversalHome"></section>',moments:'<section class="oneMomentsScreen" aria-label="Moments"><span class="oneEyebrow">Ce que vivent tes amis</span><h1 class="oneShellTitle">Moments</h1><p class="oneShellLead">Stories, abonnements et salons réunis au même endroit.</p><div class="oneMomentsTabs"><button class="active" data-moment-tab="foryou">Pour toi</button><button data-moment-tab="following">Abonnements</button><button data-moment-tab="friends">Amis</button><button data-moment-tab="rooms">Salons</button></div><div class="oneMomentsBody"><div class="oneMomentsHero"><b>Les mêmes moments.<br>Ensemble.</b><span>Retrouve ici les contenus et activités de ton univers ONE.</span></div><div class="oneMomentsPlatforms"><button data-moment-source="youtube">YouTube</button><button data-moment-source="twitch">Twitch</button><button data-moment-source="tiktok">TikTok</button></div></div></section>',
  one:'<span class="oneEyebrow">Ton espace de création</span><h1 class="oneShellTitle">Bienvenue sur ONE.</h1><p class="oneShellLead">Regarde, crée et partage. Un espace pour tes vidéos et celles de la communauté.</p><div class="oneHeroCard"><span class="oneSmallTag">Contenu natif ONE</span><h2>Les premières créations<br>commencent avec toi.</h2><p>Prépare ta vidéo dans le Studio. La publication sur le feed ONE sera ouverte dans une prochaine étape.</p><button class="onePrimary" data-action="studio">Préparer une création ＋</button></div><div class="oneEmpty"><span>✦</span><strong>Le feed ONE arrive bientôt</strong>Aucune publication native pour le moment.</div>',
  together:'<span class="oneEyebrow">À plusieurs, partout dans ONE</span><h1 class="oneShellTitle">Together</h1><p class="oneShellLead">Un salon, jusqu’à quatre personnes et les contenus que vous aimez.</p><div class="oneHeroCard"><span class="symbol">♧</span><h2>Les mêmes moments.<br>Ensemble.</h2><p>Les salons et les invitations seront disponibles une fois le service Together connecté.</p><span class="oneSmallTag">En préparation</span></div><div class="oneFeatureGrid"><div class="oneFeature"><span class="symbol">▶</span><h3>Regarder ensemble</h3><p>Une lecture partagée entre les participants.</p></div><div class="oneFeature"><span class="symbol">☏</span><h3>Garder le contact</h3><p>Retrouver ses amis et ses invitations dans Social.</p></div></div>',
  party:'<span class="oneEyebrow">La prochaine aventure</span><h1 class="oneShellTitle">Party</h1><p class="oneShellLead">Des jeux à partager avec ton groupe Together.</p><div class="oneHeroCard"><span class="oneSmallTag">À venir</span><h2>Le Blind Test<br>ouvrira la partie.</h2><p>Party sera développé après la lecture persistante et les salons Together.</p></div><div class="oneFeatureGrid"><div class="oneFeature"><span class="symbol">♫</span><h3>Blind Test</h3><p>Reconnaître, buzzer et marquer des points.</p></div><div class="oneFeature"><span class="symbol">✦</span><h3>Défis de groupe</h3><p>De nouveaux jeux viendront ensuite.</p></div></div>',
@@ -5496,54 +5496,26 @@ window.addEventListener('pagehide', close);
 <script src="ui/mobile-ux.js?v=014117"></script><link rel="stylesheet" href="ui/together.css?v=118t5"><script src="ui/together-fullscreen.js?v=118t5"></script><script src="ui/together-player.js?v=118t5"></script><script src="ui/together-catalog.js?v=118c1"></script><script src="ui/together-browser.js?v=118c1"></script><script src="ui/together.js?v=118t5"></script><script src="ui/together-salon.js?v=118t5"></script><script src="ui/social-content.js?v=118t1"></script><script src="ui/social-app.js?v=014117"></script>
 <script src="ui/catalog-manager.js?v=118c1"></script>
 <link rel="stylesheet" href="ui/mission116.css?v=014117">
-<script src="ui/boutique-catalog.js?v=118b1"></script><script src="ui/boutique.js?v=118b1"></script><link rel="stylesheet" href="ui/social-hub.css?v=118s1"><script src="ui/social-hub.js?v=118s1"></script><script src="ui/social-account.js?v=118s1"></script><script src="ui/social-push.js?v=118s1"></script></body>
+<script src="ui/boutique-catalog.js?v=118b1"></script><script src="ui/boutique.js?v=118b1"></script><link rel="stylesheet" href="ui/social-hub.css?v=118s1"><script src="ui/social-hub.js?v=118s1"></script><script src="ui/social-account.js?v=118s1"></script><script src="ui/social-push.js?v=118s1"></script><style id="oneSwipeNavigationStyles">
+.oneMomentsScreen{padding-bottom:96px}.oneMomentsTabs{display:flex;gap:9px;overflow-x:auto;padding:4px 0 16px;scrollbar-width:none}.oneMomentsTabs::-webkit-scrollbar{display:none}.oneMomentsTabs button,.oneMomentsPlatforms button{border:1px solid #34374b;background:#171a29;color:#d8d7e4;border-radius:999px;padding:11px 16px;font-weight:750;white-space:nowrap}.oneMomentsTabs button.active{background:linear-gradient(135deg,#8b32ff,#6a2cff);color:white;border-color:#a35cff}.oneMomentsHero{min-height:240px;border:1px solid #533b85;border-radius:24px;padding:24px;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;background:radial-gradient(circle at 75% 25%,#7034a866,transparent 36%),linear-gradient(145deg,#24114c,#10172d 70%);box-shadow:inset 0 0 35px #7b32ff20}.oneMomentsHero b{font-size:28px;line-height:1.05}.oneMomentsHero span{color:#b8b7c8;line-height:1.45}.oneMomentsPlatforms{display:flex;gap:10px;margin-top:16px}.oneSwipeAnimating{transition:transform .18s ease-out}.oneMainNavSwipeHint{position:fixed;top:50%;z-index:90;width:30px;height:56px;display:grid;place-items:center;color:#a86cff;font-size:34px;opacity:.42;pointer-events:none}.oneMainNavSwipeHint.left{left:0}.oneMainNavSwipeHint.right{right:0}
+</style>
+<script id="oneSwipeNavigationPatch">
+(()=>{
+ const bottom=document.querySelector('.bottom'),home=document.getElementById('oneHomeNav'),create=document.getElementById('discover'),shop=document.getElementById('askOne'),search=document.getElementById('savedNav'),settings=document.getElementById('profile');
+ if(!bottom||!home||!create||!shop||!search||!settings)return;
+ shop.innerHTML='<span class="ico">▢</span>Boutique'; shop.setAttribute('aria-label','Boutique');
+ search.innerHTML='<span class="ico">⌕</span>Rechercher'; search.setAttribute('aria-label','Rechercher');
+ bottom.replaceChildren(home,shop,create,search,settings);
+ shop.onclick=()=>window.oneShowSpace?.('shop');
+ search.onclick=()=>{ const shell=document.getElementById('oneFoundation'); if(shell&&!shell.hidden) history.back(); setTimeout(()=>{const t=document.getElementById('oneSearchToggle'); if(t&&t.getAttribute('aria-expanded')!=='true')t.click(); document.getElementById('search')?.focus();},80); };
+ const left=document.createElement('span'),right=document.createElement('span');left.className='oneMainNavSwipeHint left';right.className='oneMainNavSwipeHint right';left.textContent='‹';right.textContent='›';document.body.append(left,right);
+ let startX=0,startY=0,tracking=false;
+ const blocked=t=>t.closest('button,input,textarea,select,a,[role="dialog"],.modal,.vfeed,#playerModal');
+ document.addEventListener('touchstart',e=>{if(e.touches.length!==1||blocked(e.target))return;startX=e.touches[0].clientX;startY=e.touches[0].clientY;tracking=true;},{passive:true});
+ document.addEventListener('touchend',e=>{if(!tracking)return;tracking=false;const t=e.changedTouches[0],dx=t.clientX-startX,dy=t.clientY-startY;if(Math.abs(dx)<72||Math.abs(dx)<Math.abs(dy)*1.25)return;const current=window.oneCurrentSpace?.();if(current!=='home')return; if(dx>0)window.oneShowSpace?.('social'); else window.oneShowSpace?.('moments');},{passive:true});
+ document.getElementById('oneFoundation')?.addEventListener('click',e=>{const tab=e.target.closest('[data-moment-tab]');if(tab){document.querySelectorAll('.oneMomentsTabs button').forEach(b=>b.classList.toggle('active',b===tab));if(tab.dataset.momentTab==='following'){document.querySelector('.oneMomentsHero b').innerHTML='Tes abonnements.<br>Au même endroit.';document.querySelector('.oneMomentsHero span').textContent='YouTube, Twitch, TikTok et les créateurs que tu suis dans ONE.';}return;}const src=e.target.closest('[data-moment-source]');if(src){history.back();setTimeout(()=>document.querySelector('#chips [data-filter="'+src.dataset.momentSource+'"]')?.click(),80);}},true);
+})();
+</script></body>
 </html>
 
 <style>#accountModal .oneAccountHead{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:-18px;z-index:5;background:#10141c;padding:10px 0}#accountModal .oneAccountHead h3{margin:0}#accountModal #closeAccount{display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;margin:0;padding:0;background:#30213f;color:#f7f0ff;border:1px solid #765695;border-radius:12px;font-size:28px;cursor:pointer}#accountModal #closeAccount:focus-visible{outline:2px solid #c9a4ff;outline-offset:3px}</style>
-
-<!-- ONE 0.14.118 — navigation swipe gauche/droite -->
-<style>
-.oneSwipeHint{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);z-index:45;padding:7px 12px;border:1px solid rgba(167,110,255,.28);border-radius:999px;background:rgba(11,13,24,.78);backdrop-filter:blur(12px);color:#bda8ff;font-size:11px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .2s}.oneSwipeHint.show{opacity:1}
-.oneShell.oneSwipeMoving{transition:none!important}.oneShell.oneSwipeSnap{transition:transform .2s ease,opacity .2s ease}
-.oneMomentsTabs{display:flex;gap:8px;overflow:auto;margin:4px 0 18px}.oneMomentsTabs button{border:1px solid rgba(255,255,255,.1);background:#151827;color:#b9bfd0;border-radius:999px;padding:9px 13px;font-weight:800;white-space:nowrap}.oneMomentsTabs button.active{background:linear-gradient(135deg,#6d35ff,#a535ff);color:#fff;border-color:#9b6cff}.oneMomentCard{border:1px solid rgba(255,255,255,.1);border-radius:20px;background:linear-gradient(145deg,#171a2a,#0d1019);overflow:hidden;margin:0 0 14px}.oneMomentVisual{min-height:220px;display:flex;align-items:flex-end;padding:18px;background:radial-gradient(circle at 70% 25%,#803cff88,transparent 34%),linear-gradient(145deg,#32165f,#101a3e 55%,#090b13);font-size:28px;font-weight:950}.oneMomentMeta{padding:13px 15px;color:#c7cbd6}.oneMomentMeta b{color:#fff}.oneSwipeEdge{position:fixed;top:45%;z-index:44;color:#b88cff;font-size:26px;opacity:.45;pointer-events:none}.oneSwipeEdge.left{left:7px}.oneSwipeEdge.right{right:7px}
-</style>
-<script>
-(()=>{
-  const shell=document.getElementById('oneFoundation');
-  if(!shell||!window.oneShowSpace)return;
-  const show=window.oneShowSpace;
-  const oldScreensHook=()=>{};
-  // Add a real Moments surface to the existing ONE shell without replacing the current home.
-  const momentsHTML=`<span class="oneEyebrow">Ce que vivent tes amis</span><h1 class="oneShellTitle">Moments</h1><p class="oneShellLead">Stories, abonnements et salons réunis au même endroit.</p><div class="oneMomentsTabs"><button data-moment-tab="forYou" class="active">Pour toi</button><button data-moment-tab="following">Abonnements</button><button data-moment-tab="friends">Amis</button><button data-moment-tab="salons">Salons</button></div><article class="oneMomentCard"><div class="oneMomentVisual">Les mêmes moments.<br>Ensemble. ✨</div><div class="oneMomentMeta"><b>Moments ONE</b><br>Retrouve ici les publications de tes amis et de tes salons.</div></article><article class="oneMomentCard"><div class="oneMomentVisual">🎮 Game Night<br>12 en ligne</div><div class="oneMomentMeta"><b>Salon actif</b> · Rejoins tes amis maintenant.</div></article>`;
-  const originalShow=window.oneShowSpace;
-  window.oneShowSpace=function(space,push=true){
-    if(space==='moments'){
-      originalShow('home',push);
-      shell.innerHTML=momentsHTML;
-      shell.hidden=false;
-      document.body.classList.add('oneShellOpen');
-      document.querySelectorAll('.bottom .nav').forEach(n=>n.classList.remove('active'));
-      return;
-    }
-    return originalShow(space,push);
-  };
-  // Make the existing Social screen explicitly the left Discussions screen.
-  const socialBtn=document.querySelector('.oneSocialEntry');
-  if(socialBtn) socialBtn.textContent='Discussions · Amis · Salons';
-
-  // Requested bottom bar: Accueil | Boutique | + Créer | Rechercher | Réglages.
-  const ai=document.getElementById('askOne'), saved=document.getElementById('savedNav');
-  if(ai){ai.innerHTML='<span class="ico">▣</span>Boutique';ai.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();window.oneShowSpace('shop');};}
-  if(saved){saved.innerHTML='<span class="ico">⌕</span>Rechercher';saved.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();document.getElementById('oneHomeNav')?.click();setTimeout(()=>{document.getElementById('oneSearchToggle')?.click();},30);};}
-
-  const hint=document.createElement('div');hint.className='oneSwipeHint';document.body.append(hint);
-  const l=document.createElement('span'),r=document.createElement('span');l.className='oneSwipeEdge left';r.className='oneSwipeEdge right';l.textContent='‹';r.textContent='›';document.body.append(l,r);
-  let sx=0,sy=0,dx=0,tracking=false;
-  const blocked=t=>t.closest('input,textarea,select,button,.tabsRail,#chips,.oneMomentsTabs,.vfeed,.modal,dialog');
-  function homeVisible(){return document.body.classList.contains('oneShellOpen') && !shell.hidden;}
-  document.addEventListener('touchstart',e=>{if(e.touches.length!==1||blocked(e.target))return;const t=e.touches[0];sx=t.clientX;sy=t.clientY;dx=0;tracking=true;},{passive:true});
-  document.addEventListener('touchmove',e=>{if(!tracking)return;const t=e.touches[0],x=t.clientX-sx,y=t.clientY-sy;if(Math.abs(y)>Math.abs(x)*.85){tracking=false;return;}dx=x;if(Math.abs(dx)>12&&homeVisible()){shell.classList.add('oneSwipeMoving');shell.style.transform=`translateX(${Math.max(-70,Math.min(70,dx*.22))}px)`;shell.style.opacity=String(1-Math.min(.16,Math.abs(dx)/600));}},{passive:true});
-  document.addEventListener('touchend',()=>{if(!tracking){shell.style.transform='';shell.style.opacity='';shell.classList.remove('oneSwipeMoving');return;}tracking=false;shell.classList.remove('oneSwipeMoving');shell.classList.add('oneSwipeSnap');shell.style.transform='';shell.style.opacity='';setTimeout(()=>shell.classList.remove('oneSwipeSnap'),220);if(Math.abs(dx)<65)return;if(dx>0){window.oneShowSpace('social');hint.textContent='Discussions · Amis · Salons';}else{window.oneShowSpace('moments');hint.textContent='Moments · Abonnements · Amis · Salons';}hint.classList.add('show');setTimeout(()=>hint.classList.remove('show'),900);},{passive:true});
-  shell.addEventListener('click',e=>{const b=e.target.closest('[data-moment-tab]');if(!b)return;shell.querySelectorAll('[data-moment-tab]').forEach(x=>x.classList.toggle('active',x===b));if(b.dataset.momentTab==='following'){document.getElementById('savedNav')?.click();setTimeout(()=>{if(typeof loadFollowingFeed==='function')loadFollowingFeed();},20);}});
-})();
-</script>
