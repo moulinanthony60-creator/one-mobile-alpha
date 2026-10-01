@@ -5844,7 +5844,7 @@ body.oneOpeningDiscussion dialog.oneFriendsDialog.oneThreadFullscreen{visibility
 <!-- ONE V7.6.3 — receiver rows + luminous media ring + restored page sides -->
 <!-- ONE V7.7.2 — never expose internal media transport markers in the UI -->
 
-<!-- ONE V7.9.3.2 + Salons intégrés : même interface Salon dans Messages, accès Accueil conservé -->
+<!-- ONE V7.9.3.2 + navigation : Accueil · Boutique · Créer · Recherche · Réglages -->
 <style id="one-v79-messages-clean-css">
 #oneFoundation #oneSocialInline{min-height:220px}
 #oneFoundation #oneSocialInline .oneV79Skeleton{display:grid;gap:0}.oneV79SkeletonRow{height:82px;border-bottom:1px solid #24283a;display:flex;align-items:center;gap:14px}.oneV79SkeletonRow:before{content:"";width:58px;height:58px;border-radius:50%;background:#181c2b}.oneV79SkeletonRow:after{content:"";width:42%;height:13px;border-radius:999px;background:#181c2b}
@@ -6209,6 +6209,179 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
 })();
 </script>
 
+
+
+<style id="one-home-clean-v1-css">
+/* ONE — Accueil allégé */
+.topbar #oneSearchToggle,
+.topbar #oneSalonsToggle{
+  display:none!important;
+}
+
+/* La cloche vit directement à côté du compte. */
+.brandrow>#oneNotificationsToggle.oneTopNotification{
+  order:1!important;
+  width:40px!important;
+  height:40px!important;
+  flex:0 0 40px!important;
+  margin-left:auto!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid #3d3957!important;
+  border-radius:14px!important;
+  background:linear-gradient(145deg,#171a2b,#211836)!important;
+  color:#d9c4ff!important;
+  padding:0!important;
+  box-shadow:0 7px 20px #0004!important;
+}
+.brandrow>#oneNotificationsToggle.oneTopNotification svg{
+  width:21px!important;
+  height:21px!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.9!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+.brandrow>#accountBtn{order:2!important;margin-left:4px!important}
+.oneHeaderTools:empty,.oneHeaderTools[hidden]{display:none!important}
+
+/* Barre du bas : Boutique conservée ici. */
+.bottom{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  background:
+    radial-gradient(circle at 15% 0,#7342ff22,transparent 30%),
+    radial-gradient(circle at 85% 0,#16c8ff18,transparent 30%),
+    linear-gradient(180deg,#111529f7,#090c19f9)!important;
+  border-top:1px solid #51436f!important;
+  box-shadow:0 -10px 34px #0008, inset 0 1px 0 #ffffff08!important;
+  overflow:visible!important;
+}
+.bottom::before{
+  content:"";
+  position:absolute;
+  top:-1px;left:8%;right:8%;
+  height:1px;
+  background:linear-gradient(90deg,transparent,#8a55ff,#38c8ff,transparent);
+  opacity:.72;
+  pointer-events:none;
+}
+.bottom #askOne{display:flex!important}
+.bottom .nav{
+  position:relative!important;
+  color:#aeb5cb!important;
+  transition:transform .12s ease,background .12s ease,color .12s ease!important;
+  border-radius:15px!important;
+  margin:5px 3px 4px!important;
+}
+.bottom .nav .ico{
+  width:28px!important;
+  height:27px!important;
+  margin:0 auto 3px!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:21px!important;
+}
+.bottom .nav .ico svg{width:22px!important;height:22px!important}
+.bottom #oneHomeNav .ico{color:#a97cff!important}
+.bottom #discover .ico{color:#ff769e!important}
+.bottom #savedNav .ico{color:#50d9ff!important}
+.bottom #askOne .ico{color:#ffc45c!important}
+.bottom #profile .ico{color:#68e2ad!important}
+.bottom .nav.active{
+  color:#fff!important;
+  background:linear-gradient(180deg,#ffffff0e,#ffffff05)!important;
+  transform:translateY(-1px)!important;
+}
+.bottom .nav.active .ico{
+  filter:drop-shadow(0 0 8px currentColor)!important;
+}
+
+/* Aucun ancien lanceur Amis/Salons ne doit encombrer l'accueil. */
+body.oneHomeClean .topbar [data-one-obsolete-home],
+body.oneHomeClean .app>[data-one-obsolete-home],
+body.oneHomeClean>button[data-one-obsolete-home]{
+  display:none!important;
+}
+</style>
+
+<script id="one-home-clean-v1-js">
+(()=>{
+ const header=document.querySelector('.topbar');
+ const brandrow=header?.querySelector('.brandrow');
+ const account=document.getElementById('accountBtn');
+ const bell=document.getElementById('oneNotificationsToggle');
+ const tools=header?.querySelector('.oneHeaderTools');
+ const bottom=document.querySelector('.bottom');
+ const home=document.getElementById('oneHomeNav');
+ const create=document.getElementById('discover');
+ const search=document.getElementById('savedNav');
+ const settings=document.getElementById('profile');
+ const shop=document.getElementById('askOne');
+ if(!header||!brandrow||!account||!bell||!bottom||!home||!create||!search||!settings)return;
+
+ document.body.classList.add('oneHomeClean');
+
+ // Cloche juste avant Compte.
+ bell.classList.add('oneTopNotification');
+ if(bell.parentNode!==brandrow||bell.nextElementSibling!==account)brandrow.insertBefore(bell,account);
+
+ // La loupe du haut disparaît : Recherche est maintenant dans la barre du bas.
+ document.getElementById('oneSearchToggle')?.setAttribute('hidden','');
+ if(tools){
+   // Les vieux raccourcis du header ne servent plus.
+   for(const b of [...tools.querySelectorAll('button')]){
+     const label=((b.getAttribute('aria-label')||'')+' '+(b.textContent||'')).trim();
+     if(/\b(salons?|amis|boutique)\b/i.test(label))b.dataset.oneObsoleteHome='1';
+   }
+   if(![...tools.children].some(el=>!el.hidden&&!el.matches('[data-one-obsolete-home],#oneSearchToggle')))tools.hidden=true;
+ }
+
+ // Salon/Amis restent disponibles dans Messages, mais leurs anciens accès Accueil sont cachés.
+ function hideOldHomeLaunchers(){
+   const candidates=document.querySelectorAll('.topbar button,.app>button,body>button');
+   for(const b of candidates){
+     if(b===bell||b===account||b.closest('#oneFoundation,#oneSalonTray,dialog'))continue;
+     const label=((b.getAttribute('aria-label')||'')+' '+(b.textContent||'')).trim();
+     if(/\b(salons?|amis(?:\s+one)?|boutique)\b/i.test(label))b.dataset.oneObsoleteHome='1';
+   }
+ }
+ hideOldHomeLaunchers();
+
+ // Ordre demandé : Accueil · Boutique · Créer · Recherche · Réglages.
+ bottom.replaceChildren(home,shop,create,search,settings);
+
+ // Icône loupe explicite : aucun ancien patch d'icônes ne peut la remplacer.
+ search.setAttribute('aria-label','Recherche');
+ search.innerHTML='<span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m15.2 15.2 5.1 5.1" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>Recherche';
+
+ // Recherche depuis le bas : ouvre directement le champ existant de l'accueil.
+ search.onclick=e=>{
+   e.preventDefault();
+   e.stopPropagation();
+   document.body.classList.remove('oneSideScreen');
+   const current=window.oneCurrentSpace?.();
+   if(current&&current!=='home')window.oneShowSpace?.('home',false);
+   const box=document.getElementById('oneHeaderSearch')||header.querySelector('.search');
+   const input=document.getElementById('search');
+   requestAnimationFrame(()=>{
+     if(box)box.hidden=false;
+     header.classList.add('oneSearchOpen');
+     input?.focus({preventScroll:true});
+   });
+ };
+
+ // Si un ancien module remonte un bouton Salon/Amis dans le header, on le cache sans observer toute l'app.
+ const observer=new MutationObserver(hideOldHomeLaunchers);
+ observer.observe(brandrow,{childList:true,subtree:true});
+
+ // Sécurise l'ordre de la barre du bas.
+ requestAnimationFrame(()=>{
+   const wanted=[home,shop,create,search,settings].filter(Boolean);
+   if(wanted.some((n,i)=>bottom.children[i]!==n)||bottom.children.length!==wanted.length)bottom.replaceChildren(...wanted);
+ });
+})();
+</script>
 
 </body>
 </html>
