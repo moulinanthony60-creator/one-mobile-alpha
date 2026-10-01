@@ -5844,7 +5844,7 @@ body.oneOpeningDiscussion dialog.oneFriendsDialog.oneThreadFullscreen{visibility
 <!-- ONE V7.6.3 — receiver rows + luminous media ring + restored page sides -->
 <!-- ONE V7.7.2 — never expose internal media transport markers in the UI -->
 
-<!-- ONE V7.9.3.3 — Instant Media: envoi immédiat, préchargement, notification directe -->
+<!-- ONE V7.9.3.2 + Salons intégrés : même interface Salon dans Messages, accès Accueil conservé -->
 <style id="one-v79-messages-clean-css">
 #oneFoundation #oneSocialInline{min-height:220px}
 #oneFoundation #oneSocialInline .oneV79Skeleton{display:grid;gap:0}.oneV79SkeletonRow{height:82px;border-bottom:1px solid #24283a;display:flex;align-items:center;gap:14px}.oneV79SkeletonRow:before{content:"";width:58px;height:58px;border-radius:50%;background:#181c2b}.oneV79SkeletonRow:after{content:"";width:42%;height:13px;border-radius:999px;background:#181c2b}
@@ -5889,11 +5889,56 @@ dialog.oneFriendsDialog.oneThreadFullscreen input[type="file"]{display:none!impo
 dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>input[type="file"],dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>.oneMediaTray,dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>.oneMediaPreview{display:none!important;max-height:0!important;min-height:0!important;margin:0!important;padding:0!important}
 
 
-/* V7.9.3.3 — instant media */
-.oneV79MediaChip.oneV79Sending{opacity:.72!important;pointer-events:none!important}
-.oneV79MediaChip.oneV79Sending .oneV79MediaDot{animation:oneV7933Pulse .72s ease-in-out infinite}
-.oneV79MediaChip.oneV79Failed{border-style:dashed!important}
-@keyframes oneV7933Pulse{0%,100%{transform:scale(.72);opacity:.45}50%{transform:scale(1.12);opacity:1}}
+
+/* ONE V7.9.3.2 — Salon intégré dans Messages, sans supprimer l'accès Accueil */
+#oneFoundation #oneSocialInline.oneSalonInlineHost{
+  padding:0!important;
+  overflow:visible!important;
+  background:transparent!important;
+  border:0!important;
+}
+#oneFoundation #oneSalonTray.oneSalonEmbedded{
+  position:relative!important;
+  inset:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  left:auto!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  transform:none!important;
+  z-index:1!important;
+  border-radius:22px!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+#oneFoundation #oneSalonTray.oneSalonEmbedded[hidden]{display:none!important}
+#oneFoundation #oneSalonTray.oneSalonEmbedded>header{
+  position:relative!important;
+  top:auto!important;
+  z-index:2!important;
+}
+#oneFoundation #oneSalonTray.oneSalonEmbedded>header .os-close{
+  display:none!important;
+}
+#oneFoundation #oneSalonTray.oneSalonEmbedded #oneSalonBody{
+  max-height:none!important;
+  height:auto!important;
+  overflow:visible!important;
+}
+#oneFoundation #oneSalonTray.oneSalonEmbedded #oneSalonRoom{
+  max-height:none!important;
+  overflow:visible!important;
+}
+#oneFoundation #oneSalonTray.oneSalonEmbedded .os-salon,
+#oneFoundation #oneSalonTray.oneSalonEmbedded .os-choose{
+  max-width:100%!important;
+}
 
 /* V7.9.3.2 — recovery/performance */
 dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log article.oneV79Media[hidden]{display:none!important}
@@ -5960,10 +6005,10 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
  function hideMeta(value){const bytes=new TextEncoder().encode(value);let out=ZP;for(const b of bytes)for(let bit=7;bit>=0;bit--)out+=((b>>bit)&1)?Z1:Z0;return out}
  function readMeta(text){const s=String(text||''),i=s.indexOf(ZP);if(i<0)return null;const bits=[...s.slice(i+ZP.length)].filter(c=>c===Z0||c===Z1);if(!bits.length||bits.length%8)return null;const bytes=new Uint8Array(bits.length/8);for(let n=0;n<bytes.length;n++){let b=0;for(let j=0;j<8;j++)b=(b<<1)|(bits[n*8+j]===Z1?1:0);bytes[n]=b}try{return new TextDecoder().decode(bytes)}catch{return null}}
  const parse=text=>{const s=String(text||''),legacy=s.match(MARK);if(legacy)return {kind:legacy[1].toLowerCase(),type:legacy[1].toLowerCase()==='v'?'video':'photo',id:legacy[2],shareToken:legacy[3]};const raw=readMeta(s);if(!raw)return null;const p=raw.split('|');if(p.length!==3||!['p','v'].includes(p[0])||!/^[0-9a-f-]{36}$/i.test(p[1])||!/^[A-Za-z0-9_-]{40,}$/.test(p[2]))return null;return {kind:p[0],type:p[0]==='v'?'video':'photo',id:p[1],shareToken:p[2]}};
- const marker=(type,id,t)=>(type==='video'?'🎥 Vidéo':'📸 Photo')+hideMeta(`${type==='video'?'v':'p'}|${id}|${t}`),word=m=>m.type==='video'?'Vidéo':'Photo';
+ const marker=(type,id,t)=>(type==='video'?'🎥 Vidéo ONE':'📸 Photo ONE')+hideMeta(`${type==='video'?'v':'p'}|${id}|${t}`),word=m=>m.type==='video'?'Vidéo':'Photo';
  const wait=ms=>new Promise(r=>setTimeout(r,ms));
- let tab='messages',busy=false,activeId='',activeName='',order=[],friendOrder=[],lastSig=new Map(),lastRemoteInboxSig='',lastRemotePaint=0,threadTimer=0,socialTimer=0,viewerTimeout=0,viewerTick=0,cameraTarget=null,cameraReturn=null,cameraStream=null,cameraRecorder=null,cameraChunks=[],cameraHold=0,cameraRecording=false,cameraFile=null,cameraFacing='environment';
- const statuses=new Map(),delivered=new Set(),mediaCache=new Map(),mediaWarm=new Map(),notices=new Map(),notified=new Set(JSON.parse(sessionStorage.getItem('one_v79_notified')||'[]'));
+ let tab='messages',busy=false,activeId='',activeName='',order=[],friendOrder=[],lastSig=new Map(),threadTimer=0,socialTimer=0,viewerTimeout=0,viewerTick=0,cameraTarget=null,cameraReturn=null,cameraStream=null,cameraRecorder=null,cameraChunks=[],cameraHold=0,cameraRecording=false,cameraFile=null,cameraFacing='environment';
+ const statuses=new Map(),delivered=new Set(),mediaCache=new Map(),notices=new Map(),notified=new Set(JSON.parse(sessionStorage.getItem('one_v79_notified')||'[]'));
  const accountId=()=>{try{return JSON.parse(localStorage.getItem('one_account_v06')||'{}').id||'anon'}catch{return'anon'}};
  const cacheKey=k=>'one_v79_'+k+'_'+accountId();
  function getCache(k,fallback){try{return JSON.parse(localStorage.getItem(cacheKey(k))||'null')??fallback}catch{return fallback}}
@@ -5991,15 +6036,32 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
  async function markDelivered(mark){if(delivered.has(mark.id))return;delivered.add(mark.id);try{const d=await media('/messages/'+encodeURIComponent(mark.id)+'/delivered-shared?token='+encodeURIComponent(mark.shareToken),{method:'POST'});statuses.set(mark.id,{at:Date.now(),data:d.status});persistStatuses()}catch{delivered.delete(mark.id)}}
  async function markOpened(mark){const d=await media('/messages/'+encodeURIComponent(mark.id)+'/open-shared?token='+encodeURIComponent(mark.shareToken),{method:'POST'});statuses.set(mark.id,{at:Date.now(),data:d.status});persistStatuses();return d.status}
  function updateOrder(list){const keys=list.map(keyOf);if(!order.length)order=[...keys];order=order.filter(k=>keys.includes(k));for(const k of keys)if(!order.includes(k))order.push(k);for(const x of list){const k=keyOf(x),s=sig(x),old=lastSig.get(k);if(old&&old!==s){order=order.filter(v=>v!==k);order.unshift(k)}lastSig.set(k,s)}}
- function addNotice(x,mark){if(notices.has(mark.id))return;notices.set(mark.id,{name:x?.name||'ONE',mark});renderNotices();if(!notified.has(mark.id)){notified.add(mark.id);try{sessionStorage.setItem('one_v79_notified',JSON.stringify([...notified].slice(-100)))}catch{}if(document.hidden&&'Notification'in window&&Notification.permission==='granted'){const name=x?.name||'ONE',title=name,body=mark.type==='video'?'t’a envoyé une vidéo':'t’a envoyé une photo';try{navigator.serviceWorker?.ready?.then(r=>r.showNotification(title,{body,tag:'one-media-'+mark.id,data:{url:location.origin+location.pathname+'?one_media=1',media:{id:mark.id,type:mark.type,shareToken:mark.shareToken,latest:false}}})).catch(()=>{})}catch{}}}}
+ function addNotice(x,mark){if(notices.has(mark.id))return;notices.set(mark.id,{name:x?.name||'ONE',mark});renderNotices();if(!notified.has(mark.id)){notified.add(mark.id);try{sessionStorage.setItem('one_v79_notified',JSON.stringify([...notified].slice(-100)))}catch{}if(document.hidden&&'Notification'in window&&Notification.permission==='granted'){const title=x?.name||'ONE',body=mark.type==='video'?'Nouvelle vidéo':'Nouvelle photo';try{navigator.serviceWorker?.ready?.then(r=>r.showNotification(title,{body,tag:'one-media-'+mark.id})).catch(()=>{})}catch{}}}}
  function clearNotice(id){notices.delete(id);renderNotices()}
  function renderNotices(){const panel=document.getElementById('oneNotifications'),toggle=document.getElementById('oneNotificationsToggle');if(!panel||!toggle)return;let box=panel.querySelector('.oneV79MediaNotices');if(!box){box=document.createElement('div');box.className='oneV79MediaNotices';panel.appendChild(box)}box.replaceChildren();for(const n of notices.values()){const b=document.createElement('button');b.className='oneV79MediaNotice '+n.mark.type;b.type='button';b.innerHTML='<i></i><span><b></b><small></small></span>';b.querySelector('b').textContent=n.name;b.querySelector('small').textContent=n.mark.type==='video'?'Nouvelle vidéo':'Nouvelle photo';b.onclick=()=>openShared(n.mark,null,false);box.appendChild(b)}box.hidden=!notices.size;toggle.classList.toggle('oneV79HasMedia',notices.size>0);toggle.dataset.oneMediaCount=String(Math.min(9,notices.size));const p=panel.querySelector(':scope>p'),s=panel.querySelector(':scope>small');if(p)p.hidden=notices.size>0;if(s)s.hidden=notices.size>0}
- function paintInbox(raw,network=true){const host=document.getElementById('oneSocialInline');if(!host||tab!=='messages')return;const list=dedupe(raw);updateOrder(list);const by=new Map(list.map(x=>[keyOf(x),x]));const marks=list.map(x=>parse(x.lastText||'')).filter(Boolean);host.querySelector('.oneV79Skeleton')?.remove();const keep=new Set();for(const k of order){const x=by.get(k);if(!x)continue;const row=ensureRow(host,k,x,false);keep.add(row);const sub=row.querySelector('.copy span'),av=row.querySelector('.avatar'),un=row.querySelector('.oneV79Unread'),m=parse(x.lastText||'');av.classList.remove('oneV79PhotoRing','oneV79VideoRing');un.hidden=true;sub.className='';row.dataset.oneV79LastText=String(x.lastText||'');if(m){row.dataset.oneV79Media=m.id;const st=statuses.get(m.id)?.data||null;const mine=!!st?.mine,opened=!!st?.opened;sub.textContent=(opened?'○ ':'● ')+word(m);sub.className=m.type==='video'?'oneV79Video':'oneV79Photo';if(!mine&&!opened){av.classList.add(m.type==='video'?'oneV79VideoRing':'oneV79PhotoRing');addNotice(x,m);warmMedia(m);void markDelivered(m)}else if(opened)clearNotice(m.id)}else{delete row.dataset.oneV79Media;sub.textContent=x.lastText||'Commencer la discussion';if(Number(x.unread||0)>0)un.hidden=false}host.appendChild(row)}for(const n of [...host.querySelectorAll(':scope>.oneV79Row')])if(!keep.has(n))n.remove();if(!keep.size)host.innerHTML='<p class="oneInlineEmpty">Aucune conversation pour le moment.</p>';if(network&&marks.length){const todo=marks.filter(m=>{const s=statuses.get(m.id);return !s||Date.now()-s.at>12000}).slice(0,6);if(todo.length)Promise.allSettled(todo.map(m=>status(m,true))).then(()=>{if(tab==='messages'&&document.getElementById('oneSocialInline')===host)requestAnimationFrame(()=>paintInbox(raw,false))})}}
+ function paintInbox(raw,network=true){const host=document.getElementById('oneSocialInline');if(!host||tab!=='messages')return;const list=dedupe(raw);updateOrder(list);const by=new Map(list.map(x=>[keyOf(x),x]));const marks=list.map(x=>parse(x.lastText||'')).filter(Boolean);host.querySelector('.oneV79Skeleton')?.remove();const keep=new Set();for(const k of order){const x=by.get(k);if(!x)continue;const row=ensureRow(host,k,x,false);keep.add(row);const sub=row.querySelector('.copy span'),av=row.querySelector('.avatar'),un=row.querySelector('.oneV79Unread'),m=parse(x.lastText||'');av.classList.remove('oneV79PhotoRing','oneV79VideoRing');un.hidden=true;sub.className='';row.dataset.oneV79LastText=String(x.lastText||'');if(m){row.dataset.oneV79Media=m.id;const st=statuses.get(m.id)?.data||null;const mine=!!st?.mine,opened=!!st?.opened;sub.textContent=(opened?'○ ':'● ')+word(m);sub.className=m.type==='video'?'oneV79Video':'oneV79Photo';if(!mine&&!opened){av.classList.add(m.type==='video'?'oneV79VideoRing':'oneV79PhotoRing');addNotice(x,m);void markDelivered(m)}else if(opened)clearNotice(m.id)}else{delete row.dataset.oneV79Media;sub.textContent=x.lastText||'Commencer la discussion';if(Number(x.unread||0)>0)un.hidden=false}host.appendChild(row)}for(const n of [...host.querySelectorAll(':scope>.oneV79Row')])if(!keep.has(n))n.remove();if(!keep.size)host.innerHTML='<p class="oneInlineEmpty">Aucune conversation pour le moment.</p>';if(network&&marks.length){const todo=marks.filter(m=>{const s=statuses.get(m.id);return !s||Date.now()-s.at>12000}).slice(0,6);if(todo.length)Promise.allSettled(todo.map(m=>status(m,true))).then(()=>{if(tab==='messages'&&document.getElementById('oneSocialInline')===host)requestAnimationFrame(()=>paintInbox(raw,false))})}}
  function paintFriends(raw){const host=document.getElementById('oneSocialInline');if(!host||tab!=='friends')return;const list=dedupe((raw||[]).filter(x=>x.status==='accepted'));const keys=list.map(keyOf);if(!friendOrder.length)friendOrder=[...keys].sort((a,b)=>String(list.find(x=>keyOf(x)===a)?.name||'').localeCompare(String(list.find(x=>keyOf(x)===b)?.name||''),'fr',{sensitivity:'base'}));friendOrder=friendOrder.filter(k=>keys.includes(k));for(const k of keys)if(!friendOrder.includes(k))friendOrder.push(k);const by=new Map(list.map(x=>[keyOf(x),x]));host.replaceChildren();for(const k of friendOrder){const x=by.get(k);if(!x)continue;const row=ensureRow(host,k,x,true);row.querySelector('.copy span').textContent=x.online?'● En ligne':'Hors ligne';host.appendChild(row)}const add=document.createElement('button');add.className='oneInlineAction';add.textContent='＋ Ajouter un ami';add.onclick=()=>window.oneOpenFriends?.({tab:'add'});host.appendChild(add)}
  function paintCached(which){const host=document.getElementById('oneSocialInline');if(!host)return;document.querySelectorAll('.oneSocialTabs button').forEach(b=>b.classList.toggle('active',b.dataset.socialTab===which));if(which==='messages'){const c=getCache('inbox',[]);if(c.length)paintInbox(c,false);else skeleton()}else if(which==='friends'){const c=getCache('friends',[]);if(c.length)paintFriends(c);else skeleton()}}
- async function syncSocial(force=false){if(busy||document.hidden||!token()||!document.getElementById('oneSocialInline'))return;busy=true;try{if(tab==='messages'){const d=await people('/friends/inbox'),rows=d.conversations||[],remote=rows.map(x=>keyOf(x)+'='+sig(x)).join('||'),changed=remote!==lastRemoteInboxSig;setCache('inbox',rows);lastRemoteInboxSig=remote;if(changed||force||Date.now()-lastRemotePaint>12000){lastRemotePaint=Date.now();await paintInbox(rows,true)}else{for(const x of rows){const m=parse(x.lastText||'');if(m){const st=statuses.get(m.id)?.data;if(!st?.mine&&!st?.opened)warmMedia(m)}}}}else if(tab==='friends'){const d=await people('/friends/state');const rows=d.relationships||[];setCache('friends',rows);paintFriends(rows)}}catch(e){console.warn('ONE V7.9 social',e)}finally{busy=false}}
- function setTab(which){tab=which;if(which==='rooms'){const h=document.getElementById('oneSocialInline');h.innerHTML='<button class="oneInlineAction" data-v79-rooms>Ouvrir mes salons</button><p class="oneInlineEmpty">Retrouve tes salons ONE ici.</p>';document.querySelectorAll('.oneSocialTabs button').forEach(b=>b.classList.toggle('active',b.dataset.socialTab===which));return}paintCached(which);syncSocial(true)}
- document.addEventListener('click',e=>{const b=e.target.closest('#oneFoundation [data-social-tab]');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();setTab(b.dataset.socialTab)},true);document.addEventListener('click',e=>{if(e.target.closest('[data-v79-rooms]'))window.oneOpenSalon?.('browse')},true);
+ async function syncSocial(force=false){if(busy||document.hidden||!token()||!document.getElementById('oneSocialInline'))return;busy=true;try{if(tab==='messages'){const d=await people('/friends/inbox');const rows=d.conversations||[];setCache('inbox',rows);await paintInbox(rows,true)}else if(tab==='friends'){const d=await people('/friends/state');const rows=d.relationships||[];setCache('friends',rows);paintFriends(rows)}}catch(e){console.warn('ONE V7.9 social',e)}finally{busy=false}}
+ function setTab(which){
+  tab=which;
+  document.querySelectorAll('.oneSocialTabs button').forEach(b=>b.classList.toggle('active',b.dataset.socialTab===which));
+  const title=document.querySelector('#oneFoundation .oneShellTitle');
+  if(title)title.textContent=which==='rooms'?'Salons':which==='friends'?'Amis':'Discussions';
+  if(which==='rooms'){
+   const h=document.getElementById('oneSocialInline');
+   if(!h)return;
+   h.replaceChildren();
+   if(typeof window.oneEmbedSalonInMessages==='function')window.oneEmbedSalonInMessages(h);
+   else h.innerHTML='<p class="oneInlineEmpty">Les salons ONE sont momentanément indisponibles.</p>';
+   return;
+  }
+  window.oneReleaseSalonFromMessages?.();
+  paintCached(which);
+  syncSocial(true);
+ }
+ document.addEventListener('click',e=>{const b=e.target.closest('#oneFoundation [data-social-tab]');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();setTab(b.dataset.socialTab)},true);
+ window.oneSetSocialTab=setTab;
 
  /* Thread integration */
  const previousOpen=window.oneOpenFriends;if(typeof previousOpen==='function'){const wrapped=function(...args){const id=args[0];if(typeof id==='string'&&!id.startsWith('group:')){activeId=id;const row=[...document.querySelectorAll('#oneSocialInline .oneV79Row')].find(r=>r.dataset.oneFriendId===String(id));activeName=row?.dataset.onePeerName||activeName}const out=previousOpen.apply(this,args);clearTimeout(threadTimer);threadTimer=setTimeout(()=>{mountThread();decorateThread()},45);return out};wrapped.__oneV79=true;window.oneOpenFriends=wrapped}
@@ -6008,65 +6070,8 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
  function mountThread(d=currentDialog()){if(!d)return;d.dataset.oneV79Id=activeId||d.dataset.oneV79Id||'';d.dataset.oneV79Name=activeName||d.dataset.oneV79Name||'';const box=d.querySelector('.friends-content'),label=box?.querySelector(':scope>label');if(!box||!label)return;if(!box.querySelector('.oneV79AttachBtn')){const plus=document.createElement('button');plus.type='button';plus.className='oneV79AttachBtn';plus.textContent='＋';plus.setAttribute('aria-label','Choisir une photo ou une vidéo');const inp=document.createElement('input');inp.type='file';inp.accept='image/*,video/*';inp.hidden=true;inp.className='oneV79Gallery';inp.onchange=()=>{const f=inp.files?.[0];if(f)upload(f,d)};plus.onclick=e=>{e.preventDefault();e.stopPropagation();inp.value='';inp.click()};const cam=document.createElement('button');cam.type='button';cam.className='oneV79ThreadCamera';cam.textContent='📷';cam.setAttribute('aria-label','Ouvrir la caméra');cam.onclick=e=>{e.preventDefault();e.stopPropagation();openCamera({id:d.dataset.oneV79Id||activeId,name:d.dataset.oneV79Name||activeName,dialog:d})};box.append(inp,plus,cam)}}
  async function sendMarker(d,text){const ta=d?.querySelector('.friends-content>label textarea'),send=d?.querySelector('.friends-content>label+button');if(!ta||!send)throw Error('Conversation indisponible.');const draft=ta.value,oldOpacity=ta.style.opacity;ta.value=text;ta.style.opacity='0';ta.dispatchEvent(new Event('input',{bubbles:true}));send.click();for(let i=0;i<20&&ta.value===text;i++)await wait(50);ta.style.opacity=oldOpacity;if(ta.value===text||ta.value===''){ta.value=draft;ta.dispatchEvent(new Event('input',{bubbles:true}))}}
  async function ensureDialogForTarget(target){if(target?.dialog?.isConnected)return target.dialog;if(!target?.id)throw Error('Destinataire introuvable.');window.oneOpenFriends?.(target.id);for(let i=0;i<30;i++){await wait(40);const d=currentDialog();if(d){activeId=target.id;activeName=target.name||activeName;mountThread(d);return d}}throw Error('Conversation indisponible.')}
- async function prepareMediaFile(file,type){
-  if(type!=='photo'||!file||file.size<900000||typeof createImageBitmap!=='function')return file;
-  try{
-   const bmp=await createImageBitmap(file),max=1920,scale=Math.min(1,max/Math.max(bmp.width,bmp.height));
-   if(scale>=.999&&file.size<1800000){bmp.close?.();return file}
-   const c=document.createElement('canvas');
-   c.width=Math.max(1,Math.round(bmp.width*scale));c.height=Math.max(1,Math.round(bmp.height*scale));
-   c.getContext('2d',{alpha:false}).drawImage(bmp,0,0,c.width,c.height);bmp.close?.();
-   const blob=await new Promise(resolve=>c.toBlob(resolve,'image/jpeg',.86));
-   return blob?new File([blob],file.name||('ONE_'+Date.now()+'.jpg'),{type:'image/jpeg',lastModified:Date.now()}):file;
-  }catch{return file}
- }
- function optimisticSend(d,type,file,target){
-  const log=d?.querySelector('.friend-message-log');if(!log)return null;
-  const a=document.createElement('article');a.className='mine oneV79Media oneV79Optimistic';
-  const chip=document.createElement('button');chip.type='button';chip.className='oneV79MediaChip '+type+' mine oneV79Sending';chip.disabled=true;
-  chip.innerHTML='<span class="oneV79MediaDot"></span><span class="oneV79MediaLabel"></span>';
-  chip.querySelector('.oneV79MediaLabel').textContent=(type==='video'?'Vidéo':'Photo')+' · envoi…';
-  a.appendChild(chip);log.appendChild(a);requestAnimationFrame(()=>log.scrollTop=log.scrollHeight);
-  return {a,chip,type,file,target};
- }
- function optimisticSent(o,m){
-  if(!o?.a?.isConnected)return;
-  o.a.dataset.oneV79MediaId=m.id;o.chip.classList.remove('oneV79Sending');o.chip.disabled=false;
-  o.chip.querySelector('.oneV79MediaLabel').textContent=word(m);
-  o.chip.onclick=e=>{e.preventDefault();e.stopPropagation();openShared(m,o.a,true)};
- }
- function optimisticFailed(o){
-  if(!o?.a?.isConnected)return;
-  o.chip.classList.remove('oneV79Sending');o.chip.classList.add('oneV79Failed');o.chip.disabled=false;
-  o.chip.querySelector('.oneV79MediaLabel').textContent=(o.type==='video'?'Vidéo':'Photo')+' · réessayer';
-  o.chip.onclick=e=>{e.preventDefault();e.stopPropagation();o.a.remove();void upload(o.file,o.target)};
- }
- async function upload(file,dOrTarget){
-  const type=file?.type?.startsWith('video/')?'video':file?.type?.startsWith('image/')?'photo':'';
-  if(!type)return;
-  const target=dOrTarget?.nodeType?{dialog:dOrTarget,id:dOrTarget.dataset.oneV79Id||activeId,name:dOrTarget.dataset.oneV79Name||activeName}:dOrTarget;
-  let d,opt=null;
-  try{
-   d=await ensureDialogForTarget(target);
-   const id=target.id||d.dataset.oneV79Id||activeId;if(!id)throw Error('Destinataire introuvable.');
-   threadStatus(d,'');opt=optimisticSend(d,type,file,target);
-   const sendFile=await prepareMediaFile(file,type);
-   const q=new URLSearchParams({to:id,type,clientId:'media-'+crypto.randomUUID()});
-   const r=await fetch(MEDIA+'/messages/media?'+q,{method:'POST',headers:auth({'Content-Type':sendFile.type||(type==='video'?'video/webm':'image/jpeg')}),body:sendFile,cache:'no-store'});
-   const data=await r.json().catch(()=>({}));
-   if(!r.ok||!data.ok||!data.shareToken)throw Error(data.error||'Envoi du média impossible.');
-   const m={type,id:data.message.id,shareToken:data.shareToken};
-   statuses.set(m.id,{at:Date.now(),data:{mine:true,opened:false,delivered:false,type}});persistStatuses();optimisticSent(opt,m);
-   await sendMarker(d,marker(type,m.id,m.shareToken));
-   window.toast?.((type==='video'?'Vidéo':'Photo')+' envoyée');
-   requestAnimationFrame(()=>decorateThread(d));setTimeout(()=>syncSocial(true),120);
-  }catch(e){
-   optimisticFailed(opt);
-   if(d)threadStatus(d,'❌ '+(e.message||'Envoi impossible'));
-   window.toast?.(e.message||'Envoi impossible');
-  }
- }
- function decorateArticle(a,p,m){if(!a||!p)return;const opt=currentDialog()?.querySelector('.oneV79Optimistic[data-one-v79-media-id="'+CSS.escape(m.id)+'"]');if(opt&&opt!==a)opt.remove();a.classList.add('oneV79Media');p.hidden=true;const mine=a.classList.contains('mine');const rec=statuses.get(m.id),st=rec?.data||{mine,opened:false,delivered:false,type:m.type},opened=!!st.opened,replayable=!mine&&opened&&mediaCache.has(m.id);if((mine&&opened)||(!mine&&opened&&!replayable)){a.hidden=true;clearNotice(m.id)}else{a.hidden=false;let chip=a.querySelector('.oneV79MediaChip');if(!chip){chip=document.createElement('button');chip.type='button';chip.className='oneV79MediaChip '+m.type+(mine?' mine':'');chip.innerHTML='<span class="oneV79MediaDot"></span><span class="oneV79MediaLabel"></span>';a.appendChild(chip)}chip.classList.toggle('opened',opened);chip.querySelector('.oneV79MediaLabel').textContent=word(m);chip.setAttribute('aria-label',word(m)+' '+(opened?(replayable?'ouverte · revoir':'ouverte'):mine?(st.delivered?'reçue':'envoyée'):'reçue'));chip.disabled=!!opened&&!replayable;chip.onclick=(!opened||replayable)?(e=>{e.preventDefault();e.stopPropagation();openShared(m,a,mine)}):null;if(!mine&&!opened)void markDelivered(m)}if(!rec||Date.now()-rec.at>15000){a.dataset.oneV79StatusPending='1';void status(m,true).then(next=>{delete a.dataset.oneV79StatusPending;if(!a.isConnected||!next)return;requestAnimationFrame(()=>decorateArticle(a,p,m))}).catch(()=>{delete a.dataset.oneV79StatusPending})}}
+ async function upload(file,dOrTarget){const type=file?.type?.startsWith('video/')?'video':file?.type?.startsWith('image/')?'photo':'';if(!type)return;const target=dOrTarget?.nodeType?{dialog:dOrTarget,id:dOrTarget.dataset.oneV79Id||activeId,name:dOrTarget.dataset.oneV79Name||activeName}:dOrTarget;let d;try{d=await ensureDialogForTarget(target);const id=target.id||d.dataset.oneV79Id||activeId;if(!id)throw Error('Destinataire introuvable.');threadStatus(d,type==='video'?'Envoi de la vidéo…':'Envoi de la photo…');const q=new URLSearchParams({to:id,type,clientId:'media-'+crypto.randomUUID()});const r=await fetch(MEDIA+'/messages/media?'+q,{method:'POST',headers:auth({'Content-Type':file.type||(type==='video'?'video/webm':'image/jpeg')}),body:file,cache:'no-store'}),data=await r.json().catch(()=>({}));if(!r.ok||!data.ok||!data.shareToken)throw Error(data.error||'Envoi du média impossible.');const m={type,id:data.message.id,shareToken:data.shareToken};statuses.set(m.id,{at:Date.now(),data:{mine:true,opened:false,delivered:false,type}});persistStatuses();await sendMarker(d,marker(type,m.id,m.shareToken));threadStatus(d,(type==='video'?'Vidéo':'Photo')+' envoyée');window.toast?.((type==='video'?'Vidéo':'Photo')+' envoyée');requestAnimationFrame(()=>decorateThread(d));setTimeout(()=>threadStatus(d,''),900);setTimeout(()=>syncSocial(true),350)}catch(e){if(d)threadStatus(d,'❌ '+(e.message||'Envoi impossible'));window.toast?.(e.message||'Envoi impossible')}}
+ function decorateArticle(a,p,m){if(!a||!p)return;a.classList.add('oneV79Media');p.hidden=true;const mine=a.classList.contains('mine');const rec=statuses.get(m.id),st=rec?.data||{mine,opened:false,delivered:false,type:m.type},opened=!!st.opened,replayable=!mine&&opened&&mediaCache.has(m.id);if((mine&&opened)||(!mine&&opened&&!replayable)){a.hidden=true;clearNotice(m.id)}else{a.hidden=false;let chip=a.querySelector('.oneV79MediaChip');if(!chip){chip=document.createElement('button');chip.type='button';chip.className='oneV79MediaChip '+m.type+(mine?' mine':'');chip.innerHTML='<span class="oneV79MediaDot"></span><span class="oneV79MediaLabel"></span>';a.appendChild(chip)}chip.classList.toggle('opened',opened);chip.querySelector('.oneV79MediaLabel').textContent=word(m);chip.setAttribute('aria-label',word(m)+' '+(opened?(replayable?'ouverte · revoir':'ouverte'):mine?(st.delivered?'reçue':'envoyée'):'reçue'));chip.disabled=!!opened&&!replayable;chip.onclick=(!opened||replayable)?(e=>{e.preventDefault();e.stopPropagation();openShared(m,a,mine)}):null;if(!mine&&!opened)void markDelivered(m)}if(!rec||Date.now()-rec.at>15000){a.dataset.oneV79StatusPending='1';void status(m,true).then(next=>{delete a.dataset.oneV79StatusPending;if(!a.isConnected||!next)return;requestAnimationFrame(()=>decorateArticle(a,p,m))}).catch(()=>{delete a.dataset.oneV79StatusPending})}}
  function decorateThread(d=currentDialog()){if(!d)return;mountThread(d);for(const p of d.querySelectorAll('.friend-message-log article p')){const m=parse(p.textContent);if(m)void decorateArticle(p.closest('article'),p,m)}}
  let threadObs=null,lastThread=null;
  function clearReplayCache(){for(const obj of mediaCache.values()){try{if(obj?.url?.startsWith('blob:'))URL.revokeObjectURL(obj.url)}catch{}}mediaCache.clear()}
@@ -6088,9 +6093,8 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
  function closeViewer(){if(viewer.hidden)return;viewer.hidden=true;stopTimer();vb.querySelector('video')?.pause();if(savedScroll){const {el,top}=savedScroll;savedScroll=null;requestAnimationFrame(()=>{if(el?.isConnected)el.scrollTop=top;decorateThread(currentDialog())})}else{requestAnimationFrame(()=>{decorateThread(currentDialog())})}}
  viewer.querySelector('.oneV79ViewerClose').onclick=e=>{e.preventDefault();e.stopPropagation();closeViewer()};vb.onclick=e=>{e.preventDefault();e.stopPropagation();closeViewer()};viewer.onclick=e=>{if(e.target===viewer)closeViewer()};
  function optimisticOpen(m,a){const old=statuses.get(m.id)?.data||{};statuses.set(m.id,{at:Date.now(),data:{...old,mine:false,opened:true,delivered:true,openedAt:Date.now()}});persistStatuses();clearNotice(m.id);if(a)a.querySelector('.oneV79MediaChip')?.classList.add('opened');document.querySelectorAll('#oneSocialInline .oneV79Row').forEach(r=>{if(r.dataset.oneV79Media!==m.id)return;r.querySelector('.avatar')?.classList.remove('oneV79PhotoRing','oneV79VideoRing');const s=r.querySelector('.copy span');if(s){s.textContent='○ '+word(m);s.className=m.type==='video'?'oneV79Video':'oneV79Photo'}})}
- async function mediaObject(m){const cached=mediaCache.get(m.id);if(cached)return cached;if(mediaWarm.has(m.id))return mediaWarm.get(m.id);const task=(async()=>{const r=await fetch(MEDIA+'/shared-media/'+encodeURIComponent(m.id)+'?token='+encodeURIComponent(m.shareToken),{headers:auth(),cache:'no-store'});if(!r.ok){const d=await r.json().catch(()=>({}));throw Error(d.error||'Média indisponible.')}const blob=await r.blob(),url=URL.createObjectURL(blob),obj={url,type:m.type};mediaCache.set(m.id,obj);return obj})().finally(()=>mediaWarm.delete(m.id));mediaWarm.set(m.id,task);return task}
- function warmMedia(m){if(!m||mediaCache.has(m.id)||mediaWarm.has(m.id))return;void mediaObject(m).catch(()=>{})}
- async function openShared(m,a,mineHint){const st=statuses.get(m.id)?.data,mine=typeof mineHint==='boolean'?mineHint:!!st?.mine;const alreadyOpened=!!st?.opened;const log=currentDialog()?.querySelector('.friend-message-log');savedScroll=log?{el:log,top:log.scrollTop}:null;const ready=mediaCache.has(m.id);viewer.hidden=false;vs.textContent=ready?'':'Ouverture…';vt.textContent='10';try{const obj=await mediaObject(m);vb.replaceChildren();const el=document.createElement(m.type==='video'?'video':'img');el.src=obj.url;if(m.type==='video'){el.autoplay=true;el.playsInline=true;el.controls=false;el.preload='auto';el.onended=closeViewer}vb.appendChild(el);if(el.tagName==='VIDEO')try{await el.play()}catch{}vs.textContent='';if(!mine&&!alreadyOpened){optimisticOpen(m,a);void markOpened(m).catch(()=>{})}startTimer()}catch(e){vs.textContent=e.message||'Média indisponible.';stopTimer()}}
+ async function mediaObject(m){const cached=mediaCache.get(m.id);if(cached)return cached;const r=await fetch(MEDIA+'/shared-media/'+encodeURIComponent(m.id)+'?token='+encodeURIComponent(m.shareToken),{headers:auth(),cache:'no-store'});if(!r.ok){const d=await r.json().catch(()=>({}));throw Error(d.error||'Média indisponible.')}const blob=await r.blob(),url=URL.createObjectURL(blob),obj={url,type:m.type};mediaCache.set(m.id,obj);return obj}
+ async function openShared(m,a,mineHint){const st=statuses.get(m.id)?.data,mine=typeof mineHint==='boolean'?mineHint:!!st?.mine;const alreadyOpened=!!st?.opened;const log=currentDialog()?.querySelector('.friend-message-log');savedScroll=log?{el:log,top:log.scrollTop}:null;viewer.hidden=false;vs.textContent='Ouverture…';vt.textContent='10';try{const obj=await mediaObject(m);vb.replaceChildren();const el=document.createElement(m.type==='video'?'video':'img');el.src=obj.url;if(m.type==='video'){el.autoplay=true;el.playsInline=true;el.controls=false;el.onended=closeViewer}vb.appendChild(el);if(el.tagName==='VIDEO')try{await el.play()}catch{}vs.textContent='';if(!mine&&!alreadyOpened){optimisticOpen(m,a);void markOpened(m).catch(()=>{})}startTimer()}catch(e){vs.textContent=e.message||'Média indisponible.';stopTimer()}}
 
  /* Camera */
  let cam=document.getElementById('oneCameraV79');if(!cam){cam=document.createElement('div');cam.id='oneCameraV79';cam.innerHTML='<video class="oneCamLive" autoplay playsinline muted></video><img class="oneCamPreview" hidden><video class="oneCamVideoPreview" playsinline controls></video><div class="oneCamShade"></div><div class="oneCamTop"><button class="oneCamRound oneCamClose">✕</button><div class="oneCamRecipient">Caméra ONE</div><button class="oneCamRound oneCamFlash">⚡</button></div><div class="oneCamHint">Appuie pour une photo · Maintiens pour une vidéo</div><div class="oneCamBottom"><button class="oneCamRound oneCamRetake">↶</button><button class="oneCamCapture" aria-label="Prendre une photo ou vidéo"></button><button class="oneCamRound oneCamFlip">↻</button><button class="oneCamSend">Envoyer ➤</button></div>';document.body.appendChild(cam)}const live=cam.querySelector('.oneCamLive'),photo=cam.querySelector('.oneCamPreview'),video=cam.querySelector('.oneCamVideoPreview'),recipient=cam.querySelector('.oneCamRecipient'),cap=cam.querySelector('.oneCamCapture');
@@ -6104,54 +6108,107 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
  async function takePhoto(){const track=cameraStream?.getVideoTracks?.()[0];if(!track)return;let blob=null;try{if('ImageCapture'in window)blob=await new ImageCapture(track).takePhoto()}catch{}if(!blob){const c=document.createElement('canvas');c.width=live.videoWidth||1920;c.height=live.videoHeight||1080;c.getContext('2d').drawImage(live,0,0,c.width,c.height);blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.96))}if(!blob)return;cameraFile=new File([blob],'ONE_'+Date.now()+'.jpg',{type:blob.type||'image/jpeg'});photo.src=URL.createObjectURL(blob);photo.hidden=false;cam.classList.add('previewing');await stopCamera()}
  function beginVideo(){if(!cameraStream||cameraRecording||typeof MediaRecorder==='undefined')return;cameraChunks=[];try{const types=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].filter(t=>MediaRecorder.isTypeSupported?.(t));cameraRecorder=new MediaRecorder(cameraStream,types[0]?{mimeType:types[0]}:undefined);cameraRecorder.ondataavailable=e=>{if(e.data?.size)cameraChunks.push(e.data)};cameraRecorder.onstop=()=>{if(!cameraChunks.length)return;const blob=new Blob(cameraChunks,{type:cameraRecorder?.mimeType||'video/webm'});cameraFile=new File([blob],'ONE_'+Date.now()+'.webm',{type:blob.type});video.src=URL.createObjectURL(blob);cam.classList.add('previewing','video');stopCamera()};cameraRecorder.start();cameraRecording=true;cam.classList.add('recording')}catch{cameraRecording=false}}
  function endCapture(){clearTimeout(cameraHold);cameraHold=0;if(cameraRecording){cameraRecording=false;try{cameraRecorder.stop()}catch{}cam.classList.remove('recording')}else void takePhoto()}
- cap.onpointerdown=e=>{e.preventDefault();cameraHold=setTimeout(beginVideo,320)};cap.onpointerup=e=>{e.preventDefault();endCapture()};cap.onpointercancel=()=>{clearTimeout(cameraHold);if(cameraRecording)endCapture()};cam.querySelector('.oneCamClose').onclick=()=>{stopCamera();resetCameraPreview();cam.classList.remove('open');restoreThreadAfterCamera()};cam.querySelector('.oneCamRetake').onclick=()=>startCamera();cam.querySelector('.oneCamFlip').onclick=()=>{cameraFacing=cameraFacing==='environment'?'user':'environment';startCamera()};cam.querySelector('.oneCamFlash').onclick=async()=>{const t=cameraStream?.getVideoTracks?.()[0];try{const caps=t?.getCapabilities?.();if(caps?.torch){t.__torch=!t.__torch;await t.applyConstraints({advanced:[{torch:t.__torch}]})}}catch{}};cam.querySelector('.oneCamSend').onclick=async()=>{if(!cameraFile)return;const f=cameraFile,target=cameraTarget;cam.classList.remove('open');await stopCamera();resetCameraPreview();restoreThreadAfterCamera();requestAnimationFrame(()=>void upload(f,target))};
+ cap.onpointerdown=e=>{e.preventDefault();cameraHold=setTimeout(beginVideo,320)};cap.onpointerup=e=>{e.preventDefault();endCapture()};cap.onpointercancel=()=>{clearTimeout(cameraHold);if(cameraRecording)endCapture()};cam.querySelector('.oneCamClose').onclick=()=>{stopCamera();resetCameraPreview();cam.classList.remove('open');restoreThreadAfterCamera()};cam.querySelector('.oneCamRetake').onclick=()=>startCamera();cam.querySelector('.oneCamFlip').onclick=()=>{cameraFacing=cameraFacing==='environment'?'user':'environment';startCamera()};cam.querySelector('.oneCamFlash').onclick=async()=>{const t=cameraStream?.getVideoTracks?.()[0];try{const caps=t?.getCapabilities?.();if(caps?.torch){t.__torch=!t.__torch;await t.applyConstraints({advanced:[{torch:t.__torch}]})}}catch{}};cam.querySelector('.oneCamSend').onclick=async()=>{if(!cameraFile)return;const f=cameraFile,target=cameraTarget;cam.classList.remove('open');await stopCamera();resetCameraPreview();try{await upload(f,target)}finally{restoreThreadAfterCamera()}};
 
  /* Fast updates and direct clicks */
  document.addEventListener('click',e=>{const av=e.target.closest('#oneSocialInline .oneV79Row .avatar.oneV79PhotoRing,#oneSocialInline .oneV79Row .avatar.oneV79VideoRing');if(av){const row=av.closest('.oneV79Row'),m=parse(row?.dataset.oneV79LastText||'');if(m){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openShared(m,null,false)}}},true);
  window.addEventListener('one-space-open',e=>{if(e.detail==='social'){tab='messages';requestAnimationFrame(()=>{paintCached('messages');syncSocial(true)})}});window.addEventListener('one-account-changed',()=>{order=[];friendOrder=[];lastSig.clear();statuses.clear();delivered.clear();notices.clear();setTimeout(()=>{if(window.oneCurrentSpace?.()==='social')openSocial(false)},80)});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&window.oneCurrentSpace?.()==='social')syncSocial(true)});window.addEventListener('online',()=>{if(window.oneCurrentSpace?.()==='social')syncSocial(true)});
- clearInterval(socialTimer);socialTimer=setInterval(()=>{if(document.hidden||window.oneCurrentSpace?.()!=='social'||tab!=='messages')return;syncSocial(false)},2000);
- async function latestIncomingMedia(preferredType=''){
-  try{
-   const d=await people('/friends/inbox'),rows=(d.conversations||[]).slice().sort((a,b)=>stamp(b)-stamp(a));
-   const candidates=rows.map(x=>parse(x.lastText||'')).filter(Boolean).filter(m=>!preferredType||m.type===preferredType).slice(0,8);
-   for(const m of candidates){
-    const st=await status(m,true);
-    if(st&&!st.mine&&!st.opened)return m;
-   }
-   for(const m of candidates){
-    const st=statuses.get(m.id)?.data;
-    if(!st?.mine)return m;
-   }
-  }catch{}
-  return null;
- }
- async function openNotificationMedia(payload){
-  let m=null;
-  if(payload?.id&&payload?.shareToken)m={id:String(payload.id),shareToken:String(payload.shareToken),type:payload.type==='video'||payload.type==='v'?'video':'photo'};
-  else m=await latestIncomingMedia(payload?.type==='video'||payload?.type==='v'?'video':payload?.type==='photo'||payload?.type==='p'?'photo':'');
-  if(!m)return window.oneShowSpace?.('social');
-  warmMedia(m);
-  try{await openShared(m,null,false)}catch{window.oneShowSpace?.('social')}
- }
- if('serviceWorker'in navigator){
-  navigator.serviceWorker.addEventListener('message',e=>{
-   const d=e.data;if(d?.type==='ONE_MEDIA_NOTIFICATION_OPEN'){void openNotificationMedia(d.media||{latest:true})}
-  });
- }
- async function consumeNotificationRoute(){
-  const u=new URL(location.href);if(!u.searchParams.has('one_media'))return;
-  u.searchParams.delete('one_media');history.replaceState(history.state,'',u.pathname+u.search+u.hash);
-  for(let i=0;i<30&&!token();i++)await wait(100);
-  void openNotificationMedia({latest:true,type:u.searchParams.get('one_media_type')||''});
- }
- setTimeout(()=>void consumeNotificationRoute(),120);
-
+ clearInterval(socialTimer);socialTimer=setInterval(()=>{if(document.hidden||window.oneCurrentSpace?.()!=='social'||tab!=='messages'||currentDialog())return;syncSocial(false)},8000);
  window.addEventListener('one-notifications-refresh',renderNotices);renderNotices();
 
  /* One authoritative swipe correction: Discover | Moments | Home | Messages | IA. */
  let sx=0,sy=0,armed=false,start='home';const blocked=t=>t?.closest?.('input,textarea,select,.modal,[role="dialog"],#vfeed,#playerModal,#oneCameraV79,#oneV79Viewer');document.addEventListener('touchstart',e=>{if(e.touches.length!==1||blocked(e.target))return;sx=e.touches[0].clientX;sy=e.touches[0].clientY;start=window.oneCurrentSpace?.()||'home';armed=true},{passive:true,capture:true});document.addEventListener('touchend',e=>{if(!armed)return;armed=false;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.2)return;const pages=['discover','moments','home','social','ai'],i=pages.indexOf(start),ni=i+(dx<0?1:-1);if(i<0||ni<0||ni>=pages.length)return;const target=pages[ni];requestAnimationFrame(()=>target==='social'?openSocial():window.oneShowSpace?.(target));setTimeout(()=>target==='social'?openSocial():window.oneShowSpace?.(target),30)},{passive:true,capture:true});
 })();
 </script>
+
+<script id="one-salons-in-messages-v1">
+(()=>{
+ const tray=()=>document.getElementById('oneSalonTray');
+ const entry=()=>document.getElementById('oneSalonsToggle');
+ const originalOpen=window.oneOpenSalon;
+ const originalClose=window.oneCloseSalon;
+ if(typeof originalOpen!=='function'||typeof originalClose!=='function')return;
+
+ let embedded=false;
+ let embedding=false;
+
+ function activeRooms(){
+   return window.oneCurrentSpace?.()==='social' &&
+     !!document.querySelector('#oneFoundation .oneSocialTabs [data-social-tab="rooms"].active');
+ }
+
+ function release({hide=true}={}){
+   const t=tray();if(!t)return;
+   if(t.parentNode!==document.body)document.body.appendChild(t);
+   t.classList.remove('oneSalonEmbedded');
+   const host=document.getElementById('oneSocialInline');
+   host?.classList.remove('oneSalonInlineHost');
+   embedded=false;
+   if(hide){
+     try{originalClose()}catch{t.hidden=true}
+   }
+ }
+
+ function embed(host=document.getElementById('oneSocialInline'),target){
+   const t=tray();
+   if(!t||!host||embedding)return;
+   embedding=true;
+   try{
+     host.classList.add('oneSalonInlineHost');
+     if(t.parentNode!==host){host.replaceChildren();host.appendChild(t)}
+     t.classList.add('oneSalonEmbedded');
+     embedded=true;
+     originalOpen(target);
+     // Le salon est dans l'onglet : pas besoin de voler le focus sur le bouton × masqué.
+     requestAnimationFrame(()=>{
+       const first=t.querySelector('#oneSalonBody button:not([disabled]),#oneSalonBody input,#oneSalonBody select');
+       first?.focus?.({preventScroll:true});
+     });
+   }finally{embedding=false}
+ }
+
+ window.oneEmbedSalonInMessages=(host,target)=>embed(host,target);
+ window.oneReleaseSalonFromMessages=()=>release({hide:true});
+
+ // L'ancien bouton Salons de l'accueil continue d'ouvrir le panneau exactement comme avant.
+ window.oneOpenSalon=function(target){
+   if(activeRooms())return embed(document.getElementById('oneSocialInline'),target);
+   if(embedded)release({hide:false});
+   return originalOpen(target);
+ };
+
+ window.oneCloseSalon=function(){
+   if(embedded){
+     // Dans Messages, les onglets remplacent le bouton de fermeture du panneau.
+     window.oneSetSocialTab?.('messages');
+     return;
+   }
+   return originalClose();
+ };
+
+ // Si le swipe/navigation quitte Messages alors que le tray y est monté,
+ // on le remet d'abord dans body pour ne jamais détruire l'interface Salon.
+ const show=window.oneShowSpace;
+ window.oneShowSpace=function(space,push=true){
+   if(space!=='social'&&embedded)release({hide:true});
+   return show?.(space,push);
+ };
+
+ // Sécurité pour les navigations qui ne passent pas par oneShowSpace.
+ window.addEventListener('one-space-open',e=>{
+   if(e.detail!=='social'&&embedded)release({hide:true});
+ });
+
+ // Quand on revient dans l'onglet Salons, on remonte le même composant.
+ document.addEventListener('click',e=>{
+   if(!e.target.closest('#oneFoundation [data-social-tab="rooms"]'))return;
+   requestAnimationFrame(()=>{
+     if(activeRooms())embed(document.getElementById('oneSocialInline'));
+   });
+ },false);
+})();
+</script>
+
 
 </body>
 </html>
