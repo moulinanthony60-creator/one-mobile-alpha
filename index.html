@@ -5835,3 +5835,43 @@ body.oneOpeningDiscussion dialog.oneFriendsDialog.oneThreadFullscreen{visibility
   mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','open']});
 })();
 </script>
+
+
+<style id="one-discussions-v4-presentation">
+/* Discussions V4 — presentation only; existing navigation/thread logic is preserved. */
+#oneFoundation .oneSocialSwipe{padding-top:8px!important;max-width:760px;margin:0 auto}
+#oneFoundation .oneSocialSwipe>.oneEyebrow,#oneFoundation .oneSocialSwipe>.oneShellLead{display:none!important}
+#oneFoundation .oneSocialSwipe>.oneShellTitle{margin:0!important;font-size:0!important;line-height:1!important}
+#oneFoundation .oneSocialSwipe>.oneShellTitle:before{content:"ONE";display:inline-grid;place-items:center;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9c55ff,#5b1fa5 72%);box-shadow:0 0 0 2px #9f5cff55;color:#fff;font-size:20px;font-weight:950;letter-spacing:-1px}
+#oneFoundation .oneSocialSwipe>.oneShellTitle:after{content:"Discussions";font-size:30px;font-weight:950;letter-spacing:-.8px;margin-left:18px;vertical-align:18px;color:#fff}
+#oneFoundation .oneSocialSwipe{position:relative}
+#oneFoundation .oneSocialSwipe:after{content:"＋";position:absolute;right:0;top:7px;width:54px;height:54px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,#a044ff,#6f24ff);border:1px solid #b36bff;color:#fff;font-size:34px;font-weight:400;box-shadow:0 10px 30px #762bff33;pointer-events:none}
+#oneFoundation .oneSocialTabs{margin:24px 0 8px!important;padding:0 0 14px;gap:8px;border-bottom:1px solid #24283a;scrollbar-width:none}
+#oneFoundation .oneSocialTabs::-webkit-scrollbar{display:none}
+#oneFoundation .oneSocialTabs button{padding:10px 17px!important;font-size:14px!important;background:#141827!important;border-color:#30354a!important}
+#oneFoundation .oneSocialTabs button.active{background:linear-gradient(135deg,#9438ff,#7028ff)!important;border-color:#a45dff!important;box-shadow:0 6px 18px #7127ff2e}
+#oneFoundation #oneSocialInline{gap:0!important}
+#oneFoundation #oneSocialInline .oneInlineCard{min-height:82px;padding:12px 4px!important;border:0!important;border-bottom:1px solid #24283a!important;border-radius:0!important;background:transparent!important;gap:14px!important;position:relative}
+#oneFoundation #oneSocialInline .oneInlineCard:active{background:#151827!important}
+#oneFoundation #oneSocialInline .oneInlineCard .avatar{width:58px!important;height:58px!important;flex-basis:58px!important;background:linear-gradient(145deg,#5b2a91,#2b174b)!important;border:1px solid #8147c4;font-size:21px!important}
+#oneFoundation #oneSocialInline .oneInlineCard .copy b{font-size:18px!important;line-height:1.15;font-weight:900}
+#oneFoundation #oneSocialInline .oneInlineCard .copy span{font-size:14px!important;margin-top:6px!important;color:#9699ab!important;max-width:72%}
+#oneFoundation #oneSocialInline .oneInlineCard .badge{position:absolute;right:42px;top:50%;transform:translateY(-50%);min-width:25px;height:25px;padding:0 7px!important;display:grid;place-items:center;background:#812dff!important;border:1px solid #a65cff;font-size:12px!important;font-weight:900}
+#oneFoundation #oneSocialInline .oneInlineCard:after{content:"◉";position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:22px;color:#d7d9e4;font-weight:400}
+#oneFoundation #oneSocialInline .oneInlineAction{margin-top:14px;width:100%;border-radius:18px!important;background:#171a29!important;border-color:#373b52!important}
+@media(max-width:520px){#oneFoundation .oneSocialSwipe>.oneShellTitle:after{font-size:27px;margin-left:14px}#oneFoundation .oneSocialSwipe>.oneShellTitle:before{width:50px;height:50px}#oneFoundation .oneSocialSwipe:after{width:50px;height:50px}.oneSocialTabs button{padding-left:14px!important;padding-right:14px!important}}
+</style>
+<script id="one-discussions-v4-actions">
+(()=>{
+  // Make the visual + button useful without changing the validated conversation flow.
+  document.addEventListener('click',e=>{
+    const s=e.target.closest('#oneFoundation .oneSocialSwipe');
+    if(!s)return;
+    const r=s.getBoundingClientRect();
+    if(e.clientY-r.top<66 && e.clientX-r.left>r.width-70){
+      e.preventDefault();e.stopImmediatePropagation();
+      window.oneOpenFriends?.({tab:'add'});
+    }
+  },true);
+})();
+</script>
