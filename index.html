@@ -6094,10 +6094,10 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneCameraDirect{position:absolute!i
  const live=el.querySelector('.oneCamLive'),img=el.querySelector('.oneCamPreview'),vid=el.querySelector('.oneCamVideoPreview'),recipient=el.querySelector('.oneCamRecipient'),cap=el.querySelector('.oneCamCapture');let facing='environment';
  async function stop(){if(recorder&&recorder.state!=='inactive'){try{recorder.stop()}catch{}}recorder=null;(stream?.getTracks()||[]).forEach(t=>t.stop());stream=null;live.srcObject=null;recording=false;el.classList.remove('recording');}
  function resetPreview(){if(img.src)URL.revokeObjectURL(img.src);if(vid.src)URL.revokeObjectURL(vid.src);img.src='';vid.src='';img.hidden=true;captured=null;el.classList.remove('previewing','video');}
- async function startCamera(){resetPreview();await stop();try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing}},audio:true});live.srcObject=stream;await live.play();}catch(err){el.classList.remove('open');fallbackCamera();}}
+ async function startCamera(){resetPreview();await stop();try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:3840},height:{ideal:2160}},audio:true});live.srcObject=stream;await live.play();}catch(err){el.classList.remove('open');fallbackCamera();}}
  function fallbackCamera(){const i=document.createElement('input');i.type='file';i.accept='image/*,video/*';i.setAttribute('capture','environment');i.hidden=true;document.body.appendChild(i);i.onchange=()=>{const f=i.files?.[0];if(f){captured=f;deliver();}i.remove()};i.click();}
  function open(row,name){targetRow=row||null;targetName=name||row?.querySelector('.copy b')?.textContent?.trim()||'ONE';recipient.textContent=targetName?`À ${targetName}`:'Caméra ONE';el.classList.add('open');startCamera();}
- function snap(){if(!stream)return;const c=document.createElement('canvas');c.width=live.videoWidth||1080;c.height=live.videoHeight||1920;const x=c.getContext('2d');x.drawImage(live,0,0,c.width,c.height);c.toBlob(b=>{if(!b)return;captured=new File([b],`ONE_${Date.now()}.jpg`,{type:'image/jpeg'});img.src=URL.createObjectURL(b);img.hidden=false;el.classList.add('previewing');stop();},'image/jpeg',.92)}
+ function snap(){if(!stream)return;const c=document.createElement('canvas');c.width=live.videoWidth||1080;c.height=live.videoHeight||1920;const x=c.getContext('2d');x.drawImage(live,0,0,c.width,c.height);c.toBlob(b=>{if(!b)return;captured=new File([b],`ONE_${Date.now()}.jpg`,{type:'image/jpeg'});img.src=URL.createObjectURL(b);img.hidden=false;el.classList.add('previewing');stop();},'image/jpeg',.98)}
  function beginVideo(){if(!stream||recording||typeof MediaRecorder==='undefined')return;chunks=[];try{recorder=new MediaRecorder(stream);recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};recorder.onstop=()=>{if(!chunks.length)return;const type=recorder?.mimeType||'video/webm',b=new Blob(chunks,{type});captured=new File([b],`ONE_${Date.now()}.webm`,{type});vid.src=URL.createObjectURL(b);el.classList.add('previewing','video');stop();};recorder.start();recording=true;el.classList.add('recording')}catch{recording=false}}
  function endPress(){clearTimeout(pressTimer);pressTimer=null;if(recording){recording=false;try{recorder.stop()}catch{};el.classList.remove('recording')}else snap()}
  cap.addEventListener('pointerdown',e=>{e.preventDefault();pressTimer=setTimeout(beginVideo,320)});cap.addEventListener('pointerup',e=>{e.preventDefault();endPress()});cap.addEventListener('pointercancel',()=>{clearTimeout(pressTimer);if(recording)endPress()});
@@ -6184,7 +6184,7 @@ body.oneV74CameraHandoff .oneMediaPreview{display:none!important}
     document.body.classList.add('oneV74CameraHandoff');
     let n=0;
     const clean=()=>{
-      document.querySelectorAll('dialog.oneFriendsDialog .oneMediaPreview').forEach(p=>{p.hidden=true;p.replaceChildren();delete p.dataset.snap71;});
+      document.querySelectorAll('dialog.oneFriendsDialog .oneMediaPreview').forEach(p=>{try{p.querySelector('.remove')?.click()}catch{}p.hidden=true;p.replaceChildren();delete p.dataset.snap71;});
       document.querySelectorAll('dialog.oneFriendsDialog input[type="file"]').forEach(i=>{try{i.value=''}catch{}});
       if(++n<20)setTimeout(clean,80);else document.body.classList.remove('oneV74CameraHandoff');
     };
@@ -6192,3 +6192,98 @@ body.oneV74CameraHandoff .oneMediaPreview{display:none!important}
   },true);
 })();
 </script>
+<!-- ONE V7.6 — real Messages backend (D1 + R2) -->
+<style id="one-messages-backend-v76-css">
+/* The old V7.5 local-only preview is replaced by the server-backed Snap event. */
+.friend-message-log article.oneV75Media{display:none!important}
+body.oneBackendUploading dialog.oneFriendsDialog.oneThreadFullscreen .oneMediaPreview{display:none!important}
+#oneFoundation #oneSocialInline .copy span.oneBackendMediaStatus{font-weight:800}
+#oneFoundation #oneSocialInline .copy span.oneBackendPhotoStatus{color:#ff476a}
+#oneFoundation #oneSocialInline .copy span.oneBackendVideoStatus{color:#b35cff}
+#oneFoundation #oneSocialInline .copy span.oneBackendTextStatus{color:#aeb2c3}
+.oneBackendSnap{cursor:pointer!important;background:transparent!important;border:0!important;padding:7px 4px!important;box-shadow:none!important;min-width:150px}
+.oneBackendSnap .oneBackendSnapLine{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:900}
+.oneBackendSnap .oneBackendSnapDot{width:16px;height:16px;border-radius:5px;flex:0 0 16px}
+.oneBackendSnap.photo .oneBackendSnapLine{color:#ff476a}.oneBackendSnap.photo .oneBackendSnapDot{background:#ff315c;box-shadow:0 0 14px #ff315c55}
+.oneBackendSnap.video .oneBackendSnapLine{color:#b35cff}.oneBackendSnap.video .oneBackendSnapDot{background:#963cff;box-shadow:0 0 14px #963cff55}
+.oneBackendSnap small{margin:5px 0 0 25px!important;color:#8f94a7!important;font-size:11px!important}
+.oneBackendSnap.mine small{color:#aaaec0!important}
+#oneBackendViewer{position:fixed;inset:0;z-index:2147483647;background:#000;display:flex;align-items:center;justify-content:center;color:#fff}
+#oneBackendViewer[hidden]{display:none!important}
+#oneBackendViewer img,#oneBackendViewer video{width:100%;height:100%;object-fit:contain;background:#000}
+#oneBackendViewer .oneBackendViewerClose{position:absolute;top:max(16px,env(safe-area-inset-top));left:16px;z-index:4;width:52px;height:52px;border:0;border-radius:50%;background:#15151bcc;color:#fff;font-size:27px}
+#oneBackendViewer .oneBackendViewerState{position:absolute;inset:auto 20px max(24px,env(safe-area-inset-bottom)) 20px;text-align:center;font-weight:800;text-shadow:0 2px 10px #000}
+.oneBackendSending{opacity:.72;pointer-events:none}
+</style>
+<script id="one-messages-backend-v76-js">
+(()=>{
+ const API='https://one-messages-api.moulinanthony60.workers.dev';
+ const PEOPLE_API='https://one-comments-api.moulinanthony60.workers.dev';
+ let activePeer='',activeName='',cameraHandoffUntil=0,lastPeopleAt=0,lastConversationsAt=0;
+ let inboxCache=[],peopleById=new Map(),backendByPeer=new Map(),busyPeople=null,busyConversations=null;
+ const pendingFiles=new WeakMap(),uploading=new WeakSet();
+ const esc=s=>String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c));
+ const token=()=>window.oneAccountToken?.()||localStorage.getItem('one_account_token_v06')||'';
+ function headers(extra={}){const t=token();return {...extra,...(t?{Authorization:'Bearer '+t}:{})}}
+ async function api(path,options={}){const r=await fetch(API+path,{...options,headers:headers(options.headers||{}),cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'ONE Messages indisponible.');return d}
+ async function peopleApi(path){const t=token();if(!t)throw Error('Connecte-toi à ONE.');const r=await fetch(PEOPLE_API+path,{headers:{Authorization:'Bearer '+t},cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Amis ONE indisponibles.');return d}
+ function avatarUrl(x){for(const k of ['avatar','avatarUrl','avatar_url','profileImage','profile_image','profileImageUrl','profile_image_url','picture','photo','photoUrl','photo_url','image','imageUrl','image_url']){const v=x?.[k];try{if(v&&new URL(String(v),location.href).protocol==='https:')return String(v)}catch{}}return ''}
+ function legacyTime(c){for(const k of ['lastMessageAt','last_message_at','lastAt','last_at','updatedAt','updated_at','createdAt','created_at']){const v=c?.[k];if(v==null)continue;const n=Number(v);if(Number.isFinite(n)&&n>100000000000)return n;const d=Date.parse(v);if(Number.isFinite(d))return d}return 0}
+ function setPeer(id,name=''){if(!id||String(id).startsWith('group:'))return;activePeer=String(id);activeName=name||peopleById.get(activePeer)?.name||activeName||'ONE';const d=currentThread();if(d){d.dataset.onePeerId=activePeer;d.dataset.onePeerName=activeName}}
+ function currentThread(){return document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen')}
+ function mediaWord(m){return m.type==='video'?'Vidéo':'Photo'}
+ function mediaState(m){const word=mediaWord(m);if(m.direction==='out'){if(m.status==='opened')return word+' ouverte';if(m.status==='delivered')return word+' reçue';return word+' envoyée'}return m.unopened?'Nouvelle '+word.toLowerCase():word+' ouverte'}
+ function mediaStatusClass(m){return m.type==='video'?'oneBackendVideoStatus':'oneBackendPhotoStatus'}
+ function timeLabel(ms){try{return new Date(Number(ms)||Date.now()).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}catch{return ''}}
+ async function refreshPeople(force=false){
+  if(busyPeople)return busyPeople;if(!force&&Date.now()-lastPeopleAt<15000&&inboxCache.length)return inboxCache;
+  busyPeople=(async()=>{try{const [st,ib]=await Promise.all([peopleApi('/friends/state'),peopleApi('/friends/inbox')]);inboxCache=Array.isArray(ib.conversations)?ib.conversations:[];peopleById=new Map();for(const x of [...(st.relationships||[]),...inboxCache])if(x?.id)peopleById.set(String(x.id),{...x,name:x.name||'ONE',avatar:avatarUrl(x)});lastPeopleAt=Date.now();return inboxCache}finally{busyPeople=null}})();return busyPeople
+ }
+ async function refreshConversations(force=false){
+  if(busyConversations)return busyConversations;if(!force&&Date.now()-lastConversationsAt<1800)return backendByPeer;
+  busyConversations=(async()=>{try{if(!token()){backendByPeer=new Map();return backendByPeer}const d=await api('/conversations?limit=100');backendByPeer=new Map((d.conversations||[]).map(x=>[String(x.peerId),x]));lastConversationsAt=Date.now();return backendByPeer}finally{busyConversations=null}})();return busyConversations
+ }
+ function rowPeer(row,index){const direct=row.dataset.oneFriendId||row.dataset.onePeerId;if(direct)return String(direct);const name=row.querySelector('.copy b')?.textContent?.trim()||'';const byName=inboxCache.find(x=>String(x.name||'').trim()===name);return String(byName?.id||inboxCache[index]?.id||'')}
+ function decorateRows(){
+  const host=document.getElementById('oneSocialInline');if(!host)return;const active=document.querySelector('#oneFoundation .oneSocialTabs [data-social-tab].active')?.dataset.socialTab;if(active&&active!=='messages')return;
+  [...host.querySelectorAll('.oneInlineCard')].forEach((row,i)=>{const id=rowPeer(row,i);if(!id)return;const legacy=inboxCache.find(x=>String(x.id)===id)||inboxCache[i];row.dataset.oneFriendId=id;row.dataset.onePeerId=id;const meta=peopleById.get(id)||legacy;if(meta?.name)row.dataset.onePeerName=meta.name;const av=row.querySelector('.avatar'),u=avatarUrl(meta);if(av&&u&&!av.querySelector('img')){const im=document.createElement('img');im.alt='';im.loading='lazy';im.src=u;im.onerror=()=>im.remove();av.replaceChildren(im)}const latest=backendByPeer.get(id);const sub=row.querySelector('.copy span');if(!sub)return;const lt=legacyTime(legacy);if(latest&&(!lt||Number(latest.createdAt||0)>=lt-1500)){sub.className=latest.type==='photo'||latest.type==='video'?'oneBackendMediaStatus '+mediaStatusClass(latest):'oneBackendTextStatus';sub.textContent=latest.type==='photo'||latest.type==='video'?'■ '+mediaState(latest):(latest.text||'Message');if(latest.unopened&&!row.querySelector('.badge')){const b=document.createElement('span');b.className='badge oneBackendUnread';b.textContent='1';row.appendChild(b)}}else{sub.classList.remove('oneBackendMediaStatus','oneBackendPhotoStatus','oneBackendVideoStatus','oneBackendTextStatus')}
+  });
+ }
+ async function refreshRows(force=false){try{await Promise.all([refreshPeople(force),refreshConversations(force)]);decorateRows()}catch(e){console.warn('ONE Messages list',e)}}
+ function clearPreview(dialog){const p=dialog?.querySelector('.oneMediaPreview');const remove=p?.querySelector('.remove');if(remove){try{remove.click()}catch{}}if(p){p.hidden=true;p.replaceChildren();delete p.dataset.snap71}dialog?.querySelectorAll('input[type="file"]').forEach(i=>{try{i.value=''}catch{}})}
+ function setThreadStatus(dialog,text){const s=dialog?.querySelector('.friends-content>label+button+p[role="status"]');if(s)s.textContent=text||''}
+ async function sendTextMirror(text,peer){if(!peer||!text||!token())return;try{await api('/messages/text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:peer,text,clientId:'web-'+crypto.randomUUID()})});lastConversationsAt=0;refreshConversations(true).then(decorateRows).catch(()=>{})}catch(e){console.warn('ONE message mirror',e)}}
+ async function uploadMedia(file,dialog,{auto=false,resendText=false}={}){
+  if(!file||uploading.has(dialog))return;if(!activePeer){setThreadStatus(dialog,'Destinataire introuvable. Retourne aux Discussions puis réessaie.');return}
+  const type=file.type.startsWith('video/')?'video':file.type.startsWith('image/')?'photo':'';if(!type){setThreadStatus(dialog,'Format non pris en charge.');return}
+  uploading.add(dialog);document.body.classList.add('oneBackendUploading');const send=dialog?.querySelector('.friends-content>label+button'),textarea=dialog?.querySelector('.friends-content>label textarea');if(send)send.classList.add('oneBackendSending');setThreadStatus(dialog,type==='video'?'Envoi de la vidéo…':'Envoi de la photo…');const draft=resendText?(textarea?.value.trim()||''):'';
+  try{const q=new URLSearchParams({to:activePeer,type,clientId:'media-'+crypto.randomUUID()});const r=await fetch(API+'/messages/media?'+q,{method:'POST',headers:headers({'Content-Type':file.type|| (type==='video'?'video/webm':'image/jpeg')}),body:file,cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Envoi impossible.');pendingFiles.delete(dialog);clearPreview(dialog);setThreadStatus(dialog,(type==='video'?'Vidéo':'Photo')+' envoyée ✓');lastConversationsAt=0;await Promise.allSettled([syncThread(true),refreshRows(true)]);window.toast?.((type==='video'?'Vidéo':'Photo')+' envoyée');if(draft&&send){setTimeout(()=>send.click(),80)}}catch(e){setThreadStatus(dialog,'❌ '+(e.message||'Envoi impossible')+' · appuie sur Envoyer pour réessayer.');window.toast?.(e.message||'Envoi impossible')}finally{uploading.delete(dialog);document.body.classList.remove('oneBackendUploading');if(send)send.classList.remove('oneBackendSending')}
+ }
+ function backendArticle(m){const a=document.createElement('article');a.className=(m.direction==='out'?'mine ':'')+'oneBackendSnap '+m.type;a.dataset.oneBackendMessage=m.id;const line=document.createElement('div');line.className='oneBackendSnapLine';const dot=document.createElement('span');dot.className='oneBackendSnapDot';const label=document.createElement('span');label.className='oneBackendSnapLabel';label.textContent=mediaState(m);line.append(dot,label);const sm=document.createElement('small');sm.textContent=timeLabel(m.createdAt);a.append(line,sm);a.onclick=e=>{e.preventDefault();e.stopPropagation();openMedia(m,a)};return a}
+ function updateArticle(a,m){a.classList.toggle('mine',m.direction==='out');a.classList.toggle('photo',m.type==='photo');a.classList.toggle('video',m.type==='video');const l=a.querySelector('.oneBackendSnapLabel');if(l)l.textContent=mediaState(m);a.onclick=e=>{e.preventDefault();e.stopPropagation();openMedia(m,a)}}
+ async function syncThread(force=false){
+  const dialog=currentThread();if(!dialog)return;if(!activePeer)activePeer=dialog.dataset.onePeerId||'';if(!activePeer)return;dialog.dataset.onePeerId=activePeer;dialog.dataset.onePeerName=activeName||peopleById.get(activePeer)?.name||'';
+  try{const d=await api('/messages?peer='+encodeURIComponent(activePeer)+'&limit=100');if(!dialog.isConnected)return;const log=dialog.querySelector('.friend-message-log');if(!log)return;const media=(d.messages||[]).filter(x=>x.type==='photo'||x.type==='video');if(media.length){const empty=log.querySelector(':scope>p:only-child');if(empty&&/commence/i.test(empty.textContent||''))empty.remove()}const ids=new Set();for(const m of media){ids.add(m.id);let a=log.querySelector('[data-one-backend-message="'+CSS.escape(m.id)+'"]');if(!a){a=backendArticle(m);log.appendChild(a)}else updateArticle(a,m)}log.querySelectorAll('[data-one-backend-message]').forEach(a=>{if(!ids.has(a.dataset.oneBackendMessage))a.remove()});if(media.length)requestAnimationFrame(()=>{log.scrollTop=log.scrollHeight});lastConversationsAt=0;if(force)refreshConversations(true).then(decorateRows).catch(()=>{})}catch(e){console.warn('ONE Messages thread',e)}
+ }
+ let viewerUrl='';const viewer=document.createElement('div');viewer.id='oneBackendViewer';viewer.hidden=true;viewer.innerHTML='<button class="oneBackendViewerClose" aria-label="Fermer">✕</button><div class="oneBackendViewerState"></div>';document.body.appendChild(viewer);const viewerState=viewer.querySelector('.oneBackendViewerState');function closeViewer(){viewer.hidden=true;viewer.querySelector('video')?.pause();viewer.querySelectorAll('img,video').forEach(x=>x.remove());if(viewerUrl){URL.revokeObjectURL(viewerUrl);viewerUrl=''}}viewer.querySelector('.oneBackendViewerClose').onclick=closeViewer;viewer.onclick=e=>{if(e.target===viewer)closeViewer()};
+ async function openMedia(m,article){
+  if(!m?.media?.url)return;viewer.hidden=false;viewerState.textContent='Chargement…';try{if(m.direction==='in'&&m.unopened){const d=await api('/messages/'+encodeURIComponent(m.id)+'/open',{method:'POST'});m={...m,...(d.message||{}),unopened:false};updateArticle(article,m);lastConversationsAt=0;refreshRows(true).catch(()=>{})}const r=await fetch(m.media.url,{headers:headers(),cache:'no-store'});if(!r.ok)throw Error('Média indisponible.');const blob=await r.blob();viewerUrl=URL.createObjectURL(blob);const el=document.createElement(m.type==='video'?'video':'img');el.src=viewerUrl;if(m.type==='video'){el.controls=true;el.autoplay=true;el.playsInline=true;}viewer.insertBefore(el,viewerState);viewerState.textContent=m.type==='video'?'Vidéo ONE':'Photo ONE';if(m.type==='video')el.play().catch(()=>{});syncThread(true).catch(()=>{})}catch(e){viewerState.textContent=e.message||'Impossible d’ouvrir le média.'}
+ }
+ function bindThread(dialog){if(!dialog||dialog.dataset.oneBackendBound==='1')return;dialog.dataset.oneBackendBound='1';if(activePeer){dialog.dataset.onePeerId=activePeer;dialog.dataset.onePeerName=activeName}syncThread(true)}
+ function wrapOpenFriends(){const prev=window.oneOpenFriends;if(typeof prev!=='function'||prev.__oneMessagesV76)return;const wrapped=function(...args){const id=args[0];if(typeof id==='string'&&!id.startsWith('group:'))setPeer(id,peopleById.get(String(id))?.name||'');return prev.apply(this,args)};wrapped.__oneMessagesV76=true;window.oneOpenFriends=wrapped}
+ document.addEventListener('pointerdown',e=>{const row=e.target.closest('#oneSocialInline .oneInlineCard');if(!row)return;const id=row.dataset.oneFriendId||row.dataset.onePeerId;if(id)setPeer(id,row.querySelector('.copy b')?.textContent?.trim()||row.dataset.onePeerName||'')},true);
+ document.addEventListener('click',e=>{
+  const camSend=e.target.closest('#oneCameraV7 .oneCamSend');if(camSend){cameraHandoffUntil=Date.now()+6000;return}
+  const direct=e.target.closest('dialog.oneFriendsDialog.oneThreadFullscreen .oneCameraDirect');if(direct){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const d=direct.closest('dialog'),name=d?.dataset.onePeerName||d?.querySelector('.hub-thread-heading h3,.oneThreadHead b,.oneThreadTitle,b')?.textContent?.trim()||activeName||'ONE';window.oneOpenCameraV7?.(null,name);return}
+  const send=e.target.closest('dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>label+button,dialog.oneThreadFullscreen .friends-content>label+button');if(!send)return;const d=send.closest('dialog'),file=pendingFiles.get(d);if(file){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();uploadMedia(file,d,{resendText:true});return}const text=d?.querySelector('.friends-content>label textarea')?.value.trim();if(text&&activePeer)sendTextMirror(text,activePeer)
+ },true);
+ document.addEventListener('change',e=>{const input=e.target;if(!(input instanceof HTMLInputElement)||input.type!=='file'||!input.files?.[0])return;const d=input.closest('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen');if(!d)return;const f=input.files[0];if(!/^image\//.test(f.type)&&!/^video\//.test(f.type))return;pendingFiles.set(d,f);if(Date.now()<cameraHandoffUntil){cameraHandoffUntil=0;setTimeout(()=>uploadMedia(f,d,{auto:true}),0)}},true);
+ window.addEventListener('one-social-integrated-ready',()=>{wrapOpenFriends();setTimeout(()=>refreshRows(true),80);setTimeout(()=>refreshRows(true),450)});
+ window.addEventListener('one-space-open',e=>{wrapOpenFriends();if(e.detail==='social')setTimeout(()=>refreshRows(true),80)});
+ window.addEventListener('one-account-changed',()=>{inboxCache=[];peopleById.clear();backendByPeer.clear();activePeer='';activeName='';lastPeopleAt=lastConversationsAt=0});
+ const observer=new MutationObserver(()=>{wrapOpenFriends();const d=currentThread();if(d)bindThread(d);if(document.getElementById('oneSocialInline'))decorateRows()});observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class','open']});
+ setInterval(()=>{if(document.hidden||!token())return;if(currentThread())syncThread(false);if(document.getElementById('oneSocialInline')&&document.querySelector('#oneFoundation .oneSocialTabs [data-social-tab].active')?.dataset.socialTab==='messages')refreshRows(false)},3500);
+ wrapOpenFriends();setTimeout(()=>refreshRows(false),500);
+})();
+</script>
+
