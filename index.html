@@ -6199,6 +6199,18 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
    if(e.detail!=='social'&&embedded)release({hide:true});
  });
 
+ // IMPORTANT : certains boutons historiques (notamment Accueil) appellent directement
+ // leur fonction locale show('home') au lieu de window.oneShowSpace.
+ // On libère donc le tray AVANT leur handler afin qu'il ne soit jamais supprimé
+ // lorsque #oneFoundation est remplacé.
+ document.addEventListener('click',e=>{
+   if(!embedded)return;
+   const leave=e.target.closest('#oneHomeNav,.bottom .nav,.oneMainNav button');
+   if(!leave)return;
+   if(leave.closest('#oneFoundation'))return;
+   release({hide:true});
+ },true);
+
  // Quand on revient dans l'onglet Salons, on remonte le même composant.
  document.addEventListener('click',e=>{
    if(!e.target.closest('#oneFoundation [data-social-tab="rooms"]'))return;
