@@ -5777,3 +5777,61 @@ body[data-one-social-integrated="1"] dialog.oneFriendsDialog:not(.oneThreadFulls
   });
 })();
 </script>
+
+<style id="one-discussions-no-friends-flash-v3">
+body.oneOpeningDiscussion dialog.oneFriendsDialog{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+body.oneOpeningDiscussion dialog.oneFriendsDialog.oneThreadFullscreen{visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+</style>
+<script id="one-discussions-no-friends-flash-v3">
+(()=>{
+  // Opening a row from the integrated Discussions list must never expose the legacy "Amis ONE" hub.
+  // We keep the legacy dialog only as the underlying thread renderer, hidden until the thread itself is fullscreen.
+  const currentSocialTab=()=>document.querySelector('#oneFoundation .oneSocialTabs [data-social-tab].active')?.dataset.socialTab||'';
+  const previous=window.oneOpenFriends;
+  if(typeof previous!=='function')return;
+
+  window.oneOpenFriends=function(...args){
+    const fromDiscussions=currentSocialTab()==='messages' && !!document.getElementById('oneSocialInline');
+    if(!fromDiscussions)return previous.apply(this,args);
+
+    document.body.classList.add('oneOpeningDiscussion');
+    delete document.body.dataset.oneSocialIntegrated;
+    document.querySelectorAll('dialog.oneFriendsDialog').forEach(d=>{
+      d.hidden=false;
+      d.style.removeProperty('display');
+      d.style.removeProperty('visibility');
+      d.style.removeProperty('pointer-events');
+    });
+
+    const result=previous.apply(this,args);
+    const reveal=()=>{
+      const thread=document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen');
+      if(thread){
+        document.body.classList.remove('oneOpeningDiscussion');
+        return true;
+      }
+      return false;
+    };
+    requestAnimationFrame(reveal);
+    setTimeout(reveal,30);
+    setTimeout(reveal,90);
+    setTimeout(()=>{
+      if(!reveal()){
+        // If no thread was produced, return cleanly to integrated Discussions instead of showing Amis ONE.
+        document.body.classList.remove('oneOpeningDiscussion');
+        document.body.dataset.oneSocialIntegrated='1';
+        document.querySelectorAll('dialog.oneFriendsDialog').forEach(d=>{try{d.close?.()}catch{} d.hidden=true;});
+        window.oneOpenSwipeDiscussions?.();
+      }
+    },450);
+    return result;
+  };
+
+  // Also suppress any late legacy render while the thread is being prepared.
+  const mo=new MutationObserver(()=>{
+    if(!document.body.classList.contains('oneOpeningDiscussion'))return;
+    if(document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen'))document.body.classList.remove('oneOpeningDiscussion');
+  });
+  mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','open']});
+})();
+</script>
