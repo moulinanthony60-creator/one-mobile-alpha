@@ -5844,7 +5844,7 @@ body.oneOpeningDiscussion dialog.oneFriendsDialog.oneThreadFullscreen{visibility
 <!-- ONE V7.6.3 — receiver rows + luminous media ring + restored page sides -->
 <!-- ONE V7.7.2 — never expose internal media transport markers in the UI -->
 
-<!-- ONE V7.9.3.2 + accueil nettoyé : header compact + nav recentrée -->
+<!-- ONE V7.9.3.2 + header une ligne + compteur salon -->
 <style id="one-v79-messages-clean-css">
 #oneFoundation #oneSocialInline{min-height:220px}
 #oneFoundation #oneSocialInline .oneV79Skeleton{display:grid;gap:0}.oneV79SkeletonRow{height:82px;border-bottom:1px solid #24283a;display:flex;align-items:center;gap:14px}.oneV79SkeletonRow:before{content:"";width:58px;height:58px;border-radius:50%;background:#181c2b}.oneV79SkeletonRow:after{content:"";width:42%;height:13px;border-radius:999px;background:#181c2b}
@@ -6572,6 +6572,187 @@ body.oneHomeClean>button[data-one-obsolete-home]{
  // Seulement le header : évite un observer lourd sur toute l'application.
  const mo=new MutationObserver(()=>queueMicrotask(cleanHeader));
  mo.observe(header,{childList:true,subtree:true});
+})();
+</script>
+
+
+<style id="one-header-row-fix-v3-css">
+/* Header mobile : tout reste sur UNE seule ligne */
+.topbar .brandrow{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:6px!important;
+  min-width:0!important;
+  width:100%!important;
+}
+.topbar .brandrow::after{
+  content:none!important;
+  display:none!important;
+}
+.topbar .brandrow>.brand{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  margin:0!important;
+}
+#oneHeaderRight{
+  flex:0 0 auto!important;
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:4px!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+}
+#oneHeaderRight>#onePointsToggle.onePointsCompact{
+  width:auto!important;
+  min-width:34px!important;
+  max-width:54px!important;
+  height:30px!important;
+  min-height:30px!important;
+  flex:0 0 auto!important;
+  padding:0 5px!important;
+  margin:0!important;
+  border-radius:9px!important;
+}
+#oneHeaderRight>#onePointsToggle.onePointsCompact svg{
+  width:12px!important;
+  height:12px!important;
+  flex:0 0 12px!important;
+}
+#oneHeaderRight>#onePointsToggle.onePointsCompact .oneHeaderBalance{
+  max-width:31px!important;
+  font-size:9px!important;
+}
+#oneHeaderRight>#oneNotificationsToggle.oneTopNotification{
+  position:relative!important;
+  inset:auto!important;
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  min-height:36px!important;
+  flex:0 0 36px!important;
+  margin:0!important;
+  align-self:center!important;
+  transform:none!important;
+}
+#oneHeaderRight>#accountBtn{
+  position:relative!important;
+  inset:auto!important;
+  width:40px!important;
+  height:40px!important;
+  min-width:40px!important;
+  min-height:40px!important;
+  flex:0 0 40px!important;
+  margin:0!important;
+  align-self:center!important;
+  transform:none!important;
+}
+
+/* Nombre de membres du salon actif, visible en haut. */
+#oneSalonHeaderCount{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  height:28px;
+  min-width:34px;
+  padding:0 6px;
+  flex:0 0 auto;
+  border:1px solid #5b4b7f;
+  border-radius:10px;
+  background:linear-gradient(145deg,#19172a,#241a38);
+  color:#d9c7ff;
+  font-size:10px;
+  line-height:1;
+  font-weight:850;
+  font-variant-numeric:tabular-nums;
+}
+#oneSalonHeaderCount[hidden]{display:none!important}
+#oneSalonHeaderCount .oneSalonPeopleIcon{
+  font-size:12px;
+  line-height:1;
+}
+@media(max-width:370px){
+  #oneHeaderRight{gap:3px!important}
+  #oneSalonHeaderCount{padding:0 4px;min-width:30px}
+  #oneHeaderRight>#onePointsToggle.onePointsCompact{max-width:46px!important;padding:0 4px!important}
+  #oneHeaderRight>#onePointsToggle.onePointsCompact .oneHeaderBalance{max-width:25px!important}
+}
+</style>
+
+<script id="one-header-row-fix-v3-js">
+(()=>{
+ const row=document.querySelector('.topbar .brandrow');
+ const brand=row?.querySelector('.brand');
+ const points=document.getElementById('onePointsToggle');
+ const bell=document.getElementById('oneNotificationsToggle');
+ const account=document.getElementById('accountBtn');
+ if(!row||!brand||!bell||!account)return;
+
+ let right=document.getElementById('oneHeaderRight');
+ if(!right){
+   right=document.createElement('div');
+   right.id='oneHeaderRight';
+ }
+
+ let count=document.getElementById('oneSalonHeaderCount');
+ if(!count){
+   count=document.createElement('span');
+   count.id='oneSalonHeaderCount';
+   count.hidden=true;
+   count.innerHTML='<span class="oneSalonPeopleIcon" aria-hidden="true">♧</span><span class="oneSalonPeopleValue">0</span>';
+ }
+
+ // Structure fixe : logo | [membres salon] [points] [cloche] [avatar]
+ if(right.parentNode!==row)row.appendChild(right);
+ if(count.parentNode!==right)right.appendChild(count);
+ if(points&&points.parentNode!==right)right.appendChild(points);
+ if(bell.parentNode!==right)right.appendChild(bell);
+ if(account.parentNode!==right)right.appendChild(account);
+
+ bell.classList.add('oneTopNotification');
+ points?.classList.add('onePointsCompact');
+
+ function updateSalonCount(room){
+   const r=room||window.oneSocialRoom?.()||null;
+   const members=Array.isArray(r?.members)?r.members:[];
+   if(!r||!members.length){
+     count.hidden=true;
+     count.querySelector('.oneSalonPeopleValue').textContent='0';
+     count.removeAttribute('title');
+     count.removeAttribute('aria-label');
+     return;
+   }
+   count.hidden=false;
+   count.querySelector('.oneSalonPeopleValue').textContent=String(members.length);
+   const label=members.length+' membre'+(members.length>1?'s':'')+' dans '+(r.name||'le salon');
+   count.title=label;
+   count.setAttribute('aria-label',label);
+ }
+
+ window.addEventListener('one-party-state',e=>updateSalonCount(e.detail));
+ window.addEventListener('one-salon-rendered',()=>updateSalonCount());
+ window.addEventListener('one-salon-visibility',()=>updateSalonCount());
+ updateSalonCount();
+
+ // Répare la ligne si un ancien script réinjecte les contrôles du header.
+ let queued=false;
+ const repair=()=>{
+   if(queued)return;
+   queued=true;
+   requestAnimationFrame(()=>{
+     queued=false;
+     if(right.parentNode!==row)row.appendChild(right);
+     if(count.parentNode!==right)right.appendChild(count);
+     if(points&&points.parentNode!==right)right.appendChild(points);
+     if(bell.parentNode!==right)right.appendChild(bell);
+     if(account.parentNode!==right)right.appendChild(account);
+   });
+ };
+ new MutationObserver(repair).observe(row,{childList:true});
 })();
 </script>
 
