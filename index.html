@@ -6033,3 +6033,55 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneCameraDirect{position:absolute!i
  document.addEventListener('click',()=>requestAnimationFrame(sync),true);window.addEventListener('one-social-integrated-ready',sync);sync();
 })();
 </script>
+
+<!-- ONE V7 Camera — in-app camera inspired by modern messaging apps -->
+<style id="one-camera-v7-css">
+#oneCameraV7{position:fixed;inset:0;z-index:2147483646;background:#000;color:#fff;display:none;font-family:inherit;touch-action:none}
+#oneCameraV7.open{display:block}
+#oneCameraV7 video,#oneCameraV7 .oneCamPreview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+#oneCameraV7 .oneCamShade{position:absolute;inset:0;background:linear-gradient(#0008 0,#0000 22%,#0000 70%,#0009 100%);pointer-events:none}
+#oneCameraV7 .oneCamTop{position:absolute;top:max(18px,env(safe-area-inset-top));left:18px;right:18px;display:flex;justify-content:space-between;align-items:center;z-index:3}
+#oneCameraV7 button{border:0;color:#fff;background:#15151bbb;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#oneCameraV7 .oneCamRound{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:25px}
+#oneCameraV7 .oneCamRecipient{max-width:58%;padding:10px 15px;border-radius:22px;background:#15151bbb;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#oneCameraV7 .oneCamBottom{position:absolute;left:0;right:0;bottom:max(26px,env(safe-area-inset-bottom));z-index:4;display:flex;align-items:center;justify-content:center;gap:34px;padding:0 24px}
+#oneCameraV7 .oneCamCapture{width:82px;height:82px;border-radius:50%;background:#fff;border:6px solid #ffffff70;box-shadow:0 0 0 3px #fff;position:relative}
+#oneCameraV7.recording .oneCamCapture{background:#ff315c;transform:scale(.88);border-radius:24px}
+#oneCameraV7 .oneCamHint{position:absolute;left:0;right:0;bottom:126px;text-align:center;font-size:13px;font-weight:700;text-shadow:0 2px 8px #000}
+#oneCameraV7 .oneCamSend{display:none;min-width:116px;height:54px;border-radius:28px;padding:0 20px;background:linear-gradient(135deg,#a23cff,#6d22ff);font-size:17px;font-weight:900}
+#oneCameraV7.previewing .oneCamCapture,#oneCameraV7.previewing .oneCamFlip,#oneCameraV7.previewing .oneCamHint{display:none}
+#oneCameraV7.previewing .oneCamSend{display:block}
+#oneCameraV7 .oneCamRetake{display:none}
+#oneCameraV7.previewing .oneCamRetake{display:grid}
+#oneCameraV7 .oneCamVideoPreview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;display:none}
+#oneCameraV7.previewing.video .oneCamVideoPreview{display:block}
+#oneCameraV7.previewing.video .oneCamPreview{display:none}
+</style>
+<script id="one-camera-v7-js">
+(()=>{
+ let stream=null,recorder=null,chunks=[],pressTimer=null,recording=false,captured=null,targetRow=null,targetName='';
+ const el=document.createElement('div');el.id='oneCameraV7';el.innerHTML=`<video class="oneCamLive" autoplay playsinline muted></video><img class="oneCamPreview" hidden><video class="oneCamVideoPreview" playsinline controls></video><div class="oneCamShade"></div><div class="oneCamTop"><button class="oneCamRound oneCamClose" aria-label="Fermer">✕</button><div class="oneCamRecipient">Caméra ONE</div><button class="oneCamRound oneCamFlash" aria-label="Flash">⚡</button></div><div class="oneCamHint">Appuie pour une photo · Maintiens pour une vidéo</div><div class="oneCamBottom"><button class="oneCamRound oneCamRetake" aria-label="Reprendre">↶</button><button class="oneCamCapture" aria-label="Prendre une photo ou vidéo"></button><button class="oneCamRound oneCamFlip" aria-label="Changer de caméra">↻</button><button class="oneCamSend">Envoyer ➤</button></div>`;document.body.appendChild(el);
+ const live=el.querySelector('.oneCamLive'),img=el.querySelector('.oneCamPreview'),vid=el.querySelector('.oneCamVideoPreview'),recipient=el.querySelector('.oneCamRecipient'),cap=el.querySelector('.oneCamCapture');let facing='environment';
+ async function stop(){if(recorder&&recorder.state!=='inactive'){try{recorder.stop()}catch{}}recorder=null;(stream?.getTracks()||[]).forEach(t=>t.stop());stream=null;live.srcObject=null;recording=false;el.classList.remove('recording');}
+ function resetPreview(){if(img.src)URL.revokeObjectURL(img.src);if(vid.src)URL.revokeObjectURL(vid.src);img.src='';vid.src='';img.hidden=true;captured=null;el.classList.remove('previewing','video');}
+ async function startCamera(){resetPreview();await stop();try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing}},audio:true});live.srcObject=stream;await live.play();}catch(err){el.classList.remove('open');fallbackCamera();}}
+ function fallbackCamera(){const i=document.createElement('input');i.type='file';i.accept='image/*,video/*';i.setAttribute('capture','environment');i.hidden=true;document.body.appendChild(i);i.onchange=()=>{const f=i.files?.[0];if(f){captured=f;deliver();}i.remove()};i.click();}
+ function open(row,name){targetRow=row||null;targetName=name||row?.querySelector('.copy b')?.textContent?.trim()||'ONE';recipient.textContent=targetName?`À ${targetName}`:'Caméra ONE';el.classList.add('open');startCamera();}
+ function snap(){if(!stream)return;const c=document.createElement('canvas');c.width=live.videoWidth||1080;c.height=live.videoHeight||1920;const x=c.getContext('2d');x.drawImage(live,0,0,c.width,c.height);c.toBlob(b=>{if(!b)return;captured=new File([b],`ONE_${Date.now()}.jpg`,{type:'image/jpeg'});img.src=URL.createObjectURL(b);img.hidden=false;el.classList.add('previewing');stop();},'image/jpeg',.92)}
+ function beginVideo(){if(!stream||recording||typeof MediaRecorder==='undefined')return;chunks=[];try{recorder=new MediaRecorder(stream);recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};recorder.onstop=()=>{if(!chunks.length)return;const type=recorder?.mimeType||'video/webm',b=new Blob(chunks,{type});captured=new File([b],`ONE_${Date.now()}.webm`,{type});vid.src=URL.createObjectURL(b);el.classList.add('previewing','video');stop();};recorder.start();recording=true;el.classList.add('recording')}catch{recording=false}}
+ function endPress(){clearTimeout(pressTimer);pressTimer=null;if(recording){recording=false;try{recorder.stop()}catch{};el.classList.remove('recording')}else snap()}
+ cap.addEventListener('pointerdown',e=>{e.preventDefault();pressTimer=setTimeout(beginVideo,320)});cap.addEventListener('pointerup',e=>{e.preventDefault();endPress()});cap.addEventListener('pointercancel',()=>{clearTimeout(pressTimer);if(recording)endPress()});
+ el.querySelector('.oneCamClose').onclick=()=>{stop();resetPreview();el.classList.remove('open')};
+ el.querySelector('.oneCamRetake').onclick=()=>startCamera();
+ el.querySelector('.oneCamFlip').onclick=()=>{facing=facing==='environment'?'user':'environment';startCamera()};
+ el.querySelector('.oneCamFlash').onclick=async()=>{const track=stream?.getVideoTracks?.()[0];try{const caps=track?.getCapabilities?.();if(caps?.torch){const on=!track.__oneTorch;await track.applyConstraints({advanced:[{torch:on}]});track.__oneTorch=on}}catch{}};
+ function injectFile(file){let tries=0;const inject=()=>{const d=document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen, dialog.oneThreadFullscreen');const inputs=[...(d?.querySelectorAll('input[type="file"]')||[])];const gallery=inputs.find(i=>!i.hasAttribute('capture'))||inputs[0];if(gallery){try{const dt=new DataTransfer();dt.items.add(file);gallery.files=dt.files;gallery.dispatchEvent(new Event('change',{bubbles:true}));return true}catch{}}if(++tries<40)setTimeout(inject,60);};inject();}
+ function deliver(){if(!captured)return;const f=captured;el.classList.remove('open');stop();resetPreview();if(targetRow){const row=targetRow;targetRow=null;setTimeout(()=>{try{row.click()}catch{};setTimeout(()=>injectFile(f),100)},20)}else injectFile(f)}
+ el.querySelector('.oneCamSend').onclick=deliver;
+ // Camera icons in Discussions: open ONE camera directly and never invoke the old file picker.
+ document.addEventListener('click',e=>{const b=e.target.closest('.oneConversationCamera');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const row=b.closest('.oneInlineCard');open(row,row?.querySelector('.copy b')?.textContent?.trim())},true);
+ // Camera button inside a fullscreen conversation (V6.1).
+ document.addEventListener('click',e=>{const b=e.target.closest('.oneV61Camera');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const d=b.closest('dialog');const name=d?.querySelector('.oneThreadHead b,.oneThreadTitle,b')?.textContent?.trim()||'';open(null,name)},true);
+ window.oneOpenCameraV7=(row,name)=>open(row,name);
+})();
+</script>
