@@ -5844,7 +5844,7 @@ body.oneOpeningDiscussion dialog.oneFriendsDialog.oneThreadFullscreen{visibility
 <!-- ONE V7.6.3 — receiver rows + luminous media ring + restored page sides -->
 <!-- ONE V7.7.2 — never expose internal media transport markers in the UI -->
 
-<!-- ONE V7.9.3.2 + vraie cloche + Salon · joueurs cliquable + Twitch + refresh safe -->
+<!-- ONE V7.9.3.2 + salon vert + cloche polish + pages YouTube/Twitch -->
 <style id="one-v79-messages-clean-css">
 #oneFoundation #oneSocialInline{min-height:220px}
 #oneFoundation #oneSocialInline .oneV79Skeleton{display:grid;gap:0}.oneV79SkeletonRow{height:82px;border-bottom:1px solid #24283a;display:flex;align-items:center;gap:14px}.oneV79SkeletonRow:before{content:"";width:58px;height:58px;border-radius:50%;background:#181c2b}.oneV79SkeletonRow:after{content:"";width:42%;height:13px;border-radius:999px;background:#181c2b}
@@ -6916,7 +6916,7 @@ body.oneProviderPage .app{
      title.textContent='YouTube';
      sub.textContent='Vidéos et créateurs YouTube';
    }else{
-     badge.innerHTML='<svg class="oneTwitchGlyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h17v11l-5 5h-4l-3 3v-3H4V3Z" fill="currentColor"/><path d="M9 7v6M15 7v6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="square"/></svg>';
+     badge.textContent='▣';
      title.textContent='Twitch';
      sub.textContent='Lives et créateurs Twitch';
    }
@@ -6976,196 +6976,6 @@ body.oneProviderPage .app{
  // Si la page recharge déjà sur YouTube/Twitch.
  const initial=activeFilter();
  if(initial==='youtube'||initial==='twitch')enterProvider(initial);
-})();
-</script>
-
-
-<style id="one-header-polish-v4-css">
-/* ----- vraie cloche de notification ----- */
-#oneHeaderRight>#oneNotificationsToggle.oneTopNotification{
-  position:relative!important;
-  width:36px!important;
-  height:36px!important;
-  min-width:36px!important;
-  flex:0 0 36px!important;
-  display:grid!important;
-  place-items:center!important;
-  padding:0!important;
-  border:1px solid #454a61!important;
-  border-radius:12px!important;
-  background:#111522!important;
-  color:#f2f4ff!important;
-  box-shadow:none!important;
-}
-#oneHeaderRight>#oneNotificationsToggle.oneTopNotification svg{
-  width:20px!important;
-  height:20px!important;
-  fill:none!important;
-  stroke:currentColor!important;
-  stroke-width:1.9!important;
-  stroke-linecap:round!important;
-  stroke-linejoin:round!important;
-}
-#oneHeaderRight>#oneNotificationsToggle.oneTopNotification[aria-expanded="true"]{
-  border-color:#8a68d8!important;
-  background:#201833!important;
-  color:#fff!important;
-}
-
-/* ----- Salon actif : texte comme avant ----- */
-#oneSalonHeaderCount{
-  appearance:none!important;
-  -webkit-appearance:none!important;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:4px;
-  height:30px;
-  min-width:66px;
-  padding:0 8px;
-  flex:0 0 auto;
-  border:1px solid #2dbd72!important;
-  border-radius:10px!important;
-  background:linear-gradient(180deg,#113823,#0c2d1b)!important;
-  color:#73efab!important;
-  font-size:10px!important;
-  line-height:1!important;
-  font-weight:850!important;
-  letter-spacing:.01em;
-  white-space:nowrap;
-  cursor:pointer;
-  box-shadow:inset 0 1px 0 #ffffff0b!important;
-}
-#oneSalonHeaderCount[hidden]{display:none!important}
-#oneSalonHeaderCount .oneSalonLabel{color:#b9f8d3}
-#oneSalonHeaderCount .oneSalonPeopleValue{
-  min-width:12px;
-  color:#73efab;
-  font-variant-numeric:tabular-nums;
-}
-#oneSalonHeaderCount:active{transform:scale(.97)}
-
-/* ----- Icône Twitch cohérente partout ----- */
-.oneTwitchGlyph{
-  width:22px;
-  height:22px;
-  display:block;
-}
-#oneProviderBadge .oneTwitchGlyph{width:24px;height:24px}
-[data-source="twitch"] .oneTwitchGlyph{
-  width:22px;
-  height:22px;
-  margin:0 auto 5px;
-}
-</style>
-
-<script id="one-header-polish-v4-js">
-(()=>{
- const bell=document.getElementById('oneNotificationsToggle');
- const account=document.getElementById('accountBtn');
- const accountModal=document.getElementById('accountModal');
- const count=document.getElementById('oneSalonHeaderCount');
-
- const bellSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>';
- const twitchSvg='<svg class="oneTwitchGlyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h17v11l-5 5h-4l-3 3v-3H4V3Z" fill="currentColor"/><path d="M9 7v6M15 7v6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="square"/></svg>';
-
- if(bell){
-   bell.innerHTML=bellSvg;
-   bell.setAttribute('aria-label','Notifications');
-   bell.title='Notifications';
- }
-
- function openSalonTab(){
-   if(typeof window.oneShowSpace==='function')window.oneShowSpace('social');
-   requestAnimationFrame(()=>{
-     if(typeof window.oneSetSocialTab==='function')window.oneSetSocialTab('rooms');
-     else window.oneOpenSalon?.();
-   });
- }
- if(count){
-   count.outerHTML='<button type="button" id="oneSalonHeaderCount" hidden aria-label="Ouvrir le salon"><span class="oneSalonLabel">Salon</span><span aria-hidden="true">·</span><span class="oneSalonPeopleValue">0</span></button>';
- }
- const salonButton=document.getElementById('oneSalonHeaderCount');
- if(salonButton){
-   salonButton.onclick=e=>{e.preventDefault();e.stopPropagation();openSalonTab()};
- }
-
- function updateSalonButton(room){
-   const r=room||window.oneSocialRoom?.()||null;
-   const members=Array.isArray(r?.members)?r.members:[];
-   if(!salonButton)return;
-   if(!r||!members.length){
-     salonButton.hidden=true;
-     salonButton.querySelector('.oneSalonPeopleValue').textContent='0';
-     return;
-   }
-   salonButton.hidden=false;
-   salonButton.querySelector('.oneSalonPeopleValue').textContent=String(members.length);
-   salonButton.setAttribute('aria-label','Ouvrir le salon · '+members.length+' joueur'+(members.length>1?'s':''));
-   salonButton.title='Salon · '+members.length+' joueur'+(members.length>1?'s':'');
- }
- window.addEventListener('one-party-state',e=>updateSalonButton(e.detail));
- window.addEventListener('one-salon-rendered',()=>updateSalonButton());
- window.addEventListener('one-salon-visibility',()=>updateSalonButton());
- updateSalonButton();
-
- function paintTwitchIcons(){
-   const badge=document.getElementById('oneProviderBadge');
-   if(document.body.classList.contains('oneProviderTwitch')&&badge)badge.innerHTML=twitchSvg;
-   document.querySelectorAll('[data-source="twitch"]').forEach(b=>{
-     const icon=b.querySelector(':scope>span,:scope>b');
-     if(icon&&!icon.querySelector('.oneTwitchGlyph'))icon.innerHTML=twitchSvg;
-   });
- }
- paintTwitchIcons();
- document.addEventListener('click',e=>{
-   if(e.target.closest('[data-source="twitch"],#chips [data-filter="twitch"]'))setTimeout(paintTwitchIcons,0);
- },false);
-
- /* Refresh : le compte ne doit JAMAIS s'ouvrir tout seul.
-    Un clic Compte n'est accepté qu'après une vraie interaction sur l'avatar. */
- if(account&&accountModal){
-   let armed=false,armTimer=0,bootGuard=true;
-   const closeAccount=()=>accountModal.classList.remove('show');
-   const arm=()=>{
-     if(bootGuard)return;
-     armed=true;
-     clearTimeout(armTimer);
-     armTimer=setTimeout(()=>armed=false,900);
-   };
-   account.addEventListener('pointerdown',arm,true);
-   account.addEventListener('keydown',e=>{
-     if(e.key==='Enter'||e.key===' '){armed=true;clearTimeout(armTimer);armTimer=setTimeout(()=>armed=false,900)}
-   },true);
-   account.addEventListener('click',e=>{
-     if(!armed){
-       e.preventDefault();
-       e.stopImmediatePropagation();
-       closeAccount();
-       return;
-     }
-     armed=false;
-   },true);
-
-   closeAccount();
-   requestAnimationFrame(closeAccount);
-   setTimeout(closeAccount,80);
-   setTimeout(closeAccount,350);
-   setTimeout(()=>{closeAccount();bootGuard=false},800);
-
-   window.addEventListener('pageshow',()=>{
-     bootGuard=true;
-     armed=false;
-     closeAccount();
-     setTimeout(closeAccount,100);
-     setTimeout(()=>{closeAccount();bootGuard=false},700);
-   });
- }
-
- // Répare les icônes sans observer tout le document.
- const providerHead=document.getElementById('oneProviderHeader');
- if(providerHead)new MutationObserver(()=>queueMicrotask(paintTwitchIcons))
-   .observe(providerHead,{childList:true,subtree:true});
 })();
 </script>
 
