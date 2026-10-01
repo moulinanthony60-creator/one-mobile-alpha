@@ -307,7 +307,7 @@ body.oneYoutubeBrowse .youtube-card .oneCardControls{justify-content:center;alig
   </div>
   <div class="platformList">
     <div class="platformRow"><div class="platformIcon">▶️</div><div class="platformMeta"><b>YouTube</b><span id="accountYoutubeText">Non connecté</span></div><button class="platformStatus" id="accountYoutubeStatus">Connecter</button></div>
-    <div class="platformRow"><div class="platformIcon">🟣</div><div class="platformMeta"><b>Twitch</b><span id="accountTwitchText">Non connecté</span></div><button class="platformStatus" id="accountTwitchStatus">Connecter</button></div>
+    <div class="platformRow"><div class="platformIcon oneTwitchAccountIcon"><svg class="oneTwitchLogo" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h16v11.2L16.2 19H13l-3.2 3v-3H5V3Z" fill="currentColor"/><path d="M9.2 7.2v5.6M14.8 7.2v5.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="square"/></svg></div><div class="platformMeta"><b>Twitch</b><span id="accountTwitchText">Non connecté</span></div><button class="platformStatus" id="accountTwitchStatus">Connecter</button></div>
     <div class="platformRow"><div class="platformIcon">🎵</div><div class="platformMeta"><b>TikTok</b><span id="accountTikTokText">Non connecté</span></div><button class="platformStatus" id="accountTikTokStatus">Connecter</button></div>
   </div>
   <div class="accountActions"><button class="primary" id="managePlatforms">Actualiser les connexions</button><button id="openAdvancedSettings">Réglages avancés</button></div><div class="accountActions" style="margin-top:8px"><button id="exportOneProfile">Sauvegarder le profil</button><button id="importOneProfile">Restaurer le profil</button><input id="importOneFile" type="file" accept="application/json" hidden></div>
@@ -2802,8 +2802,8 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  const shell=document.createElement('section');shell.className='oneShell';shell.id='oneFoundation';shell.hidden=true;shell.setAttribute('aria-label','Espace ONE');header.after(shell);
  const social=document.createElement('button');social.type='button';social.className='nav oneSocialNav';social.innerHTML='<span class="ico">☏</span>Social';social.onclick=()=>show('social');social.className='oneSecondary oneSocialEntry';social.innerHTML='Social · Amis et messages';
  const home=document.createElement('button');home.type='button';home.className='nav';home.id='oneHomeNav';home.innerHTML='<span class="ico">⌂</span>Accueil';home.onclick=()=>show('home');document.querySelector('.bottom').prepend(home);
- const sourceGrid='<div class="oneSourceGrid"><button data-source="tiktok"><span>♪</span>TikTok</button><button data-source="youtube"><span>▶</span>YouTube</button><button data-source="twitch"><span>▣</span>Twitch</button><button data-source="music"><span>♫</span>Musique</button></div>';
- const screens={shop:'<section id="oneShop" aria-label="Boutique ONE"></section>',home:'<section id="oneUniversalHome"></section>',ai:'<section class="oneAiSwipeScreen" aria-label="ONE IA"><span class="oneEyebrow">Ton assistant personnel</span><h1 class="oneShellTitle">ONE IA</h1><p class="oneShellLead">Pose une question, trouve du contenu ou demande une idée.</p><div class="oneAiSwipeHero"><div class="oneAiOrb">✦</div><b>Toujours là pour toi.</b><span>Utilise le vrai assistant ONE IA déjà intégré à ton application.</span><div class="oneAiInlineComposer"><textarea id="oneAiInlineQuestion" rows="3" placeholder="Pose ta question à ONE IA…"></textarea><button class="onePrimary" data-action="ask-ai-inline">Demander à ONE IA</button></div><div id="oneAiInlineAnswer" class="oneAiInlineAnswer" role="status" aria-live="polite"></div></div></section>',discover:'<section class="oneDiscoverSwipeScreen" aria-label="Découvrir"><span class="oneEyebrow">Explore ton univers</span><h1 class="oneShellTitle">Découvrir</h1><p class="oneShellLead">TikTok, YouTube, Twitch et plus, réunis ici.</p><div class="oneDiscoverGrid"><button data-source="tiktok"><b>♪</b><span>TikTok</span><small>Découvrir</small></button><button data-source="youtube"><b>▶</b><span>YouTube</span><small>Regarder</small></button><button data-source="twitch"><b>▣</b><span>Twitch</span><small>En live</small></button><button data-source="music"><b>♫</b><span>Musique</span><small>Écouter</small></button></div></section>',moments:'<section class="oneMomentsScreen" aria-label="Moments"><span class="oneEyebrow">Ce que vivent tes amis</span><h1 class="oneShellTitle">Moments</h1><p class="oneShellLead">Stories, abonnements et salons réunis au même endroit.</p><div class="oneMomentsTabs"><button class="active" data-moment-tab="foryou">Pour toi</button><button data-moment-tab="following">Abonnements</button><button data-moment-tab="friends">Amis</button><button data-moment-tab="rooms">Salons</button></div><div class="oneMomentsBody"><div class="oneMomentsHero"><b>Les mêmes moments.<br>Ensemble.</b><span>Retrouve ici les contenus et activités de ton univers ONE.</span></div><div class="oneMomentsPlatforms"><button data-moment-source="youtube">YouTube</button><button data-moment-source="twitch">Twitch</button><button data-moment-source="tiktok">TikTok</button></div></div></section>',
+ const sourceGrid='<div class="oneSourceGrid"><button data-source="tiktok"><span>♪</span>TikTok</button><button data-source="youtube"><span>▶</span>YouTube</button><button data-source="twitch"><span class="oneTwitchIcon"><svg class="oneTwitchLogo" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h16v11.2L16.2 19H13l-3.2 3v-3H5V3Z" fill="currentColor"/><path d="M9.2 7.2v5.6M14.8 7.2v5.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="square"/></svg></span>Twitch</button><button data-source="music"><span>♫</span>Musique</button></div>';
+ const screens={shop:'<section id="oneShop" aria-label="Boutique ONE"></section>',home:'<section id="oneUniversalHome"></section>',ai:'<section class="oneAiSwipeScreen" aria-label="ONE IA"><span class="oneEyebrow">Ton assistant personnel</span><h1 class="oneShellTitle">ONE IA</h1><p class="oneShellLead">Pose une question, trouve du contenu ou demande une idée.</p><div class="oneAiSwipeHero"><div class="oneAiOrb">✦</div><b>Toujours là pour toi.</b><span>Utilise le vrai assistant ONE IA déjà intégré à ton application.</span><div class="oneAiInlineComposer"><textarea id="oneAiInlineQuestion" rows="3" placeholder="Pose ta question à ONE IA…"></textarea><button class="onePrimary" data-action="ask-ai-inline">Demander à ONE IA</button></div><div id="oneAiInlineAnswer" class="oneAiInlineAnswer" role="status" aria-live="polite"></div></div></section>',discover:'<section class="oneDiscoverSwipeScreen" aria-label="Découvrir"><span class="oneEyebrow">Explore ton univers</span><h1 class="oneShellTitle">Découvrir</h1><p class="oneShellLead">TikTok, YouTube, Twitch et plus, réunis ici.</p><div class="oneDiscoverGrid"><button data-source="tiktok"><b>♪</b><span>TikTok</span><small>Découvrir</small></button><button data-source="youtube"><b>▶</b><span>YouTube</span><small>Regarder</small></button><button data-source="twitch"><b class="oneTwitchIcon"><svg class="oneTwitchLogo" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h16v11.2L16.2 19H13l-3.2 3v-3H5V3Z" fill="currentColor"/><path d="M9.2 7.2v5.6M14.8 7.2v5.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="square"/></svg></b><span>Twitch</span><small>En live</small></button><button data-source="music"><b>♫</b><span>Musique</span><small>Écouter</small></button></div></section>',moments:'<section class="oneMomentsScreen" aria-label="Moments"><span class="oneEyebrow">Ce que vivent tes amis</span><h1 class="oneShellTitle">Moments</h1><p class="oneShellLead">Stories, abonnements et salons réunis au même endroit.</p><div class="oneMomentsTabs"><button class="active" data-moment-tab="foryou">Pour toi</button><button data-moment-tab="following">Abonnements</button><button data-moment-tab="friends">Amis</button><button data-moment-tab="rooms">Salons</button></div><div class="oneMomentsBody"><div class="oneMomentsHero"><b>Les mêmes moments.<br>Ensemble.</b><span>Retrouve ici les contenus et activités de ton univers ONE.</span></div><div class="oneMomentsPlatforms"><button data-moment-source="youtube">YouTube</button><button data-moment-source="twitch">Twitch</button><button data-moment-source="tiktok">TikTok</button></div></div></section>',
  one:'<span class="oneEyebrow">Ton espace de création</span><h1 class="oneShellTitle">Bienvenue sur ONE.</h1><p class="oneShellLead">Regarde, crée et partage. Un espace pour tes vidéos et celles de la communauté.</p><div class="oneHeroCard"><span class="oneSmallTag">Contenu natif ONE</span><h2>Les premières créations<br>commencent avec toi.</h2><p>Prépare ta vidéo dans le Studio. La publication sur le feed ONE sera ouverte dans une prochaine étape.</p><button class="onePrimary" data-action="studio">Préparer une création ＋</button></div><div class="oneEmpty"><span>✦</span><strong>Le feed ONE arrive bientôt</strong>Aucune publication native pour le moment.</div>',
  together:'<span class="oneEyebrow">À plusieurs, partout dans ONE</span><h1 class="oneShellTitle">Together</h1><p class="oneShellLead">Un salon, jusqu’à quatre personnes et les contenus que vous aimez.</p><div class="oneHeroCard"><span class="symbol">♧</span><h2>Les mêmes moments.<br>Ensemble.</h2><p>Les salons et les invitations seront disponibles une fois le service Together connecté.</p><span class="oneSmallTag">En préparation</span></div><div class="oneFeatureGrid"><div class="oneFeature"><span class="symbol">▶</span><h3>Regarder ensemble</h3><p>Une lecture partagée entre les participants.</p></div><div class="oneFeature"><span class="symbol">☏</span><h3>Garder le contact</h3><p>Retrouver ses amis et ses invitations dans Social.</p></div></div>',
  party:'<span class="oneEyebrow">La prochaine aventure</span><h1 class="oneShellTitle">Party</h1><p class="oneShellLead">Des jeux à partager avec ton groupe Together.</p><div class="oneHeroCard"><span class="oneSmallTag">À venir</span><h2>Le Blind Test<br>ouvrira la partie.</h2><p>Party sera développé après la lecture persistante et les salons Together.</p></div><div class="oneFeatureGrid"><div class="oneFeature"><span class="symbol">♫</span><h3>Blind Test</h3><p>Reconnaître, buzzer et marquer des points.</p></div><div class="oneFeature"><span class="symbol">✦</span><h3>Défis de groupe</h3><p>De nouveaux jeux viendront ensuite.</p></div></div>',
@@ -6014,6 +6014,17 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
  function getCache(k,fallback){try{return JSON.parse(localStorage.getItem(cacheKey(k))||'null')??fallback}catch{return fallback}}
  function setCache(k,v){try{localStorage.setItem(cacheKey(k),JSON.stringify(v))}catch{}}
  try{const s=getCache('status',{});for(const [k,v] of Object.entries(s||{}))statuses.set(k,{at:Date.now()-1000,data:v})}catch{}
+ const seenNotices=new Set(getCache('seen_media_notices',[]));
+ function persistSeenNotices(){setCache('seen_media_notices',[...seenNotices].slice(-250))}
+ function markNoticeSeen(id){
+   if(!id)return;
+   seenNotices.add(String(id));
+   persistSeenNotices();
+   try{
+     navigator.serviceWorker?.ready?.then(r=>r.getNotifications?.({tag:'one-media-'+id}))
+       .then(list=>list?.forEach?.(n=>n.close())).catch(()=>{});
+   }catch{}
+ }
  function persistStatuses(){const o={};for(const [k,v] of statuses)o[k]=v.data;setCache('status',o)}
  async function json(url,opt={}){const c=new AbortController(),timer=setTimeout(()=>c.abort(),9000);try{const r=await fetch(url,{...opt,headers:auth(opt.headers||{}),cache:'no-store',signal:c.signal});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Service ONE indisponible.');return d}finally{clearTimeout(timer)}}
  const people=p=>json(PEOPLE+p),media=(p,o={})=>json(MEDIA+p,o);
@@ -6036,9 +6047,25 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
  async function markDelivered(mark){if(delivered.has(mark.id))return;delivered.add(mark.id);try{const d=await media('/messages/'+encodeURIComponent(mark.id)+'/delivered-shared?token='+encodeURIComponent(mark.shareToken),{method:'POST'});statuses.set(mark.id,{at:Date.now(),data:d.status});persistStatuses()}catch{delivered.delete(mark.id)}}
  async function markOpened(mark){const d=await media('/messages/'+encodeURIComponent(mark.id)+'/open-shared?token='+encodeURIComponent(mark.shareToken),{method:'POST'});statuses.set(mark.id,{at:Date.now(),data:d.status});persistStatuses();return d.status}
  function updateOrder(list){const keys=list.map(keyOf);if(!order.length)order=[...keys];order=order.filter(k=>keys.includes(k));for(const k of keys)if(!order.includes(k))order.push(k);for(const x of list){const k=keyOf(x),s=sig(x),old=lastSig.get(k);if(old&&old!==s){order=order.filter(v=>v!==k);order.unshift(k)}lastSig.set(k,s)}}
- function addNotice(x,mark){if(notices.has(mark.id))return;notices.set(mark.id,{name:x?.name||'ONE',mark});renderNotices();if(!notified.has(mark.id)){notified.add(mark.id);try{sessionStorage.setItem('one_v79_notified',JSON.stringify([...notified].slice(-100)))}catch{}if(document.hidden&&'Notification'in window&&Notification.permission==='granted'){const title=x?.name||'ONE',body=mark.type==='video'?'Nouvelle vidéo':'Nouvelle photo';try{navigator.serviceWorker?.ready?.then(r=>r.showNotification(title,{body,tag:'one-media-'+mark.id})).catch(()=>{})}catch{}}}}
- function clearNotice(id){notices.delete(id);renderNotices()}
- function renderNotices(){const panel=document.getElementById('oneNotifications'),toggle=document.getElementById('oneNotificationsToggle');if(!panel||!toggle)return;let box=panel.querySelector('.oneV79MediaNotices');if(!box){box=document.createElement('div');box.className='oneV79MediaNotices';panel.appendChild(box)}box.replaceChildren();for(const n of notices.values()){const b=document.createElement('button');b.className='oneV79MediaNotice '+n.mark.type;b.type='button';b.innerHTML='<i></i><span><b></b><small></small></span>';b.querySelector('b').textContent=n.name;b.querySelector('small').textContent=n.mark.type==='video'?'Nouvelle vidéo':'Nouvelle photo';b.onclick=()=>openShared(n.mark,null,false);box.appendChild(b)}box.hidden=!notices.size;toggle.classList.toggle('oneV79HasMedia',notices.size>0);toggle.dataset.oneMediaCount=String(Math.min(9,notices.size));const p=panel.querySelector(':scope>p'),s=panel.querySelector(':scope>small');if(p)p.hidden=notices.size>0;if(s)s.hidden=notices.size>0}
+ function addNotice(x,mark){
+   if(seenNotices.has(String(mark.id))||notices.has(mark.id))return;
+   notices.set(mark.id,{name:x?.name||'ONE',mark});
+   renderNotices();
+   if(!notified.has(mark.id)){
+     notified.add(mark.id);
+     try{sessionStorage.setItem('one_v79_notified',JSON.stringify([...notified].slice(-100)))}catch{}
+     if(document.hidden&&'Notification'in window&&Notification.permission==='granted'){
+       const title=x?.name||'ONE',body=mark.type==='video'?'Nouvelle vidéo':'Nouvelle photo';
+       try{navigator.serviceWorker?.ready?.then(r=>r.showNotification(title,{body,tag:'one-media-'+mark.id})).catch(()=>{})}catch{}
+     }
+   }
+ }
+ function clearNotice(id,remember=true){
+   if(remember)markNoticeSeen(id);
+   notices.delete(id);
+   renderNotices();
+ }
+ function renderNotices(){const panel=document.getElementById('oneNotifications'),toggle=document.getElementById('oneNotificationsToggle');if(!panel||!toggle)return;let box=panel.querySelector('.oneV79MediaNotices');if(!box){box=document.createElement('div');box.className='oneV79MediaNotices';panel.appendChild(box)}box.replaceChildren();for(const n of notices.values()){const b=document.createElement('button');b.className='oneV79MediaNotice '+n.mark.type;b.type='button';b.innerHTML='<i></i><span><b></b><small></small></span>';b.querySelector('b').textContent=n.name;b.querySelector('small').textContent=n.mark.type==='video'?'Nouvelle vidéo':'Nouvelle photo';b.onclick=()=>{markNoticeSeen(n.mark.id);clearNotice(n.mark.id,false);openShared(n.mark,null,false)};box.appendChild(b)}box.hidden=!notices.size;toggle.classList.toggle('oneV79HasMedia',notices.size>0);toggle.dataset.oneMediaCount=String(Math.min(9,notices.size));const p=panel.querySelector(':scope>p'),s=panel.querySelector(':scope>small');if(p)p.hidden=notices.size>0;if(s)s.hidden=notices.size>0}
  function paintInbox(raw,network=true){const host=document.getElementById('oneSocialInline');if(!host||tab!=='messages')return;const list=dedupe(raw);updateOrder(list);const by=new Map(list.map(x=>[keyOf(x),x]));const marks=list.map(x=>parse(x.lastText||'')).filter(Boolean);host.querySelector('.oneV79Skeleton')?.remove();const keep=new Set();for(const k of order){const x=by.get(k);if(!x)continue;const row=ensureRow(host,k,x,false);keep.add(row);const sub=row.querySelector('.copy span'),av=row.querySelector('.avatar'),un=row.querySelector('.oneV79Unread'),m=parse(x.lastText||'');av.classList.remove('oneV79PhotoRing','oneV79VideoRing');un.hidden=true;sub.className='';row.dataset.oneV79LastText=String(x.lastText||'');if(m){row.dataset.oneV79Media=m.id;const st=statuses.get(m.id)?.data||null;const mine=!!st?.mine,opened=!!st?.opened;sub.textContent=(opened?'○ ':'● ')+word(m);sub.className=m.type==='video'?'oneV79Video':'oneV79Photo';if(!mine&&!opened){av.classList.add(m.type==='video'?'oneV79VideoRing':'oneV79PhotoRing');addNotice(x,m);void markDelivered(m)}else if(opened)clearNotice(m.id)}else{delete row.dataset.oneV79Media;sub.textContent=x.lastText||'Commencer la discussion';if(Number(x.unread||0)>0)un.hidden=false}host.appendChild(row)}for(const n of [...host.querySelectorAll(':scope>.oneV79Row')])if(!keep.has(n))n.remove();if(!keep.size)host.innerHTML='<p class="oneInlineEmpty">Aucune conversation pour le moment.</p>';if(network&&marks.length){const todo=marks.filter(m=>{const s=statuses.get(m.id);return !s||Date.now()-s.at>12000}).slice(0,6);if(todo.length)Promise.allSettled(todo.map(m=>status(m,true))).then(()=>{if(tab==='messages'&&document.getElementById('oneSocialInline')===host)requestAnimationFrame(()=>paintInbox(raw,false))})}}
  function paintFriends(raw){const host=document.getElementById('oneSocialInline');if(!host||tab!=='friends')return;const list=dedupe((raw||[]).filter(x=>x.status==='accepted'));const keys=list.map(keyOf);if(!friendOrder.length)friendOrder=[...keys].sort((a,b)=>String(list.find(x=>keyOf(x)===a)?.name||'').localeCompare(String(list.find(x=>keyOf(x)===b)?.name||''),'fr',{sensitivity:'base'}));friendOrder=friendOrder.filter(k=>keys.includes(k));for(const k of keys)if(!friendOrder.includes(k))friendOrder.push(k);const by=new Map(list.map(x=>[keyOf(x),x]));host.replaceChildren();for(const k of friendOrder){const x=by.get(k);if(!x)continue;const row=ensureRow(host,k,x,true);row.querySelector('.copy span').textContent=x.online?'● En ligne':'Hors ligne';host.appendChild(row)}const add=document.createElement('button');add.className='oneInlineAction';add.textContent='＋ Ajouter un ami';add.onclick=()=>window.oneOpenFriends?.({tab:'add'});host.appendChild(add)}
  function paintCached(which){const host=document.getElementById('oneSocialInline');if(!host)return;document.querySelectorAll('.oneSocialTabs button').forEach(b=>b.classList.toggle('active',b.dataset.socialTab===which));if(which==='messages'){const c=getCache('inbox',[]);if(c.length)paintInbox(c,false);else skeleton()}else if(which==='friends'){const c=getCache('friends',[]);if(c.length)paintFriends(c);else skeleton()}}
@@ -6112,7 +6139,7 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
 
  /* Fast updates and direct clicks */
  document.addEventListener('click',e=>{const av=e.target.closest('#oneSocialInline .oneV79Row .avatar.oneV79PhotoRing,#oneSocialInline .oneV79Row .avatar.oneV79VideoRing');if(av){const row=av.closest('.oneV79Row'),m=parse(row?.dataset.oneV79LastText||'');if(m){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openShared(m,null,false)}}},true);
- window.addEventListener('one-space-open',e=>{if(e.detail==='social'){tab='messages';requestAnimationFrame(()=>{paintCached('messages');syncSocial(true)})}});window.addEventListener('one-account-changed',()=>{order=[];friendOrder=[];lastSig.clear();statuses.clear();delivered.clear();notices.clear();setTimeout(()=>{if(window.oneCurrentSpace?.()==='social')openSocial(false)},80)});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&window.oneCurrentSpace?.()==='social')syncSocial(true)});window.addEventListener('online',()=>{if(window.oneCurrentSpace?.()==='social')syncSocial(true)});
+ window.addEventListener('one-space-open',e=>{if(e.detail==='social'){tab='messages';requestAnimationFrame(()=>{paintCached('messages');syncSocial(true)})}});window.addEventListener('one-account-changed',()=>{order=[];friendOrder=[];lastSig.clear();statuses.clear();delivered.clear();notices.clear();seenNotices.clear();for(const id of getCache('seen_media_notices',[]))seenNotices.add(String(id));setTimeout(()=>{if(window.oneCurrentSpace?.()==='social')openSocial(false)},80)});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&window.oneCurrentSpace?.()==='social')syncSocial(true)});window.addEventListener('online',()=>{if(window.oneCurrentSpace?.()==='social')syncSocial(true)});
  clearInterval(socialTimer);socialTimer=setInterval(()=>{if(document.hidden||window.oneCurrentSpace?.()!=='social'||tab!=='messages'||currentDialog())return;syncSocial(false)},8000);
  window.addEventListener('one-notifications-refresh',renderNotices);renderNotices();
 
@@ -6950,7 +6977,7 @@ body.oneProviderPage .app{
      title.textContent='YouTube';
      sub.textContent='Vidéos et créateurs YouTube';
    }else{
-     badge.textContent='▣';
+     badge.innerHTML='<svg class="oneTwitchLogo" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h16v11.2L16.2 19H13l-3.2 3v-3H5V3Z" fill="currentColor"/><path d="M9.2 7.2v5.6M14.8 7.2v5.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="square"/></svg>';
      title.textContent='Twitch';
      sub.textContent='Lives et créateurs Twitch';
    }
@@ -7068,6 +7095,33 @@ body.oneProviderPage .app{
  bell.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 5.7-2.2 7.2-3 8.2-.3.4 0 .8.5.8h17c.5 0 .8-.4.5-.8-.8-1-3-2.5-3-8.2Z"/><path d="M9.8 20a2.4 2.4 0 0 0 4.4 0"/></svg>';
 })();
 </script>
+
+
+<style id="one-twitch-logo-v1-css">
+.oneTwitchIcon{
+  display:grid!important;
+  place-items:center!important;
+  color:#9147ff!important;
+}
+.oneTwitchLogo{
+  width:24px!important;
+  height:24px!important;
+  display:block!important;
+}
+.oneTwitchAccountIcon{
+  display:grid!important;
+  place-items:center!important;
+  color:#9147ff!important;
+}
+.oneTwitchAccountIcon .oneTwitchLogo{
+  width:25px!important;
+  height:25px!important;
+}
+#oneProviderBadge .oneTwitchLogo{
+  width:26px!important;
+  height:26px!important;
+}
+</style>
 
 </body>
 </html>
