@@ -5648,30 +5648,18 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
 </style>
 <script id="one-thread-fullscreen-v1-js">
 (()=>{
- function syncDialog(d){
-   if(!d)return;
+ const sync=()=>document.querySelectorAll('dialog.oneFriendsDialog').forEach(d=>{
    const thread=!!d.querySelector('.friends-content .hub-thread-heading');
    d.classList.toggle('oneThreadFullscreen',thread);
-   if(thread){
-     const log=d.querySelector('.friend-message-log');
-     if(log&&!log.dataset.oneFullReady){
-       log.dataset.oneFullReady='1';
-       requestAnimationFrame(()=>log.scrollTop=log.scrollHeight);
-     }
-   }
- }
- function syncOpen(){
-   document.querySelectorAll('dialog.oneFriendsDialog[open],dialog.oneFriendsDialog.oneThreadFullscreen')
-     .forEach(syncDialog);
- }
- // Pas d'observation globale du document : seulement des points d'entrée de la messagerie.
- document.addEventListener('click',e=>{
-   if(!e.target.closest('#oneSocialInline,dialog.oneFriendsDialog'))return;
-   requestAnimationFrame(syncOpen);
- },true);
- window.addEventListener('one-social-integrated-ready',()=>requestAnimationFrame(syncOpen));
- window.addEventListener('one-notifications-refresh',()=>requestAnimationFrame(syncOpen));
- syncOpen();
+   if(thread){const log=d.querySelector('.friend-message-log');if(log&&!log.dataset.oneFullReady){log.dataset.oneFullReady='1';requestAnimationFrame(()=>log.scrollTop=log.scrollHeight)}}
+ });
+ let queued=false;
+ const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;sync()})};
+ new MutationObserver(()=>{if(window.oneCurrentSpace?.()==='social'||document.querySelector('dialog.oneFriendsDialog'))schedule()})
+   .observe(document.documentElement,{subtree:true,childList:true});
+ document.addEventListener('click',e=>{if(e.target.closest('#oneSocialInline,dialog.oneFriendsDialog'))schedule()},true);
+ window.addEventListener('one-notifications-refresh',schedule);
+ sync();
 })();
 </script>
 \n<script id="one-thread-return-discussions-fix">\n(()=>{\n  function returnToDiscussions(dialog){\n    try{ dialog?.close?.(); }catch{}\n    if(dialog){ dialog.classList.remove('oneThreadFullscreen'); dialog.hidden=true; }\n    document.querySelectorAll('dialog.oneFriendsDialog').forEach(d=>{\n      try{d.close?.()}catch{} d.classList.remove('oneThreadFullscreen'); d.hidden=true;\n    });\n    document.body.classList.remove('friends-open','oneFriendsOpen');\n    if(typeof window.oneOpenSwipeDiscussions==='function') window.oneOpenSwipeDiscussions();\n    else if(typeof window.oneShowSpace==='function') window.oneShowSpace('social');\n    requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('one-social-integrated-ready')));\n  }\n  document.addEventListener('click',e=>{\n    const back=e.target.closest('dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>button:first-child');\n    if(!back)return;\n    e.preventDefault(); e.stopImmediatePropagation();\n    returnToDiscussions(back.closest('dialog.oneFriendsDialog'));\n  },true);\n  window.oneReturnFromThreadToDiscussions=returnToDiscussions;\n})();\n</script>\n
@@ -5856,7 +5844,7 @@ body.oneOpeningDiscussion dialog.oneFriendsDialog.oneThreadFullscreen{visibility
 <!-- ONE V7.6.3 — receiver rows + luminous media ring + restored page sides -->
 <!-- ONE V7.7.2 — never expose internal media transport markers in the UI -->
 
-<!-- ONE V7.9.3.1 — Freeze Hotfix: observers globaux supprimés + marqueur média invisible -->
+<!-- ONE V7.9.3.2 — Recovery: base V7.9.3 + observers throttlés + marqueurs invisibles -->
 <style id="one-v79-messages-clean-css">
 #oneFoundation #oneSocialInline{min-height:220px}
 #oneFoundation #oneSocialInline .oneV79Skeleton{display:grid;gap:0}.oneV79SkeletonRow{height:82px;border-bottom:1px solid #24283a;display:flex;align-items:center;gap:14px}.oneV79SkeletonRow:before{content:"";width:58px;height:58px;border-radius:50%;background:#181c2b}.oneV79SkeletonRow:after{content:"";width:42%;height:13px;border-radius:999px;background:#181c2b}
@@ -5901,10 +5889,9 @@ dialog.oneFriendsDialog.oneThreadFullscreen input[type="file"]{display:none!impo
 dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>input[type="file"],dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>.oneMediaTray,dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>.oneMediaPreview{display:none!important;max-height:0!important;min-height:0!important;margin:0!important;padding:0!important}
 
 
-/* V7.9.3.1 — freeze hotfix */
-body[data-one-social-integrated="1"] #oneFoundation{contain:layout style paint}
+/* V7.9.3.2 — recovery/performance */
+dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log article.oneV79Media[hidden]{display:none!important}
 dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log{scroll-behavior:auto!important}
-dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log article{contain:layout style}
 
 /* V7.9.3 — fluidité et vraie surface de conversation */
 dialog.oneFriendsDialog.oneThreadFullscreen .friends-content{
@@ -5960,31 +5947,14 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
 <script id="one-v79-messages-clean-js">
 (()=>{
  const PEOPLE='https://one-comments-api.moulinanthony60.workers.dev',MEDIA='https://one-messages-api.moulinanthony60.workers.dev';
- const MARK=/^\s*\[\[ONE_MEDIA_V2\|([pv])\|([0-9a-f-]{36})\|([A-Za-z0-9_-]{40,})\]\]\s*$/i;
+ const MARK=/\[\[ONE_MEDIA_V2\|([pv])\|([0-9a-f-]{36})\|([A-Za-z0-9_-]{40,})\]\]/i;
  const Z0='\u200B',Z1='\u200C',ZP='\u2063\u200B\u2063\u200C\u2063';
  const token=()=>window.oneAccountToken?.()||localStorage.getItem('one_account_token_v06')||'';
  const auth=(h={})=>({...h,...(token()?{Authorization:'Bearer '+token()}:{})});
- function hideMediaMeta(value){
-   const bytes=new TextEncoder().encode(value);let out=ZP;
-   for(const b of bytes)for(let bit=7;bit>=0;bit--)out+=((b>>bit)&1)?Z1:Z0;
-   return out;
- }
- function readHiddenMediaMeta(text){
-   const s=String(text||''),i=s.indexOf(ZP);if(i<0)return null;
-   const chars=[...s.slice(i+ZP.length)].filter(c=>c===Z0||c===Z1);
-   if(!chars.length||chars.length%8)return null;
-   const bytes=new Uint8Array(chars.length/8);
-   for(let n=0;n<bytes.length;n++){let b=0;for(let j=0;j<8;j++)b=(b<<1)|(chars[n*8+j]===Z1?1:0);bytes[n]=b}
-   try{return new TextDecoder().decode(bytes)}catch{return null}
- }
- const parse=text=>{
-   const s=String(text||''),legacy=s.match(MARK);
-   if(legacy)return {kind:legacy[1].toLowerCase(),type:legacy[1].toLowerCase()==='v'?'video':'photo',id:legacy[2],shareToken:legacy[3]};
-   const raw=readHiddenMediaMeta(s);if(!raw)return null;
-   const parts=raw.split('|');if(parts.length!==3||!['p','v'].includes(parts[0])||!/^[0-9a-f-]{36}$/i.test(parts[1])||!/^[A-Za-z0-9_-]{40,}$/.test(parts[2]))return null;
-   return {kind:parts[0],type:parts[0]==='v'?'video':'photo',id:parts[1],shareToken:parts[2]};
- };
- const marker=(type,id,t)=>(type==='video'?'🎥 Vidéo ONE':'📸 Photo ONE')+hideMediaMeta(`${type==='video'?'v':'p'}|${id}|${t}`),word=m=>m.type==='video'?'Vidéo':'Photo';
+ function hideMeta(value){const bytes=new TextEncoder().encode(value);let out=ZP;for(const b of bytes)for(let bit=7;bit>=0;bit--)out+=((b>>bit)&1)?Z1:Z0;return out}
+ function readMeta(text){const s=String(text||''),i=s.indexOf(ZP);if(i<0)return null;const bits=[...s.slice(i+ZP.length)].filter(c=>c===Z0||c===Z1);if(!bits.length||bits.length%8)return null;const bytes=new Uint8Array(bits.length/8);for(let n=0;n<bytes.length;n++){let b=0;for(let j=0;j<8;j++)b=(b<<1)|(bits[n*8+j]===Z1?1:0);bytes[n]=b}try{return new TextDecoder().decode(bytes)}catch{return null}}
+ const parse=text=>{const s=String(text||''),legacy=s.match(MARK);if(legacy)return {kind:legacy[1].toLowerCase(),type:legacy[1].toLowerCase()==='v'?'video':'photo',id:legacy[2],shareToken:legacy[3]};const raw=readMeta(s);if(!raw)return null;const p=raw.split('|');if(p.length!==3||!['p','v'].includes(p[0])||!/^[0-9a-f-]{36}$/i.test(p[1])||!/^[A-Za-z0-9_-]{40,}$/.test(p[2]))return null;return {kind:p[0],type:p[0]==='v'?'video':'photo',id:p[1],shareToken:p[2]}};
+ const marker=(type,id,t)=>(type==='video'?'🎥 Vidéo ONE':'📸 Photo ONE')+hideMeta(`${type==='video'?'v':'p'}|${id}|${t}`),word=m=>m.type==='video'?'Vidéo':'Photo';
  const wait=ms=>new Promise(r=>setTimeout(r,ms));
  let tab='messages',busy=false,activeId='',activeName='',order=[],friendOrder=[],lastSig=new Map(),threadTimer=0,socialTimer=0,viewerTimeout=0,viewerTick=0,cameraTarget=null,cameraReturn=null,cameraStream=null,cameraRecorder=null,cameraChunks=[],cameraHold=0,cameraRecording=false,cameraFile=null,cameraFacing='environment';
  const statuses=new Map(),delivered=new Set(),mediaCache=new Map(),notices=new Map(),notified=new Set(JSON.parse(sessionStorage.getItem('one_v79_notified')||'[]'));
@@ -6027,13 +5997,7 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
 
  /* Thread integration */
  const previousOpen=window.oneOpenFriends;if(typeof previousOpen==='function'){const wrapped=function(...args){const id=args[0];if(typeof id==='string'&&!id.startsWith('group:')){activeId=id;const row=[...document.querySelectorAll('#oneSocialInline .oneV79Row')].find(r=>r.dataset.oneFriendId===String(id));activeName=row?.dataset.onePeerName||activeName}const out=previousOpen.apply(this,args);clearTimeout(threadTimer);threadTimer=setTimeout(()=>{mountThread();decorateThread()},45);return out};wrapped.__oneV79=true;window.oneOpenFriends=wrapped}
- function currentDialog(){
-   const ready=document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen');
-   if(ready)return ready;
-   const d=[...document.querySelectorAll('dialog.oneFriendsDialog')].find(x=>x.querySelector('.friends-content .hub-thread-heading'));
-   if(d)d.classList.add('oneThreadFullscreen');
-   return d||null;
- }
+ function currentDialog(){return document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen')}
  function threadStatus(d,text){const s=d?.querySelector('.friends-content>label+button+p[role="status"]');if(s)s.textContent=text||''}
  function mountThread(d=currentDialog()){if(!d)return;d.dataset.oneV79Id=activeId||d.dataset.oneV79Id||'';d.dataset.oneV79Name=activeName||d.dataset.oneV79Name||'';const box=d.querySelector('.friends-content'),label=box?.querySelector(':scope>label');if(!box||!label)return;if(!box.querySelector('.oneV79AttachBtn')){const plus=document.createElement('button');plus.type='button';plus.className='oneV79AttachBtn';plus.textContent='＋';plus.setAttribute('aria-label','Choisir une photo ou une vidéo');const inp=document.createElement('input');inp.type='file';inp.accept='image/*,video/*';inp.hidden=true;inp.className='oneV79Gallery';inp.onchange=()=>{const f=inp.files?.[0];if(f)upload(f,d)};plus.onclick=e=>{e.preventDefault();e.stopPropagation();inp.value='';inp.click()};const cam=document.createElement('button');cam.type='button';cam.className='oneV79ThreadCamera';cam.textContent='📷';cam.setAttribute('aria-label','Ouvrir la caméra');cam.onclick=e=>{e.preventDefault();e.stopPropagation();openCamera({id:d.dataset.oneV79Id||activeId,name:d.dataset.oneV79Name||activeName,dialog:d})};box.append(inp,plus,cam)}}
  async function sendMarker(d,text){const ta=d?.querySelector('.friends-content>label textarea'),send=d?.querySelector('.friends-content>label+button');if(!ta||!send)throw Error('Conversation indisponible.');const draft=ta.value,oldOpacity=ta.style.opacity;ta.value=text;ta.style.opacity='0';ta.dispatchEvent(new Event('input',{bubbles:true}));send.click();for(let i=0;i<20&&ta.value===text;i++)await wait(50);ta.style.opacity=oldOpacity;if(ta.value===text||ta.value===''){ta.value=draft;ta.dispatchEvent(new Event('input',{bubbles:true}))}}
@@ -6046,19 +6010,23 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
  function watchThread(){threadObs?.disconnect();const d=currentDialog();if(!d)return;lastThread=d;decorateThread(d);const log=d.querySelector('.friend-message-log');if(log){threadObs=new MutationObserver(()=>requestAnimationFrame(()=>decorateThread(d)));threadObs.observe(log,{childList:true,subtree:true})}}
  function syncThreadLifetime(){const d=currentDialog();if(d){if(d!==lastThread||!threadObs){lastThread=d;watchThread()}return}if(lastThread){lastThread=null;clearReplayCache()}threadObs?.disconnect();threadObs=null}
  setInterval(syncThreadLifetime,1800);
- setInterval(()=>{if(document.hidden)return;const d=currentDialog();if(!d)return;const marks=[...d.querySelectorAll('.friend-message-log article p')].map(p=>parse(p.textContent)).filter(Boolean).slice(-3);if(!marks.length)return;Promise.allSettled(marks.map(m=>status(m,true))).then(()=>{if(d===currentDialog())requestAnimationFrame(()=>decorateThread(d))})},12000);
- // Pas d'observer global du body : le thread se synchronise via son propre log et les événements de navigation.
- document.addEventListener('click',e=>{if(e.target.closest('#oneSocialInline,dialog.oneFriendsDialog,#oneCameraV79,#oneV79Viewer'))queueMicrotask(syncThreadLifetime)},true);
- window.addEventListener('one-social-integrated-ready',()=>queueMicrotask(syncThreadLifetime));
+ setInterval(()=>{if(document.hidden)return;const d=currentDialog();if(!d)return;const marks=[...d.querySelectorAll('.friend-message-log article p')].map(p=>parse(p.textContent)).filter(Boolean).slice(-4);if(!marks.length)return;Promise.allSettled(marks.map(m=>status(m,true))).then(()=>{if(d===currentDialog())requestAnimationFrame(()=>decorateThread(d))})},6000);
+ let oneV7932ThreadQueued=false;
+ new MutationObserver(()=>{
+   if(oneV7932ThreadQueued)return;
+   if(window.oneCurrentSpace?.()!=='social'&&!document.querySelector('dialog.oneFriendsDialog'))return;
+   oneV7932ThreadQueued=true;
+   requestAnimationFrame(()=>{oneV7932ThreadQueued=false;syncThreadLifetime()});
+ }).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','open']});
 
  /* Viewer */
  let viewer=document.getElementById('oneV79Viewer');if(!viewer){viewer=document.createElement('div');viewer.id='oneV79Viewer';viewer.hidden=true;viewer.innerHTML='<button class="oneV79ViewerClose" aria-label="Fermer">✕</button><div class="oneV79ViewerTimer">10</div><div class="oneV79ViewerBody"></div><div class="oneV79ViewerState"></div>';document.body.appendChild(viewer)}const vb=viewer.querySelector('.oneV79ViewerBody'),vs=viewer.querySelector('.oneV79ViewerState'),vt=viewer.querySelector('.oneV79ViewerTimer');let savedScroll=null;
  function stopTimer(){clearTimeout(viewerTimeout);clearInterval(viewerTick);viewerTimeout=viewerTick=0}function startTimer(){stopTimer();let n=10;vt.textContent=n;viewerTick=setInterval(()=>vt.textContent=String(Math.max(0,--n)),1000);viewerTimeout=setTimeout(closeViewer,10000)}
- function closeViewer(){if(viewer.hidden)return;viewer.hidden=true;stopTimer();vb.querySelector('video')?.pause();if(savedScroll){const {el,top}=savedScroll;savedScroll=null;requestAnimationFrame(()=>{if(el?.isConnected)el.scrollTop=top;decorateThread(currentDialog());syncSocial(true)})}else{requestAnimationFrame(()=>{decorateThread(currentDialog());syncSocial(true)})}}
+ function closeViewer(){if(viewer.hidden)return;viewer.hidden=true;stopTimer();vb.querySelector('video')?.pause();if(savedScroll){const {el,top}=savedScroll;savedScroll=null;requestAnimationFrame(()=>{if(el?.isConnected)el.scrollTop=top;decorateThread(currentDialog())})}else{requestAnimationFrame(()=>{decorateThread(currentDialog())})}}
  viewer.querySelector('.oneV79ViewerClose').onclick=e=>{e.preventDefault();e.stopPropagation();closeViewer()};vb.onclick=e=>{e.preventDefault();e.stopPropagation();closeViewer()};viewer.onclick=e=>{if(e.target===viewer)closeViewer()};
  function optimisticOpen(m,a){const old=statuses.get(m.id)?.data||{};statuses.set(m.id,{at:Date.now(),data:{...old,mine:false,opened:true,delivered:true,openedAt:Date.now()}});persistStatuses();clearNotice(m.id);if(a)a.querySelector('.oneV79MediaChip')?.classList.add('opened');document.querySelectorAll('#oneSocialInline .oneV79Row').forEach(r=>{if(r.dataset.oneV79Media!==m.id)return;r.querySelector('.avatar')?.classList.remove('oneV79PhotoRing','oneV79VideoRing');const s=r.querySelector('.copy span');if(s){s.textContent='○ '+word(m);s.className=m.type==='video'?'oneV79Video':'oneV79Photo'}})}
  async function mediaObject(m){const cached=mediaCache.get(m.id);if(cached)return cached;const r=await fetch(MEDIA+'/shared-media/'+encodeURIComponent(m.id)+'?token='+encodeURIComponent(m.shareToken),{headers:auth(),cache:'no-store'});if(!r.ok){const d=await r.json().catch(()=>({}));throw Error(d.error||'Média indisponible.')}const blob=await r.blob(),url=URL.createObjectURL(blob),obj={url,type:m.type};mediaCache.set(m.id,obj);return obj}
- async function openShared(m,a,mineHint){const st=statuses.get(m.id)?.data,mine=typeof mineHint==='boolean'?mineHint:!!st?.mine;const alreadyOpened=!!st?.opened;const log=currentDialog()?.querySelector('.friend-message-log');savedScroll=log?{el:log,top:log.scrollTop}:null;viewer.hidden=false;vs.textContent='Ouverture…';vt.textContent='10';try{const obj=await mediaObject(m);vb.replaceChildren();const el=document.createElement(m.type==='video'?'video':'img');el.src=obj.url;if(m.type==='video'){el.autoplay=true;el.playsInline=true;el.controls=false;el.onended=closeViewer}vb.appendChild(el);if(el.tagName==='VIDEO')try{await el.play()}catch{}vs.textContent='';if(!mine&&!alreadyOpened){optimisticOpen(m,a);void markOpened(m).then(()=>syncSocial(true)).catch(()=>{})}startTimer()}catch(e){vs.textContent=e.message||'Média indisponible.';stopTimer()}}
+ async function openShared(m,a,mineHint){const st=statuses.get(m.id)?.data,mine=typeof mineHint==='boolean'?mineHint:!!st?.mine;const alreadyOpened=!!st?.opened;const log=currentDialog()?.querySelector('.friend-message-log');savedScroll=log?{el:log,top:log.scrollTop}:null;viewer.hidden=false;vs.textContent='Ouverture…';vt.textContent='10';try{const obj=await mediaObject(m);vb.replaceChildren();const el=document.createElement(m.type==='video'?'video':'img');el.src=obj.url;if(m.type==='video'){el.autoplay=true;el.playsInline=true;el.controls=false;el.onended=closeViewer}vb.appendChild(el);if(el.tagName==='VIDEO')try{await el.play()}catch{}vs.textContent='';if(!mine&&!alreadyOpened){optimisticOpen(m,a);void markOpened(m).catch(()=>{})}startTimer()}catch(e){vs.textContent=e.message||'Média indisponible.';stopTimer()}}
 
  /* Camera */
  let cam=document.getElementById('oneCameraV79');if(!cam){cam=document.createElement('div');cam.id='oneCameraV79';cam.innerHTML='<video class="oneCamLive" autoplay playsinline muted></video><img class="oneCamPreview" hidden><video class="oneCamVideoPreview" playsinline controls></video><div class="oneCamShade"></div><div class="oneCamTop"><button class="oneCamRound oneCamClose">✕</button><div class="oneCamRecipient">Caméra ONE</div><button class="oneCamRound oneCamFlash">⚡</button></div><div class="oneCamHint">Appuie pour une photo · Maintiens pour une vidéo</div><div class="oneCamBottom"><button class="oneCamRound oneCamRetake">↶</button><button class="oneCamCapture" aria-label="Prendre une photo ou vidéo"></button><button class="oneCamRound oneCamFlip">↻</button><button class="oneCamSend">Envoyer ➤</button></div>';document.body.appendChild(cam)}const live=cam.querySelector('.oneCamLive'),photo=cam.querySelector('.oneCamPreview'),video=cam.querySelector('.oneCamVideoPreview'),recipient=cam.querySelector('.oneCamRecipient'),cap=cam.querySelector('.oneCamCapture');
@@ -6077,7 +6045,7 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
  /* Fast updates and direct clicks */
  document.addEventListener('click',e=>{const av=e.target.closest('#oneSocialInline .oneV79Row .avatar.oneV79PhotoRing,#oneSocialInline .oneV79Row .avatar.oneV79VideoRing');if(av){const row=av.closest('.oneV79Row'),m=parse(row?.dataset.oneV79LastText||'');if(m){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openShared(m,null,false)}}},true);
  window.addEventListener('one-space-open',e=>{if(e.detail==='social'){tab='messages';requestAnimationFrame(()=>{paintCached('messages');syncSocial(true)})}});window.addEventListener('one-account-changed',()=>{order=[];friendOrder=[];lastSig.clear();statuses.clear();delivered.clear();notices.clear();setTimeout(()=>{if(window.oneCurrentSpace?.()==='social')openSocial(false)},80)});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&window.oneCurrentSpace?.()==='social')syncSocial(true)});window.addEventListener('online',()=>{if(window.oneCurrentSpace?.()==='social')syncSocial(true)});
- clearInterval(socialTimer);socialTimer=setInterval(()=>{if(document.hidden||window.oneCurrentSpace?.()!=='social'||tab!=='messages'||currentDialog())return;syncSocial(false)},7000);
+ clearInterval(socialTimer);socialTimer=setInterval(()=>{if(document.hidden||window.oneCurrentSpace?.()!=='social'||tab!=='messages'||currentDialog())return;syncSocial(false)},8000);
  window.addEventListener('one-notifications-refresh',renderNotices);renderNotices();
 
  /* One authoritative swipe correction: Discover | Moments | Home | Messages | IA. */
