@@ -5581,6 +5581,52 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
  },true);
 })();
 </script>
+
+
+<!-- ONE IA FINAL CHAT ROUTE FIX -->
+<style id="one-ia-final-chat-fix-css">
+.oneAiSwipeScreen{min-height:calc(100dvh - 170px);display:flex;flex-direction:column}
+.oneAiSwipeScreen .oneAiSwipeHero{display:flex;flex-direction:column;flex:1;min-height:520px;padding:16px}
+.oneAiSwipeScreen .oneAiOrb{font-size:30px}
+.oneAiSwipeScreen .oneAiChatLog{flex:1;min-height:260px;max-height:52dvh;overflow:auto;padding:8px 2px 14px;display:flex;flex-direction:column;gap:10px}
+.oneAiSwipeScreen .oneAiWelcome{margin:auto;text-align:center;color:#aaaabd;padding:28px 14px}
+.oneAiSwipeScreen .oneAiWelcome b{display:block;color:#fff;font-size:22px;margin-bottom:8px}
+.oneAiSwipeScreen .oneAiUserBubble{align-self:flex-end;max-width:86%;background:linear-gradient(135deg,#7438ef,#9d43ff);padding:11px 13px;border-radius:16px 16px 4px 16px;white-space:pre-wrap}
+.oneAiSwipeScreen .oneAiAssistantBubble{align-self:flex-start;width:min(94%,560px);background:#171b2a;border:1px solid #343954;padding:12px 13px;border-radius:16px 16px 16px 4px;overflow-wrap:anywhere}
+.oneAiSwipeScreen .oneAiInlineComposer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end;margin-top:auto}
+.oneAiSwipeScreen .oneAiInlineComposer textarea{width:100%;min-height:54px;max-height:130px;resize:vertical;background:#0b0e19;color:#fff;border:1px solid #3c4260;border-radius:15px;padding:13px;font:inherit}
+.oneAiSwipeScreen .oneAiInlineComposer button{min-height:54px;padding:12px 15px}
+</style>
+<script id="one-ia-final-chat-fix">
+(()=>{
+ const previousShow=window.oneShowSpace;
+ if(typeof previousShow!=='function')return;
+ function aiMarkup(){return '<section class="oneAiSwipeScreen" aria-label="ONE IA"><span class="oneEyebrow">Ton assistant personnel</span><h1 class="oneShellTitle">ONE IA</h1><p class="oneShellLead">Discute directement avec ONE IA.</p><div class="oneAiSwipeHero"><div class="oneAiChatLog" id="oneAiChatLog"><div class="oneAiWelcome"><b>✦ ONE IA</b>Pose ta question comme dans un chat.</div></div><div class="oneAiInlineComposer"><textarea id="oneAiInlineQuestion" rows="2" placeholder="Écris ton message…"></textarea><button type="button" id="oneAiChatSend">Envoyer</button></div></div></section>'}
+ function forceAi(push=true){
+   previousShow('ai',push);
+   const shell=document.getElementById('oneFoundation');
+   if(!shell)return;
+   shell.innerHTML=aiMarkup();shell.hidden=false;
+   document.body.classList.add('oneShellOpen','oneSideScreen');
+   window.dispatchEvent(new CustomEvent('one-ia-chat-ready'));
+   setTimeout(()=>document.getElementById('oneAiInlineQuestion')?.focus({preventScroll:true}),0);
+ }
+ window.oneShowSpace=function(space,push=true){if(space==='ai'){forceAi(push);return;}return previousShow(space,push)};
+ async function send(){
+   const input=document.getElementById('oneAiInlineQuestion'),log=document.getElementById('oneAiChatLog'),btn=document.getElementById('oneAiChatSend');
+   if(!input||!log||!btn)return;const q=input.value.trim();if(!q)return input.focus();
+   log.querySelector('.oneAiWelcome')?.remove();const user=document.createElement('div');user.className='oneAiUserBubble';user.textContent=q;log.appendChild(user);input.value='';
+   const reply=document.createElement('div');reply.className='oneAiAssistantBubble';reply.textContent='✨ ONE IA réfléchit…';log.appendChild(reply);log.scrollTop=log.scrollHeight;btn.disabled=true;
+   const nativeQ=document.getElementById('aiQuestion'),nativeA=document.getElementById('aiAnswer');
+   try{if(!nativeQ||!nativeA||typeof answerOne!=='function')throw Error();nativeQ.value=q;await answerOne();reply.innerHTML=nativeA.innerHTML||'Aucune réponse.';}
+   catch{reply.textContent='Recherche indisponible. Réessaie.';}finally{btn.disabled=false;log.scrollTop=log.scrollHeight;input.focus();}
+ }
+ document.addEventListener('click',e=>{const b=e.target.closest('#oneAiChatSend');if(!b)return;e.preventDefault();e.stopImmediatePropagation();send();},true);
+ document.addEventListener('keydown',e=>{if(e.target?.id==='oneAiInlineQuestion'&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}},true);
+ // Any explicit legacy action that still says ONE IA must route to the chat, never to Boutique.
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-action="open-ai"]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();forceAi(true);},true);
+})();
+</script>
 </body>
 </html>
 
