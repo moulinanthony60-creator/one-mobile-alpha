@@ -5720,3 +5720,60 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
  window.addEventListener('pageshow',e=>{if(e.persisted)closeUnexpectedAccount();});
 })();
 </script>
+
+<style id="one-thread-return-integrated-v2-css">
+body[data-one-social-integrated="1"] dialog.oneFriendsDialog:not(.oneThreadFullscreen){display:none!important;visibility:hidden!important;pointer-events:none!important}
+</style>
+<script id="one-thread-return-integrated-v2">
+(()=>{
+  const closeAllFriends=()=>{
+    document.querySelectorAll('dialog.oneFriendsDialog').forEach(d=>{
+      try{ if(d.open) d.close(); }catch{}
+      d.removeAttribute('open');
+      d.classList.remove('oneThreadFullscreen','show','open','active');
+      d.hidden=true;
+      d.style.setProperty('display','none','important');
+    });
+  };
+  const showIntegratedDiscussions=()=>{
+    document.body.dataset.oneSocialIntegrated='1';
+    closeAllFriends();
+    if(typeof window.oneShowSpace==='function') window.oneShowSpace('social');
+    else if(typeof window.oneOpenSwipeDiscussions==='function') window.oneOpenSwipeDiscussions();
+    requestAnimationFrame(()=>{
+      closeAllFriends();
+      document.body.dataset.oneSocialIntegrated='1';
+      window.dispatchEvent(new CustomEvent('one-social-integrated-ready'));
+    });
+    setTimeout(()=>{closeAllFriends();document.body.dataset.oneSocialIntegrated='1';},80);
+  };
+
+  const originalOpenFriends=window.oneOpenFriends;
+  if(typeof originalOpenFriends==='function'){
+    window.oneOpenFriends=function(...args){
+      delete document.body.dataset.oneSocialIntegrated;
+      document.querySelectorAll('dialog.oneFriendsDialog').forEach(d=>{d.hidden=false;d.style.removeProperty('display');d.style.removeProperty('visibility');d.style.removeProperty('pointer-events');});
+      return originalOpenFriends.apply(this,args);
+    };
+  }
+
+  document.addEventListener('click',e=>{
+    const back=e.target.closest('dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>button:first-child');
+    if(!back)return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    showIntegratedDiscussions();
+  },true);
+
+  window.oneReturnFromThreadToDiscussions=showIntegratedDiscussions;
+  window.addEventListener('one-space-open',e=>{
+    if(e.detail==='social'){
+      document.body.dataset.oneSocialIntegrated='1';
+      requestAnimationFrame(closeAllFriends);
+    }else if(e.detail){
+      delete document.body.dataset.oneSocialIntegrated;
+    }
+  });
+})();
+</script>
