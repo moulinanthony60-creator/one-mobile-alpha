@@ -5500,3 +5500,50 @@ window.addEventListener('pagehide', close);
 </html>
 
 <style>#accountModal .oneAccountHead{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:-18px;z-index:5;background:#10141c;padding:10px 0}#accountModal .oneAccountHead h3{margin:0}#accountModal #closeAccount{display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;margin:0;padding:0;background:#30213f;color:#f7f0ff;border:1px solid #765695;border-radius:12px;font-size:28px;cursor:pointer}#accountModal #closeAccount:focus-visible{outline:2px solid #c9a4ff;outline-offset:3px}</style>
+
+<!-- ONE 0.14.118 — navigation swipe gauche/droite -->
+<style>
+.oneSwipeHint{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);z-index:45;padding:7px 12px;border:1px solid rgba(167,110,255,.28);border-radius:999px;background:rgba(11,13,24,.78);backdrop-filter:blur(12px);color:#bda8ff;font-size:11px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .2s}.oneSwipeHint.show{opacity:1}
+.oneShell.oneSwipeMoving{transition:none!important}.oneShell.oneSwipeSnap{transition:transform .2s ease,opacity .2s ease}
+.oneMomentsTabs{display:flex;gap:8px;overflow:auto;margin:4px 0 18px}.oneMomentsTabs button{border:1px solid rgba(255,255,255,.1);background:#151827;color:#b9bfd0;border-radius:999px;padding:9px 13px;font-weight:800;white-space:nowrap}.oneMomentsTabs button.active{background:linear-gradient(135deg,#6d35ff,#a535ff);color:#fff;border-color:#9b6cff}.oneMomentCard{border:1px solid rgba(255,255,255,.1);border-radius:20px;background:linear-gradient(145deg,#171a2a,#0d1019);overflow:hidden;margin:0 0 14px}.oneMomentVisual{min-height:220px;display:flex;align-items:flex-end;padding:18px;background:radial-gradient(circle at 70% 25%,#803cff88,transparent 34%),linear-gradient(145deg,#32165f,#101a3e 55%,#090b13);font-size:28px;font-weight:950}.oneMomentMeta{padding:13px 15px;color:#c7cbd6}.oneMomentMeta b{color:#fff}.oneSwipeEdge{position:fixed;top:45%;z-index:44;color:#b88cff;font-size:26px;opacity:.45;pointer-events:none}.oneSwipeEdge.left{left:7px}.oneSwipeEdge.right{right:7px}
+</style>
+<script>
+(()=>{
+  const shell=document.getElementById('oneFoundation');
+  if(!shell||!window.oneShowSpace)return;
+  const show=window.oneShowSpace;
+  const oldScreensHook=()=>{};
+  // Add a real Moments surface to the existing ONE shell without replacing the current home.
+  const momentsHTML=`<span class="oneEyebrow">Ce que vivent tes amis</span><h1 class="oneShellTitle">Moments</h1><p class="oneShellLead">Stories, abonnements et salons réunis au même endroit.</p><div class="oneMomentsTabs"><button data-moment-tab="forYou" class="active">Pour toi</button><button data-moment-tab="following">Abonnements</button><button data-moment-tab="friends">Amis</button><button data-moment-tab="salons">Salons</button></div><article class="oneMomentCard"><div class="oneMomentVisual">Les mêmes moments.<br>Ensemble. ✨</div><div class="oneMomentMeta"><b>Moments ONE</b><br>Retrouve ici les publications de tes amis et de tes salons.</div></article><article class="oneMomentCard"><div class="oneMomentVisual">🎮 Game Night<br>12 en ligne</div><div class="oneMomentMeta"><b>Salon actif</b> · Rejoins tes amis maintenant.</div></article>`;
+  const originalShow=window.oneShowSpace;
+  window.oneShowSpace=function(space,push=true){
+    if(space==='moments'){
+      originalShow('home',push);
+      shell.innerHTML=momentsHTML;
+      shell.hidden=false;
+      document.body.classList.add('oneShellOpen');
+      document.querySelectorAll('.bottom .nav').forEach(n=>n.classList.remove('active'));
+      return;
+    }
+    return originalShow(space,push);
+  };
+  // Make the existing Social screen explicitly the left Discussions screen.
+  const socialBtn=document.querySelector('.oneSocialEntry');
+  if(socialBtn) socialBtn.textContent='Discussions · Amis · Salons';
+
+  // Requested bottom bar: Accueil | Boutique | + Créer | Rechercher | Réglages.
+  const ai=document.getElementById('askOne'), saved=document.getElementById('savedNav');
+  if(ai){ai.innerHTML='<span class="ico">▣</span>Boutique';ai.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();window.oneShowSpace('shop');};}
+  if(saved){saved.innerHTML='<span class="ico">⌕</span>Rechercher';saved.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();document.getElementById('oneHomeNav')?.click();setTimeout(()=>{document.getElementById('oneSearchToggle')?.click();},30);};}
+
+  const hint=document.createElement('div');hint.className='oneSwipeHint';document.body.append(hint);
+  const l=document.createElement('span'),r=document.createElement('span');l.className='oneSwipeEdge left';r.className='oneSwipeEdge right';l.textContent='‹';r.textContent='›';document.body.append(l,r);
+  let sx=0,sy=0,dx=0,tracking=false;
+  const blocked=t=>t.closest('input,textarea,select,button,.tabsRail,#chips,.oneMomentsTabs,.vfeed,.modal,dialog');
+  function homeVisible(){return document.body.classList.contains('oneShellOpen') && !shell.hidden;}
+  document.addEventListener('touchstart',e=>{if(e.touches.length!==1||blocked(e.target))return;const t=e.touches[0];sx=t.clientX;sy=t.clientY;dx=0;tracking=true;},{passive:true});
+  document.addEventListener('touchmove',e=>{if(!tracking)return;const t=e.touches[0],x=t.clientX-sx,y=t.clientY-sy;if(Math.abs(y)>Math.abs(x)*.85){tracking=false;return;}dx=x;if(Math.abs(dx)>12&&homeVisible()){shell.classList.add('oneSwipeMoving');shell.style.transform=`translateX(${Math.max(-70,Math.min(70,dx*.22))}px)`;shell.style.opacity=String(1-Math.min(.16,Math.abs(dx)/600));}},{passive:true});
+  document.addEventListener('touchend',()=>{if(!tracking){shell.style.transform='';shell.style.opacity='';shell.classList.remove('oneSwipeMoving');return;}tracking=false;shell.classList.remove('oneSwipeMoving');shell.classList.add('oneSwipeSnap');shell.style.transform='';shell.style.opacity='';setTimeout(()=>shell.classList.remove('oneSwipeSnap'),220);if(Math.abs(dx)<65)return;if(dx>0){window.oneShowSpace('social');hint.textContent='Discussions · Amis · Salons';}else{window.oneShowSpace('moments');hint.textContent='Moments · Abonnements · Amis · Salons';}hint.classList.add('show');setTimeout(()=>hint.classList.remove('show'),900);},{passive:true});
+  shell.addEventListener('click',e=>{const b=e.target.closest('[data-moment-tab]');if(!b)return;shell.querySelectorAll('[data-moment-tab]').forEach(x=>x.classList.toggle('active',x===b));if(b.dataset.momentTab==='following'){document.getElementById('savedNav')?.click();setTimeout(()=>{if(typeof loadFollowingFeed==='function')loadFollowingFeed();},20);}});
+})();
+</script>
