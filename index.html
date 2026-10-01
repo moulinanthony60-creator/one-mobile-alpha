@@ -5702,6 +5702,54 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
 })();
 </script>
 
+\n<!-- ONE Discussions V5 — caméra directe depuis la liste des conversations -->
+<style id="one-discussions-direct-camera-v5-css">
+#oneFoundation #oneSocialInline .oneInlineCard[data-one-conversation]{padding-right:62px!important}
+#oneFoundation #oneSocialInline .oneInlineCard[data-one-conversation]:after{display:none!important}
+.oneConversationCamera{position:absolute;right:7px;top:50%;transform:translateY(-50%);z-index:4;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:#e8e9f2;display:grid;place-items:center;cursor:pointer}
+.oneConversationCamera svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.oneConversationCamera:active{transform:translateY(-50%) scale(.9);background:#1b2030}
+.oneConversationCamera:focus-visible{outline:2px solid #9b5cff;outline-offset:2px}
+</style>
+<script id="one-discussions-direct-camera-v5-js">
+(()=>{
+ const cameraSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 6.5 9.5 4.7h5l1.3 1.8H19a2 2 0 0 1 2 2v8.7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2h3.2Z"/><circle cx="12" cy="12.8" r="3.5"/></svg>';
+ let targetId='',capturedFile=null;
+ const capture=document.createElement('input');capture.type='file';capture.accept='image/*,video/*';capture.setAttribute('capture','environment');capture.hidden=true;capture.id='oneConversationDirectCapture';document.body.appendChild(capture);
+ function decorate(){
+  const host=document.getElementById('oneSocialInline');if(!host)return;
+  [...host.querySelectorAll('.oneInlineCard')].forEach(row=>{
+   if(row.dataset.oneCameraReady==='1')return;
+   /* Conversation rows have no action badge except unread count; friends tab is excluded by active tab. */
+   const active=document.querySelector('.oneSocialTabs button.active')?.dataset.socialTab;
+   if(active!=='messages')return;
+   const old=row.onclick;if(typeof old!=='function')return;
+   row.dataset.oneCameraReady='1';row.dataset.oneConversation='1';
+   const cam=document.createElement('button');cam.type='button';cam.className='oneConversationCamera';cam.innerHTML=cameraSvg;cam.title='Prendre une photo ou une vidéo';cam.setAttribute('aria-label','Prendre une photo ou une vidéo');
+   cam.onclick=e=>{e.preventDefault();e.stopPropagation();targetId=row.dataset.oneFriendId||'';row._oneOpenConversation=old;capture.value='';capture.click();};
+   row.appendChild(cam);
+  });
+ }
+ /* Capture the conversation id at creation time without changing existing navigation. */
+ const observer=new MutationObserver(()=>requestAnimationFrame(decorate));observer.observe(document.documentElement,{subtree:true,childList:true});
+ document.addEventListener('click',e=>{const row=e.target.closest('#oneSocialInline .oneInlineCard');if(row&&!e.target.closest('.oneConversationCamera'))row._oneOpenConversation=row.onclick;},true);
+ capture.onchange=()=>{
+  const f=capture.files?.[0];if(!f)return;capturedFile=f;
+  const rows=[...document.querySelectorAll('#oneSocialInline .oneInlineCard')];
+  const row=rows.find(r=>r._oneDirectPending)||document.activeElement?.closest?.('.oneInlineCard');
+  /* oneOpenFriends is encoded in the original row handler; invoke it to keep the validated flow. */
+  const pending=[...rows].find(r=>r.querySelector('.oneConversationCamera')===document.activeElement) || rows.find(r=>r.dataset.oneCameraPending==='1');
+ };
+ /* Use pointerdown to retain exactly which conversation launched the camera. */
+ document.addEventListener('pointerdown',e=>{const cam=e.target.closest('.oneConversationCamera');if(!cam)return;document.querySelectorAll('.oneInlineCard').forEach(r=>delete r.dataset.oneCameraPending);const row=cam.closest('.oneInlineCard');if(row)row.dataset.oneCameraPending='1';},true);
+ capture.addEventListener('change',()=>{
+  const f=capture.files?.[0];if(!f)return;const row=document.querySelector('#oneSocialInline .oneInlineCard[data-one-camera-pending="1"]');if(!row)return;
+  row._oneOpenConversation?.call(row,new MouseEvent('click'));
+  let tries=0;const inject=()=>{const d=document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen');const gallery=d?.querySelector('input[type="file"]:not([capture])');if(d&&gallery){try{const dt=new DataTransfer();dt.items.add(f);gallery.files=dt.files;gallery.dispatchEvent(new Event('change',{bubbles:true}));}catch{}return;}if(++tries<30)setTimeout(inject,60);};setTimeout(inject,60);
+ });
+ window.addEventListener('one-space-open',()=>setTimeout(decorate,80));decorate();
+})();
+</script>
 </body>
 </html>
 
