@@ -6085,3 +6085,35 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneCameraDirect{position:absolute!i
  window.oneOpenCameraV7=(row,name)=>open(row,name);
 })();
 </script>
+
+<!-- ONE V7.1 Snap-style media presentation -->
+<style id="one-snap-media-v71-css">
+.oneMediaPreview.oneSnapMediaPreview{padding:10px 14px!important;min-height:58px!important;background:#111522f8!important;border-radius:18px!important}
+.oneMediaPreview.oneSnapMediaPreview img,.oneMediaPreview.oneSnapMediaPreview video{display:none!important}
+.oneSnapMediaLine{display:flex;align-items:center;gap:10px;min-width:0;flex:1;font-weight:900;font-size:17px}
+.oneSnapMediaIcon{width:18px;height:18px;border-radius:5px;display:inline-block;flex:0 0 18px}
+.oneSnapMediaPreview.photo .oneSnapMediaIcon{background:#ff315c;box-shadow:0 0 16px #ff315c55}
+.oneSnapMediaPreview.video .oneSnapMediaIcon{background:#9b35ff;box-shadow:0 0 16px #9b35ff55}
+.oneSnapMediaPreview.photo .oneSnapMediaLine{color:#ff4b6d}.oneSnapMediaPreview.video .oneSnapMediaLine{color:#b45cff}
+.oneSnapMediaPreview .oneSnapOpen{border:0;background:transparent;color:inherit;font:inherit;font-weight:900;padding:8px 2px;text-align:left;flex:1}
+.oneSnapViewer{position:fixed;inset:0;z-index:2147483647;background:#000;display:grid;place-items:center}.oneSnapViewer[hidden]{display:none!important}
+.oneSnapViewer img,.oneSnapViewer video{width:100%;height:100%;object-fit:contain;background:#000}.oneSnapViewerClose{position:absolute;top:max(18px,env(safe-area-inset-top));left:18px;width:50px;height:50px;border:0;border-radius:50%;background:#15151bcc;color:#fff;font-size:28px;z-index:2}
+.friend-message-log article.oneSnapPhoto,.friend-message-log article.oneSnapVideo{cursor:pointer!important;background:transparent!important;border:0!important;padding:6px 4px!important;box-shadow:none!important}
+.friend-message-log article.oneSnapPhoto p,.friend-message-log article.oneSnapVideo p{font-weight:900!important;display:flex!important;align-items:center!important;gap:8px!important}
+.friend-message-log article.oneSnapPhoto p{color:#ff4b6d!important}.friend-message-log article.oneSnapVideo p{color:#b45cff!important}
+.friend-message-log article.oneSnapPhoto p::before,.friend-message-log article.oneSnapVideo p::before{content:'';width:15px;height:15px;border-radius:4px;display:inline-block}
+.friend-message-log article.oneSnapPhoto p::before{background:#ff315c}.friend-message-log article.oneSnapVideo p::before{background:#9b35ff}
+</style>
+<script id="one-snap-media-v71-js">
+(()=>{
+ let snapUrl='',snapFile=null;
+ const viewer=document.createElement('div');viewer.className='oneSnapViewer';viewer.hidden=true;viewer.innerHTML='<button class="oneSnapViewerClose" aria-label="Fermer">✕</button><div class="oneSnapViewerBody"></div>';document.body.appendChild(viewer);
+ const body=viewer.querySelector('.oneSnapViewerBody');
+ function closeViewer(){viewer.hidden=true;body.replaceChildren()}
+ viewer.querySelector('.oneSnapViewerClose').onclick=closeViewer;viewer.addEventListener('click',e=>{if(e.target===viewer)closeViewer()});
+ function openFile(file){if(!file)return;const u=URL.createObjectURL(file),isV=file.type.startsWith('video/'),m=document.createElement(isV?'video':'img');m.src=u;if(isV){m.controls=true;m.autoplay=true;m.playsInline=true;}m.onload=m.onloadeddata=()=>{};body.replaceChildren(m);viewer.hidden=false;viewer.dataset.url=u;}
+ function restylePreview(){document.querySelectorAll('.oneMediaPreview:not([hidden])').forEach(p=>{if(p.dataset.snap71)return;const media=p.querySelector('video,img');if(!media)return;const isV=media.tagName==='VIDEO';const inputs=[...(p.parentElement?.querySelectorAll('input[type=file]')||[])];const f=inputs.map(i=>i.files?.[0]).find(Boolean);if(f){snapFile=f;snapUrl=media.src||'';}p.dataset.snap71='1';p.classList.add('oneSnapMediaPreview',isV?'video':'photo');const remove=p.querySelector('.remove');const line=document.createElement('div');line.className='oneSnapMediaLine';line.innerHTML='<span class="oneSnapMediaIcon"></span>';const open=document.createElement('button');open.type='button';open.className='oneSnapOpen';open.textContent=isV?'Vidéo · Appuyer pour lire':'Photo · Appuyer pour ouvrir';open.onclick=e=>{e.preventDefault();e.stopPropagation();if(f)openFile(f);else if(media.src){const m=document.createElement(isV?'video':'img');m.src=media.src;if(isV){m.controls=true;m.autoplay=true;m.playsInline=true;}body.replaceChildren(m);viewer.hidden=false;}};line.append(open);p.replaceChildren(line);if(remove)p.append(remove);});}
+ function markThread(){document.querySelectorAll('.friend-message-log article p').forEach(p=>{const t=p.textContent.trim();const a=p.closest('article');if(!a||a.dataset.snap71)return;if(/^🔴\s*Photo\b/i.test(t)||/^Photo\b/i.test(t)){a.dataset.snap71='1';a.classList.add('oneSnapPhoto');p.textContent='Photo';}else if(/^🟣\s*Vid[ée]o\b/i.test(t)||/^Vid[ée]o\b/i.test(t)){a.dataset.snap71='1';a.classList.add('oneSnapVideo');p.textContent='Vidéo · Appuyer pour lire';}})}
+ const sync=()=>{restylePreview();markThread()};new MutationObserver(()=>requestAnimationFrame(sync)).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','class']});document.addEventListener('change',()=>setTimeout(sync,0),true);document.addEventListener('click',()=>requestAnimationFrame(sync),true);sync();
+})();
+</script>
