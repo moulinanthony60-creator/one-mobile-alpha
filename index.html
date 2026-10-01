@@ -6322,3 +6322,79 @@ body.oneBackendUploading dialog.oneFriendsDialog.oneThreadFullscreen .oneMediaPr
   },{passive:true,capture:true});
 })();
 </script>
+
+
+<!-- ONE V7.6.3 — receiver rows + luminous media ring + restored page sides -->
+<style id="one-v763-receive-ring-css">
+#oneFoundation #oneSocialInline .oneInlineCard .avatar{position:relative!important;overflow:visible!important;isolation:isolate}
+#oneFoundation #oneSocialInline .oneInlineCard .avatar>img{position:relative;z-index:2;border-radius:50%;overflow:hidden}
+#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV763IncomingPhoto::after,
+#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV763IncomingVideo::after{content:"";position:absolute;z-index:0;inset:-5px;border-radius:50%;pointer-events:none;animation:oneV763MediaPulse 1.45s ease-in-out infinite}
+#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV763IncomingPhoto::after{border:3px solid #ff315c;box-shadow:0 0 7px #ff315c,0 0 17px #ff315caa,0 0 28px #ff315c55}
+#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV763IncomingVideo::after{border:3px solid #9b35ff;box-shadow:0 0 7px #9b35ff,0 0 17px #9b35ffaa,0 0 28px #9b35ff55}
+@keyframes oneV763MediaPulse{0%,100%{transform:scale(.97);opacity:.72}50%{transform:scale(1.05);opacity:1}}
+#oneFoundation #oneSocialInline .oneBackendUnread{display:none!important}
+#oneFoundation #oneSocialInline .copy span.oneV763PhotoState{color:#ff4b6d!important;font-weight:900!important}
+#oneFoundation #oneSocialInline .copy span.oneV763VideoState{color:#b45cff!important;font-weight:900!important}
+#oneFoundation #oneSocialInline .copy span.oneV763IncomingHint{color:#d8d9e4!important;font-weight:800!important}
+#oneFoundation #oneSocialInline .copy span.oneV763TextState{color:#9699ab!important}
+</style>
+<script id="one-v763-receive-ring-js">
+(()=>{
+ const MSG='https://one-messages-api.moulinanthony60.workers.dev';
+ const PEOPLE='https://one-comments-api.moulinanthony60.workers.dev';
+ let busy=false,last=0,queued=false;
+ const token=()=>window.oneAccountToken?.()||localStorage.getItem('one_account_token_v06')||'';
+ const auth=()=>({Authorization:'Bearer '+token()});
+ async function get(url){const r=await fetch(url,{headers:auth(),cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Service ONE indisponible.');return d}
+ function avatarUrl(x){for(const k of ['avatar','avatarUrl','avatar_url','profileImage','profile_image','profileImageUrl','profile_image_url','picture','photo','photoUrl','photo_url','image','imageUrl','image_url']){const v=x?.[k];try{if(v&&new URL(String(v),location.href).protocol==='https:')return String(v)}catch{}}return ''}
+ function peerOf(row){return String(row?.dataset.oneFriendId||row?.dataset.onePeerId||'')}
+ function makeRow(id,person){
+  const name=person?.name||'ONE';const row=document.createElement('button');row.type='button';row.className='oneInlineCard';row.dataset.oneFriendId=id;row.dataset.onePeerId=id;row.dataset.onePeerName=name;row.dataset.oneV763BackendRow='1';
+  row.innerHTML='<span class="avatar"></span><span class="copy"><b></b><span></span></span>';
+  const av=row.querySelector('.avatar'),u=avatarUrl(person);row.querySelector('.copy b').textContent=name;row.querySelector('.copy span').textContent='';
+  if(u){const im=document.createElement('img');im.alt='';im.loading='lazy';im.src=u;im.onerror=()=>{av.textContent=(name||'?')[0].toUpperCase()};av.replaceChildren(im)}else av.textContent=(name||'?')[0].toUpperCase();
+  row.onclick=()=>window.oneOpenFriends?.(id);return row
+ }
+ function mediaLabel(m){const word=m.type==='video'?'Vidéo':'Photo';if(m.direction==='out'){if(m.status==='opened')return word+' ouverte';if(m.status==='delivered')return word+' reçue';return word+' envoyée'}return word+' ouverte'}
+ function paint(host,conversations,people){
+  if(!host)return;const active=document.querySelector('#oneFoundation .oneSocialTabs [data-social-tab].active')?.dataset.socialTab;if(active&&active!=='messages')return;
+  const byPeer=new Map((conversations||[]).map(m=>[String(m.peerId),m]));
+  const existing=new Set([...host.querySelectorAll('.oneInlineCard')].map(peerOf).filter(Boolean));
+  const missing=[...(conversations||[])].sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0));
+  for(const m of missing){const id=String(m.peerId||'');if(!id||existing.has(id))continue;const row=makeRow(id,people.get(id));host.insertBefore(row,host.firstChild);existing.add(id)}
+  if(host.querySelector('.oneInlineCard'))host.querySelectorAll(':scope>.oneInlineEmpty,:scope>.oneInlineLoading').forEach(n=>n.remove());
+  const rows=[...host.querySelectorAll('.oneInlineCard')];
+  for(const row of rows){const id=peerOf(row);if(!id)continue;const m=byPeer.get(id),av=row.querySelector('.avatar'),sub=row.querySelector('.copy span');if(!av||!sub)continue;
+   av.classList.remove('oneV763IncomingPhoto','oneV763IncomingVideo');
+   sub.classList.remove('oneV763PhotoState','oneV763VideoState','oneV763IncomingHint','oneV763TextState');
+   if(!m)continue;
+   const person=people.get(id);if(person?.name){row.dataset.onePeerName=person.name;const name=row.querySelector('.copy b');if(name&&name.textContent!==person.name)name.textContent=person.name}
+   const u=avatarUrl(person);if(u&&!av.querySelector('img')){const im=document.createElement('img');im.alt='';im.loading='lazy';im.src=u;im.onerror=()=>im.remove();av.replaceChildren(im)}
+   if(m.type==='photo'||m.type==='video'){
+    const incomingNew=m.direction==='in'&&m.unopened;
+    if(incomingNew){av.classList.add(m.type==='video'?'oneV763IncomingVideo':'oneV763IncomingPhoto');if(sub.textContent!=='Appuie pour ouvrir')sub.textContent='Appuie pour ouvrir';sub.classList.add('oneV763IncomingHint')}
+    else{const txt=mediaLabel(m);if(sub.textContent!==txt)sub.textContent=txt;sub.classList.add(m.type==='video'?'oneV763VideoState':'oneV763PhotoState')}
+   }else{const txt=m.text||'Message';if(sub.textContent!==txt)sub.textContent=txt;sub.classList.add('oneV763TextState')}
+  }
+  rows.sort((a,b)=>Number(byPeer.get(peerOf(b))?.createdAt||0)-Number(byPeer.get(peerOf(a))?.createdAt||0));for(const row of rows)host.appendChild(row)
+ }
+ async function sync(force=false){if(busy||!token()||document.hidden)return;if(!force&&Date.now()-last<1800)return;const host=document.getElementById('oneSocialInline');if(!host)return;busy=true;try{const [md,st,ib]=await Promise.all([get(MSG+'/conversations?limit=100'),get(PEOPLE+'/friends/state'),get(PEOPLE+'/friends/inbox')]);const people=new Map();for(const x of [...(st.relationships||[]),...(ib.conversations||[])])if(x?.id)people.set(String(x.id),x);paint(host,md.conversations||[],people);last=Date.now()}catch(e){console.warn('ONE V7.6.3 receive sync',e)}finally{busy=false}}
+ const schedule=(force=false)=>{if(queued)return;queued=true;setTimeout(()=>{queued=false;sync(force)},60)};
+ window.addEventListener('one-space-open',e=>{if(e.detail==='social')schedule(true)});window.addEventListener('one-social-integrated-ready',()=>schedule(true));window.addEventListener('one-account-changed',()=>{last=0;schedule(true)});window.addEventListener('online',()=>schedule(true));
+ document.addEventListener('click',e=>{if(e.target.closest('.oneBackendSnap,#oneBackendViewer .oneBackendViewerClose'))setTimeout(()=>sync(true),500)},true);
+ new MutationObserver(()=>{if(document.getElementById('oneSocialInline'))schedule(false)}).observe(document.body,{subtree:true,childList:true});
+ setInterval(()=>sync(false),3000);setTimeout(()=>sync(true),650);
+})();
+</script>
+
+<script id="one-v763-page-side-fix">
+(()=>{
+ // Physical layout: ONE IA | Messages | Accueil | Moments | Découvrir.
+ let sx=0,sy=0,armed=false,start='home';
+ const blocked=t=>t?.closest?.('input,textarea,select,.modal,[role="dialog"],#vfeed,#playerModal,#oneCameraV7,#oneBackendViewer');
+ const open=target=>{if(target==='social'&&typeof window.oneOpenSwipeDiscussions==='function')window.oneOpenSwipeDiscussions();else window.oneShowSpace?.(target)};
+ document.addEventListener('touchstart',e=>{if(e.touches.length!==1||blocked(e.target))return;sx=e.touches[0].clientX;sy=e.touches[0].clientY;start=window.oneCurrentSpace?.()||'home';armed=true},{passive:true,capture:true});
+ document.addEventListener('touchend',e=>{if(!armed)return;armed=false;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.2)return;const order=['ai','social','home','moments','discover'],i=order.indexOf(start);if(i<0)return;const ni=i+(dx>0?-1:1);if(ni<0||ni>=order.length)return;const target=order[ni];queueMicrotask(()=>open(target));requestAnimationFrame(()=>open(target));setTimeout(()=>open(target),55);setTimeout(()=>open(target),95)},{passive:true,capture:true});
+})();
+</script>
