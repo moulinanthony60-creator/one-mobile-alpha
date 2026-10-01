@@ -5844,7 +5844,7 @@ body.oneOpeningDiscussion dialog.oneFriendsDialog.oneThreadFullscreen{visibility
 <!-- ONE V7.6.3 — receiver rows + luminous media ring + restored page sides -->
 <!-- ONE V7.7.2 — never expose internal media transport markers in the UI -->
 
-<!-- ONE V7.9.3.2 + header une ligne + compteur salon -->
+<!-- ONE V7.9.3.2 + salon vert + cloche polish + pages YouTube/Twitch -->
 <style id="one-v79-messages-clean-css">
 #oneFoundation #oneSocialInline{min-height:220px}
 #oneFoundation #oneSocialInline .oneV79Skeleton{display:grid;gap:0}.oneV79SkeletonRow{height:82px;border-bottom:1px solid #24283a;display:flex;align-items:center;gap:14px}.oneV79SkeletonRow:before{content:"";width:58px;height:58px;border-radius:50%;background:#181c2b}.oneV79SkeletonRow:after{content:"";width:42%;height:13px;border-radius:999px;background:#181c2b}
@@ -6753,6 +6753,229 @@ body.oneHomeClean>button[data-one-obsolete-home]{
    });
  };
  new MutationObserver(repair).observe(row,{childList:true});
+})();
+</script>
+
+
+<style id="one-provider-pages-v1-css">
+/* ----- Header : salon vert + cloche plus propre ----- */
+#oneSalonHeaderCount{
+  border:1px solid #2fbf78!important;
+  background:linear-gradient(145deg,#0f2b21,#123727)!important;
+  color:#72f1ae!important;
+  box-shadow:0 0 0 1px #38d98a12,0 6px 18px #071b1228!important;
+}
+#oneSalonHeaderCount .oneSalonPeopleIcon{
+  color:#72f1ae!important;
+}
+
+#oneHeaderRight>#oneNotificationsToggle.oneTopNotification{
+  background:linear-gradient(145deg,#141622,#1c1830)!important;
+  border:1px solid #56486f!important;
+  color:#d7c6ff!important;
+  border-radius:50%!important;
+  box-shadow:0 5px 16px #0005,inset 0 1px 0 #ffffff09!important;
+}
+#oneHeaderRight>#oneNotificationsToggle.oneTopNotification:hover,
+#oneHeaderRight>#oneNotificationsToggle.oneTopNotification[aria-expanded="true"]{
+  background:linear-gradient(145deg,#251b3c,#322052)!important;
+  border-color:#8d63c9!important;
+  color:#fff!important;
+}
+#oneHeaderRight>#oneNotificationsToggle.oneTopNotification svg{
+  width:18px!important;
+  height:18px!important;
+  stroke-width:1.8!important;
+}
+
+/* ----- Pages dédiées YouTube / Twitch ----- */
+#oneProviderHeader{
+  display:none;
+  align-items:center;
+  gap:12px;
+  margin:4px 0 12px;
+  padding:10px 12px;
+  border:1px solid #2f3448;
+  border-radius:18px;
+  background:linear-gradient(145deg,#111521,#171a29);
+  box-shadow:0 10px 28px #0004;
+}
+body.oneProviderPage #oneProviderHeader{display:flex}
+#oneProviderBack{
+  width:38px;
+  height:38px;
+  min-width:38px;
+  display:grid;
+  place-items:center;
+  border:1px solid #3b4056;
+  border-radius:12px;
+  background:#0e111c;
+  color:#eef1ff;
+  font-size:25px;
+  line-height:1;
+  padding:0;
+}
+#oneProviderBadge{
+  width:42px;
+  height:42px;
+  min-width:42px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  font-size:22px;
+  font-weight:900;
+}
+#oneProviderCopy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+#oneProviderCopy strong{
+  font-size:19px;
+  line-height:1.05;
+  color:#fff;
+}
+#oneProviderCopy small{
+  color:#aeb5c9;
+  font-size:11px;
+}
+body.oneProviderYoutube #oneProviderHeader{
+  border-color:#5d2930;
+  background:linear-gradient(145deg,#171318,#241419);
+}
+body.oneProviderYoutube #oneProviderBadge{
+  color:#fff;
+  background:linear-gradient(145deg,#ff344d,#c90d24);
+  box-shadow:0 5px 18px #ff244444;
+}
+body.oneProviderTwitch #oneProviderHeader{
+  border-color:#4d326d;
+  background:linear-gradient(145deg,#15121d,#21152f);
+}
+body.oneProviderTwitch #oneProviderBadge{
+  color:#fff;
+  background:linear-gradient(145deg,#9f69ff,#6d35c9);
+  box-shadow:0 5px 18px #8a4cff44;
+}
+
+/* Sur une page plateforme, on enlève les autres sources et la navigation ONE/Together/Party. */
+body.oneProviderPage .topbar .oneMainNav,
+body.oneProviderPage .topbar .oneSourcesLabel,
+body.oneProviderPage .topbar .tabsRail{
+  display:none!important;
+}
+body.oneProviderPage #oneHomeIntro{
+  display:none!important;
+}
+body.oneProviderPage .app>.sectionHead{
+  margin-top:0!important;
+}
+
+/* Le contenu reste plein écran et propre. */
+body.oneProviderPage .app{
+  padding-top:10px!important;
+}
+</style>
+
+<script id="one-provider-pages-v1-js">
+(()=>{
+ const app=document.querySelector('.app');
+ const chips=document.getElementById('chips');
+ if(!app||!chips)return;
+
+ let head=document.getElementById('oneProviderHeader');
+ if(!head){
+   head=document.createElement('section');
+   head.id='oneProviderHeader';
+   head.setAttribute('aria-label','Plateforme');
+   head.innerHTML='<button type="button" id="oneProviderBack" aria-label="Retour à l’accueil">‹</button><span id="oneProviderBadge" aria-hidden="true"></span><span id="oneProviderCopy"><strong></strong><small></small></span>';
+   const target=app.querySelector('.sectionHead')||app.firstElementChild;
+   if(target)app.insertBefore(head,target);
+   else app.prepend(head);
+ }
+
+ const badge=head.querySelector('#oneProviderBadge');
+ const title=head.querySelector('strong');
+ const sub=head.querySelector('small');
+
+ function clearProvider(){
+   document.body.classList.remove('oneProviderPage','oneProviderYoutube','oneProviderTwitch');
+   delete document.body.dataset.oneProvider;
+ }
+
+ function enterProvider(provider){
+   if(provider!=='youtube'&&provider!=='twitch'){clearProvider();return}
+   document.body.classList.add('oneProviderPage');
+   document.body.classList.toggle('oneProviderYoutube',provider==='youtube');
+   document.body.classList.toggle('oneProviderTwitch',provider==='twitch');
+   document.body.dataset.oneProvider=provider;
+
+   if(provider==='youtube'){
+     badge.textContent='▶';
+     title.textContent='YouTube';
+     sub.textContent='Vidéos et créateurs YouTube';
+   }else{
+     badge.textContent='▣';
+     title.textContent='Twitch';
+     sub.textContent='Lives et créateurs Twitch';
+   }
+   requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'auto'}));
+ }
+
+ function activeFilter(){
+   return chips.querySelector('[data-filter].active')?.dataset.filter||'';
+ }
+
+ // Le filtre natif continue de charger le vrai contenu ; on change seulement la présentation.
+ document.addEventListener('click',e=>{
+   const b=e.target.closest('#chips [data-filter]');
+   if(!b)return;
+   const f=b.dataset.filter;
+   requestAnimationFrame(()=>{
+     if(f==='youtube'||f==='twitch')enterProvider(f);
+     else clearProvider();
+   });
+ },false);
+
+ // Les boutons YouTube/Twitch d'autres écrans finissent déjà par cliquer sur les filtres natifs.
+ document.addEventListener('click',e=>{
+   const source=e.target.closest('[data-source]');
+   if(!source)return;
+   const p=source.dataset.source;
+   if(p!=='youtube'&&p!=='twitch')return;
+   setTimeout(()=>enterProvider(p),0);
+ },false);
+
+ // Retour = vrai retour au feed Accueil "Pour toi".
+ head.querySelector('#oneProviderBack').onclick=e=>{
+   e.preventDefault();
+   e.stopPropagation();
+   const all=chips.querySelector('[data-filter="all"]');
+   clearProvider();
+   all?.click();
+   requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'auto'}));
+ };
+
+ // Quitter la page dédiée si on utilise la navigation du bas ou les espaces du haut.
+ document.addEventListener('click',e=>{
+   if(e.target.closest('#oneProviderHeader'))return;
+   if(e.target.closest('.bottom .nav,.oneMainNav [data-one-space]')){
+     clearProvider();
+   }
+ },true);
+
+ window.addEventListener('popstate',()=>{
+   setTimeout(()=>{
+     const f=activeFilter();
+     if(f==='youtube'||f==='twitch')enterProvider(f);
+     else clearProvider();
+   },0);
+ });
+
+ // Si la page recharge déjà sur YouTube/Twitch.
+ const initial=activeFilter();
+ if(initial==='youtube'||initial==='twitch')enterProvider(initial);
 })();
 </script>
 
