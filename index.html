@@ -5750,6 +5750,36 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
  window.addEventListener('one-space-open',()=>setTimeout(decorate,80));decorate();
 })();
 </script>
+
+<!-- ONE V7.5 — captured media visible in the conversation immediately -->
+<style id="one-v75-visible-media-css">
+.friend-message-log article.oneV75Media{padding:3px!important;overflow:hidden!important;background:#11131b!important;border:1px solid #2e3142!important;max-width:min(78%,320px)!important;cursor:pointer!important}
+.friend-message-log article.oneV75Media.mine{background:#11131b!important;border-color:#7d42d8!important}
+.friend-message-log article.oneV75Media .oneV75MediaFrame{position:relative;display:block;width:min(68vw,300px);max-width:100%;border-radius:17px;overflow:hidden;background:#050507}
+.friend-message-log article.oneV75Media img,.friend-message-log article.oneV75Media video{display:block;width:100%;max-height:52vh;object-fit:cover;background:#050507}
+.friend-message-log article.oneV75Media .oneV75VideoCover{position:absolute;inset:0;display:grid;place-items:center;background:#0002;font-size:44px;text-shadow:0 3px 14px #000}
+.friend-message-log article.oneV75Media .oneV75MediaMeta{display:flex;align-items:center;gap:7px;padding:7px 9px 5px;font-size:12px;font-weight:850}
+.friend-message-log article.oneV75Photo .oneV75MediaMeta{color:#ff4b6d}.friend-message-log article.oneV75Video .oneV75MediaMeta{color:#b45cff}
+.friend-message-log article.oneV75Media .oneV75Dot{width:10px;height:10px;border-radius:3px;background:currentColor}
+</style>
+<script id="one-v75-visible-media-js">
+(()=>{
+ const mediaByContact=new Map();
+ let pendingCapture=null;
+ const cam=document.getElementById('oneCameraV7');
+ function contactKey(){const d=document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen');return (d?.querySelector('.oneThreadHead b,.oneThreadTitle,b')?.textContent||'ONE').trim()||'ONE'}
+ function remember(file){if(!file)return;const key=contactKey(),isVideo=file.type.startsWith('video/'),url=URL.createObjectURL(file),item={id:crypto.randomUUID?.()||String(Date.now()),url,isVideo,at:Date.now()};const list=mediaByContact.get(key)||[];list.push(item);mediaByContact.set(key,list);pendingCapture=item;return item}
+ function open(item){const viewer=document.querySelector('.oneSnapViewer'),body=viewer?.querySelector('.oneSnapViewerBody');if(!viewer||!body)return;const m=document.createElement(item.isVideo?'video':'img');m.src=item.url;if(item.isVideo){m.controls=true;m.autoplay=true;m.playsInline=true;}body.replaceChildren(m);viewer.hidden=false;}
+ function article(item){const a=document.createElement('article');a.className='mine oneV75Media '+(item.isVideo?'oneV75Video':'oneV75Photo');a.dataset.oneV75Id=item.id;const frame=document.createElement('div');frame.className='oneV75MediaFrame';const m=document.createElement(item.isVideo?'video':'img');m.src=item.url;if(item.isVideo){m.muted=true;m.playsInline=true;m.preload='metadata';}frame.append(m);if(item.isVideo){const play=document.createElement('span');play.className='oneV75VideoCover';play.textContent='▶';frame.append(play)}const meta=document.createElement('div');meta.className='oneV75MediaMeta';meta.innerHTML='<span class="oneV75Dot"></span><span>'+(item.isVideo?'Vidéo':'Photo')+'</span>';a.append(frame,meta);a.onclick=e=>{e.preventDefault();e.stopPropagation();open(item)};return a}
+ function paint(){const log=document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log,dialog.oneThreadFullscreen .friend-message-log');if(!log)return;const list=mediaByContact.get(contactKey())||[];for(const item of list){if(log.querySelector('[data-one-v75-id="'+CSS.escape(item.id)+'"]'))continue;log.append(article(item));}if(list.length)requestAnimationFrame(()=>log.scrollTop=log.scrollHeight)}
+ // Capture the real File before V7 resets it. This is intentionally local until the Worker media upload is connected.
+ document.addEventListener('change',e=>{const i=e.target;if(!(i instanceof HTMLInputElement)||i.type!=='file'||!i.files?.[0])return;const d=i.closest('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen');if(!d)return;const f=i.files[0];if(!/^image\//.test(f.type)&&!/^video\//.test(f.type))return;remember(f);setTimeout(paint,30)},true);
+ // Camera V7 injects the captured file into the conversation input; paint as soon as that handoff arrives.
+ const obs=new MutationObserver(()=>requestAnimationFrame(paint));obs.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','open']});
+ document.addEventListener('click',e=>{if(e.target.closest('#oneCameraV7 .oneCamSend'))setTimeout(paint,180)},true);
+ paint();
+})();
+</script>
 </body>
 </html>
 
