@@ -5510,14 +5510,15 @@ body.oneSideScreen .topbar{display:none!important}body.oneSideScreen .oneShell{m
  search.onclick=()=>{ document.body.classList.remove('oneSideScreen'); const shell=document.getElementById('oneFoundation'); if(shell&&!shell.hidden) history.back(); setTimeout(()=>{const t=document.getElementById('oneSearchToggle'); if(t&&t.getAttribute('aria-expanded')!=='true')t.click(); document.getElementById('search')?.focus();},80); };
  const left=document.createElement('span'),right=document.createElement('span');left.className='oneMainNavSwipeHint left';right.className='oneMainNavSwipeHint right';left.textContent='‹';right.textContent='›';document.body.append(left,right);
  let startX=0,startY=0,tracking=false;
- const blocked=t=>t.closest('button,input,textarea,select,a,[role="dialog"],.modal,.vfeed,#playerModal');
+ const blocked=t=>t.closest('input,textarea,select,[role="dialog"],.modal,.vfeed,#playerModal');
  document.addEventListener('touchstart',e=>{if(e.touches.length!==1||blocked(e.target))return;startX=e.touches[0].clientX;startY=e.touches[0].clientY;tracking=true;},{passive:true});
  document.addEventListener('touchend',e=>{if(!tracking)return;tracking=false;const t=e.changedTouches[0],dx=t.clientX-startX,dy=t.clientY-startY;if(Math.abs(dx)<72||Math.abs(dx)<Math.abs(dy)*1.25)return;const current=window.oneCurrentSpace?.();
   // Accueil natif : les écrans latéraux sont totalement séparés du contenu vertical.
-  if(current==null){if(dx>0)window.oneShowSpace?.('social');else window.oneShowSpace?.('moments');return;}
+  if(current==null||current==='home'){window.__oneSwipeJustHappened=Date.now();if(dx>0)window.oneShowSpace?.('social');else window.oneShowSpace?.('moments');return;}
   // Depuis un écran latéral, un geste vers l'accueil ferme l'écran plein écran.
-  if((current==='social'&&dx<0)||(current==='moments'&&dx>0)){history.back();}
+  if((current==='social'&&dx<0)||(current==='moments'&&dx>0)){window.__oneSwipeJustHappened=Date.now();history.back();}
  },{passive:true});
+ document.addEventListener('click',e=>{if(window.__oneSwipeJustHappened&&Date.now()-window.__oneSwipeJustHappened<450){e.preventDefault();e.stopImmediatePropagation();}},true);
  const syncSideScreen=()=>{const c=window.oneCurrentSpace?.();document.body.classList.toggle('oneSideScreen',c==='social'||c==='moments');};
  window.addEventListener('one-space-open',syncSideScreen);
  window.addEventListener('popstate',()=>setTimeout(syncSideScreen,0));
