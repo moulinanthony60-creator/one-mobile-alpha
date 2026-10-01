@@ -5875,3 +5875,38 @@ body.oneOpeningDiscussion dialog.oneFriendsDialog.oneThreadFullscreen{visibility
   },true);
 })();
 </script>
+
+
+<style id="one-chat-media-v5-css">
+.oneFriendsDialog.oneThreadFullscreen .friends-content>label{padding-left:66px!important}
+.oneMediaPick{position:absolute!important;z-index:8!important;left:12px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;width:46px!important;height:46px!important;min-height:46px!important;padding:0!important;border:1px solid #454960!important;border-radius:50%!important;background:#171b2a!important;color:#fff!important;font-size:28px!important;display:grid!important;place-items:center!important}
+.oneMediaTray{position:absolute;left:12px;right:12px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:12;padding:12px;border:1px solid #3b3e55;border-radius:20px;background:#111522f5;box-shadow:0 18px 50px #0008;display:flex;gap:10px;align-items:center}
+.oneMediaTray[hidden]{display:none!important}.oneMediaTray button{flex:1;min-height:52px;border:1px solid #494d66;border-radius:16px;background:#1a1e2d;color:#fff;font-weight:800}.oneMediaTray button:first-child{background:linear-gradient(135deg,#7d2fff,#9c3cff)}
+.oneMediaPreview{position:absolute;left:12px;right:12px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:13;padding:10px;border:1px solid #4a4e68;border-radius:18px;background:#111522f8;display:flex;align-items:center;gap:10px}.oneMediaPreview[hidden]{display:none!important}.oneMediaPreview img,.oneMediaPreview video{width:72px;height:72px;object-fit:cover;border-radius:14px;background:#080a12}.oneMediaPreview .meta{min-width:0;flex:1}.oneMediaPreview .meta b,.oneMediaPreview .meta small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.oneMediaPreview .meta small{color:#999daf;margin-top:4px}.oneMediaPreview .remove{width:38px;height:38px;border-radius:50%;border:1px solid #4b4f67;background:#202434;color:#fff;font-size:20px}
+</style>
+<script id="one-chat-media-v5-js">
+(()=>{
+ let current=null,url='';
+ const cleanup=()=>{if(url)URL.revokeObjectURL(url);url='';current=null;};
+ function mount(d){
+   if(!d.classList.contains('oneThreadFullscreen'))return;
+   const box=d.querySelector('.friends-content'), label=box?.querySelector(':scope>label'); if(!box||!label||box.querySelector('.oneMediaPick'))return;
+   const pick=document.createElement('button');pick.type='button';pick.className='oneMediaPick';pick.textContent='＋';pick.setAttribute('aria-label','Ajouter une photo ou une vidéo');
+   const input=document.createElement('input');input.type='file';input.accept='image/*,video/*';input.hidden=true;
+   const camera=document.createElement('input');camera.type='file';camera.accept='image/*,video/*';camera.setAttribute('capture','environment');camera.hidden=true;
+   const tray=document.createElement('div');tray.className='oneMediaTray';tray.hidden=true;
+   const gallery=document.createElement('button');gallery.type='button';gallery.textContent='🖼️ Photo / vidéo';
+   const cam=document.createElement('button');cam.type='button';cam.textContent='📷 Caméra';tray.append(gallery,cam);
+   const preview=document.createElement('div');preview.className='oneMediaPreview';preview.hidden=true;
+   const remove=document.createElement('button');remove.type='button';remove.className='remove';remove.textContent='×';
+   pick.onclick=()=>tray.hidden=!tray.hidden;gallery.onclick=()=>input.click();cam.onclick=()=>camera.click();
+   const chosen=f=>{if(!f)return;cleanup();current=f;url=URL.createObjectURL(f);preview.replaceChildren();const media=document.createElement(f.type.startsWith('video/')?'video':'img');media.src=url;if(media.tagName==='VIDEO'){media.muted=true;media.playsInline=true;}const meta=document.createElement('div');meta.className='meta';const b=document.createElement('b');b.textContent=f.name||'Média';const s=document.createElement('small');s.textContent=(f.type.startsWith('video/')?'Vidéo':'Photo')+' · '+Math.max(1,Math.round(f.size/1024))+' Ko';meta.append(b,s);preview.append(media,meta,remove);preview.hidden=false;tray.hidden=true;};
+   input.onchange=()=>chosen(input.files?.[0]);camera.onchange=()=>chosen(camera.files?.[0]);remove.onclick=()=>{cleanup();preview.hidden=true;input.value='';camera.value='';};
+   const send=label.nextElementSibling;
+   send?.addEventListener('click',e=>{if(!current)return; e.preventDefault();e.stopImmediatePropagation(); const status=send.nextElementSibling; if(status)status.textContent='Photo/vidéo prête. Il reste à connecter le stockage média du Worker ONE pour l’envoyer à l’autre utilisateur.';},true);
+   box.append(pick,input,camera,tray,preview);
+ }
+ const sync=()=>document.querySelectorAll('dialog.oneFriendsDialog').forEach(mount);
+ new MutationObserver(sync).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});document.addEventListener('click',()=>requestAnimationFrame(sync),true);sync();
+})();
+</script>
