@@ -5752,46 +5752,221 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
 </script>
 
 <!-- ONE V7.5 — captured media visible in the conversation immediately -->
-<style id="one-v75-visible-media-css">
-.friend-message-log article.oneV75Media{padding:3px!important;overflow:hidden!important;background:#11131b!important;border:1px solid #2e3142!important;max-width:min(78%,320px)!important;cursor:pointer!important}
-.friend-message-log article.oneV75Media.mine{background:#11131b!important;border-color:#7d42d8!important}
-.friend-message-log article.oneV75Media .oneV75MediaFrame{position:relative;display:block;width:min(68vw,300px);max-width:100%;border-radius:17px;overflow:hidden;background:#050507}
-.friend-message-log article.oneV75Media img,.friend-message-log article.oneV75Media video{display:block;width:100%;max-height:52vh;object-fit:cover;background:#050507}
-.friend-message-log article.oneV75Media .oneV75VideoCover{position:absolute;inset:0;display:grid;place-items:center;background:#0002;font-size:44px;text-shadow:0 3px 14px #000}
-.friend-message-log article.oneV75Media .oneV75MediaMeta{display:flex;align-items:center;gap:7px;padding:7px 9px 5px;font-size:12px;font-weight:850}
-.friend-message-log article.oneV75Photo .oneV75MediaMeta{color:#ff4b6d}.friend-message-log article.oneV75Video .oneV75MediaMeta{color:#b45cff}
-.friend-message-log article.oneV75Media .oneV75Dot{width:10px;height:10px;border-radius:3px;background:currentColor}
+
+<style id="one-v77-media-transport-css">
+/* ONE V7.7 — legacy text transport is authoritative; media uses secure R2 tokens. */
+#oneFoundation #oneSocialInline .oneInlineCard{transition:none!important}
+#oneFoundation #oneSocialInline .oneInlineCard .avatar{position:relative;overflow:visible!important;isolation:isolate}
+#oneFoundation #oneSocialInline .oneInlineCard .avatar>img{position:relative;z-index:2;width:100%;height:100%;border-radius:50%;object-fit:cover}
+#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV77IncomingPhoto::after,
+#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV77IncomingVideo::after{content:"";position:absolute;z-index:0;inset:-6px;border-radius:50%;pointer-events:none;animation:oneV77Pulse 1.5s ease-in-out infinite}
+#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV77IncomingPhoto::after{border:3px solid #ff315c;box-shadow:0 0 8px #ff315c,0 0 19px #ff315cb8,0 0 32px #ff315c55}
+#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV77IncomingVideo::after{border:3px solid #9b35ff;box-shadow:0 0 8px #9b35ff,0 0 19px #9b35ffb8,0 0 32px #9b35ff55}
+@keyframes oneV77Pulse{0%,100%{transform:scale(.97);opacity:.68}50%{transform:scale(1.06);opacity:1}}
+#oneFoundation #oneSocialInline .copy span.oneV77PhotoState{color:#ff4b6d!important;font-weight:900!important}
+#oneFoundation #oneSocialInline .copy span.oneV77VideoState{color:#b45cff!important;font-weight:900!important}
+#oneFoundation #oneSocialInline .copy span.oneV77IncomingLabel{color:#a4a8b8!important;font-weight:750!important}
+#oneFoundation #oneSocialInline .copy span.oneV77OpenedLabel,#oneFoundation #oneSocialInline .copy span.oneV77TextState{color:#9699ab!important;font-weight:650!important}
+.oneV77UnreadDot{position:absolute;right:48px;top:50%;transform:translateY(-50%);width:9px;height:9px;border-radius:50%;background:#9b5cff;box-shadow:0 0 12px #9b5cff88}
+.oneV77UnreadDot[hidden]{display:none!important}
+body.oneV77MarkerSend dialog.oneFriendsDialog.oneThreadFullscreen textarea{color:transparent!important;caret-color:transparent!important}
+.friend-message-log article.oneV77Media{cursor:pointer!important;background:transparent!important;border:0!important;padding:5px 2px!important;box-shadow:none!important}
+.friend-message-log article.oneV77Media p[hidden]{display:none!important}
+.oneV77MediaButton{border:0;background:transparent;color:inherit;padding:8px 4px;display:flex;align-items:center;gap:9px;font-size:16px;font-weight:900;cursor:pointer;text-align:left}
+.oneV77MediaDot{width:16px;height:16px;border-radius:5px;flex:0 0 16px}
+.oneV77Media.photo .oneV77MediaButton{color:#ff4b6d}.oneV77Media.photo .oneV77MediaDot{background:#ff315c;box-shadow:0 0 16px #ff315c66}
+.oneV77Media.video .oneV77MediaButton{color:#b45cff}.oneV77Media.video .oneV77MediaDot{background:#9b35ff;box-shadow:0 0 16px #9b35ff66}
+#oneV77Viewer{position:fixed;inset:0;z-index:2147483647;background:#000;display:grid;place-items:center;color:#fff}
+#oneV77Viewer[hidden]{display:none!important}.oneV77ViewerBody{position:absolute;inset:0;display:grid;place-items:center}.oneV77ViewerBody img,.oneV77ViewerBody video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+.oneV77ViewerClose{position:absolute;z-index:5;top:max(16px,env(safe-area-inset-top));left:16px;width:52px;height:52px;border:0;border-radius:50%;background:#15151bcc;color:white;font-size:27px}.oneV77ViewerState{position:absolute;z-index:4;left:20px;right:20px;bottom:max(24px,env(safe-area-inset-bottom));text-align:center;font-weight:850;text-shadow:0 2px 10px #000}
 </style>
-<script id="one-v75-visible-media-js">
+
+<script id="one-v77-media-transport-js">
 (()=>{
- const mediaByContact=new Map();
- let pendingCapture=null;
- const cam=document.getElementById('oneCameraV7');
- function contactKey(){const d=document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen');return (d?.querySelector('.oneThreadHead b,.oneThreadTitle,b')?.textContent||'ONE').trim()||'ONE'}
- function remember(file){if(!file)return;const key=contactKey(),isVideo=file.type.startsWith('video/'),url=URL.createObjectURL(file),item={id:crypto.randomUUID?.()||String(Date.now()),url,isVideo,at:Date.now()};const list=mediaByContact.get(key)||[];list.push(item);mediaByContact.set(key,list);pendingCapture=item;return item}
- function open(item){const viewer=document.querySelector('.oneSnapViewer'),body=viewer?.querySelector('.oneSnapViewerBody');if(!viewer||!body)return;const m=document.createElement(item.isVideo?'video':'img');m.src=item.url;if(item.isVideo){m.controls=true;m.autoplay=true;m.playsInline=true;}body.replaceChildren(m);viewer.hidden=false;}
- function article(item){const a=document.createElement('article');a.className='mine oneV75Media '+(item.isVideo?'oneV75Video':'oneV75Photo');a.dataset.oneV75Id=item.id;const frame=document.createElement('div');frame.className='oneV75MediaFrame';const m=document.createElement(item.isVideo?'video':'img');m.src=item.url;if(item.isVideo){m.muted=true;m.playsInline=true;m.preload='metadata';}frame.append(m);if(item.isVideo){const play=document.createElement('span');play.className='oneV75VideoCover';play.textContent='▶';frame.append(play)}const meta=document.createElement('div');meta.className='oneV75MediaMeta';meta.innerHTML='<span class="oneV75Dot"></span><span>'+(item.isVideo?'Vidéo':'Photo')+'</span>';a.append(frame,meta);a.onclick=e=>{e.preventDefault();e.stopPropagation();open(item)};return a}
- function paint(){const log=document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log,dialog.oneThreadFullscreen .friend-message-log');if(!log)return;const list=mediaByContact.get(contactKey())||[];for(const item of list){if(log.querySelector('[data-one-v75-id="'+CSS.escape(item.id)+'"]'))continue;log.append(article(item));}if(list.length)requestAnimationFrame(()=>log.scrollTop=log.scrollHeight)}
- // Capture the real File before V7 resets it. This is intentionally local until the Worker media upload is connected.
- document.addEventListener('change',e=>{const i=e.target;if(!(i instanceof HTMLInputElement)||i.type!=='file'||!i.files?.[0])return;const d=i.closest('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen');if(!d)return;const f=i.files[0];if(!/^image\//.test(f.type)&&!/^video\//.test(f.type))return;remember(f);setTimeout(paint,30)},true);
- // Camera V7 injects the captured file into the conversation input; paint as soon as that handoff arrives.
- const obs=new MutationObserver(()=>requestAnimationFrame(paint));obs.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','open']});
- document.addEventListener('click',e=>{if(e.target.closest('#oneCameraV7 .oneCamSend'))setTimeout(paint,180)},true);
- paint();
+  const MEDIA_API='https://one-messages-api.moulinanthony60.workers.dev';
+  const PEOPLE_API='https://one-comments-api.moulinanthony60.workers.dev';
+  const MARK=/^\[\[ONE_MEDIA_V2\|([pv])\|([0-9a-f-]{36})\|([A-Za-z0-9_-]{40,})\]\]$/i;
+  const pending=new WeakMap();
+  const statusCache=new Map();
+  const deliveredOnce=new Set();
+  let activeLegacy='',activeName='',cameraAutoUntil=0,viewerUrl='',inboxOrder=[],friendOrder=[],lastInbox=new Map(),socialTab='messages',busy=false;
+
+  const token=()=>window.oneAccountToken?.()||localStorage.getItem('one_account_token_v06')||'';
+  const auth=(extra={})=>({...extra,...(token()?{Authorization:'Bearer '+token()}:{})});
+  const mediaName=t=>t==='v'?'Vidéo':'Photo';
+  const markerFor=(type,id,shareToken)=>`[[ONE_MEDIA_V2|${type==='video'?'v':'p'}|${id}|${shareToken}]]`;
+  const parseMarker=text=>{const m=String(text||'').trim().match(MARK);return m?{kind:m[1].toLowerCase(),type:m[1].toLowerCase()==='v'?'video':'photo',id:m[2],shareToken:m[3]}:null};
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+  async function jsonFetch(url,options={}){
+    const c=new AbortController(),timer=setTimeout(()=>c.abort(),12000);
+    try{
+      const r=await fetch(url,{...options,headers:auth(options.headers||{}),cache:'no-store',signal:c.signal});
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok||!d.ok)throw Error(d.error||'Service ONE indisponible.');
+      return d;
+    }finally{clearTimeout(timer)}
+  }
+
+  async function people(path){return jsonFetch(PEOPLE_API+path)}
+  async function media(path,options={}){return jsonFetch(MEDIA_API+path,options)}
+
+  function avatarUrl(x){
+    for(const k of ['avatar','avatarUrl','avatar_url','profileImage','profile_image','profileImageUrl','profile_image_url','picture','photo','photoUrl','photo_url','image','imageUrl','image_url']){
+      const v=x?.[k];try{if(v&&new URL(String(v),location.href).protocol==='https:')return String(v)}catch{}
+    }
+    return '';
+  }
+  function normName(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase()}
+  function rowKey(x){const u=avatarUrl(x),name=normName(x?.name);return u&&name?'person:'+name+'|'+u:'id:'+String(x?.id||name||crypto.randomUUID())}
+  function legacyTime(c){for(const k of ['lastMessageAt','last_message_at','lastAt','last_at','updatedAt','updated_at','createdAt','created_at']){const v=c?.[k];if(v==null)continue;const n=Number(v);if(Number.isFinite(n)&&n>100000000000)return n;const d=Date.parse(v);if(Number.isFinite(d))return d}return 0}
+  function signature(c){return [String(c?.lastText||''),String(c?.unread||0),String(legacyTime(c))].join('|')}
+
+  function dedupeConversations(list){
+    const map=new Map();
+    for(const c of (list||[])){
+      const k=rowKey(c),old=map.get(k);
+      if(!old){map.set(k,c);continue}
+      const nt=legacyTime(c),ot=legacyTime(old);
+      if(nt>ot || (!ot&&Number(c?.unread||0)>Number(old?.unread||0)))map.set(k,c);
+    }
+    return [...map.values()];
+  }
+
+  function ensureCamera(row){
+    let cam=row.querySelector('.oneConversationCamera');
+    if(!cam){
+      cam=document.createElement('button');cam.type='button';cam.className='oneConversationCamera';cam.setAttribute('aria-label','Prendre une photo ou une vidéo');cam.title='Prendre une photo ou une vidéo';cam.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 6.5 9.5 4.7h5l1.3 1.8H19a2 2 0 0 1 2 2v8.7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2h3.2Z"/><circle cx="12" cy="12.8" r="3.5"/></svg>';
+      row.appendChild(cam);
+    }
+    cam.onclick=e=>{e.preventDefault();e.stopPropagation();window.oneOpenCameraV7?.(row,row.dataset.onePeerName||row.querySelector('.copy b')?.textContent||'ONE')};
+  }
+
+  function avatarPaint(av,c){
+    const url=avatarUrl(c),name=c?.name||'ONE';
+    av.classList.remove('oneV77IncomingPhoto','oneV77IncomingVideo');
+    if(url){const current=av.querySelector('img');if(!current||current.src!==url){const img=document.createElement('img');img.alt='';img.loading='lazy';img.src=url;img.onerror=()=>{av.replaceChildren((name||'?')[0].toUpperCase())};av.replaceChildren(img)}}
+    else if(!av.querySelector('img'))av.textContent=(name||'?')[0].toUpperCase();
+  }
+
+  function ensureConversationRow(host,key,c){
+    let row=[...host.querySelectorAll(':scope>.oneInlineCard')].find(n=>n.dataset.oneV77Key===key);
+    if(!row){row=document.createElement('button');row.type='button';row.className='oneInlineCard oneV77Conversation';row.dataset.oneV77Key=key;row.innerHTML='<span class="avatar"></span><span class="copy"><b></b><span></span></span><span class="oneV77UnreadDot" hidden></span>';host.appendChild(row)}
+    row.dataset.oneFriendId=String(c?.id||'');row.dataset.onePeerName=c?.name||'ONE';row.querySelector('.copy b').textContent=c?.name||'ONE';avatarPaint(row.querySelector('.avatar'),c);row.onclick=()=>window.oneOpenFriends?.(row.dataset.oneFriendId);ensureCamera(row);return row;
+  }
+
+  function ensureFriendRow(host,key,f){
+    let row=[...host.querySelectorAll(':scope>.oneInlineCard')].find(n=>n.dataset.oneV77Friend===key);
+    if(!row){row=document.createElement('button');row.type='button';row.className='oneInlineCard oneV77Friend';row.dataset.oneV77Friend=key;row.innerHTML='<span class="avatar"></span><span class="copy"><b></b><span></span></span>';host.appendChild(row)}
+    row.dataset.oneFriendId=String(f?.id||'');row.querySelector('.copy b').textContent=f?.name||'ONE';row.querySelector('.copy span').textContent=f?.online?'● En ligne':'Hors ligne';avatarPaint(row.querySelector('.avatar'),f);row.onclick=()=>window.oneOpenFriends?.(row.dataset.oneFriendId);return row;
+  }
+
+  async function shareStatus(mark,force=false){
+    const old=statusCache.get(mark.id);if(old&&!force&&Date.now()-old.at<2500)return old.data;
+    try{const d=await media('/messages/'+encodeURIComponent(mark.id)+'/share-status?token='+encodeURIComponent(mark.shareToken));statusCache.set(mark.id,{at:Date.now(),data:d.status});return d.status}catch(e){return old?.data||null}
+  }
+  async function markDelivered(mark){
+    if(deliveredOnce.has(mark.id))return;deliveredOnce.add(mark.id);
+    try{const d=await media('/messages/'+encodeURIComponent(mark.id)+'/delivered-shared?token='+encodeURIComponent(mark.shareToken),{method:'POST'});statusCache.set(mark.id,{at:Date.now(),data:d.status})}catch{deliveredOnce.delete(mark.id)}
+  }
+  async function markOpened(mark){
+    const d=await media('/messages/'+encodeURIComponent(mark.id)+'/open-shared?token='+encodeURIComponent(mark.shareToken),{method:'POST'});statusCache.set(mark.id,{at:Date.now(),data:d.status});return d.status
+  }
+
+  function updateOrder(list){
+    const keys=list.map(rowKey);
+    if(!inboxOrder.length)inboxOrder=[...keys];
+    inboxOrder=inboxOrder.filter(k=>keys.includes(k));
+    for(const k of keys)if(!inboxOrder.includes(k))inboxOrder.push(k);
+    for(const c of list){const k=rowKey(c),sig=signature(c),old=lastInbox.get(k);if(old&&old!==sig){inboxOrder=inboxOrder.filter(x=>x!==k);inboxOrder.unshift(k)}lastInbox.set(k,sig)}
+  }
+
+  async function paintInbox(raw){
+    const host=document.getElementById('oneSocialInline');if(!host||socialTab!=='messages')return;
+    const list=dedupeConversations(raw);updateOrder(list);const byKey=new Map(list.map(c=>[rowKey(c),c]));host.querySelectorAll(':scope>.oneInlineLoading,:scope>.oneInlineEmpty,:scope>.oneInlineAction').forEach(n=>n.remove());const keep=new Set();
+    for(const key of inboxOrder){const c=byKey.get(key);if(!c)continue;const row=ensureConversationRow(host,key,c);keep.add(row);const sub=row.querySelector('.copy span'),av=row.querySelector('.avatar'),dot=row.querySelector('.oneV77UnreadDot'),mark=parseMarker(c.lastText||'');sub.className='';dot.hidden=true;
+      if(mark){
+        const st=await shareStatus(mark);const mine=!!st?.mine;
+        if(!mine&&!st?.opened){av.classList.add(mark.type==='video'?'oneV77IncomingVideo':'oneV77IncomingPhoto');sub.textContent='Nouveau';sub.className='oneV77IncomingLabel';void markDelivered(mark)}
+        else if(mine){const word=mediaName(mark.kind);sub.textContent=st?.opened?word+' ouverte':st?.delivered?word+' reçue':word+' envoyée';sub.className=mark.type==='video'?'oneV77VideoState':'oneV77PhotoState'}
+        else{sub.textContent='Ouvert';sub.className='oneV77OpenedLabel'}
+      }else{
+        sub.textContent=c.lastText||'Commencer la discussion';sub.className='oneV77TextState';if(Number(c.unread||0)>0)dot.hidden=false;
+      }
+      host.appendChild(row);
+    }
+    for(const row of [...host.querySelectorAll(':scope>.oneInlineCard')])if(!keep.has(row))row.remove();if(!keep.size)host.innerHTML='<p class="oneInlineEmpty">Aucune conversation pour le moment.</p>';
+  }
+
+  function paintFriends(raw){
+    const host=document.getElementById('oneSocialInline');if(!host||socialTab!=='friends')return;const list=(raw||[]).filter(f=>f.status==='accepted');const unique=[];const seen=new Set();for(const f of list){const k=rowKey(f);if(seen.has(k))continue;seen.add(k);unique.push(f)}const keys=unique.map(rowKey);if(!friendOrder.length)friendOrder=[...keys].sort((a,b)=>String(unique.find(x=>rowKey(x)===a)?.name||'').localeCompare(String(unique.find(x=>rowKey(x)===b)?.name||''),'fr',{sensitivity:'base'}));friendOrder=friendOrder.filter(k=>keys.includes(k));for(const k of keys)if(!friendOrder.includes(k))friendOrder.push(k);const by=new Map(unique.map(f=>[rowKey(f),f]));host.querySelectorAll(':scope>.oneInlineLoading,:scope>.oneInlineEmpty,:scope>.oneInlineAction').forEach(n=>n.remove());const keep=new Set();for(const k of friendOrder){const f=by.get(k);if(!f)continue;const row=ensureFriendRow(host,k,f);keep.add(row);host.appendChild(row)}for(const row of [...host.querySelectorAll(':scope>.oneInlineCard')])if(!keep.has(row))row.remove();const add=document.createElement('button');add.className='oneInlineAction oneV77Add';add.textContent='＋ Ajouter un ami';add.onclick=()=>window.oneOpenFriends?.({tab:'add'});host.appendChild(add)
+  }
+
+  async function syncSocial(force=false){
+    if(busy||document.hidden||!token()||!document.getElementById('oneSocialInline'))return;busy=true;
+    try{
+      if(socialTab==='messages'){const d=await people('/friends/inbox');await paintInbox(d.conversations||[])}
+      else if(socialTab==='friends'){const d=await people('/friends/state');paintFriends(d.relationships||[])}
+    }catch(e){console.warn('ONE V7.7 social',e)}finally{busy=false}
+  }
+
+  function clearPreview(dialog){const p=dialog?.querySelector('.oneMediaPreview');try{p?.querySelector('.remove')?.click()}catch{}if(p){p.hidden=true;p.replaceChildren();delete p.dataset.snap71}dialog?.querySelectorAll('input[type=file]').forEach(i=>{try{i.value=''}catch{}})}
+  function threadStatus(dialog,text){const s=dialog?.querySelector('.friends-content>label+button+p[role="status"]');if(s)s.textContent=text||''}
+
+  async function sendLegacyMarker(dialog,marker){
+    const textarea=dialog?.querySelector('.friends-content>label textarea'),send=dialog?.querySelector('.friends-content>label+button');if(!textarea||!send)throw Error('Conversation indisponible.');
+    const draft=textarea.value;document.body.classList.add('oneV77MarkerSend');textarea.value=marker;textarea.dispatchEvent(new Event('input',{bubbles:true}));send.click();await wait(70);if(textarea.value===marker||textarea.value===''){textarea.value=draft;textarea.dispatchEvent(new Event('input',{bubbles:true}))}document.body.classList.remove('oneV77MarkerSend');
+  }
+
+  async function upload(file,dialog){
+    if(!file||dialog?.dataset.oneV77Uploading==='1')return;const type=file.type.startsWith('video/')?'video':file.type.startsWith('image/')?'photo':'';if(!type)return threadStatus(dialog,'Format non pris en charge.');
+    const legacy=activeLegacy||dialog?.dataset.oneV77Legacy||'';if(!legacy)return threadStatus(dialog,'Destinataire introuvable. Retourne aux Discussions puis réessaie.');dialog.dataset.oneV77Uploading='1';threadStatus(dialog,type==='video'?'Envoi de la vidéo…':'Envoi de la photo…');
+    try{
+      const q=new URLSearchParams({to:legacy,type,clientId:'media-'+crypto.randomUUID()});const r=await fetch(MEDIA_API+'/messages/media?'+q,{method:'POST',headers:auth({'Content-Type':file.type||(type==='video'?'video/webm':'image/jpeg')}),body:file,cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Envoi du média impossible.');if(!d.shareToken)throw Error('Mets d’abord ONE Messages API en version 2.');const marker=markerFor(type,d.message.id,d.shareToken);pending.delete(dialog);clearPreview(dialog);await sendLegacyMarker(dialog,marker);threadStatus(dialog,(type==='video'?'Vidéo':'Photo')+' envoyée ✓');statusCache.set(d.message.id,{at:Date.now(),data:{mine:true,delivered:false,opened:false,type}});setTimeout(()=>{decorateThread(dialog);syncSocial(true)},250);window.toast?.((type==='video'?'Vidéo':'Photo')+' envoyée');
+    }catch(e){threadStatus(dialog,'❌ '+(e.message||'Envoi impossible')+' · réessaie.');window.toast?.(e.message||'Envoi impossible')}
+    finally{delete dialog.dataset.oneV77Uploading}
+  }
+
+  let viewer=document.getElementById('oneV77Viewer');if(!viewer){viewer=document.createElement('div');viewer.id='oneV77Viewer';viewer.hidden=true;viewer.innerHTML='<button class="oneV77ViewerClose" aria-label="Fermer">✕</button><div class="oneV77ViewerBody"></div><div class="oneV77ViewerState"></div>';document.body.appendChild(viewer)}
+  const viewerBody=viewer.querySelector('.oneV77ViewerBody'),viewerState=viewer.querySelector('.oneV77ViewerState');
+  function closeViewer(){viewer.hidden=true;viewer.querySelector('video')?.pause();viewerBody.replaceChildren();if(viewerUrl){URL.revokeObjectURL(viewerUrl);viewerUrl=''}}viewer.querySelector('.oneV77ViewerClose').onclick=closeViewer;viewer.onclick=e=>{if(e.target===viewer)closeViewer()};
+
+  async function openShared(mark,article){
+    viewerState.textContent='Ouverture…';viewer.hidden=false;
+    try{
+      const st=await shareStatus(mark,true);if(!st?.mine)await markOpened(mark);const r=await fetch(MEDIA_API+'/shared-media/'+encodeURIComponent(mark.id)+'?token='+encodeURIComponent(mark.shareToken),{headers:auth(),cache:'no-store'});if(!r.ok){const d=await r.json().catch(()=>({}));throw Error(d.error||'Média indisponible.')}const blob=await r.blob();viewerUrl=URL.createObjectURL(blob);const el=document.createElement(mark.type==='video'?'video':'img');el.src=viewerUrl;if(mark.type==='video'){el.controls=true;el.autoplay=true;el.playsInline=true}viewerBody.replaceChildren(el);viewerState.textContent='';if(article&&!st?.mine){article.dataset.oneV77Opened='1';const label=article.querySelector('.oneV77MediaLabel');if(label)label.textContent=mediaName(mark.kind)+' ouverte'}setTimeout(()=>syncSocial(true),150)
+    }catch(e){viewerState.textContent=e.message||'Média indisponible.'}
+  }
+
+  async function decorateMediaArticle(article,p,mark){
+    if(article.dataset.oneV77Media==='1')return;article.dataset.oneV77Media='1';article.classList.add('oneV77Media',mark.type);const mine=article.classList.contains('mine');p.hidden=true;const line=document.createElement('button');line.type='button';line.className='oneV77MediaButton';line.innerHTML='<span class="oneV77MediaDot"></span><span class="oneV77MediaLabel"></span>';article.appendChild(line);const label=line.querySelector('.oneV77MediaLabel');const st=await shareStatus(mark);if(mine)label.textContent=(st?.opened?mediaName(mark.kind)+' ouverte':st?.delivered?mediaName(mark.kind)+' reçue':mediaName(mark.kind)+' envoyée');else{label.textContent=st?.opened?mediaName(mark.kind)+' ouverte':mediaName(mark.kind);if(!st?.opened)void markDelivered(mark)}line.onclick=e=>{e.preventDefault();e.stopPropagation();openShared(mark,article)};
+  }
+
+  function decorateThread(dialog=document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen')){
+    if(!dialog)return;dialog.dataset.oneV77Legacy=activeLegacy||dialog.dataset.oneV77Legacy||'';dialog.dataset.oneV77Name=activeName||dialog.dataset.oneV77Name||'';for(const p of dialog.querySelectorAll('.friend-message-log article p')){const mark=parseMarker(p.textContent);if(mark)void decorateMediaArticle(p.closest('article'),p,mark)}
+  }
+
+  const previousOpen=window.oneOpenFriends;
+  if(typeof previousOpen==='function'&&!previousOpen.__oneV77){const wrapped=function(...args){const id=args[0];if(typeof id==='string'&&!id.startsWith('group:')){activeLegacy=id;const row=[...document.querySelectorAll('#oneSocialInline .oneInlineCard')].find(r=>r.dataset.oneFriendId===String(id));activeName=row?.dataset.onePeerName||row?.querySelector('.copy b')?.textContent||activeName}const out=previousOpen.apply(this,args);setTimeout(()=>decorateThread(),80);return out};wrapped.__oneV77=true;window.oneOpenFriends=wrapped}
+
+  document.addEventListener('change',e=>{const input=e.target;if(!(input instanceof HTMLInputElement)||input.type!=='file'||!input.files?.[0])return;const dialog=input.closest('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen');if(!dialog)return;const file=input.files[0];if(!/^image\//.test(file.type)&&!/^video\//.test(file.type))return;pending.set(dialog,file);if(Date.now()<cameraAutoUntil){cameraAutoUntil=0;setTimeout(()=>upload(file,dialog),0)}},true);
+
+  document.addEventListener('click',e=>{
+    if(e.target.closest('#oneCameraV7 .oneCamSend')){cameraAutoUntil=Date.now()+4000;return}
+    const send=e.target.closest('dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>label+button,dialog.oneThreadFullscreen .friends-content>label+button');if(send){const d=send.closest('dialog'),file=pending.get(d);if(file){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();upload(file,d);return}}
+    const tab=e.target.closest('#oneFoundation [data-social-tab]');if(tab&&(tab.dataset.socialTab==='messages'||tab.dataset.socialTab==='friends')){socialTab=tab.dataset.socialTab;setTimeout(()=>syncSocial(true),80)}
+  },true);
+
+  const mo=new MutationObserver(()=>requestAnimationFrame(()=>decorateThread()));mo.observe(document.body,{subtree:true,childList:true});
+  window.addEventListener('one-space-open',e=>{if(e.detail==='social'){socialTab=document.querySelector('#oneFoundation [data-social-tab].active')?.dataset.socialTab||'messages';setTimeout(()=>syncSocial(true),120)}});
+  window.addEventListener('one-social-integrated-ready',()=>{socialTab='messages';setTimeout(()=>syncSocial(true),140)});
+  window.addEventListener('one-account-changed',()=>{activeLegacy='';activeName='';inboxOrder=[];friendOrder=[];lastInbox.clear();statusCache.clear();deliveredOnce.clear();setTimeout(()=>syncSocial(true),250)});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncSocial(true)});window.addEventListener('online',()=>syncSocial(true));
+  setInterval(()=>{if(document.hidden)return;if(socialTab==='messages')syncSocial(false);decorateThread()},3500);
+  setTimeout(()=>syncSocial(true),800);
 })();
+
 </script>
-
-<style id="one-v764-stability-css">
-#oneFoundation #oneSocialInline .oneInlineCard{contain:layout style;transform:none!important;transition:background-color .12s ease!important}
-#oneFoundation #oneSocialInline .oneInlineCard .copy{min-width:0;overflow:hidden}
-#oneFoundation #oneSocialInline .oneInlineCard .copy span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:19px}
-#oneFoundation #oneSocialInline .oneInlineCard .badge{position:absolute!important;right:48px!important;top:50%!important;transform:translateY(-50%)!important}
-#oneFoundation #oneSocialInline .oneV763PhotoState{color:#ff4b6d!important;font-weight:900!important}
-#oneFoundation #oneSocialInline .oneV763VideoState{color:#b45cff!important;font-weight:900!important}
-#oneFoundation #oneSocialInline .oneV763TextState{color:#9699ab!important;font-weight:650!important}
-#oneFoundation #oneSocialInline .oneV764FriendRow .copy span{color:#9699ab!important}
-</style>
-
 </body>
 </html>
 
@@ -6205,105 +6380,6 @@ body.oneV74CameraHandoff .oneMediaPreview{display:none!important}
 })();
 </script>
 <!-- ONE V7.6 — real Messages backend (D1 + R2) -->
-<style id="one-messages-backend-v76-css">
-/* The old V7.5 local-only preview is replaced by the server-backed Snap event. */
-.friend-message-log article.oneV75Media{display:none!important}
-body.oneBackendUploading dialog.oneFriendsDialog.oneThreadFullscreen .oneMediaPreview{display:none!important}
-#oneFoundation #oneSocialInline .copy span.oneBackendMediaStatus{font-weight:800}
-#oneFoundation #oneSocialInline .copy span.oneBackendPhotoStatus{color:#ff476a}
-#oneFoundation #oneSocialInline .copy span.oneBackendVideoStatus{color:#b35cff}
-#oneFoundation #oneSocialInline .copy span.oneBackendTextStatus{color:#aeb2c3}
-.oneBackendSnap{cursor:pointer!important;background:transparent!important;border:0!important;padding:7px 4px!important;box-shadow:none!important;min-width:150px}
-.oneBackendSnap .oneBackendSnapLine{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:900}
-.oneBackendSnap .oneBackendSnapDot{width:16px;height:16px;border-radius:5px;flex:0 0 16px}
-.oneBackendSnap.photo .oneBackendSnapLine{color:#ff476a}.oneBackendSnap.photo .oneBackendSnapDot{background:#ff315c;box-shadow:0 0 14px #ff315c55}
-.oneBackendSnap.video .oneBackendSnapLine{color:#b35cff}.oneBackendSnap.video .oneBackendSnapDot{background:#963cff;box-shadow:0 0 14px #963cff55}
-.oneBackendSnap small{margin:5px 0 0 25px!important;color:#8f94a7!important;font-size:11px!important}
-.oneBackendSnap.mine small{color:#aaaec0!important}
-#oneBackendViewer{position:fixed;inset:0;z-index:2147483647;background:#000;display:flex;align-items:center;justify-content:center;color:#fff}
-#oneBackendViewer[hidden]{display:none!important}
-#oneBackendViewer img,#oneBackendViewer video{width:100%;height:100%;object-fit:contain;background:#000}
-#oneBackendViewer .oneBackendViewerClose{position:absolute;top:max(16px,env(safe-area-inset-top));left:16px;z-index:4;width:52px;height:52px;border:0;border-radius:50%;background:#15151bcc;color:#fff;font-size:27px}
-#oneBackendViewer .oneBackendViewerState{position:absolute;inset:auto 20px max(24px,env(safe-area-inset-bottom)) 20px;text-align:center;font-weight:800;text-shadow:0 2px 10px #000}
-.oneBackendSending{opacity:.72;pointer-events:none}
-</style>
-<script id="one-messages-backend-v76-js">
-(()=>{
- const API='https://one-messages-api.moulinanthony60.workers.dev';
- const PEOPLE_API='https://one-comments-api.moulinanthony60.workers.dev';
- let activePeer='',activeName='',cameraHandoffUntil=0,lastPeopleAt=0,lastConversationsAt=0;
- let inboxCache=[],peopleById=new Map(),backendByPeer=new Map(),busyPeople=null,busyConversations=null;
- const pendingFiles=new WeakMap(),uploading=new WeakSet();
- const esc=s=>String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c));
- const token=()=>window.oneAccountToken?.()||localStorage.getItem('one_account_token_v06')||'';
- function headers(extra={}){const t=token();return {...extra,...(t?{Authorization:'Bearer '+t}:{})}}
- async function api(path,options={}){const r=await fetch(API+path,{...options,headers:headers(options.headers||{}),cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'ONE Messages indisponible.');return d}
- async function peopleApi(path){const t=token();if(!t)throw Error('Connecte-toi à ONE.');const r=await fetch(PEOPLE_API+path,{headers:{Authorization:'Bearer '+t},cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Amis ONE indisponibles.');return d}
- function avatarUrl(x){for(const k of ['avatar','avatarUrl','avatar_url','profileImage','profile_image','profileImageUrl','profile_image_url','picture','photo','photoUrl','photo_url','image','imageUrl','image_url']){const v=x?.[k];try{if(v&&new URL(String(v),location.href).protocol==='https:')return String(v)}catch{}}return ''}
- function accountPeer(x){if(!x||typeof x!=='object')return '';for(const k of ['accountId','account_id','peerId','peer_id','userId','user_id','friendAccountId','friend_account_id','recipientId','recipient_id','id']){const v=x?.[k];if(v!=null&&String(v).trim())return String(v).trim()}return ''}
- function aliases(x){if(!x||typeof x!=='object')return [];const out=[];for(const k of ['accountId','account_id','peerId','peer_id','userId','user_id','friendAccountId','friend_account_id','recipientId','recipient_id','id']){const v=x?.[k];if(v!=null&&String(v).trim()&&!out.includes(String(v).trim()))out.push(String(v).trim())}return out}
- function personFor(id,name=''){const key=String(id||'');if(key&&peopleById.has(key))return peopleById.get(key);const seen=new Set(peopleById.values());for(const p of seen){if(key&&aliases(p).includes(key))return p;if(name&&String(p?.name||'').trim()===String(name).trim())return p}return null}
- function legacyTime(c){for(const k of ['lastMessageAt','last_message_at','lastAt','last_at','updatedAt','updated_at','createdAt','created_at']){const v=c?.[k];if(v==null)continue;const n=Number(v);if(Number.isFinite(n)&&n>100000000000)return n;const d=Date.parse(v);if(Number.isFinite(d))return d}return 0}
- function setPeer(id,name=''){if(!id||String(id).startsWith('group:'))return;activePeer=String(id);activeName=name||peopleById.get(activePeer)?.name||activeName||'ONE';const d=currentThread();if(d){d.dataset.onePeerId=activePeer;d.dataset.onePeerName=activeName}}
- function currentThread(){return document.querySelector('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen')}
- function mediaWord(m){return m.type==='video'?'Vidéo':'Photo'}
- function mediaState(m){const word=mediaWord(m);if(m.direction==='out'){if(m.status==='opened')return word+' ouverte';if(m.status==='delivered')return word+' reçue';return word+' envoyée'}return m.unopened?'Nouvelle '+word.toLowerCase():word+' ouverte'}
- function mediaStatusClass(m){return m.type==='video'?'oneBackendVideoStatus':'oneBackendPhotoStatus'}
- function timeLabel(ms){try{return new Date(Number(ms)||Date.now()).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}catch{return ''}}
- async function refreshPeople(force=false){
-  if(busyPeople)return busyPeople;if(!force&&Date.now()-lastPeopleAt<15000&&inboxCache.length)return inboxCache;
-  busyPeople=(async()=>{try{const [st,ib]=await Promise.all([peopleApi('/friends/state'),peopleApi('/friends/inbox')]);inboxCache=Array.isArray(ib.conversations)?ib.conversations:[];peopleById=new Map();for(const x of [...(st.relationships||[]),...inboxCache]){if(!x||typeof x!=='object')continue;const p={...x,name:x.name||'ONE',avatar:avatarUrl(x)};for(const id of aliases(p))peopleById.set(id,p)}lastPeopleAt=Date.now();return inboxCache}finally{busyPeople=null}})();return busyPeople
- }
- async function refreshConversations(force=false){
-  if(busyConversations)return busyConversations;if(!force&&Date.now()-lastConversationsAt<1800)return backendByPeer;
-  busyConversations=(async()=>{try{if(!token()){backendByPeer=new Map();return backendByPeer}const d=await api('/conversations?limit=100');backendByPeer=new Map((d.conversations||[]).map(x=>[String(x.peerId),x]));lastConversationsAt=Date.now();return backendByPeer}finally{busyConversations=null}})();return busyConversations
- }
- function rowPeer(row,index){const direct=row.dataset.onePeerId||row.dataset.oneFriendId;if(direct)return String(direct);const name=row.querySelector('.copy b')?.textContent?.trim()||'';const byName=inboxCache.find(x=>String(x.name||'').trim()===name)||inboxCache[index];return accountPeer(byName)||String(byName?.id||'')}
- function decorateRows(){
-  if(window.__oneMessagesStableList)return;
-  const host=document.getElementById('oneSocialInline');if(!host)return;const active=document.querySelector('#oneFoundation .oneSocialTabs [data-social-tab].active')?.dataset.socialTab;if(active&&active!=='messages')return;
-  [...host.querySelectorAll('.oneInlineCard')].forEach((row,i)=>{const name=row.querySelector('.copy b')?.textContent?.trim()||'';const legacy=inboxCache.find(x=>String(x.name||'').trim()===name)||inboxCache[i];const meta=personFor(legacy?.id,name)||legacy;const id=accountPeer(meta)||String(legacy?.id||'');if(!id)return;row.dataset.oneFriendId=String(legacy?.id||id);row.dataset.onePeerId=id;if(meta?.name)row.dataset.onePeerName=meta.name;const av=row.querySelector('.avatar'),u=avatarUrl(meta);if(av&&u&&!av.querySelector('img')){const im=document.createElement('img');im.alt='';im.loading='lazy';im.src=u;im.onerror=()=>im.remove();av.replaceChildren(im)}const latest=backendByPeer.get(id);const sub=row.querySelector('.copy span');if(!sub)return;const lt=legacyTime(legacy);if(latest&&(!lt||Number(latest.createdAt||0)>=lt-1500)){const nextClass=latest.type==='photo'||latest.type==='video'?'oneBackendMediaStatus '+mediaStatusClass(latest):'oneBackendTextStatus';const nextText=latest.type==='photo'||latest.type==='video'?'■ '+mediaState(latest):(latest.text||'Message');if(sub.className!==nextClass)sub.className=nextClass;if(sub.textContent!==nextText)sub.textContent=nextText}else{sub.classList.remove('oneBackendMediaStatus','oneBackendPhotoStatus','oneBackendVideoStatus','oneBackendTextStatus')}});
- }
- async function refreshRows(force=false){if(window.__oneMessagesStableList)return;try{await Promise.all([refreshPeople(force),refreshConversations(force)]);decorateRows()}catch(e){console.warn('ONE Messages list',e)}}
- function clearPreview(dialog){const p=dialog?.querySelector('.oneMediaPreview');const remove=p?.querySelector('.remove');if(remove){try{remove.click()}catch{}}if(p){p.hidden=true;p.replaceChildren();delete p.dataset.snap71}dialog?.querySelectorAll('input[type="file"]').forEach(i=>{try{i.value=''}catch{}})}
- function setThreadStatus(dialog,text){const s=dialog?.querySelector('.friends-content>label+button+p[role="status"]');if(s)s.textContent=text||''}
- async function sendTextMirror(text,peer){if(!peer||!text||!token())return;try{await api('/messages/text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:peer,text,clientId:'web-'+crypto.randomUUID()})});lastConversationsAt=0;refreshConversations(true).then(decorateRows).catch(()=>{})}catch(e){console.warn('ONE message mirror',e)}}
- async function uploadMedia(file,dialog,{auto=false,resendText=false}={}){
-  if(!file||uploading.has(dialog))return;if(!activePeer){setThreadStatus(dialog,'Destinataire introuvable. Retourne aux Discussions puis réessaie.');return}
-  const type=file.type.startsWith('video/')?'video':file.type.startsWith('image/')?'photo':'';if(!type){setThreadStatus(dialog,'Format non pris en charge.');return}
-  uploading.add(dialog);document.body.classList.add('oneBackendUploading');const send=dialog?.querySelector('.friends-content>label+button'),textarea=dialog?.querySelector('.friends-content>label textarea');if(send)send.classList.add('oneBackendSending');setThreadStatus(dialog,type==='video'?'Envoi de la vidéo…':'Envoi de la photo…');const draft=resendText?(textarea?.value.trim()||''):'';
-  try{const q=new URLSearchParams({to:activePeer,type,clientId:'media-'+crypto.randomUUID()});const r=await fetch(API+'/messages/media?'+q,{method:'POST',headers:headers({'Content-Type':file.type|| (type==='video'?'video/webm':'image/jpeg')}),body:file,cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Envoi impossible.');pendingFiles.delete(dialog);clearPreview(dialog);setThreadStatus(dialog,(type==='video'?'Vidéo':'Photo')+' envoyée ✓');lastConversationsAt=0;await Promise.allSettled([syncThread(true),refreshRows(true)]);window.toast?.((type==='video'?'Vidéo':'Photo')+' envoyée');if(draft&&send){setTimeout(()=>send.click(),80)}}catch(e){setThreadStatus(dialog,'❌ '+(e.message||'Envoi impossible')+' · appuie sur Envoyer pour réessayer.');window.toast?.(e.message||'Envoi impossible')}finally{uploading.delete(dialog);document.body.classList.remove('oneBackendUploading');if(send)send.classList.remove('oneBackendSending')}
- }
- function backendArticle(m){const a=document.createElement('article');a.className=(m.direction==='out'?'mine ':'')+'oneBackendSnap '+m.type;a.dataset.oneBackendMessage=m.id;const line=document.createElement('div');line.className='oneBackendSnapLine';const dot=document.createElement('span');dot.className='oneBackendSnapDot';const label=document.createElement('span');label.className='oneBackendSnapLabel';label.textContent=mediaState(m);line.append(dot,label);const sm=document.createElement('small');sm.textContent=timeLabel(m.createdAt);a.append(line,sm);a.onclick=e=>{e.preventDefault();e.stopPropagation();openMedia(m,a)};return a}
- function updateArticle(a,m){a.classList.toggle('mine',m.direction==='out');a.classList.toggle('photo',m.type==='photo');a.classList.toggle('video',m.type==='video');const l=a.querySelector('.oneBackendSnapLabel');if(l)l.textContent=mediaState(m);a.onclick=e=>{e.preventDefault();e.stopPropagation();openMedia(m,a)}}
- async function syncThread(force=false){
-  const dialog=currentThread();if(!dialog)return;if(!activePeer)activePeer=dialog.dataset.onePeerId||'';if(!activePeer)return;dialog.dataset.onePeerId=activePeer;dialog.dataset.onePeerName=activeName||peopleById.get(activePeer)?.name||'';
-  try{const d=await api('/messages?peer='+encodeURIComponent(activePeer)+'&limit=100');if(!dialog.isConnected)return;const log=dialog.querySelector('.friend-message-log');if(!log)return;const media=(d.messages||[]).filter(x=>x.type==='photo'||x.type==='video');if(media.length){const empty=log.querySelector(':scope>p:only-child');if(empty&&/commence/i.test(empty.textContent||''))empty.remove()}const ids=new Set();for(const m of media){ids.add(m.id);let a=log.querySelector('[data-one-backend-message="'+CSS.escape(m.id)+'"]');if(!a){a=backendArticle(m);log.appendChild(a)}else updateArticle(a,m)}log.querySelectorAll('[data-one-backend-message]').forEach(a=>{if(!ids.has(a.dataset.oneBackendMessage))a.remove()});if(media.length)requestAnimationFrame(()=>{log.scrollTop=log.scrollHeight});lastConversationsAt=0;if(force)refreshConversations(true).then(decorateRows).catch(()=>{})}catch(e){console.warn('ONE Messages thread',e)}
- }
- let viewerUrl='';const viewer=document.createElement('div');viewer.id='oneBackendViewer';viewer.hidden=true;viewer.innerHTML='<button class="oneBackendViewerClose" aria-label="Fermer">✕</button><div class="oneBackendViewerState"></div>';document.body.appendChild(viewer);const viewerState=viewer.querySelector('.oneBackendViewerState');function closeViewer(){viewer.hidden=true;viewer.querySelector('video')?.pause();viewer.querySelectorAll('img,video').forEach(x=>x.remove());if(viewerUrl){URL.revokeObjectURL(viewerUrl);viewerUrl=''}}viewer.querySelector('.oneBackendViewerClose').onclick=closeViewer;viewer.onclick=e=>{if(e.target===viewer)closeViewer()};
- async function openMedia(m,article){
-  if(!m?.media?.url)return;viewer.hidden=false;viewerState.textContent='Chargement…';try{if(m.direction==='in'&&m.unopened){const d=await api('/messages/'+encodeURIComponent(m.id)+'/open',{method:'POST'});m={...m,...(d.message||{}),unopened:false};updateArticle(article,m);lastConversationsAt=0;refreshRows(true).catch(()=>{})}const r=await fetch(m.media.url,{headers:headers(),cache:'no-store'});if(!r.ok)throw Error('Média indisponible.');const blob=await r.blob();viewerUrl=URL.createObjectURL(blob);const el=document.createElement(m.type==='video'?'video':'img');el.src=viewerUrl;if(m.type==='video'){el.controls=true;el.autoplay=true;el.playsInline=true;}viewer.insertBefore(el,viewerState);viewerState.textContent=m.type==='video'?'Vidéo ONE':'Photo ONE';if(m.type==='video')el.play().catch(()=>{});syncThread(true).catch(()=>{})}catch(e){viewerState.textContent=e.message||'Impossible d’ouvrir le média.'}
- }
- function bindThread(dialog){if(!dialog||dialog.dataset.oneBackendBound==='1')return;dialog.dataset.oneBackendBound='1';if(activePeer){dialog.dataset.onePeerId=activePeer;dialog.dataset.onePeerName=activeName}syncThread(true)}
- function wrapOpenFriends(){const prev=window.oneOpenFriends;if(typeof prev!=='function'||prev.__oneMessagesV76)return;const wrapped=function(...args){const id=args[0];if(typeof id==='string'&&!id.startsWith('group:')){const p=personFor(id);setPeer(accountPeer(p)||id,p?.name||'')}return prev.apply(this,args)};wrapped.__oneMessagesV76=true;window.oneOpenFriends=wrapped}
- document.addEventListener('pointerdown',e=>{const row=e.target.closest('#oneSocialInline .oneInlineCard');if(!row)return;const raw=row.dataset.onePeerId||row.dataset.oneFriendId;if(raw){const p=personFor(raw,row.querySelector('.copy b')?.textContent?.trim()||'');setPeer(accountPeer(p)||raw,p?.name||row.querySelector('.copy b')?.textContent?.trim()||row.dataset.onePeerName||'')}},true);
- document.addEventListener('click',e=>{
-  const camSend=e.target.closest('#oneCameraV7 .oneCamSend');if(camSend){cameraHandoffUntil=Date.now()+6000;return}
-  const direct=e.target.closest('dialog.oneFriendsDialog.oneThreadFullscreen .oneCameraDirect');if(direct){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const d=direct.closest('dialog'),name=d?.dataset.onePeerName||d?.querySelector('.hub-thread-heading h3,.oneThreadHead b,.oneThreadTitle,b')?.textContent?.trim()||activeName||'ONE';window.oneOpenCameraV7?.(null,name);return}
-  const send=e.target.closest('dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>label+button,dialog.oneThreadFullscreen .friends-content>label+button');if(!send)return;const d=send.closest('dialog'),file=pendingFiles.get(d);if(file){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();uploadMedia(file,d,{resendText:true});return}const text=d?.querySelector('.friends-content>label textarea')?.value.trim();if(text&&activePeer)sendTextMirror(text,activePeer)
- },true);
- document.addEventListener('change',e=>{const input=e.target;if(!(input instanceof HTMLInputElement)||input.type!=='file'||!input.files?.[0])return;const d=input.closest('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen');if(!d)return;const f=input.files[0];if(!/^image\//.test(f.type)&&!/^video\//.test(f.type))return;pendingFiles.set(d,f);if(Date.now()<cameraHandoffUntil){cameraHandoffUntil=0;setTimeout(()=>uploadMedia(f,d,{auto:true}),0)}},true);
- window.addEventListener('one-social-integrated-ready',()=>{wrapOpenFriends();setTimeout(()=>refreshRows(true),80);setTimeout(()=>refreshRows(true),450)});
- window.addEventListener('one-space-open',e=>{wrapOpenFriends();if(e.detail==='social')setTimeout(()=>refreshRows(true),80)});
- window.addEventListener('one-account-changed',()=>{inboxCache=[];peopleById.clear();backendByPeer.clear();activePeer='';activeName='';lastPeopleAt=lastConversationsAt=0});
- let decorateQueued=false;const scheduleDecorate=()=>{if(decorateQueued)return;decorateQueued=true;requestAnimationFrame(()=>{decorateQueued=false;wrapOpenFriends();const d=currentThread();if(d)bindThread(d);if(document.getElementById('oneSocialInline'))decorateRows()})};const observer=new MutationObserver(scheduleDecorate);observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['open']});
- setInterval(()=>{if(document.hidden||!token())return;if(currentThread())syncThread(false);if(document.getElementById('oneSocialInline')&&document.querySelector('#oneFoundation .oneSocialTabs [data-social-tab].active')?.dataset.socialTab==='messages')refreshRows(false)},3500);
- wrapOpenFriends();setTimeout(()=>refreshRows(false),500);
-})();
-</script>
-
-
-
 <!-- ONE V7.6.2 — fixes Discussions freeze after first media by making backend decoration idempotent -->
 <!-- ONE V7.6.1 — authoritative swipe order: Accueil -> Messages -> ONE IA on left swipe -->
 <script id="one-v761-authoritative-swipe">
@@ -6340,58 +6416,6 @@ body.oneBackendUploading dialog.oneFriendsDialog.oneThreadFullscreen .oneMediaPr
 
 
 <!-- ONE V7.6.3 — receiver rows + luminous media ring + restored page sides -->
-<style id="one-v763-receive-ring-css">
-#oneFoundation #oneSocialInline .oneInlineCard .avatar{position:relative!important;overflow:visible!important;isolation:isolate}
-#oneFoundation #oneSocialInline .oneInlineCard .avatar>img{position:relative;z-index:2;border-radius:50%;overflow:hidden}
-#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV763IncomingPhoto::after,
-#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV763IncomingVideo::after{content:"";position:absolute;z-index:0;inset:-5px;border-radius:50%;pointer-events:none;animation:oneV763MediaPulse 1.45s ease-in-out infinite}
-#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV763IncomingPhoto::after{border:3px solid #ff315c;box-shadow:0 0 7px #ff315c,0 0 17px #ff315caa,0 0 28px #ff315c55}
-#oneFoundation #oneSocialInline .oneInlineCard .avatar.oneV763IncomingVideo::after{border:3px solid #9b35ff;box-shadow:0 0 7px #9b35ff,0 0 17px #9b35ffaa,0 0 28px #9b35ff55}
-@keyframes oneV763MediaPulse{0%,100%{transform:scale(.97);opacity:.72}50%{transform:scale(1.05);opacity:1}}
-#oneFoundation #oneSocialInline .oneBackendUnread{display:none!important}
-#oneFoundation #oneSocialInline .copy span.oneV763PhotoState{color:#ff4b6d!important;font-weight:900!important}
-#oneFoundation #oneSocialInline .copy span.oneV763VideoState{color:#b45cff!important;font-weight:900!important}
-#oneFoundation #oneSocialInline .copy span.oneV763IncomingHint{color:#d8d9e4!important;font-weight:800!important}
-#oneFoundation #oneSocialInline .copy span.oneV763TextState{color:#9699ab!important}
-</style>
-<script id="one-v764-stable-messages-js">
-(()=>{
- window.__oneMessagesStableList=true;
- const MSG='https://one-messages-api.moulinanthony60.workers.dev';
- const PEOPLE='https://one-comments-api.moulinanthony60.workers.dev';
- let busy=false,lastMessages=0,lastFriends=0,activeTab='messages';
- let messageOrder=[],friendOrder=[],lastKeys=new Map(),people=new Map(),legacyInbox=[];
- const token=()=>window.oneAccountToken?.()||localStorage.getItem('one_account_token_v06')||'';
- const auth=()=>({Authorization:'Bearer '+token()});
- const ids=x=>{if(!x||typeof x!=='object')return [];const a=[];for(const k of ['accountId','account_id','peerId','peer_id','userId','user_id','friendAccountId','friend_account_id','recipientId','recipient_id','id']){const v=x?.[k];if(v!=null&&String(v).trim()&&!a.includes(String(v).trim()))a.push(String(v).trim())}return a};
- const peer=x=>ids(x)[0]||'';
- const legacyId=x=>String(x?.id||x?.friendId||x?.friend_id||peer(x)||'');
- async function get(url){const c=new AbortController(),timer=setTimeout(()=>c.abort(),10000);try{const r=await fetch(url,{headers:auth(),cache:'no-store',signal:c.signal});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Service ONE indisponible.');return d}finally{clearTimeout(timer)}}
- function avatarUrl(x){for(const k of ['avatar','avatarUrl','avatar_url','profileImage','profile_image','profileImageUrl','profile_image_url','picture','photo','photoUrl','photo_url','image','imageUrl','image_url']){const v=x?.[k];try{if(v&&new URL(String(v),location.href).protocol==='https:')return String(v)}catch{}}return ''}
- function legacyTime(c){for(const k of ['lastMessageAt','last_message_at','lastAt','last_at','updatedAt','updated_at','createdAt','created_at']){const v=c?.[k];if(v==null)continue;const n=Number(v);if(Number.isFinite(n)&&n>100000000000)return n;const d=Date.parse(v);if(Number.isFinite(d))return d}return 0}
- function personFor(id,name=''){if(id&&people.has(String(id)))return people.get(String(id));for(const p of new Set(people.values())){if(id&&ids(p).includes(String(id)))return p;if(name&&String(p?.name||'').trim()===String(name).trim())return p}return null}
- function mediaLabel(m){const word=m.type==='video'?'Vidéo':'Photo';if(m.direction==='out'){if(m.status==='opened')return word+' ouverte';if(m.status==='delivered')return word+' reçue';return word+' envoyée'}return m.unopened?word:word+' ouverte'}
- function cameraSvg(){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 6.5 9.5 4.7h5l1.3 1.8H19a2 2 0 0 1 2 2v8.7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2h3.2Z"/><circle cx="12" cy="12.8" r="3.5"/></svg>'}
- function ensureMessageRow(host,id,p,legacy){let row=[...host.querySelectorAll('.oneInlineCard')].find(r=>String(r.dataset.onePeerId||'')===id);if(!row){row=document.createElement('button');row.type='button';row.className='oneInlineCard oneV764StableRow';row.innerHTML='<span class="avatar"></span><span class="copy"><b></b><span></span></span>';host.appendChild(row)}row.dataset.onePeerId=id;row.dataset.oneFriendId=legacyId(legacy||p)||id;row.dataset.onePeerName=p?.name||legacy?.name||'ONE';row.onclick=()=>window.oneOpenFriends?.(row.dataset.oneFriendId);const name=row.querySelector('.copy b');if(name)name.textContent=row.dataset.onePeerName;const av=row.querySelector('.avatar'),u=avatarUrl(p||legacy);if(av){av.classList.remove('oneV763IncomingPhoto','oneV763IncomingVideo');if(u){const old=av.querySelector('img');if(!old||old.src!==u){const im=document.createElement('img');im.alt='';im.loading='lazy';im.src=u;im.onerror=()=>{if(!av.querySelector('img'))av.textContent=(row.dataset.onePeerName||'?')[0].toUpperCase()};av.replaceChildren(im)}}else if(!av.querySelector('img'))av.textContent=(row.dataset.onePeerName||'?')[0].toUpperCase()}
-  if(!row.querySelector('.oneConversationCamera')){const cam=document.createElement('button');cam.type='button';cam.className='oneConversationCamera';cam.innerHTML=cameraSvg();cam.title='Prendre une photo ou une vidéo';cam.setAttribute('aria-label','Prendre une photo ou une vidéo');cam.onclick=e=>{e.preventDefault();e.stopPropagation();window.oneOpenCameraV7?.(row,row.dataset.onePeerName)};row.appendChild(cam)}
-  return row}
- function ensureFriendRow(host,id,p){let row=[...host.querySelectorAll('.oneInlineCard')].find(r=>String(r.dataset.oneFriendStable||'')===id);if(!row){row=document.createElement('button');row.type='button';row.className='oneInlineCard oneV764FriendRow';row.innerHTML='<span class="avatar"></span><span class="copy"><b></b><span></span></span>';host.appendChild(row)}row.dataset.oneFriendStable=id;row.dataset.oneFriendId=legacyId(p)||id;row.dataset.onePeerId=peer(p)||id;row.onclick=()=>window.oneOpenFriends?.(row.dataset.oneFriendId);row.querySelector('.copy b').textContent=p?.name||'ONE';row.querySelector('.copy span').textContent=p?.online?'● En ligne':'Hors ligne';const av=row.querySelector('.avatar'),u=avatarUrl(p);if(u&&!av.querySelector('img')){const im=document.createElement('img');im.alt='';im.loading='lazy';im.src=u;im.onerror=()=>im.remove();av.replaceChildren(im)}else if(!u&&!av.querySelector('img'))av.textContent=(p?.name||'?')[0].toUpperCase();return row}
- function updateOrder(models){const idsNow=models.map(x=>x.id);if(!messageOrder.length)messageOrder=[...idsNow].sort((a,b)=>(models.find(x=>x.id===b)?.time||0)-(models.find(x=>x.id===a)?.time||0));else{messageOrder=messageOrder.filter(id=>idsNow.includes(id));for(const id of idsNow)if(!messageOrder.includes(id))messageOrder.push(id);for(const m of models){const old=lastKeys.get(m.id);if(old&&old!==m.key){messageOrder=messageOrder.filter(x=>x!==m.id);messageOrder.unshift(m.id)}lastKeys.set(m.id,m.key)}}}
- function paintMessages(conversations){const host=document.getElementById('oneSocialInline');if(!host||activeTab!=='messages')return;const byPeer=new Map((conversations||[]).map(m=>[String(m.peerId),m]));const byLegacy=new Map();for(const c of legacyInbox){const p=personFor(c?.id,c?.name)||c;const id=peer(p)||String(c?.id||'');if(id)byLegacy.set(id,c)}const all=new Set([...byLegacy.keys(),...byPeer.keys()]);const models=[];for(const id of all){const m=byPeer.get(id),l=byLegacy.get(id),p=personFor(id,l?.name);models.push({id,m,l,p,time:Math.max(Number(m?.createdAt||0),legacyTime(l)),key:m?.id||('legacy:'+legacyTime(l)+':'+String(l?.lastText||''))})}updateOrder(models);host.querySelectorAll(':scope>.oneInlineLoading,:scope>.oneInlineEmpty').forEach(n=>n.remove());const keep=new Set();for(const id of messageOrder){const x=models.find(v=>v.id===id);if(!x)continue;const row=ensureMessageRow(host,id,x.p,x.l);keep.add(row);const sub=row.querySelector('.copy span'),av=row.querySelector('.avatar'),m=x.m;if(sub){sub.className='';if(m?.type==='photo'||m?.type==='video'){sub.textContent=mediaLabel(m);sub.classList.add(m.type==='video'?'oneV763VideoState':'oneV763PhotoState');if(m.direction==='in'&&m.unopened)av?.classList.add(m.type==='video'?'oneV763IncomingVideo':'oneV763IncomingPhoto')}else if(m?.type==='text'){sub.textContent=m.text||'Message';sub.classList.add('oneV763TextState')}else{sub.textContent=x.l?.lastText||'Commencer la discussion';sub.classList.add('oneV763TextState')}}host.appendChild(row)}for(const row of [...host.querySelectorAll(':scope>.oneInlineCard')])if(!keep.has(row))row.remove();if(!keep.size)host.innerHTML='<p class="oneInlineEmpty">Aucune conversation pour le moment.</p>'}
- function paintFriends(list){const host=document.getElementById('oneSocialInline');if(!host||activeTab!=='friends')return;const accepted=(list||[]).filter(x=>x.status==='accepted');const idsNow=accepted.map(x=>peer(x)||legacyId(x)).filter(Boolean);if(!friendOrder.length)friendOrder=[...idsNow].sort((a,b)=>String(personFor(a)?.name||'').localeCompare(String(personFor(b)?.name||''),'fr',{sensitivity:'base'}));else{friendOrder=friendOrder.filter(id=>idsNow.includes(id));for(const id of idsNow)if(!friendOrder.includes(id))friendOrder.push(id)}host.querySelectorAll(':scope>.oneInlineLoading,:scope>.oneInlineEmpty,:scope>.oneInlineAction').forEach(n=>n.remove());const keep=new Set();for(const id of friendOrder){const p=personFor(id);if(!p)continue;const row=ensureFriendRow(host,id,p);keep.add(row);host.appendChild(row)}for(const row of [...host.querySelectorAll(':scope>.oneInlineCard')])if(!keep.has(row))row.remove();const add=document.createElement('button');add.className='oneInlineAction oneV764AddFriend';add.textContent='＋ Ajouter un ami';add.onclick=()=>window.oneOpenFriends?.({tab:'add'});host.appendChild(add)}
- async function loadPeople(force=false){if(!force&&Date.now()-lastFriends<10000)return;const [st,ib]=await Promise.all([get(PEOPLE+'/friends/state'),get(PEOPLE+'/friends/inbox')]);legacyInbox=Array.isArray(ib.conversations)?ib.conversations:[];people=new Map();for(const x of [...(st.relationships||[]),...legacyInbox]){for(const id of ids(x))people.set(id,x)}lastFriends=Date.now();if(activeTab==='friends')paintFriends(st.relationships||[])}
- async function sync(force=false){if(busy||!token()||document.hidden)return;const now=Date.now();if(!force&&activeTab==='messages'&&now-lastMessages<2400)return;busy=true;try{await loadPeople(force);if(activeTab==='messages'){const md=await get(MSG+'/conversations?limit=100');paintMessages(md.conversations||[]);lastMessages=Date.now()}}catch(e){console.warn('ONE stable messages',e)}finally{busy=false}}
- function setTab(tab){activeTab=tab;document.querySelectorAll('#oneFoundation .oneSocialTabs [data-social-tab]').forEach(b=>b.classList.toggle('active',b.dataset.socialTab===tab));const host=document.getElementById('oneSocialInline');if(host&&!host.querySelector('.oneInlineCard'))host.innerHTML='<p class="oneInlineLoading">Chargement…</p>';if(tab==='messages'||tab==='friends')sync(true)}
- document.addEventListener('click',e=>{const b=e.target.closest('#oneFoundation [data-social-tab]');if(!b)return;const tab=b.dataset.socialTab;if(tab==='messages'||tab==='friends'){setTimeout(()=>setTab(tab),0)}},true);
- window.addEventListener('one-space-open',e=>{if(e.detail==='social'){activeTab=document.querySelector('#oneFoundation .oneSocialTabs [data-social-tab].active')?.dataset.socialTab||'messages';setTimeout(()=>sync(true),80)}});
- window.addEventListener('one-social-integrated-ready',()=>{activeTab='messages';setTimeout(()=>sync(true),80)});
- window.addEventListener('one-account-changed',()=>{messageOrder=[];friendOrder=[];lastKeys.clear();people.clear();legacyInbox=[];lastMessages=lastFriends=0;setTimeout(()=>sync(true),150)});
- window.addEventListener('online',()=>sync(true));document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync(true)});
- setInterval(()=>{if(document.hidden)return;if(activeTab==='messages')sync(false);else if(activeTab==='friends'&&Date.now()-lastFriends>10000)sync(false)},3000);
- setTimeout(()=>sync(true),700);
-})();
-</script>
-
 <script id="one-v764-page-side-fix">
 (()=>{
  // Physical order on the phone: Découvrir | Moments | Accueil | Messages | ONE IA.
