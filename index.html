@@ -5547,3 +5547,51 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
 </html>
 
 <style>#accountModal .oneAccountHead{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:-18px;z-index:5;background:#10141c;padding:10px 0}#accountModal .oneAccountHead h3{margin:0}#accountModal #closeAccount{display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;margin:0;padding:0;background:#30213f;color:#f7f0ff;border:1px solid #765695;border-radius:12px;font-size:28px;cursor:pointer}#accountModal #closeAccount:focus-visible{outline:2px solid #c9a4ff;outline-offset:3px}</style>
+<script id="one-swipe-social-hard-fix">
+(()=>{
+ const socialHTML='<section class="oneSocialSwipe"><span class="oneEyebrow">Tes proches dans ONE</span><h1 class="oneShellTitle">Discussions</h1><p class="oneShellLead">Messages, amis et salons au même endroit.</p><div class="oneSocialTabs"><button class="active" data-social-tab="messages">Discussions</button><button data-social-tab="friends">Amis</button><button data-social-tab="rooms">Salons</button></div><div id="oneSocialInline" class="oneInlinePanel"><p class="oneInlineLoading">Chargement…</p></div></section>';
+ const originalShow=window.oneShowSpace;
+ function killLegacy(){
+   for(const el of document.querySelectorAll('body *')){
+     if(el.closest('#oneFoundation')) continue;
+     const tx=(el.textContent||'').trim();
+     if((tx==='Amis ONE'||/Retrouver mes amis/.test(tx)) && el.offsetParent!==null){
+       const root=el.closest('[role="dialog"],.modal,.sheet,[class*="friend" i],[id*="friend" i]')||el;
+       root.style.setProperty('display','none','important'); root.hidden=true;
+     }
+   }
+ }
+ function openSocial(){
+   originalShow?.('social');
+   const shell=document.getElementById('oneFoundation');
+   if(shell){shell.innerHTML=socialHTML;shell.hidden=false;}
+   document.body.classList.add('oneShellOpen','oneSideScreen');
+   killLegacy();
+   setTimeout(()=>{killLegacy();window.dispatchEvent(new CustomEvent('one-social-integrated-ready'));},0);
+ }
+ window.oneShowSpace=function(space,push=true){
+   if(space==='social'){openSocial();return;}
+   return originalShow?.(space,push);
+ };
+ window.oneOpenSwipeDiscussions=openSocial;
+ // Render data without opening the legacy Friends full-screen view.
+ async function api(path){const token=window.oneAccountToken?.();if(!token)throw Error('Connecte-toi à ONE pour afficher tes amis.');const r=await fetch('https://one-comments-api.moulinanthony60.workers.dev'+path,{headers:{Authorization:'Bearer '+token}});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Service indisponible.');return d;}
+ function card(name,sub,badge,click){const b=document.createElement('button');b.type='button';b.className='oneInlineCard';b.innerHTML='<span class="avatar"></span><span class="copy"><b></b><span></span></span>'+(badge?'<span class="badge"></span>':'');b.querySelector('.avatar').textContent=(name||'?').slice(0,1).toUpperCase();b.querySelector('.copy b').textContent=name||'ONE';b.querySelector('.copy span').textContent=sub||'';if(badge)b.querySelector('.badge').textContent=badge;if(click)b.onclick=click;return b;}
+ async function render(tab='messages'){
+   const host=document.getElementById('oneSocialInline');if(!host)return;
+   document.querySelectorAll('.oneSocialTabs button').forEach(b=>b.classList.toggle('active',b.dataset.socialTab===tab));host.innerHTML='<p class="oneInlineLoading">Chargement…</p>';
+   try{
+    if(tab==='rooms'){host.replaceChildren();const open=document.createElement('button');open.className='oneInlineAction';open.textContent='Ouvrir mes salons';open.onclick=()=>window.oneOpenSalon?.('browse');host.append(open);const d=await api('/social/groups');for(const g of (d.groups||[]).filter(x=>x.status==='accepted'))host.append(card(g.name,(g.members?.length||0)+' membre(s)','Salon',()=>window.oneOpenFriends?.('group:'+g.id)));return;}
+    const st=await api('/friends/state');
+    if(tab==='friends'){host.replaceChildren();for(const f of (st.relationships||[]).filter(x=>x.status==='accepted'))host.append(card(f.name,f.online?'● En ligne':'Hors ligne',f.online?'Actif':'',()=>window.oneOpenFriends?.(f.id)));const add=document.createElement('button');add.className='oneInlineAction';add.textContent='＋ Ajouter un ami';add.onclick=()=>window.oneOpenFriends?.({tab:'add'});host.append(add);return;}
+    const d=await api('/friends/inbox');host.replaceChildren();for(const c of (d.conversations||[]))host.append(card(c.name,c.lastText||'Commencer la discussion',c.unread?String(c.unread):'',()=>window.oneOpenFriends?.(c.id)));if(!host.children.length)host.innerHTML='<p class="oneInlineEmpty">Aucune conversation pour le moment.</p>';
+   }catch(e){host.innerHTML='<p class="oneInlineEmpty"></p>';host.firstChild.textContent=e.message;}
+ }
+ document.addEventListener('click',e=>{const b=e.target.closest('#oneFoundation [data-social-tab]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();render(b.dataset.socialTab);},true);
+ window.addEventListener('one-social-integrated-ready',()=>render('messages'));
+ // This capture handler owns horizontal navigation and blocks older swipe handlers.
+ let sx=0,sy=0,armed=false;
+ document.addEventListener('touchstart',e=>{if(e.touches.length!==1||e.target.closest('input,textarea,select,.modal,[role="dialog"],#vfeed,#playerModal'))return;sx=e.touches[0].clientX;sy=e.touches[0].clientY;armed=true;},{passive:true,capture:true});
+ document.addEventListener('touchend',e=>{if(!armed)return;armed=false;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.2)return;e.stopImmediatePropagation();const order=['ai','social','home','moments','discover'];const page=window.oneCurrentSpace?.()||'home';const i=order.indexOf(page),ni=i+(dx>0?-1:1);if(i<0||ni<0||ni>=order.length)return;const target=order[ni];if(target==='social')openSocial();else window.oneShowSpace?.(target);},{passive:true,capture:true});
+})();
+</script>
