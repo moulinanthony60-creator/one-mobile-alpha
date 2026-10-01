@@ -5752,6 +5752,7 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
 </script>
 
 <!-- ONE V7.5 — captured media visible in the conversation immediately -->
+<!-- ONE V7.7.1 — tap luminous avatar to open incoming photo/video directly -->
 
 <style id="one-v77-media-transport-css">
 /* ONE V7.7 — legacy text transport is authoritative; media uses secure R2 tokens. */
@@ -5884,7 +5885,7 @@ body.oneV77MarkerSend dialog.oneFriendsDialog.oneThreadFullscreen textarea{color
   async function paintInbox(raw){
     const host=document.getElementById('oneSocialInline');if(!host||socialTab!=='messages')return;
     const list=dedupeConversations(raw);updateOrder(list);const byKey=new Map(list.map(c=>[rowKey(c),c]));host.querySelectorAll(':scope>.oneInlineLoading,:scope>.oneInlineEmpty,:scope>.oneInlineAction').forEach(n=>n.remove());const keep=new Set();
-    for(const key of inboxOrder){const c=byKey.get(key);if(!c)continue;const row=ensureConversationRow(host,key,c);keep.add(row);const sub=row.querySelector('.copy span'),av=row.querySelector('.avatar'),dot=row.querySelector('.oneV77UnreadDot'),mark=parseMarker(c.lastText||'');sub.className='';dot.hidden=true;
+    for(const key of inboxOrder){const c=byKey.get(key);if(!c)continue;const row=ensureConversationRow(host,key,c);keep.add(row);const sub=row.querySelector('.copy span'),av=row.querySelector('.avatar'),dot=row.querySelector('.oneV77UnreadDot'),mark=parseMarker(c.lastText||'');sub.className='';dot.hidden=true;row.dataset.oneV77LastText=String(c.lastText||'');
       if(mark){
         const st=await shareStatus(mark);const mine=!!st?.mine;
         if(!mine&&!st?.opened){av.classList.add(mark.type==='video'?'oneV77IncomingVideo':'oneV77IncomingPhoto');sub.textContent='Nouveau';sub.className='oneV77IncomingLabel';void markDelivered(mark)}
@@ -5952,6 +5953,11 @@ body.oneV77MarkerSend dialog.oneFriendsDialog.oneThreadFullscreen textarea{color
   document.addEventListener('change',e=>{const input=e.target;if(!(input instanceof HTMLInputElement)||input.type!=='file'||!input.files?.[0])return;const dialog=input.closest('dialog.oneFriendsDialog.oneThreadFullscreen,dialog.oneThreadFullscreen');if(!dialog)return;const file=input.files[0];if(!/^image\//.test(file.type)&&!/^video\//.test(file.type))return;pending.set(dialog,file);if(Date.now()<cameraAutoUntil){cameraAutoUntil=0;setTimeout(()=>upload(file,dialog),0)}},true);
 
   document.addEventListener('click',e=>{
+    const ring=e.target.closest('#oneSocialInline .oneV77Conversation .avatar.oneV77IncomingPhoto,#oneSocialInline .oneV77Conversation .avatar.oneV77IncomingVideo');
+    if(ring){
+      const row=ring.closest('.oneV77Conversation'),mark=parseMarker(row?.dataset.oneV77LastText||'');
+      if(mark){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openShared(mark);return}
+    }
     if(e.target.closest('#oneCameraV7 .oneCamSend')){cameraAutoUntil=Date.now()+4000;return}
     const send=e.target.closest('dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>label+button,dialog.oneThreadFullscreen .friends-content>label+button');if(send){const d=send.closest('dialog'),file=pending.get(d);if(file){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();upload(file,d);return}}
     const tab=e.target.closest('#oneFoundation [data-social-tab]');if(tab&&(tab.dataset.socialTab==='messages'||tab.dataset.socialTab==='friends')){socialTab=tab.dataset.socialTab;setTimeout(()=>syncSocial(true),80)}
