@@ -5672,7 +5672,18 @@ body.oneSideScreen #oneFoundation .oneSocialSwipe{padding:18px 20px 110px!import
  const obs=new MutationObserver(()=>{if(isSocial()){install();enhance()}const f=$('#oneSocialV2Fab');if(f)f.hidden=!isSocial()});obs.observe(document.documentElement,{childList:true,subtree:true});
  window.addEventListener('one-space-open',()=>setTimeout(()=>{install();enhance()},30));window.addEventListener('one-social-integrated-ready',()=>setTimeout(()=>{install();enhance()},30));document.addEventListener('click',()=>setTimeout(enhance,120),true);setTimeout(install,80);
 })();
-</script>\n</body>
+</script>\n
+<style id="one-social-v2-duplicate-fix">
+/* Hide the legacy social header/search/FAB so only Discussions V2 remains. */
+body.oneSideScreen #oneFoundation .oneSocialSwipe > .oneSocialTop,
+body.oneSideScreen #oneFoundation .oneSocialSwipe > .oneSocialSearch,
+#oneSocialFab{display:none!important;}
+/* Keep the V2 header and search as the single controls. */
+body.oneSideScreen #oneFoundation .oneSocialV2Head{display:flex!important;}
+body.oneSideScreen #oneFoundation .oneSocialV2Search{display:flex;}
+body.oneSideScreen #oneFoundation .oneSocialV2Search[hidden]{display:none!important;}
+</style>
+</body>
 </html>
 
 <style>#accountModal .oneAccountHead{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:-18px;z-index:5;background:#10141c;padding:10px 0}#accountModal .oneAccountHead h3{margin:0}#accountModal #closeAccount{display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;margin:0;padding:0;background:#30213f;color:#f7f0ff;border:1px solid #765695;border-radius:12px;font-size:28px;cursor:pointer}#accountModal #closeAccount:focus-visible{outline:2px solid #c9a4ff;outline-offset:3px}</style>
