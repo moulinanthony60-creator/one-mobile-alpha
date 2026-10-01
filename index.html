@@ -5686,7 +5686,7 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
      plus.onclick=e=>{e.preventDefault();e.stopPropagation();gallery.click();};
    }
    if(camera){
-     camera.accept='image/*,video/*';
+     camera.accept='image/*';
      camera.setAttribute('capture','environment');
      const b=document.createElement('button');
      b.type='button';b.className='oneCameraDirect';b.textContent='📷';
@@ -5715,7 +5715,7 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
 (()=>{
  const cameraSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 6.5 9.5 4.7h5l1.3 1.8H19a2 2 0 0 1 2 2v8.7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2h3.2Z"/><circle cx="12" cy="12.8" r="3.5"/></svg>';
  let targetId='',capturedFile=null;
- const capture=document.createElement('input');capture.type='file';capture.accept='image/*,video/*';capture.setAttribute('capture','environment');capture.hidden=true;capture.id='oneConversationDirectCapture';document.body.appendChild(capture);
+ const capture=document.createElement('input');capture.type='file';capture.accept='image/*';capture.setAttribute('capture','environment');capture.hidden=true;capture.id='oneConversationDirectCapture';document.body.appendChild(capture);
  function decorate(){
   const host=document.getElementById('oneSocialInline');if(!host)return;
   [...host.querySelectorAll('.oneInlineCard')].forEach(row=>{
@@ -5984,7 +5984,7 @@ body.oneOpeningDiscussion dialog.oneFriendsDialog.oneThreadFullscreen{visibility
    const box=d.querySelector('.friends-content'), label=box?.querySelector(':scope>label'); if(!box||!label||box.querySelector('.oneMediaPick'))return;
    const pick=document.createElement('button');pick.type='button';pick.className='oneMediaPick';pick.textContent='＋';pick.setAttribute('aria-label','Ajouter une photo ou une vidéo');
    const input=document.createElement('input');input.type='file';input.accept='image/*,video/*';input.hidden=true;
-   const camera=document.createElement('input');camera.type='file';camera.accept='image/*,video/*';camera.setAttribute('capture','environment');camera.hidden=true;
+   const camera=document.createElement('input');camera.type='file';camera.accept='image/*';camera.setAttribute('capture','environment');camera.hidden=true;
    const tray=document.createElement('div');tray.className='oneMediaTray';tray.hidden=true;
    const gallery=document.createElement('button');gallery.type='button';gallery.textContent='🖼️ Photo / vidéo';
    const cam=document.createElement('button');cam.type='button';cam.textContent='📷 Caméra';tray.append(gallery,cam);
@@ -6020,7 +6020,7 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneCameraDirect{position:absolute!i
   const files=[...box.querySelectorAll('input[type="file"]')];
   const gallery=files.find(i=>!i.hasAttribute('capture'));
   let camera=files.find(i=>i.hasAttribute('capture'));
-  if(!camera){camera=document.createElement('input');camera.type='file';camera.accept='image/*,video/*';camera.setAttribute('capture','environment');camera.hidden=true;box.appendChild(camera);}
+  if(!camera){camera=document.createElement('input');camera.type='file';camera.accept='image/*';camera.setAttribute('capture','environment');camera.hidden=true;box.appendChild(camera);}
   plus.title='Photo / vidéo';plus.setAttribute('aria-label','Choisir une photo ou une vidéo');
   if(gallery)plus.onclick=e=>{e.preventDefault();e.stopPropagation();gallery.click();};
   let btn=box.querySelector('.oneCameraDirect');
