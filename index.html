@@ -5619,6 +5619,46 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
  document.addEventListener('keydown',e=>{if(e.target?.id==='oneAiInlineQuestion'&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}},true);
 })();
 </script>
+
+<style id="one-thread-fullscreen-v1">
+/* ONE — conversation privée plein écran */
+.oneFriendsDialog.oneThreadFullscreen{position:fixed!important;inset:0!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;margin:0!important;border:0!important;border-radius:0!important;padding:0!important;background:linear-gradient(180deg,#100b25 0,#070a13 28%,#070a13 100%)!important;color:#fff!important;overflow:hidden!important}
+.oneFriendsDialog.oneThreadFullscreen::backdrop{background:#070a13!important}
+.oneFriendsDialog.oneThreadFullscreen>header,.oneFriendsDialog.oneThreadFullscreen>nav,.oneFriendsDialog.oneThreadFullscreen>p[role="status"]{display:none!important}
+.oneFriendsDialog.oneThreadFullscreen .friends-content{height:100dvh!important;box-sizing:border-box!important;display:grid!important;grid-template-rows:auto 1fr auto!important;padding:0!important;overflow:hidden!important;background:transparent!important}
+.oneFriendsDialog.oneThreadFullscreen .friends-content>button:first-child{position:absolute!important;z-index:5!important;left:14px!important;top:max(14px,env(safe-area-inset-top))!important;width:46px!important;height:46px!important;min-height:46px!important;padding:0!important;border:1px solid #34364b!important;border-radius:16px!important;background:#141827!important;color:transparent!important;font-size:0!important;box-shadow:none!important}
+.oneFriendsDialog.oneThreadFullscreen .friends-content>button:first-child::before{content:'‹';color:#fff;font-size:38px;line-height:38px;display:block;transform:translateY(-2px)}
+.oneFriendsDialog.oneThreadFullscreen .hub-thread-heading{grid-row:1;min-height:78px!important;margin:0!important;padding:max(14px,env(safe-area-inset-top)) 74px 12px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;border-bottom:1px solid #272a3b!important;background:rgba(11,12,24,.94)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.oneFriendsDialog.oneThreadFullscreen .hub-thread-heading .oneAvatar,.oneFriendsDialog.oneThreadFullscreen .hub-thread-heading img,.oneFriendsDialog.oneThreadFullscreen .hub-thread-heading [class*="avatar" i]{width:44px!important;height:44px!important;min-width:44px!important;border-radius:50%!important;object-fit:cover!important}
+.oneFriendsDialog.oneThreadFullscreen .hub-thread-heading h3{margin:0!important;font-size:20px!important;line-height:1.1!important;color:#fff!important}
+.oneFriendsDialog.oneThreadFullscreen .friend-message-log{grid-row:2!important;min-height:0!important;height:auto!important;margin:0!important;padding:18px 16px 24px!important;overflow-y:auto!important;overscroll-behavior:contain!important;background:transparent!important;border:0!important;border-radius:0!important;display:flex!important;flex-direction:column!important;gap:10px!important}
+.oneFriendsDialog.oneThreadFullscreen .friend-message-log>p:only-child{margin:auto!important;color:#85899c!important;text-align:center!important}
+.oneFriendsDialog.oneThreadFullscreen .friend-message-log article{max-width:78%!important;margin:0!important;padding:10px 13px!important;border-radius:20px!important;border:1px solid #303348!important;background:#171b29!important;align-self:flex-start!important}
+.oneFriendsDialog.oneThreadFullscreen .friend-message-log article.mine{align-self:flex-end!important;background:linear-gradient(135deg,#712cff,#a43cff)!important;border-color:#a66cff!important}
+.oneFriendsDialog.oneThreadFullscreen .friend-message-log article small{display:block!important;margin:0 0 3px!important;font-size:11px!important;color:#aeb1c0!important}
+.oneFriendsDialog.oneThreadFullscreen .friend-message-log article.mine small{color:#eee6ff!important}
+.oneFriendsDialog.oneThreadFullscreen .friend-message-log article p{margin:0!important;color:#fff!important;font-size:16px!important;line-height:1.35!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important}
+.oneFriendsDialog.oneThreadFullscreen .friends-content>label{grid-row:3!important;margin:0!important;padding:10px 76px calc(10px + env(safe-area-inset-bottom)) 12px!important;border-top:1px solid #272a3b!important;background:#0d101c!important;color:transparent!important;font-size:0!important;position:relative!important}
+.oneFriendsDialog.oneThreadFullscreen .friends-content>label textarea{display:block!important;width:100%!important;min-height:48px!important;max-height:110px!important;box-sizing:border-box!important;margin:0!important;padding:13px 15px!important;border:1px solid #36394f!important;border-radius:22px!important;background:#151927!important;color:#fff!important;font-size:16px!important;line-height:1.35!important;resize:none!important;outline:none!important}
+.oneFriendsDialog.oneThreadFullscreen .friends-content>label textarea:focus{border-color:#8f4cff!important;box-shadow:0 0 0 2px #7a35ff33!important}
+.oneFriendsDialog.oneThreadFullscreen .friends-content>label+button{position:absolute!important;z-index:6!important;right:14px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;width:50px!important;height:50px!important;min-height:50px!important;padding:0!important;border:0!important;border-radius:18px!important;background:linear-gradient(135deg,#8d32ff,#6b27ff)!important;color:transparent!important;font-size:0!important;box-shadow:0 8px 24px #6f2cff55!important}
+.oneFriendsDialog.oneThreadFullscreen .friends-content>label+button::before{content:'➤';color:#fff;font-size:24px;display:block;transform:translateX(1px)}
+.oneFriendsDialog.oneThreadFullscreen .friends-content>label+button:disabled{opacity:.45!important}
+.oneFriendsDialog.oneThreadFullscreen .friends-content>label+button+p[role="status"]{position:absolute!important;left:14px!important;bottom:calc(72px + env(safe-area-inset-bottom))!important;margin:0!important;font-size:12px!important;color:#aaaec0!important;pointer-events:none!important}
+</style>
+<script id="one-thread-fullscreen-v1-js">
+(()=>{
+ const sync=()=>document.querySelectorAll('dialog.oneFriendsDialog').forEach(d=>{
+   const thread=!!d.querySelector('.friends-content .hub-thread-heading');
+   d.classList.toggle('oneThreadFullscreen',thread);
+   if(thread){const log=d.querySelector('.friend-message-log');if(log&&!log.dataset.oneFullReady){log.dataset.oneFullReady='1';requestAnimationFrame(()=>log.scrollTop=log.scrollHeight)}}
+ });
+ new MutationObserver(sync).observe(document.documentElement,{subtree:true,childList:true});
+ document.addEventListener('click',()=>requestAnimationFrame(sync),true);
+ window.addEventListener('one-notifications-refresh',sync);
+ sync();
+})();
+</script>
 </body>
 </html>
 
