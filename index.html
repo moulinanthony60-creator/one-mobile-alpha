@@ -6973,11 +6973,11 @@ body.oneProviderPage .app{
    document.body.dataset.oneProvider=provider;
 
    if(provider==='youtube'){
-     badge.textContent='▶';
+     badge.innerHTML='<svg class="oneProviderLogo oneProviderYoutubeLogo" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="5" width="21" height="14" rx="4.5" fill="#ff0033"/><path d="m10 9 6 3-6 3Z" fill="#fff"/></svg>';
      title.textContent='YouTube';
      sub.textContent='Vidéos et créateurs YouTube';
    }else{
-     badge.innerHTML='<svg class="oneTwitchLogo" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h16v11.2L16.2 19H13l-3.2 3v-3H5V3Z" fill="currentColor"/><path d="M9.2 7.2v5.6M14.8 7.2v5.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="square"/></svg>';
+     badge.innerHTML='<svg class="oneProviderLogo oneProviderTwitchLogo" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2h18v13l-6 6h-5l-4 3v-3H2V6Z" fill="#9146ff"/><path d="M6 4h14v10l-4 4h-5l-3 3v-3H6Z" fill="#fff"/><path d="M10 7v6m6-6v6" fill="none" stroke="#9146ff" stroke-width="2" stroke-linecap="square"/></svg>';
      title.textContent='Twitch';
      sub.textContent='Lives et créateurs Twitch';
    }
@@ -7008,14 +7008,26 @@ body.oneProviderPage .app{
    setTimeout(()=>enterProvider(p),0);
  },false);
 
- // Retour = vrai retour au feed Accueil "Pour toi".
+ // Retour = toujours Accueil natif, jamais une page Twitch/YouTube intermédiaire.
+ function returnProviderHome(){
+   const all=chips.querySelector('[data-filter="all"]');
+   clearProvider();
+   document.body.classList.remove('oneTwToolsOpen','oneYoutubeBrowse');
+   if(all){
+     all.click();
+   }else{
+     state.filter='all';
+     state.mode=null;
+     state.query='';
+     try{render()}catch{}
+   }
+   requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'auto'}));
+ }
+
  head.querySelector('#oneProviderBack').onclick=e=>{
    e.preventDefault();
    e.stopPropagation();
-   const all=chips.querySelector('[data-filter="all"]');
-   clearProvider();
-   all?.click();
-   requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'auto'}));
+   returnProviderHome();
  };
 
  // Quitter la page dédiée si on utilise la navigation du bas ou les espaces du haut.
@@ -7027,9 +7039,14 @@ body.oneProviderPage .app{
  },true);
 
  window.addEventListener('popstate',()=>{
+   // Si on était dans la page dédiée Twitch/YouTube, le retour système revient à Accueil.
+   if(document.body.classList.contains('oneProviderPage')){
+     setTimeout(returnProviderHome,0);
+     return;
+   }
    setTimeout(()=>{
      const f=activeFilter();
-     if(f==='youtube'||f==='twitch')enterProvider(f);
+     if(f==='youtube'||f==='twitch')returnProviderHome();
      else clearProvider();
    },0);
  });
@@ -7120,6 +7137,47 @@ body.oneProviderPage .app{
 #oneProviderBadge .oneTwitchLogo{
   width:26px!important;
   height:26px!important;
+}
+</style>
+
+
+<style id="one-provider-brand-fix-v2-css">
+#oneProviderBadge{
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:14px!important;
+  padding:7px!important;
+  box-sizing:border-box!important;
+}
+#oneProviderBadge .oneProviderLogo{
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+}
+body.oneProviderTwitch #oneProviderBadge{
+  background:#12131c!important;
+  border:1px solid #69419a!important;
+  box-shadow:inset 0 1px 0 #ffffff08!important;
+}
+body.oneProviderYoutube #oneProviderBadge{
+  background:#151218!important;
+  border:1px solid #71313c!important;
+  box-shadow:inset 0 1px 0 #ffffff08!important;
+}
+#oneProviderBack{
+  font-size:0!important;
+}
+#oneProviderBack::before{
+  content:'';
+  width:11px;
+  height:11px;
+  display:block;
+  border-left:2px solid currentColor;
+  border-bottom:2px solid currentColor;
+  transform:rotate(45deg) translate(1px,-1px);
 }
 </style>
 
