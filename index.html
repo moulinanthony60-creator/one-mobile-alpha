@@ -5887,8 +5887,8 @@ body.oneV77MarkerSend dialog.oneFriendsDialog.oneThreadFullscreen textarea{color
     const list=dedupeConversations(raw);updateOrder(list);const byKey=new Map(list.map(c=>[rowKey(c),c]));host.querySelectorAll(':scope>.oneInlineLoading,:scope>.oneInlineEmpty,:scope>.oneInlineAction').forEach(n=>n.remove());const keep=new Set();
     for(const key of inboxOrder){const c=byKey.get(key);if(!c)continue;const row=ensureConversationRow(host,key,c);keep.add(row);const sub=row.querySelector('.copy span'),av=row.querySelector('.avatar'),dot=row.querySelector('.oneV77UnreadDot'),mark=parseMarker(c.lastText||'');sub.className='';dot.hidden=true;row.dataset.oneV77LastText=String(c.lastText||'');
       if(mark){
-        const st=await shareStatus(mark);const mine=!!st?.mine;
-        if(!mine&&!st?.opened){av.classList.add(mark.type==='video'?'oneV77IncomingVideo':'oneV77IncomingPhoto');sub.textContent='Nouveau';sub.className='oneV77IncomingLabel';void markDelivered(mark)}
+        const st=await shareStatus(mark);const mine=!!st?.mine;sub.removeAttribute('aria-label');
+        if(!mine&&!st?.opened){av.classList.add(mark.type==='video'?'oneV77IncomingVideo':'oneV77IncomingPhoto');sub.textContent='';sub.className='oneV77IncomingLabel oneV772MediaBlank';sub.setAttribute('aria-label',mediaName(mark.kind)+' reçue');void markDelivered(mark)}
         else if(mine){const word=mediaName(mark.kind);sub.textContent=st?.opened?word+' ouverte':st?.delivered?word+' reçue':word+' envoyée';sub.className=mark.type==='video'?'oneV77VideoState':'oneV77PhotoState'}
         else{sub.textContent='Ouvert';sub.className='oneV77OpenedLabel'}
       }else{
@@ -6431,5 +6431,60 @@ body.oneV74CameraHandoff .oneMediaPreview{display:none!important}
  const open=target=>{if(target==='social'&&typeof window.oneOpenSwipeDiscussions==='function')window.oneOpenSwipeDiscussions();else window.oneShowSpace?.(target)};
  document.addEventListener('touchstart',e=>{if(e.touches.length!==1||blocked(e.target))return;sx=e.touches[0].clientX;sy=e.touches[0].clientY;start=window.oneCurrentSpace?.()||'home';armed=true},{passive:true,capture:true});
  document.addEventListener('touchend',e=>{if(!armed)return;armed=false;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.2)return;const order=['discover','moments','home','social','ai'],i=order.indexOf(start);if(i<0)return;const ni=i+(dx<0?1:-1);if(ni<0||ni>=order.length)return;const target=order[ni];queueMicrotask(()=>open(target));requestAnimationFrame(()=>open(target));setTimeout(()=>open(target),45);setTimeout(()=>open(target),90)},{passive:true,capture:true});
+})();
+</script>
+
+
+<!-- ONE V7.7.2 — never expose internal media transport markers in the UI -->
+<style id="one-v772-hide-media-marker-css">
+#oneFoundation #oneSocialInline .copy span.oneV772TransportMarker{visibility:hidden!important;min-height:1em}
+.friend-message-log article p.oneV772TransportMarker{display:none!important}
+</style>
+<script id="one-v772-hide-media-marker-js">
+(()=>{
+  const RAW=/^\s*\[\[ONE_MEDIA_V2\|([pv])\|/i;
+  function cleanPreview(el){
+    if(!el)return;
+    const text=String(el.textContent||'');
+    const m=text.match(RAW);
+    if(m){
+      el.dataset.oneV772Transport=m[1].toLowerCase()==='v'?'video':'photo';
+      el.classList.add('oneV772TransportMarker');
+      // Remove the technical envelope immediately. The luminous avatar ring is the visual cue.
+      if(text)el.textContent='';
+      return;
+    }
+    // A later friendly state (Photo envoyée, Photo ouverte, etc.) must be visible again.
+    if(el.dataset.oneV772Transport && text.trim()){
+      delete el.dataset.oneV772Transport;
+      el.classList.remove('oneV772TransportMarker');
+    }
+  }
+  function cleanThreadText(p){
+    if(!p)return;
+    if(RAW.test(String(p.textContent||''))){
+      p.classList.add('oneV772TransportMarker');
+      p.hidden=true;
+    }
+  }
+  function scan(root=document){
+    if(root.nodeType===1){
+      if(root.matches?.('#oneSocialInline .oneInlineCard .copy span'))cleanPreview(root);
+      if(root.matches?.('.friend-message-log article p'))cleanThreadText(root);
+    }
+    root.querySelectorAll?.('#oneSocialInline .oneInlineCard .copy span').forEach(cleanPreview);
+    root.querySelectorAll?.('.friend-message-log article p').forEach(cleanThreadText);
+  }
+  const observer=new MutationObserver(records=>{
+    for(const r of records){
+      if(r.type==='characterData'){scan(r.target.parentElement||document);continue;}
+      for(const n of r.addedNodes)if(n.nodeType===1)scan(n);
+      if(r.target?.nodeType===1)scan(r.target);
+    }
+  });
+  observer.observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+  window.addEventListener('one-space-open',()=>requestAnimationFrame(()=>scan()));
+  window.addEventListener('one-social-integrated-ready',()=>requestAnimationFrame(()=>scan()));
+  scan();
 })();
 </script>
