@@ -6979,5 +6979,61 @@ body.oneProviderPage .app{
 })();
 </script>
 
+
+<style id="one-bell-only-v1-css">
+/* PATCH CLOCHE UNIQUEMENT — aucun autre composant touché */
+#oneNotificationsToggle.oneTopNotification{
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  min-height:36px!important;
+  flex:0 0 36px!important;
+  padding:0!important;
+  margin:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid #34394b!important;
+  border-radius:12px!important;
+  background:#111521!important;
+  color:#f1f3fb!important;
+  box-shadow:inset 0 1px 0 #ffffff08!important;
+}
+#oneNotificationsToggle.oneTopNotification svg{
+  width:20px!important;
+  height:20px!important;
+  display:block!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.9!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+#oneNotificationsToggle.oneTopNotification:active{
+  background:#1d2130!important;
+  transform:scale(.96)!important;
+}
+#oneNotificationsToggle.oneTopNotification[aria-expanded="true"]{
+  border-color:#7158a2!important;
+  background:#211a31!important;
+  color:#fff!important;
+}
+/* Le badge média existant reste bien visible sur la nouvelle cloche. */
+#oneNotificationsToggle.oneV79HasMedia:after{
+  right:-3px!important;
+  top:-3px!important;
+}
+</style>
+
+<script id="one-bell-only-v1-js">
+(()=>{
+ const bell=document.getElementById('oneNotificationsToggle');
+ if(!bell)return;
+ bell.classList.add('oneTopNotification');
+ bell.setAttribute('aria-label','Notifications');
+ bell.title='Notifications';
+ bell.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 5.7-2.2 7.2-3 8.2-.3.4 0 .8.5.8h17c.5 0 .8-.4.5-.8-.8-1-3-2.5-3-8.2Z"/><path d="M9.8 20a2.4 2.4 0 0 0 4.4 0"/></svg>';
+})();
+</script>
+
 </body>
 </html>
