@@ -76,6 +76,7 @@ const ICONS={
  mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3M9 21h6"/>',
  muted:'<path d="m3 3 18 18M9 9v3a3 3 0 0 0 5 2M9 5a3 3 0 0 1 6 1v5M6 11v1a6 6 0 0 0 10 4M18 11v1M12 18v3M9 21h6"/>',
  sound:'<path d="M3 9h4l5-4v14l-5-4H3ZM16 8a6 6 0 0 1 0 8M19 5a10 10 0 0 1 0 14"/>',
+ speaker:'<path d="M3 9h4l5-4v14l-5-4H3ZM16 8a6 6 0 0 1 0 8M19 5a10 10 0 0 1 0 14M21 2v4M19 4h4"/>',
  silent:'<path d="M3 9h4l5-4v14l-5-4H3ZM17 9l5 6M22 9l-5 6"/>',
  play:'<path d="m8 4 12 8-12 8Z"/>',pause:'<path d="M8 4v16M16 4v16"/>',
  stop:'<rect x="5" y="5" width="14" height="14" rx="3"/>',
@@ -88,10 +89,32 @@ function icon(name){const n=el('span','oneCommIcon');n.setAttribute('aria-hidden
 function paintButton(b,name,label,aria=label){b.replaceChildren(icon(name),el('span','oneCommLabel',label));b.setAttribute('aria-label',aria);}
 function iconButton(name,label,fn,cls=''){const b=btn('',fn);b.classList.add('oneIconAction');if(cls)b.classList.add(cls);paintButton(b,name,label);return b;}
 const duration=value=>{const s=Math.max(0,Math.floor(Number(value)||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+async function setAudioOutput(target,speaker){
+ if(!target||typeof target.setSinkId!=='function')return {ok:false,message:'La sortie audio est gérée automatiquement par le téléphone.'};
+ let sink='default';
+ if(speaker&&navigator.mediaDevices?.selectAudioOutput){
+  try{const chosen=await navigator.mediaDevices.selectAudioOutput();if(chosen?.deviceId)sink=chosen.deviceId;}
+  catch(e){if(e.name==='NotAllowedError')return {ok:false,message:'Autorise la sortie audio pour utiliser le haut-parleur.'};return {ok:false,message:'La sortie audio n’a pas pu être sélectionnée.'};}
+ }
+ try{await target.setSinkId(sink);return {ok:true};}
+ catch{return {ok:false,message:'Le mode haut-parleur est indisponible sur ce navigateur.'};}
+}
+function audioOutputButton(target,status){
+ const b=iconButton('sound','Normal',async()=>{
+  if(b.disabled)return;
+  const speaker=b.dataset.output!=='speaker';b.disabled=true;
+  const result=await setAudioOutput(target,speaker);b.disabled=false;
+  if(!result.ok){if(status)status.textContent=result.message;return;}
+  b.dataset.output=speaker?'speaker':'normal';b.setAttribute('aria-pressed',String(speaker));b.title=speaker?'Sortie audio : haut-parleur':'Sortie audio : mode normal';
+  paintButton(b,speaker?'speaker':'sound',speaker?'Haut-parleur':'Normal',speaker?'Revenir au mode normal':'Activer le haut-parleur');
+  if(status)status.textContent=speaker?'Haut-parleur activé':'Mode normal activé';
+ },'oneOutputMode');
+ b.dataset.output='normal';b.setAttribute('aria-pressed','false');b.title='Sortie audio : mode normal';return b;
+}
 function contact(peer,account){const d=document.querySelector('dialog.oneThreadFullscreen[open]');const row=[...document.querySelectorAll('[data-one-friend-id]')].find(n=>account?n.dataset.oneAccountId===account:n.dataset.oneFriendId===peer);const name=(d&&d.dataset.oneV79Id===peer?d.dataset.oneV79Name:'')||row?.dataset.onePeerName||'Ami ONE';const photo=(d&&d.dataset.oneV79Id===peer?d.querySelector('.hub-avatar img'):row?.querySelector('.avatar img'))?.src;return {name,photo};}
 function contactAvatar(person){const avatar=el('div','oneCallAvatar');avatar.setAttribute('aria-hidden','true');if(person.photo){const img=el('img');img.src=person.photo;img.alt='';avatar.append(img);img.onerror=()=>{avatar.textContent=person.name.trim().split(/\s+/).slice(0,2).map(s=>s[0]).join('').toUpperCase();};}else avatar.textContent=person.name.trim().split(/\s+/).slice(0,2).map(s=>s[0]).join('').toUpperCase();return avatar;}
 function audioPlayer(audio,label,knownDuration=0){
- const box=el('div','oneAudioPlayer'),play=iconButton('play','Écouter',async()=>{try{if(audio.paused)await audio.play();else audio.pause();}catch{hint.textContent='Lecture indisponible. Réessaie.';}}),seek=el('input','oneAudioSeek'),time=el('span','oneAudioTime','0:00'),hint=el('span','oneAudioHint');
+ const box=el('div','oneAudioPlayer'),play=iconButton('play','Écouter',async()=>{try{if(audio.paused)await audio.play();else audio.pause();}catch{hint.textContent='Lecture indisponible. Réessaie.';}}),hint=el('span','oneAudioHint'),output=audioOutputButton(audio,hint),seek=el('input','oneAudioSeek'),time=el('span','oneAudioTime','0:00');
  seek.type='range';seek.min=0;seek.max=100;seek.value=0;seek.step=.1;seek.disabled=true;seek.setAttribute('aria-label','Position de lecture · '+label);time.setAttribute('aria-label','Durée du vocal');hint.setAttribute('role','status');audio.preload='metadata';audio.hidden=true;
  const length=()=>Number.isFinite(audio.duration)&&audio.duration>0?audio.duration:Number(audio.dataset.duration)||knownDuration;
  const sync=()=>{const len=length();seek.disabled=!len;seek.value=len?String(audio.currentTime/len*100):'0';seek.style.setProperty('--played',seek.value+'%');time.textContent=len?duration(audio.currentTime)+' / '+duration(len):audio.currentTime>0?duration(audio.currentTime):'—';seek.setAttribute('aria-valuetext',duration(audio.currentTime)+(len?' sur '+duration(len):''));};
@@ -99,7 +122,7 @@ function audioPlayer(audio,label,knownDuration=0){
  const paused=()=>paintButton(play,'play','Écouter');audio.addEventListener('pause',paused);audio.addEventListener('ended',paused);audio.addEventListener('error',()=>{paused();hint.textContent='Ce vocal ne peut pas être lu sur cet appareil.';});
  for(const name of ['timeupdate','loadedmetadata','durationchange','ended'])audio.addEventListener(name,sync);
  seek.oninput=()=>{const len=length();if(len>0)audio.currentTime=Number(seek.value)/100*len;};
- box.append(play,seek,time,audio,hint);sync();return box;
+ box.append(play,output,seek,time,audio,hint);sync();return box;
 }
 async function readAudioDuration(audio,blob){
  if(Number.isFinite(audio.duration)&&audio.duration>0)return;
@@ -118,6 +141,7 @@ function callUI(c,incomingCall=false){
  if(!incomingCall){
   c.mic=iconButton('mic','Micro',()=>{const tracks=c.stream?.getAudioTracks()||[];if(!tracks.length)return;const enabled=!tracks[0].enabled;tracks.forEach(t=>t.enabled=enabled);paintButton(c.mic,enabled?'mic':'muted',enabled?'Micro':'Micro coupé',enabled?'Couper le micro':'Activer le micro');c.mic.setAttribute('aria-pressed',String(!enabled));});c.mic.disabled=true;c.mic.setAttribute('aria-pressed','false');c.mic.setAttribute('aria-label','Couper le micro');controls.append(c.mic);
   c.sound=iconButton('sound','Son',()=>{c.remote.muted=!c.remote.muted;paintButton(c.sound,c.remote.muted?'silent':'sound',c.remote.muted?'Son coupé':'Son',c.remote.muted?'Activer le son du contact':'Couper le son du contact');c.sound.setAttribute('aria-pressed',String(c.remote.muted));});c.sound.setAttribute('aria-label','Couper le son du contact');c.sound.setAttribute('aria-pressed','false');controls.append(c.sound);
+  c.output=audioOutputButton(c.remote,c.status);controls.append(c.output);
   if(c.video){c.camera=iconButton('video','Caméra',()=>{const tracks=c.stream?.getVideoTracks()||[];if(!tracks.length)return;const enabled=!tracks[0].enabled;tracks.forEach(t=>t.enabled=enabled);c.local.hidden=!enabled;paintButton(c.camera,enabled?'video':'cameraOff',enabled?'Caméra':'Caméra coupée',enabled?'Couper la caméra':'Activer la caméra');c.camera.setAttribute('aria-pressed',String(!enabled));});c.camera.disabled=true;c.camera.setAttribute('aria-pressed','false');c.camera.setAttribute('aria-label','Couper la caméra');controls.append(c.camera);}
   controls.append(iconButton('end','Raccrocher',()=>endCall(c),'oneEndCall'));
  }
