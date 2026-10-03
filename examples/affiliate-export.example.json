@@ -1,0 +1,25 @@
+[
+  {
+    "productKey": "EXEMPLE-MODELE-27",
+    "title": "Exemple fictif à remplacer",
+    "brand": "Exemple",
+    "category": "Écrans",
+    "merchant": "Marchand exemple",
+    "sourceOfferId": "exemple-001",
+    "price": 249.9,
+    "currency": "EUR",
+    "availability": "in_stock",
+    "image": "https://example.com/image.jpg",
+    "productUrl": "https://example.com/produit",
+    "affiliateUrl": "https://example.com/lien-partenaire",
+    "updatedAt": "2026-10-03T00:00:00Z",
+    "specs": {
+      "sizeInches": 27,
+      "refreshRateHz": 144
+    },
+    "tags": [
+      "écran"
+    ],
+    "demo": true
+  }
+]
