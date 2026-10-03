@@ -20,7 +20,7 @@
       for (const p of data.products) {
         if (!p.id || ids.has(p.id) || typeof p.title !== 'string' || !categories.includes(p.category) || !Array.isArray(p.offers)) throw new Error('Produit invalide');
         ids.add(p.id);
-        for (const o of p.offers) if (!Number.isFinite(o.price) || o.price < 0 || o.currency !== 'EUR' || typeof o.merchant !== 'string') throw new Error('Offre invalide');
+        for (const o of p.offers) if ((o.price !== null && (!Number.isFinite(o.price) || o.price < 0)) || o.currency !== 'EUR' || typeof o.merchant !== 'string') throw new Error('Offre invalide');
       }
       products = data.products; catalog = data;
       return copy(products);
@@ -28,7 +28,7 @@
     return pending;
   }
   const available = p => p.offers.filter(o => ['in_stock', 'preorder'].includes(o.availability));
-  const price = p => Math.min(...available(p).map(o => o.price));
+  const price = p => Math.min(...available(p).filter(o => Number.isFinite(o.price)).map(o => o.price));
   function find(criteria = {}) {
     if (!catalog) throw new Error('Attendre ONE_SHOP.ready avant de chercher.');
     const tokens = norm(criteria.query).split(/\s+/).filter(Boolean);
@@ -37,7 +37,7 @@
       return (!criteria.category || norm(p.category) === norm(criteria.category)) &&
         (!criteria.brand || norm(p.brand) === norm(criteria.brand)) &&
         (criteria.maxPrice == null || price(p) <= Number(criteria.maxPrice)) &&
-        (criteria.minPrice == null || price(p) >= Number(criteria.minPrice)) &&
+        (criteria.minPrice == null || (Number.isFinite(price(p)) && price(p) >= Number(criteria.minPrice))) &&
         (!criteria.inStock || available(p).some(o => o.availability === 'in_stock')) &&
         (!criteria.sizeInches || Number(p.specs?.sizeInches) === Number(criteria.sizeInches)) &&
         (!criteria.minRefreshRate || Number(p.specs?.refreshRateHz) >= Number(criteria.minRefreshRate)) &&
@@ -70,7 +70,7 @@
     root.replaceChildren();
     const header = el('header','os-heading'), title = el('div'); title.append(el('span','os-kicker','ONE SHOP'),el('h1','','Le bon équipement.\nPour toi.'));
     const fav = button('♡ Mes favoris', () => { state.favorites = !state.favorites; render(); },'os-secondary'); fav.setAttribute('aria-pressed',String(state.favorites)); header.append(title,fav); root.append(header);
-    const notice = el('p','os-notice',catalog.demo ? 'DÉMONSTRATION · Produits, marchands et prix fictifs. Aucun achat disponible.' : 'Liens partenaires · ONE peut recevoir une commission sur tes achats.'); root.append(notice);
+    const notice = el('p','os-notice',catalog.demo ? 'DÉMONSTRATION · Produits, marchands et prix fictifs. Aucun achat disponible.' : 'En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises.'); root.append(notice);
     root.append(el('p','os-intro','Compare les offres et trouve ce qui correspond à tes envies.'));
     const form = el('form','os-search'); form.setAttribute('role','search');
     const input = el('input'); input.type='search'; input.value=state.query; input.placeholder='Écran PS5, casque, smartphone…'; input.setAttribute('aria-label','Rechercher un produit');
@@ -81,15 +81,15 @@
     function select(label, key, options) { const wrap=el('label','',label), s=el('select'); for(const [value,text] of options){const o=el('option','',text);o.value=value;s.append(o);} s.value=state[key];s.onchange=()=>{state[key]=s.value;update();};wrap.append(s);filters.append(wrap); }
     select('Marque','brand',[['','Toutes les marques'],...[...new Set(products.map(p=>p.brand))].sort().map(b=>[b,b])]);
     const budget=el('label','','Budget maximal (€)'), max=el('input');max.type='number';max.min='0';max.step='0.01';max.placeholder='Sans limite';max.value=state.maxPrice;max.oninput=()=>{state.maxPrice=max.value;update();};budget.append(max);filters.append(budget);
-    select('Trier','sort',[['default','Catalogue'],['price-asc','Prix croissant'],['price-desc','Prix décroissant']]);root.append(filters);
+    select('Trier','sort',[['default','Catalogue'],['price-asc','Prix croissant'],['price-desc','Prix décroissant']]);root.append(filters,el('p','os-small','Les produits sans prix renseigné sont exclus du filtre de budget.'));
     const status=el('p','os-status');status.setAttribute('role','status'); const results=el('div','os-grid');root.append(status,results);
     function update(){const saved=favorites();const found=find({query:state.query,category:state.category,brand:state.brand,maxPrice:state.maxPrice===''?null:Number(state.maxPrice),sort:state.sort}).filter(p=>!state.favorites||saved.has(p.id));status.textContent=found.length+' produit'+(found.length>1?'s':'')+(state.favorites?' dans tes favoris':'');results.replaceChildren();
       if(!found.length){const empty=el('div','os-empty');empty.append(el('h2','','Aucun produit trouvé'),el('p','','Essaie un autre mot ou élargis tes filtres.'),button('Effacer les filtres',()=>{state={query:'',category:'',brand:'',maxPrice:'',sort:'default',favorites:false};render();},'os-secondary'));results.append(empty);}
       for(const p of found){const card=el('article','os-card'),visual=el('div','os-visual'),img=el('img');img.alt=p.title;img.loading='lazy';img.width=400;img.height=260;img.src=p.image?.startsWith('shop-assets/')?new URL(p.image,base).href:safeURL(p.image)||new URL('shop-assets/product.svg',base).href;img.onerror=()=>{img.onerror=null;img.src=new URL('shop-assets/product.svg',base).href;};visual.append(img);
         const heart=button(saved.has(p.id)?'♥':'♡',()=>{const set=favorites();if(set.has(p.id))set.delete(p.id);else set.add(p.id);try{localStorage.setItem(favKey(),JSON.stringify([...set]));update();}catch{status.textContent='Impossible de conserver les favoris sur cet appareil.';}},'os-heart');heart.setAttribute('aria-label','Favori : '+p.title);heart.setAttribute('aria-pressed',String(saved.has(p.id)));visual.append(heart);card.append(visual);
         const body=el('div','os-card-body');body.append(el('span','os-kicker',p.brand+' · '+p.category),el('h2','',p.title),el('p','os-specs',Object.entries(p.specs||{}).filter(([k])=>!['sizeInches','refreshRateHz'].includes(k)).map(([,v])=>v).join(' · ')));
-        const best=price(p);body.append(el('strong','os-price',Number.isFinite(best)?money(best):'Indisponible'),el('span','os-small',catalog.demo?'Prix fictif': 'Meilleur prix disponible du catalogue'));
-        const offers=el('div','os-offers');for(const o of [...p.offers].sort((a,b)=>a.price-b.price)){const row=el('div','os-offer'),info=el('div');info.append(el('b','',o.merchant),el('span','',money(o.price)+(o.availability==='out_of_stock'?' · Rupture':o.availability==='preorder'?' · Précommande':'')));const url=safeURL(o.affiliateUrl);if(!catalog.demo&&!p.demo&&!o.demo&&url&&['in_stock','preorder'].includes(o.availability)){const link=el('a','os-offer-link','Voir l’offre ↗');link.href=url;link.target='_blank';link.rel='sponsored noopener noreferrer';row.append(info,link);}else{const disabled=button(catalog.demo||p.demo||o.demo?'Offre fictive':'Indisponible',()=>{},'os-offer-link');disabled.disabled=true;row.append(info,disabled);}offers.append(row);}body.append(offers,el('small','os-small',catalog.demo?'Illustration générique · Démonstration':'Lien partenaire · Prix à confirmer chez le marchand'));card.append(body);results.append(card);}
+        const best=price(p);body.append(el('strong','os-price',Number.isFinite(best)?money(best):p.offers.some(o=>o.price===null&&o.availability!=='out_of_stock')?'Prix chez le marchand':'Indisponible'),el('span','os-small',catalog.demo?'Prix fictif':Number.isFinite(best)?'Meilleur prix disponible du catalogue':'Prix et disponibilité à vérifier sur Amazon'));
+        const offers=el('div','os-offers');for(const o of [...p.offers].sort((a,b)=>(a.price??Infinity)-(b.price??Infinity))){const row=el('div','os-offer'),info=el('div');info.append(el('b','',o.merchant),el('span','',(o.price===null?'Prix non renseigné':money(o.price))+(o.availability==='out_of_stock'?' · Rupture':o.availability==='preorder'?' · Précommande':'')));const url=safeURL(o.affiliateUrl);if(!catalog.demo&&!p.demo&&!o.demo&&url&&(['in_stock','preorder'].includes(o.availability)||(o.source==='manual'&&o.price===null&&o.availability==='unknown'))){const link=el('a','os-offer-link',o.price===null?'Voir le prix sur Amazon ↗':'Voir l’offre ↗');link.href=url;link.target='_blank';link.rel='sponsored noopener noreferrer';row.append(info,link);}else{const disabled=button(catalog.demo||p.demo||o.demo?'Offre fictive':'Indisponible',()=>{},'os-offer-link');disabled.disabled=true;row.append(info,disabled);}offers.append(row);}body.append(offers,el('small','os-small',catalog.demo?'Illustration générique · Démonstration':'Lien partenaire · Illustration générique, non contractuelle'));card.append(body);results.append(card);}
     } update();
     root.append(el('p','os-footer','Tes favoris restent sur cet appareil. Les offres sont triées par prix, sans priorité liée à la commission.'));
   }
