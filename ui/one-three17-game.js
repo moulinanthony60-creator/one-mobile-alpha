@@ -1524,8 +1524,13 @@ function open(options={}) {
           const view=spectator?(state.players.find(p=>p.connected&&!p.dead&&!p.escaped)||local):local;
           const error=Math.hypot(view.position.x-position.x,view.position.y-position.y,view.position.z-position.z);
           const localPrediction=!!(coop&&!hosting&&!spectator&&coop.moving?.());
-          if(hosting||hidden||wasHidden!==hidden||spectator||error>1.35)Object.assign(position,view.position);
-          else if(!localPrediction){position.x+=(view.position.x-position.x)*.16;position.y=view.position.y;position.z+=(view.position.z-position.z)*.16;}
+          if(hosting||hidden||wasHidden!==hidden||spectator)Object.assign(position,view.position);
+          else {
+            // Reconcile without teleporting the camera. The old threshold
+            // caused a visible micro-jump on the guest after a few packets.
+            const strength=localPrediction?Math.min(.035,error*.018):Math.min(.16,error*.12);
+            if(error>.01){position.x+=(view.position.x-position.x)*strength;position.y=view.position.y;position.z+=(view.position.z-position.z)*strength;}
+          }
           if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}
           flashOn=spectator?false:local.flash;syncFlash();
           count=state.items.filter(i=>!i.revive&&i.taken).length;if(counter.textContent!==String(count))counter.textContent=String(count);
