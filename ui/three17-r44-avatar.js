@@ -13,7 +13,7 @@ export function createAvatar(scene,name,color){
  const cap=mesh(new THREE.SphereGeometry(.184,12,8,0,Math.PI*2,0,Math.PI*.52),hair,0,1.735,.012);cap.scale.set(.91,1.1,1);cap.visible=false;
  const cameraHead=new THREE.Group();cameraHead.position.set(0,1.71,-.01);rig.add(cameraHead);
  const cameraBody=new THREE.Mesh(new THREE.BoxGeometry(.34,.25,.22),dark);cameraBody.position.z=.01;cameraHead.add(cameraBody);
- const cameraScreen=new THREE.Mesh(new THREE.PlaneGeometry(.255,.165),new THREE.MeshBasicMaterial({color:0x11151d,transparent:true,opacity:.96}));cameraScreen.position.set(0,.005,-.116);cameraScreen.renderOrder=3;cameraHead.add(cameraScreen);
+ const cameraScreen=new THREE.Mesh(new THREE.PlaneGeometry(.255,.165),new THREE.MeshBasicMaterial({color:0x11151d,transparent:true,opacity:.96,side:THREE.DoubleSide,depthTest:false}));cameraScreen.position.set(0,.005,-.126);cameraScreen.renderOrder=8;cameraHead.add(cameraScreen);
  const cameraLens=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.026,16),new THREE.MeshStandardMaterial({color:0x05070a,roughness:.24,metalness:.55}));cameraLens.rotation.x=Math.PI/2;cameraLens.position.set(0,.005,-.14);cameraHead.add(cameraLens);
  const face=mesh(new THREE.BoxGeometry(.05,.065,.04),skin,0,1.70,-.162);face.visible=false;
  const legs=[],arms=[];
