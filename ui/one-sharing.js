@@ -4,16 +4,70 @@ const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.classNa
 const token=()=>window.oneAccountToken?.()||'';
 async function api(base,path,options={}){if(!token())throw Error('Connecte-toi à ONE pour continuer.');const r=await fetch(base+path,{...options,headers:{Authorization:'Bearer '+token(),...options.headers},cache:'no-store',signal:options.signal||AbortSignal.timeout(15000)});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||(r.status===404?'Mets à jour le serveur ONE pour activer les publications.':'Service indisponible. Réessaie.'));return d;}
 const ids=new WeakMap();
-function publish(file,caption,progress,kind){return new Promise((resolve,reject)=>{if(!token())return reject(Error('Connecte-toi à ONE pour publier.'));let keys=ids.get(file);if(!keys){keys={};ids.set(file,keys)}const id=keys[kind]||(keys[kind]=crypto.randomUUID());const x=new XMLHttpRequest();x.open('POST',BASE+'/posts?'+new URLSearchParams({clientId:id,caption,kind}));x.timeout=120000;x.setRequestHeader('Authorization','Bearer '+token());x.setRequestHeader('Content-Type',file.type);x.upload.onprogress=e=>{if(e.lengthComputable)progress('Publication · '+Math.round(e.loaded/e.total*100)+' %');};x.onerror=()=>reject(Error('Connexion interrompue. Réessaie : la publication ne sera pas dupliquée.'));x.ontimeout=()=>reject(Error('Envoi trop long. Vérifie ta connexion puis réessaie.'));x.onload=()=>{let d;try{d=JSON.parse(x.responseText)}catch{return reject(Error('Réponse du serveur indisponible.'))}if(x.status<200||x.status>=300||!d.ok)return reject(Error(d.error||'Publication indisponible. Mets à jour le serveur ONE.'));resolve(d)};x.send(file)});}
-window.oneCameraShare=(file,dialog)=>{
- dialog.querySelector('.oneCaptureDestinations')?.remove();const panel=node('section','oneCaptureDestinations');dialog.append(panel);const status=t=>{dialog.querySelector('[role=status]').textContent=t;};
- const button=(text,fn)=>{const b=node('button','',text);b.type='button';b.onclick=fn;return b};
- function back(){panel.remove();status('Vérifie ton contenu avant de le partager sur ONE.');}
- function choose(){panel.replaceChildren(node('h3','','Choisis ta destination'));for(const [title,hint,fn]of [['Publier sur ONE','Dans le fil ONE',publicForm],['Envoyer à mes amis','En message privé',friends],['Ajouter à ma story','Dans Moments · 24 heures',()=>publicForm('story')]]){const b=button('',fn);b.className='oneCaptureChoice';const icon=node('span','oneShareIcon');const path=title==='Publier sur ONE'?'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="m10 8 6 4-6 4z"/>':title==='Envoyer à mes amis'?'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 5"/>':'<circle cx="12" cy="12" r="8" stroke-dasharray="5 3"/><path d="M12 7v5l3 2"/>';icon.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+path+'</svg>';b.append(icon,node('b','',title),node('small','',hint));panel.append(b)}panel.append(button('Changer de photo ou vidéo',()=>window.oneRetakeCapture?.()));status('Choisis qui pourra voir ton contenu.');panel.querySelector('button').focus();}
- function publicForm(kind='post'){if(typeof kind!=='string')kind='post';const story=kind==='story';panel.replaceChildren(node('h3','',story?'Ajouter à ma story':'Publier sur ONE'),node('p','',story?'Visible par les membres ONE dans Moments pendant 24 heures. Tu peux la supprimer avant.':'Cette publication sera visible par les membres ONE. Tu pourras la supprimer depuis le fil.'));const label=node('label','','Légende (facultatif)'),caption=node('textarea');caption.maxLength=1000;caption.rows=3;caption.placeholder='Raconte ce moment…';label.append(caption);panel.append(label);const go=button(story?'Partager ma story':'Publier sur ONE',async()=>{const controls=[...dialog.querySelectorAll('button,input,textarea')];controls.forEach(b=>b.disabled=true);const block=e=>e.preventDefault();dialog.addEventListener('cancel',block);status('Préparation de la publication…');try{await publish(file,caption.value,status,kind);dialog.close();window.toast?.(story?'Story ajoutée dans Moments':'Publication partagée sur ONE');if(story){window.oneShowSpace?.('moments')}else{window.oneShowSpace?.('one');}window.dispatchEvent(new Event('one-posts-updated'));}catch(e){status(e.message)}finally{controls.forEach(b=>b.disabled=false);dialog.removeEventListener('cancel',block)}});go.className='capturePrimary';panel.append(go,button('Retour',choose));caption.focus();status('Le partage a lieu uniquement quand tu appuies sur Publier.');}
- async function friends(){panel.replaceChildren(node('h3','','Envoyer à mes amis'));status('Chargement de tes amis…');const marker={};panel._load=marker;try{const d=await api(PEOPLE,'/friends/state');if(!dialog.open||panel._load!==marker)return;const list=(d.relationships||[]).filter(x=>x.status==='accepted');if(!list.length)panel.append(node('p','','Ajoute un ami dans Discussions pour lui envoyer ton contenu.'));for(const friend of list){const b=button(friend.name||friend.displayName||'Ami ONE',async()=>{if(!window.oneSendMediaToFriend){status('La messagerie se prépare. Réessaie dans un instant.');return}const controls=[...dialog.querySelectorAll('button,input')];controls.forEach(n=>n.disabled=true);const block=e=>e.preventDefault();dialog.addEventListener('cancel',block);status('Préparation de l’envoi…');try{await window.oneSendMediaToFriend(file,{id:String(friend.id),name:friend.name||friend.displayName||'Ami ONE'},{openConversation:false,throwOnError:true,onProgress:status});dialog.close();window.oneOpenFriends?.(String(friend.id));}catch(e){status(e.message+' Le média est conservé : appuie sur ton ami pour réessayer.');}finally{controls.forEach(n=>n.disabled=false);dialog.removeEventListener('cancel',block);}});b.dataset.friend=String(friend.id);panel.append(b)}status('Choisis un ami. Le média privé est supprimé après ouverture.');}catch(e){status(e.message);panel.append(button('Réessayer',friends))}panel.append(button('Retour',()=>{panel._load=null;choose()}));}
- choose();
+function publish(file,caption,progress,kind,session=token()){return new Promise((resolve,reject)=>{if(!session||token()!==session)return reject(Error('Ton compte a changé. Rouvre le partage.'));let keys=ids.get(file);if(!keys){keys={};ids.set(file,keys)}const id=keys[kind]||(keys[kind]=crypto.randomUUID());const x=new XMLHttpRequest();x.open('POST',BASE+'/posts?'+new URLSearchParams({clientId:id,caption,kind}));x.timeout=120000;x.setRequestHeader('Authorization','Bearer '+session);x.setRequestHeader('Content-Type',file.type);x.upload.onprogress=e=>{if(e.lengthComputable)progress('Publication · '+Math.round(e.loaded/e.total*100)+' %');};x.onerror=()=>reject(Error('Connexion interrompue. Réessaie : la publication ne sera pas dupliquée.'));x.ontimeout=()=>reject(Error('Envoi trop long. Vérifie ta connexion puis réessaie.'));x.onload=()=>{let d;try{d=JSON.parse(x.responseText)}catch{return reject(Error('Réponse du serveur indisponible.'))}if(x.status<200||x.status>=300||!d.ok)return reject(Error(d.error||'Publication indisponible. Mets à jour le serveur ONE.'));resolve(d)};x.send(file)});}
+window.oneCameraShare=(original,dialog)=>{
+ dialog.oneShareCleanup?.();dialog.querySelector('.oneCaptureDestinations')?.remove();
+ const panel=node('section','oneCaptureDestinations oneMultiShare');dialog.append(panel);
+ const status=text=>{dialog.querySelector('[role=status]').textContent=text;};
+ const session=token(),items=new Map();let file=original,editedURL=null,running=false,started=false,disposed=false,friendsLoaded=false;
+ const button=(text,fn,cls='')=>{const b=node('button',cls,text);b.type='button';b.onclick=fn;return b;};
+ const cleanup=()=>{disposed=true;if(editedURL)URL.revokeObjectURL(editedURL);dialog.removeEventListener('close',cleanup);};
+ dialog.oneShareCleanup=cleanup;dialog.addEventListener('close',cleanup,{once:true});
+ const title=node('h3','','Partager à plusieurs endroits'),intro=node('p','oneMultiIntro','Sélectionne une ou plusieurs destinations.');
+ const edit=button('Aa · Ajouter du texte',async()=>{if(!window.oneEditCapture){status('L’éditeur se prépare. Réessaie.');return}dialog.querySelector('.oneCaptureView video')?.pause();const result=await window.oneEditCapture(original);if(!result||disposed)return;file=result;if(editedURL)URL.revokeObjectURL(editedURL);editedURL=URL.createObjectURL(file);const media=dialog.querySelector('.oneCaptureView img,.oneCaptureView video');media.src=editedURL;edit.textContent='Aa · Modifier le texte';status('Texte intégré au média. Choisis les destinations.');},'oneTextEdit');
+ panel.append(edit,title,intro);
+ function row(key,name,hint,kind,friend){
+  const label=node('label','oneDestination'),input=node('input'),copy=node('span'),result=node('small','oneDestinationResult');input.type='checkbox';input.setAttribute('aria-label',name);copy.append(node('b','',name),node('small','',hint),result);label.append(input,copy);const item={key,name,kind,friend,input,label,result,state:'pending'};items.set(key,item);input.onchange=update;return label;
+ }
+ panel.append(row('post','Fil ONE','Visible par les membres ONE','post'),row('story','Ma story','Dans Moments · visible 24 heures','story'));
+ const friendsBox=node('div','oneFriendChoices'),friendsToggle=button('Choisir mes amis',async()=>{friendsBox.hidden=!friendsBox.hidden;friendsToggle.setAttribute('aria-expanded',String(!friendsBox.hidden));if(!friendsBox.hidden&&!friendsLoaded)await loadFriends();},'oneFriendsToggle');friendsToggle.setAttribute('aria-expanded','false');friendsBox.hidden=true;panel.append(friendsToggle,friendsBox);
+ async function loadFriends(){
+  friendsBox.replaceChildren(node('p','','Chargement des amis…'));friendsToggle.disabled=true;
+  try{if(token()!==session)throw Error('Ton compte a changé. Ferme puis rouvre le partage.');const d=await api(PEOPLE,'/friends/state');if(disposed||token()!==session)return;friendsBox.replaceChildren();const friends=(d.relationships||[]).filter(f=>f.status==='accepted');
+   for(const f of friends){const friend={id:String(f.id),name:f.name||f.displayName||'Ami ONE'};if(!items.has('friend:'+friend.id))friendsBox.append(row('friend:'+friend.id,friend.name,'Message privé · média supprimé après ouverture','friend',friend));}
+   if(!friends.length)friendsBox.append(node('p','','Aucun ami accepté pour le moment.'));friendsLoaded=true;
+  }catch(e){if(!disposed)friendsBox.replaceChildren(node('p','',e.message),button('Réessayer',loadFriends));}finally{if(!disposed)friendsToggle.disabled=running;update();}
+ }
+ const captionLabel=node('label','oneMultiCaption','Légende pour le fil et la story (facultatif)'),caption=node('textarea');caption.rows=2;caption.maxLength=1000;caption.placeholder='Raconte ce moment…';captionLabel.append(caption);captionLabel.hidden=true;
+ const summary=node('p','oneMultiSummary'),send=button('Choisis une destination',sendAll,'capturePrimary oneMultiSend'),done=button('Terminer',()=>dialog.close(),'oneMultiDone'),retake=button('Changer de photo ou vidéo',()=>window.oneRetakeCapture?.());done.hidden=true;
+ panel.append(captionLabel,summary,send,done,retake);
+ function update(){
+  const selected=[...items.values()].filter(x=>x.input.checked),pending=selected.filter(x=>x.state!=='sent');
+  captionLabel.hidden=!selected.some(x=>x.kind!=='friend');
+  summary.textContent=selected.length?selected.length+' destination'+(selected.length>1?'s':'')+' sélectionnée'+(selected.length>1?'s':''):'';
+  send.disabled=running||!pending.length;send.textContent=running?'Partage en cours…':!pending.length?(selected.length?'Partage terminé':'Choisis une destination'):(started?'Réessayer / partager':'Partager')+' · '+pending.length;
+  for(const x of items.values()){x.input.disabled=running||x.state==='sent';x.label.dataset.state=x.state;}
+  edit.disabled=running||started;caption.disabled=running||started;retake.disabled=running;friendsToggle.disabled=running;
+  done.disabled=running;done.hidden=![...items.values()].some(x=>x.state==='sent');
+ }
+ async function sendAll(){
+  if(running)return;const queue=[...items.values()].filter(x=>x.input.checked&&x.state!=='sent');if(!queue.length)return;
+  if(!session||token()!==session){status('Connecte-toi avec le même compte puis rouvre le partage.');return;}
+  running=true;started=true;update();const block=e=>e.preventDefault();dialog.addEventListener('cancel',block);const close=dialog.querySelector('[data-close]');if(close)close.disabled=true;
+  let sent=0;
+  try{
+   for(const item of queue){
+    if(disposed)break;
+    if(token()!==session){status('Ton compte a changé. Les envois restants ont été arrêtés.');break;}
+    item.state='sending';item.result.textContent='En cours…';update();
+    try{
+     const progress=text=>{item.result.textContent=text;status(item.name+' · '+text);};
+     if(item.kind==='friend'){
+      if(!window.oneSendMediaToFriend)throw Error('La messagerie n’est pas encore prête. Réessaie.');
+      const ok=await window.oneSendMediaToFriend(file,item.friend,{openConversation:false,throwOnError:true,onProgress:progress});if(!ok)throw Error('Envoi non confirmé. Réessaie.');
+     }else await publish(file,caption.value,progress,item.kind,session);
+     item.state='sent';item.result.textContent='✓ Envoyé';sent++;
+    }catch(e){item.state='failed';item.result.textContent='Échec · '+e.message;}
+    update();
+   }
+   const failures=queue.filter(x=>x.state!=='sent').length;
+   if(token()===session)status(failures?'Certains envois ont échoué. Réessaie : les destinations déjà livrées ne seront pas renvoyées.':'Partagé sur toutes les destinations sélectionnées.');
+   if(sent)window.dispatchEvent(new Event('one-posts-updated'));
+  }finally{running=false;dialog.removeEventListener('cancel',block);if(close)close.disabled=false;update();}
+ }
+ status('Choisis où partager ton contenu.');update();
 };
+
 let currentCleanup,currentHost;
 window.oneMountNativeFeed=(host,kind='post')=>{
  if(!host?.isConnected)return;currentCleanup?.();currentHost=host;host.replaceChildren();host.className='oneNativeFeed';host.dataset.kind=kind;const heading=node('header'),title=node('h2','',kind==='story'?'Stories':'Le fil ONE'),create=node('button','','＋'),refresh=node('button','','Actualiser');create.setAttribute('aria-label','Créer une publication');create.onclick=()=>window.oneOpenCamera?.();heading.append(title,create,refresh);const intro=node('p','',kind==='story'?'Les stories des membres ONE · visibles 24 h.':'Les photos et vidéos partagées par les membres ONE.'),message=node('p'),list=node('div'),more=node('button','','Voir plus');message.setAttribute('role','status');more.dataset.more='';more.hidden=true;host.append(heading,intro,message,list,more);

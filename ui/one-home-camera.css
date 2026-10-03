@@ -56,3 +56,28 @@ html body dialog.oneFullCamera.oneCapture{width:100vw!important}
 
 /* V14: zoom is controlled exclusively by a two-finger pinch. */
 .oneFullCamera [data-zoom-controls]{display:none!important}
+/* V15: larger live preview and multi-destination sharing. */
+html body .oneFullCamera:not([data-preview=true]) .oneCaptureView video{object-fit:cover}
+.oneFullCamera:not([data-preview=true]) .oneCameraDock{padding-top:26px;background:linear-gradient(transparent,#08060b90 48%,#08060bbf)}
+.oneMultiShare .oneMultiIntro{color:#b5a8c1;font-size:13px;margin:0 0 16px}
+.oneMultiShare .oneDestination{display:flex;align-items:center;gap:14px;padding:14px;margin:8px 0;border:1px solid #ffffff18;border-radius:16px;background:#211a2b;cursor:pointer}
+.oneMultiShare .oneDestination:has(input:checked){border-color:#ab73ec;background:#362147}
+.oneMultiShare .oneDestination input{width:21px;height:21px;margin:0;flex:none;accent-color:#ab65f3}
+.oneMultiShare .oneDestination b,.oneMultiShare .oneDestination small{display:block}.oneMultiShare .oneDestination b{font-size:14px}.oneMultiShare .oneDestination small{font-size:11px;color:#bdafca;margin-top:3px;overflow-wrap:anywhere}
+.oneMultiShare .oneDestination[data-state=sent] .oneDestinationResult{color:#9fe5bc}.oneMultiShare .oneDestination[data-state=failed] .oneDestinationResult{color:#ffb0c0}
+.oneMultiShare .oneTextEdit{width:100%;background:#31203f;border-color:#9b62cb;color:#e9d6ff;padding:10px;margin:0 0 8px}
+.oneMultiShare .oneFriendsToggle{width:100%;text-align:left;margin:10px 0;background:transparent;border-color:#ffffff26}
+.oneMultiShare .oneFriendChoices{padding:0 0 8px}.oneMultiShare .oneMultiCaption{display:block;color:#cbbdd6;font-size:12px;margin-top:14px}.oneMultiShare [hidden]{display:none!important}
+.oneMultiShare .oneMultiSend{display:block;width:100%;padding:15px;margin:10px 0!important;background:#9549e8!important;border:1px solid #b67ae9!important;font-size:15px!important;font-weight:700}
+.oneMultiShare .oneMultiSummary{font-size:12px;color:#c1a9d6}.oneMultiShare .oneMultiDone{width:100%;margin-top:8px}
+html body dialog.oneTextEditor{position:fixed;inset:0;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:#0a080e;color:#fff;font:14px system-ui;overflow:auto;box-sizing:border-box}
+.oneTextEditor[open]{display:flex;flex-direction:column}.oneTextEditor *{box-sizing:border-box}.oneTextEditor [hidden]{display:none!important}
+.oneTextEditor header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;flex:none}.oneTextEditor h2{font-size:17px;margin:0}
+.oneTextEditor button{border:1px solid #ffffff25;border-radius:20px;padding:10px 13px;color:#ead9fa;background:#24172f;font:600 12px system-ui;cursor:pointer}.oneTextEditor [data-apply]{background:#974bee;color:#fff}.oneTextEditor button:disabled{opacity:.5}
+.oneTextStage{min-height:160px;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#030205}
+.oneTextStage canvas{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;touch-action:none;cursor:move}
+.oneTextTools{flex:none;width:100%;max-width:600px;margin:auto;padding:12px 18px max(15px,env(safe-area-inset-bottom))}.oneTextTools label{display:block;font-size:12px;color:#c9b7d9}
+.oneTextTools textarea{width:100%;background:#211828;color:white;border:1px solid #7d539c;border-radius:12px;padding:10px;margin-top:7px;font:16px system-ui;resize:none}
+.oneTextOptions{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:10px}.oneTextOptions [data-color]{display:block;width:44px;height:30px;padding:0;border:0;background:none}.oneTextOptions [data-size]{display:block;width:120px;accent-color:#ac69f4;margin-top:8px}.oneTextTools [role=status]{font-size:12px;color:#baa6c9;min-height:18px;margin:12px 0 0}
+.oneTextSource{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+@media(max-height:600px){.oneTextEditor .oneTextStage{min-height:130px}.oneTextTools textarea{height:44px}.oneTextTools{padding-top:6px}.oneTextTools [role=status]{margin:4px 0}.oneTextEditor header{padding-top:8px;padding-bottom:8px}}
