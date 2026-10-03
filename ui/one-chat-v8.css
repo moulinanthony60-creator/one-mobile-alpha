@@ -12,7 +12,6 @@ body:has(.oneChatV8) #oneFoundation{background:#101014!important;padding:0 12px 
 #oneFoundation .oneChatV8 .oneSocialTabs button{flex:0 0 auto;padding:8px 12px!important;font:650 12px system-ui!important;background:transparent!important;border-radius:999px!important;color:#bcb9c4!important;white-space:nowrap}
 #oneFoundation .oneChatV8 .oneSocialTabs button.active,#oneFoundation .oneChatV8 .oneSocialTabs button[aria-pressed=true]{background:#36313e!important;color:#fff!important}
 #oneFoundation .oneChatV8 .oneSocialTabs button.oneAllDim{background:transparent!important;color:#bcb9c4!important}
-.oneUnreadCount{display:inline-block;min-width:15px;padding:1px 3px;border-radius:9px;background:#a34fff;color:white;font-size:10px;margin-left:3px}.oneUnreadCount[hidden]{display:none}
 #oneFoundation .oneChatV8 #oneSocialInline .oneInlineCard.oneV79Row{min-height:70px!important;padding:11px 53px 11px 3px!important;gap:12px!important;border-bottom:1px solid #ffffff0d!important;background:transparent!important;border-radius:0!important;content-visibility:visible!important;contain-intrinsic-size:auto!important}
 #oneFoundation .oneChatV8 #oneSocialInline .oneV79Row[hidden]{display:none!important}
 #oneFoundation .oneChatV8 #oneSocialInline .oneV79Row .avatar{width:42px!important;height:42px!important;flex-basis:42px!important;border:1px solid #ffffff28!important;font-size:16px!important}

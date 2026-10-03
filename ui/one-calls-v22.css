@@ -49,6 +49,9 @@ html body .oneCallDialog[open] { display:flex; flex-direction:column; }
 .oneCallDialog .oneCommControls .oneIconAction:disabled { opacity:.35; cursor:default; }
 .oneCallDialog[data-state=incoming] .oneCommControls { gap:60px; }
 .oneCallDialog[data-state=incoming] .oneCommControls .oneCommIcon { width:68px; height:68px; }
+.oneCallDialog .oneCallNotify { position:absolute; z-index:6; left:50%; bottom:112px; transform:translateX(-50%); border:1px solid #9d83d466; border-radius:999px; padding:9px 14px; color:#eadfff; background:#342351; box-shadow:0 8px 24px #0005; font:650 11px/1.2 system-ui; white-space:nowrap; cursor:pointer; }
+.oneCallDialog .oneCallNotify:hover { background:#4b2f70; border-color:#c5a3f2; }
+.oneCallDialog .oneCallNotify:focus-visible { outline:3px solid #c5a3f2; outline-offset:3px; }
 .oneCallDialog[data-state=error] .oneCallStatus { padding:16px; color:#ffc5d5; background:#853a4e26; border:1px solid #e882a042; border-radius:16px; font-size:13px; }
 .oneCallDialog[data-state=ended] .oneCallStatus { color:#d1c2e7; }
 
