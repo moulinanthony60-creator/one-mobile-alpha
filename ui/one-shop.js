@@ -49,7 +49,7 @@
   }
   const api = window.ONE_SHOP = { categories: [...categories], getProducts: () => { if (!catalog) throw new Error('Attendre ONE_SHOP.ready'); return copy(products); }, find, search: (query, criteria = {}) => find({...criteria, query}), reload: () => load(true), getMetadata: () => catalog ? {schemaVersion: 1, demo: catalog.demo, updatedAt: catalog.updatedAt} : null };
   api.ready = load(); api.ready.catch(() => {});
-  const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = new URL('one-shop.css?v=send-v7', base); document.head.append(css);
+  const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = new URL('one-shop.css?v=camera-stories-v8', base); document.head.append(css);
   const el = (tag, cls, text) => { const node = document.createElement(tag); if (cls) node.className = cls; if (text !== undefined) node.textContent = text; return node; };
   const button = (label, handler, cls = '') => { const b = el('button', cls, label); b.type = 'button'; b.onclick = handler; return b; };
   const money = n => new Intl.NumberFormat('fr-FR', {style:'currency', currency:'EUR'}).format(n);

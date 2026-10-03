@@ -1,0 +1,34 @@
+/* Compact chat layout with ONE purple accents. */
+#oneFoundation .oneChatV8{--chat-accent:#a34fff;padding:12px 0 100px!important;background:#101014;min-height:calc(100dvh - 100px)}
+body:has(.oneChatV8) #oneFoundation{background:#101014!important;padding:0 12px 90px!important}
+.oneChatHeader{display:flex;align-items:center;gap:8px;padding:10px 2px 18px}
+.oneChatHeader h1{flex:1;text-align:center;font:650 19px system-ui;margin:0;color:#f7f5fa}
+.oneChatHeader button{display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:#252429;color:#eee;font:500 24px system-ui;cursor:pointer;flex-shrink:0}
+.oneChatHeader .oneChatAvatar{font-size:10px;font-weight:850;background:linear-gradient(140deg,#b368fc,#5a2aa1)}
+.oneChatHeader .oneNewDiscussion{background:var(--chat-accent);color:white;box-shadow:none}
+.oneChatSearch{margin:0 0 12px}.oneChatSearch[hidden]{display:none}
+.oneChatSearch input{box-sizing:border-box;width:100%;border:1px solid #ffffff19;border-radius:999px;padding:11px 15px;background:#222126;color:white;font:14px system-ui}
+#oneFoundation .oneChatV8 .oneSocialTabs{display:flex;gap:6px;margin:0 0 8px!important;padding:0 0 10px!important;overflow-x:auto;border:0!important;scrollbar-width:none}
+#oneFoundation .oneChatV8 .oneSocialTabs button{flex:0 0 auto;padding:8px 12px!important;font:650 12px system-ui!important;background:transparent!important;border-radius:999px!important;color:#bcb9c4!important;white-space:nowrap}
+#oneFoundation .oneChatV8 .oneSocialTabs button.active,#oneFoundation .oneChatV8 .oneSocialTabs button[aria-pressed=true]{background:#36313e!important;color:#fff!important}
+#oneFoundation .oneChatV8 .oneSocialTabs button.oneAllDim{background:transparent!important;color:#bcb9c4!important}
+.oneUnreadCount{display:inline-block;min-width:15px;padding:1px 3px;border-radius:9px;background:#a34fff;color:white;font-size:10px;margin-left:3px}.oneUnreadCount[hidden]{display:none}
+#oneFoundation .oneChatV8 #oneSocialInline .oneInlineCard.oneV79Row{min-height:70px!important;padding:11px 53px 11px 3px!important;gap:12px!important;border-bottom:1px solid #ffffff0d!important;background:transparent!important;border-radius:0!important;content-visibility:visible!important;contain-intrinsic-size:auto!important}
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row[hidden]{display:none!important}
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row .avatar{width:42px!important;height:42px!important;flex-basis:42px!important;border:1px solid #ffffff28!important;font-size:16px!important}
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row .copy b{font:600 14px/1.25 system-ui!important;color:#dbd8e1!important}
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row.oneChatUnread .copy b{color:white!important;font-weight:750!important}
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row .copy>span{display:inline;font:400 11px/1.5 system-ui!important;color:#a49eae!important;margin-top:3px!important}
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row.oneChatUnread .copy>span{color:#b87aff!important;font-weight:600!important}
+.oneChatTime{font:10px system-ui;color:#85818d;white-space:nowrap}.oneChatTime:before{content:' · '}
+#oneFoundation .oneChatV8 .oneV79CameraRow{border:0;background:transparent;right:3px;width:36px;height:36px;color:#d2ced8}
+.oneChatNoResults{font:13px system-ui;color:#aaa;text-align:center;padding:28px 10px}.oneChatNoResults[hidden]{display:none}
+.oneChatToast{position:fixed;top:max(14px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 24px));z-index:2147483600;display:flex;align-items:center;background:#26242b;color:white;border:1px solid #ffffff12;border-radius:20px;padding:8px;box-shadow:0 10px 32px #0006;animation:oneChatNoticeIn .18s ease-out;box-sizing:border-box}
+.oneToastMain{display:flex;align-items:center;gap:12px;flex:1;min-width:0;border:0;background:transparent;color:inherit;text-align:left;padding:4px;cursor:pointer}
+.oneToastMain>span:last-child{min-width:0}.oneToastMain b{display:block;font:650 13px system-ui;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.oneToastText{display:block;font:500 12px system-ui;color:#b978ff;margin-top:4px}.oneToastText.media{color:#ff5a82}.oneToastText.typing{color:#b978ff}
+.oneToastAvatar{width:40px;height:40px;display:grid;place-items:center;flex:0 0 40px;background:#51316e;border-radius:50%;font:700 16px system-ui}
+.oneToastClose{border:0;background:transparent;color:#bbb;padding:8px;font:20px system-ui;cursor:pointer}
+.oneTypingHint{font:12px system-ui;color:#ba82ff;flex:1 0 100%;text-align:center}.oneTypingHint[hidden]{display:none}
+@keyframes oneChatNoticeIn{from{opacity:0;translate:0 -12px}to{opacity:1;translate:0 0}}
+@media(prefers-reduced-motion:reduce){.oneChatToast{animation:none}}
+.oneChatHeader svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
