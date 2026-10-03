@@ -1,19 +1,19 @@
 
-import {prepareScene} from './three17-r46-warmup.js?v=appels-v55';
-import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js?v=appels-v55';
+import {prepareScene} from './three17-r46-warmup.js?v=appels-v56';
+import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js?v=appels-v56';
 
-import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=appels-v55';
-import * as THREE from './three.module.js?v=appels-v55';
-import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js?v=appels-v55';
-import { createHorrorAudio } from './three17-r41-audio.js?v=appels-v55';
-import { createScareEffects } from './three17-r41-scares.js?v=appels-v55';
+import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=appels-v56';
+import * as THREE from './three.module.js?v=appels-v56';
+import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js?v=appels-v56';
+import { createHorrorAudio } from './three17-r41-audio.js?v=appels-v56';
+import { createScareEffects } from './three17-r41-scares.js?v=appels-v56';
 const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHeightAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
 /**
  * 3:17 FOUR — R23. Géométrie R20 préservée, monstre et objets jouables.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R55 · CAMERA ET MOUVEMENT';
+const BUILD = 'R56 · CAMERA ET MOUVEMENT';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -768,7 +768,7 @@ function createMonsterController(house,hooks={},spawn=null) {
 function createMonsterMesh(scene) {
   const root=new THREE.Group();root.name='monstre-parasite';root.visible=false;scene.add(root);
   let controller=null,disposed=false,lastState=null;
-  const ready=import('./three17-parasite-r41.js?v=appels-v55').then(m=>m.loadParasite(root)).then(value=>{
+  const ready=import('./three17-parasite-r41.js?v=appels-v56').then(m=>m.loadParasite(root)).then(value=>{
     if(disposed){value.dispose();disposeScene(root);return false;}
     controller=value;if(lastState)controller.animate(lastState,0);return true;
   });
@@ -1137,7 +1137,7 @@ function open(options={}) {
       audio.hide(!!spot);
     }
     const keys={x:0,y:0},pressed=new Set();
-    let drag=null,look=null,lx=0,ly=0,started=false,won=false,ended=false,count=0,sprint=false;
+    let drag=null,dragType='',look=null,lx=0,ly=0,started=false,won=false,ended=false,count=0,sprint=false;
     const ROUND_SECONDS=900;let remaining=ROUND_SECONDS,walkNoise=0,beat=0,paused=document.hidden,testPaused=false;
     let last=performance.now(),lastRender=0,lastHud=0,flashOn=true;
     const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
@@ -1286,7 +1286,7 @@ function open(options={}) {
     function message(text){messageElement.textContent=text;messageElement.classList.add('show');clearTimeout(messageTimer);messageTimer=setTimeout(()=>messageElement.classList.remove('show'),2400);}
     function syncSprint(){if(runButton){runButton.setAttribute('aria-pressed',String(sprint));runButton.setAttribute('aria-label',sprint?'Arrêter de courir':'Courir');runButton.textContent=sprint?'COURSE…':'COURIR';}} function toggleSprint(){if(!started||ended||paused)return;sprint=!sprint;syncSprint();} function resetInputs(){
       for(const [el,id]of [[stick,drag],[lookZone,look]]){try{if(id!==null&&el.hasPointerCapture(id))el.releasePointerCapture(id);}catch{}}
-      drag=look=null;keys.x=keys.y=0;pressed.clear();sprint=false;syncSprint();knob.style.transform='';
+      drag=look=null;dragType='';keys.x=keys.y=0;pressed.clear();sprint=false;syncSprint();knob.style.transform='';
     }
     function refreshCamera(){
       camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;
@@ -1492,13 +1492,16 @@ function open(options={}) {
       const b=stick.getBoundingClientRect(),dx=e.clientX-(b.left+b.width/2),dy=e.clientY-(b.top+b.height/2),d=Math.hypot(dx,dy)||1,m=Math.min(38,d),nx=dx/d,ny=dy/d;
       keys.x=nx*(m/38);keys.y=ny*(m/38);knob.style.transform=`translate(${nx*m}px,${ny*m}px)`;
     }
-    stick.addEventListener('pointerdown',e=>{if(!started||ended||paused||drag!==null)return;drag=e.pointerId;stick.setPointerCapture(drag);sm(e);});
+    stick.addEventListener('pointerdown',e=>{if(!started||ended||paused||drag!==null)return;drag=e.pointerId;dragType=e.pointerType||'';stick.setPointerCapture(drag);sm(e);});
     stick.addEventListener('pointermove',e=>{if(e.pointerId===drag)sm(e);});
     function se(e){if(drag===null||e?.pointerId!==undefined&&e.pointerId!==drag)return;drag=null;keys.x=keys.y=0;knob.style.transform='';}
-    for(const event of ['pointerup','pointercancel','lostpointercapture'])stick.addEventListener(event,se);
+    // Losing capture is not a release: Android can emit it while the finger
+    // is still down when it crosses the canvas. The real pointer/touch end
+    // events below decide when the joystick returns to its center.
+    for(const event of ['pointerup','pointercancel'])stick.addEventListener(event,se);
     // Some Android browsers lose pointer capture when the finger crosses the
     // WebGL canvas. A window-level release prevents stale joystick input.
-    const releaseStick=()=>se({});
+    const releaseStick=e=>{const type=e?.type||'';if(type==='mouseup'&&dragType==='touch')return;if((type==='touchend'||type==='touchcancel')&&dragType==='mouse')return;se(e||{});};
     window.addEventListener('pointerup',releaseStick,{passive:true});window.addEventListener('pointercancel',releaseStick,{passive:true});
     // Fallbacks for browsers that expose touch/mouse events without a final
     // PointerEvent when the finger leaves the WebGL surface.
@@ -1554,7 +1557,8 @@ function open(options={}) {
           const spectator=local.dead||local.escaped;document.body.classList.toggle('one317-spectator',!!spectator);shell.dataset.spectator=String(!!spectator);
           const view=spectator?(state.players.find(p=>p.connected&&!p.dead&&!p.escaped)||local):local;
           const error=Math.hypot(view.position.x-position.x,view.position.y-position.y,view.position.z-position.z);
-          const localPrediction=!!(coop&&!hosting&&!spectator&&coop.moving?.());
+           const localPrediction=!!(coop&&!hosting&&!spectator&&coop.moving?.());
+           const localIdle=!!(coop&&!hosting&&!spectator&&!localPrediction);
           if(hosting||hidden||wasHidden!==hidden||spectator){
             // A delayed snapshot may be stale or malformed for the current
             // floor. Never teleport the local camera straight into geometry.
@@ -1566,11 +1570,17 @@ function open(options={}) {
             // Never move the camera because of an ordinary host snapshot:
             // that was the source of the visible side-to-side micro jumps.
             // Only recover from a real desynchronisation once the gap is large.
-            if(!localPrediction&&error>.9){
-              const strength=Math.min(.025,Math.max(.008,(error-.9)*.018));
-              // Reconcile through the same swept collision helper as normal
-              // movement, instead of blending coordinates through a wall.
-              movePlayer(house,position,(view.position.x-position.x)*strength,(view.position.z-position.z)*strength);
+             if(localIdle&&error>.16&&error<8){
+               // Once the guest has released the controls, settle to the
+               // authoritative position in one bounded collision-safe step.
+               // A slow correction here looked like involuntary movement.
+               const strength=Math.min(1,Math.max(.35,(error-.16)*.9));
+               movePlayer(house,position,(view.position.x-position.x)*strength,(view.position.z-position.z)*strength);
+             }else if(!localPrediction&&error>.9){
+               const strength=Math.min(.025,Math.max(.008,(error-.9)*.018));
+               // Reconcile through the same swept collision helper as normal
+               // movement, instead of blending coordinates through a wall.
+               movePlayer(house,position,(view.position.x-position.x)*strength,(view.position.z-position.z)*strength);
             }
           }
           keepPositionSafe();
