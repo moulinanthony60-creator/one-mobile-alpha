@@ -231,7 +231,7 @@ export function createCoopRuntime(config,b){
     }else if(!hostPaused&&now()-lastStateAt<8000){
       const p=lastState?.players.find(x=>x.id===localId);if(p&&!p.hidden&&!p.dead&&!p.escaped){const s=Math.sin(input.yaw),c=Math.cos(input.yaw),dt=Math.min(elapsed,.1);model.movePlayer(house,b.position,(-s*input.forward+c*input.x)*(input.sprint?4.1:2.5)*dt,(-c*input.forward-s*input.x)*(input.sprint?4.1:2.5)*dt);}
     }
-      for(const [id,v] of visuals){const p=lastState?.players.find(x=>x.id===id);syncHeadCamera(id,v,!!p?.dead);if(!p)continue;v.group.visible=p.connected&&!p.hidden&&!p.escaped;v.group.scale.setScalar(p.dead?.82:1);if(!v.group.visible)continue;
+      for(const [id,v] of visuals){const p=lastState?.players.find(x=>x.id===id);syncHeadCamera(id,v,!!p?.dead);if(!p)continue;const localPlayer=lastState?.players.find(x=>x.id===localId),spectator=!!localPlayer?.dead||!!localPlayer?.escaped;v.cameraHead.visible=!spectator;v.head.visible=spectator;v.cap.visible=spectator;v.face.visible=spectator;v.group.visible=p.connected&&!p.hidden&&!p.escaped;v.group.scale.setScalar(p.dead?.82:1);if(!v.group.visible)continue;
       const time=now();v.track.push({...p.position,yaw:p.yaw},time,p);const point=v.track.at(time);if(point)animateAvatar(v,{...point,dead:!!p.dead},elapsed);v.glow.visible=p.flash||p.dead;
     }
   }

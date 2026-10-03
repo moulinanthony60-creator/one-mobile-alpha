@@ -1520,7 +1520,7 @@ function open(options={}) {
         begin:()=>{if(started||stopped)return;started=true;last=performance.now();resetInputs();shell.querySelector('.three17-start')?.remove();syncPause();if(!paused)audio.start();message('Vous êtes ensemble. Retrouvez les trois objets et sortez !');},
         apply:(state,local,hosting)=>{
           remaining=state.remaining;const wasHidden=hidden;hidden=!!local.hidden;currentHide=house.hideSpots.find(h=>h.id===local.hideId)||null;
-          const spectator=local.dead||local.escaped;document.body.classList.toggle('one317-spectator',!!spectator);
+          const spectator=local.dead||local.escaped;document.body.classList.toggle('one317-spectator',!!spectator);shell.dataset.spectator=String(!!spectator);
           const view=spectator?(state.players.find(p=>p.connected&&!p.dead&&!p.escaped)||local):local;
           const error=Math.hypot(view.position.x-position.x,view.position.y-position.y,view.position.z-position.z);
           const localPrediction=!!(coop&&!hosting&&!spectator&&coop.moving?.());
