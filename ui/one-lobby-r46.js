@@ -89,8 +89,8 @@ function open(ctx={}){
   listen(panelToggle,'click',()=>setPanelOpen(sessionPanel.dataset.collapsed==='true'));
   const runButton=shell.querySelector('[data-run]'),sprintToggle=matchMedia('(pointer:coarse)').matches||innerWidth<700;
   const setSprint=value=>{sprint=!!value;if(runButton){runButton.setAttribute('aria-pressed',String(sprint));runButton.setAttribute('aria-label',sprint?'Arrêter de courir':'Courir');runButton.textContent=sprint?'COURSE…':'COURIR';}};
-  listen(runButton,'pointerdown',e=>{e.preventDefault();runButton.setPointerCapture?.(e.pointerId);});
-  listen(runButton,'pointerup',()=>{if(sprintToggle)setSprint(!sprint);else setSprint(false);});
+  listen(runButton,'pointerdown',e=>{e.preventDefault();if(sprintToggle){setSprint(!sprint);return;}runButton.setPointerCapture?.(e.pointerId);});
+  listen(runButton,'pointerup',()=>{if(!sprintToggle)setSprint(false);});
   listen(runButton,'pointercancel',()=>{if(!sprintToggle)setSprint(false);});
   listen(runButton,'lostpointercapture',()=>{if(!sprintToggle)setSprint(false);});
   const movement=['KeyW','KeyA','KeyS','KeyD','KeyZ','KeyQ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
