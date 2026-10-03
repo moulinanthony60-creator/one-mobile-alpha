@@ -12,3 +12,44 @@
 /* Native capture sheet and focused sharing layout. */
 .onePhoneCapture{background:#121017!important;border-color:#59406d!important}.onePhoneCapture header{padding:20px;gap:14px;border-bottom:1px solid #ffffff0b}.onePhoneCapture header h2{font-size:21px;letter-spacing:-.5px}.onePhoneCapture .onePhoneSources{padding:4px 20px 22px}.onePhoneSources>p{color:#afa3bd;margin-bottom:20px}.onePhoneCapture .onePhoneSources button{position:relative;padding:20px 20px 20px 62px!important;border:1px solid #ffffff15;background:#211b2a!important;border-radius:17px;font-size:15px;font-weight:650}.onePhoneSources button:before{position:absolute;left:20px;top:18px;color:#d7b6ff;font-size:22px}.onePhoneSources button:nth-of-type(1):before{content:'◎'}.onePhoneSources button:nth-of-type(2):before{content:'▷'}.onePhoneSources button:nth-of-type(3):before{content:'▧'}.onePhoneSources button:nth-of-type(3){background:transparent!important;color:#beb0ce;font-weight:500;margin-top:16px}.onePhoneCapture[data-preview=true]{height:auto;max-height:96dvh;margin:auto;border-radius:24px;padding-bottom:10px}.onePhoneCapture[data-preview=true] .oneCaptureView{height:28dvh;margin-top:14px;background:#09070d}.onePhoneCapture[data-preview=true] .oneCaptureView img,.onePhoneCapture[data-preview=true] .oneCaptureView video{height:28dvh;max-height:28dvh}.onePhoneCapture .oneCaptureDestinations h3{font-size:17px;margin:8px 0 14px}.onePhoneCapture [role=status]{font-size:12px;color:#ab9eb8;margin:12px 0}.onePhoneCapture .oneCaptureChoice{display:grid!important;grid-template-columns:40px 1fr 12px;grid-template-rows:auto auto;gap:4px 12px;align-items:center;padding:16px!important;border:1px solid #ffffff12!important;background:#201a29!important}.oneShareIcon{grid-column:1;grid-row:1/3;display:grid;place-items:center;width:40px;height:40px;background:#753dc330;border-radius:12px;color:#c99aff}.oneShareIcon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.onePhoneCapture .oneCaptureChoice b{grid-column:2;grid-row:1;font-size:14px;margin:0}.onePhoneCapture .oneCaptureChoice small{grid-column:2;grid-row:2;font-size:12px}.onePhoneCapture .oneCaptureChoice:after{position:static;grid-column:3;grid-row:1/3;font-size:21px}.onePhoneCapture .oneCaptureDestinations>button:last-child:not(.oneCaptureChoice){background:transparent;border:0;padding:12px 0;color:#bbaaca;font-size:12px}.onePhoneCapture button:focus-visible{outline:2px solid #c38bff;outline-offset:3px}
 @media(max-width:560px){.onePhoneCapture:not([data-preview=true]){width:calc(100% - 24px)!important}.onePhoneCapture[data-preview=true]{width:100%;height:100dvh;max-height:100dvh;border-radius:0}}
+/* V13: full-screen integrated camera, scoped to preserve feeds and stories. */
+html body dialog.oneFullCamera{position:fixed;inset:0;width:100%!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:#060509;color:#fff;overflow:hidden;box-sizing:border-box;font:14px/1.4 system-ui,sans-serif}
+.oneFullCamera *, .oneFullCamera *:before,.oneFullCamera *:after{box-sizing:border-box}
+.oneFullCamera[open]{display:block}.oneFullCamera [hidden]{display:none!important}
+.oneFullCamera>header{position:absolute;inset:0 0 auto;z-index:3;display:flex;align-items:center;gap:14px;padding:calc(16px + env(safe-area-inset-top)) 20px 22px;background:linear-gradient(#000a,transparent)}
+.oneFullCamera>header h2{font:900 23px/1 system-ui;letter-spacing:-1px;color:#fff;flex:1}
+.oneFullCamera>header button{width:42px;height:42px;border-radius:50%;padding:0;display:grid;place-items:center;background:#211c2a99;border:1px solid #ffffff26;font-size:26px}
+.oneFullCamera>header [data-quality]{font:11px system-ui;color:#e9dfef;background:#0005;border-radius:20px;padding:6px 9px}
+html body .oneFullCamera .oneCaptureView{position:absolute;inset:0;margin:0;border-radius:0;width:100%;height:100%!important;min-height:0;max-height:none;background:radial-gradient(ellipse at center,#272131,#08070b 75%)}
+html body .oneFullCamera .oneCaptureView video,html body .oneFullCamera .oneCaptureView img{width:100%;height:100%;max-height:none;object-fit:contain}
+.oneFullCamera:not([data-preview=true]) .oneCaptureView{touch-action:none;user-select:none}
+.oneFullCamera[data-facing=user]:not([data-preview=true]) .oneCaptureView video{transform:scaleX(-1)}
+.oneFullCamera .oneCameraDock{position:absolute;z-index:2;bottom:0;left:0;right:0;padding:45px 20px max(20px,env(safe-area-inset-bottom));background:linear-gradient(transparent,#09060dd9 35%,#09060df5)}
+.oneFullCamera .oneCameraDock>[role=status]{padding:0;margin:0 auto 14px;min-height:18px;max-width:430px;color:#eee5f5;font:12px/1.5 system-ui;text-align:center;text-shadow:0 1px 5px #000}
+.oneFullCamera [data-zoom-controls]{max-width:330px;margin:0 auto 14px}
+.oneFullCamera [data-zoom-buttons]{display:flex;justify-content:center;gap:10px}
+.oneFullCamera [data-zoom-buttons] button{min-width:38px;height:36px;border-radius:30px;padding:0 9px;background:#18151bc9;border:1px solid #ffffff2b;font-size:12px}
+.oneFullCamera .oneZoomSlider{display:flex;align-items:center;gap:14px;margin:8px 16px 0}.oneFullCamera .oneZoomSlider input{width:100%;min-width:0;accent-color:#b276ff;touch-action:none}.oneFullCamera .oneZoomSlider output{font-size:11px;min-width:30px;color:#d7b8ff}
+.oneFullCamera .oneCameraModes{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px auto 20px}
+.oneFullCamera .oneCameraModes button{background:transparent;border:0;border-radius:24px;padding:10px 18px;color:#c0b4ce;font-size:14px}
+.oneFullCamera .oneCameraModes button[aria-pressed=true]{background:#ad6bff;color:#fff;box-shadow:0 4px 26px #a357ff3b}
+.oneFullCamera .oneShutterRow{display:grid;grid-template-columns:70px 90px 70px;justify-content:center;align-items:center;gap:28px}
+.oneFullCamera [data-shutter]{display:grid;place-items:center;touch-action:none;user-select:none;-webkit-touch-callout:none;width:78px;height:78px;padding:5px;border:3px solid #f9f2ff;border-radius:50%;background:transparent;margin:auto}
+.oneFullCamera [data-shutter]>span{display:block;width:100%;height:100%;border-radius:50%;background:#faf5ff;transition:border-radius .12s,transform .12s,background .12s}
+.oneFullCamera[data-mode=video] [data-shutter]>span{background:#ae65fa}
+.oneFullCamera[data-recording=true] [data-shutter]>span{background:#f35488;border-radius:8px;transform:scale(.52)}
+.oneFullCamera[data-busy=true] [data-shutter]{opacity:.5}
+.oneFullCamera .oneCameraMark{font:900 15px system-ui;letter-spacing:-.5px;color:#c8b5db;text-align:center}.oneFullCamera .oneCameraMark span{display:block;font:9px system-ui;letter-spacing:2px;margin-top:4px;color:#8e7c9e}
+.oneFullCamera [data-resume]{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);z-index:3;background:#7e3fca}
+html body .oneFullCamera[data-preview=true]{overflow-y:auto;padding-bottom:env(safe-area-inset-bottom)!important;background:#100c17}
+.oneFullCamera[data-preview=true]>header{position:relative;background:transparent;max-width:580px;margin:auto;padding-bottom:12px}
+.oneFullCamera[data-preview=true] [data-flip],.oneFullCamera[data-preview=true] [data-quality],.oneFullCamera[data-preview=true] [data-resume]{display:none!important}
+html body .oneFullCamera[data-preview=true] .oneCaptureView{position:relative;width:calc(100% - 40px);max-width:540px;height:28dvh!important;margin:0 auto;border-radius:18px;background:#050407}
+.oneFullCamera[data-preview=true] .oneCameraDock{position:relative;background:none;padding:0 20px;max-width:580px;margin:auto}
+.oneFullCamera[data-preview=true] .oneCameraDock>[role=status]{text-align:left;margin:14px 0 0;color:#bbaaca;text-shadow:none}
+.oneFullCamera[data-preview=true] .oneCameraModes,.oneFullCamera[data-preview=true] .oneShutterRow,.oneFullCamera[data-preview=true] [data-zoom-controls]{display:none!important}
+.oneFullCamera .oneCaptureDestinations{max-width:580px;margin:auto;padding:8px 20px 24px}
+@media (orientation:landscape) and (max-height:520px){.oneFullCamera:not([data-preview=true]) .oneCameraDock{left:auto;width:300px;padding:25px 12px 10px;background:linear-gradient(90deg,transparent,#0a0711dd)}.oneFullCamera .oneCameraModes{margin:3px 0 8px}.oneFullCamera .oneCameraModes button{padding:8px 12px}.oneFullCamera .oneShutterRow{gap:4px}.oneFullCamera .oneCameraDock>[role=status]{margin-bottom:6px}.oneFullCamera [data-zoom-controls]{margin-bottom:4px}}
+@media(prefers-reduced-motion:reduce){.oneFullCamera *{transition:none!important}}
+html body .oneFullCamera:not([data-preview=true]) .oneCaptureView{display:grid}
+html body dialog.oneFullCamera.oneCapture{width:100vw!important}
