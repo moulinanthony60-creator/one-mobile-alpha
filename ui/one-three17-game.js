@@ -1523,8 +1523,9 @@ function open(options={}) {
           const spectator=local.dead||local.escaped;document.body.classList.toggle('one317-spectator',!!spectator);
           const view=spectator?(state.players.find(p=>p.connected&&!p.dead&&!p.escaped)||local):local;
           const error=Math.hypot(view.position.x-position.x,view.position.y-position.y,view.position.z-position.z);
-          if(hosting||hidden||wasHidden!==hidden||spectator||error>.85)Object.assign(position,view.position);
-          else{position.x+=(view.position.x-position.x)*.22;position.y=view.position.y;position.z+=(view.position.z-position.z)*.22;}
+          const localPrediction=!!(coop&&!hosting&&!spectator&&coop.moving?.());
+          if(hosting||hidden||wasHidden!==hidden||spectator||error>1.35)Object.assign(position,view.position);
+          else if(!localPrediction){position.x+=(view.position.x-position.x)*.16;position.y=view.position.y;position.z+=(view.position.z-position.z)*.16;}
           if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}
           flashOn=spectator?false:local.flash;syncFlash();
           count=state.items.filter(i=>!i.revive&&i.taken).length;if(counter.textContent!==String(count))counter.textContent=String(count);

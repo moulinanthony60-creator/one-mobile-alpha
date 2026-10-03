@@ -238,7 +238,7 @@ export function createCoopRuntime(config,b){
   return {
     step,ready(){armed=true;b.wait(ready.size,ids.length);pump();},
     action(type,value){input=controls(value)||input;if(!begun||finished||hostPaused||!hosting&&now()-lastStateAt>5000)return;if(hosting){world.input(localId,input);world.action(localId,type,++actionSeq);publish();}else transmit(config.host,'action',{action:type,seq:++actionSeq,controls:input});},
-    get local(){return lastState?.players.find(p=>p.id===localId);},get isHost(){return hosting;},get state(){return lastState;},
+    get local(){return lastState?.players.find(p=>p.id===localId);},get isHost(){return hosting;},get state(){return lastState;},moving:()=>Math.hypot(input.x,input.forward)>.04,
       dispose(){if(stopped)return;stopped=true;clearInterval(timer);off();for(const v of visuals.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}if(hosting)all('end',{});else transmit(config.host,'round-leave',{});round=null;leaveLobby();hud.remove();},
     inspect:()=>({hosting,begun,ready:[...ready],state:lastState,peers:net.peers()}),
     ...(window.__ONE317_TEST__===true?{world}:{}),
