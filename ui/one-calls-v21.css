@@ -1,0 +1,141 @@
+/* V21: call stages and voice controls, scoped away from the camera and home header. */
+.oneCommIcon { display:inline-grid; place-items:center; flex:none; }
+.oneCommIcon svg { width:23px; height:23px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.oneCommDialog .oneIconAction { display:flex; align-items:center; justify-content:center; gap:8px; }
+.oneCommDialog :is(button,input):focus-visible,.oneVoiceMessage :is(button,input):focus-visible { outline:3px solid #bda0ff; outline-offset:4px; }
+.oneCommDialog [hidden],.oneAudioPlayer [hidden] { display:none!important; }
+.onePrivateActions .oneIconAction { display:flex; align-items:center; justify-content:center; gap:7px; }
+.onePrivateActions .oneCommIcon svg { width:17px; height:17px; }
+dialog.oneFriendsDialog.oneThreadFullscreen .oneVoiceDock { display:flex!important; flex-direction:column; align-items:center; justify-content:center; gap:3px; }
+.oneVoiceDock .oneCommIcon svg { width:20px; height:20px; }
+.oneVoiceDock .oneCommLabel { font-size:9px; line-height:1; }
+
+html body dialog.oneCommDialog.oneCallDialog {
+ position:fixed; inset:0; margin:auto; width:min(480px,100vw); max-width:none;
+ height:min(820px,100dvh - 32px); max-height:none; padding:0; border:1px solid #9e87ca42; border-radius:30px;
+ color:#f4f4ff; background:radial-gradient(ellipse at 30% 35%,#49316377,transparent 55%),linear-gradient(165deg,#18172d,#0d1722 65%,#10131e);
+ box-shadow:0 30px 100px #000a; overflow:hidden; box-sizing:border-box; font-family:Inter,system-ui,sans-serif;
+}
+html body .oneCallDialog[open] { display:flex; flex-direction:column; }
+.oneCallDialog * { box-sizing:border-box; }
+.oneCallDialog::backdrop { background:#050811d9; backdrop-filter:blur(9px); }
+.oneCallHeader { position:relative; z-index:2; display:flex; align-items:center; gap:10px; min-height:80px; padding:22px 24px; background:transparent; border:0; }
+.oneCallBrand { font-size:18px; letter-spacing:-.8px; font-weight:850; color:#d4bdff; }
+.oneCallType { font-size:11px; font-weight:650; padding:7px 11px; border:1px solid #ffffff16; border-radius:30px; color:#bdddd8; background:#ffffff06; }
+.oneCallTime { margin-left:auto; color:#b5ecd9; font:600 13px ui-monospace,monospace; letter-spacing:.5px; }
+.oneCallStage { position:relative; isolation:isolate; flex:1; min-height:190px; display:grid; place-items:center; overflow:hidden; }
+.oneCallIdentity { position:relative; z-index:1; padding:32px 28px; text-align:center; width:100%; }
+.oneCallAvatar { width:116px; height:116px; display:grid; place-items:center; margin:0 auto 30px; border-radius:50%; border:1px solid #c3a1ef85; color:#f0e4ff; background:linear-gradient(145deg,#7653a8,#3c2c5f); box-shadow:0 0 0 12px #a377e70c,0 0 0 28px #a377e706; font:650 40px system-ui; overflow:hidden; }
+.oneCallAvatar img { width:100%; height:100%; object-fit:cover; }
+.oneCallDialog .oneCallIdentity h2 { font:750 31px/1.2 system-ui; letter-spacing:-.8px; margin:0 0 13px; overflow-wrap:anywhere; }
+.oneCallDialog .oneCallStatus { color:#b9b8d0; font:400 14px/1.65 system-ui; margin:0 auto; max-width:340px; }
+.oneCallDialog[data-state=ringing] .oneCallStatus::before,.oneCallDialog[data-state=incoming] .oneCallStatus::before { content:''; display:inline-block; width:7px; height:7px; border-radius:50%; background:#76d5c3; margin-right:8px; }
+.oneCallDialog .oneRemoteVideo { position:absolute; inset:0; width:100%; height:100%; max-height:none; object-fit:cover; border:0; border-radius:0; background:transparent; }
+.oneCallDialog:not([data-remote=true]) .oneRemoteVideo { opacity:0; }
+.oneCallDialog .oneLocalVideo { position:absolute; z-index:3; top:16px; right:18px; width:100px; height:140px; max-height:none; object-fit:cover; transform:scaleX(-1); border-radius:18px; border:1px solid #ffffff55; background:#151c2a; box-shadow:0 6px 25px #0005; }
+.oneCallDialog[data-remote=true] .oneCallIdentity { align-self:end; padding:60px 24px 22px; text-align:left; background:linear-gradient(transparent,#060916d9); }
+.oneCallDialog[data-remote=true] .oneCallAvatar { display:none; }
+.oneCallDialog[data-remote=true] .oneCallIdentity h2 { font-size:22px; margin:0 0 5px; }
+.oneCallDialog[data-remote=true] .oneCallStatus { margin:0; color:#e3e4f0; font-size:12px; }
+.oneCallDialog .oneResumeCall { position:absolute; z-index:5; left:50%; top:50%; transform:translate(-50%,-50%); border-color:#96e2cf; background:#183f37; color:#d5fff2; padding:13px 18px; white-space:nowrap; }
+.oneCallFooter { flex:none; border:0; padding:22px 20px 32px; background:linear-gradient(transparent,#0c101b); }
+.oneCallDialog .oneCommControls { display:flex; align-items:start; justify-content:center; flex-wrap:nowrap; gap:15px; margin:0; }
+.oneCallDialog .oneCommControls .oneIconAction { flex:1 1 0; max-width:90px; min-width:0; display:flex; flex-direction:column; gap:11px; border:0; background:transparent!important; box-shadow:none; border-radius:16px; padding:0; color:#d6d9e9; cursor:pointer; }
+.oneCallDialog .oneCommControls .oneIconAction>.oneCommIcon { width:58px; height:58px; border:1px solid #b1b9d226; border-radius:50%; background:#272b3c; box-shadow:0 4px 18px #0002; }
+.oneCallDialog .oneCommControls .oneCommLabel { font:600 11px/1.4 system-ui; text-align:center; overflow-wrap:anywhere; }
+.oneCallDialog .oneCommControls .oneIconAction[aria-pressed=true]>.oneCommIcon { background:#e2def0; color:#342b47; border-color:#f2ebff; }
+.oneCallDialog .oneCommControls .oneEndCall>.oneCommIcon { background:#dd4267; border-color:#fa749080; color:white; }
+.oneCallDialog .oneCommControls .oneAcceptCall>.oneCommIcon { background:#238b75; border-color:#6fe4bd66; color:#fff; }
+.oneCallDialog .oneCommControls .oneIconAction:disabled { opacity:.35; cursor:default; }
+.oneCallDialog[data-state=incoming] .oneCommControls { gap:60px; }
+.oneCallDialog[data-state=incoming] .oneCommControls .oneCommIcon { width:68px; height:68px; }
+.oneCallDialog[data-state=error] .oneCallStatus { padding:16px; color:#ffc5d5; background:#853a4e26; border:1px solid #e882a042; border-radius:16px; font-size:13px; }
+.oneCallDialog[data-state=ended] .oneCallStatus { color:#d1c2e7; }
+
+/* Voice recording: clear record / listen / send steps. Bars are decorative, never claimed as measured audio. */
+html body dialog.oneCommDialog.oneVoiceRecorder { width:min(430px,calc(100vw - 28px)); max-width:none; max-height:calc(100dvh - 28px); padding:24px; border-radius:26px; border:1px solid #79d4c039; background:radial-gradient(ellipse at 50% 30%,#17483e3d,transparent 60%),#131b28; color:#eef9f6; box-shadow:0 24px 90px #0009; box-sizing:border-box; }
+.oneVoiceRecorder * { box-sizing:border-box; }
+.oneVoiceHeader { display:flex; align-items:center; gap:12px; justify-content:space-between; border:0; background:transparent; padding:0; }
+.oneVoiceEyebrow { display:block; font:750 9px system-ui; letter-spacing:1.7px; color:#83d6c5; margin-bottom:7px; }
+.oneVoiceRecorder .oneVoiceHeader h2 { font:750 21px/1.3 system-ui; letter-spacing:-.5px; margin:0; overflow-wrap:anywhere; }
+.oneVoiceHeader>button { width:36px; height:36px; flex:none; border-radius:50%; padding:0; background:#ffffff07; border-color:#ffffff16; color:#bdccda; }
+.oneVoiceHeader>button .oneCommLabel { display:none; }
+.oneVoiceHeader>button svg { width:18px; height:18px; }
+.oneVoiceStage { padding:32px 0 14px; text-align:center; }
+.oneVoiceMark { width:60px; height:60px; display:grid; place-items:center; margin:0 auto 14px; border-radius:50%; color:#99e8d4; background:#1d443d; box-shadow:0 0 0 9px #62ceb709; border:1px solid #63dccb38; }
+.oneVoiceMark svg { width:27px; height:27px; }
+.oneVoiceClock { font:600 40px/1.2 ui-monospace,monospace; letter-spacing:-2px; color:#effcf7; }
+.oneVoiceBars { height:48px; display:flex; justify-content:center; align-items:center; gap:4px; margin-top:16px; }
+.oneVoiceBars i { display:block; width:4px; height:calc(var(--bar)*1px); border-radius:5px; background:#72d3bd; opacity:.85; }
+.oneVoiceRecorder .oneVoiceStatus { text-align:center; font:600 14px/1.6 system-ui; color:#d2eee5; margin:5px 0; }
+.oneVoiceRecorder .oneVoiceLimit { text-align:center; font:12px/1.6 system-ui; color:#94a6b9; margin:7px 0 24px; }
+.oneVoiceRecorder .oneCommControls { justify-content:center; gap:10px; margin:0; }
+.oneVoiceRecorder .oneCommControls .oneIconAction { flex:1; font:650 12px system-ui; padding:14px 10px; min-height:48px; border-radius:14px; background:#232c3d; border-color:#91a4c337; color:#d9e3f0; }
+.oneVoiceRecorder .oneCommControls .oneVoiceStop { max-width:180px; color:#fff; background:#a93d58; border-color:#ff8da952; }
+.oneVoiceRecorder .oneCommControls .oneVoiceSend { color:#e7fff7; background:#217c66; border-color:#80dfbf59; }
+.oneVoiceRecorder[data-phase=preview] .oneVoiceStage,.oneVoiceRecorder[data-phase=sending] .oneVoiceStage { padding-top:25px; padding-bottom:5px; }
+.oneVoiceRecorder[data-phase=preview] :is(.oneVoiceMark,.oneVoiceBars),.oneVoiceRecorder[data-phase=sending] :is(.oneVoiceMark,.oneVoiceBars) { display:none; }
+.oneVoiceRecorder[data-phase=error] .oneVoiceBars { opacity:.2; }
+.oneVoiceRecorder .oneVoiceStatus[role=alert] { font-size:13px; color:#ffc4d2; padding:12px; border:1px solid #ef87a438; background:#63304630; border-radius:13px; }
+.oneVoiceRecorder .oneAudioPlayer { padding:14px; margin:10px 0 20px; background:#1d2b37; border:1px solid #89cbb52e; border-radius:17px; }
+
+/* Real playback controls for received and sent voice notes. */
+html body .oneVoiceList { width:100%; gap:10px; margin:10px 0; }
+html body .oneVoiceList .oneVoiceMessage { align-self:flex-start; width:min(300px,88%); max-width:88%; background:#182d33; border:1px solid #66bfa33a; padding:13px 14px; border-radius:18px 18px 18px 5px; color:#e1f6ee; box-sizing:border-box; }
+html body .oneVoiceList .oneVoiceMessage[data-mine=true] { align-self:flex-end; background:#302244; border-color:#b88ade44; border-radius:18px 18px 5px 18px; }
+.oneVoiceMeta { display:flex; align-items:center; gap:6px; font:650 11px system-ui; color:#a2d6c8; margin-bottom:8px; }
+.oneVoiceMeta .oneCommIcon svg { width:13px; height:13px; }
+.oneVoiceMessage[data-mine=true] .oneVoiceMeta { color:#d4b5f4; }
+.oneVoiceMessage .oneVoiceMeta small { margin:0 0 0 auto; font:10px system-ui; color:#a2b5c3; }
+.oneVoiceMessage .oneVoiceLoad { display:flex; align-items:center; gap:9px; width:100%; border:0; background:#ffffff07; color:#c3f3e2; border-radius:12px; padding:9px 11px; font:650 12px system-ui; }
+.oneVoiceMessage[data-mine=true] .oneVoiceLoad { color:#e2ceff; }
+.oneVoiceMessage .oneVoiceLoad .oneCommIcon svg { width:19px; height:19px; }
+.oneVoiceMessage .oneVoiceLoadHint:empty { display:none; }
+.oneVoiceMessage .oneVoiceLoadHint { font:11px/1.5 system-ui; color:#dbbbc5; margin:9px 0 0; }
+.oneAudioPlayer { display:grid; grid-template-columns:38px minmax(30px,1fr) 70px; align-items:center; gap:10px; }
+.oneAudioPlayer .oneIconAction { display:grid; place-items:center; width:38px; height:38px; border:1px solid #8ae0c24d; border-radius:50%; padding:0; background:#366656; color:#eafff6; cursor:pointer; }
+.oneAudioPlayer .oneIconAction .oneCommLabel { display:none; }
+.oneAudioPlayer .oneIconAction .oneCommIcon svg { width:18px; height:18px; }
+.oneVoiceMessage[data-mine=true] .oneAudioPlayer .oneIconAction { background:#624186; border-color:#d4acff55; }
+.oneAudioPlayer .oneAudioSeek { appearance:none; -webkit-appearance:none; width:100%; min-width:0; height:24px; margin:0; padding:0; border:0; border-radius:0; cursor:pointer; background:transparent; accent-color:#9addc2; }
+.oneAudioSeek::-webkit-slider-runnable-track { height:4px; border-radius:4px; background:linear-gradient(90deg,#9addc2 var(--played,0%),#ffffff25 var(--played,0%)); }
+.oneAudioSeek::-webkit-slider-thumb { appearance:none; -webkit-appearance:none; width:12px; height:12px; margin-top:-4px; border:0; border-radius:50%; background:#c3f6df; }
+.oneAudioSeek::-moz-range-track { height:4px; background:#ffffff25; border-radius:4px; }
+.oneAudioSeek::-moz-range-progress { background:#9addc2; height:4px; border-radius:4px; }
+.oneAudioSeek::-moz-range-thumb { width:12px; height:12px; border:0; background:#c3f6df; border-radius:50%; }
+.oneAudioSeek:disabled { opacity:.35; cursor:default; }
+.oneAudioTime { color:#d9e7e2; font:10px ui-monospace,monospace; text-align:right; white-space:nowrap; }
+.oneAudioHint { grid-column:1/-1; color:#ffc0d0; font:11px/1.5 system-ui; }
+.oneAudioHint:empty { display:none; }
+@media(max-width:600px) {
+ html body dialog.oneCommDialog.oneCallDialog { width:100vw; height:100dvh; border:0; border-radius:0; }
+ .oneCallHeader { padding-top:calc(22px + env(safe-area-inset-top)); }
+ .oneCallFooter { padding-bottom:calc(30px + env(safe-area-inset-bottom)); }
+ html body dialog.oneCommDialog.oneVoiceRecorder { inset:auto 0 0; margin:0 auto; width:100vw; max-height:calc(100dvh - env(safe-area-inset-top)); border-radius:26px 26px 0 0; padding:24px 22px calc(26px + env(safe-area-inset-bottom)); }
+}
+@media(max-width:360px) {
+ .oneCallDialog .oneCommControls { gap:8px; }
+ .oneCallDialog .oneCommControls .oneIconAction>.oneCommIcon { width:52px; height:52px; }
+ .oneCallDialog .oneCommControls .oneCommLabel { font-size:10px; }
+ .oneVoiceRecorder .oneCommControls .oneIconAction { font-size:11px; gap:5px; }
+}
+@media(max-height:500px) {
+ .oneCallHeader { min-height:50px; padding:12px 20px; }
+ .oneCallAvatar { width:65px; height:65px; margin-bottom:14px; font-size:27px; }
+ .oneCallIdentity { padding:16px; }
+ .oneCallDialog .oneCallIdentity h2 { font-size:23px; }
+ .oneCallFooter { padding:10px 20px 16px; }
+ .oneCallStage { min-height:100px; }
+ .oneCallDialog .oneCommControls .oneIconAction>.oneCommIcon { width:42px; height:42px; }
+ .oneCallDialog .oneCommControls .oneIconAction { gap:6px; }
+ .oneVoiceStage { padding-top:16px; }
+ .oneVoiceMark,.oneVoiceBars { display:none; }
+}
+@media(prefers-reduced-motion:no-preference) {
+ .oneCallDialog[data-state=ringing] .oneCallAvatar,.oneCallDialog[data-state=incoming] .oneCallAvatar { animation:oneCallBreathe 2.6s ease-in-out infinite; }
+ .oneVoiceRecorder[data-phase=recording] .oneVoiceBars i { animation:oneVoicePulse .8s ease-in-out infinite alternate; animation-delay:var(--delay); }
+ .oneIconAction>.oneCommIcon { transition:background-color .15s,transform .15s; }
+ .oneIconAction:active>.oneCommIcon { transform:scale(.93); }
+}
+@keyframes oneCallBreathe { 50% { box-shadow:0 0 0 16px #a377e712,0 0 0 36px #a377e705; } }
+@keyframes oneVoicePulse { to { transform:scaleY(.35); opacity:.5; } }
