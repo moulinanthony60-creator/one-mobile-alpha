@@ -1,4 +1,4 @@
-import * as THREE from './three.module.js';
+import * as THREE from './three.module.js?v=appels-v52';
 
 export const R41_FURNITURE_IDS = new Set([
   'meuble-tv','tv-cadre','tv-ecran','bibliotheque','buffet','office-cabinet',

@@ -1,19 +1,19 @@
 
-import {prepareScene} from './three17-r46-warmup.js?v=appels-v51';
-import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js?v=appels-v51';
+import {prepareScene} from './three17-r46-warmup.js?v=appels-v52';
+import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js?v=appels-v52';
 
-import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=appels-v51';
-import * as THREE from './three.module.js?v=appels-v51';
-import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js?v=appels-v51';
-import { createHorrorAudio } from './three17-r41-audio.js?v=appels-v51';
-import { createScareEffects } from './three17-r41-scares.js?v=appels-v51';
+import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=appels-v52';
+import * as THREE from './three.module.js?v=appels-v52';
+import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js?v=appels-v52';
+import { createHorrorAudio } from './three17-r41-audio.js?v=appels-v52';
+import { createScareEffects } from './three17-r41-scares.js?v=appels-v52';
 const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHeightAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
 /**
  * 3:17 FOUR — R23. Géométrie R20 préservée, monstre et objets jouables.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R51 · CAMERA ET MOUVEMENT';
+const BUILD = 'R52 · CAMERA ET MOUVEMENT';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -761,7 +761,7 @@ function createMonsterController(house,hooks={},spawn=null) {
 function createMonsterMesh(scene) {
   const root=new THREE.Group();root.name='monstre-parasite';root.visible=false;scene.add(root);
   let controller=null,disposed=false,lastState=null;
-  const ready=import('./three17-parasite-r41.js?v=appels-v51').then(m=>m.loadParasite(root)).then(value=>{
+  const ready=import('./three17-parasite-r41.js?v=appels-v52').then(m=>m.loadParasite(root)).then(value=>{
     if(disposed){value.dispose();disposeScene(root);return false;}
     controller=value;if(lastState)controller.animate(lastState,0);return true;
   });

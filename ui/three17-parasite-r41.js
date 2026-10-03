@@ -3,8 +3,8 @@
  * locomotion; Idle/Stalk/Chase_Procedural are newly authored skeletal clips.
  * No remote CDN, API key, account or runtime FBX conversion is required.
  */
-import * as THREE from './three.module.js';
-import { GLTFLoader } from './GLTFLoader.js';
+import * as THREE from './three.module.js?v=appels-v52';
+import { GLTFLoader } from './GLTFLoader.js?v=appels-v52';
 const MODEL_URL = new URL('../assets/317/parasite-starkie-r23.glb', import.meta.url).href;
 const MODEL_SCALE = 1.035;
 let bytesPromise = null;

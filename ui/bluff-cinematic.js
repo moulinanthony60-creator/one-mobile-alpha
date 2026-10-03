@@ -1,5 +1,5 @@
-import * as T from './vendor/three.module.js?v=appels-v51';
-import {GLTFLoader} from './vendor/GLTFLoader.js?v=appels-v51';
+import * as T from './vendor/three.module.js?v=appels-v52';
+import {GLTFLoader} from './vendor/GLTFLoader.js?v=appels-v52';
 let modelPromise;
 export function preload(){return modelPromise ||= new GLTFLoader().loadAsync(new URL('../assets/bluff/revolver-117z.glb',import.meta.url).href);}
 export async function mount(host,{eliminated,onImpact,onPhase=()=>{},getTargetRect,isCancelled}){

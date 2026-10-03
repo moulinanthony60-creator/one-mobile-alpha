@@ -1,5 +1,5 @@
-import * as THREE from './three.module.js?v=appels-v51';
-import {createPoseTrack} from './three17-r44-render.js?v=appels-v51';
+import * as THREE from './three.module.js?v=appels-v52';
+import {createPoseTrack} from './three17-r44-render.js?v=appels-v52';
 
 export function createAvatar(scene,name,color){
  const group=new THREE.Group(),rig=new THREE.Group();group.add(rig);
@@ -15,11 +15,14 @@ export function createAvatar(scene,name,color){
  // reprendre le léger balancement du torse et ne quitte plus le visage à l'arrêt.
  const cameraHead=new THREE.Group();cameraHead.position.set(0,1.72,-.025);cameraHead.rotation.order='YXZ';group.add(cameraHead);
  // Tête caméra ronde : le flux est affiché sur une face circulaire, sans rectangle.
- const cameraVideoMaterial=new THREE.MeshBasicMaterial({color:0x11151d,transparent:false,side:THREE.DoubleSide});
+ // The body stays opaque. The live video is deliberately mounted on one
+ // front-facing disk only; mapping the video on the whole sphere creates
+ // repeated copies when the avatar turns or when the back face is rendered.
+ const cameraVideoMaterial=new THREE.MeshBasicMaterial({color:0x11151d,transparent:false,side:THREE.FrontSide});
  const cameraBody=new THREE.Mesh(new THREE.SphereGeometry(.216,28,20),cameraVideoMaterial);cameraBody.scale.set(.98,1.04,.92);cameraBody.position.z=.01;cameraHead.add(cameraBody);
- const cameraScreen=new THREE.Mesh(new THREE.CircleGeometry(.184,36),new THREE.MeshBasicMaterial({color:0x11151d,transparent:true,opacity:.98,side:THREE.DoubleSide,depthTest:false}));cameraScreen.position.set(0,.008,-.195);cameraScreen.renderOrder=8;cameraHead.add(cameraScreen);
+ const cameraScreen=new THREE.Mesh(new THREE.CircleGeometry(.184,36),new THREE.MeshBasicMaterial({color:0x11151d,transparent:false,side:THREE.FrontSide,depthTest:true,depthWrite:false}));cameraScreen.position.set(0,.008,-.195);cameraScreen.rotation.y=Math.PI;cameraScreen.renderOrder=8;cameraHead.add(cameraScreen);
  const cameraRing=new THREE.Mesh(new THREE.RingGeometry(.185,.211,36),new THREE.MeshStandardMaterial({color:0x080b11,roughness:.28,metalness:.52,side:THREE.DoubleSide}));cameraRing.position.set(0,.008,-.197);cameraRing.renderOrder=7;cameraHead.add(cameraRing);
- const cameraLens=new THREE.Mesh(new THREE.CircleGeometry(.033,22),new THREE.MeshBasicMaterial({color:0x05070a,transparent:true,opacity:.72,side:THREE.DoubleSide}));cameraLens.position.set(.105,.103,-.2);cameraLens.renderOrder=9;cameraHead.add(cameraLens);
+ const cameraLens=new THREE.Mesh(new THREE.CircleGeometry(.033,22),new THREE.MeshBasicMaterial({color:0x05070a,transparent:true,opacity:.72,side:THREE.FrontSide}));cameraLens.position.set(.105,.103,-.2);cameraLens.rotation.y=Math.PI;cameraLens.renderOrder=9;cameraHead.add(cameraLens);
  const face=mesh(new THREE.BoxGeometry(.05,.065,.04),skin,0,1.70,-.162);face.visible=false;
  const legs=[],arms=[];
  for(const sign of [-1,1]){

@@ -1,5 +1,5 @@
-import * as THREE from './three.module.js?v=appels-v51';
-import {GLTFLoader} from './GLTFLoader.js?v=appels-v51';
+import * as THREE from './three.module.js?v=appels-v52';
+import {GLTFLoader} from './GLTFLoader.js?v=appels-v52';
 
 // This scenery fits the existing lobby collision footprints. No network or game state here.
 export function buildRoom(scene,renderer,alive,dispose){
