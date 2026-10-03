@@ -130,19 +130,19 @@ async function readAudioDuration(audio,blob){
  try{context=new AudioContext();const decoded=await context.decodeAudioData(await blob.arrayBuffer());if(audio.isConnected){audio.dataset.duration=String(decoded.duration);audio.dispatchEvent(new Event('durationchange'));}}catch{/* Keep playback available for codecs the decoder cannot inspect. */}finally{await context?.close().catch(()=>{});}
 }
 function callState(c,state,text){if(c.canceled)return;c.dialog.dataset.state=state;c.status.textContent=text;}
-function stopRingtone(){const r=ringtone;ringtone=null;ringtoneSeq++;if(!r)return;clearInterval(r.timer);try{navigator.vibrate?.(0)}catch{};try{r.ctx.close()}catch{}}
+function stopRingtone(){const r=ringtone;ringtone=null;ringtoneSeq++;if(!r)return;clearInterval(r.timer);clearInterval(r.vibrationTimer);try{navigator.vibrate?.(0)}catch{};try{r.ctx.close()}catch{}}
 async function startRingtone(c){
  stopRingtone();const seq=ringtoneSeq;const AudioContext=window.AudioContext||window.webkitAudioContext;if(!AudioContext)return;
- let ctx;try{ctx=new AudioContext();await ctx.resume().catch(()=>{});if(seq!==ringtoneSeq||c?.canceled||active!==c){try{ctx.close()}catch{};return}if(ctx.state==='closed')return;const gain=ctx.createGain();gain.gain.value=.055;gain.connect(ctx.destination);const r={ctx,gain,timer:null};ringtone=r;
-  const beep=()=>{if(ringtone!==r)return;const now=ctx.currentTime;for(const offset of [0,.24]){const osc=ctx.createOscillator();osc.type='sine';osc.frequency.setValueAtTime(880,now+offset);osc.frequency.setValueAtTime(660,now+offset+.16);osc.connect(gain);osc.start(now+offset);osc.stop(now+offset+.22);}};
-  beep();r.timer=setInterval(beep,1800);try{navigator.vibrate?.([320,180,320])}catch{}
+ let ctx;try{ctx=new AudioContext();await ctx.resume().catch(()=>{});if(seq!==ringtoneSeq||c?.canceled||active!==c){try{ctx.close()}catch{};return}if(ctx.state==='closed')return;const gain=ctx.createGain();gain.gain.setValueAtTime(.12,ctx.currentTime);gain.connect(ctx.destination);const r={ctx,gain,timer:null,vibrationTimer:null};ringtone=r;
+  const beep=()=>{if(ringtone!==r||ctx.state==='closed')return;const now=ctx.currentTime;const notes=[[740,0,.22],[988,.24,.22],[740,.52,.26]];for(const [frequency,offset,duration] of notes){const osc=ctx.createOscillator(),volume=ctx.createGain();osc.type='sine';osc.frequency.setValueAtTime(frequency,now+offset);volume.gain.setValueAtTime(.0001,now+offset);volume.gain.exponentialRampToValueAtTime(.9,now+offset+.025);volume.gain.exponentialRampToValueAtTime(.0001,now+offset+duration);osc.connect(volume).connect(gain);osc.start(now+offset);osc.stop(now+offset+duration+.04);}};
+  const vibrate=()=>{try{navigator.vibrate?.([420,140,420,140,700])}catch{}};beep();vibrate();r.timer=setInterval(beep,2300);r.vibrationTimer=setInterval(vibrate,2300);
  }catch{try{ctx?.close()}catch{}}
 }
 async function showIncomingNotification(c){
  if(!c?.id||notifiedCallId===c.id)return;notifiedCallId=c.id;
  if(!('Notification' in window)||Notification.permission!=='granted')return;
  const title=c.video?'Visio entrante':'Appel audio entrant',body=(c.person?.name||'Un contact')+' t’appelle sur ONE';
- try{const registration=await navigator.serviceWorker?.ready;const options={body,tag:'one-call-'+c.id,renotify:true,data:{url:location.href,callId:c.id}};if(registration?.showNotification)await registration.showNotification(title,options);else new Notification(title,options);}catch{}
+ try{const registration=await navigator.serviceWorker?.ready;const options={body,tag:'one-call-'+c.id,renotify:true,requireInteraction:true,vibrate:[420,140,420,140,700],data:{url:location.href,callId:c.id}};if(registration?.showNotification)await registration.showNotification(title,options);else new Notification(title,options);}catch{}
 }
 async function enableCallNotifications(c){
  if(!('Notification' in window)){c.status.textContent='Les notifications ne sont pas disponibles sur ce navigateur.';return false;}

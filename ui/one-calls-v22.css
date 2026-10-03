@@ -147,10 +147,14 @@ html body .oneVoiceList .oneVoiceMessage[data-mine=true] { align-self:flex-end; 
  .oneVoiceMark,.oneVoiceBars { display:none; }
 }
 @media(prefers-reduced-motion:no-preference) {
- .oneCallDialog[data-state=ringing] .oneCallAvatar,.oneCallDialog[data-state=incoming] .oneCallAvatar { animation:oneCallBreathe 2.6s ease-in-out infinite; }
+.oneCallDialog[data-state=ringing] .oneCallAvatar,.oneCallDialog[data-state=incoming] .oneCallAvatar { animation:oneCallBreathe 2.6s ease-in-out infinite; }
+.oneCallDialog[data-state=incoming] .oneCallAvatar { animation:oneCallBreathe 1.15s ease-in-out infinite,oneCallRingGlow 1.15s ease-in-out infinite; }
+.oneCallDialog[data-state=incoming] .oneCallStatus { color:#e9d7ff; font-weight:650; }
+.oneCallDialog[data-state=incoming] .oneCallStatus::before { background:#caa7ff; box-shadow:0 0 0 5px #a979ff22,0 0 18px #b279ff; }
  .oneVoiceRecorder[data-phase=recording] .oneVoiceBars i { animation:oneVoicePulse .8s ease-in-out infinite alternate; animation-delay:var(--delay); }
  .oneIconAction>.oneCommIcon { transition:background-color .15s,transform .15s; }
  .oneIconAction:active>.oneCommIcon { transform:scale(.93); }
 }
 @keyframes oneCallBreathe { 50% { box-shadow:0 0 0 16px #a377e712,0 0 0 36px #a377e705; } }
+@keyframes oneCallRingGlow { 50% { filter:brightness(1.22); transform:scale(1.045); } }
 @keyframes oneVoicePulse { to { transform:scaleY(.35); opacity:.5; } }
