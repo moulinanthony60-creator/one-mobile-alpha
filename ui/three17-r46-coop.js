@@ -86,6 +86,15 @@ export function startRound(){
 export function setLobbyReady(){if(!joined||pending||!roster.some(p=>p.id===me()?.accountId))return;ready=!ready;notice='';heartbeat();redraw();}
 export function updateLobbyPose(pose){if(!joined||round||!validPose(pose))return;poses.set(me()?.accountId,pose);if(!isHost())send(host()?.accountId,'pose43',{pose,session});}
 function bind(){if(!unsubscribe&&link())unsubscribe=link().subscribe(receive);}
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function connectWithRetry(reconnect=false){
+  let failure;
+  for(let attempt=0;attempt<3;attempt++){
+    try{if(attempt===0&&!reconnect)await link().connect();else await link().reconnect();return;}
+    catch(error){failure=error;if(attempt<2)await pause(650*(attempt+1));}
+  }
+  throw failure||Error('Connexion au lobby indisponible.');
+}
 export async function joinLobby(context,reconnect=false){
   if(context?.room)publishedRoom=context.room;
   if(round||connecting)return;
@@ -97,7 +106,7 @@ export async function joinLobby(context,reconnect=false){
     if(!me())throw Error('Ton compte n’est pas identifié dans le salon. Ferme puis rouvre le salon ONE.');
     if(!host())throw Error('L’hôte du salon n’est pas identifié. Ferme puis rouvre le salon ONE.');
     if(!link())throw Error('Connexion absente : recharge ONE après avoir copié le dossier ui du correctif R43.');
-    bind();await (reconnect?link().reconnect():link().connect());
+    bind();await connectWithRetry(reconnect);
     if(own!==generation)return;
     if(!joined){session=crypto.randomUUID();ready=false;poses.clear();roster=[];hostSeen=0;applicants.clear();}
     joined=true;notice='';heartbeat();
