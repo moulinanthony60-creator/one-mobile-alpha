@@ -49,7 +49,7 @@
   }
   const api = window.ONE_SHOP = { categories: [...categories], getProducts: () => { if (!catalog) throw new Error('Attendre ONE_SHOP.ready'); return copy(products); }, find, search: (query, criteria = {}) => find({...criteria, query}), reload: () => load(true), getMetadata: () => catalog ? {schemaVersion: 1, demo: catalog.demo, updatedAt: catalog.updatedAt} : null };
   api.ready = load(); api.ready.catch(() => {});
-  const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = new URL('one-shop.css?v=amazon28-fix1', base); document.head.append(css);
+  const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = new URL('one-shop.css?v=shop-design-v2', base); document.head.append(css);
   const el = (tag, cls, text) => { const node = document.createElement(tag); if (cls) node.className = cls; if (text !== undefined) node.textContent = text; return node; };
   const button = (label, handler, cls = '') => { const b = el('button', cls, label); b.type = 'button'; b.onclick = handler; return b; };
   const money = n => new Intl.NumberFormat('fr-FR', {style:'currency', currency:'EUR'}).format(n);
@@ -68,20 +68,20 @@
     try { await load(); } catch { if (ticket === epoch && root.isConnected) root.replaceChildren(el('h1','','Catalogue indisponible'), el('p','','Vérifie ta connexion puis réessaie.'), button('Réessayer',render,'os-primary')); return; }
     if (ticket !== epoch || !root.isConnected) return;
     root.replaceChildren();
-    const header = el('header','os-heading'), title = el('div'); title.append(el('span','os-kicker','ONE SHOP'),el('h1','','Le bon équipement.\nPour toi.'));
+    const header = el('header','os-heading'), title = el('div'); title.append(el('span','os-kicker','ONE SHOP'),el('h1','','Ta sélection tech.'));
     const fav = button('♡ Mes favoris', () => { state.favorites = !state.favorites; render(); },'os-secondary'); fav.setAttribute('aria-pressed',String(state.favorites)); header.append(title,fav); root.append(header);
-    const notice = el('p','os-notice',catalog.demo ? 'DÉMONSTRATION · Produits, marchands et prix fictifs. Aucun achat disponible.' : 'En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises.'); root.append(notice);
-    root.append(el('p','os-intro','Compare les offres et trouve ce qui correspond à tes envies.'));
+    const notice = el('p','os-notice',catalog.demo ? 'DÉMONSTRATION · Produits, marchands et prix fictifs. Aucun achat disponible.' : 'En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises.');  
+    root.append(el('p','os-intro','Écrans, gaming, audio… trouve ton prochain équipement.'));
     const form = el('form','os-search'); form.setAttribute('role','search');
     const input = el('input'); input.type='search'; input.value=state.query; input.placeholder='Écran PS5, casque, smartphone…'; input.setAttribute('aria-label','Rechercher un produit');
     const submit = el('button','os-primary','Rechercher'); submit.type='submit'; form.append(input,submit); form.onsubmit=e=>{e.preventDefault();state.query=input.value.trim();update();}; root.append(form);
     const cats=el('div','os-categories'); cats.setAttribute('role','group'); cats.setAttribute('aria-label','Catégories');
     for(const c of ['',...categories]) { const b=button(c||'Tout',()=>{state.category=c; for(const n of cats.children)n.setAttribute('aria-pressed',String(n===b));update();}); b.setAttribute('aria-pressed',String(state.category===c));cats.append(b); } root.append(cats);
-    const filters=el('div','os-filters');
+    const panel=el('details','os-filter-panel'); panel.open=!!(state.brand||state.maxPrice||state.sort!=='default'); const summary=el('summary','','Affiner ma recherche');panel.append(summary); const filters=el('div','os-filters');
     function select(label, key, options) { const wrap=el('label','',label), s=el('select'); for(const [value,text] of options){const o=el('option','',text);o.value=value;s.append(o);} s.value=state[key];s.onchange=()=>{state[key]=s.value;update();};wrap.append(s);filters.append(wrap); }
     select('Marque','brand',[['','Toutes les marques'],...[...new Set(products.map(p=>p.brand))].sort().map(b=>[b,b])]);
     const budget=el('label','','Budget maximal (€)'), max=el('input');max.type='number';max.min='0';max.step='0.01';max.placeholder='Sans limite';max.value=state.maxPrice;max.oninput=()=>{state.maxPrice=max.value;update();};budget.append(max);filters.append(budget);
-    select('Trier','sort',[['default','Catalogue'],['price-asc','Prix croissant'],['price-desc','Prix décroissant']]);root.append(filters,el('p','os-small','Les produits sans prix renseigné sont exclus du filtre de budget.'));
+    select('Trier','sort',[['default','Catalogue'],['price-asc','Prix croissant'],['price-desc','Prix décroissant']]);panel.append(filters,el('p','os-small','Les produits sans prix renseigné sont exclus du filtre de budget.'));root.append(panel,notice);
     const status=el('p','os-status');status.setAttribute('role','status'); const results=el('div','os-grid');root.append(status,results);
     function update(){const saved=favorites();const found=find({query:state.query,category:state.category,brand:state.brand,maxPrice:state.maxPrice===''?null:Number(state.maxPrice),sort:state.sort}).filter(p=>!state.favorites||saved.has(p.id));status.textContent=found.length+' produit'+(found.length>1?'s':'')+(state.favorites?' dans tes favoris':'');results.replaceChildren();
       if(!found.length){const empty=el('div','os-empty');empty.append(el('h2','','Aucun produit trouvé'),el('p','','Essaie un autre mot ou élargis tes filtres.'),button('Effacer les filtres',()=>{state={query:'',category:'',brand:'',maxPrice:'',sort:'default',favorites:false};render();},'os-secondary'));results.append(empty);}
