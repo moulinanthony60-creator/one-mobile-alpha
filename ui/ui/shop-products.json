@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "demo": false,
+  "updatedAt": "2026-10-03T06:44:29.040Z",
+  "products": [
+    {
+      "id": "amazon_B0C4TMX63V",
+      "title": "KOORUI — Écran incurvé 27 pouces Full HD 144 Hz",
+      "brand": "KOORUI",
+      "category": "Écrans",
+      "image": "shop-assets/monitor.svg",
+      "demo": false,
+      "specs": {
+        "sizeInches": 27,
+        "refreshRateHz": 144,
+        "taille": "27 pouces",
+        "resolution": "1920 × 1080",
+        "frequence": "144 Hz",
+        "courbure": "1500R",
+        "dalle": "VA",
+        "connectique": "HDMI 1.4 · VGA"
+      },
+      "tags": [
+        "écran",
+        "moniteur",
+        "incurvé",
+        "gaming"
+      ],
+      "sourceNote": "Caractéristiques issues de la capture fournie par l’utilisateur. Destination du lien court non vérifiée automatiquement.",
+      "offers": [
+        {
+          "id": "amazon_B0C4TMX63V_manual",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "https://www.amazon.fr/dp/B0C4TMX63V",
+          "affiliateUrl": "https://link.amazon/B0hH3s7mp",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    }
+  ]
+}
