@@ -1,6 +1,6 @@
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=appels-v54';
-import * as THREE from './three.module.js?v=appels-v54';
-import {createCoopWorld,controls} from './three17-r46-world.js?v=appels-v54';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=appels-v55';
+import * as THREE from './three.module.js?v=appels-v55';
+import {createCoopWorld,controls} from './three17-r46-world.js?v=appels-v55';
 
 const packet=(kind,data={})=>({game:'317',v:1,kind,...data});
 const now=()=>performance.now();
@@ -155,15 +155,17 @@ export function createCoopRuntime(config,b){
   const visuals=new Map(config.players.filter(p=>p.id!==localId).map((p,i)=>[p.id,avatar(scene,p.name,[0x76868c,0x716b8c,0x8a7957][i])]));
   const freezeHeadCamera=(v)=>{
     const element=v.videoElement;if(!element||!element.videoWidth||!element.videoHeight||!v.cameraScreen?.material)return;
-    try{const canvas=document.createElement('canvas');canvas.width=element.videoWidth;canvas.height=element.videoHeight;canvas.getContext('2d').drawImage(element,0,0,canvas.width,canvas.height);const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;v.videoTexture?.dispose?.();v.videoTexture=texture;v.cameraScreen.material.map=texture;v.cameraScreen.material.needsUpdate=true;v.videoFrozen=true;}catch{}
+    try{const canvas=document.createElement('canvas');canvas.width=element.videoWidth;canvas.height=element.videoHeight;canvas.getContext('2d').drawImage(element,0,0,canvas.width,canvas.height);const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;v.videoTexture?.dispose?.();v.videoTexture=texture;v.cameraScreen.material.map=texture;v.cameraScreen.material.color.set(0xffffff);v.cameraScreen.material.needsUpdate=true;v.videoFrozen=true;v.videoReady=true;}catch{}
   };
   const syncHeadCamera=(id,v,dead=false)=>{
     const element=window.ONEPartyMedia?.videoForMember?.(id)||null;
-    if(dead&&v.videoElement===element){if(!v.videoFrozen)freezeHeadCamera(v);return;}
-    if(element===v.videoElement&&!v.videoFrozen)return;
-    v.videoElement=element;v.videoFrozen=false;
+    const ready=!!element&&element.readyState>=2&&element.videoWidth>0&&element.videoHeight>0;
+    if(dead&&v.videoElement===element){if(!v.videoFrozen&&ready)freezeHeadCamera(v);return;}
+    if(element===v.videoElement&&!v.videoFrozen&&ready===v.videoReady)return;
+    v.videoElement=element;v.videoFrozen=false;v.videoReady=ready;
     if(v.videoTexture){v.videoTexture.dispose();v.videoTexture=null;}
     const material=v.cameraScreen?.material;if(!material)return;
+    if(element&&!ready){material.map=null;material.color.set(0x11151d);material.needsUpdate=true;return;}
     if(element){try{element.muted=true;element.playsInline=true;element.play?.().catch?.(()=>{});v.videoTexture=new THREE.VideoTexture(element);v.videoTexture.colorSpace=THREE.SRGBColorSpace;v.videoTexture.minFilter=THREE.LinearFilter;v.videoTexture.magFilter=THREE.LinearFilter;material.map=v.videoTexture;material.color.set(0xffffff);}catch{material.map=null;material.color.set(0x11151d);}}else{material.map=null;material.color.set(0x11151d);}material.needsUpdate=true;
   };
   const cameraRequest=window.ONEPartyMedia?.enable?.({camera:true});cameraRequest?.catch?.(()=>{});

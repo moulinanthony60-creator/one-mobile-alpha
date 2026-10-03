@@ -1,19 +1,19 @@
 
-import {prepareScene} from './three17-r46-warmup.js?v=appels-v54';
-import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js?v=appels-v54';
+import {prepareScene} from './three17-r46-warmup.js?v=appels-v55';
+import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js?v=appels-v55';
 
-import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=appels-v54';
-import * as THREE from './three.module.js?v=appels-v54';
-import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js?v=appels-v54';
-import { createHorrorAudio } from './three17-r41-audio.js?v=appels-v54';
-import { createScareEffects } from './three17-r41-scares.js?v=appels-v54';
+import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=appels-v55';
+import * as THREE from './three.module.js?v=appels-v55';
+import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js?v=appels-v55';
+import { createHorrorAudio } from './three17-r41-audio.js?v=appels-v55';
+import { createScareEffects } from './three17-r41-scares.js?v=appels-v55';
 const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHeightAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
 /**
  * 3:17 FOUR — R23. Géométrie R20 préservée, monstre et objets jouables.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R54 · CAMERA ET MOUVEMENT';
+const BUILD = 'R55 · CAMERA ET MOUVEMENT';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -768,7 +768,7 @@ function createMonsterController(house,hooks={},spawn=null) {
 function createMonsterMesh(scene) {
   const root=new THREE.Group();root.name='monstre-parasite';root.visible=false;scene.add(root);
   let controller=null,disposed=false,lastState=null;
-  const ready=import('./three17-parasite-r41.js?v=appels-v54').then(m=>m.loadParasite(root)).then(value=>{
+  const ready=import('./three17-parasite-r41.js?v=appels-v55').then(m=>m.loadParasite(root)).then(value=>{
     if(disposed){value.dispose();disposeScene(root);return false;}
     controller=value;if(lastState)controller.animate(lastState,0);return true;
   });
@@ -1494,8 +1494,15 @@ function open(options={}) {
     }
     stick.addEventListener('pointerdown',e=>{if(!started||ended||paused||drag!==null)return;drag=e.pointerId;stick.setPointerCapture(drag);sm(e);});
     stick.addEventListener('pointermove',e=>{if(e.pointerId===drag)sm(e);});
-    function se(e){if(e.pointerId!==drag)return;drag=null;keys.x=keys.y=0;knob.style.transform='';}
+    function se(e){if(drag===null||e?.pointerId!==undefined&&e.pointerId!==drag)return;drag=null;keys.x=keys.y=0;knob.style.transform='';}
     for(const event of ['pointerup','pointercancel','lostpointercapture'])stick.addEventListener(event,se);
+    // Some Android browsers lose pointer capture when the finger crosses the
+    // WebGL canvas. A window-level release prevents stale joystick input.
+    const releaseStick=()=>se({});
+    window.addEventListener('pointerup',releaseStick,{passive:true});window.addEventListener('pointercancel',releaseStick,{passive:true});
+    // Fallbacks for browsers that expose touch/mouse events without a final
+    // PointerEvent when the finger leaves the WebGL surface.
+    window.addEventListener('touchend',releaseStick,{passive:true});window.addEventListener('touchcancel',releaseStick,{passive:true});window.addEventListener('mouseup',releaseStick,{passive:true});
     lookZone.addEventListener('pointerdown',e=>{if(!started||ended||paused||look!==null)return;look=e.pointerId;lx=e.clientX;ly=e.clientY;lookZone.setPointerCapture(look);});
     lookZone.addEventListener('pointermove',e=>{if(e.pointerId!==look)return;const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;yaw-=dx*.006;pitch=clamp(pitch-dy*.004,-.8,.7);});
     for(const event of ['pointerup','pointercancel','lostpointercapture'])lookZone.addEventListener(event,e=>{if(e.pointerId===look)look=null;});
@@ -1531,7 +1538,7 @@ function open(options={}) {
     document.addEventListener('visibilitychange',onVisibility);window.addEventListener('blur',pause);window.addEventListener('focus',resume);
     window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
     window.addEventListener('keydown',onKeyDown);window.addEventListener('keyup',onKeyUp);
-    removeEvents=()=>{resetInputs();document.removeEventListener('visibilitychange',onVisibility);window.removeEventListener('blur',pause);window.removeEventListener('focus',resume);window.removeEventListener('keydown',onKeyDown);window.removeEventListener('keyup',onKeyUp);window.removeEventListener('resize',resize);window.removeEventListener('orientationchange',resize);renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('webglcontextrestored',onContextRestored);};
+    removeEvents=()=>{resetInputs();for(const event of ['pointerup','pointercancel','touchend','touchcancel','mouseup'])window.removeEventListener(event,releaseStick);document.removeEventListener('visibilitychange',onVisibility);window.removeEventListener('blur',pause);window.removeEventListener('focus',resume);window.removeEventListener('keydown',onKeyDown);window.removeEventListener('keyup',onKeyUp);window.removeEventListener('resize',resize);window.removeEventListener('orientationchange',resize);renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('webglcontextrestored',onContextRestored);};
     let coopMonsterStep=0;
     if(coopConfig){
       shell.querySelector('.three17-card h1').textContent='3:17 · '+coopConfig.players.length+' JOUEURS';

@@ -1,12 +1,12 @@
-import {prepareScene} from './three17-r46-warmup.js?v=appels-v54';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=appels-v54';
+import {prepareScene} from './three17-r46-warmup.js?v=appels-v55';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=appels-v55';
 
-import * as THREE from './three.module.js?v=appels-v54';
-import {buildRoom} from './one-lobby-r46-room.js?v=appels-v54';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=appels-v54';
-import {createRenderBudget} from './three17-r46-render.js?v=appels-v54';
+import * as THREE from './three.module.js?v=appels-v55';
+import {buildRoom} from './one-lobby-r46-room.js?v=appels-v55';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=appels-v55';
+import {createRenderBudget} from './three17-r46-render.js?v=appels-v55';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=appels-v54';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=appels-v55';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function open(ctx={}){
@@ -24,11 +24,13 @@ function open(ctx={}){
  const spawns=[[0,4.8],[-2.2,1.8],[0,2.0],[2.2,1.8]];
  const syncHeadCamera=(id,v)=>{
    const element=window.ONEPartyMedia?.videoForMember?.(id)||null;
-   if(element===v.videoElement)return;
-   v.videoElement=element;
+   const ready=!!element&&element.readyState>=2&&element.videoWidth>0&&element.videoHeight>0;
+   if(element===v.videoElement&&ready===v.videoReady)return;
+   v.videoElement=element;v.videoReady=ready;
    if(v.videoTexture){v.videoTexture.dispose();v.videoTexture=null;}
    const material=v.cameraScreen?.material;
    if(!material)return;
+   if(element&&!ready){material.map=null;material.color.set(0x11151d);material.needsUpdate=true;return;}
    if(element){
     try{
      element.muted=true;element.playsInline=true;element.play?.().catch?.(()=>{});
@@ -65,7 +67,7 @@ function open(ctx={}){
  const canMove=(x,z)=>Math.abs(x)<8.1&&Math.abs(z)<6.1&&!(Math.hypot(x,z)<1.6)&&!([-4.8,4.8].some(cx=>Math.abs(x-cx)<1.65&&z>-3.8&&z<-1.95));
  function drawStatus(next){
    state=next;const key=JSON.stringify([next.room,next.self,next.host,next.notice,next.joined,next.ready,next.canStart,next.connecting,next.players]);if(key===statusKey)return;statusKey=key;
-   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R54';
+   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R55';
    shell.querySelector('[data-status]').textContent=next.notice;
    const readyButton=shell.querySelector('button[data-ready]'),start=shell.querySelector('[data-start]');
    readyButton.disabled=!next.joined||!next.players.some(p=>p.id===next.self);readyButton.textContent=next.ready?'✓ Prêt':'Je suis prêt';readyButton.setAttribute('aria-pressed',String(next.ready));

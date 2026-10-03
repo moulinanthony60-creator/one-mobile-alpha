@@ -1,5 +1,5 @@
-import * as THREE from './three.module.js?v=appels-v54';
-import {createPoseTrack} from './three17-r44-render.js?v=appels-v54';
+import * as THREE from './three.module.js?v=appels-v55';
+import {createPoseTrack} from './three17-r44-render.js?v=appels-v55';
 
 export function createAvatar(scene,name,color){
  const group=new THREE.Group(),rig=new THREE.Group();group.add(rig);
@@ -23,9 +23,8 @@ export function createAvatar(scene,name,color){
  // The face is its own billboard. Each client turns this one face toward its
  // own viewer, while the texture itself still belongs only to this member.
  const cameraFace=new THREE.Group();cameraFace.position.set(0,.008,-.195);cameraHead.add(cameraFace);
- const cameraScreen=new THREE.Mesh(new THREE.CircleGeometry(.184,36),new THREE.MeshBasicMaterial({color:0x11151d,transparent:false,side:THREE.FrontSide,depthTest:true,depthWrite:false}));cameraScreen.renderOrder=8;cameraFace.add(cameraScreen);
+  const cameraScreen=new THREE.Mesh(new THREE.CircleGeometry(.184,36),new THREE.MeshBasicMaterial({color:0x11151d,transparent:false,side:THREE.DoubleSide,depthTest:false,depthWrite:false}));cameraScreen.renderOrder=8;cameraFace.add(cameraScreen);
  const cameraRing=new THREE.Mesh(new THREE.RingGeometry(.185,.211,36),new THREE.MeshStandardMaterial({color:0x080b11,roughness:.28,metalness:.52,side:THREE.DoubleSide}));cameraRing.renderOrder=7;cameraFace.add(cameraRing);
- const cameraLens=new THREE.Mesh(new THREE.CircleGeometry(.033,22),new THREE.MeshBasicMaterial({color:0x05070a,transparent:true,opacity:.72,side:THREE.FrontSide}));cameraLens.position.set(.105,.103,.004);cameraLens.renderOrder=9;cameraFace.add(cameraLens);
  const face=mesh(new THREE.BoxGeometry(.05,.065,.04),skin,0,1.70,-.162);face.visible=false;
  const legs=[],arms=[];
  for(const sign of [-1,1]){
@@ -40,7 +39,7 @@ export function createAvatar(scene,name,color){
  const glow=mesh(new THREE.SphereGeometry(.032,8,6),new THREE.MeshBasicMaterial({color:0xffdb94}),.02,-.49,-.16,arms[1]);
  const c=document.createElement('canvas');c.width=512;c.height=96;const ctx=c.getContext('2d');ctx.fillStyle='#11131dd9';ctx.beginPath();ctx.roundRect(4,4,504,88,22);ctx.fill();ctx.fillStyle='#f4f0e9';ctx.font='600 32px system-ui';ctx.textAlign='center';ctx.fillText(String(name).slice(0,22),256,60);
  const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;const label=new THREE.Sprite(new THREE.SpriteMaterial({map:texture}));label.scale.set(1.5,.28,1);label.position.y=2.2;group.add(label);
- scene.add(group);return {group,rig,legs,arms,glow,head,cap,face,cameraHead,cameraBody,cameraVideoMaterial,cameraFace,cameraScreen,cameraRing,cameraLens,track:createPoseTrack(),phase:0,last:null,swing:0,visualYaw:null,visualPitch:null,videoTexture:null,videoElement:null};
+ scene.add(group);return {group,rig,legs,arms,glow,head,cap,face,cameraHead,cameraBody,cameraVideoMaterial,cameraFace,cameraScreen,cameraRing,track:createPoseTrack(),phase:0,last:null,swing:0,visualYaw:null,visualPitch:null,videoTexture:null,videoElement:null,videoReady:false};
 }
 
 const _cameraHeadWorld=new THREE.Vector3(),_cameraViewerWorld=new THREE.Vector3(),_cameraFaceWorld=new THREE.Vector3();
@@ -52,7 +51,9 @@ export function orientAvatarCamera(v,viewer){
  _cameraViewerWorld.set(Number(viewer.x)||0,Number(viewer.y)||0,Number(viewer.z)||0);
  const dx=_cameraViewerWorld.x-_cameraHeadWorld.x,dy=_cameraViewerWorld.y-_cameraHeadWorld.y,dz=_cameraViewerWorld.z-_cameraHeadWorld.z;
  const length=Math.hypot(dx,dy,dz);if(length<.05)return;
- _cameraFaceWorld.set(_cameraHeadWorld.x+dx/length*.205,_cameraHeadWorld.y+dy/length*.205,_cameraHeadWorld.z+dz/length*.205);
+  // Keep the screen just outside the spherical shell so the black body can
+  // never poke through the live image at oblique viewing angles.
+  _cameraFaceWorld.set(_cameraHeadWorld.x+dx/length*.228,_cameraHeadWorld.y+dy/length*.228,_cameraHeadWorld.z+dz/length*.228);
  v.cameraFace.parent.worldToLocal(_cameraFaceWorld);v.cameraFace.position.copy(_cameraFaceWorld);v.cameraFace.lookAt(_cameraViewerWorld);
 }
 export function animateAvatar(v,p,elapsed){
