@@ -22,7 +22,10 @@ export function createRenderBudget({mobile=false,onChange=()=>{}}={}){
 }
 
 // A short buffer smooths the 10 Hz network updates, without moving the real player.
-export function createPoseTrack(delay=25){
+// Keep a small receive buffer instead of extrapolating stale network poses.
+// Extrapolation made a remote avatar overshoot every time a player stopped,
+// then snap back when the next packet arrived.
+export function createPoseTrack(delay=70){
  let samples=[],identity=null;
  const result={x:0,y:0,z:0,yaw:0,pitch:0};
  return {
@@ -30,7 +33,7 @@ export function createPoseTrack(delay=25){
    if(last&&Math.hypot(next.x-last.x,next.y-last.y,next.z-last.z)>3)samples=[];
    samples.push(next);if(samples.length>24)samples.shift();},
   at(time){if(!samples.length)return null;const t=time-delay;while(samples.length>2&&samples[1].t<=t)samples.shift();const a=samples[0],b=samples[1]||a;
-  const latest=samples.at(-1);if(samples.length>1&&t>latest.t){const prev=samples.at(-2),span=Math.max(1,latest.t-prev.t),ahead=Math.min(80,t-latest.t),k=ahead/span;result.x=latest.x+(latest.x-prev.x)*k;result.y=latest.y+(latest.y-prev.y)*k;result.z=latest.z+(latest.z-prev.z)*k;result.yaw=latest.yaw+Math.atan2(Math.sin(latest.yaw-prev.yaw),Math.cos(latest.yaw-prev.yaw))*k;result.pitch=latest.pitch+(latest.pitch-prev.pitch)*k;return result;}
+  const latest=samples.at(-1);if(t>=latest.t){result.x=latest.x;result.y=latest.y;result.z=latest.z;result.yaw=latest.yaw;result.pitch=latest.pitch;return result;}
    const k=Math.max(0,Math.min(1,(t-a.t)/Math.max(1,b.t-a.t)));
    result.x=a.x+(b.x-a.x)*k;result.y=a.y+(b.y-a.y)*k;result.z=a.z+(b.z-a.z)*k;
    result.yaw=a.yaw+Math.atan2(Math.sin(b.yaw-a.yaw),Math.cos(b.yaw-a.yaw))*k;result.pitch=a.pitch+(b.pitch-a.pitch)*k;return result;},

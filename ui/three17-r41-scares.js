@@ -1,5 +1,5 @@
-import * as THREE from './three.module.js';
-import { clone } from './SkeletonUtils.js';
+import * as THREE from './three.module.js?v=appels-v51';
+import { clone } from './SkeletonUtils.js?v=appels-v51';
 
 export function createScareEffects(shell,renderer,monster,audio,reducedMotion){
   const layer=document.createElement('div');layer.className='three17-scare';layer.setAttribute('aria-hidden','true');

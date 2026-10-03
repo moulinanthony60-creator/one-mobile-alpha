@@ -1,4 +1,4 @@
-import * as THREE from './three.module.js';
+import * as THREE from './three.module.js?v=appels-v51';
 const breathe=()=>new Promise(resolve=>setTimeout(resolve,0));
 // Upload a few maps per turn and compile all visible materials before enabling play.
 export async function prepareScene(renderer,scene,camera,alive=()=>true){

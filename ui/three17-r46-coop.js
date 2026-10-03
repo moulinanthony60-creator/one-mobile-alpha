@@ -1,6 +1,6 @@
-import {createAvatar,animateAvatar} from './three17-r44-avatar.js';
-import * as THREE from './three.module.js';
-import {createCoopWorld,controls} from './three17-r46-world.js';
+import {createAvatar,animateAvatar} from './three17-r44-avatar.js?v=appels-v51';
+import * as THREE from './three.module.js?v=appels-v51';
+import {createCoopWorld,controls} from './three17-r46-world.js?v=appels-v51';
 
 const packet=(kind,data={})=>({game:'317',v:1,kind,...data});
 const now=()=>performance.now();

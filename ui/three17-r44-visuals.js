@@ -1,7 +1,7 @@
-import { replaceR41Volume, addR41Furniture } from './three17-r41-furniture.js';
-import * as THREE from './three.module.js';
-import { GLTFLoader } from './GLTFLoader.js';
-import { mergeGeometries } from './BufferGeometryUtils.js';
+import { replaceR41Volume, addR41Furniture } from './three17-r41-furniture.js?v=appels-v51';
+import * as THREE from './three.module.js?v=appels-v51';
+import { GLTFLoader } from './GLTFLoader.js?v=appels-v51';
+import { mergeGeometries } from './BufferGeometryUtils.js?v=appels-v51';
 
 // This module only produces render objects. It never mutates house solids,
 // doors, items, navigation, search targets or hiding spots.

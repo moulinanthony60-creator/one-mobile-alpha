@@ -1,5 +1,5 @@
-import * as THREE from './three.module.js';
-import {createPoseTrack} from './three17-r44-render.js';
+import * as THREE from './three.module.js?v=appels-v51';
+import {createPoseTrack} from './three17-r44-render.js?v=appels-v51';
 
 export function createAvatar(scene,name,color){
  const group=new THREE.Group(),rig=new THREE.Group();group.add(rig);

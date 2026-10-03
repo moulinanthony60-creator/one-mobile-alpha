@@ -1,19 +1,19 @@
 
-import {prepareScene} from './three17-r46-warmup.js';
-import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js';
+import {prepareScene} from './three17-r46-warmup.js?v=appels-v51';
+import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js?v=appels-v51';
 
-import { installCoop, createCoopRuntime } from './three17-r46-coop.js';
-import * as THREE from './three.module.js';
-import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js';
-import { createHorrorAudio } from './three17-r41-audio.js';
-import { createScareEffects } from './three17-r41-scares.js';
+import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=appels-v51';
+import * as THREE from './three.module.js?v=appels-v51';
+import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js?v=appels-v51';
+import { createHorrorAudio } from './three17-r41-audio.js?v=appels-v51';
+import { createScareEffects } from './three17-r41-scares.js?v=appels-v51';
 const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHeightAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
 /**
  * 3:17 FOUR — R23. Géométrie R20 préservée, monstre et objets jouables.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R46 · MATIÈRES ET FLUIDITÉ';
+const BUILD = 'R51 · CAMERA ET MOUVEMENT';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -761,7 +761,7 @@ function createMonsterController(house,hooks={},spawn=null) {
 function createMonsterMesh(scene) {
   const root=new THREE.Group();root.name='monstre-parasite';root.visible=false;scene.add(root);
   let controller=null,disposed=false,lastState=null;
-  const ready=import('./three17-parasite-r41.js').then(m=>m.loadParasite(root)).then(value=>{
+  const ready=import('./three17-parasite-r41.js?v=appels-v51').then(m=>m.loadParasite(root)).then(value=>{
     if(disposed){value.dispose();disposeScene(root);return false;}
     controller=value;if(lastState)controller.animate(lastState,0);return true;
   });
@@ -1529,19 +1529,17 @@ function open(options={}) {
           const localPrediction=!!(coop&&!hosting&&!spectator&&coop.moving?.());
           if(hosting||hidden||wasHidden!==hidden||spectator)Object.assign(position,view.position);
           else {
-            // Reconcile without teleporting the camera. The old threshold
-            // caused a visible micro-jump on the guest after a few packets.
-            // Une correction trop faible donnait un retard permanent à
-            // l'invité après un paquet perdu. Le rattrapage reste progressif,
-            // mais rejoint l'autorité de l'hôte en quelques images.
-            const stationary=!localPrediction;
-            // Sous ce seuil, garder la position locale évite le tremblement
-            // créé par les différences d'arrondi entre l'invité et l'hôte.
-            const threshold=stationary?.24:.01;
-            const strength=localPrediction?Math.min(.10,Math.max(.018,error*.12)):Math.min(.05,error*.05);
-            // Tant que l'invité est immobile, ignorer les écarts minuscules
-            // entre deux snapshots : c'est ce qui créait les petits sauts.
-            if(error>threshold){position.x+=(view.position.x-position.x)*strength;position.z+=(view.position.z-position.z)*strength;const dy=view.position.y-position.y;if(Math.abs(dy)>.06)position.y+=dy*Math.min(.16,Math.max(.05,Math.abs(dy)*.12));}
+            // The guest already runs the exact same bounded collision model.
+            // Never move the camera because of an ordinary host snapshot:
+            // that was the source of the visible side-to-side micro jumps.
+            // Only recover from a real desynchronisation once the gap is large.
+            if(!localPrediction&&error>.9){
+              const strength=Math.min(.025,Math.max(.008,(error-.9)*.018));
+              position.x+=(view.position.x-position.x)*strength;
+              position.z+=(view.position.z-position.z)*strength;
+              const dy=view.position.y-position.y;
+              if(Math.abs(dy)>.18)position.y+=dy*strength;
+            }
           }
           if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}
           flashOn=spectator?false:local.flash;syncFlash();
