@@ -1081,6 +1081,7 @@ function open(options={}) {
   let removeEvents=()=>{}, environmentDispose=()=>{},scares=null;
   const session={stop(){
     if(stopped)return;stopped=true;cancelAnimationFrame(raf);clearTimeout(messageTimer);
+    document.body.classList.remove('one317-spectator');
     observer?.disconnect();removeEvents();coop?.dispose();scares?.dispose();audio?.stop();monsterVisual?.dispose();environmentDispose();if(scene)disposeScene(scene);
     renderer?.dispose();renderer?.forceContextLoss();shell.remove();if(previousFocus?.isConnected)previousFocus.focus?.({preventScroll:true});
   }};
@@ -1519,10 +1520,11 @@ function open(options={}) {
         begin:()=>{if(started||stopped)return;started=true;last=performance.now();resetInputs();shell.querySelector('.three17-start')?.remove();syncPause();if(!paused)audio.start();message('Vous êtes ensemble. Retrouvez les trois objets et sortez !');},
         apply:(state,local,hosting)=>{
           remaining=state.remaining;const wasHidden=hidden;hidden=!!local.hidden;currentHide=house.hideSpots.find(h=>h.id===local.hideId)||null;
-          const spectator=local.dead||local.escaped,view=spectator?(state.players.find(p=>p.connected&&!p.dead&&!p.escaped)||local):local;
+          const spectator=local.dead||local.escaped;document.body.classList.toggle('one317-spectator',!!spectator);
+          const view=spectator?(state.players.find(p=>p.connected&&!p.dead&&!p.escaped)||local):local;
           const error=Math.hypot(view.position.x-position.x,view.position.y-position.y,view.position.z-position.z);
           if(hosting||hidden||wasHidden!==hidden||spectator||error>.85)Object.assign(position,view.position);
-          else{position.x+=(view.position.x-position.x)*.12;position.y=view.position.y;position.z+=(view.position.z-position.z)*.12;}
+          else{position.x+=(view.position.x-position.x)*.22;position.y=view.position.y;position.z+=(view.position.z-position.z)*.22;}
           if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}
           flashOn=spectator?false:local.flash;syncFlash();
           count=state.items.filter(i=>!i.revive&&i.taken).length;if(counter.textContent!==String(count))counter.textContent=String(count);

@@ -22,7 +22,7 @@ export function createRenderBudget({mobile=false,onChange=()=>{}}={}){
 }
 
 // A short buffer smooths the 10 Hz network updates, without moving the real player.
-export function createPoseTrack(delay=100){
+export function createPoseTrack(delay=70){
  let samples=[],identity=null;
  const result={x:0,y:0,z:0,yaw:0};
  return {

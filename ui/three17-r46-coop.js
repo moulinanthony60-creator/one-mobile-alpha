@@ -208,7 +208,9 @@ export function createCoopRuntime(config,b){
       if(!begun)b.wait(ready.size,ids.length);
     }else{
       const age=now()-lastStateAt;transmit(config.host,'input',{seq:++inputSeq,controls:{...input,paused:b.paused()},ready:armed});
-      if(age>2500&&now()-lastReconnect>5000&&!reconnecting){lastReconnect=now();reconnecting=true;Promise.resolve().then(()=>link()?.reconnect?.()).catch(()=>{}).finally(()=>{reconnecting=false;});}
+      // A brief WebRTC delivery gap is normal on mobile. Reconnecting after only
+      // 2.5 s made the non-host visibly freeze and repeatedly renegotiate.
+      if(age>8000&&now()-lastReconnect>12000&&!reconnecting){lastReconnect=now();reconnecting=true;Promise.resolve().then(()=>link()?.reconnect?.()).catch(()=>{}).finally(()=>{reconnecting=false;});}
       if(age>45000)abort('Connexion avec l’hôte perdue. Revenez au salon pour relancer.');
     }
     updateHud();
@@ -216,21 +218,21 @@ export function createCoopRuntime(config,b){
   function updateHud(){
     const lines=['ÉQUIPE · '+ids.length+' JOUEURS'];
     for(const p of lastState?.players||config.players)lines.push(safeName(p.name)+(p.id===localId?' · toi':'')+' · '+(!p.connected&&lastState?'déconnecté':p.escaped?'sorti':p.dead?'attrapé':p.hidden?'caché':'en jeu'));
-    if(begun&&(hostPaused||!hosting&&now()-lastStateAt>2500))lines.push('Connexion en cours…');
+    if(begun&&(hostPaused||!hosting&&now()-lastStateAt>3500))lines.push('Connexion en cours…');
     const text=lines.join('\n');if(hud.textContent!==text)hud.textContent=text;
   }
-  const timer=setInterval(pump,100);
+  const timer=setInterval(pump,80);
   function step(elapsed,value){
     input=controls(value)||input;
     if(!begun||finished||stopped)return;
     if(hosting){
       world.input(localId,input);let left=Math.min(.25,elapsed);while(left>1e-6){const dt=Math.min(.05,left);world.step(dt);left-=dt;}
       accept(world.snapshot(),true);
-    }else if(!hostPaused&&now()-lastStateAt<5000){
+    }else if(!hostPaused&&now()-lastStateAt<8000){
       const p=lastState?.players.find(x=>x.id===localId);if(p&&!p.hidden&&!p.dead&&!p.escaped){const s=Math.sin(input.yaw),c=Math.cos(input.yaw),dt=Math.min(elapsed,.1);model.movePlayer(house,b.position,(-s*input.forward+c*input.x)*(input.sprint?4.1:2.5)*dt,(-c*input.forward-s*input.x)*(input.sprint?4.1:2.5)*dt);}
     }
       for(const [id,v] of visuals){const p=lastState?.players.find(x=>x.id===id);syncHeadCamera(id,v,!!p?.dead);if(!p)continue;v.group.visible=p.connected&&!p.hidden&&!p.escaped;v.group.scale.setScalar(p.dead?.82:1);if(!v.group.visible)continue;
-      const time=now();v.track.push({...p.position,yaw:p.yaw},time,p);const point=v.track.at(time);if(point)animateAvatar(v,point,elapsed);v.glow.visible=p.flash||p.dead;
+      const time=now();v.track.push({...p.position,yaw:p.yaw},time,p);const point=v.track.at(time);if(point)animateAvatar(v,{...point,dead:!!p.dead},elapsed);v.glow.visible=p.flash||p.dead;
     }
   }
   return {
