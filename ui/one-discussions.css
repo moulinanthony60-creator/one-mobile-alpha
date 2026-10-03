@@ -1,0 +1,34 @@
+#oneFoundation .oneSocialPolished{padding:22px 4px 110px!important;max-width:560px}
+#oneFoundation .oneSocialPolished:after{display:none!important}
+.oneMessagesHeading{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 24px}
+.oneMessagesEyebrow{font:700 10px system-ui;letter-spacing:1.8px;color:#b99be6}
+.oneMessagesHeading h1{font:750 30px/1.2 system-ui;letter-spacing:-1px;margin:8px 0;color:#faf7ff}
+.oneMessagesHeading p{font:400 12px/1.6 system-ui;color:#aca6bf;margin:0}
+.oneNewDiscussion{flex:0 0 46px;width:46px;height:46px;border-radius:15px;border:1px solid #bd8eff;background:linear-gradient(145deg,#a052f4,#7131da);box-shadow:0 6px 22px #8136d72b;color:white;font:400 28px system-ui;cursor:pointer}
+.oneNewDiscussion:hover{filter:brightness(1.13)}
+#oneFoundation .oneSocialPolished .oneSocialTabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:5px!important;border:1px solid #ffffff14!important;border-radius:15px;background:#171424;margin:0 0 22px!important}
+#oneFoundation .oneSocialPolished .oneSocialTabs button{min-width:0;border:0!important;border-radius:11px!important;background:transparent!important;color:#aaa3bb!important;padding:11px 8px!important;font:600 12px system-ui!important;box-shadow:none!important}
+#oneFoundation .oneSocialPolished .oneSocialTabs button.active{background:#7650c4!important;color:white!important;box-shadow:0 3px 12px #0002!important}
+#oneFoundation .oneSocialPolished #oneSocialInline{border:0!important;background:transparent!important;padding:0!important;display:flex;flex-direction:column;gap:10px}
+#oneFoundation .oneSocialPolished #oneSocialInline .oneInlineCard.oneV79Row{min-height:88px!important;margin:0!important;padding:15px 62px 15px 14px!important;border:1px solid #ffffff13!important;border-radius:17px!important;background:linear-gradient(110deg,#1c172a,#12111e)!important;gap:14px!important;transition:background .15s,border-color .15s}
+#oneFoundation .oneSocialPolished #oneSocialInline .oneV79Row:hover{border-color:#9363cc66!important;background:#21192f!important}
+#oneFoundation .oneSocialPolished #oneSocialInline .oneV79Row .avatar{width:48px!important;height:48px!important;flex:0 0 48px!important;font-size:18px!important;border-color:#8d63bc80!important}
+#oneFoundation .oneSocialPolished #oneSocialInline .oneV79Row .copy b{font:650 15px/1.3 system-ui!important;letter-spacing:0;color:#f5f0ff}
+#oneFoundation .oneSocialPolished #oneSocialInline .oneV79Row .copy span{font:400 12px/1.4 system-ui!important;color:#aaa3b9!important;margin-top:5px!important}
+#oneFoundation .oneSocialPolished .oneV79CameraRow{right:12px;width:36px;height:36px;border:1px solid #ffffff13;background:#ffffff05;border-radius:11px;color:#d1c0e7}
+#oneFoundation .oneSocialPolished .oneV79CameraRow svg{width:20px;height:20px}
+#oneFoundation .oneSocialPolished .oneV79Unread{right:55px;width:7px;height:7px}
+.oneSocialPolished :focus-visible{outline:2px solid #c8a2ff;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.oneSocialPolished *{transition:none!important}}
+.oneCommDialog{position:fixed;inset:0;margin:auto;width:min(430px,calc(100% - 28px));max-height:85dvh;overflow:auto;background:#191425;color:#f5efff;border:1px solid #715397;border-radius:22px;padding:22px;font-family:system-ui;box-shadow:0 20px 90px #000a}
+.oneCommDialog::backdrop{background:#05030ac9;backdrop-filter:blur(5px)}
+.oneCommDialog h2{margin:0 0 14px;font-size:21px}.oneCommDialog p{color:#c4b6d6;font-size:13px;line-height:1.6}
+.oneCommControls,.onePrivateActions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.oneCommButton{border:1px solid #8b66b3;border-radius:12px;background:#362346;color:#f4eaff;padding:10px 13px;font:600 12px system-ui;cursor:pointer}.oneCommButton:disabled{opacity:.5}.oneCommButton:focus-visible{outline:3px solid #d1a7ff;outline-offset:3px}.oneEndCall{background:#9e2850;border-color:#d65b84}
+.oneCommDialog audio,.oneVoiceMessage audio{width:100%;height:42px;margin-top:8px}
+.oneRemoteVideo{width:100%;max-height:42vh;border-radius:12px;background:#08070c}.oneLocalVideo{width:100px;max-height:100px;border-radius:8px}.oneCommDialog video[hidden]{display:none}
+.hub-thread-heading .onePrivateActions{position:relative;z-index:3;margin:6px 0;grid-column:1/-1;flex-basis:100%}
+.oneVoiceList{display:flex;flex-direction:column;gap:8px;width:100%;margin:8px 0}.oneVoiceMessage{border:1px solid #77519877;border-radius:14px;background:#24182f;padding:12px;max-width:92%;font:500 13px system-ui}.oneVoiceMessage small{display:block;font-size:10px;color:#b7a9c7;margin:5px 0}
+.oneFriendsDialog.oneThreadFullscreen .hub-thread-heading{flex-wrap:wrap!important}
+.oneFriendsDialog.oneThreadFullscreen .hub-thread-heading .onePrivateActions{justify-content:center;width:100%;margin:2px 0 0;gap:6px}
+.oneFriendsDialog.oneThreadFullscreen .hub-thread-heading .oneCommButton{font-size:11px;padding:9px 11px}

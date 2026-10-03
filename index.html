@@ -5522,7 +5522,7 @@ window.addEventListener('pagehide', close);
 <script src="ui/mobile-ux.js?v=014117"></script><link rel="stylesheet" href="ui/together.css?v=118t5"><script src="ui/together-fullscreen.js?v=118t5"></script><script src="ui/together-player.js?v=118t5"></script><script src="ui/together-catalog.js?v=118c1"></script><script src="ui/together-browser.js?v=118c1"></script><script src="ui/together.js?v=118t5"></script><script src="ui/together-salon.js?v=118t5"></script><script src="ui/social-content.js?v=118t1"></script><script src="ui/social-app.js?v=014117"></script>
 <script src="ui/catalog-manager.js?v=118c1"></script>
 <link rel="stylesheet" href="ui/mission116.css?v=014117">
-<script src="ui/one-shop.js?v=shop-tabs-v3"></script><link rel="stylesheet" href="ui/social-hub.css?v=118s1"><script src="ui/social-hub.js?v=118s1"></script><script src="ui/social-account.js?v=118s1"></script><script src="ui/social-push.js?v=118s1"></script><style id="oneSwipeNavigationStyles">
+<script src="ui/one-shop.js?v=discussions-v4"></script><link rel="stylesheet" href="ui/social-hub.css?v=118s1"><script src="ui/social-hub.js?v=118s1"></script><script src="ui/social-account.js?v=118s1"></script><script src="ui/social-push.js?v=118s1"></script><style id="oneSwipeNavigationStyles">
 body.oneSideScreen .topbar{display:none!important}body.oneSideScreen .oneShell{min-height:calc(100dvh - 82px);padding:24px 15px 110px;background:radial-gradient(circle at 50% -10%,#38216355,transparent 44%),#080a14}body.oneSideScreen .oneShellTitle{font-size:30px;margin-top:7px}body.oneSideScreen .oneShellLead{font-size:15px}body.oneSideScreen .bottom{position:fixed;left:0;right:0;bottom:0;z-index:120}body.oneSideScreen .app{padding-top:0!important}.oneMomentsScreen{padding-bottom:96px}.oneMomentsTabs{display:flex;gap:9px;overflow-x:auto;padding:4px 0 16px;scrollbar-width:none}.oneMomentsTabs::-webkit-scrollbar{display:none}.oneMomentsTabs button,.oneMomentsPlatforms button{border:1px solid #34374b;background:#171a29;color:#d8d7e4;border-radius:999px;padding:11px 16px;font-weight:750;white-space:nowrap}.oneMomentsTabs button.active{background:linear-gradient(135deg,#8b32ff,#6a2cff);color:white;border-color:#a35cff}.oneMomentsHero{min-height:240px;border:1px solid #533b85;border-radius:24px;padding:24px;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;background:radial-gradient(circle at 75% 25%,#7034a866,transparent 36%),linear-gradient(145deg,#24114c,#10172d 70%);box-shadow:inset 0 0 35px #7b32ff20}.oneMomentsHero b{font-size:28px;line-height:1.05}.oneMomentsHero span{color:#b8b7c8;line-height:1.45}.oneMomentsPlatforms{display:flex;gap:10px;margin-top:16px}.oneSwipeAnimating{transition:transform .18s ease-out}.oneMainNavSwipeHint{position:fixed;top:50%;z-index:90;width:30px;height:56px;display:grid;place-items:center;color:#a86cff;font-size:34px;opacity:.42;pointer-events:none}.oneMainNavSwipeHint.left{left:0}.oneMainNavSwipeHint.right{right:0}
 body.oneSideScreen .bottom{width:100vw!important;max-width:none!important;transform:none!important;box-sizing:border-box!important}
 body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
@@ -5837,7 +5837,7 @@ body.oneOpeningDiscussion dialog.oneFriendsDialog.oneThreadFullscreen{visibility
     const s=e.target.closest('#oneFoundation .oneSocialSwipe');
     if(!s)return;
     const r=s.getBoundingClientRect();
-    if(e.clientY-r.top<66 && e.clientX-r.left>r.width-70){
+    if(e.target.closest('.oneNewDiscussion')){
       e.preventDefault();e.stopImmediatePropagation();
       window.oneOpenFriends?.({tab:'add'});
     }
@@ -6046,7 +6046,7 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
  function stamp(x){for(const k of ['lastMessageAt','last_message_at','lastAt','last_at','updatedAt','updated_at','createdAt','created_at']){const v=x?.[k];if(v==null)continue;const n=Number(v);if(Number.isFinite(n)&&n>1e11)return n;const d=Date.parse(v);if(Number.isFinite(d))return d}return 0}
  function sig(x){return [x?.lastText||'',x?.unread||0,stamp(x)].join('|')}
  function dedupe(list){const map=new Map();for(const x of list||[]){const k=keyOf(x),old=map.get(k);if(!old||stamp(x)>stamp(old)||(!stamp(old)&&Number(x?.unread||0)>Number(old?.unread||0)))map.set(k,x)}return [...map.values()]}
- function socialHTML(){return '<section class="oneSocialSwipe"><span class="oneEyebrow">Tes proches dans ONE</span><h1 class="oneShellTitle">Discussions</h1><p class="oneShellLead">Messages, amis et salons au même endroit.</p><div class="oneSocialTabs"><button class="active" data-social-tab="messages">Discussions</button><button data-social-tab="friends">Amis</button><button data-social-tab="rooms">Salons</button></div><div id="oneSocialInline" class="oneInlinePanel"></div></section>'}
+ function socialHTML(){return '<section class="oneSocialSwipe oneSocialPolished"><header class="oneMessagesHeading"><div><span class="oneMessagesEyebrow">TON ESPACE ONE</span><h1>Discussions</h1><p>Garde le contact avec tes proches.</p></div><button type="button" class="oneNewDiscussion" aria-label="Ajouter un ami" title="Ajouter un ami">＋</button></header><div class="oneSocialTabs"><button class="active" data-social-tab="messages">Discussions</button><button data-social-tab="friends">Amis</button><button data-social-tab="rooms">Salons</button></div><div id="oneSocialInline" class="oneInlinePanel"></div></section>'}
  const baseShow=window.oneShowSpace;
  function closeLegacyHub(){document.querySelectorAll('dialog.oneFriendsDialog:not(.oneThreadFullscreen)').forEach(d=>{try{d.close?.()}catch{}d.hidden=true})}
  function openSocial(push=true){baseShow?.('social',push);const shell=document.getElementById('oneFoundation');if(shell){shell.innerHTML=socialHTML();shell.hidden=false}document.body.classList.add('oneShellOpen','oneSideScreen');document.body.dataset.oneSocialIntegrated='1';tab='messages';paintCached('messages');syncSocial(true);requestAnimationFrame(closeLegacyHub);window.dispatchEvent(new CustomEvent('one-social-integrated-ready'))}
@@ -7209,4 +7209,8 @@ body.oneProviderYoutube #oneProviderBadge{
 
 
 <style>.oneDesktopPages{display:none}.oneDesktopPages[hidden]{display:none!important}@media(hover:hover) and (pointer:fine){.oneDesktopPages{display:flex;position:fixed;left:50%;bottom:88px;transform:translateX(-50%);width:min(430px,calc(100% - 28px));justify-content:space-between;pointer-events:none;z-index:35}.oneDesktopPages button{pointer-events:auto;border:1px solid #74529f;border-radius:999px;padding:9px 14px;background:#211831ee;color:#eee3ff;box-shadow:0 4px 16px #0005;cursor:pointer;font:600 12px system-ui}.oneDesktopPages button:disabled{visibility:hidden}}</style>
-<script src="ui/one-desktop-pages.js?v=shop-tabs-v3"></script>
+<script src="ui/one-desktop-pages.js?v=discussions-v4"></script>
+
+<link rel="stylesheet" href="ui/one-discussions.css?v=discussions-v4">
+
+<script src="ui/one-private-communications.js?v=discussions-v4"></script>
