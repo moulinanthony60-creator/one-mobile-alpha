@@ -81,3 +81,20 @@ html body dialog.oneTextEditor{position:fixed;inset:0;width:100vw;max-width:none
 .oneTextOptions{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:10px}.oneTextOptions [data-color]{display:block;width:44px;height:30px;padding:0;border:0;background:none}.oneTextOptions [data-size]{display:block;width:120px;accent-color:#ac69f4;margin-top:8px}.oneTextTools [role=status]{font-size:12px;color:#baa6c9;min-height:18px;margin:12px 0 0}
 .oneTextSource{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 @media(max-height:600px){.oneTextEditor .oneTextStage{min-height:130px}.oneTextTools textarea{height:44px}.oneTextTools{padding-top:6px}.oneTextTools [role=status]{margin:4px 0}.oneTextEditor header{padding-top:8px;padding-bottom:8px}}
+
+/* V16: remove the inherited separator from the live camera header. */
+html body .oneFullCamera:not([data-preview=true])>header{border:0!important;box-shadow:none!important}
+/* V17: full-screen review first, destinations only after Share. */
+html body dialog.oneFullCamera[data-preview=true]:not([data-sharing=true]){overflow:hidden;background:#050407}
+html body .oneFullCamera[data-preview=true]:not([data-sharing=true])>header{position:absolute;inset:0 0 auto;width:100%;max-width:none;margin:0;z-index:3;border:0!important;padding:calc(16px + env(safe-area-inset-top)) 20px 22px;background:linear-gradient(#0009,transparent)}
+html body .oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCaptureView{position:absolute;inset:0;width:100%;max-width:none;height:100%!important;margin:0;border-radius:0;cursor:text;touch-action:manipulation}
+html body .oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCaptureView img,html body .oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCaptureView video{height:100%;max-height:none;width:100%;object-fit:contain}
+.oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCameraDock{position:absolute;bottom:150px;left:0;right:0;z-index:2;pointer-events:none}
+.oneFullCamera .onePreviewActions{position:absolute;bottom:0;left:0;right:0;z-index:3;padding:35px 16px max(22px,env(safe-area-inset-bottom));background:linear-gradient(transparent,#08050bc9);text-align:center}
+.oneFullCamera .onePreviewActions>p{font:12px/1.5 system-ui;color:#fff;text-shadow:0 1px 4px #000;margin:0 0 14px}
+.oneFullCamera .onePreviewActions>div{display:flex;justify-content:center;gap:8px;max-width:540px;margin:auto}
+.oneFullCamera .onePreviewActions button{border-radius:24px;padding:12px 14px;background:#24182bc9;white-space:nowrap;font-size:13px}
+.oneFullCamera .onePreviewActions .capturePrimary{background:#9e4aed;border-color:#c28af3;font-weight:800}
+.oneFullCamera .onePreviewActions>button{padding:8px 14px;margin:0 0 14px;background:#120e1ba8;font-size:12px}
+.oneFullCamera .onePreviewActions[hidden]{display:none!important}
+html body .oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCaptureView img,html body .oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCaptureView video{object-fit:cover}

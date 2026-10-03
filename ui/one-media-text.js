@@ -4,7 +4,7 @@
 const drafts=new WeakMap();
 window.oneEditCapture = file => new Promise(resolve => {
  const isVideo=file.type.startsWith('video/'),d=document.createElement('dialog');d.className='oneTextEditor';d.setAttribute('aria-label','Texte sur le média');
- d.innerHTML='<header><button data-cancel>Annuler</button><h2>Texte</h2><button data-apply>Appliquer</button></header><div class="oneTextStage"><canvas aria-label="Aperçu : déplace le texte avec le doigt"></canvas></div><div class="oneTextTools"><label>Ton message<textarea maxlength="180" rows="2" placeholder="Écris sur ton moment…"></textarea></label><div class="oneTextOptions"><label>Couleur<input data-color type="color" value="#ffffff"></label><label>Taille<input data-size type="range" min="3" max="10" step="0.5" value="5"></label><button data-play>Lire la vidéo</button></div><p role="status">Déplace le texte avec le doigt sur l’image.</p></div>';
+ d.innerHTML='<header><button data-cancel>Annuler</button><h2>Texte</h2><button data-apply>Terminé</button></header><div class="oneTextStage"><canvas aria-label="Aperçu : déplace le texte avec le doigt"></canvas></div><div class="oneTextTools"><label>Ton message<textarea maxlength="180" rows="2" placeholder="Écris sur ton moment…"></textarea></label><div class="oneTextOptions"><label>Couleur<input data-color type="color" value="#ffffff"></label><label>Taille<input data-size type="range" min="3" max="10" step="0.5" value="5"></label><button data-play>Lire la vidéo</button></div><p role="status">Déplace le texte avec le doigt sur l’image.</p></div>';
  const $=s=>d.querySelector(s),canvas=$('canvas'),ctx=canvas.getContext('2d'),media=document.createElement(isVideo?'video':'img'),url=URL.createObjectURL(file);
  const draft=drafts.get(file)||{text:'',color:'#ffffff',size:5,x:.5,y:.45};let state={...draft},raf,stream,recorder,audio,source,destination,aborted=false,finished=false,exporting=false,loaded=false,abortExport;
  const say=s=>$('[role=status]').textContent=s;
@@ -62,6 +62,6 @@ window.oneEditCapture = file => new Promise(resolve => {
   for(const control of d.querySelectorAll('input,textarea,button:not([data-cancel])'))control.disabled=true;
   try{let result;if(isVideo)result=await exportVideo();else{draw();const blob=await new Promise(r=>canvas.toBlob(r,'image/jpeg',.95));if(!blob)throw Error('Impossible de créer la photo.');result=new File([blob],'ONE-texte-'+Date.now()+'.jpg',{type:'image/jpeg'})}if(!aborted)finish(result)}catch(e){if(!aborted)say(e.message)}finally{if(!aborted){exporting=false;for(const control of d.querySelectorAll('input,textarea,button'))control.disabled=false}}
  };
- document.body.append(d);d.showModal();
+ document.body.append(d);d.showModal();$('textarea').focus({preventScroll:true});
 });
 })();
