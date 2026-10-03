@@ -32,3 +32,14 @@
 .oneFriendsDialog.oneThreadFullscreen .hub-thread-heading{flex-wrap:wrap!important}
 .oneFriendsDialog.oneThreadFullscreen .hub-thread-heading .onePrivateActions{justify-content:center;width:100%;margin:2px 0 0;gap:6px}
 .oneFriendsDialog.oneThreadFullscreen .hub-thread-heading .oneCommButton{font-size:11px;padding:9px 11px}
+/* Conversation list inspired by visual messengers, retaining ONE identity. */
+#oneFoundation .oneSocialPolished .oneSocialTabs{background:transparent;border:0!important;border-bottom:1px solid #ffffff18!important;border-radius:0;padding:0 0 10px!important}
+#oneFoundation .oneSocialPolished .oneSocialTabs button{border-radius:999px!important}
+#oneFoundation .oneSocialPolished #oneSocialInline{gap:0}
+#oneFoundation .oneSocialPolished #oneSocialInline .oneInlineCard.oneV79Row{border:0!important;border-bottom:1px solid #ffffff10!important;border-radius:0!important;background:transparent!important;min-height:91px!important;padding:17px 62px 17px 4px!important}
+#oneFoundation .oneSocialPolished #oneSocialInline .oneV79Row:hover{background:#b981ff09!important}
+#oneFoundation .oneSocialPolished #oneSocialInline .oneV79Row .avatar{width:54px!important;height:54px!important;flex-basis:54px!important}
+#oneFoundation .oneSocialPolished #oneSocialInline .oneV79Row .copy b{font-size:16px!important}
+#oneFoundation .oneSocialPolished .oneV79CameraRow{border:0;border-left:1px solid #ffffff22;border-radius:0;background:transparent;width:43px;height:30px;right:4px}
+#oneFoundation .oneSocialPolished #oneSocialInline .oneV79Row .copy span.oneV79Photo{color:#ff668e!important}
+#oneFoundation .oneSocialPolished #oneSocialInline .oneV79Row .copy span.oneV79Video{color:#bc88ff!important}
