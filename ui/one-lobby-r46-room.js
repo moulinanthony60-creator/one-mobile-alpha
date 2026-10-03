@@ -85,3 +85,4 @@ export function buildRoom(scene,renderer,alive,dispose){
  return {screen,ready,dispose(){scene.environment=null;env.dispose();}};
 }
 
+

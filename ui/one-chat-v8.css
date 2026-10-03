@@ -45,3 +45,4 @@ body:has(dialog.oneFriendsDialog.oneThreadFullscreen[open]){overflow:hidden}
  dialog.oneModDialog.oneFriendsDialog.hub-friends.oneThreadFullscreen{width:100vw!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;inset:0!important;margin:0!important;border:0!important;border-radius:0!important}
 }
 
+

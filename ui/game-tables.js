@@ -116,3 +116,4 @@
 @media(max-width:500px){#onePartyGame .bf-verdict .bf-verdict-cards{top:37%;left:2%;transform:scale(.6)}#onePartyGame .bf-verdict .bf-revolver-stage{inset:30% -12% 8%;width:124%}}
 `;document.head.append(style);})();
 
+

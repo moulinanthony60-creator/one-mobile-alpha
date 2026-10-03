@@ -9,12 +9,12 @@ export function controls(value){
 }
 export function createCoopWorld({house,monster,model,members,spawns}){
   const {movePlayer,blockedAt,hasLineOfSight,circleHitsDoor,PLAYER_RADIUS=.24}=model;
-  const events=[];let eventId=0,remaining=600,outcome=null,targetId=null,revision=0;
-  const players=members.map((m,i)=>({id:m.id,name:m.name,position:{...spawns[i]},yaw:spawns[i].yaw||0,pitch:spawns[i].pitch||0,flash:true,hidden:false,hideId:null,returnPoint:null,known:false,dead:false,escaped:false,connected:true,walked:0,input:{x:0,forward:0,yaw:spawns[i].yaw||0,pitch:0,paused:false,sprint:false},inputAge:0,lastAction:-1}));
+  const events=[];let eventId=0,remaining=900,outcome=null,targetId=null,revision=0;
+  const players=members.map((m,i)=>({id:m.id,name:m.name,position:{...spawns[i]},yaw:spawns[i].yaw||0,pitch:spawns[i].pitch||0,flash:true,hidden:false,hideId:null,returnPoint:null,known:false,dead:false,escaped:false,connected:true,carryingRevive:false,walked:0,input:{x:0,forward:0,yaw:spawns[i].yaw||0,pitch:0,paused:false,sprint:false},inputAge:0,lastAction:-1}));
   const player=id=>players.find(p=>p.id===id);
   const emit=(kind,who,data={})=>{events.push({id:++eventId,kind,who,...data});if(events.length>32)events.shift();};
   const active=p=>!p.dead&&!p.escaped&&p.connected;
-  const count=()=>house.items.filter(i=>i.taken).length;
+  const count=()=>house.items.filter(i=>!i.revive&&i.taken).length;
   function resolve(){
     if(outcome)return;
     if(!players.some(active))outcome=players.some(p=>p.escaped)?'win':'caught';
@@ -40,13 +40,20 @@ export function createCoopWorld({house,monster,model,members,spawns}){
     const p=player(id);if(!p||!active(p)||outcome||!Number.isSafeInteger(serial)||serial<=p.lastAction)return false;
     p.lastAction=serial;
     if(type==='flash'){if(!p.hidden)p.flash=!p.flash;return true;}
+    if(type==='revive'){
+      if(!p.carryingRevive){emit('message',id,{text:'Récupérez le Sceau de rappel avant de réanimer un allié.'});return false;}
+      const target=players.filter(q=>q!==p&&q.dead&&q.connected&&!q.escaped).sort((a,b)=>distance(p.position,a.position)-distance(p.position,b.position)).find(q=>distance(p.position,q.position)<=2.2&&Math.abs(p.position.y-q.position.y)<1.4);
+      if(!target){emit('message',id,{text:'Approchez-vous du cadavre d’un allié pour le faire réapparaître.'});return false;}
+      p.carryingRevive=false;target.dead=false;target.hidden=false;target.hideId=null;target.returnPoint=null;target.known=false;target.flash=true;target.inputAge=0;
+      emit('revived',id,{target:target.id,text:p.name+' a réanimé '+target.name+' !'});return true;
+    }
     if(type!=='interact')return false;
     const s=select(p);if(!s?.object){emit('message',id,{text:'Approchez-vous et regardez la porte ou l’objet.'});return false;}
     const o=s.object;
     if(s.type==='item'){
       if(o.hidden||o.taken)return false;o.taken=true;
-      if(count()===3)house.doors.find(d=>d.exit).locked=false;
-      emit('collect',id,{item:o.id,text:p.name+' a récupéré '+o.label+'.'});
+      if(o.revive){p.carryingRevive=true;emit('revive-kit-picked',id,{text:p.name+' a récupéré le Sceau de rappel. Emmenez-le jusqu’à un allié attrapé.'});}
+      else {if(count()===3)house.doors.find(d=>d.exit).locked=false;emit('collect',id,{item:o.id,text:p.name+' a récupéré '+o.label+'.'});}
     }else if(s.type==='container'){
       const first=!o.opened;o.opened=true;
       if(first){monster.noise(p.position,9);emit('search',id,{container:o.id,at:{...p.position},seconds:600-remaining});}
@@ -104,14 +111,17 @@ export function createCoopWorld({house,monster,model,members,spawns}){
     monster.state.knownHide=target.hidden&&target.known?{id:target.hideId,point:target.returnPoint}:null;
     monster.update(dt,{player:target.position,flashOn:target.flash,hidden:target.hidden});
     if(monster.state.captured){
-      target.dead=true;target.hidden=false;target.hideId=null;target.flash=false;emit('caught',target.id,{text:target.name+' a été attrapé. Les autres peuvent encore sortir.'});
+      target.dead=true;target.hidden=false;target.hideId=null;target.flash=false;
+      if(target.carryingRevive){const kit=house.items.find(i=>i.revive);if(kit){kit.taken=false;kit.hidden=false;kit.x=target.position.x;kit.y=target.position.y+.28;kit.z=target.position.z;}target.carryingRevive=false;}
+      emit('caught',target.id,{text:target.name+' a été attrapé. Les autres peuvent encore le faire réapparaître.'});
       Object.assign(monster.state,{captured:false,attack:0,knownHide:null,memory:0,sense:0,state:'search',search:3,target:null,path:[]});targetId=null;resolve();
     }
   }
-  function disconnect(id){const p=player(id);if(!p)return;p.connected=false;p.hidden=false;p.hideId=null;emit('left',id,{text:p.name+' a quitté la partie.'});resolve();}
+  function disconnect(id){const p=player(id);if(!p)return;p.connected=false;p.hidden=false;p.hideId=null;if(p.carryingRevive){const kit=house.items.find(i=>i.revive);if(kit)kit.taken=false;p.carryingRevive=false;}emit('left',id,{text:p.name+' a quitté la partie.'});resolve();}
   function snapshot(){return {revision:++revision,remaining,outcome,targetId,players:players.map(({input,inputAge,lastAction,walked,savedFlash,savedYaw,returnPoint,...p})=>({...p,position:{...p.position}})),
     monster:monster.snapshot(),doors:house.doors.map(d=>({id:d.id,angle:d.angle,targetAngle:d.targetAngle,locked:!!d.locked})),
-    items:house.items.map(i=>({id:i.id,taken:!!i.taken,hidden:!!i.hidden,x:i.x,y:i.y,z:i.z})),containers:house.containers.filter(c=>c.opened).map(c=>c.id),events:events.map(e=>({...e}))};}
+    items:house.items.map(i=>({id:i.id,revive:!!i.revive,taken:!!i.taken,hidden:!!i.hidden,x:i.x,y:i.y,z:i.z})),containers:house.containers.filter(c=>c.opened).map(c=>c.id),events:events.map(e=>({...e}))};}
   return {players,player,input,action,select,step,disconnect,snapshot,get outcome(){return outcome;}};
 }
+
 

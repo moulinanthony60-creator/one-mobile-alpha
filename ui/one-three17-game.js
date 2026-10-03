@@ -268,6 +268,7 @@ function createGroundFloor() {
     { id: 'key', reveal: { x:-2.1, y:UPPER_Y+1.42, z:.2 }, label: 'Clé ancienne', room: 'upper-office', x: -2.1, y: UPPER_Y + .95, z: .2, color: 0xd5b567, taken: false, hidden: true },
     { id: 'fuse', reveal: { x:3.6, y:BASEMENT_Y+1.2, z:.60 }, label: 'Fusible', room: 'basement-storage', x: 3.6, y: BASEMENT_Y + 1.1, z: 0, color: 0x75c5e0, taken: false, hidden: true },
     { id: 'seal', reveal: { x:-5.48, y:UPPER_Y+1.2, z:3.9 }, label: 'Sceau', room: 'upper-nursery', x: -6.2, y: UPPER_Y + 1.0, z: 3.9, color: 0xb19dda, taken: false, hidden: true },
+    { id: 'revive', label: 'Sceau de rappel', room: 'basement-ritual', x: -4.2, y: BASEMENT_Y + 1.02, z: 1.9, color: 0xffc866, taken: false, hidden: false, revive: true },
   ];
   // searchable spots
   container('c-buffet', 'Buffet', -6.2, .9, -1.05, 'dining'); container('c-kitchen-left', 'Placard de cuisine', -6.1, .95, -10.4, 'kitchen'); container('c-fridge', 'Frigo', -2.15, 1.0, -11.08, 'kitchen');
@@ -1052,9 +1053,9 @@ function open(options={}) {
   shell.setAttribute('aria-label','3:17 FOUR — Le Parasite');shell.tabIndex=-1;
   shell.innerHTML=`<div class="three17-stage"><div class="three17-hud">
     <div class="three17-tension"></div>
-    <div class="three17-top"><div><div class="three17-clock" aria-label="Temps restant">10:00</div><div class="three17-build">${BUILD}</div></div>
+    <div class="three17-top"><div><div class="three17-clock" aria-label="Temps restant">15:00</div><div class="three17-build">${BUILD}</div></div>
     <div class="three17-objective"><span data-lock>🔒 SORTIE VERROUILLÉE</span><br><b>Objets : <span data-count>0</span>/3</b>
-    <div class="three17-inventory" aria-label="Inventaire"><span data-inventory="key" title="Dans le caisson du bureau, à l’étage">◌ Clé</span><span data-inventory="fuse" title="Sur l’étagère de la réserve, au sous-sol">◌ Fusible</span><span data-inventory="seal" title="Dans l’armoire de la chambre enfant, à l’étage">◌ Sceau</span></div>
+    <div class="three17-inventory" aria-label="Inventaire"><span data-inventory="key" title="Dans le caisson du bureau, à l’étage">◌ Clé</span><span data-inventory="fuse" title="Sur l’étagère de la réserve, au sous-sol">◌ Fusible</span><span data-inventory="seal" title="Dans l’armoire de la chambre enfant, à l’étage">◌ Sceau</span><span data-inventory="revive" hidden title="À récupérer dans la salle rituelle du sous-sol">◌ Sceau de rappel</span></div>
     <small data-floor>RDC · HALL D’ENTRÉE</small></div></div>
     <button class="three17-exit" type="button">← Lobby</button><div class="three17-threat" role="status">LE PARASITE SOMMEILLE</div>
     <div class="three17-cross"></div>
@@ -1062,7 +1063,7 @@ function open(options={}) {
     <div class="three17-look" aria-label="Glisser pour regarder"></div>
     <div class="three17-actions"><button class="three17-btn sound" type="button" aria-label="Couper le son" aria-pressed="true">♪</button><button class="three17-btn flash" type="button" aria-label="Éteindre la lampe" aria-pressed="true">🔦</button><button class="three17-btn run" type="button" aria-label="Courir" aria-pressed="false">COURIR</button>
     <button class="three17-btn interact" type="button">AGIR</button></div><div class="three17-hint"></div><div class="three17-msg" role="status"></div></div>
-    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">10:00</div><strong class="three17-build-label">${BUILD}</strong>
+    <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">15:00</div><strong class="three17-build-label">${BUILD}</strong>
     <p><b>Départ aléatoire dans la maison.</b><br>Fouillez, puis ramassez les trois objets.<br>Le Parasite vous traque : cachez-vous hors de sa vue.</p>
     <div class="three17-clues">Paliers : 4,7 m devant les marches · 3,5 m à l’arrivée<br>Clé : bureau · Sceau : chambre enfant<br>Fusible : réserve du sous-sol</div>
     <p data-monster-load role="status">Chargement de la maison, des meubles et du Parasite…</p><button type="button" disabled aria-busy="true">CHARGEMENT DE LA MAISON…</button><small class="three17-controls-help">Joystick + glisser pour regarder · AGIR pour fouiller / prendre / se cacher<br>Clavier : ZQSD / WASD · E : agir · F : lampe · M : son</small></div></div>
@@ -1097,6 +1098,7 @@ function open(options={}) {
     house.spawn={...spawns.player};
     scene=new THREE.Scene();scene.background=new THREE.Color(0x06070a);scene.fog=new THREE.Fog(0x06070a,9,24);
     const meshes=buildHouseScene(scene,house);
+    if(!coopConfig)meshes.itemMeshes.get('revive')?.traverse?.(node=>{node.visible=false;});
     const visualReady=addR40Details(scene,house,meshes,()=>!stopped);
     monsterVisual=createMonsterMesh(scene);
     let modelLoaded=false,modelReady=false,modelFailed=false;
@@ -1127,7 +1129,7 @@ function open(options={}) {
     }
     const keys={x:0,y:0},pressed=new Set();
     let drag=null,look=null,lx=0,ly=0,started=false,won=false,ended=false,count=0,sprint=false;
-    const ROUND_SECONDS=600;let remaining=ROUND_SECONDS,walkNoise=0,beat=0,paused=document.hidden,testPaused=false;
+    const ROUND_SECONDS=900;let remaining=ROUND_SECONDS,walkNoise=0,beat=0,paused=document.hidden,testPaused=false;
     let last=performance.now(),lastRender=0,lastHud=0,flashOn=true;
     const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
     // R24: limit fill-rate on touch devices without changing monster/house geometry.
@@ -1169,7 +1171,8 @@ function open(options={}) {
     scares=createScareEffects(shell,renderer,monsterVisual.root,audio,reducedMotion);
     const stick=shell.querySelector('.three17-stick'),knob=shell.querySelector('.three17-knob'),lookZone=shell.querySelector('.three17-look');
     const flashButton=shell.querySelector('.flash'),soundButton=shell.querySelector('.sound'),runButton=shell.querySelector('.run'),hint=shell.querySelector('.three17-hint');
-    const floorLabel=shell.querySelector('[data-floor]'),counter=shell.querySelector('[data-count]'),lockLabel=shell.querySelector('[data-lock]');
+    const floorLabel=shell.querySelector('[data-floor]'),counter=shell.querySelector('[data-count]'),lockLabel=shell.querySelector('[data-lock]'),reviveInventory=shell.querySelector('[data-inventory="revive"]');
+    if(reviveInventory)reviveInventory.hidden=!coopConfig;
     const clock=shell.querySelector('.three17-clock'),threat=shell.querySelector('.three17-threat'),messageElement=shell.querySelector('.three17-msg');
     const monster=createMonsterController(house,{
       awake:()=>{if(!coopConfig)message('Le Parasite s’est réveillé. Évitez le bruit.');},
@@ -1272,7 +1275,7 @@ function open(options={}) {
     function finish(reason){
       if(ended)return;ended=true;won=reason==='win';resetInputs();hint.textContent='';scares.finish();audio.finish(won);hidePresentation(null);
       if(won){shell.querySelector('.three17-win p').textContent=`Les trois objets vous ont permis de sortir. Il restait ${Math.ceil(remaining)} secondes.`;shell.querySelector('.three17-win').classList.add('show');audio.tone(440,.45,.025,'sine',660);}
-      else {shell.querySelector('[data-loss-title]').textContent=reason==='time'?'10:00 · TROP TARD':'IL VOUS A TROUVÉ';
+      else {shell.querySelector('[data-loss-title]').textContent=reason==='time'?'15:00 · TROP TARD':'IL VOUS A TROUVÉ';
         shell.querySelector('[data-loss-text]').textContent=reason==='time'?'Le temps est écoulé. Retrouvez les trois objets et revenez à l’entrée.':
           (monster.state.knownHide?'Il vous a vu entrer dans la cachette. Brisez d’abord sa ligne de vue.':'Fermez une porte, tournez un coin, puis cachez-vous hors de sa vue.');
         shell.querySelector('.three17-loss').classList.add('show');audio.tone(65,.6,.035,'triangle',24);}
@@ -1292,13 +1295,15 @@ function open(options={}) {
       if(hidden&&currentHide)return {object:currentHide,type:'hide'};
       for(const spot of house.hideSpots)candidate(spot,'hide',{x:spot.x,y:(spot.y||0)+1.0,z:spot.z});
       for(const c of house.containers)candidate(c,'container',c);
-      for(const item of house.items)if(!item.taken&&!item.hidden)candidate(item,'item',item);
+      for(const item of house.items)if(!item.taken&&!item.hidden&&(!item.revive||coop))candidate(item,'item',item);
+      if(coop?.state)for(const player of coop.state.players||[])if(player.id!==coopConfig.self&&player.dead&&player.connected)candidate(player,'revive',{x:player.position.x,y:player.position.y+1.0,z:player.position.z});
       for(const d of house.doors)candidate(d,'door',{x:d.hingeX+Math.cos(d.angle)*d.width*.72,y:(d.bottom||0)+1.20,z:d.hingeZ-Math.sin(d.angle)*d.width*.72});
       return best;
     }
     function interactionLabel(s){
       if(!s)return '';const o=s.object;
       if(s.type==='item')return 'AGIR · Ramasser : '+o.label;
+      if(s.type==='revive')return 'AGIR · Faire réapparaître : '+o.name;
       if(s.type==='container')return 'AGIR · '+(o.opened?'Déjà fouillé : ':'Fouiller : ')+o.label;
       if(s.type==='hide')return hidden?'AGIR · Sortir de : '+o.label:'AGIR · Se cacher : '+o.label;
       if(o.exit)return count===3?'AGIR · Ouvrir la sortie':'AGIR · Sortie verrouillée';
@@ -1319,7 +1324,7 @@ function open(options={}) {
       else message('✓ '+item.label+' récupéré · '+count+'/3');
     }
     function interact(){
-      if(!started||ended||paused)return;if(coop){coop.action('interact',currentControls());return;}const selection=selectInteraction();
+      if(!started||ended||paused)return;if(coop){const selection=selectInteraction();coop.action(selection?.type==='revive'?'revive':'interact',currentControls());return;}const selection=selectInteraction();
       if(!selection){message('Approchez-vous et regardez la porte ou l’objet');return;}const o=selection.object;
       if(selection.type==='item')collect(o);
       else if(selection.type==='container'){
@@ -1520,9 +1525,9 @@ function open(options={}) {
           else{position.x+=(view.position.x-position.x)*.12;position.y=view.position.y;position.z+=(view.position.z-position.z)*.12;}
           if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}
           flashOn=spectator?false:local.flash;syncFlash();
-          count=state.items.filter(i=>i.taken).length;if(counter.textContent!==String(count))counter.textContent=String(count);
+          count=state.items.filter(i=>!i.revive&&i.taken).length;if(counter.textContent!==String(count))counter.textContent=String(count);
           for(const item of house.items){const mesh=meshes.itemMeshes.get(item.id);mesh.visible=!item.hidden&&!item.taken;mesh.position.set(item.x,item.y,item.z);mesh.userData.baseY=item.y;
-            const label=shell.querySelector('[data-inventory="'+item.id+'"]');const text=(item.taken?'✓ ':'◌ ')+({key:'Clé',fuse:'Fusible',seal:'Sceau'}[item.id]);if(label.textContent!==text){label.classList.toggle('found',item.taken);label.textContent=text;}}
+            const label=shell.querySelector('[data-inventory="'+item.id+'"]');const names={key:'Clé',fuse:'Fusible',seal:'Sceau',revive:'Sceau de rappel'};const carrying=!!local.carryingRevive&&item.revive;const text=((item.taken&&!item.revive)||carrying?'✓ ':'◌ ')+(names[item.id]||item.label);if(label&&label.textContent!==text){label.classList.toggle('found',((item.taken&&!item.revive)||carrying));label.textContent=text;}}
           if(count===3&&lockLabel.textContent!=='🔓 REJOIGNEZ LA SORTIE')lockLabel.textContent='🔓 REJOIGNEZ LA SORTIE';for(const d of house.doors)doorPresenter.push(d,performance.now(),hosting);
         },
         event:(event,local)=>{
@@ -1532,7 +1537,9 @@ function open(options={}) {
           if(event.kind==='search'&&own){audio.search();scares.furniture(event.container,event.seconds);}
           if(event.kind==='collect')audio.tone(650,.20,.022,'sine',920);
           if(event.kind==='caught'&&own){scares.finish();audio.spotted();}
-          if(event.text&&(own||['collect','caught','escaped','left'].includes(event.kind)))message(event.text);
+          if(event.kind==='revive-kit-picked'&&own)audio.tone(520,.22,.025,'sine',760);
+          if(event.kind==='revived'&&(own||event.target===coopConfig.self))audio.tone(760,.35,.025,'sine',1040);
+          if(event.text&&(own||['collect','caught','escaped','left','revived','revive-kit-picked'].includes(event.kind)))message(event.text);
         },
         finish:reason=>{finish(reason);if(reason==='win')shell.querySelector('.three17-win p').textContent='L’équipe a réuni les trois objets et les survivants ont atteint la sortie.';},
         abort:text=>{finish('network');shell.querySelector('[data-loss-title]').textContent='PARTIE INTERROMPUE';shell.querySelector('[data-loss-text]').textContent=text;}
@@ -1574,6 +1581,7 @@ installCoop(open);
 window.ONEThree17 = { open, close, build: BUILD, layoutInfo:()=>active?.layoutInfo?.()||null, graphicsInfo:()=>active?.graphicsInfo?.()||null };
 if (window.__ONE317_TEST__ === true) Object.defineProperty(window.ONEThree17, 'debug', { get: () => active?.debug });
 window.addEventListener('pagehide', close);
+
 
 
 

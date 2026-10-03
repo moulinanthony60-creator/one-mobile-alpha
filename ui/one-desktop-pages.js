@@ -15,3 +15,4 @@
  document.addEventListener('click',e=>{if(swiped){e.preventDefault();e.stopImmediatePropagation();}},true);
 })();
 
+

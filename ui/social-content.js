@@ -25,3 +25,4 @@
  window.addEventListener('pagehide',()=>{stopPreview();for(const item of previews)URL.revokeObjectURL(item.url);});
 })();
 
+

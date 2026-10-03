@@ -146,7 +146,19 @@ export function createCoopRuntime(config,b){
   const net=link();if(!net)throw Error('Connexion du salon absente.');
   const ids=config.players.map(p=>p.id),world=hosting?createCoopWorld({house,monster,model,members:config.players,spawns}):null;
   const visuals=new Map(config.players.filter(p=>p.id!==localId).map((p,i)=>[p.id,avatar(scene,p.name,[0x76868c,0x716b8c,0x8a7957][i])]));
-  const syncHeadCamera=(id,v)=>{const element=window.ONEPartyMedia?.videoForMember?.(id)||null;if(element===v.videoElement)return;v.videoElement=element;if(v.videoTexture){v.videoTexture.dispose();v.videoTexture=null;}const material=v.cameraScreen?.material;if(!material)return;if(element){try{element.muted=true;element.playsInline=true;element.play?.().catch?.(()=>{});v.videoTexture=new THREE.VideoTexture(element);v.videoTexture.colorSpace=THREE.SRGBColorSpace;v.videoTexture.minFilter=THREE.LinearFilter;v.videoTexture.magFilter=THREE.LinearFilter;material.map=v.videoTexture;material.color.set(0xffffff);}catch{material.map=null;material.color.set(0x11151d);}}else{material.map=null;material.color.set(0x11151d);}material.needsUpdate=true;};
+  const freezeHeadCamera=(v)=>{
+    const element=v.videoElement;if(!element||!element.videoWidth||!element.videoHeight||!v.cameraScreen?.material)return;
+    try{const canvas=document.createElement('canvas');canvas.width=element.videoWidth;canvas.height=element.videoHeight;canvas.getContext('2d').drawImage(element,0,0,canvas.width,canvas.height);const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;v.videoTexture?.dispose?.();v.videoTexture=texture;v.cameraScreen.material.map=texture;v.cameraScreen.material.needsUpdate=true;v.videoFrozen=true;}catch{}
+  };
+  const syncHeadCamera=(id,v,dead=false)=>{
+    const element=window.ONEPartyMedia?.videoForMember?.(id)||null;
+    if(dead&&v.videoElement===element){if(!v.videoFrozen)freezeHeadCamera(v);return;}
+    if(element===v.videoElement&&!v.videoFrozen)return;
+    v.videoElement=element;v.videoFrozen=false;
+    if(v.videoTexture){v.videoTexture.dispose();v.videoTexture=null;}
+    const material=v.cameraScreen?.material;if(!material)return;
+    if(element){try{element.muted=true;element.playsInline=true;element.play?.().catch?.(()=>{});v.videoTexture=new THREE.VideoTexture(element);v.videoTexture.colorSpace=THREE.SRGBColorSpace;v.videoTexture.minFilter=THREE.LinearFilter;v.videoTexture.magFilter=THREE.LinearFilter;material.map=v.videoTexture;material.color.set(0xffffff);}catch{material.map=null;material.color.set(0x11151d);}}else{material.map=null;material.color.set(0x11151d);}material.needsUpdate=true;
+  };
   const cameraRequest=window.ONEPartyMedia?.enable?.({camera:true});cameraRequest?.catch?.(()=>{});
   const hud=document.createElement('div');hud.className='three17-team';shell.append(hud);
   let stopped=false,armed=false,begun=false,finished=false,lastState=null,lastStateAt=now(),lastEvent=0,lastRevision=0,inputSeq=0,actionSeq=0,hostPaused=false;
@@ -171,7 +183,7 @@ export function createCoopRuntime(config,b){
     if(hosting){
       if(p.kind==='input'&&Number.isSafeInteger(p.seq)&&p.seq>(inputSerial.get(from)||0)){
         const c=controls(p.controls);if(!c)return;inputSerial.set(from,p.seq);lastInput.set(from,now());if(p.ready===true)ready.add(from);world.input(from,c);
-      }else if(p.kind==='action'&&begun&&!finished&&!hostPaused&&Number.isSafeInteger(p.seq)&&['interact','flash'].includes(p.action)){if(controls(p.controls)){world.input(from,p.controls);world.action(from,p.action,p.seq);publish();}}
+      }else if(p.kind==='action'&&begun&&!finished&&!hostPaused&&Number.isSafeInteger(p.seq)&&['interact','flash','revive'].includes(p.action)){if(controls(p.controls)){world.input(from,p.controls);world.action(from,p.action,p.seq);publish();}}
       else if(p.kind==='round-leave'){world.disconnect(from);ready.delete(from);if(!begun){all('end',{text:'Un membre a quitté la préparation. Revenez au salon pour relancer.'});abort('Un membre a quitté la préparation. Revenez au salon pour relancer.');}}
     }else if(from===config.host){
       if(p.kind==='state'){
@@ -216,8 +228,8 @@ export function createCoopRuntime(config,b){
     }else if(!hostPaused&&now()-lastStateAt<1500){
       const p=lastState?.players.find(x=>x.id===localId);if(p&&!p.hidden&&!p.dead&&!p.escaped){const s=Math.sin(input.yaw),c=Math.cos(input.yaw),dt=Math.min(elapsed,.1);model.movePlayer(house,b.position,(-s*input.forward+c*input.x)*(input.sprint?4.1:2.5)*dt,(-c*input.forward-s*input.x)*(input.sprint?4.1:2.5)*dt);}
     }
-      for(const [id,v] of visuals){syncHeadCamera(id,v);const p=lastState?.players.find(x=>x.id===id);if(!p)continue;v.group.visible=p.connected&&!p.hidden&&!p.dead&&!p.escaped;if(!v.group.visible)continue;
-      const time=now();v.track.push({...p.position,yaw:p.yaw},time,p);const point=v.track.at(time);if(point)animateAvatar(v,point,elapsed);v.glow.visible=p.flash;
+      for(const [id,v] of visuals){const p=lastState?.players.find(x=>x.id===id);syncHeadCamera(id,v,!!p?.dead);if(!p)continue;v.group.visible=p.connected&&!p.hidden&&!p.escaped;v.group.scale.setScalar(p.dead?.82:1);if(!v.group.visible)continue;
+      const time=now();v.track.push({...p.position,yaw:p.yaw},time,p);const point=v.track.at(time);if(point)animateAvatar(v,point,elapsed);v.glow.visible=p.flash||p.dead;
     }
   }
   return {
@@ -231,12 +243,13 @@ export function createCoopRuntime(config,b){
 }
 function validSnapshot(s,ids,house){
   const point=p=>p&&[p.x,p.y,p.z].every(Number.isFinite)&&Math.abs(p.x)<100&&Math.abs(p.y)<15&&Math.abs(p.z)<100;
-  return s&&Number.isSafeInteger(s.revision)&&Number.isFinite(s.remaining)&&s.remaining>=0&&s.remaining<=600&&[null,'win','caught','time'].includes(s.outcome)&&
+  return s&&Number.isSafeInteger(s.revision)&&Number.isFinite(s.remaining)&&s.remaining>=0&&s.remaining<=900&&[null,'win','caught','time'].includes(s.outcome)&&
     Array.isArray(s.players)&&s.players.length===ids.length&&new Set(s.players.map(p=>p.id)).size===ids.length&&s.players.every(p=>ids.includes(p.id)&&point(p.position)&&Number.isFinite(p.yaw)&&Number.isFinite(p.pitch)&&typeof p.name==='string'&&p.name.length<=40)&&
     s.monster&&point(s.monster.position)&&Number.isFinite(s.monster.yaw)&&['dormant','patrol','chase','investigate','search','caught'].includes(s.monster.state)&&
     Array.isArray(s.doors)&&s.doors.length===house.doors.length&&s.doors.every(d=>house.doors.some(x=>x.id===d.id)&&Number.isFinite(d.angle)&&Number.isFinite(d.targetAngle))&&
-    Array.isArray(s.items)&&s.items.length===3&&s.items.every(i=>house.items.some(x=>x.id===i.id)&&point(i))&&Array.isArray(s.containers)&&s.containers.length<=house.containers.length&&
+    Array.isArray(s.items)&&s.items.length===house.items.length&&s.items.every(i=>{const expected=house.items.find(x=>x.id===i.id);return !!expected&&i.revive===!!expected.revive&&point(i);})&&Array.isArray(s.containers)&&s.containers.length<=house.containers.length&&
     Array.isArray(s.events)&&s.events.length<=32&&s.events.every(e=>Number.isSafeInteger(e.id)&&typeof e.kind==='string'&&ids.includes(e.who));
 }
+
 
 

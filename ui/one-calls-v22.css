@@ -159,3 +159,4 @@ html body .oneVoiceList .oneVoiceMessage[data-mine=true] { align-self:flex-end; 
 @keyframes oneCallRingGlow { 50% { filter:brightness(1.22); transform:scale(1.045); } }
 @keyframes oneVoicePulse { to { transform:scaleY(.35); opacity:.5; } }
 
+
