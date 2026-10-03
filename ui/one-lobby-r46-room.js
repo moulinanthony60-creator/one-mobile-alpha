@@ -86,3 +86,4 @@ export function buildRoom(scene,renderer,alive,dispose){
 }
 
 
+

@@ -100,3 +100,4 @@ html body .oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCapture
 html body .oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCaptureView img,html body .oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCaptureView video{object-fit:cover}
 
 
+

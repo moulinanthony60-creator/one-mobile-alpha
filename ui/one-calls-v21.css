@@ -141,3 +141,4 @@ html body .oneVoiceList .oneVoiceMessage[data-mine=true] { align-self:flex-end; 
 @keyframes oneVoicePulse { to { transform:scaleY(.35); opacity:.5; } }
 
 
+

@@ -161,7 +161,7 @@ export function createCoopRuntime(config,b){
   };
   const cameraRequest=window.ONEPartyMedia?.enable?.({camera:true});cameraRequest?.catch?.(()=>{});
   const hud=document.createElement('div');hud.className='three17-team';shell.append(hud);
-  let stopped=false,armed=false,begun=false,finished=false,lastState=null,lastStateAt=now(),lastEvent=0,lastRevision=0,inputSeq=0,actionSeq=0,hostPaused=false;
+  let stopped=false,armed=false,begun=false,finished=false,lastState=null,lastStateAt=now(),lastEvent=0,lastRevision=0,inputSeq=0,actionSeq=0,hostPaused=false,reconnecting=false,lastReconnect=0;
   let input={x:0,forward:0,yaw:spawns[ids.indexOf(localId)].yaw||0,pitch:0,paused:false};
   const ready=new Set(),lastInput=new Map(ids.map(id=>[id,now()])),inputSerial=new Map();
   const wire=(kind,data={})=>packet(kind,{room:config.room,round:config.id,...data});
@@ -200,22 +200,23 @@ export function createCoopRuntime(config,b){
     if(hosting){
       hostPaused=b.paused();if(armed)ready.add(localId);world.input(localId,{...input,paused:hostPaused});
       if(!finished&&!begun&&ready.size===ids.length){begun=true;b.begin();}
-      for(const id of ids)if(id!==localId&&now()-lastInput.get(id)>15000){
+      for(const id of ids)if(id!==localId&&now()-lastInput.get(id)>45000){
         if(!begun){all('end',{});abort('Un membre ne répond plus. Revenez au salon pour relancer.');return;}
         if(world.player(id).connected)world.disconnect(id);
       }
       publish();
       if(!begun)b.wait(ready.size,ids.length);
     }else{
-      transmit(config.host,'input',{seq:++inputSeq,controls:{...input,paused:b.paused()},ready:armed});
-      if(now()-lastStateAt>15000)abort('Connexion avec l’hôte perdue. Revenez au salon pour relancer.');
+      const age=now()-lastStateAt;transmit(config.host,'input',{seq:++inputSeq,controls:{...input,paused:b.paused()},ready:armed});
+      if(age>2500&&now()-lastReconnect>5000&&!reconnecting){lastReconnect=now();reconnecting=true;Promise.resolve().then(()=>link()?.reconnect?.()).catch(()=>{}).finally(()=>{reconnecting=false;});}
+      if(age>45000)abort('Connexion avec l’hôte perdue. Revenez au salon pour relancer.');
     }
     updateHud();
   }
   function updateHud(){
     const lines=['ÉQUIPE · '+ids.length+' JOUEURS'];
     for(const p of lastState?.players||config.players)lines.push(safeName(p.name)+(p.id===localId?' · toi':'')+' · '+(!p.connected&&lastState?'déconnecté':p.escaped?'sorti':p.dead?'attrapé':p.hidden?'caché':'en jeu'));
-    if(begun&&(hostPaused||!hosting&&now()-lastStateAt>1500))lines.push('En attente de l’hôte…');
+    if(begun&&(hostPaused||!hosting&&now()-lastStateAt>2500))lines.push('Connexion en cours…');
     const text=lines.join('\n');if(hud.textContent!==text)hud.textContent=text;
   }
   const timer=setInterval(pump,100);
@@ -225,7 +226,7 @@ export function createCoopRuntime(config,b){
     if(hosting){
       world.input(localId,input);let left=Math.min(.25,elapsed);while(left>1e-6){const dt=Math.min(.05,left);world.step(dt);left-=dt;}
       accept(world.snapshot(),true);
-    }else if(!hostPaused&&now()-lastStateAt<1500){
+    }else if(!hostPaused&&now()-lastStateAt<5000){
       const p=lastState?.players.find(x=>x.id===localId);if(p&&!p.hidden&&!p.dead&&!p.escaped){const s=Math.sin(input.yaw),c=Math.cos(input.yaw),dt=Math.min(elapsed,.1);model.movePlayer(house,b.position,(-s*input.forward+c*input.x)*(input.sprint?4.1:2.5)*dt,(-c*input.forward-s*input.x)*(input.sprint?4.1:2.5)*dt);}
     }
       for(const [id,v] of visuals){const p=lastState?.players.find(x=>x.id===id);syncHeadCamera(id,v,!!p?.dead);if(!p)continue;v.group.visible=p.connected&&!p.hidden&&!p.escaped;v.group.scale.setScalar(p.dead?.82:1);if(!v.group.visible)continue;
@@ -234,7 +235,7 @@ export function createCoopRuntime(config,b){
   }
   return {
     step,ready(){armed=true;b.wait(ready.size,ids.length);pump();},
-    action(type,value){input=controls(value)||input;if(!begun||finished||hostPaused||!hosting&&now()-lastStateAt>1500)return;if(hosting){world.input(localId,input);world.action(localId,type,++actionSeq);publish();}else transmit(config.host,'action',{action:type,seq:++actionSeq,controls:input});},
+    action(type,value){input=controls(value)||input;if(!begun||finished||hostPaused||!hosting&&now()-lastStateAt>5000)return;if(hosting){world.input(localId,input);world.action(localId,type,++actionSeq);publish();}else transmit(config.host,'action',{action:type,seq:++actionSeq,controls:input});},
     get local(){return lastState?.players.find(p=>p.id===localId);},get isHost(){return hosting;},get state(){return lastState;},
       dispose(){if(stopped)return;stopped=true;clearInterval(timer);off();for(const v of visuals.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}if(hosting)all('end',{});else transmit(config.host,'round-leave',{});round=null;leaveLobby();hud.remove();},
     inspect:()=>({hosting,begun,ready:[...ready],state:lastState,peers:net.peers()}),
@@ -247,9 +248,10 @@ function validSnapshot(s,ids,house){
     Array.isArray(s.players)&&s.players.length===ids.length&&new Set(s.players.map(p=>p.id)).size===ids.length&&s.players.every(p=>ids.includes(p.id)&&point(p.position)&&Number.isFinite(p.yaw)&&Number.isFinite(p.pitch)&&typeof p.name==='string'&&p.name.length<=40)&&
     s.monster&&point(s.monster.position)&&Number.isFinite(s.monster.yaw)&&['dormant','patrol','chase','investigate','search','caught'].includes(s.monster.state)&&
     Array.isArray(s.doors)&&s.doors.length===house.doors.length&&s.doors.every(d=>house.doors.some(x=>x.id===d.id)&&Number.isFinite(d.angle)&&Number.isFinite(d.targetAngle))&&
-    Array.isArray(s.items)&&s.items.length===house.items.length&&s.items.every(i=>{const expected=house.items.find(x=>x.id===i.id);return !!expected&&i.revive===!!expected.revive&&point(i);})&&Array.isArray(s.containers)&&s.containers.length<=house.containers.length&&
+    Array.isArray(s.items)&&(s.items.length===house.items.length||s.items.length===house.items.length-1)&&s.items.every(i=>{const expected=house.items.find(x=>x.id===i.id);return !!expected&&(i.revive===undefined?!expected.revive:i.revive===!!expected.revive)&&point(i);})&&Array.isArray(s.containers)&&s.containers.length<=house.containers.length&&
     Array.isArray(s.events)&&s.events.length<=32&&s.events.every(e=>Number.isSafeInteger(e.id)&&typeof e.kind==='string'&&ids.includes(e.who));
 }
+
 
 
 

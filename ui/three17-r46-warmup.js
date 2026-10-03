@@ -18,3 +18,4 @@ export async function prepareScene(renderer,scene,camera,alive=()=>true){
 }
 
 
+
