@@ -27,3 +27,4 @@
  const label=[...points.children].find(n=>n.tagName==='SPAN'&&!n.className);if(label)label.textContent='Points ONE';
  const style=document.createElement('link');style.rel='stylesheet';style.href='ui/header-polish.css?v=118c2';document.head.append(style);
 })();
+

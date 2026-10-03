@@ -12,9 +12,11 @@ export function createAvatar(scene,name,color){
  const head=mesh(new THREE.SphereGeometry(.18,12,10),skin,0,1.71,-.008);head.scale.set(.88,1.12,.93);head.visible=false;
  const cap=mesh(new THREE.SphereGeometry(.184,12,8,0,Math.PI*2,0,Math.PI*.52),hair,0,1.735,.012);cap.scale.set(.91,1.1,1);cap.visible=false;
  const cameraHead=new THREE.Group();cameraHead.position.set(0,1.71,-.01);rig.add(cameraHead);
- const cameraBody=new THREE.Mesh(new THREE.BoxGeometry(.34,.25,.22),dark);cameraBody.position.z=.01;cameraHead.add(cameraBody);
- const cameraScreen=new THREE.Mesh(new THREE.PlaneGeometry(.255,.165),new THREE.MeshBasicMaterial({color:0x11151d,transparent:true,opacity:.96,side:THREE.DoubleSide,depthTest:false}));cameraScreen.position.set(0,.005,-.126);cameraScreen.renderOrder=8;cameraHead.add(cameraScreen);
- const cameraLens=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.026,16),new THREE.MeshStandardMaterial({color:0x05070a,roughness:.24,metalness:.55}));cameraLens.rotation.x=Math.PI/2;cameraLens.position.set(0,.005,-.14);cameraHead.add(cameraLens);
+ // Tête caméra ronde : le flux est affiché sur une face circulaire, sans rectangle.
+ const cameraBody=new THREE.Mesh(new THREE.SphereGeometry(.188,24,18),dark);cameraBody.scale.set(.98,1.04,.92);cameraBody.position.z=.01;cameraHead.add(cameraBody);
+ const cameraScreen=new THREE.Mesh(new THREE.CircleGeometry(.157,32),new THREE.MeshBasicMaterial({color:0x11151d,transparent:true,opacity:.98,side:THREE.DoubleSide,depthTest:false}));cameraScreen.position.set(0,.008,-.168);cameraScreen.renderOrder=8;cameraHead.add(cameraScreen);
+ const cameraRing=new THREE.Mesh(new THREE.RingGeometry(.158,.181,32),new THREE.MeshStandardMaterial({color:0x080b11,roughness:.28,metalness:.52,side:THREE.DoubleSide}));cameraRing.position.set(0,.008,-.17);cameraRing.renderOrder=7;cameraHead.add(cameraRing);
+ const cameraLens=new THREE.Mesh(new THREE.CircleGeometry(.028,20),new THREE.MeshBasicMaterial({color:0x05070a,transparent:true,opacity:.72,side:THREE.DoubleSide}));cameraLens.position.set(.09,.085,-.173);cameraLens.renderOrder=9;cameraHead.add(cameraLens);
  const face=mesh(new THREE.BoxGeometry(.05,.065,.04),skin,0,1.70,-.162);face.visible=false;
  const legs=[],arms=[];
  for(const sign of [-1,1]){
@@ -29,7 +31,7 @@ export function createAvatar(scene,name,color){
  const glow=mesh(new THREE.SphereGeometry(.032,8,6),new THREE.MeshBasicMaterial({color:0xffdb94}),.02,-.49,-.16,arms[1]);
  const c=document.createElement('canvas');c.width=512;c.height=96;const ctx=c.getContext('2d');ctx.fillStyle='#11131dd9';ctx.beginPath();ctx.roundRect(4,4,504,88,22);ctx.fill();ctx.fillStyle='#f4f0e9';ctx.font='600 32px system-ui';ctx.textAlign='center';ctx.fillText(String(name).slice(0,22),256,60);
  const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;const label=new THREE.Sprite(new THREE.SpriteMaterial({map:texture}));label.scale.set(1.5,.28,1);label.position.y=2.14;group.add(label);
- scene.add(group);return {group,rig,legs,arms,glow,head,cap,face,cameraHead,cameraBody,cameraScreen,cameraLens,track:createPoseTrack(),phase:0,last:null,swing:0,videoTexture:null,videoElement:null};
+ scene.add(group);return {group,rig,legs,arms,glow,head,cap,face,cameraHead,cameraBody,cameraScreen,cameraRing,cameraLens,track:createPoseTrack(),phase:0,last:null,swing:0,videoTexture:null,videoElement:null};
 }
 export function animateAvatar(v,p,elapsed){
  const dt=Math.min(.1,Math.max(.001,elapsed));const distance=v.last?Math.hypot(p.x-v.last.x,p.z-v.last.z):0;
@@ -41,3 +43,4 @@ export function animateAvatar(v,p,elapsed){
  v.rig.position.y=Math.abs(Math.sin(v.phase))*v.swing*.022;v.rig.rotation.z=stride*.016;
  if(!v.last)v.last={x:p.x,z:p.z};else{v.last.x=p.x;v.last.z=p.z;}
 }
+

@@ -19,3 +19,4 @@ async function poll(){if(busy||document.hidden||!window.oneAccountToken?.())retu
  }catch{}apply();}finally{busy=false;}}
 window.addEventListener('one-account-changed',()=>{query='';clearTimeout(typingTimer);typingPeer='';known.clear();inbox=[];initialized=false;lastTyping.clear();document.querySelector('.oneChatToast')?.remove();});document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll();else if(typingPeer)api(MEDIA,'/typing',{to:typingPeer,active:false}).catch(()=>{});});window.addEventListener('one-space-open',()=>{query='';setTimeout(apply,0)});setInterval(poll,2200);
 })();
+

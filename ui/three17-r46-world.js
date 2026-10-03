@@ -114,3 +114,4 @@ export function createCoopWorld({house,monster,model,members,spawns}){
     items:house.items.map(i=>({id:i.id,taken:!!i.taken,hidden:!!i.hidden,x:i.x,y:i.y,z:i.z})),containers:house.containers.filter(c=>c.opened).map(c=>c.id),events:events.map(e=>({...e}))};}
   return {players,player,input,action,select,step,disconnect,snapshot,get outcome(){return outcome;}};
 }
+

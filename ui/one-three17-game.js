@@ -1396,7 +1396,7 @@ function open(options={}) {
       if(coop){
         const sx=keys.x+(pressed.has('KeyD')||pressed.has('ArrowRight')?1:0)-(pressed.has('KeyA')||pressed.has('KeyQ')||pressed.has('ArrowLeft')?1:0);
         const forward=-keys.y+(pressed.has('KeyW')||pressed.has('KeyZ')||pressed.has('ArrowUp')?1:0)-(pressed.has('KeyS')||pressed.has('ArrowDown')?1:0);
-        coop.step(elapsed,{x:sx,forward,yaw,pitch,paused});
+        coop.step(elapsed,{x:sx,forward,yaw,pitch,paused,sprint});
         audio.update({listener:position,yaw,monster:monster.state.position,state:monster.state.state,hidden});monsterVisual.animate(monster.state,Math.min(elapsed,.1));
         const md=Math.hypot(monster.state.position.x-position.x,monster.state.position.z-position.z),same=Math.abs(monster.state.position.y-position.y)<1.4;
         if(monster.state.walked-coopMonsterStep>.68){coopMonsterStep=monster.state.walked;audio.monsterStep(md,monster.state.state,same);}
@@ -1574,6 +1574,7 @@ installCoop(open);
 window.ONEThree17 = { open, close, build: BUILD, layoutInfo:()=>active?.layoutInfo?.()||null, graphicsInfo:()=>active?.graphicsInfo?.()||null };
 if (window.__ONE317_TEST__ === true) Object.defineProperty(window.ONEThree17, 'debug', { get: () => active?.debug });
 window.addEventListener('pagehide', close);
+
 
 
 

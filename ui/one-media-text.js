@@ -65,3 +65,4 @@ window.oneEditCapture = file => new Promise(resolve => {
  document.body.append(d);d.showModal();$('textarea').focus({preventScroll:true});
 });
 })();
+

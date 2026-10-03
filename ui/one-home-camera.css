@@ -98,3 +98,4 @@ html body .oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCapture
 .oneFullCamera .onePreviewActions>button{padding:8px 14px;margin:0 0 14px;background:#120e1ba8;font-size:12px}
 .oneFullCamera .onePreviewActions[hidden]{display:none!important}
 html body .oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCaptureView img,html body .oneFullCamera[data-preview=true]:not([data-sharing=true]) .oneCaptureView video{object-fit:cover}
+

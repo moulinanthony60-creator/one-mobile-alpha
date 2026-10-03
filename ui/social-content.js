@@ -24,3 +24,4 @@
  window.addEventListener('one-account-changed',()=>{stopPreview();for(const item of previews)URL.revokeObjectURL(item.url);previews.length=0;selected=null;source='one';if(window.oneCurrentSpace?.()==='together')renderTogether(document.getElementById('oneFoundation'));if(window.oneCurrentSpace?.()==='one')renderFeed(document.getElementById('oneFoundation'));});
  window.addEventListener('pagehide',()=>{stopPreview();for(const item of previews)URL.revokeObjectURL(item.url);});
 })();
+

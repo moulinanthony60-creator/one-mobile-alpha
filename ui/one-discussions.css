@@ -58,3 +58,4 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79AttachBtn:focus-within{outlin
 /* The composer label is at z-index 20 and previously covered Send at 6. */
 dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>label+button{z-index:32!important;display:grid!important;place-items:center!important;visibility:visible!important;pointer-events:auto!important}
 dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>label+button::before{content:'➤'!important;color:#fff!important;font-size:24px!important;line-height:1!important}
+

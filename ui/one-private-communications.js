@@ -206,3 +206,4 @@ async function incoming(){
 window.addEventListener('one-thread-ready',refreshThread);window.addEventListener('one-thread-closed',refreshThread);setInterval(refreshThread,1000);setInterval(incoming,1500);window.addEventListener('one-account-changed',()=>{config=null;if(active)endCall(active);stopRingtone();recording?.cleanup?.();releaseVoiceURLs()});window.addEventListener('pagehide',()=>{stopRingtone();if(active){const c=active,id=c.id;closeCall(c);if(id)fetch(BASE+'/calls/'+id+'/end',{method:'POST',headers:{Authorization:'Bearer '+token(),'Content-Type':'application/json'},body:'{}',keepalive:true}).catch(()=>{})}recording?.cleanup?.();releaseVoiceURLs()});
 
 })();
+

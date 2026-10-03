@@ -45,3 +45,4 @@
  const headerButton=button('',window.oneOpenFriends,'Amis');headerButton.id='oneFriendsToggle';headerButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20v-3a6 6 0 0 1 12 0v3M16 4a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 4v2"/></svg>';(document.getElementById('oneSalonsToggle')||document.getElementById('oneNotificationsToggle'))?.before(headerButton);
  if(resume)window.oneOpenFriends();
 })();
+

@@ -14,3 +14,4 @@
  document.addEventListener('pointercancel',()=>start=null,true);window.addEventListener('blur',()=>start=null);
  document.addEventListener('click',e=>{if(swiped){e.preventDefault();e.stopImmediatePropagation();}},true);
 })();
+

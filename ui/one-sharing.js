@@ -85,3 +85,4 @@ function mountStories(){const moments=document.querySelector('.oneMomentsScreen'
 const shell=document.getElementById('oneFoundation');if(shell)new MutationObserver(()=>{mountStories()}).observe(shell,{childList:true,subtree:true});mountStories();
 const waitingFeed=document.getElementById('oneNativeFeed');if(waitingFeed&&!waitingFeed.classList.contains('oneNativeFeed'))window.oneMountNativeFeed(waitingFeed);
 })();
+

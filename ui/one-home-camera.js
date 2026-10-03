@@ -60,3 +60,4 @@ function open(callback){if(!dialog)build();if(dialog.open)return;target=typeof c
 window.addEventListener('click',e=>{if(e.target.closest?.('.bottom #discover')){e.preventDefault();e.stopImmediatePropagation();open()}},true);window.oneOpenCamera=open;window.openOneStudio=open;window.oneTakePhoneMedia=callback=>open(callback);window.oneRetakeCapture=live;
 document.addEventListener('visibilitychange',()=>{if(!active())return;if(document.hidden){clearTimeout(holdTimer);held=false;if(recorder?.state==='recording'){recorder.stop();stop()}else{seq++;busy=false;stop()}}else if(!stream&&!recorder)live()});
 })();
+

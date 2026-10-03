@@ -22,6 +22,25 @@ function open(ctx={}){
  const camera=new THREE.PerspectiveCamera(65,1,.05,60),position={x:0,z:4.8};let yaw=0,pitch=-.055,spawned=false;
  const colors=[0x9572bf,0x57a9b8,0xc78395,0x6eac90],avatars=new Map();
  const spawns=[[0,4.8],[-2.2,1.8],[0,2.0],[2.2,1.8]];
+ const syncHeadCamera=(id,v)=>{
+   const element=window.ONEPartyMedia?.videoForMember?.(id)||null;
+   if(element===v.videoElement)return;
+   v.videoElement=element;
+   if(v.videoTexture){v.videoTexture.dispose();v.videoTexture=null;}
+   const material=v.cameraScreen?.material;
+   if(!material)return;
+   if(element){
+    try{
+     element.muted=true;element.playsInline=true;element.play?.().catch?.(()=>{});
+     v.videoTexture=new THREE.VideoTexture(element);
+     v.videoTexture.colorSpace=THREE.SRGBColorSpace;
+     v.videoTexture.minFilter=THREE.LinearFilter;
+     v.videoTexture.magFilter=THREE.LinearFilter;
+     material.map=v.videoTexture;material.color.set(0xffffff);
+    }catch{material.map=null;material.color.set(0x11151d);}
+   }else{material.map=null;material.color.set(0x11151d);}
+   material.needsUpdate=true;
+ };
  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.15));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;stage.prepend(renderer.domElement);
  let state=lobbyState(),raf=0,last=performance.now(),lastSend=0,stopped=false,drag=null,look=null,lx=0,ly=0,statusKey='',assetsReady=false,sprint=false;
  const mobile=matchMedia('(pointer:coarse)').matches||innerWidth<700;
@@ -39,6 +58,7 @@ function open(ctx={}){
  const keys=new Set(),stickInput={x:0,y:0},abort=new AbortController();
  const listen=(target,event,fn)=>target.addEventListener(event,fn,{signal:abort.signal});
  const gameScreen=createGameScreen({shell,lobbyState,setReady:setLobbyReady,startRound,reset(){keys.clear();stickInput.x=stickInput.y=0;look=null;}});
+ const cameraRequest=window.ONEPartyMedia?.enable?.({camera:true});cameraRequest?.catch?.(()=>{});
  shell.querySelector('[data-screen-open]').onclick=()=>gameScreen.open();
  listen(renderer.domElement,'webglcontextlost',e=>{e.preventDefault();graphicsLost=true;keys.clear();loading.hidden=false;loading.querySelector('span').textContent='Affichage interrompu. Ton salon reste connecté…';});
  listen(renderer.domElement,'webglcontextrestored',async()=>{if(stopped)return;graphicsLost=false;try{await prepareScene(renderer,scene,camera,()=>alive&&!graphicsLost);if(stopped)return;assetsReady=true;loading.hidden=true;resizePending=true;budget.reset();last=performance.now();}catch{loading.querySelector('span').textContent='Reviens au salon puis rouvre la 3D pour réessayer.';}});
@@ -73,7 +93,7 @@ function open(ctx={}){
     const x=position.x+(-Math.sin(yaw)*forward+Math.cos(yaw)*side)*speed*dt,z=position.z+(-Math.cos(yaw)*forward-Math.sin(yaw)*side)*speed*dt;
    if(canMove(x,position.z))position.x=x;if(canMove(position.x,z))position.z=z;
    if(t-lastSend>100){updateLobbyPose({...position,yaw});lastSend=t;}
-   for(const [id,v] of avatars){const p=lobbyPose(id);if(!p)continue;v.track.push(p,t);const pose=v.track.at(t);if(pose)animateAvatar(v,pose,dt);}
+   for(const [id,v] of avatars){syncHeadCamera(id,v);const p=lobbyPose(id);if(!p)continue;v.track.push(p,t);const pose=v.track.at(t);if(pose)animateAvatar(v,pose,dt);}
    camera.position.set(position.x,1.65,position.z);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;renderer.render(scene,camera);if(assetsReady)budget.record(t,performance.now()-began);
  }
  const stick=shell.querySelector('.one3d-stick'),knob=shell.querySelector('.one3d-knob');
@@ -96,7 +116,7 @@ function open(ctx={}){
   const movement=['KeyW','KeyA','KeyS','KeyD','KeyZ','KeyQ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
   listen(window,'keydown',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();setSprint(true);}else if(movement.includes(e.code)){e.preventDefault();keys.add(e.code);}else if(e.code==='KeyE'){e.preventDefault();gameScreen.open();}else if(e.code==='Escape')close();});listen(window,'keyup',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')setSprint(false);else keys.delete(e.code);});listen(window,'blur',()=>{keys.clear();stopStick();look=null;setSprint(false);});listen(document,'visibilitychange',()=>{keys.clear();stopStick();setSprint(false);last=performance.now();budget.reset();});
  shell.querySelector('[data-close]').onclick=()=>close();shell.querySelector('button[data-ready]').onclick=setLobbyReady;shell.querySelector('[data-start]').onclick=startRound;shell.querySelector('[data-reconnect]').onclick=()=>joinLobby(ctx,true);
- active={shell,renderer,scene,ro,stop(){stopped=true;alive=false;gameScreen.dispose();roomVisual.dispose();cancelAnimationFrame(raf);abort.abort();off();},inspect:()=>({position:{...position},yaw,avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
+ active={shell,renderer,scene,ro,stop(){stopped=true;alive=false;gameScreen.dispose();roomVisual.dispose();for(const v of avatars.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}cancelAnimationFrame(raf);abort.abort();off();},inspect:()=>({position:{...position},yaw,avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
  raf=requestAnimationFrame(frame);joinLobby(ctx);
 }
 function disposeObject(object){
@@ -110,3 +130,4 @@ function close(options={}){
 window.ONELobby3D={open,close,...(window.__ONE317_TEST__===true?{inspect:()=>active?.inspect()}: {})};
 window.addEventListener('pagehide',()=>close({launch:true}));
 export {open,close};
+

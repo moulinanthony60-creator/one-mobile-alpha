@@ -52,3 +52,4 @@ export function createDoorPresenter(){
   angle(id,time){const s=tracks.get(id);return s?at(s,time):0;}
  };
 }
+

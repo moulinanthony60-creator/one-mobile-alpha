@@ -42,3 +42,4 @@ export function createGameScreen({shell,lobbyState,setReady,startRound,reset}){
  const timer=setInterval(refresh,400);
  return {get opened(){return panel.open;},open(){reset();build();signature='';panel.showModal();refresh();},close(){panel.close();},dispose(){destroyed=true;clearInterval(timer);panel.remove();style.remove();}};
 }
+

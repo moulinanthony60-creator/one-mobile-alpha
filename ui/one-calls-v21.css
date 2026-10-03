@@ -139,3 +139,4 @@ html body .oneVoiceList .oneVoiceMessage[data-mine=true] { align-self:flex-end; 
 }
 @keyframes oneCallBreathe { 50% { box-shadow:0 0 0 16px #a377e712,0 0 0 36px #a377e705; } }
 @keyframes oneVoicePulse { to { transform:scaleY(.35); opacity:.5; } }
+

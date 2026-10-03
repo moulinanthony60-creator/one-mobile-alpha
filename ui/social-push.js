@@ -27,3 +27,4 @@
  const initial=new URL(location.href);if(initial.searchParams.has('one_alert')){const href=initial.href;initial.searchParams.delete('one_alert');initial.searchParams.delete('thread');history.replaceState(history.state,'',initial);setTimeout(()=>openAlert(href),500);}
 })();
 
+

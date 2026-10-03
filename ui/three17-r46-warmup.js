@@ -16,3 +16,4 @@ export async function prepareScene(renderer,scene,camera,alive=()=>true){
   renderer.setRenderTarget(target);renderer.render(scene,camera);
  }finally{renderer.setRenderTarget(before);for(const [o,value] of culled)o.frustumCulled=value;target.dispose();}
 }
+

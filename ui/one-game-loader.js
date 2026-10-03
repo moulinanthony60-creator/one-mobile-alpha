@@ -19,3 +19,4 @@
  window.addEventListener('one-account-changed',close);
  window.addEventListener('pagehide',close);
 })();
+

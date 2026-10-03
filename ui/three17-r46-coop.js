@@ -239,3 +239,4 @@ function validSnapshot(s,ids,house){
     Array.isArray(s.events)&&s.events.length<=32&&s.events.every(e=>Number.isSafeInteger(e.id)&&typeof e.kind==='string'&&ids.includes(e.who));
 }
 
+

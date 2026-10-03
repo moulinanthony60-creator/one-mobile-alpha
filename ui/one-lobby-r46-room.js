@@ -84,3 +84,4 @@ export function buildRoom(scene,renderer,alive,dispose){
  const pmrem=new THREE.PMREMGenerator(renderer),env=pmrem.fromEquirectangular(environment);scene.environment=env.texture;scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
  return {screen,ready,dispose(){scene.environment=null;env.dispose();}};
 }
+
