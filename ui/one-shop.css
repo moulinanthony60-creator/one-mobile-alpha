@@ -23,3 +23,23 @@ body.oneShopOpen .topbar .oneMainNav{display:none!important}
 #oneShop .os-notice{font-size:11px;line-height:1.6;border:0;border-left:2px solid #8564bf;border-radius:0;background:transparent;color:#b6adc8;padding:2px 0 2px 10px;margin:16px 0}
 #oneShop .os-status{background:transparent;padding:0;margin:18px 0 12px;font-size:12px;color:#c5bbd8}
 @container(max-width:350px){#oneShop .os-heading{flex-wrap:wrap}#oneShop .os-heading h1{font-size:26px}}
+
+#oneShop .os-toolbar{display:flex;gap:10px;margin:0 0 14px}
+#oneShop .os-tool-tab{flex:1;min-width:0;text-align:left;border:1px solid #ffffff25;border-radius:12px;padding:13px 14px;background:#191529;color:#e6ddf7;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#oneShop .os-tool-tab:after{content:'⌄';font-size:16px;color:#bca1eb}
+#oneShop .os-tool-tab[aria-expanded=true]{background:#302047;border-color:#a477e8}
+#oneShop .os-tool-tab[aria-expanded=true]:after{content:'⌃'}
+#oneShop .os-categories[hidden],#oneShop .os-filter-panel[hidden]{display:none!important}
+#oneShop .os-filter-panel{padding-top:14px}
+
+#oneShop .os-card{border-color:#ffffff18;background:linear-gradient(145deg,#1c172b,#13111e);box-shadow:0 8px 28px #0002}
+#oneShop .os-visual{background:#fff;height:230px;margin:10px 10px 0;border-radius:13px;overflow:hidden}
+#oneShop .os-visual img{padding:14px}
+#oneShop .os-card-body{padding:16px 18px 8px}
+#oneShop .os-card h2{font-size:17px;min-height:0;margin:8px 0 10px;line-height:1.4}
+#oneShop .os-specs{min-height:0;margin:0 0 14px;font-size:12px}
+#oneShop .os-offers{margin:12px 0 0}
+#oneShop .os-offer{flex-wrap:wrap;padding:14px 0;gap:12px}
+#oneShop .os-offer-link{display:block;text-align:center;flex:1 0 100%;padding:12px;font-size:13px!important;border-radius:10px;background:#7544cb;border-color:#ad82ee;font-weight:600}
+#oneShop .os-offer span{font-size:11px}
+#oneShop .os-kicker{font-size:10px}
