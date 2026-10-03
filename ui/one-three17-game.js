@@ -1,19 +1,19 @@
 
-import {prepareScene} from './three17-r46-warmup.js?v=appels-v52';
-import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js?v=appels-v52';
+import {prepareScene} from './three17-r46-warmup.js?v=appels-v54';
+import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js?v=appels-v54';
 
-import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=appels-v52';
-import * as THREE from './three.module.js?v=appels-v52';
-import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js?v=appels-v52';
-import { createHorrorAudio } from './three17-r41-audio.js?v=appels-v52';
-import { createScareEffects } from './three17-r41-scares.js?v=appels-v52';
+import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=appels-v54';
+import * as THREE from './three.module.js?v=appels-v54';
+import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js?v=appels-v54';
+import { createHorrorAudio } from './three17-r41-audio.js?v=appels-v54';
+import { createScareEffects } from './three17-r41-scares.js?v=appels-v54';
 const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHeightAt, movePlayer, circleHitsDoor, hasLineOfSight, roomAt } = (() => {
 /**
  * 3:17 FOUR — R23. Géométrie R20 préservée, monstre et objets jouables.
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R52 · CAMERA ET MOUVEMENT';
+const BUILD = 'R54 · CAMERA ET MOUVEMENT';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -384,6 +384,8 @@ function floorHeightAt(house, x, z, currentY = 0) {
 }
 
 function movePlayer(house, position, dx, dz) {
+  const original={x:position.x,y:position.y,z:position.z};
+  if(![original.x,original.y,original.z,dx,dz].every(Number.isFinite))return position;
   const steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / .07));
   const sx = dx / steps, sz = dz / steps;
   for (let i = 0; i < steps; i++) {
@@ -394,6 +396,11 @@ function movePlayer(house, position, dx, dz) {
     const support = floorHeightAt(house, position.x, position.z, position.y);
     if (Number.isFinite(support) && Math.abs(support-position.y) <= .34) position.y = support;
   }
+  // Movement is accepted only while the same collision model still finds a
+  // walkable floor and a free body volume. This also protects guest prediction
+  // and the Parasite path from crossing a wall during a delayed network step.
+  const support=floorHeightAt(house,position.x,position.z,position.y);
+  if(!Number.isFinite(support)||Math.abs(support-position.y)>.34||blockedAt(house,position.x,position.z,support))Object.assign(position,original);
   return position;
 }
 
@@ -761,7 +768,7 @@ function createMonsterController(house,hooks={},spawn=null) {
 function createMonsterMesh(scene) {
   const root=new THREE.Group();root.name='monstre-parasite';root.visible=false;scene.add(root);
   let controller=null,disposed=false,lastState=null;
-  const ready=import('./three17-parasite-r41.js?v=appels-v52').then(m=>m.loadParasite(root)).then(value=>{
+  const ready=import('./three17-parasite-r41.js?v=appels-v54').then(m=>m.loadParasite(root)).then(value=>{
     if(disposed){value.dispose();disposeScene(root);return false;}
     controller=value;if(lastState)controller.animate(lastState,0);return true;
   });
@@ -1141,6 +1148,18 @@ function open(options={}) {
     let renderWidth=0,renderHeight=0,renderRatio=0,qualityScale=1;
     const budget=createRenderBudget({mobile:mobileGraphics,onChange:()=>resizePending=true});
     const graphicsInfo={build:BUILD,contextLosses:0,contextRestores:0,resizes:0,frames:0,lastError:null};
+    let safePosition={...position};
+    function isSafePosition(point){
+      if(!point||![point.x,point.y,point.z].every(Number.isFinite))return false;
+      const support=floorHeightAt(house,point.x,point.z,point.y);
+      // A hidden player is deliberately inside a bed/wardrobe volume; that
+      // furniture is not walkable but it is a valid protected position.
+      return Number.isFinite(support)&&Math.abs(support-point.y)<=.34&&(hidden||!blockedAt(house,point.x,point.z,support));
+    }
+    function keepPositionSafe(){
+      if(isSafePosition(position)){safePosition={x:position.x,y:position.y,z:position.z};return true;}
+      Object.assign(position,safePosition);return false;
+    }
     audio=createEncounterAudio();
     scene.add(new THREE.HemisphereLight(0x9eafc4,0x201912,.21));
     const moon=new THREE.DirectionalLight(0xa6bfd8,.16);moon.position.set(2,6,3);scene.add(moon);
@@ -1404,6 +1423,7 @@ function open(options={}) {
         const sx=keys.x+(pressed.has('KeyD')||pressed.has('ArrowRight')?1:0)-(pressed.has('KeyA')||pressed.has('KeyQ')||pressed.has('ArrowLeft')?1:0);
         const forward=-keys.y+(pressed.has('KeyW')||pressed.has('KeyZ')||pressed.has('ArrowUp')?1:0)-(pressed.has('KeyS')||pressed.has('ArrowDown')?1:0);
         coop.step(elapsed,{x:sx,forward,yaw,pitch,paused,sprint});
+        keepPositionSafe();
         audio.update({listener:position,yaw,monster:monster.state.position,state:monster.state.state,hidden});monsterVisual.animate(monster.state,Math.min(elapsed,.1));
         const md=Math.hypot(monster.state.position.x-position.x,monster.state.position.z-position.z),same=Math.abs(monster.state.position.y-position.y)<1.4;
         const stepGap=clamp(.72-(1-Math.min(md,10)/10)*.24,.44,.72);
@@ -1414,6 +1434,7 @@ function open(options={}) {
       }
       remaining=Math.max(0,remaining-elapsed);if(remaining===0){finish('time');return;}
       let left=Math.min(elapsed,.25);while(left>.000001&&!ended){const dt=Math.min(.05,left);tick(dt);left-=dt;}
+      keepPositionSafe();
     }
     function updateHud(){
       const currentRoom=roomAt(house,position.x,position.z,position.y),text=currentRoom.level+' · '+currentRoom.name.toUpperCase();
@@ -1527,7 +1548,12 @@ function open(options={}) {
           const view=spectator?(state.players.find(p=>p.connected&&!p.dead&&!p.escaped)||local):local;
           const error=Math.hypot(view.position.x-position.x,view.position.y-position.y,view.position.z-position.z);
           const localPrediction=!!(coop&&!hosting&&!spectator&&coop.moving?.());
-          if(hosting||hidden||wasHidden!==hidden||spectator)Object.assign(position,view.position);
+          if(hosting||hidden||wasHidden!==hidden||spectator){
+            // A delayed snapshot may be stale or malformed for the current
+            // floor. Never teleport the local camera straight into geometry.
+            if(isSafePosition(view.position))Object.assign(position,view.position);
+            else keepPositionSafe();
+          }
           else {
             // The guest already runs the exact same bounded collision model.
             // Never move the camera because of an ordinary host snapshot:
@@ -1535,12 +1561,12 @@ function open(options={}) {
             // Only recover from a real desynchronisation once the gap is large.
             if(!localPrediction&&error>.9){
               const strength=Math.min(.025,Math.max(.008,(error-.9)*.018));
-              position.x+=(view.position.x-position.x)*strength;
-              position.z+=(view.position.z-position.z)*strength;
-              const dy=view.position.y-position.y;
-              if(Math.abs(dy)>.18)position.y+=dy*strength;
+              // Reconcile through the same swept collision helper as normal
+              // movement, instead of blending coordinates through a wall.
+              movePlayer(house,position,(view.position.x-position.x)*strength,(view.position.z-position.z)*strength);
             }
           }
+          keepPositionSafe();
           if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}
           flashOn=spectator?false:local.flash;syncFlash();
           count=state.items.filter(i=>!i.revive&&i.taken).length;if(counter.textContent!==String(count))counter.textContent=String(count);

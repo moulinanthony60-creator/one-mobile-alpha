@@ -93,9 +93,10 @@ export function createCoopWorld({house,monster,model,members,spawns}){
       // Arrêt rapide après la libération des commandes : avec les inputs à
       // 30 Hz, 220 ms absorbent une perte de paquet sans faire avancer
       // l'invité pendant une demi-seconde.
-      // Keep a short mobile packet gap, but do not let one delayed packet
-      // freeze the guest. The guest also stops its local prediction instantly.
-      p.inputAge+=dt;if(!active(p)||p.hidden||p.input.paused||p.inputAge>.35)continue;
+      // Keep only a short packet gap: after the guest releases movement, the
+      // host must stop before the next visible correction can cross geometry.
+      // The guest also stops its local prediction instantly.
+      p.inputAge+=dt;if(!active(p)||p.hidden||p.input.paused||p.inputAge>.16)continue;
       p.yaw=p.input.yaw;p.pitch=p.input.pitch;const before={...p.position},s=Math.sin(p.yaw),c=Math.cos(p.yaw);
       const speed=p.input.sprint?4.1:2.5;
       movePlayer(house,p.position,(-s*p.input.forward+c*p.input.x)*speed*dt,(-c*p.input.forward-s*p.input.x)*speed*dt);

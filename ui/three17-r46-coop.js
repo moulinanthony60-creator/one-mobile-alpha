@@ -1,6 +1,6 @@
-import {createAvatar,animateAvatar} from './three17-r44-avatar.js?v=appels-v52';
-import * as THREE from './three.module.js?v=appels-v52';
-import {createCoopWorld,controls} from './three17-r46-world.js?v=appels-v52';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=appels-v54';
+import * as THREE from './three.module.js?v=appels-v54';
+import {createCoopWorld,controls} from './three17-r46-world.js?v=appels-v54';
 
 const packet=(kind,data={})=>({game:'317',v:1,kind,...data});
 const now=()=>performance.now();
@@ -245,7 +245,7 @@ export function createCoopRuntime(config,b){
         // Le spectateur reprend exactement la première personne du survivant
         // suivi : son propre avatar ne doit donc pas apparaître dans la caméra.
         v.group.visible=p.connected&&!p.hidden&&!p.escaped&&p.id!==followId;v.group.scale.setScalar(p.dead?.82:1);if(!v.group.visible)continue;
-      const time=now();v.track.push({...p.position,yaw:p.yaw,pitch:p.pitch},time,p);const point=v.track.at(time);if(point)animateAvatar(v,{...point,dead:!!p.dead},elapsed);v.glow.visible=p.flash||p.dead;
+      const time=now();v.track.push({...p.position,yaw:p.yaw,pitch:p.pitch},time,p);const point=v.track.at(time);if(point){animateAvatar(v,{...point,dead:!!p.dead},elapsed);orientAvatarCamera(v,{x:b.position.x,y:(b.position.y||0)+1.65,z:b.position.z});}v.glow.visible=p.flash||p.dead;
     }
   }
   return {
