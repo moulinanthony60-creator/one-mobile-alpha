@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "demo": false,
-  "updatedAt": "2026-10-03T06:44:29.040Z",
+  "updatedAt": "2026-10-03T07:37:02.237Z",
   "products": [
     {
       "id": "amazon_B0C4TMX63V",
       "title": "KOORUI — Écran incurvé 27 pouces Full HD 144 Hz",
       "brand": "KOORUI",
       "category": "Écrans",
-      "image": "shop-assets/monitor.svg",
+      "image": "shop-assets/koorui-27-144hz.png",
       "demo": false,
       "specs": {
         "sizeInches": 27,
@@ -36,6 +36,822 @@
           "availability": "unknown",
           "productUrl": "https://www.amazon.fr/dp/B0C4TMX63V",
           "affiliateUrl": "https://link.amazon/B0hH3s7mp",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_crua-34",
+      "title": "Écran incurvé CRUA 34 pouces WQHD 165 Hz",
+      "brand": "CRUA",
+      "category": "Écrans",
+      "image": "shop-assets/crua-34.png",
+      "demo": false,
+      "specs": {
+        "sizeInches": 34,
+        "refreshRateHz": 165,
+        "taille": "34 pouces",
+        "resolution": "3440 × 1440",
+        "frequence": "165 Hz",
+        "format": "21:9",
+        "courbure": "1500R",
+        "technologie": "FreeSync"
+      },
+      "tags": [
+        "Écrans",
+        "écran",
+        "moniteur"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_crua-34_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "https://www.amazon.fr/dp/B0H29RNZQZ",
+          "affiliateUrl": "https://www.amazon.fr/gp/aw/d/B0H29RNZQZ?pd_rd_plhdr=t&hsa_cr_id=0&qid=1791011669&sr=1-1-9fd4e6c6-0f32-411b-9abc-dfd97dd0cadd&i=aps&aref=pxuWr0M64s&_encoding=UTF8&pd_rd_w=ObiUD&content-id=amzn1.sym.b9e521d2-2119-4ce5-8526-a336ad350fb4%3Aamzn1.sym.b9e521d2-2119-4ce5-8526-a336ad350fb4&pf_rd_p=b9e521d2-2119-4ce5-8526-a336ad350fb4&pf_rd_r=1BG46E0YTRE32R70XZJM&pd_rd_wg=YlM14&pd_rd_r=170b7f76-1b44-4539-8c8d-e71142702dae&th=1&linkCode=ll2&tag=onefr-21&linkId=a86be6b47da1881272b403c60fa05eec&ref_=as_li_ss_tl",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_asus-rog",
+      "title": "Écran ASUS ROG 26,5 pouces QHD 240 Hz",
+      "brand": "ASUS",
+      "category": "Écrans",
+      "image": "shop-assets/asus-rog.png",
+      "demo": false,
+      "specs": {
+        "sizeInches": 26.5,
+        "refreshRateHz": 240,
+        "taille": "26,5 pouces",
+        "resolution": "2560 × 1440",
+        "frequence": "240 Hz"
+      },
+      "tags": [
+        "Écrans",
+        "écran",
+        "moniteur"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_asus-rog_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B066dpvqQ",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_samsung-monitor",
+      "title": "Écran gaming Samsung",
+      "brand": "Samsung",
+      "category": "Écrans",
+      "image": "shop-assets/samsung-monitor.png",
+      "demo": false,
+      "specs": {},
+      "tags": [
+        "Écrans",
+        "écran",
+        "moniteur"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_samsung-monitor_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B05HJjJ9l",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_msi-mag",
+      "title": "Écran MSI MAG 32 pouces 4K QD-OLED 240 Hz",
+      "brand": "MSI",
+      "category": "Écrans",
+      "image": "shop-assets/msi-mag.png",
+      "demo": false,
+      "specs": {
+        "sizeInches": 32,
+        "refreshRateHz": 240,
+        "taille": "32 pouces",
+        "resolution": "3840 × 2160",
+        "frequence": "240 Hz",
+        "dalle": "QD-OLED",
+        "reponse": "0,03 ms GTG"
+      },
+      "tags": [
+        "Écrans",
+        "écran",
+        "moniteur"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_msi-mag_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0d1sKFAY",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_fast-ips",
+      "title": "Écran gaming 24,5 pouces Fast IPS 400 Hz OC",
+      "brand": "Non précisée",
+      "category": "Écrans",
+      "image": "shop-assets/fast-ips.png",
+      "demo": false,
+      "specs": {
+        "sizeInches": 24.5,
+        "taille": "24,5 pouces",
+        "frequence": "Jusqu’à 400 Hz (OC)",
+        "dalle": "Fast IPS",
+        "reponse": "1 ms GTG"
+      },
+      "tags": [
+        "Écrans",
+        "écran",
+        "moniteur"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_fast-ips_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0in8wN4i",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_hisense-50",
+      "title": "TV Hisense 50 pouces QLED",
+      "brand": "Hisense",
+      "category": "TV",
+      "image": "shop-assets/hisense-50.png",
+      "demo": false,
+      "specs": {
+        "sizeInches": 50,
+        "taille": "50 pouces",
+        "dalle": "QLED",
+        "technologies": "Dolby Vision · Dolby Atmos"
+      },
+      "tags": [
+        "TV"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_hisense-50_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0aMz9U0O",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_xiaomi-65",
+      "title": "Xiaomi TV F 65 — 65 pouces 4K UHD (2025)",
+      "brand": "Xiaomi",
+      "category": "TV",
+      "image": "shop-assets/xiaomi-65.png",
+      "demo": false,
+      "specs": {
+        "sizeInches": 65,
+        "taille": "65 pouces",
+        "resolution": "4K UHD",
+        "systeme": "Fire TV",
+        "technologies": "HDR10 · Apple AirPlay"
+      },
+      "tags": [
+        "TV"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_xiaomi-65_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B078GVHW8",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_tcl-55",
+      "title": "TV TCL 55 pouces 4K QLED Fire TV",
+      "brand": "TCL",
+      "category": "TV",
+      "image": "shop-assets/tcl-55.png",
+      "demo": false,
+      "specs": {
+        "sizeInches": 55,
+        "taille": "55 pouces",
+        "resolution": "4K",
+        "dalle": "QLED",
+        "systeme": "Fire TV",
+        "audio": "Dolby Atmos"
+      },
+      "tags": [
+        "TV"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_tcl-55_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0eVroZS3",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_samsung-tv",
+      "title": "TV Samsung Crystal UHD",
+      "brand": "Samsung",
+      "category": "TV",
+      "image": "shop-assets/samsung-tv.png",
+      "demo": false,
+      "specs": {
+        "gamme": "Crystal UHD"
+      },
+      "tags": [
+        "TV"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_samsung-tv_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0bUbSPGu",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_tcl-75",
+      "title": "TV TCL 75 pouces QD-Mini LED Google TV",
+      "brand": "TCL",
+      "category": "TV",
+      "image": "shop-assets/tcl-75.png",
+      "demo": false,
+      "specs": {
+        "sizeInches": 75,
+        "taille": "75 pouces",
+        "dalle": "QD-Mini LED",
+        "systeme": "Google TV",
+        "audio": "Onkyo 2.1 · Dolby Atmos"
+      },
+      "tags": [
+        "TV"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_tcl-75_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0gGHHk82",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_sony-beige",
+      "title": "Casque Sony beige",
+      "brand": "Sony",
+      "category": "Audio",
+      "image": "shop-assets/sony-beige.png",
+      "demo": false,
+      "specs": {
+        "couleur": "Beige",
+        "type": "Casque audio"
+      },
+      "tags": [
+        "Audio",
+        "casque"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_sony-beige_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B099O5FFT",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_steelseries",
+      "title": "Casque SteelSeries avec station de contrôle",
+      "brand": "SteelSeries",
+      "category": "Audio",
+      "image": "shop-assets/steelseries.png",
+      "demo": false,
+      "specs": {
+        "type": "Casque gaming"
+      },
+      "tags": [
+        "Audio",
+        "casque"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_steelseries_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0hi2366T",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_astro-a50",
+      "title": "Casque ASTRO A50 avec station d’accueil",
+      "brand": "Logitech G",
+      "category": "Audio",
+      "image": "shop-assets/astro-a50.png",
+      "demo": false,
+      "specs": {
+        "gamme": "ASTRO A50",
+        "type": "Casque gaming avec microphone"
+      },
+      "tags": [
+        "Audio",
+        "casque"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_astro-a50_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B06RdEOKs",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_jbl-tune",
+      "title": "Casque JBL Tune noir",
+      "brand": "JBL",
+      "category": "Audio",
+      "image": "shop-assets/jbl-tune.png",
+      "demo": false,
+      "specs": {
+        "gamme": "Tune",
+        "couleur": "Noir"
+      },
+      "tags": [
+        "Audio",
+        "casque"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_jbl-tune_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0ezkowvn",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_hyperx",
+      "title": "Casque gaming HyperX noir et rouge",
+      "brand": "HyperX",
+      "category": "Audio",
+      "image": "shop-assets/hyperx.png",
+      "demo": false,
+      "specs": {
+        "couleur": "Noir et rouge",
+        "type": "Casque avec microphone"
+      },
+      "tags": [
+        "Audio",
+        "casque"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_hyperx_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0g9C8kPn",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_ps5-digital",
+      "title": "PlayStation 5 Digital Edition — 825 Go",
+      "brand": "Sony",
+      "category": "Gaming",
+      "image": "shop-assets/ps5-digital.png",
+      "demo": false,
+      "specs": {
+        "plateforme": "PS5",
+        "stockage": "825 Go",
+        "edition": "Digital Edition"
+      },
+      "tags": [
+        "Gaming"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_ps5-digital_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B04k7orbR",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_fc27",
+      "title": "EA Sports FC 27 — PS5",
+      "brand": "EA Sports",
+      "category": "Gaming",
+      "image": "shop-assets/fc27.png",
+      "demo": false,
+      "specs": {
+        "plateforme": "PS5",
+        "type": "Jeu de football",
+        "classification": "PEGI 16"
+      },
+      "tags": [
+        "Gaming"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_fc27_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0eX6NQw3",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_dualsense",
+      "title": "Manette DualSense noire — PS5",
+      "brand": "Sony",
+      "category": "Gaming",
+      "image": "shop-assets/dualsense.png",
+      "demo": false,
+      "specs": {
+        "plateforme": "PS5",
+        "couleur": "Noir",
+        "type": "Manette"
+      },
+      "tags": [
+        "Gaming"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_dualsense_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B068X8kgo",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_switch2",
+      "title": "Console Nintendo Switch 2",
+      "brand": "Nintendo",
+      "category": "Gaming",
+      "image": "shop-assets/switch2.png",
+      "demo": false,
+      "specs": {
+        "plateforme": "Nintendo Switch 2",
+        "type": "Console"
+      },
+      "tags": [
+        "Gaming"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_switch2_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0aF2Ih6r",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_switch-oled",
+      "title": "Nintendo Switch OLED blanche",
+      "brand": "Nintendo",
+      "category": "Gaming",
+      "image": "shop-assets/switch-oled.png",
+      "demo": false,
+      "specs": {
+        "plateforme": "Nintendo Switch",
+        "edition": "Modèle OLED",
+        "couleur": "Blanc"
+      },
+      "tags": [
+        "Gaming"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_switch-oled_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0bTPseEz",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_pc-rgb",
+      "title": "PC de bureau — Tour RGB",
+      "brand": "Non précisée",
+      "category": "PC",
+      "image": "shop-assets/pc-rgb.png",
+      "demo": false,
+      "specs": {
+        "format": "Tour de bureau"
+      },
+      "tags": [
+        "PC"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_pc-rgb_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B075EYXtT",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_hp-portable",
+      "title": "Ordinateur portable HP",
+      "brand": "HP",
+      "category": "PC",
+      "image": "shop-assets/hp-portable.png",
+      "demo": false,
+      "specs": {
+        "format": "Ordinateur portable"
+      },
+      "tags": [
+        "PC"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_hp-portable_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B07Gwpnqz",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_cyberpower",
+      "title": "PC gaming CyberPowerPC — Boîtier Lian Li",
+      "brand": "CyberPowerPC",
+      "category": "PC",
+      "image": "shop-assets/cyberpower.png",
+      "demo": false,
+      "specs": {
+        "format": "Tour gaming",
+        "boitier": "Lian Li"
+      },
+      "tags": [
+        "PC"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_cyberpower_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B05yAJSmC",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_iphone-blue",
+      "title": "Apple iPhone — Finition bleutée",
+      "brand": "Apple",
+      "category": "Smartphones",
+      "image": "shop-assets/iphone-blue.png",
+      "demo": false,
+      "specs": {},
+      "tags": [
+        "Smartphones"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_iphone-blue_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B0cAf2dt3",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_iphone-silver",
+      "title": "Apple iPhone — Finition argentée",
+      "brand": "Apple",
+      "category": "Smartphones",
+      "image": "shop-assets/iphone-silver.png",
+      "demo": false,
+      "specs": {},
+      "tags": [
+        "Smartphones"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_iphone-silver_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/B065e3rrh",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_s26-ultra",
+      "title": "Samsung Galaxy S26 Ultra",
+      "brand": "Samsung",
+      "category": "Smartphones",
+      "image": "shop-assets/s26-ultra.png",
+      "demo": false,
+      "specs": {
+        "gamme": "Galaxy S26 Ultra"
+      },
+      "tags": [
+        "Smartphones"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_s26-ultra_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/A0gUxihRU",
+          "source": "manual",
+          "demo": false
+        }
+      ]
+    },
+    {
+      "id": "amazon_manual_s26",
+      "title": "Samsung Galaxy S26",
+      "brand": "Samsung",
+      "category": "Smartphones",
+      "image": "shop-assets/s26.png",
+      "demo": false,
+      "specs": {
+        "gamme": "Galaxy S26"
+      },
+      "tags": [
+        "Smartphones"
+      ],
+      "sourceNote": "Image et lien fournis par l’utilisateur. Caractéristiques limitées aux mentions visibles sur l’image. Destination du lien et référence exacte non vérifiées.",
+      "offers": [
+        {
+          "id": "amazon_manual_s26_offer",
+          "merchant": "Amazon",
+          "price": null,
+          "currency": "EUR",
+          "availability": "unknown",
+          "productUrl": "",
+          "affiliateUrl": "https://link.amazon/A00fYTlgY",
           "source": "manual",
           "demo": false
         }
