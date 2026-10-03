@@ -11,7 +11,9 @@ export function createAvatar(scene,name,color){
  mesh(new THREE.CapsuleGeometry(.105,.06,3,8),skin,0,1.51,0);
  const head=mesh(new THREE.SphereGeometry(.18,12,10),skin,0,1.71,-.008);head.scale.set(.88,1.12,.93);head.visible=false;
  const cap=mesh(new THREE.SphereGeometry(.184,12,8,0,Math.PI*2,0,Math.PI*.52),hair,0,1.735,.012);cap.scale.set(.91,1.1,1);cap.visible=false;
- const cameraHead=new THREE.Group();cameraHead.position.set(0,1.72,-.01);rig.add(cameraHead);
+ // La tête-camera reste sur le pivot du joueur : elle suit sa rotation sans
+ // reprendre le léger balancement du torse et ne quitte plus le visage à l'arrêt.
+ const cameraHead=new THREE.Group();cameraHead.position.set(0,1.72,-.025);cameraHead.rotation.order='YXZ';group.add(cameraHead);
  // Tête caméra ronde : le flux est affiché sur une face circulaire, sans rectangle.
  const cameraBody=new THREE.Mesh(new THREE.SphereGeometry(.216,28,20),dark);cameraBody.scale.set(.98,1.04,.92);cameraBody.position.z=.01;cameraHead.add(cameraBody);
  const cameraScreen=new THREE.Mesh(new THREE.CircleGeometry(.184,36),new THREE.MeshBasicMaterial({color:0x11151d,transparent:true,opacity:.98,side:THREE.DoubleSide,depthTest:false}));cameraScreen.position.set(0,.008,-.195);cameraScreen.renderOrder=8;cameraHead.add(cameraScreen);
@@ -31,20 +33,24 @@ export function createAvatar(scene,name,color){
  const glow=mesh(new THREE.SphereGeometry(.032,8,6),new THREE.MeshBasicMaterial({color:0xffdb94}),.02,-.49,-.16,arms[1]);
  const c=document.createElement('canvas');c.width=512;c.height=96;const ctx=c.getContext('2d');ctx.fillStyle='#11131dd9';ctx.beginPath();ctx.roundRect(4,4,504,88,22);ctx.fill();ctx.fillStyle='#f4f0e9';ctx.font='600 32px system-ui';ctx.textAlign='center';ctx.fillText(String(name).slice(0,22),256,60);
  const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;const label=new THREE.Sprite(new THREE.SpriteMaterial({map:texture}));label.scale.set(1.5,.28,1);label.position.y=2.2;group.add(label);
- scene.add(group);return {group,rig,legs,arms,glow,head,cap,face,cameraHead,cameraBody,cameraScreen,cameraRing,cameraLens,track:createPoseTrack(),phase:0,last:null,swing:0,videoTexture:null,videoElement:null};
+ scene.add(group);return {group,rig,legs,arms,glow,head,cap,face,cameraHead,cameraBody,cameraScreen,cameraRing,cameraLens,track:createPoseTrack(),phase:0,last:null,swing:0,visualYaw:null,visualPitch:null,videoTexture:null,videoElement:null};
 }
 export function animateAvatar(v,p,elapsed){
  const dt=Math.min(.1,Math.max(.001,elapsed));const distance=v.last?Math.hypot(p.x-v.last.x,p.z-v.last.z):0;
  const dead=!!p.dead;
  if(dead){
-  v.group.position.set(p.x,p.y||0,p.z);v.group.rotation.y=p.yaw||0;v.cameraHead.rotation.x=Number.isFinite(p.pitch)?p.pitch:0;
+  v.group.position.set(p.x,p.y||0,p.z);v.group.rotation.y=p.yaw||0;v.cameraHead.rotation.set(Number.isFinite(p.pitch)?p.pitch:0,0,-Math.PI/2);v.visualYaw=p.yaw||0;v.visualPitch=Number.isFinite(p.pitch)?p.pitch:0;
   v.rig.position.y=.08;v.rig.rotation.z=-Math.PI/2;
   v.legs[0].rotation.x=v.legs[1].rotation.x=0;v.arms[0].rotation.x=v.arms[1].rotation.x=0;
   v.swing=0;v.last={x:p.x,z:p.z};return;
  }
  const speed=distance>3?0:Math.min(3,distance/dt);v.phase+=distance<3?distance*6:0;
  v.swing+=(Math.min(1,speed/1.8)-v.swing)*(1-Math.exp(-dt*14));
- v.group.position.set(p.x,p.y||0,p.z);v.group.rotation.y=p.yaw;v.cameraHead.rotation.x=Number.isFinite(p.pitch)?p.pitch:0;
+ const targetYaw=Number.isFinite(p.yaw)?p.yaw:0,targetPitch=Number.isFinite(p.pitch)?p.pitch:0;
+ if(v.visualYaw===null)v.visualYaw=targetYaw;if(v.visualPitch===null)v.visualPitch=targetPitch;
+ v.visualYaw+=Math.atan2(Math.sin(targetYaw-v.visualYaw),Math.cos(targetYaw-v.visualYaw))*(1-Math.exp(-dt*28));
+ v.visualPitch+=(targetPitch-v.visualPitch)*(1-Math.exp(-dt*28));
+ v.group.position.set(p.x,p.y||0,p.z);v.group.rotation.y=v.visualYaw;v.cameraHead.rotation.set(v.visualPitch,0,0);
  const stride=Math.sin(v.phase)*v.swing;v.legs[0].rotation.x=stride*.40;v.legs[1].rotation.x=-stride*.40;
  v.arms[0].rotation.x=-stride*.24;v.arms[1].rotation.x=stride*.18-.14;
  v.rig.position.y=Math.abs(Math.sin(v.phase))*v.swing*.022;v.rig.rotation.z=stride*.016;

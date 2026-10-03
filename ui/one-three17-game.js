@@ -1535,11 +1535,13 @@ function open(options={}) {
             // l'invité après un paquet perdu. Le rattrapage reste progressif,
             // mais rejoint l'autorité de l'hôte en quelques images.
             const stationary=!localPrediction;
-            const threshold=stationary?.045:.01;
-            const strength=localPrediction?Math.min(.10,Math.max(.018,error*.12)):Math.min(.08,error*.08);
+            // Sous ce seuil, garder la position locale évite le tremblement
+            // créé par les différences d'arrondi entre l'invité et l'hôte.
+            const threshold=stationary?.24:.01;
+            const strength=localPrediction?Math.min(.10,Math.max(.018,error*.12)):Math.min(.05,error*.05);
             // Tant que l'invité est immobile, ignorer les écarts minuscules
             // entre deux snapshots : c'est ce qui créait les petits sauts.
-            if(error>threshold){position.x+=(view.position.x-position.x)*strength;position.y=view.position.y;position.z+=(view.position.z-position.z)*strength;}
+            if(error>threshold){position.x+=(view.position.x-position.x)*strength;position.z+=(view.position.z-position.z)*strength;const dy=view.position.y-position.y;if(Math.abs(dy)>.06)position.y+=dy*Math.min(.16,Math.max(.05,Math.abs(dy)*.12));}
           }
           if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}
           flashOn=spectator?false:local.flash;syncFlash();
