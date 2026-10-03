@@ -53,3 +53,6 @@ html body .oneFullCamera[data-preview=true] .oneCaptureView{position:relative;wi
 @media(prefers-reduced-motion:reduce){.oneFullCamera *{transition:none!important}}
 html body .oneFullCamera:not([data-preview=true]) .oneCaptureView{display:grid}
 html body dialog.oneFullCamera.oneCapture{width:100vw!important}
+
+/* V14: zoom is controlled exclusively by a two-finger pinch. */
+.oneFullCamera [data-zoom-controls]{display:none!important}
