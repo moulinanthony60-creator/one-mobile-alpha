@@ -1,5 +1,13 @@
 (()=>{
  'use strict';
+ // The current header already owns a single right-hand control group.
+ // The legacy two-row grid must never restyle or move these controls.
+ const currentRow=document.querySelector('.topbar .brandrow');
+ if(document.getElementById('oneHeaderRight')){
+   currentRow?.classList.remove('one-header-clear');
+   return;
+ }
+
  const row=document.querySelector('.brandrow'),tools=row?.querySelector('.oneHeaderTools'),points=document.getElementById('onePointsToggle');if(!row||!tools||!points)return;
  row.classList.add('one-header-clear');const account=document.getElementById('accountBtn'),controls=document.getElementById('oneHeaderRight')||row;controls.insertBefore(points,account?.parentNode===controls?account:null);
  const roomBadge=document.getElementById('oneRoomCapsule');if(roomBadge)controls.insertBefore(roomBadge,points);
