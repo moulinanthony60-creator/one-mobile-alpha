@@ -39,10 +39,14 @@ export function createHorrorAudio(){
   function playerStep(surface='wood'){const base=surface==='tile'?150:surface==='stone'?92:118;tone(base,.075,.045,'triangle',base*.62);noise(.045,.012,surface==='stone'?500:800);}
   function monsterStep(distance=8,state='patrol',sameFloor=true){
     if(!sameFloor)return;
-    const d=clamp(Number(distance)||8,0,12),near=1-d/12;
-    const minGap=.23+near*.13,stamp=performance.now();
+    // Le Parasite ne doit pas être audible à travers toute la maison.
+    // L'écoute démarre dans les derniers mètres et suit une courbe douce.
+    const d=Math.max(0,Number(distance)||0),maxDistance=8.5;
+    if(d>=maxDistance)return;
+    const near=1-d/maxDistance,audibility=near*near;
+    const minGap=.44-near*.20,stamp=performance.now();
     if(stamp-lastMonsterStep<minGap*1000)return;lastMonsterStep=stamp;
-    const gain=.055+near*.16+(state==='chase'?.035:0),pitch=state==='chase'?74:state==='search'?84:98;
+    const gain=.018+audibility*.30+(state==='chase'?audibility*.055:0),pitch=state==='chase'?74:state==='search'?84:98;
     tone(pitch,.12,gain,'triangle',pitch*.55);noise(.10,gain*.34,360+near*260);
   }
   // Les grognements sont volontairement supprimés. La tension vient des pas,

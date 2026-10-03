@@ -39,7 +39,7 @@ export function createGameScreen({shell,lobbyState,setReady,startRound,reset}){
  }
  panel.querySelector('[data-screen-close]').onclick=()=>panel.close();panel.addEventListener('close',()=>{reset();shell.querySelector('[data-screen-open]')?.focus();});
  panel.addEventListener('keydown',e=>e.stopPropagation());panel.addEventListener('pointerdown',e=>e.stopPropagation());
- const timer=setInterval(refresh,400);
+ const timer=setInterval(refresh,150);
  return {get opened(){return panel.open;},open(){reset();build();signature='';panel.showModal();refresh();},close(){panel.close();},dispose(){destroyed=true;clearInterval(timer);panel.remove();style.remove();}};
 }
 

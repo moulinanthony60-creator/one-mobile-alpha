@@ -91,7 +91,7 @@ async function connectWithRetry(reconnect=false){
   let failure;
   for(let attempt=0;attempt<3;attempt++){
     try{if(attempt===0&&!reconnect)await link().connect();else await link().reconnect();return;}
-    catch(error){failure=error;if(attempt<2)await pause(650*(attempt+1));}
+    catch(error){failure=error;if(attempt<2)await pause(180*(attempt+1));}
   }
   throw failure||Error('Connexion au lobby indisponible.');
 }
@@ -100,7 +100,13 @@ export async function joinLobby(context,reconnect=false){
   if(round||connecting)return;
   const own=++generation;connecting=true;notice='';redraw();
   try{
-    await window.oneRefreshSalonState?.();
+    // L'état du salon est déjà fourni par l'écran précédent : on rejoint
+    // immédiatement avec ce cache et on rafraîchit en arrière-plan. Le
+    // rafraîchissement bloquant ajoutait une attente visible avant chaque
+    // synchronisation entre joueurs.
+    const cached=roomNow(),cachedReady=!!cached&&cached.members.some(m=>m.isYou)&&cached.members.some(m=>m.isHost);
+    if(cachedReady)Promise.resolve().then(()=>window.oneRefreshSalonState?.()).catch(()=>{});
+    else await window.oneRefreshSalonState?.();
     if(own!==generation)return;
     if(!roomNow())throw Error('Rejoins d’abord un salon ONE, puis ouvre son lobby 3D.');
     if(!me())throw Error('Ton compte n’est pas identifié dans le salon. Ferme puis rouvre le salon ONE.');
@@ -137,7 +143,8 @@ window.addEventListener('one-party-state',e=>{
   redraw();
 });
 window.addEventListener('one-account-changed',()=>{window.ONEThree17?.close();window.ONELobby3D?.close();leaveLobby();});
-setInterval(()=>{bind();heartbeat();},1000);
+// Le lobby doit refléter une arrivée ou un départ presque immédiatement.
+setInterval(()=>{bind();heartbeat();},200);
 setInterval(()=>{if(joined&&isHost()&&!round)broadcast('poses43',{poses:[...poses].filter(([id])=>roster.some(p=>p.id===id)).map(([id,pose])=>({id,pose}))});},100);
 
 function avatar(scene,name,color){return createAvatar(scene,name,color);}
