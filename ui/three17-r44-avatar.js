@@ -15,7 +15,8 @@ export function createAvatar(scene,name,color){
  // reprendre le léger balancement du torse et ne quitte plus le visage à l'arrêt.
  const cameraHead=new THREE.Group();cameraHead.position.set(0,1.72,-.025);cameraHead.rotation.order='YXZ';group.add(cameraHead);
  // Tête caméra ronde : le flux est affiché sur une face circulaire, sans rectangle.
- const cameraBody=new THREE.Mesh(new THREE.SphereGeometry(.216,28,20),dark);cameraBody.scale.set(.98,1.04,.92);cameraBody.position.z=.01;cameraHead.add(cameraBody);
+ const cameraVideoMaterial=new THREE.MeshBasicMaterial({color:0x11151d,transparent:false,side:THREE.DoubleSide});
+ const cameraBody=new THREE.Mesh(new THREE.SphereGeometry(.216,28,20),cameraVideoMaterial);cameraBody.scale.set(.98,1.04,.92);cameraBody.position.z=.01;cameraHead.add(cameraBody);
  const cameraScreen=new THREE.Mesh(new THREE.CircleGeometry(.184,36),new THREE.MeshBasicMaterial({color:0x11151d,transparent:true,opacity:.98,side:THREE.DoubleSide,depthTest:false}));cameraScreen.position.set(0,.008,-.195);cameraScreen.renderOrder=8;cameraHead.add(cameraScreen);
  const cameraRing=new THREE.Mesh(new THREE.RingGeometry(.185,.211,36),new THREE.MeshStandardMaterial({color:0x080b11,roughness:.28,metalness:.52,side:THREE.DoubleSide}));cameraRing.position.set(0,.008,-.197);cameraRing.renderOrder=7;cameraHead.add(cameraRing);
  const cameraLens=new THREE.Mesh(new THREE.CircleGeometry(.033,22),new THREE.MeshBasicMaterial({color:0x05070a,transparent:true,opacity:.72,side:THREE.DoubleSide}));cameraLens.position.set(.105,.103,-.2);cameraLens.renderOrder=9;cameraHead.add(cameraLens);
@@ -33,7 +34,7 @@ export function createAvatar(scene,name,color){
  const glow=mesh(new THREE.SphereGeometry(.032,8,6),new THREE.MeshBasicMaterial({color:0xffdb94}),.02,-.49,-.16,arms[1]);
  const c=document.createElement('canvas');c.width=512;c.height=96;const ctx=c.getContext('2d');ctx.fillStyle='#11131dd9';ctx.beginPath();ctx.roundRect(4,4,504,88,22);ctx.fill();ctx.fillStyle='#f4f0e9';ctx.font='600 32px system-ui';ctx.textAlign='center';ctx.fillText(String(name).slice(0,22),256,60);
  const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;const label=new THREE.Sprite(new THREE.SpriteMaterial({map:texture}));label.scale.set(1.5,.28,1);label.position.y=2.2;group.add(label);
- scene.add(group);return {group,rig,legs,arms,glow,head,cap,face,cameraHead,cameraBody,cameraScreen,cameraRing,cameraLens,track:createPoseTrack(),phase:0,last:null,swing:0,visualYaw:null,visualPitch:null,videoTexture:null,videoElement:null};
+ scene.add(group);return {group,rig,legs,arms,glow,head,cap,face,cameraHead,cameraBody,cameraVideoMaterial,cameraScreen,cameraRing,cameraLens,track:createPoseTrack(),phase:0,last:null,swing:0,visualYaw:null,visualPitch:null,videoTexture:null,videoElement:null};
 }
 export function animateAvatar(v,p,elapsed){
  const dt=Math.min(.1,Math.max(.001,elapsed));const distance=v.last?Math.hypot(p.x-v.last.x,p.z-v.last.z):0;

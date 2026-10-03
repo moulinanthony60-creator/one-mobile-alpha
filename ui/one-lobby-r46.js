@@ -36,9 +36,9 @@ function open(ctx={}){
      v.videoTexture.colorSpace=THREE.SRGBColorSpace;
      v.videoTexture.minFilter=THREE.LinearFilter;
      v.videoTexture.magFilter=THREE.LinearFilter;
-     material.map=v.videoTexture;material.color.set(0xffffff);
-    }catch{material.map=null;material.color.set(0x11151d);}
-   }else{material.map=null;material.color.set(0x11151d);}
+     material.map=v.videoTexture;material.color.set(0xffffff);if(v.cameraVideoMaterial){v.cameraVideoMaterial.map=v.videoTexture;v.cameraVideoMaterial.color.set(0xffffff);v.cameraVideoMaterial.needsUpdate=true;}
+    }catch{material.map=null;material.color.set(0x11151d);if(v.cameraVideoMaterial){v.cameraVideoMaterial.map=null;v.cameraVideoMaterial.color.set(0x11151d);v.cameraVideoMaterial.needsUpdate=true;}}
+   }else{material.map=null;material.color.set(0x11151d);if(v.cameraVideoMaterial){v.cameraVideoMaterial.map=null;v.cameraVideoMaterial.color.set(0x11151d);v.cameraVideoMaterial.needsUpdate=true;}}
    material.needsUpdate=true;
  };
  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.15));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;stage.prepend(renderer.domElement);
