@@ -1144,7 +1144,7 @@ function open(options={}) {
     audio=createEncounterAudio();
     scene.add(new THREE.HemisphereLight(0x9eafc4,0x201912,.21));
     const moon=new THREE.DirectionalLight(0xa6bfd8,.16);moon.position.set(2,6,3);scene.add(moon);
-    const flashlight=new THREE.SpotLight(0xffe2b9,42,18,.50,.88,1.65);
+    const flashlight=new THREE.SpotLight(0xffe2b9,52,20,.54,.88,1.65);
     const target=new THREE.Object3D();flashlight.target=target;scene.add(flashlight,target);
     const fillLight=new THREE.PointLight(0xc4d2dc,.38,3.2,2);scene.add(fillLight);
     const roomLights=[new THREE.PointLight(0xffbd7a,8,6,2),new THREE.PointLight(0xffcf98,6,6,2)];scene.add(...roomLights);
@@ -1534,8 +1534,12 @@ function open(options={}) {
             // Une correction trop faible donnait un retard permanent à
             // l'invité après un paquet perdu. Le rattrapage reste progressif,
             // mais rejoint l'autorité de l'hôte en quelques images.
-            const strength=localPrediction?Math.min(.10,Math.max(.018,error*.12)):Math.min(.16,error*.12);
-            if(error>.01){position.x+=(view.position.x-position.x)*strength;position.y=view.position.y;position.z+=(view.position.z-position.z)*strength;}
+            const stationary=!localPrediction;
+            const threshold=stationary?.045:.01;
+            const strength=localPrediction?Math.min(.10,Math.max(.018,error*.12)):Math.min(.08,error*.08);
+            // Tant que l'invité est immobile, ignorer les écarts minuscules
+            // entre deux snapshots : c'est ce qui créait les petits sauts.
+            if(error>threshold){position.x+=(view.position.x-position.x)*strength;position.y=view.position.y;position.z+=(view.position.z-position.z)*strength;}
           }
           if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}
           flashOn=spectator?false:local.flash;syncFlash();

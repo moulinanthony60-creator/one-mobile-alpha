@@ -37,14 +37,14 @@ export function animateAvatar(v,p,elapsed){
  const dt=Math.min(.1,Math.max(.001,elapsed));const distance=v.last?Math.hypot(p.x-v.last.x,p.z-v.last.z):0;
  const dead=!!p.dead;
  if(dead){
-  v.group.position.set(p.x,p.y||0,p.z);v.group.rotation.y=p.yaw||0;
+  v.group.position.set(p.x,p.y||0,p.z);v.group.rotation.y=p.yaw||0;v.cameraHead.rotation.x=Number.isFinite(p.pitch)?p.pitch:0;
   v.rig.position.y=.08;v.rig.rotation.z=-Math.PI/2;
   v.legs[0].rotation.x=v.legs[1].rotation.x=0;v.arms[0].rotation.x=v.arms[1].rotation.x=0;
   v.swing=0;v.last={x:p.x,z:p.z};return;
  }
  const speed=distance>3?0:Math.min(3,distance/dt);v.phase+=distance<3?distance*6:0;
  v.swing+=(Math.min(1,speed/1.8)-v.swing)*(1-Math.exp(-dt*14));
- v.group.position.set(p.x,p.y||0,p.z);v.group.rotation.y=p.yaw;
+ v.group.position.set(p.x,p.y||0,p.z);v.group.rotation.y=p.yaw;v.cameraHead.rotation.x=Number.isFinite(p.pitch)?p.pitch:0;
  const stride=Math.sin(v.phase)*v.swing;v.legs[0].rotation.x=stride*.40;v.legs[1].rotation.x=-stride*.40;
  v.arms[0].rotation.x=-stride*.24;v.arms[1].rotation.x=stride*.18-.14;
  v.rig.position.y=Math.abs(Math.sin(v.phase))*v.swing*.022;v.rig.rotation.z=stride*.016;
