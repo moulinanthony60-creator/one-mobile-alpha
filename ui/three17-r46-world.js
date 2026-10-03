@@ -90,7 +90,7 @@ export function createCoopWorld({house,monster,model,members,spawns}){
   function step(dt){
     if(outcome||!Number.isFinite(dt)||dt<=0)return;dt=Math.min(.05,dt);remaining=Math.max(0,remaining-dt);if(!remaining){outcome='time';return;}
     for(const p of players){
-      p.inputAge+=dt;if(!active(p)||p.hidden||p.input.paused||p.inputAge>.35)continue;
+      p.inputAge+=dt;if(!active(p)||p.hidden||p.input.paused||p.inputAge>.50)continue;
       p.yaw=p.input.yaw;p.pitch=p.input.pitch;const before={...p.position},s=Math.sin(p.yaw),c=Math.cos(p.yaw);
       const speed=p.input.sprint?4.1:2.5;
       movePlayer(house,p.position,(-s*p.input.forward+c*p.input.x)*speed*dt,(-c*p.input.forward-s*p.input.x)*speed*dt);

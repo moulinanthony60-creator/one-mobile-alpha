@@ -228,7 +228,9 @@ export function createCoopRuntime(config,b){
     if(begun&&(hostPaused||!hosting&&now()-lastStateAt>3500))lines.push('Connexion en cours…');
     const text=lines.join('\n');if(hud.textContent!==text)hud.textContent=text;
   }
-  const timer=setInterval(pump,50);
+  // L'invité envoie ses commandes à 30 Hz pour que l'hôte ne fasse plus de
+  // pause visible entre deux paquets réseau.
+  const timer=setInterval(pump,33);
   function step(elapsed,value){
     input=controls(value)||input;
     if(!begun||finished||stopped)return;

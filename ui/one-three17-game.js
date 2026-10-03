@@ -1531,7 +1531,10 @@ function open(options={}) {
           else {
             // Reconcile without teleporting the camera. The old threshold
             // caused a visible micro-jump on the guest after a few packets.
-            const strength=localPrediction?Math.min(.018,error*.012):Math.min(.14,error*.10);
+            // Une correction trop faible donnait un retard permanent à
+            // l'invité après un paquet perdu. Le rattrapage reste progressif,
+            // mais rejoint l'autorité de l'hôte en quelques images.
+            const strength=localPrediction?Math.min(.10,Math.max(.018,error*.12)):Math.min(.16,error*.12);
             if(error>.01){position.x+=(view.position.x-position.x)*strength;position.y=view.position.y;position.z+=(view.position.z-position.z)*strength;}
           }
           if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}
