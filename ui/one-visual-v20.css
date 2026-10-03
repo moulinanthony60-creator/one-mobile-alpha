@@ -1,0 +1,211 @@
+/* ONE V20 — shared visual language. Header positions and camera geometry stay owned by their components. */
+:root {
+  --one-violet: #ac83ff;
+  --one-blue: #80baff;
+  --one-teal: #63dccb;
+  --one-pink: #f39cce;
+  --one-coral: #ffb097;
+  --one-surface: #151724;
+  --one-border: #ffffff16;
+  --one-muted: #b1b3c8;
+}
+#oneFoundation, #oneShop, #oneSalonTray, .oneFriendsDialog, .oneFullCamera, .oneCommDialog {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+#oneFoundation :is(button,a,input,textarea,select):focus-visible,
+#oneShop :is(button,a,input,select):focus-visible,
+#oneSalonTray :is(button,input):focus-visible,
+.oneFullCamera :is(button,input,textarea):focus-visible {
+  outline: 3px solid var(--one-violet); outline-offset: 3px;
+}
+#oneFoundation button, #oneShop button, #oneSalonTray button { touch-action: manipulation; }
+#oneFoundation button:disabled, #oneShop button:disabled, .oneFullCamera button:disabled { opacity: .48; cursor: default; }
+body.oneSideScreen #oneFoundation { background: radial-gradient(ellipse at 15% 0%,#805bc315,transparent 48%),#0c0e18; }
+#oneFoundation .oneShellTitle { font-size: 29px; line-height: 1.15; letter-spacing: -.8px; margin: 8px 0 12px; }
+#oneFoundation .oneShellLead { font-size: 14px; line-height: 1.65; color: var(--one-muted); margin-bottom: 22px; }
+#oneFoundation .oneEyebrow { color: var(--one-violet); font-size: 10px; font-weight: 750; letter-spacing: 1.5px; }
+
+/* Home: keep the approved topbar; make the next actions distinct. */
+#oneFoundation .os-home-hero { border-color:#b284ec38; border-radius:24px; padding:28px 24px; box-shadow:0 10px 32px #0003; }
+#oneFoundation .os-home-hero h1 { font:800 29px/1.14 Inter,system-ui,sans-serif; letter-spacing:-1px; margin:16px 0; }
+#oneFoundation .os-home-hero p { font-size:13px; line-height:1.65; max-width:290px; color:#e0dced; }
+#oneFoundation .os-home-hero .os-eyebrow { font-size:9px; letter-spacing:1.3px; color:#d6baff; }
+#oneFoundation .os-home-hero .os-primary { background:linear-gradient(135deg,#8c5be8,#7042c7)!important; border:1px solid #bca0ff80!important; border-radius:14px!important; padding:14px 18px!important; font:700 14px system-ui!important; box-shadow:0 6px 20px #7025c633!important; }
+#oneFoundation .os-home-links { gap:10px; margin-top:14px; }
+#oneFoundation .os-home-links .os-button { min-height:48px; border-radius:14px!important; font:650 13px system-ui!important; box-shadow:none!important; }
+#oneFoundation .os-home-links .os-button:first-child { color:#afd1ff!important; background:#182b48!important; border:1px solid #80baff55!important; }
+#oneFoundation .os-home-links .os-button:last-child { color:#ddc9ff!important; background:#2d2045!important; border:1px solid #ac83ff55!important; }
+#oneFoundation .os-home-signature { font-size:8px; letter-spacing:1.6px; color:#85869d; padding:8px 0; }
+.bottom #askOne .ico { color:var(--one-coral)!important; }
+.bottom #discover .ico { color:var(--one-violet)!important; }
+.bottom #savedNav .ico { color:var(--one-blue)!important; }
+.bottom #profile .ico { color:var(--one-teal)!important; }
+.bottom button { -webkit-tap-highlight-color:transparent; }
+body.oneSideScreen .bottom { width:min(480px,100%)!important; left:50%!important; right:auto!important; transform:translateX(-50%)!important; box-sizing:border-box; }
+.oneDesktopPages button { min-height:40px; border-color:#a689d64d; background:#191725f5; box-shadow:0 4px 16px #0003; }
+
+/* Messages: blue actions, purple creation, pink media, teal calls. */
+body:has(.oneChatV8) #oneFoundation { background:#0d101b!important; padding-left:16px!important; padding-right:16px!important; }
+#oneFoundation .oneChatV8 { background:transparent; }
+.oneChatHeader { padding:8px 0 20px; gap:9px; }
+.oneChatHeader h1 { text-align:left; font-size:24px; font-weight:750; letter-spacing:-.7px; padding-left:3px; }
+.oneChatHeader button { width:40px; height:40px; background:#1d2132; color:#c1c7dd; border:1px solid #ffffff10; }
+.oneChatHeader .oneNewDiscussion { background:linear-gradient(145deg,#ad77fb,#7043ca); color:white; box-shadow:0 4px 16px #8747dc30; }
+.oneChatHeader .oneChatAvatar { background:linear-gradient(140deg,#a67df5,#6033ad); }
+.oneChatSearch input { border-radius:14px; padding:13px 15px; background:#171c2b; border-color:#80baff40; font-size:16px; }
+#oneFoundation .oneChatV8 .oneSocialTabs { gap:7px; padding-bottom:14px!important; margin-bottom:4px!important; }
+#oneFoundation .oneChatV8 .oneSocialTabs button { min-height:38px; padding:9px 13px!important; background:#171c2b!important; border:1px solid #ffffff0c!important; color:#b7bfd3!important; }
+#oneFoundation .oneChatV8 .oneSocialTabs button.active,
+#oneFoundation .oneChatV8 .oneSocialTabs button[aria-pressed=true] { background:#1e3557!important; border-color:#80baff55!important; color:#b7d8ff!important; }
+#oneFoundation .oneChatV8 .oneSocialTabs [data-social-tab=rooms].active { background:#153932!important; border-color:#63dccb55!important; color:#9cefe3!important; }
+#oneFoundation .oneChatV8 .oneSocialTabs button.oneAllDim { background:#171c2b!important; color:#b7bfd3!important; border-color:#ffffff0c!important; }
+.oneUnreadCount { background:#80baff; color:#0c1a31; padding:2px 4px; font-weight:800; }
+#oneFoundation .oneChatV8 #oneSocialInline .oneInlineCard.oneV79Row { min-height:80px!important; padding:14px 52px 14px 2px!important; border-bottom-color:#ffffff0c!important; }
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row .avatar { width:46px!important; height:46px!important; flex-basis:46px!important; border:1px solid #9f85d747!important; background:linear-gradient(145deg,#37345d,#23213a)!important; color:#eee5ff!important; }
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row .copy b { font-size:15px!important; color:#eef0fb!important; }
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row .copy { display:grid!important; grid-template-columns:minmax(0,1fr) auto; column-gap:5px; align-items:baseline; min-width:0!important; }
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row .copy b { grid-column:1/-1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row .copy>span { display:block!important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row .copy>span { font-size:12px!important; line-height:1.6!important; color:#a9b2c7!important; }
+#oneFoundation .oneChatV8 #oneSocialInline .oneV79Row.oneChatUnread .copy>span { color:var(--one-blue)!important; }
+#oneFoundation .oneChatV8 .oneV79CameraRow { width:40px; height:40px; right:0; border-radius:13px; border:1px solid #f39cce20; background:#362035; color:var(--one-pink); }
+.oneChatTime { color:#8c96af; }
+.oneChatToast { background:#1b2132; border-color:#80baff38; border-radius:18px; }
+.oneToastText, .oneToastText.typing { color:var(--one-blue); }
+.oneToastText.media { color:var(--one-pink); }
+dialog.oneFriendsDialog.oneFriendsDialog.hub-friends.oneThreadFullscreen { background:#0e111c!important; border-color:#34394f!important; }
+dialog.oneFriendsDialog.oneThreadFullscreen .hub-thread-heading { background:#111523!important; border-bottom-color:#ffffff12!important; }
+dialog.oneFriendsDialog.oneThreadFullscreen .onePrivateActions .oneCommButton { border-radius:11px; min-height:36px; padding:8px 15px!important; font:650 12px system-ui!important; }
+.onePrivateActions [data-call-kind=audio] { color:#a1f0e4!important; background:#183d38!important; border-color:#63dccb55!important; }
+.onePrivateActions [data-call-kind=video] { color:#afd3ff!important; background:#1c3151!important; border-color:#80baff55!important; }
+dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log { background:#0e111c!important; padding:18px 16px!important; }
+dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log article { border-radius:18px!important; padding:12px 14px!important; max-width:84%; box-shadow:none!important; }
+dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log article.mine { background:#7041bb!important; border-color:#ad7fef50!important; border-bottom-right-radius:5px!important; }
+dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log article:not(.mine) { background:#1d2537!important; border-color:#80baff25!important; border-bottom-left-radius:5px!important; }
+dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log article p { font-size:14px; line-height:1.55; }
+dialog.oneFriendsDialog.oneThreadFullscreen .friend-message-log article small { font-size:10px; color:#d2c8e7; }
+dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>label textarea { background:#171d2b!important; border-color:#58647f80!important; border-radius:18px!important; color:#f5f6ff!important; font-size:16px!important; }
+dialog.oneFriendsDialog.oneThreadFullscreen .friends-content>label+button { background:#317aca!important; border-color:#80baff80!important; border-radius:15px!important; box-shadow:0 3px 12px #2079d230!important; }
+dialog.oneFriendsDialog.oneThreadFullscreen .oneV79ThreadCamera { color:#ffc4e5!important; background:#382338!important; border-color:#f39cce55!important; }
+dialog.oneFriendsDialog.oneThreadFullscreen .oneV79AttachBtn { background:#1c3151!important; color:#b8d9ff!important; border-color:#80baff55!important; }
+dialog.oneFriendsDialog.oneThreadFullscreen .oneVoiceDock { background:#1b3a37!important; border-color:#63dccb66!important; color:#b2f5eb!important; }
+.oneTypingHint { color:var(--one-blue); }
+.oneEndCall { background:#a92d51!important; border-color:#ff87a8!important; color:#fff!important; }
+
+/* Stories and discovery. */
+#oneFoundation .oneMomentsScreen>.oneEyebrow { color:var(--one-pink); }
+#oneFoundation .oneMomentsTabs { gap:7px; padding:10px 0 16px; }
+#oneFoundation .oneMomentsTabs button { border-color:var(--one-border); background:#191b2b; color:#b8bfd2; padding:10px 14px; font:650 12px system-ui; }
+#oneFoundation .oneMomentsTabs button.active { background:#3f2440; border-color:#f39cce65; color:#ffc7e8; }
+.oneNativeFeed>header { gap:8px; border-bottom:0!important; }
+.oneNativeFeed>header h2 { font-size:21px; letter-spacing:-.4px; }
+.oneNativeFeed>header button { min-height:40px; border-radius:12px; border-color:#ac83ff44; background:#30223f; color:#e0cbff; font:600 12px system-ui; }
+.oneNativeFeed[data-kind=story]>header button { background:#3a2338; border-color:#f39cce44; color:#ffc7e8; }
+.oneNativeFeed>header button[aria-label] { font-size:23px; width:40px; padding:0; }
+.oneNativeFeed>p { color:var(--one-muted); line-height:1.6; font-size:12px; }
+.oneNativeFeed>p[role=status]:not(:empty) { padding:18px; background:#171a29; border:1px solid var(--one-border); border-radius:16px; }
+.oneNativePost { border-color:var(--one-border); background:#171a27; border-radius:20px; }
+.oneNativeFeed[data-kind=story] .oneNativePost { border-color:#f39cce55; }
+.oneNativeFeed[data-kind=story] .onePostAvatar { color:#ffc8e8; background:#623657; }
+.oneNativePost .onePostDelete { color:#ffb5c6; border-color:#ff8ba92e; }
+#oneFoundation .oneMomentsHero { min-height:180px; padding:24px; border-color:#a67bea33; box-shadow:none; background:radial-gradient(ellipse at 100% 0%,#a5489d25,transparent 70%),#19172b; }
+#oneFoundation .oneMomentsHero b { font-size:25px; line-height:1.15; letter-spacing:-.5px; }
+#oneFoundation .oneMomentsHero span { font-size:13px; line-height:1.65; }
+#oneFoundation .oneMomentsPlatforms { gap:7px; flex-wrap:wrap; }
+#oneFoundation .oneMomentsPlatforms button { border-radius:12px; font:600 12px system-ui; padding:11px 14px; }
+#oneFoundation .oneDiscoverGrid { gap:12px; margin-top:24px; }
+#oneFoundation .oneDiscoverGrid button { text-align:left; min-height:152px; padding:20px; border-radius:20px; border-color:#ffffff16; box-shadow:none; }
+#oneFoundation .oneDiscoverGrid button b { font-size:30px; }
+#oneFoundation .oneDiscoverGrid button span { margin-top:18px; font-size:18px; }
+#oneFoundation .oneDiscoverGrid button small { font-size:11px; line-height:1.5; color:#bdc1d4; }
+#oneFoundation .oneDiscoverGrid [data-five-source=tiktok] { background:linear-gradient(145deg,#18303b,#151926); border-color:#67d4d438; }
+#oneFoundation .oneDiscoverGrid [data-five-source=youtube] { background:linear-gradient(145deg,#3b2029,#211722); border-color:#ff818a38; }
+#oneFoundation .oneDiscoverGrid [data-five-source=twitch] { background:linear-gradient(145deg,#302144,#1b1629); border-color:#ac83ff38; }
+#oneFoundation .oneDiscoverGrid [data-five-source=music] { background:linear-gradient(145deg,#3b2035,#211729); border-color:#f39cce38; }
+#oneFoundation .oneDiscoverGrid [data-five-source=tiktok] b { color:var(--one-teal); }
+#oneFoundation .oneDiscoverGrid [data-five-source=youtube] b { color:#ff9ca9; }
+#oneFoundation .oneDiscoverGrid [data-five-source=twitch] b { color:var(--one-violet); }
+#oneFoundation .oneDiscoverGrid [data-five-source=music] b { color:var(--one-pink); }
+
+/* ONE IA follows the same spacing and input treatment. */
+#oneFoundation .oneAiSwipeHero { background:#101320; border:1px solid #ffffff10; box-shadow:none; }
+#oneFoundation .oneAiCompactBar { border-color:#ffffff13; }
+#oneFoundation .oneAiCompactBar b { color:#dbc5ff; font-size:20px; }
+#oneFoundation .oneAiIconBtn { background:#241d39; border-color:#ac83ff38; color:#d9beff; }
+#oneFoundation .oneAiWelcome { color:#b1b6cc; font-size:14px; line-height:1.7; }
+#oneFoundation .oneAiWelcome b { color:#dbc5ff; font-size:27px; letter-spacing:-.7px; }
+#oneFoundation .oneAiWelcome small { display:block; margin-top:10px; font-size:11px; color:#888fa8; }
+#oneFoundation .oneAiInlineComposer { background:#101320; }
+#oneFoundation .oneAiInlineComposer textarea { font-size:16px; background:#191d2e; border-color:#ac83ff44; }
+#oneFoundation #oneAiChatSend { background:#7846c4; border:1px solid #ac83ff88; color:#fff; }
+#oneFoundation .oneAiUserBubble { background:#7041bb; font-size:14px; line-height:1.6; }
+#oneFoundation .oneAiAssistantBubble { background:#1b2233; border-color:#80baff22; font-size:14px; line-height:1.6; }
+
+/* Shop: coral marks the merchant actions; filters remain separate. */
+#oneShop .os-heading h1 { font-size:29px; letter-spacing:-.8px; }
+#oneShop .os-search input { font-size:16px; background:#171b2a; border-color:#ffffff20; border-radius:14px; }
+#oneShop .os-search button { background:#7545bf; border-color:#b088ed70; border-radius:14px; }
+#oneShop .os-tool-tab { background:#1a2030; border-color:#80baff35; color:#c5dafa; min-height:46px; }
+#oneShop .os-tool-tab[aria-expanded=true] { background:#243a54; border-color:#80baff88; color:#e5f1ff; }
+#oneShop .os-status { background:transparent; color:#aeb8cc; padding-left:2px; font-size:12px; }
+#oneShop .os-card { background:#161a28; border-color:#ffffff16; border-radius:22px; box-shadow:0 8px 28px #0002; }
+#oneShop .os-card-body h2 { font-size:18px; line-height:1.4; letter-spacing:-.2px; }
+#oneShop .os-specs { color:#b4bfd4; line-height:1.6; }
+#oneShop .os-offer a { background:#4a2c28; border:1px solid #ffb09766; color:#ffd6c8; border-radius:12px; padding:13px 16px; font-weight:700; }
+#oneShop .os-notice { border-left-color:#ffb09770; color:#aaaec1; font-size:11px; line-height:1.65; }
+
+/* Salons: teal is the shared-space accent. */
+html body #oneSalonTray.os-salon { background:#101622!important; border:1px solid #63dccb33!important; border-radius:20px!important; box-shadow:none!important; }
+html body #oneSalonTray.os-salon>header { background:#172a30!important; border-color:#63dccb25!important; padding:16px!important; }
+html body #oneSalonTray.os-salon>header h2 { color:#d8faf2!important; font:750 19px system-ui!important; text-shadow:none!important; }
+html body #oneSalonTray.os-salon>header h2::before { color:#b9a0ec!important; background:#2e2444!important; border-color:#a17ce85c!important; text-shadow:none!important; box-shadow:none!important; }
+#oneSalonsVersion { display:none!important; }
+#oneSalonTray .os-welcome-art { border-radius:20px; border-color:#63dccb33; }
+#oneSalonTray .os-welcome-art h2 { font-size:27px; line-height:1.15; letter-spacing:-.7px; }
+#oneSalonTray .os-primary { background:linear-gradient(135deg,#217f75,#175a58)!important; color:#f2fffc!important; border:1px solid #63dccb70!important; border-radius:13px!important; min-height:44px; box-shadow:none!important; }
+html body #oneSalonTray .os-button { border-color:#63dccb35!important; background:#182a2c!important; color:#b0e4df!important; border-radius:13px!important; min-height:42px; box-shadow:none!important; }
+html body #oneSalonTray .os-actions .os-button { border-color:#80baff35!important; background:#1a293e!important; color:#bed8fb!important; font-size:12px!important; }
+#oneSalonTray .os-tile[data-kind=together] { border-color:#63dccb60; background:#153331; }
+#oneSalonTray .os-tile[data-kind=party] { border-color:#f39cce60; background:#372138; }
+#oneSalonTray .os-tile[data-kind=one] { border-color:#ac83ff60; background:#2b2040; }
+
+/* Share destinations use the same colors everywhere, with explicit checked states. */
+.oneFullCamera[data-sharing=true] { background:#10131f!important; }
+html body .oneFullCamera[data-preview=true][data-sharing=true] .oneCaptureView { height:min(20dvh,170px)!important; }
+.oneFullCamera .oneCaptureDestinations h3 { font:750 25px/1.2 system-ui; letter-spacing:-.6px; margin:20px 0 10px; }
+.oneMultiShare .oneMultiIntro { line-height:1.6; color:#b6bad0; }
+.oneMultiShare .oneDestination { --destination:#ac83ff; --destination-bg:#241e36; background:var(--destination-bg); border-color:#ffffff16; padding:16px; border-radius:17px; margin:10px 0; min-height:72px; box-sizing:border-box; }
+.oneMultiShare .oneDestination[data-kind=story] { --destination:#f39cce; --destination-bg:#30202f; }
+.oneMultiShare .oneDestination[data-kind=friend] { --destination:#80baff; --destination-bg:#1b293d; }
+.oneMultiShare .oneDestination:has(input:checked) { border-color:var(--destination); background:var(--destination-bg); box-shadow:inset 3px 0 var(--destination); }
+.oneMultiShare .oneDestination input { accent-color:var(--destination); width:22px; height:22px; }
+.oneMultiShare .oneDestination b { color:var(--destination); font-size:15px; }
+.oneMultiShare .oneDestination small { color:#c1bdd0; font-size:12px; line-height:1.45; margin-top:5px; }
+.oneMultiShare .oneFriendsToggle { background:#1b293d; color:#b5d6ff; border:1px solid #80baff55; border-radius:14px; min-height:48px; padding:14px 16px; font-weight:650; }
+.oneMultiShare .oneMultiSend { background:linear-gradient(135deg,#945ae2,#7042bc)!important; border-color:#bb96f5!important; border-radius:15px; min-height:52px; }
+.oneMultiShare .oneMultiCaption textarea { background:#1a1f30; border-color:#606b8866; font-size:16px; border-radius:14px; }
+.oneMultiShare .oneDestination[data-state=sent] { border-color:#63dccb80; }
+.oneMultiShare .oneDestination[data-state=sent] .oneDestinationResult { color:#99edcf; }
+.oneMultiShare .oneDestination[data-state=failed] { border-color:#ff92ad88; }
+.oneMultiShare .oneDestination[data-state=failed] .oneDestinationResult { color:#ffb4c7; }
+.oneFullCamera .onePreviewActions .capturePrimary { background:#8250ce; border-color:#c4a1fa; }
+
+@media(hover:hover) and (pointer:fine) {
+  #oneFoundation .oneAiSwipeScreen { height:calc(100dvh - 170px); }
+  #oneFoundation button:not(:disabled):hover, #oneShop button:not(:disabled):hover,
+  #oneSalonTray button:not(:disabled):hover, .oneMultiShare button:not(:disabled):hover { filter:brightness(1.13); }
+  #oneFoundation .oneChatV8 #oneSocialInline .oneV79Row:hover { background:#80baff07!important; }
+}
+@media(prefers-reduced-motion:no-preference) {
+  #oneFoundation button, #oneShop button, #oneSalonTray button, .oneMultiShare button { transition:background-color .14s,border-color .14s,filter .14s; }
+}
+@media(max-width:360px) {
+  .oneChatHeader { gap:6px; }
+  .oneChatHeader h1 { font-size:21px; }
+  .oneChatHeader button { width:36px; height:36px; }
+  #oneFoundation .oneChatV8 .oneSocialTabs { gap:5px; }
+  #oneFoundation .oneChatV8 .oneSocialTabs button { padding:9px 10px!important; }
+  #oneFoundation .os-home-hero { padding:24px 18px; }
+  #oneFoundation .os-home-hero h1 { font-size:27px; }
+}

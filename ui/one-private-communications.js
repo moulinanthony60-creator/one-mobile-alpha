@@ -37,7 +37,7 @@ async function refreshThread(){
  const d=thread(),peer=d?.dataset.oneV79Id;if(!d||!peer||/^(group|room):/.test(peer)){if(mounted){releaseVoiceURLs();mounted=null;peerMounted=''}return;}
  const box=d.querySelector('.friends-content'),heading=d.querySelector('.hub-thread-heading');if(!box||!heading)return;
  if(mounted!==d||peerMounted!==peer){releaseVoiceURLs();mounted=d;peerMounted=peer;box.querySelector('.oneVoiceList')?.remove();heading.querySelector('.onePrivateActions')?.remove();box.querySelector('.oneVoiceDock')?.remove();}
- if(!heading.querySelector('.onePrivateActions')){const actions=el('div','onePrivateActions');actions.append(btn('Appeler',()=>startCall(peer,false)),btn('Visio',()=>startCall(peer,true)));heading.append(actions);}
+ if(!heading.querySelector('.onePrivateActions')){const actions=el('div','onePrivateActions');const audio=btn('Appeler',()=>startCall(peer,false)),video=btn('Visio',()=>startCall(peer,true));audio.dataset.callKind='audio';video.dataset.callKind='video';actions.append(audio,video);heading.append(actions);}
  if(!box.querySelector('.oneVoiceDock')){const voice=btn('Vocal',()=>recordVoice(peer));voice.classList.add('oneVoiceDock');voice.setAttribute('aria-label','Enregistrer un message vocal');box.append(voice);}
  if(voiceBusy)return;voiceBusy=true;
  try{await ready();const data=await request('/voice?peer='+encodeURIComponent(peer));if(thread()!==d||peerMounted!==peer)return;
