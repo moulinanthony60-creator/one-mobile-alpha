@@ -5,12 +5,12 @@ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
 export function controls(value){
   if(!value||![value.x,value.forward,value.yaw,value.pitch].every(Number.isFinite))return null;
   const length=Math.max(1,Math.hypot(value.x,value.forward));
-  return {x:clamp(value.x/length,-1,1),forward:clamp(value.forward/length,-1,1),yaw:Math.atan2(Math.sin(value.yaw),Math.cos(value.yaw)),pitch:clamp(value.pitch,-.8,.7),paused:!!value.paused};
+  return {x:clamp(value.x/length,-1,1),forward:clamp(value.forward/length,-1,1),yaw:Math.atan2(Math.sin(value.yaw),Math.cos(value.yaw)),pitch:clamp(value.pitch,-.8,.7),paused:!!value.paused,sprint:!!value.sprint};
 }
 export function createCoopWorld({house,monster,model,members,spawns}){
   const {movePlayer,blockedAt,hasLineOfSight,circleHitsDoor,PLAYER_RADIUS=.24}=model;
   const events=[];let eventId=0,remaining=600,outcome=null,targetId=null,revision=0;
-  const players=members.map((m,i)=>({id:m.id,name:m.name,position:{...spawns[i]},yaw:spawns[i].yaw||0,pitch:spawns[i].pitch||0,flash:true,hidden:false,hideId:null,returnPoint:null,known:false,dead:false,escaped:false,connected:true,walked:0,input:{x:0,forward:0,yaw:spawns[i].yaw||0,pitch:0,paused:false},inputAge:0,lastAction:-1}));
+  const players=members.map((m,i)=>({id:m.id,name:m.name,position:{...spawns[i]},yaw:spawns[i].yaw||0,pitch:spawns[i].pitch||0,flash:true,hidden:false,hideId:null,returnPoint:null,known:false,dead:false,escaped:false,connected:true,walked:0,input:{x:0,forward:0,yaw:spawns[i].yaw||0,pitch:0,paused:false,sprint:false},inputAge:0,lastAction:-1}));
   const player=id=>players.find(p=>p.id===id);
   const emit=(kind,who,data={})=>{events.push({id:++eventId,kind,who,...data});if(events.length>32)events.shift();};
   const active=p=>!p.dead&&!p.escaped&&p.connected;
@@ -85,7 +85,8 @@ export function createCoopWorld({house,monster,model,members,spawns}){
     for(const p of players){
       p.inputAge+=dt;if(!active(p)||p.hidden||p.input.paused||p.inputAge>.35)continue;
       p.yaw=p.input.yaw;p.pitch=p.input.pitch;const before={...p.position},s=Math.sin(p.yaw),c=Math.cos(p.yaw);
-      movePlayer(house,p.position,(-s*p.input.forward+c*p.input.x)*2.5*dt,(-c*p.input.forward-s*p.input.x)*2.5*dt);
+      const speed=p.input.sprint?4.1:2.5;
+      movePlayer(house,p.position,(-s*p.input.forward+c*p.input.x)*speed*dt,(-c*p.input.forward-s*p.input.x)*speed*dt);
       p.walked+=Math.hypot(p.position.x-before.x,p.position.z-before.z);
       if(p.walked>.62){p.walked=0;monster.noise(p.position,4.8);emit('step',p.id,{at:{...p.position}});}
     }

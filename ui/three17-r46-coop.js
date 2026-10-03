@@ -146,6 +146,8 @@ export function createCoopRuntime(config,b){
   const net=link();if(!net)throw Error('Connexion du salon absente.');
   const ids=config.players.map(p=>p.id),world=hosting?createCoopWorld({house,monster,model,members:config.players,spawns}):null;
   const visuals=new Map(config.players.filter(p=>p.id!==localId).map((p,i)=>[p.id,avatar(scene,p.name,[0x76868c,0x716b8c,0x8a7957][i])]));
+  const syncHeadCamera=(id,v)=>{const element=window.ONEPartyMedia?.videoForMember?.(id)||null;if(element===v.videoElement)return;v.videoElement=element;if(v.videoTexture){v.videoTexture.dispose();v.videoTexture=null;}const material=v.cameraScreen?.material;if(!material)return;if(element){try{element.muted=true;element.playsInline=true;element.play?.().catch?.(()=>{});v.videoTexture=new THREE.VideoTexture(element);v.videoTexture.colorSpace=THREE.SRGBColorSpace;v.videoTexture.minFilter=THREE.LinearFilter;v.videoTexture.magFilter=THREE.LinearFilter;material.map=v.videoTexture;material.color.set(0xffffff);}catch{material.map=null;material.color.set(0x11151d);}}else{material.map=null;material.color.set(0x11151d);}material.needsUpdate=true;};
+  const cameraRequest=window.ONEPartyMedia?.enable?.({camera:true});cameraRequest?.catch?.(()=>{});
   const hud=document.createElement('div');hud.className='three17-team';shell.append(hud);
   let stopped=false,armed=false,begun=false,finished=false,lastState=null,lastStateAt=now(),lastEvent=0,lastRevision=0,inputSeq=0,actionSeq=0,hostPaused=false;
   let input={x:0,forward:0,yaw:spawns[ids.indexOf(localId)].yaw||0,pitch:0,paused:false};
@@ -212,9 +214,9 @@ export function createCoopRuntime(config,b){
       world.input(localId,input);let left=Math.min(.25,elapsed);while(left>1e-6){const dt=Math.min(.05,left);world.step(dt);left-=dt;}
       accept(world.snapshot(),true);
     }else if(!hostPaused&&now()-lastStateAt<1500){
-      const p=lastState?.players.find(x=>x.id===localId);if(p&&!p.hidden&&!p.dead&&!p.escaped){const s=Math.sin(input.yaw),c=Math.cos(input.yaw),dt=Math.min(elapsed,.1);model.movePlayer(house,b.position,(-s*input.forward+c*input.x)*2.5*dt,(-c*input.forward-s*input.x)*2.5*dt);}
+      const p=lastState?.players.find(x=>x.id===localId);if(p&&!p.hidden&&!p.dead&&!p.escaped){const s=Math.sin(input.yaw),c=Math.cos(input.yaw),dt=Math.min(elapsed,.1);model.movePlayer(house,b.position,(-s*input.forward+c*input.x)*(input.sprint?4.1:2.5)*dt,(-c*input.forward-s*input.x)*(input.sprint?4.1:2.5)*dt);}
     }
-    for(const [id,v] of visuals){const p=lastState?.players.find(x=>x.id===id);if(!p)continue;v.group.visible=p.connected&&!p.hidden&&!p.dead&&!p.escaped;if(!v.group.visible)continue;
+      for(const [id,v] of visuals){syncHeadCamera(id,v);const p=lastState?.players.find(x=>x.id===id);if(!p)continue;v.group.visible=p.connected&&!p.hidden&&!p.dead&&!p.escaped;if(!v.group.visible)continue;
       const time=now();v.track.push({...p.position,yaw:p.yaw},time,p);const point=v.track.at(time);if(point)animateAvatar(v,point,elapsed);v.glow.visible=p.flash;
     }
   }
@@ -222,7 +224,7 @@ export function createCoopRuntime(config,b){
     step,ready(){armed=true;b.wait(ready.size,ids.length);pump();},
     action(type,value){input=controls(value)||input;if(!begun||finished||hostPaused||!hosting&&now()-lastStateAt>1500)return;if(hosting){world.input(localId,input);world.action(localId,type,++actionSeq);publish();}else transmit(config.host,'action',{action:type,seq:++actionSeq,controls:input});},
     get local(){return lastState?.players.find(p=>p.id===localId);},get isHost(){return hosting;},get state(){return lastState;},
-    dispose(){if(stopped)return;stopped=true;clearInterval(timer);off();if(hosting)all('end',{});else transmit(config.host,'round-leave',{});round=null;leaveLobby();hud.remove();},
+      dispose(){if(stopped)return;stopped=true;clearInterval(timer);off();for(const v of visuals.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}if(hosting)all('end',{});else transmit(config.host,'round-leave',{});round=null;leaveLobby();hud.remove();},
     inspect:()=>({hosting,begun,ready:[...ready],state:lastState,peers:net.peers()}),
     ...(window.__ONE317_TEST__===true?{world}:{}),
   };
@@ -236,3 +238,4 @@ function validSnapshot(s,ids,house){
     Array.isArray(s.items)&&s.items.length===3&&s.items.every(i=>house.items.some(x=>x.id===i.id)&&point(i))&&Array.isArray(s.containers)&&s.containers.length<=house.containers.length&&
     Array.isArray(s.events)&&s.events.length<=32&&s.events.every(e=>Number.isSafeInteger(e.id)&&typeof e.kind==='string'&&ids.includes(e.who));
 }
+

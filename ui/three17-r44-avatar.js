@@ -9,9 +9,13 @@ export function createAvatar(scene,name,color){
  const torso=mesh(new THREE.CapsuleGeometry(.22,.34,4,10),jacket,0,1.12,0);torso.scale.set(1.16,1,.68);
  mesh(new THREE.BoxGeometry(.03,.5,.015),dark,0,1.14,-.155);
  mesh(new THREE.CapsuleGeometry(.105,.06,3,8),skin,0,1.51,0);
- const head=mesh(new THREE.SphereGeometry(.18,12,10),skin,0,1.71,-.008);head.scale.set(.88,1.12,.93);
- const cap=mesh(new THREE.SphereGeometry(.184,12,8,0,Math.PI*2,0,Math.PI*.52),hair,0,1.735,.012);cap.scale.set(.91,1.1,1);
- mesh(new THREE.BoxGeometry(.05,.065,.04),skin,0,1.70,-.162);
+ const head=mesh(new THREE.SphereGeometry(.18,12,10),skin,0,1.71,-.008);head.scale.set(.88,1.12,.93);head.visible=false;
+ const cap=mesh(new THREE.SphereGeometry(.184,12,8,0,Math.PI*2,0,Math.PI*.52),hair,0,1.735,.012);cap.scale.set(.91,1.1,1);cap.visible=false;
+ const cameraHead=new THREE.Group();cameraHead.position.set(0,1.71,-.01);rig.add(cameraHead);
+ const cameraBody=new THREE.Mesh(new THREE.BoxGeometry(.34,.25,.22),dark);cameraBody.position.z=.01;cameraHead.add(cameraBody);
+ const cameraScreen=new THREE.Mesh(new THREE.PlaneGeometry(.255,.165),new THREE.MeshBasicMaterial({color:0x11151d,transparent:true,opacity:.96}));cameraScreen.position.set(0,.005,-.116);cameraScreen.renderOrder=3;cameraHead.add(cameraScreen);
+ const cameraLens=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.026,16),new THREE.MeshStandardMaterial({color:0x05070a,roughness:.24,metalness:.55}));cameraLens.rotation.x=Math.PI/2;cameraLens.position.set(0,.005,-.14);cameraHead.add(cameraLens);
+ const face=mesh(new THREE.BoxGeometry(.05,.065,.04),skin,0,1.70,-.162);face.visible=false;
  const legs=[],arms=[];
  for(const sign of [-1,1]){
   const leg=new THREE.Group();leg.position.set(sign*.125,.82,0);rig.add(leg);legs.push(leg);
@@ -25,7 +29,7 @@ export function createAvatar(scene,name,color){
  const glow=mesh(new THREE.SphereGeometry(.032,8,6),new THREE.MeshBasicMaterial({color:0xffdb94}),.02,-.49,-.16,arms[1]);
  const c=document.createElement('canvas');c.width=512;c.height=96;const ctx=c.getContext('2d');ctx.fillStyle='#11131dd9';ctx.beginPath();ctx.roundRect(4,4,504,88,22);ctx.fill();ctx.fillStyle='#f4f0e9';ctx.font='600 32px system-ui';ctx.textAlign='center';ctx.fillText(String(name).slice(0,22),256,60);
  const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;const label=new THREE.Sprite(new THREE.SpriteMaterial({map:texture}));label.scale.set(1.5,.28,1);label.position.y=2.14;group.add(label);
- scene.add(group);return {group,rig,legs,arms,glow,track:createPoseTrack(),phase:0,last:null,swing:0};
+ scene.add(group);return {group,rig,legs,arms,glow,head,cap,face,cameraHead,cameraBody,cameraScreen,cameraLens,track:createPoseTrack(),phase:0,last:null,swing:0,videoTexture:null,videoElement:null};
 }
 export function animateAvatar(v,p,elapsed){
  const dt=Math.min(.1,Math.max(.001,elapsed));const distance=v.last?Math.hypot(p.x-v.last.x,p.z-v.last.z):0;

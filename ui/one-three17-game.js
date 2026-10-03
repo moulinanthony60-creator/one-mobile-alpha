@@ -1060,7 +1060,7 @@ function open(options={}) {
     <div class="three17-cross"></div>
     <div class="three17-stick" aria-label="Joystick de déplacement"><div class="three17-knob"></div></div>
     <div class="three17-look" aria-label="Glisser pour regarder"></div>
-    <div class="three17-actions"><button class="three17-btn sound" type="button" aria-label="Couper le son" aria-pressed="true">♪</button><button class="three17-btn flash" type="button" aria-label="Éteindre la lampe" aria-pressed="true">🔦</button>
+    <div class="three17-actions"><button class="three17-btn sound" type="button" aria-label="Couper le son" aria-pressed="true">♪</button><button class="three17-btn flash" type="button" aria-label="Éteindre la lampe" aria-pressed="true">🔦</button><button class="three17-btn run" type="button" aria-label="Courir" aria-pressed="false">COURIR</button>
     <button class="three17-btn interact" type="button">AGIR</button></div><div class="three17-hint"></div><div class="three17-msg" role="status"></div></div>
     <div class="three17-start"><div class="three17-card"><h1>3:17 FOUR</h1><div class="time">10:00</div><strong class="three17-build-label">${BUILD}</strong>
     <p><b>Départ aléatoire dans la maison.</b><br>Fouillez, puis ramassez les trois objets.<br>Le Parasite vous traque : cachez-vous hors de sa vue.</p>
@@ -1126,7 +1126,7 @@ function open(options={}) {
       audio.hide(!!spot);
     }
     const keys={x:0,y:0},pressed=new Set();
-    let drag=null,look=null,lx=0,ly=0,started=false,won=false,ended=false,count=0;
+    let drag=null,look=null,lx=0,ly=0,started=false,won=false,ended=false,count=0,sprint=false;
     const ROUND_SECONDS=600;let remaining=ROUND_SECONDS,walkNoise=0,beat=0,paused=document.hidden,testPaused=false;
     let last=performance.now(),lastRender=0,lastHud=0,flashOn=true;
     const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
@@ -1168,7 +1168,7 @@ function open(options={}) {
     renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;stage.prepend(renderer.domElement);
     scares=createScareEffects(shell,renderer,monsterVisual.root,audio,reducedMotion);
     const stick=shell.querySelector('.three17-stick'),knob=shell.querySelector('.three17-knob'),lookZone=shell.querySelector('.three17-look');
-    const flashButton=shell.querySelector('.flash'),soundButton=shell.querySelector('.sound'),hint=shell.querySelector('.three17-hint');
+    const flashButton=shell.querySelector('.flash'),soundButton=shell.querySelector('.sound'),runButton=shell.querySelector('.run'),hint=shell.querySelector('.three17-hint');
     const floorLabel=shell.querySelector('[data-floor]'),counter=shell.querySelector('[data-count]'),lockLabel=shell.querySelector('[data-lock]');
     const clock=shell.querySelector('.three17-clock'),threat=shell.querySelector('.three17-threat'),messageElement=shell.querySelector('.three17-msg');
     const monster=createMonsterController(house,{
@@ -1260,9 +1260,9 @@ function open(options={}) {
     };
     session.graphicsInfo=()=>({...graphicsInfo,state:graphicsState,width:renderWidth,height:renderHeight,pixelRatio:renderRatio,...budget.inspect(),calls:renderer.info.render.calls,triangles:renderer.info.render.triangles});
     function message(text){messageElement.textContent=text;messageElement.classList.add('show');clearTimeout(messageTimer);messageTimer=setTimeout(()=>messageElement.classList.remove('show'),2400);}
-    function resetInputs(){
+    function syncSprint(){if(runButton){runButton.setAttribute('aria-pressed',String(sprint));runButton.setAttribute('aria-label',sprint?'Arrêter de courir':'Courir');runButton.textContent=sprint?'COURSE…':'COURIR';}} function toggleSprint(){if(!started||ended||paused)return;sprint=!sprint;syncSprint();} function resetInputs(){
       for(const [el,id]of [[stick,drag],[lookZone,look]]){try{if(id!==null&&el.hasPointerCapture(id))el.releasePointerCapture(id);}catch{}}
-      drag=look=null;keys.x=keys.y=0;pressed.clear();knob.style.transform='';
+      drag=look=null;keys.x=keys.y=0;pressed.clear();sprint=false;syncSprint();knob.style.transform='';
     }
     function refreshCamera(){
       camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;
@@ -1378,8 +1378,8 @@ function open(options={}) {
         let sx=keys.x+(pressed.has('KeyD')||pressed.has('ArrowRight')?1:0)-(pressed.has('KeyA')||pressed.has('KeyQ')||pressed.has('ArrowLeft')?1:0);
         let forward=-keys.y+(pressed.has('KeyW')||pressed.has('KeyZ')||pressed.has('ArrowUp')?1:0)-(pressed.has('KeyS')||pressed.has('ArrowDown')?1:0);
         const length=Math.max(1,Math.hypot(sx,forward));sx/=length;forward/=length;
-        const sin=Math.sin(yaw),cos=Math.cos(yaw),before={...position};
-        movePlayer(house,position,(-sin*forward+cos*sx)*2.5*dt,(-cos*forward-sin*sx)*2.5*dt);
+        const sin=Math.sin(yaw),cos=Math.cos(yaw),before={...position};const speed=sprint?4.1:2.5;
+        movePlayer(house,position,(-sin*forward+cos*sx)*speed*dt,(-cos*forward-sin*sx)*speed*dt);
         walkNoise+=Math.hypot(position.x-before.x,position.z-before.z);
         if(walkNoise>.62){walkNoise=0;monster.noise(position,4.8);const floor=roomAt(house,position.x,position.z,position.y);audio.playerStep(/kitchen|bath/.test(floor.id)?'tile':position.y<0?'stone':'wood');}
       }
@@ -1390,7 +1390,7 @@ function open(options={}) {
     }
     function currentControls(){return {
       x:keys.x+(pressed.has('KeyD')||pressed.has('ArrowRight')?1:0)-(pressed.has('KeyA')||pressed.has('KeyQ')||pressed.has('ArrowLeft')?1:0),
-      forward:-keys.y+(pressed.has('KeyW')||pressed.has('KeyZ')||pressed.has('ArrowUp')?1:0)-(pressed.has('KeyS')||pressed.has('ArrowDown')?1:0),yaw,pitch,paused};}
+      forward:-keys.y+(pressed.has('KeyW')||pressed.has('KeyZ')||pressed.has('ArrowUp')?1:0)-(pressed.has('KeyS')||pressed.has('ArrowDown')?1:0),yaw,pitch,paused,sprint};}
     function updateWorld(elapsed){
       if(!started||ended||paused||!Number.isFinite(elapsed)||elapsed<=0)return;
       if(coop){
@@ -1475,7 +1475,7 @@ function open(options={}) {
       el.addEventListener('pointerup',e=>e.stopPropagation());
       el.addEventListener('click',e=>{e.stopPropagation();if(e.detail===0&&!e.pointerType)fn();});
     }
-    function syncFlash(){flashButton.setAttribute('aria-pressed',String(flashOn));flashButton.setAttribute('aria-label',hidden?'Lampe éteinte dans la cachette':flashOn?'Éteindre la lampe':'Allumer la lampe');flashButton.disabled=hidden;}
+    const sprintButton=runButton;if(sprintButton){sprintButton.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();toggleSprint();},{passive:false});sprintButton.addEventListener('click',e=>{e.stopPropagation();if(e.detail===0)toggleSprint();});} function syncFlash(){flashButton.setAttribute('aria-pressed',String(flashOn));flashButton.setAttribute('aria-label',hidden?'Lampe éteinte dans la cachette':flashOn?'Éteindre la lampe':'Allumer la lampe');flashButton.disabled=hidden;}
     function toggleFlash(){if(!started||ended||paused||hidden)return;if(coop){coop.action('flash',currentControls());return;}flashOn=!flashOn;syncFlash();message(flashOn?'Lampe allumée · visible de plus loin':'Lampe éteinte · restez hors de sa vue');}
     function toggleSound(){const muted=audio.toggle();soundButton.setAttribute('aria-pressed',String(!muted));soundButton.setAttribute('aria-label',muted?'Activer le son':'Couper le son');soundButton.textContent=muted?'♪×':'♪';}
     function start(){if(started||stopped)return;if(modelFailed){if(coop){close();window.ONEThree17Coop.open();}else open();return;}if(!modelReady||graphicsState!=='ok')return;if(coop){audio.start();audio.pause();startButton.disabled=true;startButton.textContent='PRÊT · ATTENTE DU GROUPE';coop.ready();return;}previousStartRoom=spawns.player.roomId;resetInputs();started=true;syncPause();last=performance.now();if(!paused)audio.start();shell.querySelector('.three17-start')?.remove();message('Départ : '+spawns.player.roomName+' · '+spawns.player.level+'. Le Parasite dort encore 10 s.');}
@@ -1490,10 +1490,11 @@ function open(options={}) {
       if(e.ctrlKey||e.metaKey||e.altKey)return;
       if(e.code==='Escape'){e.preventDefault();returnToLobby();return;}
       if(!started||ended||paused)return;
+      if(e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();sprint=true;syncSprint();return;}
       if(movementCodes.has(e.code)){e.preventDefault();pressed.add(e.code);}
       else if(!e.repeat&&['KeyE','KeyF','KeyM'].includes(e.code)){e.preventDefault();({KeyE:interact,KeyF:toggleFlash,KeyM:toggleSound}[e.code])();}
     }
-    const onKeyUp=e=>pressed.delete(e.code);
+    const onKeyUp=e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight'){sprint=false;syncSprint();}else pressed.delete(e.code);};
     function pause(){blurred=true;syncPause();resetInputs();last=performance.now();audio.pause();}
     function resume(){blurred=false;resizePending=true;syncPause();resetInputs();last=performance.now();lastRender=0;}
     const onVisibility=()=>document.hidden?pause():resume();
@@ -1573,5 +1574,12 @@ installCoop(open);
 window.ONEThree17 = { open, close, build: BUILD, layoutInfo:()=>active?.layoutInfo?.()||null, graphicsInfo:()=>active?.graphicsInfo?.()||null };
 if (window.__ONE317_TEST__ === true) Object.defineProperty(window.ONEThree17, 'debug', { get: () => active?.debug });
 window.addEventListener('pagehide', close);
+
+
+
+
+
+
+
 
 
