@@ -1,8 +1,8 @@
 (()=>{
  'use strict';
  const row=document.querySelector('.brandrow'),tools=row?.querySelector('.oneHeaderTools'),points=document.getElementById('onePointsToggle');if(!row||!tools||!points)return;
- row.classList.add('one-header-clear');row.insertBefore(points,document.getElementById('accountBtn'));
- const roomBadge=document.getElementById('oneRoomCapsule');if(roomBadge)row.insertBefore(roomBadge,points);
+ row.classList.add('one-header-clear');const account=document.getElementById('accountBtn'),controls=document.getElementById('oneHeaderRight')||row;controls.insertBefore(points,account?.parentNode===controls?account:null);
+ const roomBadge=document.getElementById('oneRoomCapsule');if(roomBadge)controls.insertBefore(roomBadge,points);
  const icons={
   oneShopToggle:['Boutique','#ed9aff','<path d="M5 7h14l1 14H4L5 7Z" fill="#933dde"/><path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="#fff"/>'],
   oneSearchToggle:['Recherche','#67ddff','<circle cx="10" cy="10" r="6" fill="#1b698c"/><path d="m15 15 6 6" stroke-width="3"/>'],
