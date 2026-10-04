@@ -2,7 +2,7 @@
 import {prepareScene} from './three17-r46-warmup.js?v=appels-v56';
 import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js?v=appels-v56';
 
-import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=appels-v56';
+import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=network-fluid-v59';
 import * as THREE from './three.module.js?v=appels-v56';
 import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js?v=appels-v56';
 import { createHorrorAudio } from './three17-r41-audio.js?v=appels-v56';
@@ -1423,6 +1423,7 @@ function open(options={}) {
         const sx=keys.x+(pressed.has('KeyD')||pressed.has('ArrowRight')?1:0)-(pressed.has('KeyA')||pressed.has('KeyQ')||pressed.has('ArrowLeft')?1:0);
         const forward=-keys.y+(pressed.has('KeyW')||pressed.has('KeyZ')||pressed.has('ArrowUp')?1:0)-(pressed.has('KeyS')||pressed.has('ArrowDown')?1:0);
         coop.step(elapsed,{x:sx,forward,yaw,pitch,paused,sprint});
+        reconcileGuestPosition(elapsed);
         keepPositionSafe();
         audio.update({listener:position,yaw,monster:monster.state.position,state:monster.state.state,hidden});monsterVisual.animate(monster.state,Math.min(elapsed,.1));
         const md=Math.hypot(monster.state.position.x-position.x,monster.state.position.z-position.z),same=Math.abs(monster.state.position.y-position.y)<1.4;
@@ -1548,6 +1549,27 @@ function open(options={}) {
     window.addEventListener('keydown',onKeyDown);window.addEventListener('keyup',onKeyUp);
     removeEvents=()=>{resetInputs();for(const event of ['pointerup','pointercancel','mouseup'])window.removeEventListener(event,releaseStick);document.removeEventListener('visibilitychange',onVisibility);window.removeEventListener('blur',pause);window.removeEventListener('focus',resume);window.removeEventListener('keydown',onKeyDown);window.removeEventListener('keyup',onKeyUp);window.removeEventListener('resize',resize);window.removeEventListener('orientationchange',resize);renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('webglcontextrestored',onContextRestored);};
     let coopMonsterStep=0;
+    let guestAuthoritativeTarget=null,guestIdleSince=0,guestWasMoving=false;
+    function reconcileGuestPosition(elapsed){
+      if(!coop||coop.isHost||!guestAuthoritativeTarget)return;
+      const moving=coop.moving?.()===true,stamp=performance.now();
+      if(moving){guestWasMoving=true;guestIdleSince=0;guestAuthoritativeTarget=null;return;}
+      if(guestWasMoving){guestWasMoving=false;guestIdleSince=stamp;}
+      if(!guestIdleSince)guestIdleSince=stamp;
+      // Let the host receive the final zero-input packet and its bounded final
+      // position hint before correcting anything locally. Most stops therefore
+      // need no visible reconciliation at all.
+      if(stamp-guestIdleSince<180)return;
+      const target=guestAuthoritativeTarget;
+      if(Math.abs((target.y||0)-(position.y||0))>.65){guestAuthoritativeTarget=null;return;}
+      const dx=target.x-position.x,dz=target.z-position.z,error=Math.hypot(dx,dz);
+      if(error<.025){guestAuthoritativeTarget=null;return;}
+      // Any residual authority correction is a glide, never a percentage snap.
+      // The speed stays below normal walking speed so the camera cannot jerk.
+      const speed=error>1.4?1.65:error>.55?1.05:.58;
+      const step=Math.min(error,speed*Math.min(.05,Math.max(0,elapsed)));
+      if(step>0)movePlayer(house,position,dx/error*step,dz/error*step);
+    }
     if(coopConfig){
       shell.querySelector('.three17-card h1').textContent='3:17 · '+coopConfig.players.length+' JOUEURS';
       shell.querySelector('.three17-card p').textContent='Retrouvez les trois objets ensemble, puis chaque survivant doit rejoindre la sortie. Une cachette accueille une personne.';
@@ -1561,32 +1583,23 @@ function open(options={}) {
           remaining=state.remaining;const wasHidden=hidden;hidden=!!local.hidden;currentHide=house.hideSpots.find(h=>h.id===local.hideId)||null;
           const spectator=local.dead||local.escaped;document.body.classList.toggle('one317-spectator',!!spectator);shell.dataset.spectator=String(!!spectator);
           const view=spectator?(state.players.find(p=>p.connected&&!p.dead&&!p.escaped)||local):local;
-          const error=Math.hypot(view.position.x-position.x,view.position.y-position.y,view.position.z-position.z);
-           const localPrediction=!!(coop&&!hosting&&!spectator&&coop.moving?.());
-           const localIdle=!!(coop&&!hosting&&!spectator&&!localPrediction);
+          const localPrediction=!!(coop&&!hosting&&!spectator&&coop.moving?.());
           if(hosting||hidden||wasHidden!==hidden||spectator){
-            // A delayed snapshot may be stale or malformed for the current
-            // floor. Never teleport the local camera straight into geometry.
+            guestAuthoritativeTarget=null;guestIdleSince=0;guestWasMoving=false;
+            // State transitions still need an immediate authoritative placement
+            // (hide, death, escape, host). Ordinary guest movement never does.
             if(isSafePosition(view.position))Object.assign(position,view.position);
             else keepPositionSafe();
-          }
-          else {
-            // The guest already runs the exact same bounded collision model.
-            // Never move the camera because of an ordinary host snapshot:
-            // that was the source of the visible side-to-side micro jumps.
-            // Only recover from a real desynchronisation once the gap is large.
-             if(localIdle&&error>.16&&error<8){
-               // Once the guest has released the controls, settle to the
-               // authoritative position in one bounded collision-safe step.
-               // A slow correction here looked like involuntary movement.
-               const strength=Math.min(1,Math.max(.35,(error-.16)*.9));
-               movePlayer(house,position,(view.position.x-position.x)*strength,(view.position.z-position.z)*strength);
-             }else if(!localPrediction&&error>.9){
-               const strength=Math.min(.025,Math.max(.008,(error-.9)*.018));
-               // Reconcile through the same swept collision helper as normal
-               // movement, instead of blending coordinates through a wall.
-               movePlayer(house,position,(view.position.x-position.x)*strength,(view.position.z-position.z)*strength);
-            }
+          }else if(localPrediction){
+            // Local prediction owns the guest camera while controls are active.
+            // Host snapshots are deliberately ignored here to prevent rubber-band
+            // motion from normal network latency.
+            guestWasMoving=true;guestIdleSince=0;guestAuthoritativeTarget=null;
+          }else if(isSafePosition(view.position)){
+            // Store the newest authority target; updateWorld() consumes it at
+            // frame rate with a capped collision-safe correction after a brief
+            // stop grace period. No packet can move the camera in one jump.
+            guestAuthoritativeTarget={x:view.position.x,y:view.position.y,z:view.position.z};
           }
           keepPositionSafe();
           if(wasHidden!==hidden||spectator){yaw=view.yaw;pitch=view.pitch;resetInputs();hidePresentation(currentHide);}

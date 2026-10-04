@@ -6,7 +6,7 @@ import {buildRoom} from './one-lobby-r46-room.js?v=appels-v56';
 import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=appels-v56';
 import {createRenderBudget} from './three17-r46-render.js?v=appels-v56';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=appels-v56';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=network-fluid-v59';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function open(ctx={}){

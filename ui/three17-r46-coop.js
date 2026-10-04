@@ -6,6 +6,47 @@ const packet=(kind,data={})=>({game:'317',v:1,kind,...data});
 const now=()=>performance.now();
 const safeName=value=>String(value||'Membre').slice(0,40);
 const yes=value=>value===true||value===1||value==='1'||value==='true';
+
+const movingControls=value=>!!value&&Math.hypot(value.x||0,value.forward||0)>.04;
+const validPositionHint=(value,reference)=>!!value&&[value.x,value.y,value.z].every(Number.isFinite)&&Math.abs(value.x)<100&&Math.abs(value.y)<15&&Math.abs(value.z)<100&&(!reference||Math.abs(value.y-reference.y)<.65);
+
+// Remote avatars are visual-only. Keep a slightly deeper jitter buffer than the
+// network tick, then add a tiny critically-damped visual catch-up. This avoids
+// packet-by-packet stepping without extrapolating past the point where a player
+// actually stopped.
+function createRemotePoseTrack(delay=95){
+  let samples=[],identity=null,ready=false,lastAt=0;
+  const result={x:0,y:0,z:0,yaw:0,pitch:0};
+  return {
+    push(p,time,source=p){
+      if(source===identity)return;identity=source;
+      const next={x:p.x,y:p.y||0,z:p.z,yaw:p.yaw||0,pitch:Number.isFinite(p.pitch)?p.pitch:0,t:time},last=samples.at(-1);
+      if(last&&Math.hypot(next.x-last.x,next.y-last.y,next.z-last.z)>3){samples=[];ready=false;}
+      samples.push(next);if(samples.length>32)samples.shift();
+    },
+    at(time){
+      if(!samples.length)return null;
+      const t=time-delay;while(samples.length>2&&samples[1].t<=t)samples.shift();
+      const a=samples[0],b=samples[1]||a,latest=samples.at(-1);
+      let tx,ty,tz,tyaw,tpitch;
+      if(t>=latest.t){tx=latest.x;ty=latest.y;tz=latest.z;tyaw=latest.yaw;tpitch=latest.pitch;}
+      else{
+        const k=Math.max(0,Math.min(1,(t-a.t)/Math.max(1,b.t-a.t)));
+        tx=a.x+(b.x-a.x)*k;ty=a.y+(b.y-a.y)*k;tz=a.z+(b.z-a.z)*k;
+        tyaw=a.yaw+Math.atan2(Math.sin(b.yaw-a.yaw),Math.cos(b.yaw-a.yaw))*k;tpitch=a.pitch+(b.pitch-a.pitch)*k;
+      }
+      const jump=ready?Math.hypot(tx-result.x,ty-result.y,tz-result.z):Infinity;
+      if(!ready||jump>2.25){result.x=tx;result.y=ty;result.z=tz;result.yaw=tyaw;result.pitch=tpitch;ready=true;lastAt=time;return result;}
+      const dt=Math.min(.05,Math.max(.001,(time-(lastAt||time-16))/1000));lastAt=time;
+      const blend=1-Math.exp(-dt*34);
+      result.x+=(tx-result.x)*blend;result.y+=(ty-result.y)*blend;result.z+=(tz-result.z)*blend;
+      result.yaw+=Math.atan2(Math.sin(tyaw-result.yaw),Math.cos(tyaw-result.yaw))*blend;
+      result.pitch+=(tpitch-result.pitch)*blend;
+      return result;
+    },
+    clear(){samples=[];identity=null;ready=false;lastAt=0;}
+  };
+}
 // Read the salon object; never infer identity by comparing two absent IDs.
 export function normalizeRoom(value){
   if(!value||typeof value.id!=='string'||!Array.isArray(value.members))return null;
@@ -153,6 +194,7 @@ export function createCoopRuntime(config,b){
   const net=link();if(!net)throw Error('Connexion du salon absente.');
   const ids=config.players.map(p=>p.id),world=hosting?createCoopWorld({house,monster,model,members:config.players,spawns}):null;
   const visuals=new Map(config.players.filter(p=>p.id!==localId).map((p,i)=>[p.id,avatar(scene,p.name,[0x76868c,0x716b8c,0x8a7957][i])]));
+  for(const v of visuals.values())v.track=createRemotePoseTrack();
   const freezeHeadCamera=(v)=>{
     const element=v.videoElement;if(!element||!element.videoWidth||!element.videoHeight||!v.cameraScreen?.material)return;
     try{const canvas=document.createElement('canvas');canvas.width=element.videoWidth;canvas.height=element.videoHeight;canvas.getContext('2d').drawImage(element,0,0,canvas.width,canvas.height);const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;v.videoTexture?.dispose?.();v.videoTexture=texture;v.cameraScreen.material.map=texture;v.cameraScreen.material.color.set(0xffffff);v.cameraScreen.material.needsUpdate=true;v.videoFrozen=true;v.videoReady=true;}catch{}
@@ -191,7 +233,18 @@ export function createCoopRuntime(config,b){
     if(stopped||p.room!==config.room||p.round!==config.id||!ids.includes(from))return;
     if(hosting){
       if(p.kind==='input'&&Number.isSafeInteger(p.seq)&&p.seq>(inputSerial.get(from)||0)){
-        const c=controls(p.controls);if(!c)return;inputSerial.set(from,p.seq);lastInput.set(from,now());if(p.ready===true)ready.add(from);world.input(from,c);
+        const c=controls(p.controls);if(!c)return;
+        const player=world.player(from),wasMoving=movingControls(player?.input),willMove=movingControls(c);
+        inputSerial.set(from,p.seq);lastInput.set(from,now());if(p.ready===true)ready.add(from);world.input(from,c);
+        // Client prediction is intentionally immediate, while the host receives
+        // the same controls one network trip later. At the exact moving->idle
+        // edge, accept only a small collision-swept final-position hint. This
+        // removes the classic backwards snap when a guest releases the stick,
+        // without giving the guest arbitrary teleport authority.
+        if(wasMoving&&!willMove&&player&&validPositionHint(p.position,player.position)){
+          const dx=p.position.x-player.position.x,dz=p.position.z-player.position.z,dist=Math.hypot(dx,dz);
+          if(dist>.015&&dist<1.65){const step=Math.min(dist,1.20);model.movePlayer(house,player.position,dx/dist*step,dz/dist*step);}
+        }
       }else if(p.kind==='action'&&begun&&!finished&&!hostPaused&&Number.isSafeInteger(p.seq)&&['interact','flash','revive'].includes(p.action)){if(controls(p.controls)){world.input(from,p.controls);world.action(from,p.action,p.seq);publish();}}
       else if(p.kind==='round-leave'){world.disconnect(from);ready.delete(from);if(!begun){all('end',{text:'Un membre a quitté la préparation. Revenez au salon pour relancer.'});abort('Un membre a quitté la préparation. Revenez au salon pour relancer.');}}
     }else if(from===config.host){
@@ -216,7 +269,7 @@ export function createCoopRuntime(config,b){
       publish();
       if(!begun)b.wait(ready.size,ids.length);
     }else{
-      const age=now()-lastStateAt;transmit(config.host,'input',{seq:++inputSeq,controls:{...input,paused:b.paused()},ready:armed});
+      const age=now()-lastStateAt;transmit(config.host,'input',{seq:++inputSeq,controls:{...input,paused:b.paused()},position:{x:b.position.x,y:b.position.y,z:b.position.z},ready:armed});
       // A brief WebRTC delivery gap is normal on mobile. Reconnecting after only
       // 2.5 s made the non-host visibly freeze and repeatedly renegotiate.
       if(age>8000&&now()-lastReconnect>12000&&!reconnecting){lastReconnect=now();reconnecting=true;Promise.resolve().then(()=>link()?.reconnect?.()).catch(()=>{}).finally(()=>{reconnecting=false;});}
