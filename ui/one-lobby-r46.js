@@ -1,12 +1,12 @@
-import {prepareScene} from './three17-r46-warmup.js?v=appels-v56';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=appels-v56';
+import {prepareScene} from './three17-r46-warmup.js?v=lobby-rooms-v62';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-rooms-v62';
 
-import * as THREE from './three.module.js?v=appels-v56';
-import {buildRoom} from './one-lobby-r46-room.js?v=appels-v56';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=appels-v56';
-import {createRenderBudget} from './three17-r46-render.js?v=appels-v56';
+import * as THREE from './three.module.js?v=lobby-rooms-v62';
+import {buildRoom} from './one-lobby-r46-room.js?v=lobby-rooms-v62';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-rooms-v62';
+import {createRenderBudget} from './three17-r46-render.js?v=lobby-rooms-v62';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=network-fluid-v59';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-rooms-v62';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function open(ctx={}){
@@ -64,10 +64,17 @@ function open(ctx={}){
  shell.querySelector('[data-screen-open]').onclick=()=>gameScreen.open();
  listen(renderer.domElement,'webglcontextlost',e=>{e.preventDefault();graphicsLost=true;keys.clear();loading.hidden=false;loading.querySelector('span').textContent='Affichage interrompu. Ton salon reste connecté…';});
  listen(renderer.domElement,'webglcontextrestored',async()=>{if(stopped)return;graphicsLost=false;try{await prepareScene(renderer,scene,camera,()=>alive&&!graphicsLost);if(stopped)return;assetsReady=true;loading.hidden=true;resizePending=true;budget.reset();last=performance.now();}catch{loading.querySelector('span').textContent='Reviens au salon puis rouvre la 3D pour réessayer.';}});
- const canMove=(x,z)=>Math.abs(x)<8.1&&Math.abs(z)<6.1&&!(Math.hypot(x,z)<1.6)&&!([-4.8,4.8].some(cx=>Math.abs(x-cx)<1.65&&z>-3.8&&z<-1.95));
+ const canMove=(x,z)=>{
+   const inMain=Math.abs(x)<8.1&&Math.abs(z)<6.1&&!(Math.hypot(x,z)<1.6)&&!([-4.8,4.8].some(cx=>Math.abs(x-cx)<1.65&&z>-3.8&&z<-1.95));
+   const inLeftPass=x>-12.2&&x<-8.05&&Math.abs(z)<2.1;
+   const inRightPass=x<12.2&&x>8.05&&Math.abs(z)<2.1;
+   const inCasino=x>-22.15&&x<-13.0&&Math.abs(z)<5.55&&!(x>-19.8&&x<-15.8&&z>-1.7&&z<1.7);
+   const inFight=x<22.15&&x>13.0&&Math.abs(z)<5.55&&!(x>15.35&&x<20.25&&z>-2.45&&z<2.45);
+   return inMain||inLeftPass||inRightPass||inCasino||inFight;
+ };
  function drawStatus(next){
    state=next;const key=JSON.stringify([next.room,next.self,next.host,next.notice,next.joined,next.ready,next.canStart,next.connecting,next.players]);if(key===statusKey)return;statusKey=key;
-   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R56';
+   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R62';
    shell.querySelector('[data-status]').textContent=next.notice;
    const readyButton=shell.querySelector('button[data-ready]'),start=shell.querySelector('[data-start]');
    readyButton.disabled=!next.joined||!next.players.some(p=>p.id===next.self);readyButton.textContent=next.ready?'✓ Prêt':'Je suis prêt';readyButton.setAttribute('aria-pressed',String(next.ready));
