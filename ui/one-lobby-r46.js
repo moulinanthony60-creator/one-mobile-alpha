@@ -1,10 +1,10 @@
-import {prepareScene} from './three17-r46-warmup.js?v=lobby-fight-v64';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-fight-v64';
+import {prepareScene} from './three17-r46-warmup.js?v=lobby-fight-v68';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-fight-v68';
 
-import * as THREE from './three.module.js?v=lobby-fight-v64';
-import {buildRoom} from './one-lobby-r46-room.js?v=lobby-fight-v64';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-fight-v64';
-import {createRenderBudget} from './three17-r46-render.js?v=lobby-fight-v64';
+import * as THREE from './three.module.js?v=lobby-fight-v68';
+import {buildRoom} from './one-lobby-r46-room.js?v=lobby-fight-v68';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-fight-v68';
+import {createRenderBudget} from './three17-r46-render.js?v=lobby-fight-v68';
 
 import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-fight-v65';
 let active=null;
@@ -42,39 +42,41 @@ function open(ctx={}){
  const batOffset=new THREE.Vector3();
  function ensureAvatarBat(v){
    if(v.fightBat)return v.fightBat;
-   const holder=new THREE.Group();holder.position.set(.02,-.505,-.035);v.arms[1].add(holder);
-   const bat=makeBat();bat.position.y=.60;bat.scale.setScalar(.9);holder.add(bat);holder.visible=false;
+   const holder=new THREE.Group();holder.position.set(.06,-.44,-.11);v.arms[1].add(holder);
+   const bat=makeBat();bat.position.set(.08,.77,.03);bat.scale.setScalar(.9);holder.add(bat);holder.visible=false;
    v.fightBat={holder,bat,lastSeq:null,swingAt:0};return v.fightBat;
  }
  function poseRemoteBat(v,raw,t){
    const fight=ensureAvatarBat(v),visible=raw.bat===true,down=raw.down===true;fight.holder.visible=visible;if(!visible)return;
-   if(down){v.arms[1].rotation.x=.05;v.arms[1].rotation.z=-.18;fight.holder.rotation.set(.05,.05,-1.08);fight.bat.position.set(.03,.56,.03);return;}
-   const walking=v.swing||0,baseArm=-.72+walking*.08;
-   let armX=baseArm,armZ=-.16,hx=-.42,hy=.10,hz=-.42;
+   if(down){v.arms[1].rotation.x=.02;v.arms[1].rotation.z=-.12;fight.holder.rotation.set(-.08,.22,-1.26);fight.bat.position.set(.10,.76,.05);return;}
+   const walking=v.swing||0,baseArm=-.96+walking*.06;
+   let armX=baseArm,armZ=-.06,hx=-.24,hy=.30,hz=-1.16,bx=.08,by=.77,bz=.03;
    if(fight.swingAt){
      const k=Math.min(1,(t-fight.swingAt)/520);
-     if(k<.16){
-       const w=smooth(k/.16);
-       armX=lerp(baseArm,baseArm+.34,w);armZ=lerp(-.16,-.08,w);
-       hx=lerp(-.42,-.20,w);hy=.10;hz=lerp(-.42,-.97,w);
+     if(k<.18){
+       const w=smooth(k/.18);
+       armX=lerp(baseArm,-1.10,w);armZ=lerp(-.06,.02,w);
+       hx=lerp(-.24,-.34,w);hy=lerp(.30,.22,w);hz=lerp(-1.16,-1.42,w);
+       bx=lerp(.08,.10,w);by=lerp(.77,.81,w);bz=lerp(.03,.05,w);
      }else if(k<.50){
-       const s=smooth((k-.16)/.34);
-       armX=lerp(baseArm+.34,-1.45,s);armZ=lerp(-.08,.12,s);
-       hx=lerp(-.20,-1.18,s);hy=lerp(.10,-.06,s);hz=lerp(-.97,.82,s);
+       const s=smooth((k-.18)/.32);
+       armX=lerp(-1.10,-.62,s);armZ=lerp(.02,.34,s);
+       hx=lerp(-.34,.48,s);hy=lerp(.22,-.06,s);hz=lerp(-1.42,.18,s);
+       bx=lerp(.10,.14,s);by=lerp(.81,.86,s);bz=lerp(.05,.11,s);
      }else if(k<.62){
-       armX=-1.45;armZ=.12;hx=-1.18;hy=-.06;hz=.82;
+       armX=-.62;armZ=.34;hx=.48;hy=-.06;hz=.18;bx=.14;by=.86;bz=.11;
      }else{
-       // Recover around the outside of the body, never back through the hit arc.
        const r=smooth((k-.62)/.38),arc=Math.sin(r*Math.PI);
-       armX=lerp(-1.45,baseArm,r)-.08*arc;armZ=lerp(.12,-.16,r)-.16*arc;
-       hx=lerp(-1.18,-.42,r)-.26*arc;hy=lerp(-.06,.10,r)+.62*arc;hz=lerp(.82,-.42,r)+.28*arc;
+       armX=lerp(-.62,baseArm,r)-.05*arc;armZ=lerp(.34,-.06,r)+.12*arc;
+       hx=lerp(.48,-.24,r)+.10*arc;hy=lerp(-.06,.30,r)+.22*arc;hz=lerp(.18,-1.16,r)-.18*arc;
+       bx=lerp(.14,.08,r);by=lerp(.86,.77,r)+.04*arc;bz=lerp(.11,.03,r)-.06*arc;
      }
      if(k>=1)fight.swingAt=0;
    }
-   // Rest pose: elbow back, handle in the right hand, barrel above the shoulder.
+   // Keep the remote swing high at torso / shoulder level so it no longer reads like a hit in the legs.
    v.arms[1].rotation.x=armX;v.arms[1].rotation.z=armZ;
    fight.holder.rotation.x=hx;fight.holder.rotation.y=hy;fight.holder.rotation.z=hz;
-   fight.bat.position.set(.02,.60,-.01);
+   fight.bat.position.set(bx,by,bz);
  }
  const syncHeadCamera=(id,v)=>{
    const element=window.ONEPartyMedia?.videoForMember?.(id)||null;
