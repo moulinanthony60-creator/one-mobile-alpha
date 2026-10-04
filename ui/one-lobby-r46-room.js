@@ -1,5 +1,5 @@
-import * as THREE from './three.module.js?v=lobby-shoot-v87';
-import {GLTFLoader} from './GLTFLoader.js?v=lobby-shoot-v87';
+import * as THREE from './three.module.js?v=lobby-shoot-v88';
+import {GLTFLoader} from './GLTFLoader.js?v=lobby-shoot-v88';
 
 // R69: expanded ONE lobby with playable casino machines and open ONE FIGHT room.
 export function buildRoom(scene,renderer,alive,dispose){

@@ -1,12 +1,12 @@
-import {prepareScene} from './three17-r46-warmup.js?v=lobby-shoot-v87';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-shoot-v87';
+import {prepareScene} from './three17-r46-warmup.js?v=lobby-shoot-v88';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-shoot-v88';
 
-import * as THREE from './three.module.js?v=lobby-shoot-v87';
-import {buildRoom} from './one-lobby-r46-room.js?v=lobby-shoot-v87';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v87';
-import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v87';
+import * as THREE from './three.module.js?v=lobby-shoot-v88';
+import {buildRoom} from './one-lobby-r46-room.js?v=lobby-shoot-v88';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v88';
+import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v88';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-shoot-v87';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-shoot-v88';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
@@ -187,32 +187,48 @@ function open(ctx={}){
  const spawnImpact=point=>{const material=new THREE.MeshBasicMaterial({color:0xffe7a2,transparent:true,opacity:1,toneMapped:false}),spark=new THREE.Mesh(new THREE.SphereGeometry(.045,8,6),material);spark.position.copy(point);scene.add(spark);tracers.push({line:spark,end:performance.now()+140,impact:true});};
  const crosshair=shell.querySelector('.one3d-cross');let crossHitUntil=0;
  const flashCrossHit=(duration=150)=>{crossHitUntil=performance.now()+duration;crosshair?.classList.add('is-hit');};
- const raySphereDistance=(center,radius)=>{shotRel.copy(center).sub(shotOrigin);const along=shotRel.dot(shotDir);if(along<.35||along>18)return null;const perpSq=shotRel.lengthSq()-along*along;if(perpSq>radius*radius)return null;return along-Math.sqrt(Math.max(0,radius*radius-perpSq));};
- const meshVisibleToGroup=(mesh,group)=>{for(let o=mesh;o&&o!==group;o=o.parent)if(o.visible===false)return false;return true;};
- const underWeapon=(mesh,v)=>{for(let o=mesh;o&&o!==v.group;o=o.parent)if(o===v.fightGun?.holder||o===v.fightBat?.holder)return true;return false;};
- const avatarVisibleMeshes=(id,v)=>{
-   const meshes=[];
-   v.rig?.traverse?.(o=>{if(o?.isMesh&&meshVisibleToGroup(o,v.group)&&!underWeapon(o,v)){o.userData.gunPlayerId=id;meshes.push(o);}});
-   if(v.cameraBody?.isMesh&&meshVisibleToGroup(v.cameraBody,v.group)){v.cameraBody.userData.gunPlayerId=id;meshes.push(v.cameraBody);}
-   return meshes;
+ const shotNdc=new THREE.Vector2(0,0),hitSphere=new THREE.Sphere(),hitCandidate=new THREE.Vector3(),bodyLocal=new THREE.Vector3();
+ const raySphereHit=(center,radius)=>{
+   hitSphere.center.copy(center);hitSphere.radius=radius;
+   const point=gunRay.ray.intersectSphere(hitSphere,hitCandidate);
+   if(!point)return null;
+   const distance=point.distanceTo(shotOrigin);return distance>=.30&&distance<=18?distance:null;
+ };
+ const avatarBodyVolumes=(v)=>{
+   // Volumes follow the ACTUAL rendered group, not delayed network coordinates.
+   // They are deliberately tight; arms/weapons are not hittable.
+   const out=[];
+   const add=(x,y,z,r,part)=>{bodyLocal.set(x,y,z);v.group.localToWorld(bodyLocal);out.push({center:bodyLocal.clone(),radius:r,part});};
+   add(0,1.70,-.01,.175,'head');
+   add(0,1.28,0,.205,'chest');
+   add(0,1.02,0,.185,'abdomen');
+   add(-.12,.65,0,.105,'left-leg');add(.12,.65,0,.105,'right-leg');
+   add(-.12,.34,0,.095,'left-leg');add(.12,.34,0,.095,'right-leg');
+   return out;
  };
  const aimGun=()=>{
-   // The ray is the exact centre of the shooter's camera/crosshair.
-   camera.getWorldDirection(shotDir).normalize();shotOrigin.copy(camera.position);gunRay.set(shotOrigin,shotDir);gunRay.far=18;
+   // setFromCamera(0,0) is exactly the mathematical centre of the rendered viewport.
+   camera.updateMatrixWorld(true);gunRay.setFromCamera(shotNdc,camera);gunRay.far=18;
+   shotOrigin.copy(gunRay.ray.origin);shotDir.copy(gunRay.ray.direction).normalize();
    let best=null,bestDistance=Infinity;
-   const bodyMeshes=[];
-   for(const [id,v] of avatars){const p=lobbyPose(id);if(!p||p.down===true)continue;v.group.updateWorldMatrix(true,true);bodyMeshes.push(...avatarVisibleMeshes(id,v));}
-   const playerHits=gunRay.intersectObjects(bodyMeshes,false);
-   if(playerHits.length){const hit=playerHits[0];bestDistance=hit.distance;best={id:String(hit.object.userData.gunPlayerId||''),distance:hit.distance,point:hit.point.clone(),part:'body'};}
+   for(const [id,v] of avatars){
+     const p=lobbyPose(id);if(!p||p.down===true)continue;
+     v.group.updateWorldMatrix(true,true);
+     for(const volume of avatarBodyVolumes(v)){
+       const d=raySphereHit(volume.center,volume.radius);
+       if(d!==null&&d<bestDistance){bestDistance=d;best={id:String(id),distance:d,point:shotOrigin.clone().addScaledVector(shotDir,d),part:volume.part};}
+     }
+   }
    const targetHits=gunRay.intersectObjects(roomVisual.shootTargets||[],false);
    if(targetHits.length&&targetHits[0].distance<bestDistance){bestDistance=targetHits[0].distance;best={id:'',distance:bestDistance,point:targetHits[0].point.clone(),target:true};}
-   // Walls, furniture and props stop bullets. A player behind an object can no longer be hit.
+   // First solid object wins. Ignore the explicit target meshes themselves.
    const worldHits=roomVisual.root?gunRay.intersectObject(roomVisual.root,true):[];
-   const blocker=worldHits.find(h=>!(roomVisual.shootTargets||[]).includes(h.object));
-   if(blocker&&blocker.distance+0.015<bestDistance)return null;
+   const targetSet=new Set(roomVisual.shootTargets||[]);
+   const blocker=worldHits.find(h=>!targetSet.has(h.object)&&h.distance>.20);
+   if(blocker&&blocker.distance+0.02<bestDistance)return null;
    return best;
  };
- const shootGun=()=>{const now=performance.now();if(!heldGun||isKnocked(now)||now-shotStarted<300)return;const aimed=aimGun();lastShotTarget=aimed?.id||'';shotSeq++;shotStarted=now;localGun.userData.flash.visible=true;if(localGun.userData.slide)localGun.userData.slide.position.z=.085;spawnTracer(shotOrigin,shotDir,aimed?.distance||16);if(aimed?.point){spawnImpact(aimed.point);flashCrossHit(165);}publishPose();};
+ const shootGun=()=>{const now=performance.now();if(!heldGun||isKnocked(now)||now-shotStarted<300)return;const aimed=aimGun();lastShotTarget=aimed?.id||'';shotSeq++;shotStarted=now;localGun.userData.flash.visible=true;if(localGun.userData.slide)localGun.userData.slide.position.z=.085;spawnTracer(shotOrigin,shotDir,aimed?.distance||16);if(aimed?.point){spawnImpact(aimed.point);flashCrossHit(350);}publishPose();};
  const useFightAction=()=>{
    if(heldGun){shootGun();return;}if(heldBat){swingBat();return;}
    const gunNear=inShootArea(position.x,position.z)&&nearestGunDistance()<1.45,batNear=inFightArea(position.x,position.z)&&nearestBatDistance()<1.55;
@@ -223,7 +239,7 @@ function open(ctx={}){
  fightAction.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();useFightAction();});fightAction.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();});
  function drawStatus(next){
    state=next;const key=JSON.stringify([next.room,next.self,next.host,next.notice,next.joined,next.ready,next.canStart,next.connecting,next.players]);if(key===statusKey)return;statusKey=key;
-   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R86';
+   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R88';
    shell.querySelector('[data-status]').textContent=next.notice;
    const readyButton=shell.querySelector('button[data-ready]'),start=shell.querySelector('[data-start]');
    readyButton.disabled=!next.joined||!next.players.some(p=>p.id===next.self);readyButton.textContent=next.ready?'✓ Prêt':'Je suis prêt';readyButton.setAttribute('aria-pressed',String(next.ready));
