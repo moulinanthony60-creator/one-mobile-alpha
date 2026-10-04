@@ -1,12 +1,12 @@
-import {prepareScene} from './three17-r46-warmup.js?v=lobby-world-casino-v75';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-world-casino-v75';
+import {prepareScene} from './three17-r46-warmup.js?v=lobby-world-casino-v76';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-world-casino-v76';
 
-import * as THREE from './three.module.js?v=lobby-world-casino-v75';
-import {buildRoom} from './one-lobby-r46-room.js?v=lobby-world-casino-v75';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-world-casino-v75';
-import {createRenderBudget} from './three17-r46-render.js?v=lobby-world-casino-v75';
+import * as THREE from './three.module.js?v=lobby-world-casino-v76';
+import {buildRoom} from './one-lobby-r46-room.js?v=lobby-world-casino-v76';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-world-casino-v76';
+import {createRenderBudget} from './three17-r46-render.js?v=lobby-world-casino-v76';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-world-casino-v75';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-world-casino-v76';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
@@ -164,9 +164,10 @@ function open(ctx={}){
    const inLeftPass=x>-13.45&&x<-8.05&&Math.abs(z)<2.16;
    const inRightPass=x<13.45&&x>8.05&&Math.abs(z)<2.16;
    const casinoBounds=x>-22.2&&x<-12.45&&Math.abs(z)<5.6;
-   const rouletteBlocked=x>-21.38&&x<-16.62&&z>-.82&&z<1.22;
-   const blackjackBlocked=x>-16.90&&x<-13.60&&z>1.22&&z<3.02;
-   const casinoBlocked=rouletteBlocked||blackjackBlocked||(z<-4.04&&x>-21.15&&x<-14.45);
+   const rouletteBlocked=x>-21.55&&x<-15.10&&z>-2.25&&z<.72;
+   const blackjackBlocked=x>-18.65&&x<-13.50&&z>1.05&&z<4.05;
+   const slotsBlocked=z<-3.95&&x>-21.65&&x<-13.95;
+   const casinoBlocked=rouletteBlocked||blackjackBlocked||slotsBlocked;
    const inCasino=casinoBounds&&!casinoBlocked;
    const inFight=inFightArea(x,z);
    return inMain||inLeftPass||inRightPass||inCasino||inFight;
