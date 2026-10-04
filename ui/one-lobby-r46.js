@@ -9,6 +9,8 @@ import {createRenderBudget} from './three17-r46-render.js?v=lobby-fight-v64';
 import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-fight-v65';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
+const lerp=(a,b,t)=>a+(b-a)*t;
 function open(ctx={}){
  if(active){active.shell.focus();return;}
  const shell=document.createElement('section');shell.className='one3d-shell';shell.tabIndex=-1;shell.setAttribute('role','dialog');shell.setAttribute('aria-modal','true');shell.setAttribute('aria-label','Lobby 3D partagé');
@@ -48,14 +50,30 @@ function open(ctx={}){
    const fight=ensureAvatarBat(v),visible=raw.bat===true,down=raw.down===true;fight.holder.visible=visible;if(!visible)return;
    if(down){v.arms[1].rotation.x=.05;v.arms[1].rotation.z=-.18;fight.holder.rotation.set(.05,.05,-1.08);fight.bat.position.set(.03,.56,.03);return;}
    const walking=v.swing||0,baseArm=-.72+walking*.08;
-   let k=1,wind=0,follow=0;
-   if(fight.swingAt){k=Math.min(1,(t-fight.swingAt)/460);if(k<.24)wind=Math.sin(k/.24*Math.PI/2);else if(k<.64)follow=Math.sin((k-.24)/.40*Math.PI);else follow=Math.max(0,1-(k-.64)/.36);if(k>=1)fight.swingAt=0;}
+   let armX=baseArm,armZ=-.16,hx=-.42,hy=.10,hz=-.42;
+   if(fight.swingAt){
+     const k=Math.min(1,(t-fight.swingAt)/520);
+     if(k<.16){
+       const w=smooth(k/.16);
+       armX=lerp(baseArm,baseArm+.34,w);armZ=lerp(-.16,-.08,w);
+       hx=lerp(-.42,-.20,w);hy=.10;hz=lerp(-.42,-.97,w);
+     }else if(k<.50){
+       const s=smooth((k-.16)/.34);
+       armX=lerp(baseArm+.34,-1.45,s);armZ=lerp(-.08,.12,s);
+       hx=lerp(-.20,-1.18,s);hy=lerp(.10,-.06,s);hz=lerp(-.97,.82,s);
+     }else if(k<.62){
+       armX=-1.45;armZ=.12;hx=-1.18;hy=-.06;hz=.82;
+     }else{
+       // Recover around the outside of the body, never back through the hit arc.
+       const r=smooth((k-.62)/.38),arc=Math.sin(r*Math.PI);
+       armX=lerp(-1.45,baseArm,r)-.08*arc;armZ=lerp(.12,-.16,r)-.16*arc;
+       hx=lerp(-1.18,-.42,r)-.26*arc;hy=lerp(-.06,.10,r)+.62*arc;hz=lerp(.82,-.42,r)+.28*arc;
+     }
+     if(k>=1)fight.swingAt=0;
+   }
    // Rest pose: elbow back, handle in the right hand, barrel above the shoulder.
-   v.arms[1].rotation.x=baseArm+wind*.42-follow*1.16;
-   v.arms[1].rotation.z=-.16+wind*.12+follow*.24;
-   fight.holder.rotation.x=-.42+wind*.28-follow*.90;
-   fight.holder.rotation.y=.10-follow*.22;
-   fight.holder.rotation.z=-.42-wind*.54+follow*1.26;
+   v.arms[1].rotation.x=armX;v.arms[1].rotation.z=armZ;
+   fight.holder.rotation.x=hx;fight.holder.rotation.y=hy;fight.holder.rotation.z=hz;
    fight.bat.position.set(.02,.60,-.01);
  }
  const syncHeadCamera=(id,v)=>{
@@ -132,7 +150,7 @@ function open(ctx={}){
  fightAction.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();});
  function drawStatus(next){
    state=next;const key=JSON.stringify([next.room,next.self,next.host,next.notice,next.joined,next.ready,next.canStart,next.connecting,next.players]);if(key===statusKey)return;statusKey=key;
-   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R66';
+   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R67';
    shell.querySelector('[data-status]').textContent=next.notice;
    const readyButton=shell.querySelector('button[data-ready]'),start=shell.querySelector('[data-start]');
    readyButton.disabled=!next.joined||!next.players.some(p=>p.id===next.self);readyButton.textContent=next.ready?'✓ Prêt':'Je suis prêt';readyButton.setAttribute('aria-pressed',String(next.ready));
@@ -177,8 +195,24 @@ function open(ctx={}){
    const fallIn=knocked?clamp((t-knockStarted)/260,0,1):0,fallOut=knocked?clamp((knockedUntil-t)/430,0,1):0,fall=knocked?Math.min(fallIn,fallOut):0;
    camera.position.set(position.x,1.65-1.03*fall,position.z);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch+.12*fall;camera.rotation.z=-1.05*fall;
    if(localBat.visible){
-     const k=swingStarted?Math.min(1,(t-swingStarted)/460):1;let wind=0,follow=0;if(swingStarted&&k<1){if(k<.24)wind=Math.sin(k/.24*Math.PI/2);else if(k<.64)follow=Math.sin((k-.24)/.40*Math.PI);else follow=Math.max(0,1-(k-.64)/.36);}else if(k>=1)swingStarted=0;
-     batOffset.set(.52,-.37,-.72).applyQuaternion(camera.quaternion);localBat.position.copy(camera.position).add(batOffset);localBat.quaternion.copy(camera.quaternion);localBat.rotateZ(-.72-wind*.48+follow*1.58);localBat.rotateX(.38+wind*.18-follow*.82);localBat.rotateY(.08-follow*.16);
+     let ox=.52,oy=-.37,oz=-.72,rz=-.72,rx=.38,ry=.08;
+     if(swingStarted){
+       const k=Math.min(1,(t-swingStarted)/520);
+       if(k<.16){
+         const w=smooth(k/.16);ox=lerp(.52,.56,w);oy=lerp(-.37,-.34,w);oz=lerp(-.72,-.74,w);rz=lerp(-.72,-1.16,w);rx=lerp(.38,.52,w);ry=lerp(.08,.13,w);
+       }else if(k<.50){
+         const s=smooth((k-.16)/.34);ox=lerp(.56,.46,s);oy=lerp(-.34,-.42,s);oz=lerp(-.74,-.58,s);rz=lerp(-1.16,.86,s);rx=lerp(.52,-.50,s);ry=lerp(.13,-.14,s);
+       }else if(k<.62){
+         ox=.46;oy=-.42;oz=-.58;rz=.86;rx=-.50;ry=-.14;
+       }else{
+         // Drop the bat slightly out of view while resetting, so recovery is not a second hit.
+         const r=smooth((k-.62)/.38),arc=Math.sin(r*Math.PI);
+         ox=lerp(.46,.52,r)+.20*arc;oy=lerp(-.42,-.37,r)-.68*arc;oz=lerp(-.58,-.72,r)+.08*arc;
+         rz=lerp(.86,-.72,r);rx=lerp(-.50,.38,r)+.18*arc;ry=lerp(-.14,.08,r)+.28*arc;
+       }
+       if(k>=1)swingStarted=0;
+     }
+     batOffset.set(ox,oy,oz).applyQuaternion(camera.quaternion);localBat.position.copy(camera.position).add(batOffset);localBat.quaternion.copy(camera.quaternion);localBat.rotateZ(rz);localBat.rotateX(rx);localBat.rotateY(ry);
    }
    if(hitUntil&&t>=hitUntil){hitUntil=0;fightHit.hidden=true;fightHit.textContent='TOUCHÉ !';}
    renderer.render(scene,camera);if(assetsReady)budget.record(t,performance.now()-began);
