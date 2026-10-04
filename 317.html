@@ -7,7 +7,7 @@
 /* V9: independent multi-touch controls */
 .three17-stick{touch-action:none!important}.three17-look{touch-action:none!important}.three17-btn,.three17-exit,.three17-start button,.three17-win button{touch-action:manipulation!important;pointer-events:auto!important}
 
-/* V13 : repères de version/pièce sans modifier les zones tactiles validées. */
+/* V14 : multi-touch robuste — relâcher la caméra ne coupe plus le joystick. */
 .three17-build{font-size:10px;font-weight:700;letter-spacing:.08em;color:#b9b5b0;margin-top:2px}
 .three17-build-label{display:block;font-size:12px;letter-spacing:.09em;color:#cabda7;margin:9px 0}
 .three17-hint{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);max-width:68%;padding:6px 12px;border-radius:8px;background:#121713df;color:#ece6d7;font-size:12px;text-align:center;pointer-events:none}
@@ -1560,41 +1560,95 @@ function open(options={}) {
     }
     function sm(e){smPoint(e.clientX,e.clientY);}
     function resetStick(){drag=null;keys.x=keys.y=0;knob.style.transform='';}
-    function touchById(list,id){for(let i=0;i<list.length;i++)if(list[i].identifier===id)return list[i];return null;}
+    function touchById(list,id){if(id===null||id===undefined||!list)return null;for(let i=0;i<list.length;i++)if(list[i].identifier===id)return list[i];return null;}
+    function touchInside(el,t,pad=0){
+      if(!t)return false;const r=el.getBoundingClientRect();
+      return t.clientX>=r.left-pad&&t.clientX<=r.right+pad&&t.clientY>=r.top-pad&&t.clientY<=r.bottom+pad;
+    }
+    function nearestTouchIn(list,el,excludeId=null,pad=0){
+      if(!list)return null;const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+      let best=null,bestD=Infinity;
+      for(let i=0;i<list.length;i++){
+        const t=list[i];if(t.identifier===excludeId||!touchInside(el,t,pad))continue;
+        const d=(t.clientX-cx)*(t.clientX-cx)+(t.clientY-cy)*(t.clientY-cy);
+        if(d<bestD){best=t;bestD=d;}
+      }
+      return best;
+    }
     const nativeTouch=('ontouchstart' in window)||((navigator.maxTouchPoints||0)>0);
 
-    // Mobile: use native Touch Events and one identifier per control. Pointer capture
-    // can make Android/WebView cancel the first finger when a second finger controls
-    // the camera. Keeping the joystick and camera identifiers independent prevents
-    // releasing the camera finger from resetting movement.
-    stick.addEventListener('touchstart',e=>{
-      if(!nativeTouch||!started||ended||paused||drag!==null)return;
-      const t=e.changedTouches[0];if(!t)return;
-      e.preventDefault();e.stopPropagation();drag=t.identifier;smPoint(t.clientX,t.clientY);
-    },{passive:false});
-    lookZone.addEventListener('touchstart',e=>{
-      if(!nativeTouch||!started||ended||paused||look!==null)return;
-      const t=e.changedTouches[0];if(!t)return;
-      e.preventDefault();e.stopPropagation();look=t.identifier;lx=t.clientX;ly=t.clientY;
-    },{passive:false});
+    // Mobile multi-touch robuste : chaque contrôle garde son propre doigt.
+    // Au relâchement de la caméra, on reconstruit l'état à partir de e.touches
+    // (les doigts ENCORE posés) plutôt que de changedTouches. Si Android/WebView
+    // change exceptionnellement un identifier, on ré-adopte le doigt encore
+    // physiquement présent sur la zone du joystick au lieu de couper la marche.
+    function reconcileNativeTouches(list){
+      if(!nativeTouch)return;
+
+      let jt=touchById(list,drag);
+      if(!jt&&drag!==null){
+        const replacement=nearestTouchIn(list,stick,look,26);
+        if(replacement){drag=replacement.identifier;jt=replacement;}
+      }
+      if(jt)smPoint(jt.clientX,jt.clientY);
+      else if(drag!==null)resetStick();
+
+      let lt=touchById(list,look);
+      if(!lt&&look!==null){
+        const replacement=nearestTouchIn(list,lookZone,drag,0);
+        if(replacement){look=replacement.identifier;lx=replacement.clientX;ly=replacement.clientY;lt=replacement;}
+        else look=null;
+      }
+    }
+
+    shell.addEventListener('touchstart',e=>{
+      if(!nativeTouch||!started||ended||paused)return;
+      let handled=false;
+      if(drag===null){
+        const t=nearestTouchIn(e.changedTouches,stick,look,18);
+        if(t){drag=t.identifier;smPoint(t.clientX,t.clientY);handled=true;}
+      }
+      if(look===null){
+        const t=nearestTouchIn(e.changedTouches,lookZone,drag,0);
+        if(t){look=t.identifier;lx=t.clientX;ly=t.clientY;handled=true;}
+      }
+      if(handled)e.preventDefault();
+    },{passive:false,capture:true});
+
     shell.addEventListener('touchmove',e=>{
       if(!nativeTouch)return;
       let handled=false;
-      if(drag!==null){const t=touchById(e.touches,drag);if(t){smPoint(t.clientX,t.clientY);handled=true;}}
-      if(look!==null){const t=touchById(e.touches,look);if(t){const dx=t.clientX-lx,dy=t.clientY-ly;lx=t.clientX;ly=t.clientY;yaw-=dx*.006;pitch=clamp(pitch-dy*.004,-.8,.7);handled=true;}}
-      if(handled)e.preventDefault();
-    },{passive:false});
-    function endNativeTouch(e){
-      if(!nativeTouch)return;
-      // Only the identifier that actually ended may release its own control.
-      if(drag!==null&&touchById(e.changedTouches,drag)){resetStick();}
-      if(look!==null&&touchById(e.changedTouches,look)){look=null;}
-    }
-    shell.addEventListener('touchend',endNativeTouch,{passive:true});
-    shell.addEventListener('touchcancel',endNativeTouch,{passive:true});
+      let t=touchById(e.touches,drag);
+      if(!t&&drag!==null){
+        t=nearestTouchIn(e.touches,stick,look,26);
+        if(t)drag=t.identifier;
+      }
+      if(t){smPoint(t.clientX,t.clientY);handled=true;}
 
-    // Mouse / stylus fallback. Touch pointers are ignored whenever native touch
-    // events are available, so the same finger is never handled twice.
+      t=touchById(e.touches,look);
+      if(!t&&look!==null){
+        t=nearestTouchIn(e.touches,lookZone,drag,0);
+        if(t){look=t.identifier;lx=t.clientX;ly=t.clientY;}
+      }
+      if(t&&t.identifier===look){
+        const dx=t.clientX-lx,dy=t.clientY-ly;lx=t.clientX;ly=t.clientY;
+        yaw-=dx*.006;pitch=clamp(pitch-dy*.004,-.8,.7);handled=true;
+      }
+      if(handled)e.preventDefault();
+    },{passive:false,capture:true});
+
+    function finishNativeTouches(e){
+      if(!nativeTouch)return;
+      // IMPORTANT : e.touches contient seulement les doigts encore posés.
+      // Lâcher la caméra ne peut donc plus remettre le joystick à zéro tant
+      // qu'un doigt reste physiquement sur sa zone.
+      reconcileNativeTouches(e.touches);
+    }
+    shell.addEventListener('touchend',finishNativeTouches,{passive:true,capture:true});
+    shell.addEventListener('touchcancel',finishNativeTouches,{passive:true,capture:true});
+
+    // Souris / stylet seulement. Sur tactile, Pointer Events sont ignorés pour
+    // éviter les pointercancel/lostpointercapture croisés entre deux doigts.
     stick.addEventListener('pointerdown',e=>{
       if(nativeTouch&&e.pointerType==='touch')return;
       if(!started||ended||paused||drag!==null)return;
@@ -1643,8 +1697,14 @@ function open(options={}) {
       else if(!e.repeat&&['KeyE','KeyF','KeyM'].includes(e.code)){e.preventDefault();({KeyE:interact,KeyF:toggleFlash,KeyM:toggleSound}[e.code])();}
     }
     const onKeyUp=e=>pressed.delete(e.code);
-    function pause(){blurred=true;syncPause();resetInputs();last=performance.now();audio.pause();}
-    function resume(){blurred=false;resizePending=true;syncPause();resetInputs();last=performance.now();lastRender=0;}
+    function pause(){
+      if(nativeTouch&&!document.hidden)return;
+      blurred=true;syncPause();resetInputs();last=performance.now();audio.pause();
+    }
+    function resume(){
+      if(nativeTouch&&!document.hidden){blurred=false;return;}
+      blurred=false;resizePending=true;syncPause();resetInputs();last=performance.now();lastRender=0;
+    }
     const onVisibility=()=>document.hidden?pause():resume();
     document.addEventListener('visibilitychange',onVisibility);window.addEventListener('blur',pause);window.addEventListener('focus',resume);
     window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
