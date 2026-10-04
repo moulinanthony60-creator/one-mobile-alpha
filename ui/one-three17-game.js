@@ -13,7 +13,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R56 · CAMERA ET MOUVEMENT';
+const BUILD = 'R57 · MULTITOUCH STABLE';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -1499,13 +1499,18 @@ function open(options={}) {
     // is still down when it crosses the canvas. The real pointer/touch end
     // events below decide when the joystick returns to its center.
     for(const event of ['pointerup','pointercancel'])stick.addEventListener(event,se);
-    // Some Android browsers lose pointer capture when the finger crosses the
-    // WebGL canvas. A window-level release prevents stale joystick input.
-    const releaseStick=e=>{const type=e?.type||'';if(type==='mouseup'&&dragType==='touch')return;if((type==='touchend'||type==='touchcancel')&&dragType==='mouse')return;se(e||{});};
-    window.addEventListener('pointerup',releaseStick,{passive:true});window.addEventListener('pointercancel',releaseStick,{passive:true});
-    // Fallbacks for browsers that expose touch/mouse events without a final
-    // PointerEvent when the finger leaves the WebGL surface.
-    window.addEventListener('touchend',releaseStick,{passive:true});window.addEventListener('touchcancel',releaseStick,{passive:true});window.addEventListener('mouseup',releaseStick,{passive:true});
+    // R57 multitouch: only the pointer that owns the joystick may release it.
+    // The old window-level touchend fallback had no pointerId, so releasing the
+    // camera finger also called se() and reset keys.x/keys.y to zero.
+    const releaseStick=e=>{
+      const type=e?.type||'';
+      if(type==='pointerup'||type==='pointercancel'){
+        if(e.pointerId===drag)se(e);
+        return;
+      }
+      if(type==='mouseup'&&dragType==='mouse'&&drag!==null)se({pointerId:drag});
+    };
+    window.addEventListener('pointerup',releaseStick,{passive:true});window.addEventListener('pointercancel',releaseStick,{passive:true});window.addEventListener('mouseup',releaseStick,{passive:true});
     lookZone.addEventListener('pointerdown',e=>{if(!started||ended||paused||look!==null)return;look=e.pointerId;lx=e.clientX;ly=e.clientY;lookZone.setPointerCapture(look);});
     lookZone.addEventListener('pointermove',e=>{if(e.pointerId!==look)return;const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;yaw-=dx*.006;pitch=clamp(pitch-dy*.004,-.8,.7);});
     for(const event of ['pointerup','pointercancel','lostpointercapture'])lookZone.addEventListener(event,e=>{if(e.pointerId===look)look=null;});
@@ -1541,7 +1546,7 @@ function open(options={}) {
     document.addEventListener('visibilitychange',onVisibility);window.addEventListener('blur',pause);window.addEventListener('focus',resume);
     window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);
     window.addEventListener('keydown',onKeyDown);window.addEventListener('keyup',onKeyUp);
-    removeEvents=()=>{resetInputs();for(const event of ['pointerup','pointercancel','touchend','touchcancel','mouseup'])window.removeEventListener(event,releaseStick);document.removeEventListener('visibilitychange',onVisibility);window.removeEventListener('blur',pause);window.removeEventListener('focus',resume);window.removeEventListener('keydown',onKeyDown);window.removeEventListener('keyup',onKeyUp);window.removeEventListener('resize',resize);window.removeEventListener('orientationchange',resize);renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('webglcontextrestored',onContextRestored);};
+    removeEvents=()=>{resetInputs();for(const event of ['pointerup','pointercancel','mouseup'])window.removeEventListener(event,releaseStick);document.removeEventListener('visibilitychange',onVisibility);window.removeEventListener('blur',pause);window.removeEventListener('focus',resume);window.removeEventListener('keydown',onKeyDown);window.removeEventListener('keyup',onKeyUp);window.removeEventListener('resize',resize);window.removeEventListener('orientationchange',resize);renderer.domElement.removeEventListener('webglcontextlost',onContextLost);renderer.domElement.removeEventListener('webglcontextrestored',onContextRestored);};
     let coopMonsterStep=0;
     if(coopConfig){
       shell.querySelector('.three17-card h1').textContent='3:17 · '+coopConfig.players.length+' JOUEURS';
