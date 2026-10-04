@@ -1,7 +1,7 @@
-import * as THREE from './three.module.js?v=lobby-fight-v63';
-import {GLTFLoader} from './GLTFLoader.js?v=lobby-fight-v63';
+import * as THREE from './three.module.js?v=lobby-fight-v64';
+import {GLTFLoader} from './GLTFLoader.js?v=lobby-fight-v64';
 
-// R63: expanded ONE lobby with clear side passages, casino room and open ONE FIGHT room.
+// R64: expanded ONE lobby with clear side passages, casino room and open ONE FIGHT room.
 export function buildRoom(scene,renderer,alive,dispose){
  const root=new THREE.Group();root.name='ONE-lobby-r62';scene.add(root);
  const mobile=matchMedia('(pointer:coarse)').matches||innerWidth<700;
@@ -53,13 +53,16 @@ export function buildRoom(scene,renderer,alive,dispose){
   addWall(10,4,.22,cx,2,6);
   addWall(.22,4,12,sign*22.8,2,0);
  }
- // inner room side walls, leaving open connection to passage
- for(const z of [-4.6,4.6]){addWall(.22,4,1.4,-12.8,2,z);addWall(.22,4,1.4,12.8,2,z);} // trims around large entries
+ // Complete inner walls for both side rooms. Only the central passage (|z| < 2.35) stays open.
+ // These long wall sections remove the visual holes that were left beside the Casino/Fight doorways.
+ for(const z of [-4.2,4.2]){addWall(.22,4,3.6,-12.8,2,z);addWall(.22,4,3.6,12.8,2,z);}
+ // Small doorway pillars give each large opening a clean finished edge without entering the walking lane.
+ for(const sign of [-1,1]){for(const z of [-2.42,2.42])box(.34,4,.34,brass,sign*12.78,2,z);}
  
  // Wall accents and ceiling neon tracks
  box(6.7,3.45,.13,lilac,0,2,-6.8);
  for(const x of [-5.6,5.6]){wallPanels.push(box(3.9,3.45,.12,wallMaterial,x,2,-6.82));box(4.05,.06,.14,brass,x,3.75,-6.8);}
- // R63: passages remain completely clear — no neon tube crosses or frames the walking lane.
+ // R64: passages remain completely clear — no neon tube crosses or frames the walking lane.
  for(const x of [-7.75,7.75]){tube(.05,2.65,.05,x,2.25,-6.72);tube(.045,.045,11.2,x,3.86,-.05);} 
  for(const z of [-5.65,5.55])tube(15.55,.045,.045,0,3.86,z);
  for(const x of [-17.8,17.8]){tube(9.4,.045,.045,x,3.86,-4.85);tube(9.4,.045,.045,x,3.86,4.85);} 

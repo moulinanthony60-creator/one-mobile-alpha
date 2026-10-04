@@ -1,12 +1,12 @@
-import {prepareScene} from './three17-r46-warmup.js?v=lobby-fight-v63';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-fight-v63';
+import {prepareScene} from './three17-r46-warmup.js?v=lobby-fight-v64';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-fight-v64';
 
-import * as THREE from './three.module.js?v=lobby-fight-v63';
-import {buildRoom} from './one-lobby-r46-room.js?v=lobby-fight-v63';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-fight-v63';
-import {createRenderBudget} from './three17-r46-render.js?v=lobby-fight-v63';
+import * as THREE from './three.module.js?v=lobby-fight-v64';
+import {buildRoom} from './one-lobby-r46-room.js?v=lobby-fight-v64';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-fight-v64';
+import {createRenderBudget} from './three17-r46-render.js?v=lobby-fight-v64';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-fight-v63';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-fight-v64';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function open(ctx={}){
@@ -18,6 +18,7 @@ function open(ctx={}){
  .one3d-fight-action{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(138px,calc(env(safe-area-inset-bottom) + 112px));z-index:18;min-width:154px;min-height:54px;padding:10px 18px;border:1px solid #ff91b5;border-radius:18px;background:linear-gradient(135deg,#6e274a,#a33d67);color:#fff7fb;font:800 13px/1 system-ui;letter-spacing:.04em;box-shadow:0 8px 22px #0006,inset 0 1px #fff3;touch-action:manipulation}
  .one3d-fight-action[data-mode="pickup"]{border-color:#cab2ff;background:linear-gradient(135deg,#45306c,#7652a8)}
  .one3d-fight-hit{position:absolute;inset:0;z-index:16;display:grid;place-items:center;pointer-events:none;background:radial-gradient(circle,#ff406522 0 18%,#ff204411 38%,transparent 72%);box-shadow:inset 0 0 50px #ff325a99;color:#fff;font:900 clamp(26px,7vw,58px)/1 system-ui;text-shadow:0 4px 18px #28000b}
+ .one3d-fight-hit[hidden],.one3d-fight-action[hidden]{display:none!important}
  @media(max-height:520px){.one3d-fight-action{bottom:92px;right:14px;min-height:46px;min-width:138px;font-size:12px}}
  `;shell.append(fightStyle);
  const stage=shell.querySelector('.one3d-stage'),chips=shell.querySelector('.one3d-players');
@@ -89,15 +90,18 @@ function open(ctx={}){
    const inFight=inFightArea(x,z);
    return inMain||inLeftPass||inRightPass||inCasino||inFight;
  };
- let heldBat=false,swingSeq=0,swingStarted=0,lastHitAt=0,hitUntil=0;
+ let heldBat=false,swingSeq=0,swingStarted=0,lastHitAt=0,hitUntil=0,lastFightPointerAt=0;
  const nearestBatDistance=()=>Math.min(...(roomVisual.fightBatSpots||[]).map(s=>Math.hypot(position.x-s.x,position.z-s.z)),99);
  const setHeldBat=value=>{heldBat=!!value;localBat.visible=heldBat;if(!heldBat)swingStarted=0;};
- const swingBat=()=>{if(!heldBat||!inFightArea(position.x,position.z)||performance.now()-swingStarted<360)return;swingSeq++;swingStarted=performance.now();updateLobbyPose({...position,yaw,pitch,bat:true,swingSeq});};
- fightAction.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();});
- fightAction.addEventListener('click',e=>{e.stopPropagation();if(heldBat){swingBat();return;}if(inFightArea(position.x,position.z)&&nearestBatDistance()<1.55){setHeldBat(true);updateLobbyPose({...position,yaw,pitch,bat:true,swingSeq});}});
+ // Once a bat is picked up it stays with the player throughout the whole lobby.
+ const swingBat=()=>{if(!heldBat||performance.now()-swingStarted<300)return;swingSeq++;swingStarted=performance.now();updateLobbyPose({...position,yaw,pitch,bat:true,swingSeq});};
+ const useFightAction=()=>{if(heldBat){swingBat();return;}if(inFightArea(position.x,position.z)&&nearestBatDistance()<1.55){setHeldBat(true);updateLobbyPose({...position,yaw,pitch,bat:true,swingSeq});}};
+ // Fire on pointer-down so a second finger can hit while the joystick finger keeps moving.
+ fightAction.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();lastFightPointerAt=performance.now();useFightAction();});
+ fightAction.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();if(performance.now()-lastFightPointerAt>450)useFightAction();});
  function drawStatus(next){
    state=next;const key=JSON.stringify([next.room,next.self,next.host,next.notice,next.joined,next.ready,next.canStart,next.connecting,next.players]);if(key===statusKey)return;statusKey=key;
-   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R63';
+   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R64';
    shell.querySelector('[data-status]').textContent=next.notice;
    const readyButton=shell.querySelector('button[data-ready]'),start=shell.querySelector('[data-start]');
    readyButton.disabled=!next.joined||!next.players.some(p=>p.id===next.self);readyButton.textContent=next.ready?'✓ Prêt':'Je suis prêt';readyButton.setAttribute('aria-pressed',String(next.ready));
@@ -116,10 +120,10 @@ function open(ctx={}){
  function applyResize(){if(!resizePending)return;const w=stage.clientWidth,h=stage.clientHeight;if(w<2||h<2)return;const r=Math.min(Math.min(devicePixelRatio||1,mobile?1:1.2)*budget.scale,Math.sqrt((mobile?620000:1150000)*budget.scale*budget.scale/(w*h)));if(w!==width||h!==height||r!==ratio){renderer.setDrawingBufferSize(w,h,r);camera.aspect=w/h;camera.updateProjectionMatrix();width=w;height=h;ratio=r;}resizePending=false;}
  const ro=new ResizeObserver(resize);ro.observe(stage);resize();
  function tryRemoteHit(raw,v,t){
-   const fight=ensureAvatarBat(v),seq=Number.isSafeInteger(raw.swingSeq)?raw.swingSeq:0;fight.holder.visible=raw.bat===true&&inFightArea(raw.x,raw.z);
+   const fight=ensureAvatarBat(v),seq=Number.isSafeInteger(raw.swingSeq)?raw.swingSeq:0;fight.holder.visible=raw.bat===true;
    if(fight.lastSeq===null){fight.lastSeq=seq;return;}
    if(seq<=fight.lastSeq)return;fight.lastSeq=seq;fight.swingAt=t;
-   if(!fight.holder.visible||!inFightArea(position.x,position.z)||t-lastHitAt<520)return;
+   if(!fight.holder.visible||t-lastHitAt<520)return;
    const dx=position.x-raw.x,dz=position.z-raw.z,dist=Math.hypot(dx,dz);if(dist<.15||dist>2.05)return;
    const fx=-Math.sin(raw.yaw||0),fz=-Math.cos(raw.yaw||0),dot=(dx/dist)*fx+(dz/dist)*fz;if(dot<.08)return;
    const push=.82,nx=position.x+dx/dist*push,nz=position.z+dz/dist*push;if(canMove(nx,position.z))position.x=nx;if(canMove(position.x,nz))position.z=nz;
@@ -134,9 +138,9 @@ function open(ctx={}){
     const speed=sprint?4.2:2.4;
     const x=position.x+(-Math.sin(yaw)*forward+Math.cos(yaw)*side)*speed*dt,z=position.z+(-Math.cos(yaw)*forward-Math.sin(yaw)*side)*speed*dt;
    if(canMove(x,position.z))position.x=x;if(canMove(position.x,z))position.z=z;
-   const fightHere=inFightArea(position.x,position.z);if(heldBat&&!fightHere)setHeldBat(false);
-   const nearBat=fightHere&&nearestBatDistance()<1.55;fightAction.hidden=!(heldBat&&fightHere)&&!nearBat;fightAction.dataset.mode=heldBat?'swing':'pickup';fightAction.textContent=heldBat?'FRAPPER':'RAMASSER BATTE';
-   if(t-lastSend>100){updateLobbyPose({...position,yaw,pitch,bat:heldBat&&fightHere,swingSeq});lastSend=t;}
+   const fightHere=inFightArea(position.x,position.z);
+   const nearBat=!heldBat&&fightHere&&nearestBatDistance()<1.55;fightAction.hidden=!heldBat&&!nearBat;fightAction.dataset.mode=heldBat?'swing':'pickup';fightAction.textContent=heldBat?'FRAPPER':'RAMASSER BATTE';
+   if(t-lastSend>100){updateLobbyPose({...position,yaw,pitch,bat:heldBat,swingSeq});lastSend=t;}
    for(const [id,v] of avatars){syncHeadCamera(id,v);const p=lobbyPose(id);if(!p)continue;tryRemoteHit(p,v,t);v.track.push(p,t);const pose=v.track.at(t);if(pose){animateAvatar(v,pose,dt);orientAvatarCamera(v,{x:position.x,y:1.65,z:position.z});const fight=ensureAvatarBat(v);if(fight.swingAt){const k=Math.min(1,(t-fight.swingAt)/340),arc=Math.sin(k*Math.PI);fight.holder.rotation.x=.2-arc*1.25;fight.holder.rotation.z=-.34+arc*.88;if(k>=1){fight.swingAt=0;fight.holder.rotation.set(.2,0,-.34);}}}}
    camera.position.set(position.x,1.65,position.z);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;
    if(localBat.visible){const k=swingStarted?Math.min(1,(t-swingStarted)/340):1,arc=swingStarted&&k<1?Math.sin(k*Math.PI):0;if(k>=1)swingStarted=0;batOffset.set(.48,-.42,-.78).applyQuaternion(camera.quaternion);localBat.position.copy(camera.position).add(batOffset);localBat.quaternion.copy(camera.quaternion);localBat.rotateZ(-.5+arc*1.45);localBat.rotateX(.32-arc*.52);}
@@ -161,7 +165,7 @@ function open(ctx={}){
   listen(runButton,'pointercancel',()=>{if(!sprintToggle)setSprint(false);});
   listen(runButton,'lostpointercapture',()=>{if(!sprintToggle)setSprint(false);});
   const movement=['KeyW','KeyA','KeyS','KeyD','KeyZ','KeyQ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
-  listen(window,'keydown',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();setSprint(true);}else if(movement.includes(e.code)){e.preventDefault();keys.add(e.code);}else if(e.code==='KeyF'&&!fightAction.hidden){e.preventDefault();fightAction.click();}else if(e.code==='KeyE'){e.preventDefault();gameScreen.open();}else if(e.code==='Escape')close();});listen(window,'keyup',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')setSprint(false);else keys.delete(e.code);});listen(window,'blur',()=>{keys.clear();stopStick();look=null;setSprint(false);});listen(document,'visibilitychange',()=>{keys.clear();stopStick();setSprint(false);last=performance.now();budget.reset();});
+  listen(window,'keydown',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();setSprint(true);}else if(movement.includes(e.code)){e.preventDefault();keys.add(e.code);}else if(e.code==='KeyF'&&!fightAction.hidden){e.preventDefault();useFightAction();}else if(e.code==='KeyE'){e.preventDefault();gameScreen.open();}else if(e.code==='Escape')close();});listen(window,'keyup',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')setSprint(false);else keys.delete(e.code);});listen(window,'blur',()=>{keys.clear();stopStick();look=null;setSprint(false);});listen(document,'visibilitychange',()=>{keys.clear();stopStick();setSprint(false);last=performance.now();budget.reset();});
  shell.querySelector('[data-close]').onclick=()=>close();shell.querySelector('button[data-ready]').onclick=setLobbyReady;shell.querySelector('[data-start]').onclick=startRound;shell.querySelector('[data-reconnect]').onclick=()=>joinLobby(ctx,true);
  active={shell,renderer,scene,ro,stop(){stopped=true;alive=false;gameScreen.dispose();roomVisual.dispose();for(const v of avatars.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}cancelAnimationFrame(raf);abort.abort();off();},inspect:()=>({position:{...position},yaw,avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
  raf=requestAnimationFrame(frame);joinLobby(ctx);
