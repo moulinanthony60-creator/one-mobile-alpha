@@ -1,12 +1,12 @@
-import {prepareScene} from './three17-r46-warmup.js?v=lobby-casino-v69';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-casino-v69';
+import {prepareScene} from './three17-r46-warmup.js?v=lobby-fight-casino-v73';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-fight-casino-v73';
 
-import * as THREE from './three.module.js?v=lobby-casino-v69';
-import {buildRoom} from './one-lobby-r46-room.js?v=lobby-casino-v69';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-casino-v69';
-import {createRenderBudget} from './three17-r46-render.js?v=lobby-casino-v69';
+import * as THREE from './three.module.js?v=lobby-fight-casino-v73';
+import {buildRoom} from './one-lobby-r46-room.js?v=lobby-fight-casino-v73';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-fight-casino-v73';
+import {createRenderBudget} from './three17-r46-render.js?v=lobby-fight-casino-v73';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-casino-v69';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-fight-casino-v73';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
@@ -37,6 +37,7 @@ function open(ctx={}){
  .one3d-casino-native .oneSlotsBoard{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;position:relative;margin:0 auto 10px;max-width:460px;padding:7px;background:#100915;border:2px solid #d6b76d;border-radius:14px;box-shadow:inset 0 4px 10px #000,0 3px 0 #f0d79655;overflow:hidden}.one3d-casino-native .oneSlotColumn{display:grid;grid-template-rows:repeat(3,1fr);overflow:hidden;border-radius:8px;background:#f5e5bd;box-shadow:inset 3px 0 6px #5b431e99;position:relative;perspective:500px;container-type:inline-size}.one3d-casino-native .oneSlotCell{display:grid;place-items:center;aspect-ratio:1.2;font-size:clamp(21px,5vw,44px);color:#9c2340;font-weight:900;line-height:1;border-bottom:1px solid #967e5155;background:linear-gradient(110deg,#cebb8d,#fff3d4 35%,#f6e5b8 70%,#bfa878);text-shadow:0 3px 2px #0003;position:relative}.one3d-casino-native .oneSlotCell.isWinning{background:radial-gradient(circle,#fffceb,#ffe599);box-shadow:inset 0 0 0 2px #ffef99,inset 0 0 20px #f0ad37;animation:oneSlotWin .9s ease-out both}
  .one3d-casino-native .oneSlotDrum{position:absolute;left:0;right:0;top:50%;height:33.333%;margin-top:-16.666%;transform-style:preserve-3d;animation:oneCylinderSpin .55s linear infinite;z-index:2}.one3d-casino-native .oneSlotDrumFace{position:absolute;inset:0;display:grid;place-items:center;backface-visibility:hidden;font-size:clamp(22px,5vw,44px);font-weight:900;color:#a12845;background:linear-gradient(90deg,#c6b187,#fff2cf 40%,#d3be93);border:1px solid #ab956c;box-sizing:border-box;transform:rotateX(var(--face-angle)) translateZ(125cqw);text-shadow:0 3px 3px #0003}.one3d-casino-native .isSpinning .oneSlotColumn:not(.reelStopped) .oneSlotCell{visibility:hidden}.one3d-casino-native .isSpinning .oneSlotColumn.reelStopped .oneSlotCell{visibility:visible;animation:oneReelStopBounce .28s ease-out both}.one3d-casino-native .oneSlotColumn.reelStopped .oneSlotDrum{display:none}.one3d-casino-native .oneSlotDrum.isBraking{animation-duration:1.1s;filter:blur(.3px)}.one3d-casino-native .oneSlotColumn::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(#0006,transparent 24%,transparent 76%,#0006);z-index:3;border-radius:7px}
  .one3d-casino-native .oneSlotSpecial{display:grid;place-items:center;height:100%;width:100%;font:900 clamp(10px,2.7vw,22px) Georgia;letter-spacing:-1px;text-shadow:0 2px #491346;background:radial-gradient(ellipse,#ebbd63,#ab5627 55%,#39131b);color:#fff4b4;box-shadow:inset 0 0 0 4px #bd9454,inset 0 0 0 6px #efdc9a}.one3d-casino-native .oneSlotSpecial.wild{background:radial-gradient(ellipse,#e768f4,#7133ab 60%,#1b173c);color:#fff1a1}.one3d-casino-native .oneSlotSpecial.bonus{border-radius:50%;width:90%;height:90%;margin:5%;font-size:clamp(9px,2.5vw,18px)}
+ .one3d-casino-native .oneSlotArt{display:block;width:100%;height:100%;background-image:url('ui/one-slot-symbols-real.png?v=014117');background-size:300% 200%;background-repeat:no-repeat;mix-blend-mode:screen;filter:saturate(1.35) brightness(1.12)}.one3d-casino-native .oneSlotCell.isWinning .oneSlotArt{filter:brightness(1.15) saturate(1.25)}
  .one3d-casino-native .oneSlotLines{position:absolute;inset:7px;width:calc(100% - 14px);height:calc(100% - 14px);pointer-events:none;overflow:visible}.one3d-casino-native .oneSlotLines polyline{fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 3px #231028);stroke-dasharray:900;animation:oneSlotTrace 1s ease-out both}.one3d-casino-native .oneSlotDashboard{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}.one3d-casino-native .oneSlotDashboard>div{border:1px solid #9e884e;border-radius:5px;background:#050709;padding:6px 2px}.one3d-casino-native .oneSlotDashboard small{display:block;font-size:9px;color:#c7c2ab}.one3d-casino-native .oneSlotDashboard strong{font:18px ui-monospace,monospace;color:#f4d889}.one3d-casino-native .oneSlotWins,.one3d-casino-native .oneSlotsRules{display:none}.one3d-casino-native .oneBonusBanner{margin:8px;padding:10px;border:2px solid #f0d27b;background:linear-gradient(90deg,#57325e,#302958);color:#fff1aa;font-weight:900;animation:oneBonusGlow 1.2s ease-in-out 3 alternate}
  .one3d-casino-native .oneJackpotCelebration{position:relative;overflow:hidden;padding:22px 8px;margin:12px 0;border:3px ridge #ffdd87;border-radius:14px;background:radial-gradient(ellipse at center,#644422,#221332 70%);color:#ffe9a5;text-align:center;box-shadow:0 0 25px #e7b54a66}.one3d-casino-native .oneJackpotCelebration small,.one3d-casino-native .oneJackpotCelebration strong,.one3d-casino-native .oneJackpotCelebration b{position:relative;display:block;z-index:2}.one3d-casino-native .oneJackpotCelebration i{display:none}
  @keyframes oneCylinderSpin{from{transform:rotateX(0deg)}to{transform:rotateX(-360deg)}}@keyframes oneReelStopBounce{0%{transform:translateY(-8px)}65%{transform:translateY(3px)}100%{transform:translateY(0)}}@keyframes oneSlotWin{from{filter:brightness(1.35)}to{filter:brightness(1)}}@keyframes oneSlotTrace{from{stroke-dashoffset:900}to{stroke-dashoffset:0}}@keyframes oneBonusGlow{to{box-shadow:0 0 22px #ebc168;filter:brightness(1.2)}}
@@ -74,40 +75,40 @@ function open(ctx={}){
    const fight=ensureAvatarBat(v),visible=raw.bat===true,down=raw.down===true;fight.holder.visible=visible;if(!visible)return;
    if(down){
      v.arms[1].rotation.x=.08;v.arms[1].rotation.z=-.10;
-     fight.holder.position.set(.50,.36,.16);fight.holder.rotation.set(-1.72,.04,.54);fight.bat.position.set(0,0,0);return;
+     fight.holder.position.set(.46,.40,-.12);fight.holder.rotation.set(-1.70,.02,.44);fight.bat.position.set(.02,.02,-.04);return;
    }
    // Rest pose: the handle is in the right hand while the barrel sits visibly over
    // the right shoulder. The pose is independent from the walk cycle.
-   let armX=.72,armZ=-.12,px=.44,py=1.38,pz=.18,rx=.70,ry=0,rz=-.35;
+   let armX=.72,armZ=-.12,px=.38,py=1.38,pz=-.22,rx=.64,ry=-.10,rz=-.28;
    if(fight.swingAt){
      const k=Math.min(1,(t-fight.swingAt)/500);
      if(k<.16){
        // Small wind-up from the shoulder.
        const w=smooth(k/.16);
        armX=lerp(.72,.92,w);armZ=lerp(-.12,-.03,w);
-       px=lerp(.44,.48,w);py=lerp(1.38,1.50,w);pz=lerp(.18,.26,w);
-       rx=lerp(.70,.48,w);ry=lerp(0,.08,w);rz=lerp(-.35,-.52,w);
+       px=lerp(.38,.42,w);py=lerp(1.38,1.48,w);pz=lerp(-.22,-.12,w);
+       rx=lerp(.64,.42,w);ry=lerp(-.10,-.02,w);rz=lerp(-.28,-.46,w);
      }else if(k<.48){
        // One violent descending diagonal strike: shoulder -> chest -> down/front.
        const s=smooth((k-.16)/.32);
        armX=lerp(.92,.16,s);armZ=lerp(-.03,.46,s);
-       px=lerp(.48,.20,s);py=lerp(1.50,1.03,s);pz=lerp(.26,-.32,s);
-       rx=lerp(.48,-2.05,s);ry=lerp(.08,0,s);rz=lerp(-.52,.58,s);
+       px=lerp(.42,.22,s);py=lerp(1.48,1.02,s);pz=lerp(-.12,-.50,s);
+       rx=lerp(.42,-1.92,s);ry=lerp(-.02,-.08,s);rz=lerp(-.46,.52,s);
      }else if(k<.60){
-       armX=.16;armZ=.46;px=.20;py=1.03;pz=-.32;rx=-2.05;ry=0;rz=.58;
+       armX=.16;armZ=.46;px=.22;py=1.02;pz=-.50;rx=-1.92;ry=-.08;rz=.52;
      }else{
        // Recover around the outside at low height, then return to the shoulder;
        // this cannot read as a second upward strike.
        const r=smooth((k-.60)/.40),arc=Math.sin(r*Math.PI);
        armX=lerp(.16,.72,r)-.12*arc;armZ=lerp(.46,-.12,r)+.08*arc;
-       px=lerp(.20,.44,r)+.24*arc;py=lerp(1.03,1.38,r)-.26*arc;pz=lerp(-.32,.18,r)+.12*arc;
-       rx=lerp(-2.05,.70,r)-.18*arc;ry=.08*arc;rz=lerp(.58,-.35,r)+.12*arc;
+       px=lerp(.22,.38,r)+.18*arc;py=lerp(1.02,1.38,r)-.20*arc;pz=lerp(-.50,-.22,r)-.08*arc;
+       rx=lerp(-1.92,.64,r)-.14*arc;ry=lerp(-.08,-.10,r)+.04*arc;rz=lerp(.52,-.28,r)+.08*arc;
      }
      if(k>=1)fight.swingAt=0;
    }
    v.arms[1].rotation.x=armX;v.arms[1].rotation.z=armZ;
    fight.holder.position.set(px,py,pz);fight.holder.rotation.set(rx,ry,rz);
-   fight.bat.position.set(0,0,0);
+   fight.bat.position.set(.02,.02,-.04);
  }
  const syncHeadCamera=(id,v)=>{
    const element=window.ONEPartyMedia?.videoForMember?.(id)||null;
@@ -231,7 +232,7 @@ function open(ctx={}){
  casinoPanel.querySelector('[data-casino-close]').addEventListener('click',closeCasino);casinoSpin.addEventListener('click',spinCasino);casinoPanel.addEventListener('pointerdown',e=>e.stopPropagation());casinoPanel.addEventListener('pointermove',e=>e.stopPropagation());
  function drawStatus(next){
    state=next;const key=JSON.stringify([next.room,next.self,next.host,next.notice,next.joined,next.ready,next.canStart,next.connecting,next.players]);if(key===statusKey)return;statusKey=key;
-   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R69';
+   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R73';
    shell.querySelector('[data-status]').textContent=next.notice;
    const readyButton=shell.querySelector('button[data-ready]'),start=shell.querySelector('[data-start]');
    readyButton.disabled=!next.joined||!next.players.some(p=>p.id===next.self);readyButton.textContent=next.ready?'✓ Prêt':'Je suis prêt';readyButton.setAttribute('aria-pressed',String(next.ready));
