@@ -13,7 +13,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R60 · MAISON REAMENAGEE';
+const BUILD = 'R61 · MAISON REAMENAGEE · FIX LOBBY';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -340,9 +340,9 @@ function createGroundFloor() {
 
   // Items hidden in searchable furniture
   const items = [
-    { id: 'key', reveal: { x:-2.65, y:UPPER_Y+1.42, z:-.45 }, label: 'Clé ancienne', room: 'upper-office', x: -2.0, y: UPPER_Y + .95, z: -.45, color: 0xd5b567, taken: false, hidden: true }, label: 'Clé ancienne', room: 'upper-office', x: -2.1, y: UPPER_Y + .95, z: .2, color: 0xd5b567, taken: false, hidden: true },
-    { id: 'fuse', reveal: { x:6.4, y:BASEMENT_Y+1.2, z:.55 }, label: 'Fusible', room: 'basement-storage', x: 6.4, y: BASEMENT_Y + 1.1, z: -.05, color: 0x75c5e0, taken: false, hidden: true }, label: 'Fusible', room: 'basement-storage', x: 5.0, y: BASEMENT_Y + 1.1, z: .70, color: 0x75c5e0, taken: false, hidden: true },
-    { id: 'seal', reveal: { x:-5.75, y:UPPER_Y+1.2, z:4.0 }, label: 'Sceau', room: 'upper-nursery', x: -6.45, y: UPPER_Y + 1.0, z: 4.0, color: 0xb19dda, taken: false, hidden: true }, label: 'Sceau', room: 'upper-nursery', x: -6.2, y: UPPER_Y + 1.0, z: 3.9, color: 0xb19dda, taken: false, hidden: true },
+    { id: 'key', reveal: { x:-2.65, y:UPPER_Y+1.42, z:-.45 }, label: 'Clé ancienne', room: 'upper-office', x: -2.0, y: UPPER_Y + .95, z: -.45, color: 0xd5b567, taken: false, hidden: true },
+    { id: 'fuse', reveal: { x:6.4, y:BASEMENT_Y+1.2, z:.55 }, label: 'Fusible', room: 'basement-storage', x: 6.4, y: BASEMENT_Y + 1.1, z: -.05, color: 0x75c5e0, taken: false, hidden: true },
+    { id: 'seal', reveal: { x:-5.75, y:UPPER_Y+1.2, z:4.0 }, label: 'Sceau', room: 'upper-nursery', x: -6.45, y: UPPER_Y + 1.0, z: 4.0, color: 0xb19dda, taken: false, hidden: true },
     { id: 'revive', label: 'Sceau de rappel', room: 'basement-ritual', x: -5.45, y: BASEMENT_Y + 1.02, z: 1.55, color: 0xffc866, taken: false, hidden: false, revive: true },
   ];
   // searchable spots
