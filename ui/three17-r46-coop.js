@@ -60,7 +60,7 @@ export function normalizeRoom(value){
 let publishedRoom=null;
 const roomNow=()=>normalizeRoom(window.oneSocialRoom?.()||publishedRoom);
 let joined=false,notice='',roster=[],round=null,unsubscribe=null,hostSeen=0,connecting=false,generation=0,session='',ready=false,pending=null;
-const applicants=new Map(),poses=new Map(),observers=new Set(),shotObservers=new Set();
+const applicants=new Map(),poses=new Map(),observers=new Set(),shotObservers=new Set(),seenShotEvents=new Map();
 let openGame=null;
 const link=()=>window.ONEPartyGameLink;
 const me=()=>roomNow()?.members?.find(m=>m.isYou);
@@ -81,7 +81,21 @@ export function lobbyState(){
 function redraw(){for(const fn of observers)fn(lobbyState());}
 export function subscribeLobby(fn){observers.add(fn);fn(lobbyState());return()=>observers.delete(fn);}
 export function subscribeLobbyShot(fn){shotObservers.add(fn);return()=>shotObservers.delete(fn);}
-export function sendLobbyShot(target){const shooter=me()?.accountId;if(!joined||round||!shooter||typeof target!=='string'||!target||target===shooter||!roster.some(p=>p.id===target))return false;send(target,'shot-hit44',{id:crypto.randomUUID(),shooter,target});return true;}
+function rememberShot(id){const t=now();for(const [key,at] of seenShotEvents)if(t-at>5000)seenShotEvents.delete(key);if(seenShotEvents.has(id))return false;seenShotEvents.set(id,t);return true;}
+function sendShotBurst(to,kind,payload){let delivered=false;for(const delay of [0,55,125,220])setTimeout(()=>{if(!joined||round)return;delivered=send(to,kind,payload)||delivered;},delay);return true;}
+export function sendLobbyShot(target){
+ const shooter=me()?.accountId,owner=host()?.accountId;
+ if(!joined||round||!shooter||typeof target!=='string'||!target||target===shooter||!roster.some(p=>p.id===target))return false;
+ const payload={id:crypto.randomUUID(),shooter,target};
+ // The game data channel is intentionally unordered/unreliable. Send the same
+ // event a few times and de-duplicate it on receipt so a single dropped packet
+ // can no longer make a valid shot disappear.
+ sendShotBurst(target,'shot-hit45',payload);
+ // Guests can also route the one-shot event through the host. This covers
+ // topologies where two guests do not have a usable direct data channel.
+ if(owner&&owner!==shooter&&owner!==target)sendShotBurst(owner,'shot-relay45',payload);
+ return true;
+}
 function rebuildRoster(){
   if(!joined||!isHost()||round)return;
   const mine=me();if(!mine)return;
@@ -101,7 +115,12 @@ function receive(from,p){
   }else if(p.kind==='lobby43'&&from===host()?.accountId&&joined&&!round&&validRoster(p.players)){
     roster=p.players;hostSeen=now();if(!pending)notice='';redraw();
   }else if(p.kind==='busy43'&&from===host()?.accountId&&joined&&!round){notice='Une partie est en cours. Rejoins la prochaine.';redraw();}
-  else if(p.kind==='shot-hit44'&&joined&&!round&&typeof p.id==='string'&&p.id.length===36&&typeof p.shooter==='string'&&p.shooter===from&&typeof p.target==='string'&&p.target===me()?.accountId&&roster.some(m=>m.id===from)){for(const fn of shotObservers)fn({id:p.id,shooter:from,target:p.target});}
+  else if(p.kind==='shot-relay45'&&joined&&!round&&isHost()&&typeof p.id==='string'&&p.id.length===36&&p.shooter===from&&typeof p.target==='string'&&p.target!==from&&roster.some(m=>m.id===from)&&roster.some(m=>m.id===p.target)){
+    sendShotBurst(p.target,'shot-hit45',{id:p.id,shooter:from,target:p.target,relay:true});
+  }
+  else if(p.kind==='shot-hit45'&&joined&&!round&&typeof p.id==='string'&&p.id.length===36&&typeof p.shooter==='string'&&typeof p.target==='string'&&p.target===me()?.accountId&&roster.some(m=>m.id===p.shooter)&&((from===p.shooter)||((p.relay===true)&&from===host()?.accountId))&&rememberShot(p.id)){
+    for(const fn of shotObservers)fn({id:p.id,shooter:p.shooter,target:p.target});
+  }
   else if(p.kind==='pose43'&&joined&&!round&&isHost()&&validPose(p.pose)&&roster.some(m=>m.id===from&&m.session===p.session))poses.set(from,p.pose);
   else if(p.kind==='poses43'&&joined&&!round&&from===host()?.accountId&&Array.isArray(p.poses)&&p.poses.length<=4){
     for(const entry of p.poses)if(entry.id!==me()?.accountId&&roster.some(m=>m.id===entry.id)&&validPose(entry.pose))poses.set(entry.id,entry.pose);
