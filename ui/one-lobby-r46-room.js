@@ -1,5 +1,5 @@
-import * as THREE from './three.module.js?v=lobby-casino-ui-v79';
-import {GLTFLoader} from './GLTFLoader.js?v=lobby-casino-ui-v79';
+import * as THREE from './three.module.js?v=lobby-casino-ui-v81';
+import {GLTFLoader} from './GLTFLoader.js?v=lobby-casino-ui-v81';
 
 // R74: expanded ONE lobby with playable slots, blackjack, roulette and hittable casino dealers.
 export function buildRoom(scene,renderer,alive,dispose){
