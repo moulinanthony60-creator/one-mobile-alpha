@@ -1610,7 +1610,11 @@ function open(options={}) {
         e.preventDefault();e.stopPropagation();smPoint(t.clientX,t.clientY);
       },{passive:false});
       const endStickTouch=e=>{
-        if(stickTouch===null||!findTouch(e.changedTouches,stickTouch))return;
+        if(stickTouch===null)return;
+        // Un autre doigt (camera/action) peut se lever sans devoir relacher le stick.
+        // Tant que l'identifiant du joystick existe encore dans les touches actives,
+        // on conserve sa direction et la position du bouton.
+        if(findTouch(e.touches,stickTouch))return;
         e.preventDefault();e.stopPropagation();clearStick();
       };
       stick.addEventListener('touchend',endStickTouch,{passive:false});
@@ -1626,7 +1630,9 @@ function open(options={}) {
         e.preventDefault();e.stopPropagation();const dx=t.clientX-lx,dy=t.clientY-ly;lx=t.clientX;ly=t.clientY;yaw-=dx*.006;pitch=clamp(pitch-dy*.004,-.8,.7);
       },{passive:false});
       const endLookTouch=e=>{
-        if(lookTouch===null||!findTouch(e.changedTouches,lookTouch))return;
+        if(lookTouch===null)return;
+        // Meme principe : ne terminer la camera que lorsque SON doigt a disparu.
+        if(findTouch(e.touches,lookTouch))return;
         e.preventDefault();e.stopPropagation();lookTouch=null;
       };
       lookZone.addEventListener('touchend',endLookTouch,{passive:false});
