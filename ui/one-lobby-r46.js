@@ -1,12 +1,12 @@
-import {prepareScene} from './three17-r46-warmup.js?v=lobby-shoot-v84';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-shoot-v84';
+import {prepareScene} from './three17-r46-warmup.js?v=lobby-shoot-v85';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-shoot-v85';
 
-import * as THREE from './three.module.js?v=lobby-shoot-v84';
-import {buildRoom} from './one-lobby-r46-room.js?v=lobby-shoot-v84';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v84';
-import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v84';
+import * as THREE from './three.module.js?v=lobby-shoot-v85';
+import {buildRoom} from './one-lobby-r46-room.js?v=lobby-shoot-v85';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v85';
+import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v85';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-shoot-v84';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-shoot-v85';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
@@ -42,33 +42,39 @@ function open(ctx={}){
  }
  const localBat=makeBat();localBat.visible=false;scene.add(localBat);
  const batOffset=new THREE.Vector3();
- const gunMetal=new THREE.MeshStandardMaterial({color:0x191c21,roughness:.38,metalness:.68}),gunFrame=new THREE.MeshStandardMaterial({color:0x10141a,roughness:.56,metalness:.24}),gunGrip=new THREE.MeshStandardMaterial({color:0x080a0d,roughness:.92,metalness:.02}),gunAccent=new THREE.MeshStandardMaterial({color:0x343a42,roughness:.34,metalness:.48}),gunInset=new THREE.MeshStandardMaterial({color:0x07090c,roughness:.48,metalness:.42}),muzzleMat=new THREE.MeshBasicMaterial({color:0xffd66f,toneMapped:false});
+ const gunMetal=new THREE.MeshStandardMaterial({color:0x24282e,roughness:.30,metalness:.74}),gunFrame=new THREE.MeshStandardMaterial({color:0x11151a,roughness:.52,metalness:.20}),gunGrip=new THREE.MeshStandardMaterial({color:0x0a0d11,roughness:.88,metalness:.02}),gunAccent=new THREE.MeshStandardMaterial({color:0x454b52,roughness:.32,metalness:.56}),gunInset=new THREE.MeshStandardMaterial({color:0x05070a,roughness:.44,metalness:.48}),muzzleMat=new THREE.MeshBasicMaterial({color:0xffd66f,toneMapped:false});
+ function gunProfile(points,thickness,material,bevel=.006){
+   const shape=new THREE.Shape();points.forEach(([z,y],i)=>{const sx=-z;i?shape.lineTo(sx,y):shape.moveTo(sx,y);});shape.closePath();
+   const geo=new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:true,bevelThickness:bevel,bevelSize:bevel,bevelSegments:1,curveSegments:1});
+   const m=new THREE.Mesh(geo,material);m.rotation.y=Math.PI/2;m.position.x=-thickness/2;return m;
+ }
  function makePistol(){
    const g=new THREE.Group();
-   // Generic compact semi-auto proportions, with a long matte slide and slimmer polymer frame.
-   const slide=new THREE.Mesh(new THREE.BoxGeometry(.47,.115,.185),gunMetal);slide.position.set(0,.075,-.145);g.add(slide);
-   const slideTop=new THREE.Mesh(new THREE.BoxGeometry(.39,.022,.145),gunAccent);slideTop.position.set(0,.143,-.125);g.add(slideTop);
-   const frame=new THREE.Mesh(new THREE.BoxGeometry(.31,.095,.165),gunFrame);frame.position.set(0,-.015,-.075);g.add(frame);
-   const dustCover=new THREE.Mesh(new THREE.BoxGeometry(.27,.065,.135),gunFrame);dustCover.position.set(0,-.035,-.255);g.add(dustCover);
-   const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.023,.023,.33,16),gunInset);barrel.position.set(0,.064,-.355);barrel.rotation.x=Math.PI/2;g.add(barrel);
-   const muzzle=new THREE.Mesh(new THREE.CylinderGeometry(.034,.034,.023,18),gunInset);muzzle.position.set(0,.064,-.525);muzzle.rotation.x=Math.PI/2;g.add(muzzle);
-   const grip=new THREE.Mesh(new THREE.BoxGeometry(.145,.32,.145),gunGrip);grip.position.set(0,-.205,.015);grip.rotation.x=-.24;g.add(grip);
-   const gripBack=new THREE.Mesh(new THREE.BoxGeometry(.12,.24,.025),gunAccent);gripBack.position.set(0,-.20,.087);gripBack.rotation.x=-.24;g.add(gripBack);
-   const magBase=new THREE.Mesh(new THREE.BoxGeometry(.16,.038,.155),gunMetal);magBase.position.set(0,-.365,.077);magBase.rotation.x=-.24;g.add(magBase);
-   const guard=new THREE.Mesh(new THREE.TorusGeometry(.067,.012,8,22,Math.PI*1.62),gunFrame);guard.position.set(0,-.085,-.115);guard.rotation.set(0,Math.PI/2,.19);g.add(guard);
-   const trigger=new THREE.Mesh(new THREE.BoxGeometry(.015,.068,.016),gunAccent);trigger.position.set(0,-.078,-.128);trigger.rotation.x=-.34;g.add(trigger);
-   // Ejection port and rear slide serrations add readable mechanical detail without bright toy colors.
-   const port=new THREE.Mesh(new THREE.BoxGeometry(.105,.018,.075),gunInset);port.position.set(.055,.139,-.15);g.add(port);
-   for(let i=0;i<4;i++){const serr=new THREE.Mesh(new THREE.BoxGeometry(.012,.072,.19),gunInset);serr.position.set(0,.078,.005-i*.025);g.add(serr);}
-   const frontSight=new THREE.Mesh(new THREE.BoxGeometry(.022,.031,.030),gunInset);frontSight.position.set(0,.153,-.395);g.add(frontSight);
-   const rearSightL=new THREE.Mesh(new THREE.BoxGeometry(.025,.030,.035),gunInset);rearSightL.position.set(-.034,.153,.020);g.add(rearSightL);
-   const rearSightR=rearSightL.clone();rearSightR.position.x=.034;g.add(rearSightR);
-   const flash=new THREE.Mesh(new THREE.SphereGeometry(.072,10,8),muzzleMat);flash.scale.set(1,1,1.8);flash.position.set(0,.064,-.557);flash.visible=false;g.add(flash);
+   // Service-pistol silhouette based on the supplied reference: long low slide, compact frame and angled grip.
+   const slide=new THREE.Group();g.add(slide);
+   const slideBody=gunProfile([[-.535,.030],[-.505,.132],[-.445,.157],[.060,.157],[.098,.128],[.092,.034]],.176,gunMetal,.008);slide.add(slideBody);
+   const slideTop=gunProfile([[-.470,.155],[-.430,.180],[.035,.180],[.064,.157]],.128,gunAccent,.004);slide.add(slideTop);
+   const frame=gunProfile([[-.430,-.048],[-.365,.025],[.065,.030],[.100,-.105],[-.090,-.132],[-.350,-.105]],.160,gunFrame,.007);g.add(frame);
+   const grip=gunProfile([[-.055,-.115],[.080,-.095],[.185,-.395],[.020,-.420],[-.095,-.170]],.150,gunGrip,.010);g.add(grip);
+   const gripPanel=gunProfile([[-.030,-.155],[.058,-.145],[.128,-.352],[.010,-.370],[-.060,-.190]],.158,gunAccent,.004);gripPanel.scale.set(.76,1,.76);g.add(gripPanel);
+   const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.024,.024,.355,18),gunInset);barrel.position.set(0,.072,-.365);barrel.rotation.x=Math.PI/2;g.add(barrel);
+   const muzzle=new THREE.Mesh(new THREE.CylinderGeometry(.037,.037,.028,20),gunInset);muzzle.position.set(0,.072,-.546);muzzle.rotation.x=Math.PI/2;g.add(muzzle);
+   const recoilGuide=new THREE.Mesh(new THREE.CylinderGeometry(.016,.016,.026,14),gunAccent);recoilGuide.position.set(0,.025,-.545);recoilGuide.rotation.x=Math.PI/2;g.add(recoilGuide);
+   const magBase=gunProfile([[.115,-.382],[.192,-.399],[.185,-.438],[.026,-.447],[-.002,-.414]],.165,gunMetal,.004);g.add(magBase);
+   const guard=new THREE.Mesh(new THREE.TorusGeometry(.074,.011,8,26,Math.PI*1.72),gunFrame);guard.position.set(0,-.090,-.120);guard.rotation.set(0,Math.PI/2,.15);g.add(guard);
+   const trigger=new THREE.Mesh(new THREE.BoxGeometry(.014,.070,.018),gunAccent);trigger.position.set(0,-.085,-.130);trigger.rotation.x=-.28;g.add(trigger);
+   const port=new THREE.Mesh(new THREE.BoxGeometry(.112,.019,.082),gunInset);port.position.set(.045,.166,-.145);slide.add(port);
+   for(let i=0;i<6;i++){const serr=new THREE.Mesh(new THREE.BoxGeometry(.010,.070,.018),gunInset);serr.position.set(0,.100,.030-i*.024);slide.add(serr);}
+   const frontSight=new THREE.Mesh(new THREE.BoxGeometry(.020,.035,.034),gunInset);frontSight.position.set(0,.187,-.432);slide.add(frontSight);
+   const rearSightL=new THREE.Mesh(new THREE.BoxGeometry(.024,.034,.040),gunInset);rearSightL.position.set(-.035,.187,.015);slide.add(rearSightL);const rearSightR=rearSightL.clone();rearSightR.position.x=.035;slide.add(rearSightR);
+   // Slide stop / takedown detail on the left side.
+   const stop=new THREE.Mesh(new THREE.BoxGeometry(.016,.034,.070),gunAccent);stop.position.set(.090,.015,-.035);g.add(stop);
+   const flash=new THREE.Mesh(new THREE.SphereGeometry(.070,10,8),muzzleMat);flash.scale.set(.72,.72,1.75);flash.position.set(0,.072,-.579);flash.visible=false;g.add(flash);
    g.userData={flash,slide};return g;
  }
  const localGun=makePistol();localGun.scale.setScalar(1.16);localGun.visible=false;scene.add(localGun);const gunOffset=new THREE.Vector3();
  function ensureAvatarGun(v){if(v.fightGun)return v.fightGun;const holder=new THREE.Group();holder.position.set(.02,-.50,-.12);v.arms[1].add(holder);const gun=makePistol();gun.scale.setScalar(.82);gun.rotation.x=.02;holder.add(gun);holder.visible=false;v.fightGun={holder,gun,lastSeq:null,flashUntil:0,recoilUntil:0};return v.fightGun;}
- function poseRemoteGun(v,raw,t){const weapon=ensureAvatarGun(v),visible=raw.gun===true;weapon.holder.visible=visible;if(!visible)return;const recoil=t<weapon.recoilUntil?1-(weapon.recoilUntil-t)/120:0;v.arms[1].rotation.x=raw.down===true?.02:-1.23;v.arms[1].rotation.z=-.03;weapon.holder.rotation.set(-.03,0,0);weapon.holder.position.z=-.12+.055*Math.max(0,recoil);weapon.gun.userData.flash.visible=t<weapon.flashUntil;if(weapon.gun.userData.slide)weapon.gun.userData.slide.position.z=-.145+.07*Math.max(0,recoil);}
+ function poseRemoteGun(v,raw,t){const weapon=ensureAvatarGun(v),visible=raw.gun===true;weapon.holder.visible=visible;if(!visible)return;const recoil=t<weapon.recoilUntil?1-(weapon.recoilUntil-t)/120:0;v.arms[1].rotation.x=raw.down===true?.02:-1.23;v.arms[1].rotation.z=-.03;weapon.holder.rotation.set(-.03,0,0);weapon.holder.position.z=-.12+.055*Math.max(0,recoil);weapon.gun.userData.flash.visible=t<weapon.flashUntil;if(weapon.gun.userData.slide)weapon.gun.userData.slide.position.z=.070*Math.max(0,recoil);}
 
  function ensureAvatarBat(v){
    if(v.fightBat)return v.fightBat;
@@ -182,14 +188,32 @@ function open(ctx={}){
  const crosshair=shell.querySelector('.one3d-cross');let crossHitUntil=0;
  const flashCrossHit=(duration=150)=>{crossHitUntil=performance.now()+duration;crosshair?.classList.add('is-hit');};
  const raySphereDistance=(center,radius)=>{shotRel.copy(center).sub(shotOrigin);const along=shotRel.dot(shotDir);if(along<.35||along>18)return null;const perpSq=shotRel.lengthSq()-along*along;if(perpSq>radius*radius)return null;return along-Math.sqrt(Math.max(0,radius*radius-perpSq));};
+ const playerHitMaterial=new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,depthTest:false});playerHitMaterial.colorWrite=false;
+ const ensureAvatarHitboxes=(id,v)=>{
+   if(v.gunHitboxes)return v.gunHitboxes;
+   const add=(geo,x,y,z,part)=>{const m=new THREE.Mesh(geo,playerHitMaterial);m.position.set(x,y,z);m.userData.playerId=id;m.userData.hitPart=part;m.renderOrder=-1000;v.group.add(m);return m;};
+   // Hit volumes follow the rendered avatar itself (interpolated group transform), not the raw network pose.
+   v.gunHitboxes=[
+     add(new THREE.SphereGeometry(.165,10,8),0,1.72,-.01,'head'),
+     add(new THREE.BoxGeometry(.36,.58,.28),0,1.18,0,'torso'),
+     add(new THREE.BoxGeometry(.30,.28,.26),0,.78,0,'pelvis'),
+     add(new THREE.BoxGeometry(.12,.48,.18),-.12,.47,0,'leg'),
+     add(new THREE.BoxGeometry(.12,.48,.18), .12,.47,0,'leg')
+   ];
+   return v.gunHitboxes;
+ };
  const aimGun=()=>{
    camera.getWorldDirection(shotDir).normalize();shotOrigin.copy(camera.position);let best=null,bestDistance=Infinity;
-   // Tight body volumes: head, chest and pelvis. No distance-growing auto-aim cone.
-   for(const [id] of avatars){const p=lobbyPose(id);if(!p||p.down===true)continue;const centers=[[p.x,1.70,p.z,.20],[p.x,1.24,p.z,.27],[p.x,.84,p.z,.23]];for(const [x,y,z,r] of centers){shotPoint.set(x,y,z);const distance=raySphereDistance(shotPoint,r);if(distance!==null&&distance<bestDistance){bestDistance=distance;best={id,distance,point:shotOrigin.clone().addScaledVector(shotDir,distance)};}}}
-   gunRay.set(shotOrigin,shotDir);gunRay.far=18;const targetHits=gunRay.intersectObjects(roomVisual.shootTargets||[],false);if(targetHits.length&&targetHits[0].distance<bestDistance)best={id:'',distance:targetHits[0].distance,point:targetHits[0].point.clone(),target:true};
+   gunRay.set(shotOrigin,shotDir);gunRay.far=18;
+   const colliders=[];
+   for(const [id,v] of avatars){const p=lobbyPose(id);if(!p||p.down===true)continue;ensureAvatarHitboxes(id,v);v.group.updateWorldMatrix(true,true);colliders.push(...v.gunHitboxes);}
+   const playerHits=gunRay.intersectObjects(colliders,false);
+   if(playerHits.length){const hit=playerHits[0];bestDistance=hit.distance;best={id:String(hit.object.userData.playerId||''),distance:hit.distance,point:hit.point.clone(),part:hit.object.userData.hitPart};}
+   const targetHits=gunRay.intersectObjects(roomVisual.shootTargets||[],false);
+   if(targetHits.length&&targetHits[0].distance<bestDistance)best={id:'',distance:targetHits[0].distance,point:targetHits[0].point.clone(),target:true};
    return best;
  };
- const shootGun=()=>{const now=performance.now();if(!heldGun||isKnocked(now)||now-shotStarted<300)return;const aimed=aimGun();lastShotTarget=aimed?.id||'';shotSeq++;shotStarted=now;localGun.userData.flash.visible=true;if(localGun.userData.slide)localGun.userData.slide.position.z=-.055;spawnTracer(shotOrigin,shotDir,aimed?.distance||16);if(aimed?.point){spawnImpact(aimed.point);flashCrossHit(165);}publishPose();};
+ const shootGun=()=>{const now=performance.now();if(!heldGun||isKnocked(now)||now-shotStarted<300)return;const aimed=aimGun();lastShotTarget=aimed?.id||'';shotSeq++;shotStarted=now;localGun.userData.flash.visible=true;if(localGun.userData.slide)localGun.userData.slide.position.z=.085;spawnTracer(shotOrigin,shotDir,aimed?.distance||16);if(aimed?.point){spawnImpact(aimed.point);flashCrossHit(165);}publishPose();};
  const useFightAction=()=>{
    if(heldGun){shootGun();return;}if(heldBat){swingBat();return;}
    const gunNear=inShootArea(position.x,position.z)&&nearestGunDistance()<1.45,batNear=inFightArea(position.x,position.z)&&nearestBatDistance()<1.55;
@@ -200,7 +224,7 @@ function open(ctx={}){
  fightAction.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();useFightAction();});fightAction.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();});
  function drawStatus(next){
    state=next;const key=JSON.stringify([next.room,next.self,next.host,next.notice,next.joined,next.ready,next.canStart,next.connecting,next.players]);if(key===statusKey)return;statusKey=key;
-   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R83';
+   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R85';
    shell.querySelector('[data-status]').textContent=next.notice;
    const readyButton=shell.querySelector('button[data-ready]'),start=shell.querySelector('[data-start]');
    readyButton.disabled=!next.joined||!next.players.some(p=>p.id===next.self);readyButton.textContent=next.ready?'✓ Prêt':'Je suis prêt';readyButton.setAttribute('aria-pressed',String(next.ready));
@@ -277,7 +301,7 @@ function open(ctx={}){
      batOffset.set(ox,oy,oz).applyQuaternion(camera.quaternion);localBat.position.copy(camera.position).add(batOffset);localBat.quaternion.copy(camera.quaternion);localBat.rotateZ(rz);localBat.rotateX(rx);localBat.rotateY(ry);
    }
    if(localGun.visible){
-     const recoil=shotStarted?Math.max(0,1-(t-shotStarted)/150):0;gunOffset.set(.36,-.29,-.69+.09*recoil).applyQuaternion(camera.quaternion);localGun.position.copy(camera.position).add(gunOffset);localGun.quaternion.copy(camera.quaternion);localGun.rotateY(-.025);localGun.rotateX(.015+.10*recoil);localGun.userData.flash.visible=!!shotStarted&&t-shotStarted<90;if(localGun.userData.slide)localGun.userData.slide.position.z=-.145+.085*recoil;if(shotStarted&&t-shotStarted>175){shotStarted=0;localGun.userData.flash.visible=false;if(localGun.userData.slide)localGun.userData.slide.position.z=-.145;}
+     const recoil=shotStarted?Math.max(0,1-(t-shotStarted)/150):0;gunOffset.set(.36,-.29,-.69+.09*recoil).applyQuaternion(camera.quaternion);localGun.position.copy(camera.position).add(gunOffset);localGun.quaternion.copy(camera.quaternion);localGun.rotateY(-.025);localGun.rotateX(.015+.10*recoil);localGun.userData.flash.visible=!!shotStarted&&t-shotStarted<90;if(localGun.userData.slide)localGun.userData.slide.position.z=.085*recoil;if(shotStarted&&t-shotStarted>175){shotStarted=0;localGun.userData.flash.visible=false;if(localGun.userData.slide)localGun.userData.slide.position.z=0;}
    }
    for(let i=tracers.length-1;i>=0;i--){const item=tracers[i],left=(item.end-t)/140;if(item.line.material){item.line.material.opacity=clamp(left,0,1);if(item.impact)item.line.scale.setScalar(1+(1-left)*2);}if(t>=item.end){scene.remove(item.line);item.line.geometry?.dispose?.();item.line.material?.dispose?.();tracers.splice(i,1);}}
    if(crossHitUntil&&t>=crossHitUntil){crossHitUntil=0;crosshair?.classList.remove('is-hit');}
