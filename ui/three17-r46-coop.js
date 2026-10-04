@@ -60,7 +60,7 @@ export function normalizeRoom(value){
 let publishedRoom=null;
 const roomNow=()=>normalizeRoom(window.oneSocialRoom?.()||publishedRoom);
 let joined=false,notice='',roster=[],round=null,unsubscribe=null,hostSeen=0,connecting=false,generation=0,session='',ready=false,pending=null;
-const applicants=new Map(),poses=new Map(),observers=new Set();
+const applicants=new Map(),poses=new Map(),observers=new Set(),shotObservers=new Set();
 let openGame=null;
 const link=()=>window.ONEPartyGameLink;
 const me=()=>roomNow()?.members?.find(m=>m.isYou);
@@ -80,6 +80,8 @@ export function lobbyState(){
 }
 function redraw(){for(const fn of observers)fn(lobbyState());}
 export function subscribeLobby(fn){observers.add(fn);fn(lobbyState());return()=>observers.delete(fn);}
+export function subscribeLobbyShot(fn){shotObservers.add(fn);return()=>shotObservers.delete(fn);}
+export function sendLobbyShot(target){const shooter=me()?.accountId;if(!joined||round||!shooter||typeof target!=='string'||!target||target===shooter||!roster.some(p=>p.id===target))return false;send(target,'shot-hit44',{id:crypto.randomUUID(),shooter,target});return true;}
 function rebuildRoster(){
   if(!joined||!isHost()||round)return;
   const mine=me();if(!mine)return;
@@ -99,6 +101,7 @@ function receive(from,p){
   }else if(p.kind==='lobby43'&&from===host()?.accountId&&joined&&!round&&validRoster(p.players)){
     roster=p.players;hostSeen=now();if(!pending)notice='';redraw();
   }else if(p.kind==='busy43'&&from===host()?.accountId&&joined&&!round){notice='Une partie est en cours. Rejoins la prochaine.';redraw();}
+  else if(p.kind==='shot-hit44'&&joined&&!round&&typeof p.id==='string'&&p.id.length===36&&typeof p.shooter==='string'&&p.shooter===from&&typeof p.target==='string'&&p.target===me()?.accountId&&roster.some(m=>m.id===from)){for(const fn of shotObservers)fn({id:p.id,shooter:from,target:p.target});}
   else if(p.kind==='pose43'&&joined&&!round&&isHost()&&validPose(p.pose)&&roster.some(m=>m.id===from&&m.session===p.session))poses.set(from,p.pose);
   else if(p.kind==='poses43'&&joined&&!round&&from===host()?.accountId&&Array.isArray(p.poses)&&p.poses.length<=4){
     for(const entry of p.poses)if(entry.id!==me()?.accountId&&roster.some(m=>m.id===entry.id)&&validPose(entry.pose))poses.set(entry.id,entry.pose);
