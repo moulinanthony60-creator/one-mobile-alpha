@@ -1,7 +1,7 @@
-import * as THREE from './three.module.js?v=lobby-rooms-v62';
-import {GLTFLoader} from './GLTFLoader.js?v=lobby-rooms-v62';
+import * as THREE from './three.module.js?v=lobby-fight-v63';
+import {GLTFLoader} from './GLTFLoader.js?v=lobby-fight-v63';
 
-// R62: bigger ONE lobby with two large side passages and themed rooms.
+// R63: expanded ONE lobby with clear side passages, casino room and open ONE FIGHT room.
 export function buildRoom(scene,renderer,alive,dispose){
  const root=new THREE.Group();root.name='ONE-lobby-r62';scene.add(root);
  const mobile=matchMedia('(pointer:coarse)').matches||innerWidth<700;
@@ -59,15 +59,10 @@ export function buildRoom(scene,renderer,alive,dispose){
  // Wall accents and ceiling neon tracks
  box(6.7,3.45,.13,lilac,0,2,-6.8);
  for(const x of [-5.6,5.6]){wallPanels.push(box(3.9,3.45,.12,wallMaterial,x,2,-6.82));box(4.05,.06,.14,brass,x,3.75,-6.8);}
- for(const sign of [-1,1]){
-  const entryX=sign*10.92;
-  tube(.05,3.3,.05,sign*8.95,2.02,-2.25);tube(.05,3.3,.05,sign*8.95,2.02,2.25);
-  tube(.05,3.3,.05,sign*12.85,2.02,-2.25);tube(.05,3.3,.05,sign*12.85,2.02,2.25);
-  tube(3.8,.045,.045,entryX,3.88,-2.43);tube(3.8,.045,.045,entryX,3.88,2.43);
- }
+ // R63: passages remain completely clear — no neon tube crosses or frames the walking lane.
  for(const x of [-7.75,7.75]){tube(.05,2.65,.05,x,2.25,-6.72);tube(.045,.045,11.2,x,3.86,-.05);} 
  for(const z of [-5.65,5.55])tube(15.55,.045,.045,0,3.86,z);
- for(const x of [-17.8,17.8]){tube(9.4,.045,.045,x,3.86,-4.85);tube(9.4,.045,.045,x,3.86,4.85);tube(.05,2.8,.05,x-4.75,2.35,0);tube(.05,2.8,.05,x+4.75,2.35,0);} 
+ for(const x of [-17.8,17.8]){tube(9.4,.045,.045,x,3.86,-4.85);tube(9.4,.045,.045,x,3.86,4.85);} 
  for(const x of [-4.8,4.8])tube(3.2,.035,.035,x,.16,-3.52);
  
  // Poster / game screen in main room.
@@ -106,18 +101,19 @@ export function buildRoom(scene,renderer,alive,dispose){
   for(let i=0;i<14;i++){const a=i*2.4;o.position.set(x+Math.sin(a)*.15,.82+i*.069,z+Math.cos(a)*.15);o.rotation.set(Math.cos(a)*.8,a,Math.sin(a)*.6);o.scale.set(.12,.42,.055);o.updateMatrix();leaves.setMatrixAt(i,o.matrix);}root.add(leaves);
  }
  
- // Directional signs over side passages.
- function makeSign(text,sub,colorA,colorB,x,z){
-  const cv=document.createElement('canvas');cv.width=1024;cv.height=256;const g=cv.getContext('2d');
-  const grad=g.createLinearGradient(0,0,1024,0);grad.addColorStop(0,colorA);grad.addColorStop(1,colorB);g.fillStyle=grad;g.fillRect(0,0,1024,256);
-  g.fillStyle='#ffffff18';g.fillRect(14,14,996,228);g.strokeStyle='#ffffff80';g.lineWidth=5;g.strokeRect(18,18,988,220);
-  g.textAlign='center';g.fillStyle='#1f1830';g.font='800 96px system-ui';g.fillText(text,512,120);g.font='600 34px system-ui';g.fillText(sub,512,182);
+ // Neon wall signs beside each side passage (not inside the passage).
+ function makeNeonWallSign(text,color,x,z,faceRight){
+  const cv=document.createElement('canvas');cv.width=1024;cv.height=300;const g=cv.getContext('2d');
+  g.clearRect(0,0,1024,300);g.textAlign='center';g.textBaseline='middle';g.font='900 112px system-ui';
+  g.shadowColor=color;g.shadowBlur=44;g.strokeStyle=color;g.lineWidth=18;g.strokeText(text,512,150);
+  g.shadowBlur=24;g.lineWidth=9;g.strokeText(text,512,150);g.shadowBlur=12;g.fillStyle='#fff8ff';g.fillText(text,512,150);
   const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;
-  const sign=plane(3.1,.78,new THREE.MeshBasicMaterial({map:tex,toneMapped:false}),x,2.45,z);sign.rotation.y=x<0?Math.PI/2:-Math.PI/2;
-  box(.14,.9,3.28,cream,x+(x<0?.09:-.09),2.45,z);
+  const material=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,toneMapped:false,side:THREE.DoubleSide});
+  const sign=plane(3.4,1.0,material,x,2.35,z);sign.rotation.y=faceRight?-Math.PI/2:Math.PI/2;sign.renderOrder=4;
+  const glow=new THREE.PointLight(new THREE.Color(color),8,5,2);glow.position.set(x+(faceRight?-.2:.2),2.3,z);root.add(glow);
  }
- makeSign('CASINO','Blackjack · Roulette · Lounge','#efd68f','#b5ecd4',-12.65,0);
- makeSign('FIGHT CLUB','Arène · Duel · Entraînement','#f0b2b9','#b1c4ff',12.65,0);
+ makeNeonWallSign('ONE CASINO','#f6d56f',-8.86,-4.25,false);
+ makeNeonWallSign('ONE FIGHT','#ff6d9e',8.86,-4.25,true);
  
  // Casino room
  const casinoRoot=new THREE.Group();root.add(casinoRoot);
@@ -139,20 +135,34 @@ export function buildRoom(scene,renderer,alive,dispose){
  const chipsSign=(()=>{const cv=document.createElement('canvas');cv.width=768;cv.height=220;const g=cv.getContext('2d');g.fillStyle='#11171f';g.fillRect(0,0,768,220);g.fillStyle='#e7c878';g.font='800 84px system-ui';g.textAlign='center';g.fillText('CASINO',384,102);g.fillStyle='#d9e7ef';g.font='600 28px system-ui';g.fillText('BLACKJACK · ROULETTE · LOUNGE',384,156);const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;})();
  const casinoPoster=plane(4.2,1.18,new THREE.MeshBasicMaterial({map:chipsSign,toneMapped:false}),-17.8,2.35,-5.86);casinoPoster.rotation.y=Math.PI;
  
- // Fight room
+ // ONE FIGHT — open brawl room, no ring. Baseball bats can be picked up by players.
  const fightRoot=new THREE.Group();root.add(fightRoot);
- const fightMatCanvas=document.createElement('canvas');fightMatCanvas.width=fightMatCanvas.height=512;const fg=fightMatCanvas.getContext('2d');fg.fillStyle='#202634';fg.fillRect(0,0,512,512);fg.strokeStyle='#6f7ab0';fg.lineWidth=16;fg.strokeRect(30,30,452,452);fg.strokeStyle='#b15a70';fg.lineWidth=8;fg.strokeRect(56,56,400,400);
- const fightTex=new THREE.CanvasTexture(fightMatCanvas);fightTex.colorSpace=THREE.SRGBColorSpace;
- const ringBase=mesh(new THREE.BoxGeometry(4.8,.52,4.8),new THREE.MeshStandardMaterial({map:fightTex,roughness:.95}),17.8,.26,0,fightRoot);
- for(const [x,z] of [[-2.15,-2.15],[2.15,-2.15],[-2.15,2.15],[2.15,2.15]]){
-  box(.14,1.18,.14,darkMetal,17.8+x,.85,z,fightRoot);
-  for(const y of [.62,.88,1.14]){const rope=mesh(new THREE.CylinderGeometry(.03,.03,4.05,12),y===.88?fightBlue:fightRed,17.8,.26+y,z,fightRoot);rope.rotation.z=Math.PI/2;}
-  for(const y of [.62,.88,1.14]){const rope=mesh(new THREE.CylinderGeometry(.03,.03,4.05,12),y===.88?fightBlue:fightRed,17.8+x,.26+y,0,fightRoot);rope.rotation.x=Math.PI/2;}
+ const fightFloorCanvas=document.createElement('canvas');fightFloorCanvas.width=fightFloorCanvas.height=1024;const fg=fightFloorCanvas.getContext('2d');
+ fg.fillStyle='#262936';fg.fillRect(0,0,1024,1024);for(let i=-800;i<1800;i+=150){fg.strokeStyle=i%300===0?'#ff6d9e18':'#8aa6ff12';fg.lineWidth=18;fg.beginPath();fg.moveTo(i,1024);fg.lineTo(i+700,0);fg.stroke();}
+ fg.textAlign='center';fg.textBaseline='middle';fg.font='900 150px system-ui';fg.fillStyle='#f6eef8';fg.fillText('ONE FIGHT',512,480);fg.font='700 44px system-ui';fg.fillStyle='#bfc8e8';fg.fillText('RAMASSE UNE BATTE · BAGARRE LIBRE',512,590);
+ const fightFloorTex=new THREE.CanvasTexture(fightFloorCanvas);fightFloorTex.colorSpace=THREE.SRGBColorSpace;
+ const fightMark=plane(7.7,8.3,new THREE.MeshStandardMaterial({map:fightFloorTex,roughness:.95}),17.8,.022,.25,fightRoot);fightMark.rotation.x=-Math.PI/2;
+ // Low benches against the rear wall keep the middle of the room clear.
+ for(const x of [15.2,20.4]){box(1.9,.38,.58,mat(0x4b4650,.9),x,.19,4.8,fightRoot);box(.12,.62,.12,darkMetal,x-.7,.31,4.8,fightRoot);box(.12,.62,.12,darkMetal,x+.7,.31,4.8,fightRoot);}
+ // Baseball bat model used on the wall racks.
+ const batWood=mat(0xb77b45,.76,.03),batGrip=mat(0x252834,.82,.04);
+ function baseballBat(x,y,z,rotationZ=0,parent=fightRoot){
+  const g=new THREE.Group();g.position.set(x,y,z);g.rotation.z=rotationZ;parent.add(g);
+  const barrel=mesh(new THREE.CylinderGeometry(.075,.12,.88,14),batWood,0,.46,0,g);barrel.rotation.z=0;
+  mesh(new THREE.CylinderGeometry(.045,.065,.56,12),batWood,0,-.22,0,g);
+  mesh(new THREE.CylinderGeometry(.052,.052,.27,12),batGrip,0,-.56,0,g);
+  mesh(new THREE.CylinderGeometry(.075,.055,.08,12),batGrip,0,-.72,0,g);
+  return g;
  }
- for(const side of [-1,1]){const bag=new THREE.Group();fightRoot.add(bag);bag.position.set(17.8+side*3.2,0,-3.7);mesh(new THREE.CylinderGeometry(.34,.34,1.3,18),fightBlue,0,1.18,0,bag);mesh(new THREE.CylinderGeometry(.03,.03,.7,8),darkMetal,0,2.12,0,bag);}
- for(const side of [-1,1]){box(1.7,.42,.52,mat(0x5a4b42,.85),17.8+side*3.15,.21,4.4,fightRoot);}
- const fightTitle=(()=>{const cv=document.createElement('canvas');cv.width=768;cv.height=220;const g=cv.getContext('2d');g.fillStyle='#1a1c28';g.fillRect(0,0,768,220);g.fillStyle='#f1b5be';g.font='800 80px system-ui';g.textAlign='center';g.fillText('FIGHT CLUB',384,102);g.fillStyle='#d6def9';g.font='600 30px system-ui';g.fillText('Arène d\'entraînement · Duel amical',384,156);const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;})();
- const fightPoster=plane(4.2,1.18,new THREE.MeshBasicMaterial({map:fightTitle,toneMapped:false}),17.8,2.35,-5.86);fightPoster.rotation.y=Math.PI;
+ const fightBatSpots=[
+  {x:15.1,z:-5.08},{x:16.25,z:-5.08},{x:17.4,z:-5.08},
+  {x:18.55,z:-5.08},{x:19.7,z:-5.08},{x:20.85,z:-5.08}
+ ];
+ // Rack and six real bat props on the back wall.
+ box(7.3,.16,.18,darkMetal,17.98,1.56,-5.62,fightRoot);box(7.3,.16,.18,darkMetal,17.98,.62,-5.62,fightRoot);
+ for(const [i,s] of fightBatSpots.entries())baseballBat(s.x,1.05,s.z,(i%2?-.16:.16));
+ const fightTitle=(()=>{const cv=document.createElement('canvas');cv.width=900;cv.height=240;const g=cv.getContext('2d');g.fillStyle='#171923';g.fillRect(0,0,900,240);g.textAlign='center';g.shadowColor='#ff5f95';g.shadowBlur=30;g.strokeStyle='#ff7ca8';g.lineWidth=8;g.font='900 88px system-ui';g.strokeText('ONE FIGHT',450,105);g.shadowBlur=10;g.fillStyle='#fff5fb';g.fillText('ONE FIGHT',450,105);g.shadowBlur=0;g.fillStyle='#cbd3ef';g.font='650 30px system-ui';g.fillText('Battes · esquive · bagarre libre',450,168);const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;})();
+ const fightPoster=plane(4.8,1.28,new THREE.MeshBasicMaterial({map:fightTitle,toneMapped:false}),17.8,2.45,-5.86);fightPoster.rotation.y=Math.PI;
  
  // Asset fit helpers for imported sofa/table and textured surfaces.
  function fit(source,x,z,w,d,h){const g=source.clone(true);g.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(g),size=bounds.getSize(new THREE.Vector3());g.scale.setScalar(Math.min(w/size.x,d/size.z,h/size.y));g.updateMatrixWorld(true);bounds.setFromObject(g);const center=bounds.getCenter(new THREE.Vector3());g.position.set(x-center.x,-bounds.min.y,z-center.z);return g;}
@@ -164,7 +174,6 @@ export function buildRoom(scene,renderer,alive,dispose){
    const cushion=new THREE.SphereGeometry(1,16,12);
    for(const x of [-4.8,4.8]){root.add(fit(results[0].value.scene,x,-2.8,2.9,1.22,1.15));for(const side of [-1,1]){const pillow=mesh(cushion,side<0?cushionLilac:cushionMint,x+side*.68,.64,-2.63);pillow.scale.set(.25,.23,.12);pillow.rotation.z=side*.12;}}
    root.add(fit(results[0].value.scene,-17.8,3.5,3.4,1.3,1.18));
-   const fightBench=fit(results[0].value.scene,17.8,-4.8,3.1,1.2,1.0);fightBench.rotation.y=Math.PI;root.add(fightBench);
   }
   if(results[1].status==='fulfilled'){tableFallback.visible=false;root.add(fit(results[1].value.scene,0,0,2.15,2.15,.65));}
   if(results[2].status==='fulfilled'){
@@ -188,5 +197,5 @@ export function buildRoom(scene,renderer,alive,dispose){
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const t=y/h;data.set([Math.round(155-60*t),Math.round(163-75*t),Math.round(182-102*t),255],(y*w+x)*4);}
  const environment=new THREE.DataTexture(data,w,h);environment.mapping=THREE.EquirectangularReflectionMapping;environment.needsUpdate=true;
  const pmrem=new THREE.PMREMGenerator(renderer),env=pmrem.fromEquirectangular(environment);scene.environment=env.texture;scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
- return {screen,ready,dispose(){scene.environment=null;env.dispose();}};
+ return {screen,ready,fightBatSpots,dispose(){scene.environment=null;env.dispose();}};
 }

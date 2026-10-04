@@ -3796,7 +3796,7 @@ if(window.ONEPartyGameLink)document.documentElement.dataset.oneLobbyNetwork="r43
 @media(max-width:650px){.one3d-controls{display:none}.one3d-session{padding:10px}.one3d-session p{font-size:11px;margin:6px 0;min-height:30px}.one3d-actions button{font-size:11px;min-height:39px}.one3d-bottom{width:min(315px,calc(100vw - 130px))}.one3d-top small{display:block;font-size:9px}.one3d-players{max-width:73%}.one3d-game{font-size:9px}}
 @media(max-width:420px) and (orientation:portrait){.one3d-actions{flex-direction:column}.one3d-controls{display:none}}
 
-.one3d-shell{--one-lobby-release:r46;background:#11121a}.one3d-top b::after{content:" · R46";font-size:9px;color:#c8b0fa}
+.one3d-shell{--one-lobby-release:r63;background:#11121a}.one3d-top b::after{content:" · R63";font-size:9px;color:#c8b0fa}
 .one3d-visual-status{position:absolute;z-index:6;left:50%;top:75px;transform:translateX(-50%);padding:7px 12px;border-radius:8px;background:#111827cc;color:#e1d9ce;font:11px system-ui;text-align:center;pointer-events:none}
 .one3d-visual-status[hidden]{display:none}.one3d-session{background:linear-gradient(145deg,#1b1d2beF,#171420ef);border-color:#8f779b66;backdrop-filter:none}
 .one3d-top{background:#141722ed;backdrop-filter:none}.one3d-actions [data-start]{background:#705770}
@@ -3913,8 +3913,8 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
 </style><script src="ui/one-game-loader.js?v=house-layout-v61"></script><script id="one317-r43-entry">
 (()=>{let opening=false;window.ONEOpen3DLobby=async context=>{
  if(opening)return;opening=true;
- try{const [module]=await Promise.all([import('./ui/one-lobby-r46.js?v=lobby-rooms-v62'),window.oneEnsureThree17()]);module.open(context||{room:window.oneSocialRoom?.()});window.oneCloseSalon?.();}
- catch(error){console.error('Lobby 3D R45',error);const box=document.createElement('section');box.className='one3d-shell one3d-load-error';box.setAttribute('role','alertdialog');const p=document.createElement('p');p.textContent='Le lobby n’a pas pu charger ses fichiers. Copie tout le dossier ui du correctif R62 à la racine du site, puis recharge ONE.';const b=document.createElement('button');b.textContent='Retour au salon';b.onclick=()=>{box.remove();window.oneOpenSalon?.();};const retry=document.createElement('button');retry.textContent='Recharger ONE';retry.onclick=()=>location.reload();box.append(p,retry,b);document.body.append(box);}
+ try{const [module]=await Promise.all([import('./ui/one-lobby-r46.js?v=lobby-fight-v63'),window.oneEnsureThree17()]);module.open(context||{room:window.oneSocialRoom?.()});window.oneCloseSalon?.();}
+ catch(error){console.error('Lobby 3D R45',error);const box=document.createElement('section');box.className='one3d-shell one3d-load-error';box.setAttribute('role','alertdialog');const p=document.createElement('p');p.textContent='Le lobby n’a pas pu charger ses fichiers. Copie tout le dossier ui du correctif R63 à la racine du site, puis recharge ONE.';const b=document.createElement('button');b.textContent='Retour au salon';b.onclick=()=>{box.remove();window.oneOpenSalon?.();};const retry=document.createElement('button');retry.textContent='Recharger ONE';retry.onclick=()=>location.reload();box.append(p,retry,b);document.body.append(box);}
  finally{opening=false;}
 };})();
 </script>
