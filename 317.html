@@ -1221,7 +1221,7 @@ function open(options={}) {
       audio.hide(!!spot);
     }
     const keys={x:0,y:0},pressed=new Set();
-    let drag=null,dragType='',look=null,lx=0,ly=0,started=false,won=false,ended=false,count=0;
+    let drag=null,dragType='',look=null,stickTouch=null,lookTouch=null,lx=0,ly=0,started=false,won=false,ended=false,count=0;
     const ROUND_SECONDS=600;let remaining=ROUND_SECONDS,walkNoise=0,beat=0,paused=document.hidden,testPaused=false;
     let last=performance.now(),lastRender=0,lastHud=0,flashOn=true;
     const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
@@ -1357,7 +1357,7 @@ function open(options={}) {
     function message(text){messageElement.textContent=text;messageElement.classList.add('show');clearTimeout(messageTimer);messageTimer=setTimeout(()=>messageElement.classList.remove('show'),2400);}
     function resetInputs(){
       for(const [el,id]of [[stick,drag],[lookZone,look]]){try{if(id!==null&&el.hasPointerCapture(id))el.releasePointerCapture(id);}catch{}}
-      drag=look=null;dragType='';keys.x=keys.y=0;pressed.clear();knob.style.transform='';
+      drag=look=stickTouch=lookTouch=null;dragType='';keys.x=keys.y=0;pressed.clear();knob.style.transform='';
     }
     function refreshCamera(){
       camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;
@@ -1554,24 +1554,84 @@ function open(options={}) {
         }
       }catch(error){renderFailure(error);}
     }
-    function sm(e){
-      const b=stick.getBoundingClientRect(),dx=e.clientX-(b.left+b.width/2),dy=e.clientY-(b.top+b.height/2),d=Math.hypot(dx,dy)||1,m=Math.min(38,d),nx=dx/d,ny=dy/d;
+    // Correctif mobile multi-touch : le joystick et la camera suivent chacun
+    // leur propre doigt. Sur certains Android/WebView, un second doigt peut
+    // annuler le PointerEvent du premier ; les TouchEvents restent independants.
+    const touchControls=('ontouchstart' in window)||(navigator.maxTouchPoints||0)>0;
+    function smPoint(clientX,clientY){
+      const b=stick.getBoundingClientRect(),dx=clientX-(b.left+b.width/2),dy=clientY-(b.top+b.height/2),d=Math.hypot(dx,dy)||1,m=Math.min(38,d),nx=dx/d,ny=dy/d;
       keys.x=nx*(m/38);keys.y=ny*(m/38);knob.style.transform=`translate(${nx*m}px,${ny*m}px)`;
     }
-    stick.addEventListener('pointerdown',e=>{if(!started||ended||paused||drag!==null)return;e.preventDefault();drag=e.pointerId;dragType=e.pointerType||'';try{stick.setPointerCapture(drag);}catch{}sm(e);},{passive:false});
-    stick.addEventListener('pointermove',e=>{if(e.pointerId===drag){e.preventDefault();sm(e);}},{passive:false});
-    function se(e){if(drag===null||e?.pointerId!==undefined&&e.pointerId!==drag)return;drag=null;dragType='';keys.x=keys.y=0;knob.style.transform='';}
-    // Ne pas recentrer sur lostpointercapture : certains Android/WebView le
-    // déclenchent alors que le doigt est encore posé sur le joystick.
+    function sm(e){smPoint(e.clientX,e.clientY);}
+    function findTouch(list,id){
+      if(id===null||!list)return null;
+      for(let i=0;i<list.length;i++)if(list[i].identifier===id)return list[i];
+      return null;
+    }
+    function clearStick(){drag=null;stickTouch=null;dragType='';keys.x=keys.y=0;knob.style.transform='';}
+
+    // Souris / stylet : Pointer Events classiques. Les contacts tactiles sont
+    // geres plus bas avec Touch Events pour garantir deux doigts simultanes.
+    stick.addEventListener('pointerdown',e=>{
+      if(touchControls&&e.pointerType==='touch')return;
+      if(!started||ended||paused||drag!==null||stickTouch!==null)return;
+      e.preventDefault();drag=e.pointerId;dragType=e.pointerType||'';
+      try{stick.setPointerCapture(drag);}catch{}sm(e);
+    },{passive:false});
+    stick.addEventListener('pointermove',e=>{
+      if(e.pointerId===drag){e.preventDefault();sm(e);}
+    },{passive:false});
+    function se(e){if(drag===null||e?.pointerId!==undefined&&e.pointerId!==drag)return;clearStick();}
     for(const event of ['pointerup','pointercancel'])stick.addEventListener(event,se);
-    // Si la capture est perdue, la fin réelle du contact peut arriver ailleurs
-    // dans la fenêtre. On recentre uniquement au vrai pointerup/pointercancel.
     const releaseStick=e=>se(e);
     window.addEventListener('pointerup',releaseStick,{passive:true});
     window.addEventListener('pointercancel',releaseStick,{passive:true});
-    lookZone.addEventListener('pointerdown',e=>{if(!started||ended||paused||look!==null)return;look=e.pointerId;lx=e.clientX;ly=e.clientY;lookZone.setPointerCapture(look);});
-    lookZone.addEventListener('pointermove',e=>{if(e.pointerId!==look)return;const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;yaw-=dx*.006;pitch=clamp(pitch-dy*.004,-.8,.7);});
+
+    lookZone.addEventListener('pointerdown',e=>{
+      if(touchControls&&e.pointerType==='touch')return;
+      if(!started||ended||paused||look!==null||lookTouch!==null)return;
+      look=e.pointerId;lx=e.clientX;ly=e.clientY;
+      try{lookZone.setPointerCapture(look);}catch{}
+    });
+    lookZone.addEventListener('pointermove',e=>{
+      if(e.pointerId!==look)return;
+      const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;yaw-=dx*.006;pitch=clamp(pitch-dy*.004,-.8,.7);
+    });
     for(const event of ['pointerup','pointercancel','lostpointercapture'])lookZone.addEventListener(event,e=>{if(e.pointerId===look)look=null;});
+
+    if(touchControls){
+      stick.addEventListener('touchstart',e=>{
+        if(!started||ended||paused||stickTouch!==null||drag!==null)return;
+        const t=e.changedTouches?.[0];if(!t)return;
+        e.preventDefault();e.stopPropagation();stickTouch=t.identifier;dragType='touch';smPoint(t.clientX,t.clientY);
+      },{passive:false});
+      stick.addEventListener('touchmove',e=>{
+        const t=findTouch(e.changedTouches,stickTouch)||findTouch(e.touches,stickTouch);if(!t)return;
+        e.preventDefault();e.stopPropagation();smPoint(t.clientX,t.clientY);
+      },{passive:false});
+      const endStickTouch=e=>{
+        if(stickTouch===null||!findTouch(e.changedTouches,stickTouch))return;
+        e.preventDefault();e.stopPropagation();clearStick();
+      };
+      stick.addEventListener('touchend',endStickTouch,{passive:false});
+      stick.addEventListener('touchcancel',endStickTouch,{passive:false});
+
+      lookZone.addEventListener('touchstart',e=>{
+        if(!started||ended||paused||lookTouch!==null||look!==null)return;
+        const t=e.changedTouches?.[0];if(!t)return;
+        e.preventDefault();e.stopPropagation();lookTouch=t.identifier;lx=t.clientX;ly=t.clientY;
+      },{passive:false});
+      lookZone.addEventListener('touchmove',e=>{
+        const t=findTouch(e.changedTouches,lookTouch)||findTouch(e.touches,lookTouch);if(!t)return;
+        e.preventDefault();e.stopPropagation();const dx=t.clientX-lx,dy=t.clientY-ly;lx=t.clientX;ly=t.clientY;yaw-=dx*.006;pitch=clamp(pitch-dy*.004,-.8,.7);
+      },{passive:false});
+      const endLookTouch=e=>{
+        if(lookTouch===null||!findTouch(e.changedTouches,lookTouch))return;
+        e.preventDefault();e.stopPropagation();lookTouch=null;
+      };
+      lookZone.addEventListener('touchend',endLookTouch,{passive:false});
+      lookZone.addEventListener('touchcancel',endLookTouch,{passive:false});
+    }
     function press(el,fn){
       el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fn();},{passive:false});
       el.addEventListener('pointerup',e=>e.stopPropagation());
