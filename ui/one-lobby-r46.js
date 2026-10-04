@@ -57,42 +57,50 @@ function open(ctx={}){
  const batOffset=new THREE.Vector3();
  function ensureAvatarBat(v){
    if(v.fightBat)return v.fightBat;
-   const holder=new THREE.Group();holder.position.set(.06,-.44,-.11);v.arms[1].add(holder);
-   const bat=makeBat();bat.position.set(.05,.49,.02);bat.scale.setScalar(.62);holder.add(bat);holder.visible=false;
+   // Keep the remote bat on the body rig. This prevents the walking arm swing from
+   // dragging the bat behind the legs or hiding it inside the torso.
+   const holder=new THREE.Group();v.rig.add(holder);
+   const bat=makeBat();bat.scale.setScalar(.68);holder.add(bat);holder.visible=false;
    v.fightBat={holder,bat,lastSeq:null,swingAt:0};return v.fightBat;
  }
  function poseRemoteBat(v,raw,t){
    const fight=ensureAvatarBat(v),visible=raw.bat===true,down=raw.down===true;fight.holder.visible=visible;if(!visible)return;
-   if(down){v.arms[1].rotation.x=-.18;v.arms[1].rotation.z=-.08;fight.holder.rotation.set(-.10,.36,-1.34);fight.bat.position.set(.05,.48,.03);return;}
-   const walking=v.swing||0,baseArm=-.88+walking*.05;
-   // The bat stays roughly horizontal at shoulder/chest height. The hit is produced mostly by yawing the wrist/forearm,
-   // which reads as a real side swing from another player's camera instead of sending the barrel into the sky.
-   let armX=baseArm,armZ=-.04,hx=-.18,hy=.52,hz=-1.34,bx=.05,by=.49,bz=.02;
+   if(down){
+     v.arms[1].rotation.x=.08;v.arms[1].rotation.z=-.10;
+     fight.holder.position.set(.50,.36,.16);fight.holder.rotation.set(-1.72,.04,.54);fight.bat.position.set(0,0,0);return;
+   }
+   // Rest pose: the handle is in the right hand while the barrel sits visibly over
+   // the right shoulder. The pose is independent from the walk cycle.
+   let armX=.72,armZ=-.12,px=.44,py=1.38,pz=.18,rx=.70,ry=0,rz=-.35;
    if(fight.swingAt){
-     const k=Math.min(1,(t-fight.swingAt)/460);
-     if(k<.18){
-       const w=smooth(k/.18);
-       armX=lerp(baseArm,-1.04,w);armZ=lerp(-.04,.08,w);
-       hx=lerp(-.18,-.28,w);hy=lerp(.52,1.02,w);hz=lerp(-1.34,-1.43,w);
+     const k=Math.min(1,(t-fight.swingAt)/500);
+     if(k<.16){
+       // Small wind-up from the shoulder.
+       const w=smooth(k/.16);
+       armX=lerp(.72,.92,w);armZ=lerp(-.12,-.03,w);
+       px=lerp(.44,.48,w);py=lerp(1.38,1.50,w);pz=lerp(.18,.26,w);
+       rx=lerp(.70,.48,w);ry=lerp(0,.08,w);rz=lerp(-.35,-.52,w);
      }else if(k<.48){
-       const s=smooth((k-.18)/.30);
-       armX=lerp(-1.04,-.68,s);armZ=lerp(.08,.38,s);
-       hx=lerp(-.28,.12,s);hy=lerp(1.02,-1.06,s);hz=lerp(-1.43,-1.24,s);
-       bx=lerp(.05,.09,s);by=lerp(.49,.52,s);bz=lerp(.02,.10,s);
+       // One violent descending diagonal strike: shoulder -> chest -> down/front.
+       const s=smooth((k-.16)/.32);
+       armX=lerp(.92,.16,s);armZ=lerp(-.03,.46,s);
+       px=lerp(.48,.20,s);py=lerp(1.50,1.03,s);pz=lerp(.26,-.32,s);
+       rx=lerp(.48,-2.05,s);ry=lerp(.08,0,s);rz=lerp(-.52,.58,s);
      }else if(k<.60){
-       armX=-.68;armZ=.38;hx=.12;hy=-1.06;hz=-1.24;bx=.09;by=.52;bz=.10;
+       armX=.16;armZ=.46;px=.20;py=1.03;pz=-.32;rx=-2.05;ry=0;rz=.58;
      }else{
-       // Recover behind the shoulder, keeping the barrel low enough that the recovery cannot look like an upward second strike.
+       // Recover around the outside at low height, then return to the shoulder;
+       // this cannot read as a second upward strike.
        const r=smooth((k-.60)/.40),arc=Math.sin(r*Math.PI);
-       armX=lerp(-.68,baseArm,r)-.05*arc;armZ=lerp(.38,-.04,r)+.10*arc;
-       hx=lerp(.12,-.18,r)+.05*arc;hy=lerp(-1.06,.52,r)-.32*arc;hz=lerp(-1.24,-1.34,r)-.08*arc;
-       bx=lerp(.09,.05,r);by=lerp(.52,.49,r)-.05*arc;bz=lerp(.10,.02,r)+.04*arc;
+       armX=lerp(.16,.72,r)-.12*arc;armZ=lerp(.46,-.12,r)+.08*arc;
+       px=lerp(.20,.44,r)+.24*arc;py=lerp(1.03,1.38,r)-.26*arc;pz=lerp(-.32,.18,r)+.12*arc;
+       rx=lerp(-2.05,.70,r)-.18*arc;ry=.08*arc;rz=lerp(.58,-.35,r)+.12*arc;
      }
      if(k>=1)fight.swingAt=0;
    }
    v.arms[1].rotation.x=armX;v.arms[1].rotation.z=armZ;
-   fight.holder.rotation.x=hx;fight.holder.rotation.y=hy;fight.holder.rotation.z=hz;
-   fight.bat.position.set(bx,by,bz);
+   fight.holder.position.set(px,py,pz);fight.holder.rotation.set(rx,ry,rz);
+   fight.bat.position.set(0,0,0);
  }
  const syncHeadCamera=(id,v)=>{
    const element=window.ONEPartyMedia?.videoForMember?.(id)||null;
