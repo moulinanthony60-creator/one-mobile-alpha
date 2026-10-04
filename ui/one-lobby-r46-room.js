@@ -1,5 +1,5 @@
-import * as THREE from './three.module.js?v=lobby-shoot-v83';
-import {GLTFLoader} from './GLTFLoader.js?v=lobby-shoot-v83';
+import * as THREE from './three.module.js?v=lobby-shoot-v84';
+import {GLTFLoader} from './GLTFLoader.js?v=lobby-shoot-v84';
 
 // R69: expanded ONE lobby with playable casino machines and open ONE FIGHT room.
 export function buildRoom(scene,renderer,alive,dispose){
@@ -124,13 +124,14 @@ export function buildRoom(scene,renderer,alive,dispose){
  sg.fillStyle='#202934';sg.fillRect(0,0,1024,1024);for(let x=70;x<1024;x+=145){sg.fillStyle=x%290===70?'#75caff12':'#ffffff08';sg.fillRect(x,0,3,1024);}for(let y=80;y<1024;y+=160){sg.fillStyle='#75caff0b';sg.fillRect(0,y,1024,2);}
  sg.textAlign='center';sg.textBaseline='middle';sg.font='900 150px system-ui';sg.fillStyle='#edf7ff';sg.fillText('ONE SHOOT',512,455);sg.font='700 42px system-ui';sg.fillStyle='#9fd8ff';sg.fillText('RAMASSE UN PISTOLET · VISE · TIRE',512,570);
  const shootFloorTex=new THREE.CanvasTexture(shootFloorCanvas);shootFloorTex.colorSpace=THREE.SRGBColorSpace;const shootMark=plane(7.9,8.5,new THREE.MeshStandardMaterial({map:shootFloorTex,roughness:.96}),-17.8,.022,.2,shootRoot);shootMark.rotation.x=-Math.PI/2;
- const gunMetal=mat(0x262d37,.30,.58),gunFrame=mat(0x161b22,.60,.20),gunGrip=mat(0x0b0e13,.88,.04),gunAccent=mat(0x506675,.40,.32);
+ const gunMetal=mat(0x191c21,.38,.68),gunFrame=mat(0x10141a,.56,.24),gunGrip=mat(0x080a0d,.92,.02),gunAccent=mat(0x343a42,.34,.48),gunInset=mat(0x07090c,.48,.42);
  function pistolProp(x,y,z,rotY=0,parent=shootRoot){
   const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=rotY;parent.add(g);
-  box(.40,.115,.18,gunMetal,0,.075,-.13,g);box(.31,.105,.17,gunFrame,0,-.015,-.075,g);box(.25,.09,.12,gunAccent,0,.04,-.29,g);
-  const barrel=mesh(new THREE.CylinderGeometry(.026,.026,.31,14),gunFrame,0,.055,-.34,g);barrel.rotation.x=Math.PI/2;const muzzle=mesh(new THREE.CylinderGeometry(.037,.037,.018,16),gunMetal,0,.055,-.50,g);muzzle.rotation.x=Math.PI/2;
-  const grip=box(.145,.30,.14,gunGrip,0,-.19,.015,g);grip.rotation.x=-.18;const mag=box(.16,.035,.15,gunMetal,0,-.35,.065,g);mag.rotation.x=-.18;
-  const guard=mesh(new THREE.TorusGeometry(.071,.014,8,18,Math.PI*1.55),gunFrame,0,-.085,-.115,g);guard.rotation.set(0,Math.PI/2,.22);box(.026,.035,.035,gunFrame,0,.151,-.34,g);box(.07,.032,.03,gunFrame,0,.150,.005,g);return g;
+  box(.47,.115,.185,gunMetal,0,.075,-.145,g);box(.39,.022,.145,gunAccent,0,.143,-.125,g);box(.31,.095,.165,gunFrame,0,-.015,-.075,g);box(.27,.065,.135,gunFrame,0,-.035,-.255,g);
+  const barrel=mesh(new THREE.CylinderGeometry(.023,.023,.33,16),gunInset,0,.064,-.355,g);barrel.rotation.x=Math.PI/2;const muzzle=mesh(new THREE.CylinderGeometry(.034,.034,.023,18),gunInset,0,.064,-.525,g);muzzle.rotation.x=Math.PI/2;
+  const grip=box(.145,.32,.145,gunGrip,0,-.205,.015,g);grip.rotation.x=-.24;const back=box(.12,.24,.025,gunAccent,0,-.20,.087,g);back.rotation.x=-.24;const mag=box(.16,.038,.155,gunMetal,0,-.365,.077,g);mag.rotation.x=-.24;
+  const guard=mesh(new THREE.TorusGeometry(.067,.012,8,22,Math.PI*1.62),gunFrame,0,-.085,-.115,g);guard.rotation.set(0,Math.PI/2,.19);const trigger=box(.015,.068,.016,gunAccent,0,-.078,-.128,g);trigger.rotation.x=-.34;
+  box(.105,.018,.075,gunInset,.055,.139,-.15,g);for(let i=0;i<4;i++)box(.012,.072,.19,gunInset,0,.078,.005-i*.025,g);box(.022,.031,.030,gunInset,0,.153,-.395,g);box(.025,.030,.035,gunInset,-.034,.153,.020,g);box(.025,.030,.035,gunInset,.034,.153,.020,g);return g;
  }
  const gunSpots=[{x:-20.45,z:-5.02},{x:-18.70,z:-5.02},{x:-16.95,z:-5.02},{x:-15.20,z:-5.02}];
  // Wall rack: four pistols, with clear floor space in front of them.
