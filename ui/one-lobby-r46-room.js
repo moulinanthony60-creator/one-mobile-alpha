@@ -1,5 +1,5 @@
-import * as THREE from './three.module.js?v=lobby-shoot-v82';
-import {GLTFLoader} from './GLTFLoader.js?v=lobby-shoot-v82';
+import * as THREE from './three.module.js?v=lobby-shoot-v83';
+import {GLTFLoader} from './GLTFLoader.js?v=lobby-shoot-v83';
 
 // R69: expanded ONE lobby with playable casino machines and open ONE FIGHT room.
 export function buildRoom(scene,renderer,alive,dispose){
@@ -124,12 +124,13 @@ export function buildRoom(scene,renderer,alive,dispose){
  sg.fillStyle='#202934';sg.fillRect(0,0,1024,1024);for(let x=70;x<1024;x+=145){sg.fillStyle=x%290===70?'#75caff12':'#ffffff08';sg.fillRect(x,0,3,1024);}for(let y=80;y<1024;y+=160){sg.fillStyle='#75caff0b';sg.fillRect(0,y,1024,2);}
  sg.textAlign='center';sg.textBaseline='middle';sg.font='900 150px system-ui';sg.fillStyle='#edf7ff';sg.fillText('ONE SHOOT',512,455);sg.font='700 42px system-ui';sg.fillStyle='#9fd8ff';sg.fillText('RAMASSE UN PISTOLET · VISE · TIRE',512,570);
  const shootFloorTex=new THREE.CanvasTexture(shootFloorCanvas);shootFloorTex.colorSpace=THREE.SRGBColorSpace;const shootMark=plane(7.9,8.5,new THREE.MeshStandardMaterial({map:shootFloorTex,roughness:.96}),-17.8,.022,.2,shootRoot);shootMark.rotation.x=-Math.PI/2;
- const gunMetal=mat(0x202630,.42,.38),gunDark=mat(0x11151c,.68,.14),gunAccent=mat(0x4f87ad,.48,.24);
+ const gunMetal=mat(0x262d37,.30,.58),gunFrame=mat(0x161b22,.60,.20),gunGrip=mat(0x0b0e13,.88,.04),gunAccent=mat(0x506675,.40,.32);
  function pistolProp(x,y,z,rotY=0,parent=shootRoot){
   const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=rotY;parent.add(g);
-  box(.34,.12,.14,gunMetal,0,.04,-.10,g);box(.24,.08,.13,gunAccent,0,.13,-.06,g);box(.13,.27,.12,gunDark,0,-.12,.045,g).rotation.x=-.20;
-  const barrel=mesh(new THREE.CylinderGeometry(.025,.025,.26,10),gunDark,0,.045,-.29,g);barrel.rotation.x=Math.PI/2;
-  return g;
+  box(.40,.115,.18,gunMetal,0,.075,-.13,g);box(.31,.105,.17,gunFrame,0,-.015,-.075,g);box(.25,.09,.12,gunAccent,0,.04,-.29,g);
+  const barrel=mesh(new THREE.CylinderGeometry(.026,.026,.31,14),gunFrame,0,.055,-.34,g);barrel.rotation.x=Math.PI/2;const muzzle=mesh(new THREE.CylinderGeometry(.037,.037,.018,16),gunMetal,0,.055,-.50,g);muzzle.rotation.x=Math.PI/2;
+  const grip=box(.145,.30,.14,gunGrip,0,-.19,.015,g);grip.rotation.x=-.18;const mag=box(.16,.035,.15,gunMetal,0,-.35,.065,g);mag.rotation.x=-.18;
+  const guard=mesh(new THREE.TorusGeometry(.071,.014,8,18,Math.PI*1.55),gunFrame,0,-.085,-.115,g);guard.rotation.set(0,Math.PI/2,.22);box(.026,.035,.035,gunFrame,0,.151,-.34,g);box(.07,.032,.03,gunFrame,0,.150,.005,g);return g;
  }
  const gunSpots=[{x:-20.45,z:-5.02},{x:-18.70,z:-5.02},{x:-16.95,z:-5.02},{x:-15.20,z:-5.02}];
  // Wall rack: four pistols, with clear floor space in front of them.
@@ -137,7 +138,7 @@ export function buildRoom(scene,renderer,alive,dispose){
  gunSpots.forEach((s,i)=>{const gun=pistolProp(s.x,1.18,-5.46,0,shootRoot);gun.rotation.z=(i%2?-.08:.08);});
  // Simple range targets on the opposite wall make the room readable without blocking movement.
  const targetMat=mat(0xe9eef5,.85),targetDark=mat(0x252c37,.82),targetRed=mat(0xb84e64,.7);
- for(const x of [-20.2,-17.8,-15.4]){box(1.15,1.65,.12,targetDark,x,1.55,5.50,shootRoot);mesh(new THREE.CylinderGeometry(.38,.38,.035,30),targetMat,x,1.62,5.42,shootRoot).rotation.x=Math.PI/2;mesh(new THREE.CylinderGeometry(.17,.17,.038,30),targetRed,x,1.62,5.39,shootRoot).rotation.x=Math.PI/2;}
+ const shootTargets=[];for(const x of [-20.2,-17.8,-15.4]){box(1.15,1.65,.12,targetDark,x,1.55,5.50,shootRoot);const target=mesh(new THREE.CylinderGeometry(.38,.38,.035,30),targetMat,x,1.62,5.42,shootRoot);target.rotation.x=Math.PI/2;target.userData.dynamic=true;shootTargets.push(target);const bull=mesh(new THREE.CylinderGeometry(.17,.17,.038,30),targetRed,x,1.62,5.39,shootRoot);bull.rotation.x=Math.PI/2;bull.userData.dynamic=true;shootTargets.push(bull);}
  // Side benches only; the middle stays fully open.
  for(const x of [-21.6,-14.0]){box(1.35,.38,.52,mat(0x444c58,.9),x,.19,3.95,shootRoot);box(.10,.58,.10,darkMetal,x-.45,.29,3.95,shootRoot);box(.10,.58,.10,darkMetal,x+.45,.29,3.95,shootRoot);}
  const shootTitle=(()=>{const cv=document.createElement('canvas');cv.width=900;cv.height=240;const g=cv.getContext('2d');g.fillStyle='#141a22';g.fillRect(0,0,900,240);g.textAlign='center';g.shadowColor='#67c8ff';g.shadowBlur=30;g.strokeStyle='#7fd4ff';g.lineWidth=8;g.font='900 88px system-ui';g.strokeText('ONE SHOOT',450,105);g.shadowBlur=10;g.fillStyle='#f2fbff';g.fillText('ONE SHOOT',450,105);g.shadowBlur=0;g.fillStyle='#b7dcef';g.font='650 30px system-ui';g.fillText('Pistolets · cible · duel libre',450,168);const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;})();
@@ -204,5 +205,5 @@ export function buildRoom(scene,renderer,alive,dispose){
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const t=y/h;data.set([Math.round(155-60*t),Math.round(163-75*t),Math.round(182-102*t),255],(y*w+x)*4);}
  const environment=new THREE.DataTexture(data,w,h);environment.mapping=THREE.EquirectangularReflectionMapping;environment.needsUpdate=true;
  const pmrem=new THREE.PMREMGenerator(renderer),env=pmrem.fromEquirectangular(environment);scene.environment=env.texture;scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
- return {screen,ready,fightBatSpots,gunSpots,dispose(){scene.environment=null;env.dispose();}};
+ return {screen,ready,fightBatSpots,gunSpots,shootTargets,dispose(){scene.environment=null;env.dispose();}};
 }
