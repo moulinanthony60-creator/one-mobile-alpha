@@ -1,5 +1,5 @@
-import * as THREE from './three.module.js?v=lobby-tables-v74';
-import {GLTFLoader} from './GLTFLoader.js?v=lobby-tables-v74';
+import * as THREE from './three.module.js?v=lobby-world-casino-v75';
+import {GLTFLoader} from './GLTFLoader.js?v=lobby-world-casino-v75';
 
 // R74: expanded ONE lobby with playable slots, blackjack, roulette and hittable casino dealers.
 export function buildRoom(scene,renderer,alive,dispose){
@@ -118,73 +118,106 @@ export function buildRoom(scene,renderer,alive,dispose){
  makeNeonWallSign('ONE CASINO','#f6d56f',-8.86,-4.25,false);
  makeNeonWallSign('ONE FIGHT','#ff6d9e',8.86,-4.25,true);
  
- // Casino room
+ // Casino room — V75: every game is played directly on the 3D furniture.
  const casinoRoot=new THREE.Group();root.add(casinoRoot);
  const casinoCarpet=mesh(new THREE.CylinderGeometry(3.3,3.3,.03,50),casinoFelt,-17.8,.02,0,casinoRoot);casinoCarpet.rotation.x=0;
- const rouletteTable=new THREE.Group();casinoRoot.add(rouletteTable);rouletteTable.position.set(-19.35,0,.10);
- mesh(new THREE.CylinderGeometry(1.45,1.45,.14,40),gold,0,.74,0,rouletteTable);
- mesh(new THREE.CylinderGeometry(1.28,1.28,.06,40),casinoFelt,0,.84,0,rouletteTable);
- mesh(new THREE.CylinderGeometry(.24,.24,.44,18),darkMetal,0,.37,0,rouletteTable);
- const wheel=mesh(new THREE.CylinderGeometry(.44,.44,.08,28),darkMetal,0,.94,0,rouletteTable);wheel.userData.dynamic=true;
- mesh(new THREE.TorusGeometry(.46,.04,10,34),gold,0,.94,0,rouletteTable).rotation.x=Math.PI/2;
- // Blackjack table: large felt table near the right side, while the doorway stays clear.
- const blackjackTable=new THREE.Group();casinoRoot.add(blackjackTable);blackjackTable.position.set(-15.55,0,2.20);
- box(2.55,.62,1.28,mat(0x3a271f,.78,.06),0,.31,0,blackjackTable);
- box(2.72,.13,1.46,gold,0,.68,0,blackjackTable);
- box(2.45,.08,1.27,casinoFelt,0,.79,0,blackjackTable);
- const bjMark=(()=>{const cv=document.createElement('canvas');cv.width=768;cv.height=320;const g=cv.getContext('2d');g.clearRect(0,0,768,320);g.textAlign='center';g.strokeStyle='#e8d59caa';g.lineWidth=5;g.beginPath();g.arc(384,350,260,Math.PI*1.08,Math.PI*1.92);g.stroke();g.fillStyle='#f4e8bc';g.font='900 56px Georgia';g.fillText('BLACKJACK',384,132);g.font='700 28px system-ui';g.fillText('CROUPIER RESTE À 17',384,188);const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;})();
- const bjPrint=plane(2.18,.86,new THREE.MeshBasicMaterial({map:bjMark,transparent:true,toneMapped:false}),0,.835,.08,blackjackTable);bjPrint.rotation.x=-Math.PI/2;
- for(const x of [-.8,0,.8])mesh(new THREE.CylinderGeometry(.12,.12,.06,20),mat(x<0?0x9f3149:x>0?0x357457:0xeee1bc,.45,.08),x,.86,-.32,blackjackTable);
- const casinoTableSpots=[
-  {kind:'roulette',name:'ROULETTE',x:-19.35,z:-1.72},
-  {kind:'blackjack',name:'BLACKJACK',x:-15.55,z:.92}
- ];
- // Simple casino dealers. They are dynamic because bat hits can make them stagger/fall.
- const casinoNpcs=[];
- const npcJacket=mat(0x252938,.82),npcShirt=mat(0xeee7da,.9),npcSkin=mat(0xbc9580,.88),npcHair=mat(0x2a211e,.98);
- function casinoNpc(id,name,x,z,yaw=0){
-  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=yaw;casinoRoot.add(g);
-  const torso=mesh(new THREE.CapsuleGeometry(.22,.34,4,10),npcJacket,0,1.12,0,g);torso.scale.set(1.12,1,.72);
-  box(.08,.42,.19,npcShirt,0,1.13,-.13,g);
-  mesh(new THREE.SphereGeometry(.18,14,10),npcSkin,0,1.69,-.02,g);
-  mesh(new THREE.SphereGeometry(.184,12,8,0,Math.PI*2,0,Math.PI*.52),npcHair,0,1.75,.01,g);
-  for(const s of [-1,1]){const arm=new THREE.Group();arm.position.set(s*.29,1.35,0);g.add(arm);mesh(new THREE.CapsuleGeometry(.075,.38,3,8),npcJacket,s*.02,-.24,0,arm);mesh(new THREE.SphereGeometry(.07,8,6),npcSkin,s*.02,-.5,0,arm);arm.rotation.x=-.18;}
-  for(const s of [-1,1]){const leg=new THREE.Group();leg.position.set(s*.12,.82,0);g.add(leg);mesh(new THREE.CapsuleGeometry(.09,.5,3,8),darkMetal,0,-.31,0,leg);}
-  const labelCanvas=document.createElement('canvas');labelCanvas.width=512;labelCanvas.height=96;const lc=labelCanvas.getContext('2d');lc.fillStyle='#11131dde';lc.beginPath();lc.roundRect(4,4,504,88,22);lc.fill();lc.fillStyle='#f5e8c8';lc.font='700 30px system-ui';lc.textAlign='center';lc.fillText(name,256,60);const labelTex=new THREE.CanvasTexture(labelCanvas);labelTex.colorSpace=THREE.SRGBColorSpace;const label=new THREE.Sprite(new THREE.SpriteMaterial({map:labelTex}));label.scale.set(1.35,.25,1);label.position.y=2.15;g.add(label);
-  g.traverse(o=>{o.userData.dynamic=true;});
-  const npc={id,name,group:g,x,z,hitAt:0,hitUntil:0,downStarted:0,downUntil:0,hits:0};casinoNpcs.push(npc);return npc;
+ const casinoInteractives=[],casinoMachineSpots=[],casinoMachines=[],casinoNpcs=[],casinoBouncers=[];
+ const slotSymbols=['🍒','🍋','🔔','⭐','💎','7','WILD','BONUS'];
+ const rouletteRed=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+ const makeCanvasTexture=(text,bg='#171925',fg='#fff4ce',w=512,h=256,font='900 84px system-ui')=>{
+  const cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d');g.fillStyle=bg;g.fillRect(0,0,w,h);g.textAlign='center';g.textBaseline='middle';g.fillStyle=fg;g.font=font;g.fillText(String(text??''),w/2,h/2);const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;
+ };
+ const setPlaneText=(m,text,bg,fg,font)=>{const old=m.material.map;m.material.map=makeCanvasTexture(text,bg,fg,512,256,font);m.material.needsUpdate=true;old?.dispose?.();};
+ const makeLabelPlane=(text,w,h,x,y,z,parent,bg='#171925',fg='#fff4ce',font='900 72px system-ui')=>{
+  const m=plane(w,h,new THREE.MeshBasicMaterial({map:makeCanvasTexture(text,bg,fg,512,256,font),toneMapped:false,transparent:false}),x,y,z,parent);m.renderOrder=7;return m;
+ };
+ const makeTableButton=(label,w,d,x,z,parent,action,data={},color=0x382c48)=>{
+  const b=box(w,.055,d,mat(color,.55,.12),x,.91,z,parent);b.userData={casinoAction:action,...data};casinoInteractives.push(b);
+  const l=makeLabelPlane(label,w*.88,d*.74,x,.942,z,parent,'#1a1624','#fff2c4','900 50px system-ui');l.rotation.x=-Math.PI/2;return b;
+ };
+
+ // ROULETTE — real wheel on the left, betting cloth and chips on the right.
+ const rouletteTable=new THREE.Group();casinoRoot.add(rouletteTable);rouletteTable.position.set(-19.0,0,.15);
+ box(4.45,.68,1.82,mat(0x3a271f,.78,.06),0,.34,0,rouletteTable);box(4.62,.10,1.98,gold,0,.72,0,rouletteTable);box(4.42,.07,1.78,casinoFelt,0,.81,0,rouletteTable);
+ const wheelRotor=new THREE.Group();wheelRotor.position.set(-1.38,.90,.08);rouletteTable.add(wheelRotor);
+ mesh(new THREE.CylinderGeometry(.64,.64,.09,48),darkMetal,0,0,0,wheelRotor);mesh(new THREE.TorusGeometry(.60,.045,12,48),gold,0,.055,0,wheelRotor).rotation.x=Math.PI/2;
+ for(let i=0;i<18;i++){const a=i/18*Math.PI*2,peg=box(.04,.05,.18,i%2?fightRed:darkMetal,Math.sin(a)*.45,.075,Math.cos(a)*.45,wheelRotor);peg.rotation.y=a;}
+ const rouletteBall=mesh(new THREE.SphereGeometry(.045,12,8),cream,.48,.14,0,wheelRotor);
+ const rouletteResult=makeLabelPlane('ROULETTE',.92,.24,-1.38,.91,-.58,rouletteTable,'#17151d','#f3d478','900 54px system-ui');rouletteResult.rotation.x=-Math.PI/2;
+ const rouletteBetPositions=new Map(),rouletteChipLayer=new THREE.Group();rouletteTable.add(rouletteChipLayer);
+ // Number board: 12 columns x 3 rows + 0.
+ const zero=makeTableButton('0',.22,.78,-.48,.08,rouletteTable,'roulette-bet',{betKey:'n:0'},0x28734d);rouletteBetPositions.set('n:0',{x:-.48,z:.08});
+ for(let col=0;col<12;col++)for(let row=0;row<3;row++){
+  const n=col*3+(3-row),x=-.23+col*.185,z=-.55+row*.38,key='n:'+n,color=rouletteRed.has(n)?0x9f3149:0x20232c;
+  makeTableButton(String(n),.17,.31,x,z,rouletteTable,'roulette-bet',{betKey:key},color);rouletteBetPositions.set(key,{x,z});
  }
- casinoNpc('roulette','CROUPIER ROULETTE',-19.35,1.92,Math.PI);
- casinoNpc('blackjack','CROUPIER BLACKJACK',-15.55,3.35,Math.PI);
- const casinoMachineSpots=[],casinoMachines=[];
- const slotNames=['GOLDEN ONE','PURPLE 7','MINT JACKPOT','NIGHT ONE'];
- const slotColors=[0xf0c95d,0xaa78f0,0x62d5ae,0x79a8ff];
- function slotTexture(title,color){
-  const cv=document.createElement('canvas');cv.width=512;cv.height=256;const g=cv.getContext('2d');
-  const grad=g.createLinearGradient(0,0,512,256);grad.addColorStop(0,'#10131c');grad.addColorStop(1,'#27213a');g.fillStyle=grad;g.fillRect(0,0,512,256);
-  g.strokeStyle='#'+color.toString(16).padStart(6,'0');g.lineWidth=12;g.shadowColor=g.strokeStyle;g.shadowBlur=24;g.strokeRect(16,16,480,224);g.shadowBlur=0;
-  g.textAlign='center';g.fillStyle='#fff7e5';g.font='900 46px system-ui';g.fillText(title,256,70);g.font='900 60px system-ui';g.fillText('7   ONE   7',256,148);g.fillStyle='#e7d99b';g.font='700 25px system-ui';g.fillText('10 · 25 · 50 · 100 POINTS',256,210);
-  const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;
+ const outside=[['red','ROUGE',0x9f3149],['black','NOIR',0x20232c],['even','PAIR',0x564a38],['odd','IMPAIR',0x564a38],['low','1–18',0x355c54],['high','19–36',0x355c54]];
+ outside.forEach(([key,label,color],i)=>{const x=-.10+(i%3)*.72,z=.58+Math.floor(i/3)*.26;makeTableButton(label,.64,.24,x,z,rouletteTable,'roulette-bet',{betKey:key},color);rouletteBetPositions.set(key,{x,z});});
+ makeTableButton('MISE −',.52,.25,1.95,-.55,rouletteTable,'roulette-stake-minus',{},0x55472d);makeTableButton('MISE +',.52,.25,1.95,-.22,rouletteTable,'roulette-stake-plus',{},0x55472d);makeTableButton('EFFACER',.52,.25,1.95,.14,rouletteTable,'roulette-clear',{},0x59303d);makeTableButton('LANCER',.52,.50,1.95,.65,rouletteTable,'roulette-spin',{},0x7d6424);
+ const rouletteStakeLabel=makeLabelPlane('JETON 10',.58,.22,1.95,.92,-.86,rouletteTable,'#18141d','#f5d878','900 46px system-ui');rouletteStakeLabel.rotation.x=-Math.PI/2;
+ let rouletteSpinUntil=0,rouletteSpinStart=0,rouletteFinal=null;
+ const setRouletteBets=(bets={},stake=10)=>{
+  while(rouletteChipLayer.children.length){const o=rouletteChipLayer.children.pop();o.geometry?.dispose?.();o.material?.dispose?.();}
+  for(const [key,amount] of Object.entries(bets)){const pos=rouletteBetPositions.get(key);if(!pos||!amount)continue;const count=Math.min(5,Math.max(1,Math.ceil(Number(amount)/Math.max(1,Number(stake)))));for(let i=0;i<count;i++){const chip=mesh(new THREE.CylinderGeometry(.065,.065,.026,18),mat(i%2?0xe7d18c:0x7f55a5,.38,.12),pos.x,.955+i*.026,pos.z,rouletteChipLayer);chip.userData.dynamic=true;}}
+  setPlaneText(rouletteStakeLabel,'JETON '+stake,'#18141d','#f5d878','900 46px system-ui');
+ };
+ const startRouletteSpin=()=>{rouletteSpinStart=performance.now();rouletteSpinUntil=rouletteSpinStart+2600;rouletteFinal=null;setPlaneText(rouletteResult,'ROUE…','#17151d','#f3d478','900 54px system-ui');};
+ const stopRouletteSpin=number=>{const n=Number(number);rouletteFinal=Number.isFinite(n)?n:null;rouletteSpinUntil=Math.max(rouletteSpinUntil,performance.now()+700);if(!Number.isFinite(n))setPlaneText(rouletteResult,'ARRÊT','#17151d','#f3d478','900 54px system-ui');};
+
+ // BLACKJACK — cards and controls physically on the felt.
+ const blackjackTable=new THREE.Group();casinoRoot.add(blackjackTable);blackjackTable.position.set(-15.25,0,2.10);
+ box(3.08,.62,1.62,mat(0x3a271f,.78,.06),0,.31,0,blackjackTable);box(3.24,.13,1.78,gold,0,.68,0,blackjackTable);box(3.02,.08,1.59,casinoFelt,0,.79,0,blackjackTable);
+ const bjMark=makeLabelPlane('BLACKJACK',1.30,.25,0,.845,.02,blackjackTable,'#255f48','#f4e8bc','900 58px Georgia');bjMark.rotation.x=-Math.PI/2;
+ const blackjackCards={dealer:[],player:[]};
+ const makeCard=(x,z,parent)=>{const c=makeLabelPlane('',.30,.42,x,.86,z,parent,'#eee7d9','#1b1d25','900 80px Georgia');c.rotation.x=-Math.PI/2;c.visible=false;return c;};
+ for(let i=0;i<6;i++){blackjackCards.dealer.push(makeCard(-.92+i*.36,.37,blackjackTable));blackjackCards.player.push(makeCard(-.92+i*.36,-.25,blackjackTable));}
+ makeTableButton('MISE −',.54,.28,-1.19,-.64,blackjackTable,'blackjack-stake-minus',{},0x55472d);makeTableButton('MISE +',.54,.28,-.58,-.64,blackjackTable,'blackjack-stake-plus',{},0x55472d);makeTableButton('DISTRIBUER',.72,.28,.12,-.64,blackjackTable,'blackjack-deal',{},0x756022);makeTableButton('CARTE',.52,.28,.84,-.64,blackjackTable,'blackjack-hit',{},0x355c54);makeTableButton('RESTER',.52,.28,1.39,-.64,blackjackTable,'blackjack-stand',{},0x62374b);
+ const blackjackStatus=makeLabelPlane('MISE 10',1.25,.21,0,.92,.70,blackjackTable,'#183f35','#f4e8bc','900 44px system-ui');blackjackStatus.rotation.x=-Math.PI/2;
+ const rankNames=['A','2','3','4','5','6','7','8','9','10','V','D','R'],suitNames=['♠','♥','♦','♣'];
+ const cardText=c=>c===null?'ONE':rankNames[c%13]+suitNames[Math.floor(c/13)];
+ const renderBlackjack3D=(round,stake=10,balance=0)=>{
+  for(const side of ['dealer','player']){const cards=round?.[side]||[];blackjackCards[side].forEach((m,i)=>{const c=cards[i];m.visible=i<cards.length;if(m.visible){const red=c!==null&&[1,2].includes(Math.floor(c/13));setPlaneText(m,cardText(c),c===null?'#231933':'#f4efe5',red?'#a4223f':'#181c25','900 88px Georgia');}});}
+  const result=round?.settled?(round.result||'TERMINÉ'):(round?'À TOI':'MISE '+stake);setPlaneText(blackjackStatus,result,'#183f35','#f4e8bc','900 42px system-ui');
+ };
+
+ const casinoTableSpots=[{kind:'roulette',name:'ROULETTE',x:-19.0,z:-1.45},{kind:'blackjack',name:'BLACKJACK',x:-15.25,z:.82}];
+
+ // Dealers and security.
+ const npcJacket=mat(0x252938,.82),npcShirt=mat(0xeee7da,.9),npcSkin=mat(0xbc9580,.88),npcHair=mat(0x2a211e,.98),bouncerJacket=mat(0x111722,.72,.08);
+ function casinoNpc(id,name,x,z,yaw=0,{bouncer=false}={}){
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=yaw;casinoRoot.add(g);const jacket=bouncer?bouncerJacket:npcJacket;
+  const torso=mesh(new THREE.CapsuleGeometry(.22,.34,4,10),jacket,0,1.12,0,g);torso.scale.set(1.12,1,.72);box(.08,.42,.19,npcShirt,0,1.13,-.13,g);mesh(new THREE.SphereGeometry(.18,14,10),npcSkin,0,1.69,-.02,g);mesh(new THREE.SphereGeometry(.184,12,8,0,Math.PI*2,0,Math.PI*.52),npcHair,0,1.75,.01,g);
+  const arms=[],legs=[];for(const s of [-1,1]){const arm=new THREE.Group();arm.position.set(s*.29,1.35,0);g.add(arm);arms.push(arm);mesh(new THREE.CapsuleGeometry(.075,.38,3,8),jacket,s*.02,-.24,0,arm);mesh(new THREE.SphereGeometry(.07,8,6),npcSkin,s*.02,-.5,0,arm);arm.rotation.x=-.18;}for(const s of [-1,1]){const leg=new THREE.Group();leg.position.set(s*.12,.82,0);g.add(leg);legs.push(leg);mesh(new THREE.CapsuleGeometry(.09,.5,3,8),darkMetal,0,-.31,0,leg);}
+  let batHolder=null;if(bouncer){batHolder=new THREE.Group();batHolder.position.set(.02,-.48,-.06);arms[1].add(batHolder);const bw=mat(0xb77b45,.76,.03),bg=mat(0x252834,.82,.04);mesh(new THREE.CylinderGeometry(.07,.11,.82,12),bw,0,.37,0,batHolder);mesh(new THREE.CylinderGeometry(.04,.06,.48,10),bw,0,-.27,0,batHolder);mesh(new THREE.CylinderGeometry(.05,.05,.22,10),bg,0,-.58,0,batHolder);batHolder.rotation.set(-.55,.05,-.55);}
+  const labelCanvas=document.createElement('canvas');labelCanvas.width=512;labelCanvas.height=96;const lc=labelCanvas.getContext('2d');lc.fillStyle='#11131dde';lc.fillRect(4,4,504,88);lc.fillStyle=bouncer?'#f1c56d':'#f5e8c8';lc.font='700 30px system-ui';lc.textAlign='center';lc.fillText(name,256,60);const labelTex=new THREE.CanvasTexture(labelCanvas);labelTex.colorSpace=THREE.SRGBColorSpace;const label=new THREE.Sprite(new THREE.SpriteMaterial({map:labelTex}));label.scale.set(1.35,.25,1);label.position.y=2.15;g.add(label);g.traverse(o=>{o.userData.dynamic=true;});
+  const npc={id,name,group:g,arms,legs,batHolder,x,z,homeX:x,homeZ:z,hitAt:0,hitUntil:0,downStarted:0,downUntil:0,hits:0,swingAt:0,bouncer};(bouncer?casinoBouncers:casinoNpcs).push(npc);return npc;
  }
+ casinoNpc('roulette','CROUPIER ROULETTE',-19.0,2.00,Math.PI);casinoNpc('blackjack','CROUPIER BLACKJACK',-15.25,3.42,Math.PI);
+ casinoNpc('security-a','VIDEUR ONE',-13.65,-3.72,-Math.PI/2,{bouncer:true});casinoNpc('security-b','VIDEUR ONE',-13.65,3.72,-Math.PI/2,{bouncer:true});
+
+ // SLOT MACHINES — 5x3 real symbols plus stake/spin buttons on the cabinet itself.
+ const slotNames=['GOLDEN ONE','PURPLE 7','MINT JACKPOT','NIGHT ONE'],slotColors=[0xf0c95d,0xaa78f0,0x62d5ae,0x79a8ff],slotCells=[],slotStatus=[],slotRuntime=[];
+ function slotTexture(title,color){const cv=document.createElement('canvas');cv.width=512;cv.height=256;const g=cv.getContext('2d');const grad=g.createLinearGradient(0,0,512,256);grad.addColorStop(0,'#10131c');grad.addColorStop(1,'#27213a');g.fillStyle=grad;g.fillRect(0,0,512,256);g.strokeStyle='#'+color.toString(16).padStart(6,'0');g.lineWidth=12;g.strokeRect(16,16,480,224);g.textAlign='center';g.fillStyle='#fff7e5';g.font='900 46px system-ui';g.fillText(title,256,70);g.font='900 55px system-ui';g.fillText('ONE CASINO',256,145);g.fillStyle='#e7d99b';g.font='700 25px system-ui';g.fillText('TOUCHE LES BOUTONS',256,210);const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;}
  for(const [i,dx] of [-2.7,-1.6,1.6,2.7].entries()){
-  const slot=new THREE.Group();casinoRoot.add(slot);slot.position.set(-17.8+dx,0,-4.65);casinoMachines.push(slot);
-  const accent=mat(slotColors[i],.34,.46),body=mat(i===3?0x1d2232:0x302b35,.62,.18);
-  box(1.02,2.12,.92,body,0,1.06,0,slot);box(1.08,.16,.98,accent,0,2.05,0,slot);box(1.06,.13,1.00,accent,0,.12,0,slot);
-  const marquee=plane(.86,.36,new THREE.MeshBasicMaterial({map:slotTexture(slotNames[i],slotColors[i]),toneMapped:false}),0,1.78,.471,slot);marquee.renderOrder=2;
-  box(.78,.76,.055,glassMat,0,1.23,.472,slot);
-  for(let r=0;r<3;r++){const reel=plane(.205,.31,new THREE.MeshBasicMaterial({color:[0xffefe0,0xeaf7ff,0xf3eaff][r],toneMapped:false}),-.245+r*.245,1.26,.507,slot);reel.renderOrder=3;}
-  for(let r=0;r<3;r++){const symbol=plane(.13,.13,new THREE.MeshBasicMaterial({color:[0xe5536a,0xf0d067,0x53c89a][r],toneMapped:false}),-.245+r*.245,1.26,.512,slot);symbol.renderOrder=4;}
-  box(.72,.18,.24,accent,0,.72,.41,slot);mesh(new THREE.CylinderGeometry(.09,.09,.07,18),mat(0xe3e6ed,.34,.35),-.18,.73,.57,slot).rotation.x=Math.PI/2;
-  mesh(new THREE.CylinderGeometry(.035,.035,.52,12),darkMetal,.57,1.05,.05,slot).rotation.z=-.18;mesh(new THREE.SphereGeometry(.09,12,8),accent,.66,1.30,.05,slot);
-  box(.78,.10,.30,gold,0,.42,.38,slot);box(.46,.05,.15,darkMetal,0,.39,.55,slot);
-  casinoMachineSpots.push({x:-17.8+dx,z:-3.72,index:i,name:slotNames[i]});
+  const slot=new THREE.Group();casinoRoot.add(slot);slot.position.set(-17.8+dx,0,-4.65);casinoMachines.push(slot);const accent=mat(slotColors[i],.34,.46),body=mat(i===3?0x1d2232:0x302b35,.62,.18);box(1.02,2.12,.92,body,0,1.06,0,slot);box(1.08,.16,.98,accent,0,2.05,0,slot);box(1.06,.13,1.00,accent,0,.12,0,slot);const marquee=plane(.86,.36,new THREE.MeshBasicMaterial({map:slotTexture(slotNames[i],slotColors[i]),toneMapped:false}),0,1.78,.471,slot);marquee.renderOrder=2;
+  const cells=[];for(let col=0;col<5;col++)for(let row=0;row<3;row++){const m=makeLabelPlane(slotSymbols[(col+row)%6],.135,.165,-.29+col*.145,1.46-row*.19,.515,slot,'#f5e5bd','#7f263e','900 70px system-ui');cells.push(m);}slotCells.push(cells);
+  const status=makeLabelPlane('MISE 10',.70,.14,0,.87,.516,slot,'#10141b','#f4d77d','900 44px system-ui');slotStatus.push(status);
+  const mkFront=(label,x,action,color)=>{const b=box(.22,.12,.07,mat(color,.40,.25),x,.72,.50,slot);b.userData={casinoAction:action,machine:i};casinoInteractives.push(b);const l=makeLabelPlane(label,.19,.09,x,.72,.538,slot,'#17151d','#fff3d1','900 40px system-ui');return b;};
+  mkFront('−',-.25,'slot-stake-minus',0x66552e);mkFront('GO',0,'slot-spin',slotColors[i]);mkFront('+',.25,'slot-stake-plus',0x66552e);
+  mesh(new THREE.CylinderGeometry(.035,.035,.52,12),darkMetal,.57,1.05,.05,slot).rotation.z=-.18;mesh(new THREE.SphereGeometry(.09,12,8),accent,.66,1.30,.05,slot);box(.78,.10,.30,gold,0,.42,.38,slot);box(.46,.05,.15,darkMetal,0,.39,.55,slot);casinoMachineSpots.push({x:-17.8+dx,z:-3.72,index:i,name:slotNames[i]});slotRuntime.push({spinning:false,lastTick:0,stake:10,grid:null});
  }
- const bar=casinoRoot;
- box(4.8,1.02,.62,mat(0x432f2b,.8,.05),-17.8,.51,4.85,bar);box(5.1,.12,.86,gold,-17.8,1.05,4.86,bar);
- for(const dx of [-1.6,-.5,.6,1.7]){box(.34,.95,.34,darkMetal,-17.8+dx,.47,3.95,bar);mesh(new THREE.CylinderGeometry(.34,.34,.08,22),gold,-17.8+dx,.98,3.95,bar);}
- const chipsSign=(()=>{const cv=document.createElement('canvas');cv.width=768;cv.height=220;const g=cv.getContext('2d');g.fillStyle='#11171f';g.fillRect(0,0,768,220);g.fillStyle='#e7c878';g.font='800 84px system-ui';g.textAlign='center';g.fillText('CASINO',384,102);g.fillStyle='#d9e7ef';g.font='600 28px system-ui';g.fillText('BLACKJACK · ROULETTE · LOUNGE',384,156);const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;})();
+ const updateSlotMachine=(index,{grid,stake=10,payout=0,busy=false}={})=>{const cells=slotCells[index];if(!cells)return;const runtime=slotRuntime[index];runtime.stake=stake;runtime.spinning=!!busy;if(grid)runtime.grid=grid;const source=grid||runtime.grid||Array.from({length:5},(_,c)=>Array.from({length:3},(_,r)=>(c+r)%6));for(let c=0;c<5;c++)for(let r=0;r<3;r++){const m=cells[c*3+r],value=source?.[c]?.[r]??((c+r)%6);setPlaneText(m,slotSymbols[value]??String(value),'#f5e5bd',value>=6?'#6e2f91':'#8b2945',value>=6?'900 42px system-ui':'900 70px system-ui');}setPlaneText(slotStatus[index],busy?'ROULEAUX…':(payout?'GAIN '+payout:'MISE '+stake),'#10141b','#f4d77d','900 42px system-ui');};
+ const startSlotSpin=index=>{const r=slotRuntime[index];if(r){r.spinning=true;r.lastTick=0;setPlaneText(slotStatus[index],'ROULEAUX…','#10141b','#f4d77d','900 42px system-ui');}};
+ const stopSlotSpin=(index,round,stake=10)=>{const r=slotRuntime[index];if(r){r.spinning=false;if(round?.grid)r.grid=round.grid;}updateSlotMachine(index,{grid:round?.grid,stake,payout:Number(round?.payout||0),busy:false});};
+
+ // No decorative bar/table behind the casino games anymore: the back wall stays clear.
+ const chipsSign=(()=>{const cv=document.createElement('canvas');cv.width=768;cv.height=220;const g=cv.getContext('2d');g.fillStyle='#11171f';g.fillRect(0,0,768,220);g.fillStyle='#e7c878';g.font='800 84px system-ui';g.textAlign='center';g.fillText('CASINO',384,102);g.fillStyle='#d9e7ef';g.font='600 28px system-ui';g.fillText('BLACKJACK · ROULETTE · MACHINES',384,156);const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;})();
  const casinoPoster=plane(4.2,1.18,new THREE.MeshBasicMaterial({map:chipsSign,toneMapped:false}),-17.8,2.35,-5.86);casinoPoster.rotation.y=Math.PI;
- 
+
+ const animateCasino=t=>{
+  if(rouletteSpinUntil>t){const u=Math.max(0,Math.min(1,(t-rouletteSpinStart)/Math.max(1,rouletteSpinUntil-rouletteSpinStart))),ease=1-u*u;wheelRotor.rotation.y+=.18+.42*ease;const a=(t-rouletteSpinStart)*.014*(1.2+.8*ease);rouletteBall.position.set(Math.cos(a)*.50,.14,Math.sin(a)*.50);}else if(rouletteFinal!==null){setPlaneText(rouletteResult,String(rouletteFinal),'#17151d',rouletteFinal===0?'#65d692':rouletteRed.has(rouletteFinal)?'#ff8da2':'#f5e6ce','900 84px system-ui');rouletteFinal=null;}
+  slotRuntime.forEach((r,i)=>{if(!r.spinning||t-r.lastTick<90)return;r.lastTick=t;const grid=Array.from({length:5},()=>Array.from({length:3},()=>Math.floor(Math.random()*8)));const cells=slotCells[i];for(let c=0;c<5;c++)for(let row=0;row<3;row++){const v=grid[c][row],m=cells[c*3+row];setPlaneText(m,slotSymbols[v],'#f5e5bd',v>=6?'#6e2f91':'#8b2945',v>=6?'900 42px system-ui':'900 70px system-ui');}});
+ };
  // ONE FIGHT — open brawl room, no ring. Baseball bats can be picked up by players.
  const fightRoot=new THREE.Group();root.add(fightRoot);
  const fightFloorCanvas=document.createElement('canvas');fightFloorCanvas.width=fightFloorCanvas.height=1024;const fg=fightFloorCanvas.getContext('2d');
@@ -246,5 +279,5 @@ export function buildRoom(scene,renderer,alive,dispose){
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const t=y/h;data.set([Math.round(155-60*t),Math.round(163-75*t),Math.round(182-102*t),255],(y*w+x)*4);}
  const environment=new THREE.DataTexture(data,w,h);environment.mapping=THREE.EquirectangularReflectionMapping;environment.needsUpdate=true;
  const pmrem=new THREE.PMREMGenerator(renderer),env=pmrem.fromEquirectangular(environment);scene.environment=env.texture;scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
- return {screen,ready,fightBatSpots,casinoMachineSpots,casinoMachines,casinoTableSpots,casinoNpcs,rouletteWheel:wheel,dispose(){scene.environment=null;env.dispose();}};
+ return {screen,ready,fightBatSpots,casinoMachineSpots,casinoMachines,casinoTableSpots,casinoNpcs,casinoBouncers,casinoInteractives,rouletteWheel:wheelRotor,setRouletteBets,startRouletteSpin,stopRouletteSpin,renderBlackjack3D,updateSlotMachine,startSlotSpin,stopSlotSpin,animateCasino,dispose(){scene.environment=null;env.dispose();}};
 }
