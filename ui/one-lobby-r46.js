@@ -1,12 +1,12 @@
-import {prepareScene} from './three17-r46-warmup.js?v=lobby-shoot-v85';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-shoot-v85';
+import {prepareScene} from './three17-r46-warmup.js?v=lobby-shoot-v86';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-shoot-v86';
 
-import * as THREE from './three.module.js?v=lobby-shoot-v85';
-import {buildRoom} from './one-lobby-r46-room.js?v=lobby-shoot-v85';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v85';
-import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v85';
+import * as THREE from './three.module.js?v=lobby-shoot-v86';
+import {buildRoom} from './one-lobby-r46-room.js?v=lobby-shoot-v86';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v86';
+import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v86';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-shoot-v85';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-shoot-v86';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
@@ -224,7 +224,7 @@ function open(ctx={}){
  fightAction.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();useFightAction();});fightAction.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();});
  function drawStatus(next){
    state=next;const key=JSON.stringify([next.room,next.self,next.host,next.notice,next.joined,next.ready,next.canStart,next.connecting,next.players]);if(key===statusKey)return;statusKey=key;
-   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R85';
+   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R86';
    shell.querySelector('[data-status]').textContent=next.notice;
    const readyButton=shell.querySelector('button[data-ready]'),start=shell.querySelector('[data-start]');
    readyButton.disabled=!next.joined||!next.players.some(p=>p.id===next.self);readyButton.textContent=next.ready?'✓ Prêt':'Je suis prêt';readyButton.setAttribute('aria-pressed',String(next.ready));
@@ -256,12 +256,15 @@ function open(ctx={}){
    const weapon=ensureAvatarGun(v),seq=Number.isSafeInteger(raw.shotSeq)?raw.shotSeq:0;weapon.holder.visible=raw.gun===true;
    if(weapon.lastSeq===null){weapon.lastSeq=seq;return;}if(seq<=weapon.lastSeq)return;weapon.lastSeq=seq;weapon.flashUntil=t+100;weapon.recoilUntil=t+120;
    if(!weapon.holder.visible)return;
+   // The shooter is the only authority for gun hits. The receiver never reconstructs
+   // the shot from its own delayed/interpolated view, which previously caused false hits.
    const cp=Math.cos(Number(raw.pitch)||0),dir=new THREE.Vector3(-Math.sin(raw.yaw||0)*cp,Math.sin(Number(raw.pitch)||0),-Math.cos(raw.yaw||0)*cp).normalize(),origin=new THREE.Vector3(raw.x,1.48,raw.z);
    const dx=position.x-raw.x,dz=position.z-raw.z,dist=Math.hypot(dx,dz);spawnTracer(origin,dir,Math.min(16,Math.max(5,dist||12)));
-   const targeted=typeof raw.shotTarget==='string'&&raw.shotTarget.length>0;if(targeted&&raw.shotTarget!==state.self)return;
+   const targetId=typeof raw.shotTarget==='string'?raw.shotTarget:'';
+   if(!targetId||targetId!==state.self)return;
    if(dist<.35||dist>18)return;
-   if(!targeted){const dy=1.25-origin.y,threeDist=Math.hypot(dx,dy,dz),dot=(dx*dir.x+dy*dir.y+dz*dir.z)/threeDist;if(dot<.985)return;}
-   if(!registerHit(t,230,true))return;const push=.28,nx=position.x+dx/dist*push,nz=position.z+dz/dist*push;if(canMove(nx,position.z))position.x=nx;if(canMove(position.x,nz))position.z=nz;
+   if(!registerHit(t,230,true))return;
+   const push=.28,nx=position.x+dx/dist*push,nz=position.z+dz/dist*push;if(canMove(nx,position.z))position.x=nx;if(canMove(position.x,nz))position.z=nz;
  }
  function frame(t){
    if(stopped)return;raf=requestAnimationFrame(frame);if(document.hidden||!assetsReady||graphicsLost||gameScreen.opened){last=t;return;}if(!budget.shouldRender(t,resizePending))return;const began=performance.now();applyResize();
