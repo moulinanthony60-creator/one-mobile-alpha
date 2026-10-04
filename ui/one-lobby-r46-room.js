@@ -1,5 +1,5 @@
-import * as THREE from './three.module.js?v=lobby-shoot-v86';
-import {GLTFLoader} from './GLTFLoader.js?v=lobby-shoot-v86';
+import * as THREE from './three.module.js?v=lobby-shoot-v87';
+import {GLTFLoader} from './GLTFLoader.js?v=lobby-shoot-v87';
 
 // R69: expanded ONE lobby with playable casino machines and open ONE FIGHT room.
 export function buildRoom(scene,renderer,alive,dispose){
@@ -209,5 +209,5 @@ export function buildRoom(scene,renderer,alive,dispose){
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const t=y/h;data.set([Math.round(155-60*t),Math.round(163-75*t),Math.round(182-102*t),255],(y*w+x)*4);}
  const environment=new THREE.DataTexture(data,w,h);environment.mapping=THREE.EquirectangularReflectionMapping;environment.needsUpdate=true;
  const pmrem=new THREE.PMREMGenerator(renderer),env=pmrem.fromEquirectangular(environment);scene.environment=env.texture;scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
- return {screen,ready,fightBatSpots,gunSpots,shootTargets,dispose(){scene.environment=null;env.dispose();}};
+ return {root,screen,ready,fightBatSpots,gunSpots,shootTargets,dispose(){scene.environment=null;env.dispose();}};
 }

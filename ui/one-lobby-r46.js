@@ -1,12 +1,12 @@
-import {prepareScene} from './three17-r46-warmup.js?v=lobby-shoot-v86';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-shoot-v86';
+import {prepareScene} from './three17-r46-warmup.js?v=lobby-shoot-v87';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-shoot-v87';
 
-import * as THREE from './three.module.js?v=lobby-shoot-v86';
-import {buildRoom} from './one-lobby-r46-room.js?v=lobby-shoot-v86';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v86';
-import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v86';
+import * as THREE from './three.module.js?v=lobby-shoot-v87';
+import {buildRoom} from './one-lobby-r46-room.js?v=lobby-shoot-v87';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v87';
+import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v87';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-shoot-v86';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-shoot-v87';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
@@ -188,29 +188,28 @@ function open(ctx={}){
  const crosshair=shell.querySelector('.one3d-cross');let crossHitUntil=0;
  const flashCrossHit=(duration=150)=>{crossHitUntil=performance.now()+duration;crosshair?.classList.add('is-hit');};
  const raySphereDistance=(center,radius)=>{shotRel.copy(center).sub(shotOrigin);const along=shotRel.dot(shotDir);if(along<.35||along>18)return null;const perpSq=shotRel.lengthSq()-along*along;if(perpSq>radius*radius)return null;return along-Math.sqrt(Math.max(0,radius*radius-perpSq));};
- const playerHitMaterial=new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,depthTest:false});playerHitMaterial.colorWrite=false;
- const ensureAvatarHitboxes=(id,v)=>{
-   if(v.gunHitboxes)return v.gunHitboxes;
-   const add=(geo,x,y,z,part)=>{const m=new THREE.Mesh(geo,playerHitMaterial);m.position.set(x,y,z);m.userData.playerId=id;m.userData.hitPart=part;m.renderOrder=-1000;v.group.add(m);return m;};
-   // Hit volumes follow the rendered avatar itself (interpolated group transform), not the raw network pose.
-   v.gunHitboxes=[
-     add(new THREE.SphereGeometry(.165,10,8),0,1.72,-.01,'head'),
-     add(new THREE.BoxGeometry(.36,.58,.28),0,1.18,0,'torso'),
-     add(new THREE.BoxGeometry(.30,.28,.26),0,.78,0,'pelvis'),
-     add(new THREE.BoxGeometry(.12,.48,.18),-.12,.47,0,'leg'),
-     add(new THREE.BoxGeometry(.12,.48,.18), .12,.47,0,'leg')
-   ];
-   return v.gunHitboxes;
+ const meshVisibleToGroup=(mesh,group)=>{for(let o=mesh;o&&o!==group;o=o.parent)if(o.visible===false)return false;return true;};
+ const underWeapon=(mesh,v)=>{for(let o=mesh;o&&o!==v.group;o=o.parent)if(o===v.fightGun?.holder||o===v.fightBat?.holder)return true;return false;};
+ const avatarVisibleMeshes=(id,v)=>{
+   const meshes=[];
+   v.rig?.traverse?.(o=>{if(o?.isMesh&&meshVisibleToGroup(o,v.group)&&!underWeapon(o,v)){o.userData.gunPlayerId=id;meshes.push(o);}});
+   if(v.cameraBody?.isMesh&&meshVisibleToGroup(v.cameraBody,v.group)){v.cameraBody.userData.gunPlayerId=id;meshes.push(v.cameraBody);}
+   return meshes;
  };
  const aimGun=()=>{
-   camera.getWorldDirection(shotDir).normalize();shotOrigin.copy(camera.position);let best=null,bestDistance=Infinity;
-   gunRay.set(shotOrigin,shotDir);gunRay.far=18;
-   const colliders=[];
-   for(const [id,v] of avatars){const p=lobbyPose(id);if(!p||p.down===true)continue;ensureAvatarHitboxes(id,v);v.group.updateWorldMatrix(true,true);colliders.push(...v.gunHitboxes);}
-   const playerHits=gunRay.intersectObjects(colliders,false);
-   if(playerHits.length){const hit=playerHits[0];bestDistance=hit.distance;best={id:String(hit.object.userData.playerId||''),distance:hit.distance,point:hit.point.clone(),part:hit.object.userData.hitPart};}
+   // The ray is the exact centre of the shooter's camera/crosshair.
+   camera.getWorldDirection(shotDir).normalize();shotOrigin.copy(camera.position);gunRay.set(shotOrigin,shotDir);gunRay.far=18;
+   let best=null,bestDistance=Infinity;
+   const bodyMeshes=[];
+   for(const [id,v] of avatars){const p=lobbyPose(id);if(!p||p.down===true)continue;v.group.updateWorldMatrix(true,true);bodyMeshes.push(...avatarVisibleMeshes(id,v));}
+   const playerHits=gunRay.intersectObjects(bodyMeshes,false);
+   if(playerHits.length){const hit=playerHits[0];bestDistance=hit.distance;best={id:String(hit.object.userData.gunPlayerId||''),distance:hit.distance,point:hit.point.clone(),part:'body'};}
    const targetHits=gunRay.intersectObjects(roomVisual.shootTargets||[],false);
-   if(targetHits.length&&targetHits[0].distance<bestDistance)best={id:'',distance:targetHits[0].distance,point:targetHits[0].point.clone(),target:true};
+   if(targetHits.length&&targetHits[0].distance<bestDistance){bestDistance=targetHits[0].distance;best={id:'',distance:bestDistance,point:targetHits[0].point.clone(),target:true};}
+   // Walls, furniture and props stop bullets. A player behind an object can no longer be hit.
+   const worldHits=roomVisual.root?gunRay.intersectObject(roomVisual.root,true):[];
+   const blocker=worldHits.find(h=>!(roomVisual.shootTargets||[]).includes(h.object));
+   if(blocker&&blocker.distance+0.015<bestDistance)return null;
    return best;
  };
  const shootGun=()=>{const now=performance.now();if(!heldGun||isKnocked(now)||now-shotStarted<300)return;const aimed=aimGun();lastShotTarget=aimed?.id||'';shotSeq++;shotStarted=now;localGun.userData.flash.visible=true;if(localGun.userData.slide)localGun.userData.slide.position.z=.085;spawnTracer(shotOrigin,shotDir,aimed?.distance||16);if(aimed?.point){spawnImpact(aimed.point);flashCrossHit(165);}publishPose();};

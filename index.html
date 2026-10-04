@@ -3913,7 +3913,7 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
 </style><script src="ui/one-game-loader.js?v=house-layout-v61"></script><script id="one317-r43-entry">
 (()=>{let opening=false;window.ONEOpen3DLobby=async context=>{
  if(opening)return;opening=true;
- try{const [module]=await Promise.all([import('./ui/one-lobby-r46.js?v=lobby-shoot-v86'),window.oneEnsureThree17()]);module.open(context||{room:window.oneSocialRoom?.()});window.oneCloseSalon?.();}
+ try{const [module]=await Promise.all([import('./ui/one-lobby-r46.js?v=lobby-shoot-v87'),window.oneEnsureThree17()]);module.open(context||{room:window.oneSocialRoom?.()});window.oneCloseSalon?.();}
  catch(error){console.error('Lobby 3D R65',error);const box=document.createElement('section');box.className='one3d-shell one3d-load-error';box.setAttribute('role','alertdialog');const p=document.createElement('p');p.textContent='Le lobby n’a pas pu charger ses fichiers. Copie tout le dossier ui du correctif R65 à la racine du site, puis recharge ONE.';const b=document.createElement('button');b.textContent='Retour au salon';b.onclick=()=>{box.remove();window.oneOpenSalon?.();};const retry=document.createElement('button');retry.textContent='Recharger ONE';retry.onclick=()=>location.reload();box.append(p,retry,b);document.body.append(box);}
  finally{opening=false;}
 };})();
