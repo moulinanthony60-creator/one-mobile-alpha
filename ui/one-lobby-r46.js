@@ -6,7 +6,7 @@ import {buildRoom} from './one-lobby-r46-room.js?v=lobby-fight-v64';
 import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-fight-v64';
 import {createRenderBudget} from './three17-r46-render.js?v=lobby-fight-v64';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-fight-v64';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-fight-v65';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function open(ctx={}){
@@ -15,11 +15,12 @@ function open(ctx={}){
  shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small data-room></small></div><button type="button" data-close aria-label="Quitter le lobby 3D">Quitter</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">3:17 · 2–4 JOUEURS</div></div><button class="one3d-screen-button" data-screen-open>✦ Choisir un jeu</button><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Glisser pour regarder"></div><button class="one3d-run" type="button" data-run aria-pressed="false">COURIR</button><button class="one3d-fight-action" type="button" data-fight-action hidden>RAMASSER BATTE</button><div class="one3d-fight-hit" data-fight-hit hidden>TOUCHÉ !</div></div><footer class="one3d-bottom"><div class="one3d-session" data-collapsed="true"><button class="one3d-panel-toggle" type="button" data-panel-toggle aria-expanded="false" aria-label="Afficher les commandes du salon">+</button><span class="one3d-eyebrow">3:17 · FOUR</span><p data-status role="status">Connexion au salon…</p><div class="one3d-actions"><button type="button" data-ready disabled>Je suis prêt</button><button type="button" data-start disabled>Lancer 3:17</button></div><button type="button" data-reconnect>Réessayer la connexion</button></div></footer><p class="one3d-controls">ZQSD / WASD · flèches · glisser pour regarder · Maj courir · F bagarre</p>`;
  document.body.append(shell);shell.focus();
  const fightStyle=document.createElement('style');fightStyle.textContent=`
- .one3d-fight-action{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(138px,calc(env(safe-area-inset-bottom) + 112px));z-index:18;min-width:154px;min-height:54px;padding:10px 18px;border:1px solid #ff91b5;border-radius:18px;background:linear-gradient(135deg,#6e274a,#a33d67);color:#fff7fb;font:800 13px/1 system-ui;letter-spacing:.04em;box-shadow:0 8px 22px #0006,inset 0 1px #fff3;touch-action:manipulation}
+ .one3d-fight-action{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(174px,calc(env(safe-area-inset-bottom) + 170px));z-index:18;min-width:150px;min-height:50px;padding:9px 16px;border:1px solid #ff91b5;border-radius:17px;background:linear-gradient(135deg,#6e274a,#a33d67);color:#fff7fb;font:850 12px/1 system-ui;letter-spacing:.045em;box-shadow:0 8px 22px #0006,inset 0 1px #fff3;touch-action:manipulation;pointer-events:auto;-webkit-tap-highlight-color:transparent}
  .one3d-fight-action[data-mode="pickup"]{border-color:#cab2ff;background:linear-gradient(135deg,#45306c,#7652a8)}
- .one3d-fight-hit{position:absolute;inset:0;z-index:16;display:grid;place-items:center;pointer-events:none;background:radial-gradient(circle,#ff406522 0 18%,#ff204411 38%,transparent 72%);box-shadow:inset 0 0 50px #ff325a99;color:#fff;font:900 clamp(26px,7vw,58px)/1 system-ui;text-shadow:0 4px 18px #28000b}
+ .one3d-fight-action:active{transform:scale(.94)}
+ .one3d-fight-hit{position:absolute;inset:0;z-index:16;display:grid;place-items:center;pointer-events:none;background:radial-gradient(circle,#ff406522 0 18%,#ff204411 38%,transparent 72%);box-shadow:inset 0 0 50px #ff325a99;color:#fff;font:900 clamp(25px,7vw,56px)/1 system-ui;text-shadow:0 4px 18px #28000b}
  .one3d-fight-hit[hidden],.one3d-fight-action[hidden]{display:none!important}
- @media(max-height:520px){.one3d-fight-action{bottom:92px;right:14px;min-height:46px;min-width:138px;font-size:12px}}
+ @media(max-height:520px){.one3d-fight-action{bottom:max(166px,calc(env(safe-area-inset-bottom) + 162px));right:12px;min-height:44px;min-width:142px;font-size:11px}}
  `;shell.append(fightStyle);
  const stage=shell.querySelector('.one3d-stage'),chips=shell.querySelector('.one3d-players');
  const fightAction=shell.querySelector('[data-fight-action]'),fightHit=shell.querySelector('[data-fight-hit]');
@@ -33,11 +34,30 @@ function open(ctx={}){
  const batWood=new THREE.MeshStandardMaterial({color:0xb77b45,roughness:.76,metalness:.03}),batGrip=new THREE.MeshStandardMaterial({color:0x252834,roughness:.82,metalness:.04});
  function makeBat(){
    const g=new THREE.Group(),part=(geo,material,y)=>{const m=new THREE.Mesh(geo,material);m.position.y=y;g.add(m);return m;};
-   part(new THREE.CylinderGeometry(.065,.105,.78,12),batWood,.36);part(new THREE.CylinderGeometry(.04,.06,.5,10),batWood,-.25);part(new THREE.CylinderGeometry(.047,.047,.24,10),batGrip,-.57);part(new THREE.CylinderGeometry(.07,.05,.07,10),batGrip,-.72);return g;
+   part(new THREE.CylinderGeometry(.075,.112,.82,14),batWood,.39);part(new THREE.CylinderGeometry(.042,.065,.52,12),batWood,-.28);part(new THREE.CylinderGeometry(.052,.052,.25,12),batGrip,-.60);part(new THREE.CylinderGeometry(.075,.052,.08,12),batGrip,-.76);return g;
  }
  const localBat=makeBat();localBat.visible=false;scene.add(localBat);
  const batOffset=new THREE.Vector3();
- function ensureAvatarBat(v){if(v.fightBat)return v.fightBat;const holder=new THREE.Group();holder.position.set(.02,-.52,-.08);holder.rotation.set(.2,0,-.34);v.arms[1].add(holder);const bat=makeBat();bat.scale.setScalar(.88);holder.add(bat);holder.visible=false;v.fightBat={holder,bat,lastSeq:null,swingAt:0};return v.fightBat;}
+ function ensureAvatarBat(v){
+   if(v.fightBat)return v.fightBat;
+   const holder=new THREE.Group();holder.position.set(.02,-.505,-.035);v.arms[1].add(holder);
+   const bat=makeBat();bat.position.y=.60;bat.scale.setScalar(.9);holder.add(bat);holder.visible=false;
+   v.fightBat={holder,bat,lastSeq:null,swingAt:0};return v.fightBat;
+ }
+ function poseRemoteBat(v,raw,t){
+   const fight=ensureAvatarBat(v),visible=raw.bat===true,down=raw.down===true;fight.holder.visible=visible;if(!visible)return;
+   if(down){v.arms[1].rotation.x=.05;v.arms[1].rotation.z=-.18;fight.holder.rotation.set(.05,.05,-1.08);fight.bat.position.set(.03,.56,.03);return;}
+   const walking=v.swing||0,baseArm=-.72+walking*.08;
+   let k=1,wind=0,follow=0;
+   if(fight.swingAt){k=Math.min(1,(t-fight.swingAt)/460);if(k<.24)wind=Math.sin(k/.24*Math.PI/2);else if(k<.64)follow=Math.sin((k-.24)/.40*Math.PI);else follow=Math.max(0,1-(k-.64)/.36);if(k>=1)fight.swingAt=0;}
+   // Rest pose: elbow back, handle in the right hand, barrel above the shoulder.
+   v.arms[1].rotation.x=baseArm+wind*.42-follow*1.16;
+   v.arms[1].rotation.z=-.16+wind*.12+follow*.24;
+   fight.holder.rotation.x=-.42+wind*.28-follow*.90;
+   fight.holder.rotation.y=.10-follow*.22;
+   fight.holder.rotation.z=-.42-wind*.54+follow*1.26;
+   fight.bat.position.set(.02,.60,-.01);
+ }
  const syncHeadCamera=(id,v)=>{
    const element=window.ONEPartyMedia?.videoForMember?.(id)||null;
    const ready=!!element&&element.readyState>=2&&element.videoWidth>0&&element.videoHeight>0;
@@ -90,18 +110,28 @@ function open(ctx={}){
    const inFight=inFightArea(x,z);
    return inMain||inLeftPass||inRightPass||inCasino||inFight;
  };
- let heldBat=false,swingSeq=0,swingStarted=0,lastHitAt=0,hitUntil=0,lastFightPointerAt=0;
+ let heldBat=false,swingSeq=0,swingStarted=0,lastHitAt=0,hitUntil=0,lastFightPointerAt=0,hitsTaken=0,knockedUntil=0,knockStarted=0;
  const nearestBatDistance=()=>Math.min(...(roomVisual.fightBatSpots||[]).map(s=>Math.hypot(position.x-s.x,position.z-s.z)),99);
+ const isKnocked=t=>t<knockedUntil;
  const setHeldBat=value=>{heldBat=!!value;localBat.visible=heldBat;if(!heldBat)swingStarted=0;};
+ const publishPose=()=>updateLobbyPose({...position,yaw,pitch,bat:heldBat,swingSeq,down:isKnocked(performance.now())});
  // Once a bat is picked up it stays with the player throughout the whole lobby.
- const swingBat=()=>{if(!heldBat||performance.now()-swingStarted<300)return;swingSeq++;swingStarted=performance.now();updateLobbyPose({...position,yaw,pitch,bat:true,swingSeq});};
- const useFightAction=()=>{if(heldBat){swingBat();return;}if(inFightArea(position.x,position.z)&&nearestBatDistance()<1.55){setHeldBat(true);updateLobbyPose({...position,yaw,pitch,bat:true,swingSeq});}};
+ const swingBat=()=>{const now=performance.now();if(!heldBat||isKnocked(now)||now-swingStarted<420)return;swingSeq++;swingStarted=now;publishPose();};
+ const useFightAction=()=>{if(heldBat){swingBat();return;}if(inFightArea(position.x,position.z)&&nearestBatDistance()<1.55){setHeldBat(true);publishPose();}};
+ const showFightMessage=(text,duration=300)=>{fightHit.textContent=text;fightHit.hidden=false;hitUntil=performance.now()+duration;};
+ const registerHit=t=>{
+   if(isKnocked(t)||t-lastHitAt<480)return false;
+   lastHitAt=t;hitsTaken++;
+   if(hitsTaken>=3){hitsTaken=0;knockStarted=t;knockedUntil=t+2600;setSprint(false);showFightMessage('À TERRE !',620);publishPose();}
+   else showFightMessage(`TOUCHÉ · ${hitsTaken}/3`,300);
+   return true;
+ };
  // Fire on pointer-down so a second finger can hit while the joystick finger keeps moving.
  fightAction.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();lastFightPointerAt=performance.now();useFightAction();});
  fightAction.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();if(performance.now()-lastFightPointerAt>450)useFightAction();});
  function drawStatus(next){
    state=next;const key=JSON.stringify([next.room,next.self,next.host,next.notice,next.joined,next.ready,next.canStart,next.connecting,next.players]);if(key===statusKey)return;statusKey=key;
-   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R64';
+   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R65';
    shell.querySelector('[data-status]').textContent=next.notice;
    const readyButton=shell.querySelector('button[data-ready]'),start=shell.querySelector('[data-start]');
    readyButton.disabled=!next.joined||!next.players.some(p=>p.id===next.self);readyButton.textContent=next.ready?'✓ Prêt':'Je suis prêt';readyButton.setAttribute('aria-pressed',String(next.ready));
@@ -123,28 +153,33 @@ function open(ctx={}){
    const fight=ensureAvatarBat(v),seq=Number.isSafeInteger(raw.swingSeq)?raw.swingSeq:0;fight.holder.visible=raw.bat===true;
    if(fight.lastSeq===null){fight.lastSeq=seq;return;}
    if(seq<=fight.lastSeq)return;fight.lastSeq=seq;fight.swingAt=t;
-   if(!fight.holder.visible||t-lastHitAt<520)return;
+   if(!fight.holder.visible||isKnocked(t))return;
    const dx=position.x-raw.x,dz=position.z-raw.z,dist=Math.hypot(dx,dz);if(dist<.15||dist>2.05)return;
-   const fx=-Math.sin(raw.yaw||0),fz=-Math.cos(raw.yaw||0),dot=(dx/dist)*fx+(dz/dist)*fz;if(dot<.08)return;
-   const push=.82,nx=position.x+dx/dist*push,nz=position.z+dz/dist*push;if(canMove(nx,position.z))position.x=nx;if(canMove(position.x,nz))position.z=nz;
-   lastHitAt=t;hitUntil=t+280;fightHit.hidden=false;
+   const fx=-Math.sin(raw.yaw||0),fz=-Math.cos(raw.yaw||0),dot=(dx/dist)*fx+(dz/dist)*fz;if(dot<.12)return;
+   if(!registerHit(t))return;
+   const push=hitsTaken===0?.96:.62,nx=position.x+dx/dist*push,nz=position.z+dz/dist*push;if(canMove(nx,position.z))position.x=nx;if(canMove(position.x,nz))position.z=nz;
  }
  function frame(t){
    if(stopped)return;raf=requestAnimationFrame(frame);if(document.hidden||!assetsReady||graphicsLost||gameScreen.opened){last=t;return;}if(!budget.shouldRender(t,resizePending))return;const began=performance.now();applyResize();
    const dt=Math.min((t-last)/1000,.05);last=t;
-   let forward=(keys.has('KeyW')||keys.has('KeyZ')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0)-stickInput.y;
-   let side=(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('KeyQ')||keys.has('ArrowLeft')?1:0)+stickInput.x;
+   const knocked=isKnocked(t);
+   let forward=knocked?0:(keys.has('KeyW')||keys.has('KeyZ')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0)-stickInput.y;
+   let side=knocked?0:(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('KeyQ')||keys.has('ArrowLeft')?1:0)+stickInput.x;
    const scale=Math.max(1,Math.hypot(forward,side));forward/=scale;side/=scale;
-    const speed=sprint?4.2:2.4;
-    const x=position.x+(-Math.sin(yaw)*forward+Math.cos(yaw)*side)*speed*dt,z=position.z+(-Math.cos(yaw)*forward-Math.sin(yaw)*side)*speed*dt;
+   const speed=knocked?0:(sprint?4.2:2.4);
+   const x=position.x+(-Math.sin(yaw)*forward+Math.cos(yaw)*side)*speed*dt,z=position.z+(-Math.cos(yaw)*forward-Math.sin(yaw)*side)*speed*dt;
    if(canMove(x,position.z))position.x=x;if(canMove(position.x,z))position.z=z;
    const fightHere=inFightArea(position.x,position.z);
-   const nearBat=!heldBat&&fightHere&&nearestBatDistance()<1.55;fightAction.hidden=!heldBat&&!nearBat;fightAction.dataset.mode=heldBat?'swing':'pickup';fightAction.textContent=heldBat?'FRAPPER':'RAMASSER BATTE';
-   if(t-lastSend>100){updateLobbyPose({...position,yaw,pitch,bat:heldBat,swingSeq});lastSend=t;}
-   for(const [id,v] of avatars){syncHeadCamera(id,v);const p=lobbyPose(id);if(!p)continue;tryRemoteHit(p,v,t);v.track.push(p,t);const pose=v.track.at(t);if(pose){animateAvatar(v,pose,dt);orientAvatarCamera(v,{x:position.x,y:1.65,z:position.z});const fight=ensureAvatarBat(v);if(fight.swingAt){const k=Math.min(1,(t-fight.swingAt)/340),arc=Math.sin(k*Math.PI);fight.holder.rotation.x=.2-arc*1.25;fight.holder.rotation.z=-.34+arc*.88;if(k>=1){fight.swingAt=0;fight.holder.rotation.set(.2,0,-.34);}}}}
-   camera.position.set(position.x,1.65,position.z);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch;
-   if(localBat.visible){const k=swingStarted?Math.min(1,(t-swingStarted)/340):1,arc=swingStarted&&k<1?Math.sin(k*Math.PI):0;if(k>=1)swingStarted=0;batOffset.set(.48,-.42,-.78).applyQuaternion(camera.quaternion);localBat.position.copy(camera.position).add(batOffset);localBat.quaternion.copy(camera.quaternion);localBat.rotateZ(-.5+arc*1.45);localBat.rotateX(.32-arc*.52);}
-   if(hitUntil&&t>=hitUntil){hitUntil=0;fightHit.hidden=true;}
+   const nearBat=!heldBat&&!knocked&&fightHere&&nearestBatDistance()<1.55;fightAction.hidden=knocked||(!heldBat&&!nearBat);fightAction.dataset.mode=heldBat?'swing':'pickup';fightAction.textContent=heldBat?'FRAPPER':'RAMASSER BATTE';runButton.disabled=knocked;
+   if(t-lastSend>100){updateLobbyPose({...position,yaw,pitch,bat:heldBat,swingSeq,down:knocked});lastSend=t;}
+   for(const [id,v] of avatars){syncHeadCamera(id,v);const p=lobbyPose(id);if(!p)continue;tryRemoteHit(p,v,t);v.track.push(p,t);const pose=v.track.at(t);if(pose){animateAvatar(v,{...pose,dead:p.down===true},dt);if(p.down===true)v.cameraHead.position.set(1.62,.20,-.025);else v.cameraHead.position.set(0,1.72,-.025);orientAvatarCamera(v,{x:position.x,y:1.65,z:position.z});poseRemoteBat(v,p,t);}}
+   const fallIn=knocked?clamp((t-knockStarted)/260,0,1):0,fallOut=knocked?clamp((knockedUntil-t)/430,0,1):0,fall=knocked?Math.min(fallIn,fallOut):0;
+   camera.position.set(position.x,1.65-1.03*fall,position.z);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch+.12*fall;camera.rotation.z=-1.05*fall;
+   if(localBat.visible){
+     const k=swingStarted?Math.min(1,(t-swingStarted)/460):1;let wind=0,follow=0;if(swingStarted&&k<1){if(k<.24)wind=Math.sin(k/.24*Math.PI/2);else if(k<.64)follow=Math.sin((k-.24)/.40*Math.PI);else follow=Math.max(0,1-(k-.64)/.36);}else if(k>=1)swingStarted=0;
+     batOffset.set(.52,-.37,-.72).applyQuaternion(camera.quaternion);localBat.position.copy(camera.position).add(batOffset);localBat.quaternion.copy(camera.quaternion);localBat.rotateZ(-.72-wind*.48+follow*1.58);localBat.rotateX(.38+wind*.18-follow*.82);localBat.rotateY(.08-follow*.16);
+   }
+   if(hitUntil&&t>=hitUntil){hitUntil=0;fightHit.hidden=true;fightHit.textContent='TOUCHÉ !';}
    renderer.render(scene,camera);if(assetsReady)budget.record(t,performance.now()-began);
  }
  const stick=shell.querySelector('.one3d-stick'),knob=shell.querySelector('.one3d-knob');
@@ -159,7 +194,7 @@ function open(ctx={}){
   const setPanelOpen=open=>{sessionPanel.dataset.collapsed=String(!open);panelToggle.setAttribute('aria-expanded',String(open));panelToggle.setAttribute('aria-label',open?'Réduire les commandes du salon':'Afficher les commandes du salon');panelToggle.textContent=open?'−':'+';};
   listen(panelToggle,'click',()=>setPanelOpen(sessionPanel.dataset.collapsed==='true'));
   const runButton=shell.querySelector('[data-run]'),sprintToggle=matchMedia('(pointer:coarse)').matches||innerWidth<700;
-  const setSprint=value=>{sprint=!!value;if(runButton){runButton.setAttribute('aria-pressed',String(sprint));runButton.setAttribute('aria-label',sprint?'Arrêter de courir':'Courir');runButton.textContent=sprint?'COURSE…':'COURIR';}};
+  const setSprint=value=>{sprint=isKnocked(performance.now())?false:!!value;if(runButton){runButton.setAttribute('aria-pressed',String(sprint));runButton.setAttribute('aria-label',sprint?'Arrêter de courir':'Courir');runButton.textContent=sprint?'COURSE…':'COURIR';}};
   listen(runButton,'pointerdown',e=>{e.preventDefault();if(sprintToggle){setSprint(!sprint);return;}runButton.setPointerCapture?.(e.pointerId);});
   listen(runButton,'pointerup',()=>{if(!sprintToggle)setSprint(false);});
   listen(runButton,'pointercancel',()=>{if(!sprintToggle)setSprint(false);});

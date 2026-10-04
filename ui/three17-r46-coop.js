@@ -89,7 +89,7 @@ function rebuildRoster(){
   roster=next;for(const id of poses.keys())if(!roster.some(p=>p.id===id))poses.delete(id);
   broadcast('lobby43',{players:roster},[...applicants.keys()].filter(id=>member(id))); redraw();
 }
-const validPose=p=>p&&[p.x,p.z,p.yaw].every(Number.isFinite)&&Math.abs(p.x)<=22.4&&Math.abs(p.z)<=6.2&&Math.abs(p.yaw)<=Math.PI*2&&(!('pitch' in p)||Number.isFinite(p.pitch)&&Math.abs(p.pitch)<=1.2)&&(!('bat' in p)||typeof p.bat==='boolean')&&(!('swingSeq' in p)||Number.isSafeInteger(p.swingSeq)&&p.swingSeq>=0&&p.swingSeq<=1000000000);
+const validPose=p=>p&&[p.x,p.z,p.yaw].every(Number.isFinite)&&Math.abs(p.x)<=22.4&&Math.abs(p.z)<=6.2&&Math.abs(p.yaw)<=Math.PI*2&&(!('pitch' in p)||Number.isFinite(p.pitch)&&Math.abs(p.pitch)<=1.2)&&(!('bat' in p)||typeof p.bat==='boolean')&&(!('down' in p)||typeof p.down==='boolean')&&(!('swingSeq' in p)||Number.isSafeInteger(p.swingSeq)&&p.swingSeq>=0&&p.swingSeq<=1000000000);
 function receive(from,p){
   if(!member(from)||p.room!==roomNow()?.id)return;
   if(p.kind==='hello43'&&isHost()&&typeof p.session==='string'&&p.session.length===36){
