@@ -1,7 +1,7 @@
-import * as THREE from './three.module.js?v=lobby-casino-v69';
-import {GLTFLoader} from './GLTFLoader.js?v=lobby-casino-v69';
+import * as THREE from './three.module.js?v=lobby-tables-v74';
+import {GLTFLoader} from './GLTFLoader.js?v=lobby-tables-v74';
 
-// R69: expanded ONE lobby with playable casino machines and open ONE FIGHT room.
+// R74: expanded ONE lobby with playable slots, blackjack, roulette and hittable casino dealers.
 export function buildRoom(scene,renderer,alive,dispose){
  const root=new THREE.Group();root.name='ONE-lobby-r62';scene.add(root);
  const mobile=matchMedia('(pointer:coarse)').matches||innerWidth<700;
@@ -121,12 +121,41 @@ export function buildRoom(scene,renderer,alive,dispose){
  // Casino room
  const casinoRoot=new THREE.Group();root.add(casinoRoot);
  const casinoCarpet=mesh(new THREE.CylinderGeometry(3.3,3.3,.03,50),casinoFelt,-17.8,.02,0,casinoRoot);casinoCarpet.rotation.x=0;
- const rouletteTable=new THREE.Group();casinoRoot.add(rouletteTable);rouletteTable.position.set(-17.8,0,0);
- mesh(new THREE.CylinderGeometry(1.55,1.55,.14,40),gold,0,.74,0,rouletteTable);
- mesh(new THREE.CylinderGeometry(1.36,1.36,.06,40),casinoFelt,0,.84,0,rouletteTable);
+ const rouletteTable=new THREE.Group();casinoRoot.add(rouletteTable);rouletteTable.position.set(-19.35,0,.10);
+ mesh(new THREE.CylinderGeometry(1.45,1.45,.14,40),gold,0,.74,0,rouletteTable);
+ mesh(new THREE.CylinderGeometry(1.28,1.28,.06,40),casinoFelt,0,.84,0,rouletteTable);
  mesh(new THREE.CylinderGeometry(.24,.24,.44,18),darkMetal,0,.37,0,rouletteTable);
- const wheel=mesh(new THREE.CylinderGeometry(.42,.42,.08,28),darkMetal,0,.92,0,rouletteTable);
- mesh(new THREE.TorusGeometry(.44,.04,10,34),gold,0,.92,0,rouletteTable).rotation.x=Math.PI/2;
+ const wheel=mesh(new THREE.CylinderGeometry(.44,.44,.08,28),darkMetal,0,.94,0,rouletteTable);wheel.userData.dynamic=true;
+ mesh(new THREE.TorusGeometry(.46,.04,10,34),gold,0,.94,0,rouletteTable).rotation.x=Math.PI/2;
+ // Blackjack table: large felt table near the right side, while the doorway stays clear.
+ const blackjackTable=new THREE.Group();casinoRoot.add(blackjackTable);blackjackTable.position.set(-15.55,0,2.20);
+ box(2.55,.62,1.28,mat(0x3a271f,.78,.06),0,.31,0,blackjackTable);
+ box(2.72,.13,1.46,gold,0,.68,0,blackjackTable);
+ box(2.45,.08,1.27,casinoFelt,0,.79,0,blackjackTable);
+ const bjMark=(()=>{const cv=document.createElement('canvas');cv.width=768;cv.height=320;const g=cv.getContext('2d');g.clearRect(0,0,768,320);g.textAlign='center';g.strokeStyle='#e8d59caa';g.lineWidth=5;g.beginPath();g.arc(384,350,260,Math.PI*1.08,Math.PI*1.92);g.stroke();g.fillStyle='#f4e8bc';g.font='900 56px Georgia';g.fillText('BLACKJACK',384,132);g.font='700 28px system-ui';g.fillText('CROUPIER RESTE À 17',384,188);const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;})();
+ const bjPrint=plane(2.18,.86,new THREE.MeshBasicMaterial({map:bjMark,transparent:true,toneMapped:false}),0,.835,.08,blackjackTable);bjPrint.rotation.x=-Math.PI/2;
+ for(const x of [-.8,0,.8])mesh(new THREE.CylinderGeometry(.12,.12,.06,20),mat(x<0?0x9f3149:x>0?0x357457:0xeee1bc,.45,.08),x,.86,-.32,blackjackTable);
+ const casinoTableSpots=[
+  {kind:'roulette',name:'ROULETTE',x:-19.35,z:-1.72},
+  {kind:'blackjack',name:'BLACKJACK',x:-15.55,z:.92}
+ ];
+ // Simple casino dealers. They are dynamic because bat hits can make them stagger/fall.
+ const casinoNpcs=[];
+ const npcJacket=mat(0x252938,.82),npcShirt=mat(0xeee7da,.9),npcSkin=mat(0xbc9580,.88),npcHair=mat(0x2a211e,.98);
+ function casinoNpc(id,name,x,z,yaw=0){
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=yaw;casinoRoot.add(g);
+  const torso=mesh(new THREE.CapsuleGeometry(.22,.34,4,10),npcJacket,0,1.12,0,g);torso.scale.set(1.12,1,.72);
+  box(.08,.42,.19,npcShirt,0,1.13,-.13,g);
+  mesh(new THREE.SphereGeometry(.18,14,10),npcSkin,0,1.69,-.02,g);
+  mesh(new THREE.SphereGeometry(.184,12,8,0,Math.PI*2,0,Math.PI*.52),npcHair,0,1.75,.01,g);
+  for(const s of [-1,1]){const arm=new THREE.Group();arm.position.set(s*.29,1.35,0);g.add(arm);mesh(new THREE.CapsuleGeometry(.075,.38,3,8),npcJacket,s*.02,-.24,0,arm);mesh(new THREE.SphereGeometry(.07,8,6),npcSkin,s*.02,-.5,0,arm);arm.rotation.x=-.18;}
+  for(const s of [-1,1]){const leg=new THREE.Group();leg.position.set(s*.12,.82,0);g.add(leg);mesh(new THREE.CapsuleGeometry(.09,.5,3,8),darkMetal,0,-.31,0,leg);}
+  const labelCanvas=document.createElement('canvas');labelCanvas.width=512;labelCanvas.height=96;const lc=labelCanvas.getContext('2d');lc.fillStyle='#11131dde';lc.beginPath();lc.roundRect(4,4,504,88,22);lc.fill();lc.fillStyle='#f5e8c8';lc.font='700 30px system-ui';lc.textAlign='center';lc.fillText(name,256,60);const labelTex=new THREE.CanvasTexture(labelCanvas);labelTex.colorSpace=THREE.SRGBColorSpace;const label=new THREE.Sprite(new THREE.SpriteMaterial({map:labelTex}));label.scale.set(1.35,.25,1);label.position.y=2.15;g.add(label);
+  g.traverse(o=>{o.userData.dynamic=true;});
+  const npc={id,name,group:g,x,z,hitAt:0,hitUntil:0,downStarted:0,downUntil:0,hits:0};casinoNpcs.push(npc);return npc;
+ }
+ casinoNpc('roulette','CROUPIER ROULETTE',-19.35,1.92,Math.PI);
+ casinoNpc('blackjack','CROUPIER BLACKJACK',-15.55,3.35,Math.PI);
  const casinoMachineSpots=[],casinoMachines=[];
  const slotNames=['GOLDEN ONE','PURPLE 7','MINT JACKPOT','NIGHT ONE'];
  const slotColors=[0xf0c95d,0xaa78f0,0x62d5ae,0x79a8ff];
@@ -194,7 +223,6 @@ export function buildRoom(scene,renderer,alive,dispose){
    sofaFallback.visible=false;
    const cushion=new THREE.SphereGeometry(1,16,12);
    for(const x of [-4.8,4.8]){root.add(fit(results[0].value.scene,x,-2.8,2.9,1.22,1.15));for(const side of [-1,1]){const pillow=mesh(cushion,side<0?cushionLilac:cushionMint,x+side*.68,.64,-2.63);pillow.scale.set(.25,.23,.12);pillow.rotation.z=side*.12;}}
-   root.add(fit(results[0].value.scene,-17.8,3.5,3.4,1.3,1.18));
   }
   if(results[1].status==='fulfilled'){tableFallback.visible=false;root.add(fit(results[1].value.scene,0,0,2.15,2.15,.65));}
   if(results[2].status==='fulfilled'){
@@ -203,7 +231,7 @@ export function buildRoom(scene,renderer,alive,dispose){
    if(f){tune(f,16,9);f.envMapIntensity=.22;for(const surf of [floor,leftPassFloor,rightPassFloor,leftRoomFloor,rightRoomFloor])surf.material=f;floorMaterial.dispose();}
    if(w){tune(w,2.8,1.8);w.normalScale.set(.38,.38);wallPanels.forEach(p=>p.material=w);wallMaterial.dispose();}
   }
-  root.traverse(o=>{o.updateMatrix();o.matrixAutoUpdate=false;});
+  root.traverse(o=>{if(o.userData?.dynamic)return;o.updateMatrix();o.matrixAutoUpdate=false;});
   scene.userData.r45={assets:results.map((r,i)=>({name:['sofa_02','coffee_table_round_01','surfaces'][i],loaded:r.status==='fulfilled'}))};
   return {complete:results.every(r=>r.status==='fulfilled')};
  });
@@ -218,5 +246,5 @@ export function buildRoom(scene,renderer,alive,dispose){
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const t=y/h;data.set([Math.round(155-60*t),Math.round(163-75*t),Math.round(182-102*t),255],(y*w+x)*4);}
  const environment=new THREE.DataTexture(data,w,h);environment.mapping=THREE.EquirectangularReflectionMapping;environment.needsUpdate=true;
  const pmrem=new THREE.PMREMGenerator(renderer),env=pmrem.fromEquirectangular(environment);scene.environment=env.texture;scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
- return {screen,ready,fightBatSpots,casinoMachineSpots,casinoMachines,dispose(){scene.environment=null;env.dispose();}};
+ return {screen,ready,fightBatSpots,casinoMachineSpots,casinoMachines,casinoTableSpots,casinoNpcs,rouletteWheel:wheel,dispose(){scene.environment=null;env.dispose();}};
 }

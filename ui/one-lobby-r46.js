@@ -1,12 +1,12 @@
-import {prepareScene} from './three17-r46-warmup.js?v=lobby-fight-casino-v73';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-fight-casino-v73';
+import {prepareScene} from './three17-r46-warmup.js?v=lobby-tables-v74';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-tables-v74';
 
-import * as THREE from './three.module.js?v=lobby-fight-casino-v73';
-import {buildRoom} from './one-lobby-r46-room.js?v=lobby-fight-casino-v73';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-fight-casino-v73';
-import {createRenderBudget} from './three17-r46-render.js?v=lobby-fight-casino-v73';
+import * as THREE from './three.module.js?v=lobby-tables-v74';
+import {buildRoom} from './one-lobby-r46-room.js?v=lobby-tables-v74';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-tables-v74';
+import {createRenderBudget} from './three17-r46-render.js?v=lobby-tables-v74';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-fight-casino-v73';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-tables-v74';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
@@ -14,7 +14,7 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 function open(ctx={}){
  if(active){active.shell.focus();return;}
  const shell=document.createElement('section');shell.className='one3d-shell';shell.tabIndex=-1;shell.setAttribute('role','dialog');shell.setAttribute('aria-modal','true');shell.setAttribute('aria-label','Lobby 3D partagé');
- shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small data-room></small></div><button type="button" data-close aria-label="Quitter le lobby 3D">Quitter</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">3:17 · 2–4 JOUEURS</div></div><button class="one3d-screen-button" data-screen-open>✦ Choisir un jeu</button><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Glisser pour regarder"></div><button class="one3d-run" type="button" data-run aria-pressed="false">COURIR</button><button class="one3d-fight-action" type="button" data-fight-action hidden>RAMASSER BATTE</button><div class="one3d-fight-hit" data-fight-hit hidden>TOUCHÉ !</div></div><footer class="one3d-bottom"><div class="one3d-session" data-collapsed="true"><button class="one3d-panel-toggle" type="button" data-panel-toggle aria-expanded="false" aria-label="Afficher les commandes du salon">+</button><span class="one3d-eyebrow">3:17 · FOUR</span><p data-status role="status">Connexion au salon…</p><div class="one3d-actions"><button type="button" data-ready disabled>Je suis prêt</button><button type="button" data-start disabled>Lancer 3:17</button></div><button type="button" data-reconnect>Réessayer la connexion</button></div></footer><p class="one3d-controls">ZQSD / WASD · flèches · glisser pour regarder · Maj courir · F bagarre · G machine</p>`;
+ shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small data-room></small></div><button type="button" data-close aria-label="Quitter le lobby 3D">Quitter</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">3:17 · 2–4 JOUEURS</div></div><button class="one3d-screen-button" data-screen-open>✦ Choisir un jeu</button><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Glisser pour regarder"></div><button class="one3d-run" type="button" data-run aria-pressed="false">COURIR</button><button class="one3d-fight-action" type="button" data-fight-action hidden>RAMASSER BATTE</button><div class="one3d-fight-hit" data-fight-hit hidden>TOUCHÉ !</div></div><footer class="one3d-bottom"><div class="one3d-session" data-collapsed="true"><button class="one3d-panel-toggle" type="button" data-panel-toggle aria-expanded="false" aria-label="Afficher les commandes du salon">+</button><span class="one3d-eyebrow">3:17 · FOUR</span><p data-status role="status">Connexion au salon…</p><div class="one3d-actions"><button type="button" data-ready disabled>Je suis prêt</button><button type="button" data-start disabled>Lancer 3:17</button></div><button type="button" data-reconnect>Réessayer la connexion</button></div></footer><p class="one3d-controls">ZQSD / WASD · flèches · glisser pour regarder · Maj courir · F bagarre · G casino</p>`;
  document.body.append(shell);shell.focus();
  const fightStyle=document.createElement('style');fightStyle.textContent=`
  .one3d-fight-action{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(174px,calc(env(safe-area-inset-bottom) + 170px));z-index:18;min-width:150px;min-height:50px;padding:9px 16px;border:1px solid #ff91b5;border-radius:17px;background:linear-gradient(135deg,#6e274a,#a33d67);color:#fff7fb;font:850 12px/1 system-ui;letter-spacing:.045em;box-shadow:0 8px 22px #0006,inset 0 1px #fff3;touch-action:manipulation;pointer-events:auto;-webkit-tap-highlight-color:transparent}
@@ -42,6 +42,7 @@ function open(ctx={}){
  .one3d-casino-native .oneJackpotCelebration{position:relative;overflow:hidden;padding:22px 8px;margin:12px 0;border:3px ridge #ffdd87;border-radius:14px;background:radial-gradient(ellipse at center,#644422,#221332 70%);color:#ffe9a5;text-align:center;box-shadow:0 0 25px #e7b54a66}.one3d-casino-native .oneJackpotCelebration small,.one3d-casino-native .oneJackpotCelebration strong,.one3d-casino-native .oneJackpotCelebration b{position:relative;display:block;z-index:2}.one3d-casino-native .oneJackpotCelebration i{display:none}
  @keyframes oneCylinderSpin{from{transform:rotateX(0deg)}to{transform:rotateX(-360deg)}}@keyframes oneReelStopBounce{0%{transform:translateY(-8px)}65%{transform:translateY(3px)}100%{transform:translateY(0)}}@keyframes oneSlotWin{from{filter:brightness(1.35)}to{filter:brightness(1)}}@keyframes oneSlotTrace{from{stroke-dashoffset:900}to{stroke-dashoffset:0}}@keyframes oneBonusGlow{to{box-shadow:0 0 22px #ebc168;filter:brightness(1.2)}}
  .one3d-casino-result{min-height:42px;text-align:center;color:#f4db8d;font-weight:800}.one3d-casino-controls{display:flex;align-items:end;gap:10px;flex-wrap:wrap}.one3d-casino-controls label{display:grid;gap:5px;font-size:11px;color:#c8c4d1}.one3d-casino-controls select{min-height:43px;border:1px solid #806d4e;border-radius:11px;background:#171925;color:#fff;padding:8px 12px;font-size:15px}.one3d-casino-spin{flex:1;min-height:46px;border:1px solid #f0cf76;border-radius:12px;background:linear-gradient(135deg,#8b6821,#d1a53d);color:#1e1820;font-weight:900}.one3d-casino-spin:disabled{opacity:.5}.one3d-casino-balance{display:block;margin:10px 0;color:#c8c6ce;text-align:center}.one3d-casino-note{display:block;margin-top:10px;color:#8f96a7;text-align:center;font-size:10px}
+ .one3d-table-card{width:min(760px,96%);max-height:94%;overflow:auto;padding:16px;border:1px solid #c9ab61;border-radius:22px;background:linear-gradient(145deg,#211d2d,#0e141d);color:#f8f2e5;box-shadow:0 22px 60px #000b}.one3d-table-body{display:grid;gap:12px}.one3d-table-status{text-align:center;color:#f1d482;font-weight:800;min-height:24px}.one3d-table-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}.one3d-table-toolbar label{display:flex;align-items:center;gap:7px;font-size:12px}.one3d-table-toolbar select{min-height:42px;border:1px solid #866f4a;border-radius:10px;background:#161a24;color:#fff;padding:8px 10px;font-size:15px}.one3d-table-toolbar button,.one3d-table-action{min-height:44px;border:1px solid #d7b965;border-radius:11px;background:linear-gradient(135deg,#8b6821,#d1a53d);color:#201821;padding:9px 14px;font-weight:900}.one3d-table-toolbar button:disabled,.one3d-table-action:disabled{opacity:.45}.one3d-blackjack-felt{padding:14px;border:5px solid #4a3125;border-radius:22px 22px 44% 44%;background:radial-gradient(ellipse at center,#276348,#123329);box-shadow:inset 0 0 0 2px #c3a76866}.one3d-bj-side{display:grid;gap:6px;margin:7px 0}.one3d-bj-side>strong{text-align:center;color:#ead99f}.one3d-bj-cards{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;min-height:74px}.one3d-bj-card{width:48px;height:68px;border-radius:7px;border:1px solid #cfb877;background:linear-gradient(135deg,#fffdf0,#e9dfc8);color:#191827;display:grid;place-items:center;font:800 18px Georgia;box-shadow:0 4px 8px #0007}.one3d-bj-card.red{color:#af2842}.one3d-bj-card.back{background:repeating-linear-gradient(45deg,#34245a 0 7px,#5c3c87 7px 14px);color:#f1d98a;font-size:10px}.one3d-roulette-result{display:grid;place-items:center;width:78px;height:78px;border-radius:50%;margin:4px auto;border:5px solid #d4b567;background:#191a20;color:#fff2c5;font:900 27px Georgia;box-shadow:0 8px 14px #0007}.one3d-roulette-result.red{background:#9f2d46}.one3d-roulette-result.black{background:#17171d}.one3d-roulette-result.green{background:#267a50}.one3d-roulette-bets{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.one3d-roulette-bets button{min-height:38px;padding:5px;border:1px solid #756843;border-radius:7px;background:#20232c;color:#fff;font-weight:800}.one3d-roulette-bets button.red{background:#8f2940}.one3d-roulette-bets button.black{background:#17171d}.one3d-roulette-bets button.green{background:#267a50}.one3d-roulette-bets button.has-bet{box-shadow:inset 0 0 0 2px #f3d375}.one3d-bet-summary{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;color:#ddcead;font-size:12px}
  @media(max-width:600px){.one3d-casino-panel{inset:50px 8px 10px}.one3d-casino-card{padding:14px}.one3d-casino-native .oneSlotMeters strong{font-size:17px}.one3d-casino-native .slotMarquee{font-size:15px}}
  `;shell.append(casinoStyle);
  const stage=shell.querySelector('.one3d-stage'),chips=shell.querySelector('.one3d-players');
@@ -49,6 +50,8 @@ function open(ctx={}){
  const casinoAction=document.createElement('button');casinoAction.type='button';casinoAction.className='one3d-casino-action';casinoAction.hidden=true;casinoAction.textContent='JOUER MACHINE';stage.append(casinoAction);
  const casinoPanel=document.createElement('section');casinoPanel.className='one3d-casino-panel';casinoPanel.hidden=true;casinoPanel.setAttribute('role','dialog');casinoPanel.setAttribute('aria-label','Machine à sous ONE Casino');casinoPanel.innerHTML=`<div class="one3d-casino-card"><header class="one3d-casino-head"><b>ONE CASINO</b><button type="button" class="one3d-casino-close" data-casino-close aria-label="Fermer">×</button></header><div class="one3d-casino-machine-name" data-casino-name>GOLDEN ONE</div><small class="one3d-casino-balance" data-casino-balance>Chargement des Points ONE…</small><div class="one3d-casino-native" data-casino-native></div><p class="one3d-casino-result" data-casino-result>Approche une machine et lance les rouleaux.</p><div class="one3d-casino-controls"><label>Mise<select data-casino-stake><option value="10">10 Points</option><option value="25">25 Points</option><option value="50">50 Points</option><option value="100">100 Points</option></select></label><button type="button" class="one3d-casino-spin" data-casino-spin>LANCER LES ROULEAUX</button></div><small class="one3d-casino-note">Même machine Golden Dragon que dans Points ONE.</small></div>`;stage.append(casinoPanel);
  const casinoName=casinoPanel.querySelector('[data-casino-name]'),casinoBalance=casinoPanel.querySelector('[data-casino-balance]'),casinoNative=casinoPanel.querySelector('[data-casino-native]'),casinoResult=casinoPanel.querySelector('[data-casino-result]'),casinoStake=casinoPanel.querySelector('[data-casino-stake]'),casinoSpin=casinoPanel.querySelector('[data-casino-spin]');
+ const tableCasinoPanel=document.createElement('section');tableCasinoPanel.className='one3d-casino-panel';tableCasinoPanel.hidden=true;tableCasinoPanel.setAttribute('role','dialog');tableCasinoPanel.setAttribute('aria-label','Table ONE Casino');tableCasinoPanel.innerHTML=`<div class="one3d-table-card"><header class="one3d-casino-head"><b data-table-title>ONE CASINO</b><button type="button" class="one3d-casino-close" data-table-close aria-label="Fermer">×</button></header><small class="one3d-casino-balance" data-table-balance>Chargement des Points ONE…</small><div class="one3d-table-body" data-table-body></div><p class="one3d-table-status" data-table-status></p></div>`;stage.append(tableCasinoPanel);
+ const tableTitle=tableCasinoPanel.querySelector('[data-table-title]'),tableBalance=tableCasinoPanel.querySelector('[data-table-balance]'),tableBody=tableCasinoPanel.querySelector('[data-table-body]'),tableStatus=tableCasinoPanel.querySelector('[data-table-status]');
  const scene=new THREE.Scene();let renderer;
  try{renderer=new THREE.WebGLRenderer({antialias:!(matchMedia('(pointer:coarse)').matches||innerWidth<700),powerPreference:'high-performance',alpha:false});}
  catch(error){shell.querySelector('[data-status]').textContent='La 3D ne démarre pas dans ce navigateur. Ferme les autres jeux, puis réessaie.';shell.querySelector('[data-close]').onclick=()=>shell.remove();shell.querySelector('[data-reconnect]').onclick=()=>{shell.remove();open(ctx);};return;}
@@ -75,40 +78,40 @@ function open(ctx={}){
    const fight=ensureAvatarBat(v),visible=raw.bat===true,down=raw.down===true;fight.holder.visible=visible;if(!visible)return;
    if(down){
      v.arms[1].rotation.x=.08;v.arms[1].rotation.z=-.10;
-     fight.holder.position.set(.46,.40,-.12);fight.holder.rotation.set(-1.70,.02,.44);fight.bat.position.set(.02,.02,-.04);return;
+     fight.holder.position.set(.44,.42,-.34);fight.holder.rotation.set(-1.66,-.08,.38);fight.bat.position.set(.02,.02,-.08);return;
    }
    // Rest pose: the handle is in the right hand while the barrel sits visibly over
    // the right shoulder. The pose is independent from the walk cycle.
-   let armX=.72,armZ=-.12,px=.38,py=1.38,pz=-.22,rx=.64,ry=-.10,rz=-.28;
+   let armX=.72,armZ=-.12,px=.40,py=1.40,pz=-.48,rx=.60,ry=-.16,rz=-.24;
    if(fight.swingAt){
      const k=Math.min(1,(t-fight.swingAt)/500);
      if(k<.16){
        // Small wind-up from the shoulder.
        const w=smooth(k/.16);
        armX=lerp(.72,.92,w);armZ=lerp(-.12,-.03,w);
-       px=lerp(.38,.42,w);py=lerp(1.38,1.48,w);pz=lerp(-.22,-.12,w);
-       rx=lerp(.64,.42,w);ry=lerp(-.10,-.02,w);rz=lerp(-.28,-.46,w);
+       px=lerp(.40,.44,w);py=lerp(1.40,1.50,w);pz=lerp(-.48,-.38,w);
+       rx=lerp(.60,.40,w);ry=lerp(-.16,-.08,w);rz=lerp(-.24,-.44,w);
      }else if(k<.48){
        // One violent descending diagonal strike: shoulder -> chest -> down/front.
        const s=smooth((k-.16)/.32);
        armX=lerp(.92,.16,s);armZ=lerp(-.03,.46,s);
-       px=lerp(.42,.22,s);py=lerp(1.48,1.02,s);pz=lerp(-.12,-.50,s);
-       rx=lerp(.42,-1.92,s);ry=lerp(-.02,-.08,s);rz=lerp(-.46,.52,s);
+       px=lerp(.44,.24,s);py=lerp(1.50,1.03,s);pz=lerp(-.38,-.72,s);
+       rx=lerp(.40,-1.90,s);ry=lerp(-.08,-.12,s);rz=lerp(-.44,.50,s);
      }else if(k<.60){
-       armX=.16;armZ=.46;px=.22;py=1.02;pz=-.50;rx=-1.92;ry=-.08;rz=.52;
+       armX=.16;armZ=.46;px=.24;py=1.03;pz=-.72;rx=-1.90;ry=-.12;rz=.50;
      }else{
        // Recover around the outside at low height, then return to the shoulder;
        // this cannot read as a second upward strike.
        const r=smooth((k-.60)/.40),arc=Math.sin(r*Math.PI);
        armX=lerp(.16,.72,r)-.12*arc;armZ=lerp(.46,-.12,r)+.08*arc;
-       px=lerp(.22,.38,r)+.18*arc;py=lerp(1.02,1.38,r)-.20*arc;pz=lerp(-.50,-.22,r)-.08*arc;
-       rx=lerp(-1.92,.64,r)-.14*arc;ry=lerp(-.08,-.10,r)+.04*arc;rz=lerp(.52,-.28,r)+.08*arc;
+       px=lerp(.24,.40,r)+.16*arc;py=lerp(1.03,1.40,r)-.18*arc;pz=lerp(-.72,-.48,r)-.10*arc;
+       rx=lerp(-1.90,.60,r)-.12*arc;ry=lerp(-.12,-.16,r)+.03*arc;rz=lerp(.50,-.24,r)+.06*arc;
      }
      if(k>=1)fight.swingAt=0;
    }
    v.arms[1].rotation.x=armX;v.arms[1].rotation.z=armZ;
    fight.holder.position.set(px,py,pz);fight.holder.rotation.set(rx,ry,rz);
-   fight.bat.position.set(.02,.02,-.04);
+   fight.bat.position.set(.02,.02,-.08);
  }
  const syncHeadCamera=(id,v)=>{
    const element=window.ONEPartyMedia?.videoForMember?.(id)||null;
@@ -159,16 +162,19 @@ function open(ctx={}){
    const inLeftPass=x>-13.45&&x<-8.05&&Math.abs(z)<2.16;
    const inRightPass=x<13.45&&x>8.05&&Math.abs(z)<2.16;
    const casinoBounds=x>-22.2&&x<-12.45&&Math.abs(z)<5.6;
-   const casinoBlocked=(x>-19.8&&x<-15.8&&z>-1.7&&z<1.7)||(z<-4.04&&x>-21.15&&x<-14.45)||(z>4.28&&x>-20.5&&x<-15.1);
+   const rouletteBlocked=Math.hypot(x+19.35,z-.10)<1.52;
+   const blackjackBlocked=x>-16.95&&x<-14.15&&z>1.42&&z<3.05;
+   const casinoBlocked=rouletteBlocked||blackjackBlocked||(z<-4.04&&x>-21.15&&x<-14.45)||(z>4.28&&x>-20.5&&x<-15.1);
    const inCasino=casinoBounds&&!casinoBlocked;
    const inFight=inFightArea(x,z);
    return inMain||inLeftPass||inRightPass||inCasino||inFight;
  };
- let heldBat=false,swingSeq=0,swingStarted=0,lastHitAt=0,hitUntil=0,lastFightPointerAt=0,hitsTaken=0,knockedUntil=0,knockStarted=0;
+ let heldBat=false,swingSeq=0,swingStarted=0,lastHitAt=0,hitUntil=0,lastFightPointerAt=0,hitsTaken=0,knockedUntil=0,knockStarted=0,npcHitSeq=0,npcHitTarget='',npcSwingProcessed=0;
+ const remoteNpcSeq=new Map();
  const nearestBatDistance=()=>Math.min(...(roomVisual.fightBatSpots||[]).map(s=>Math.hypot(position.x-s.x,position.z-s.z)),99);
  const isKnocked=t=>t<knockedUntil;
  const setHeldBat=value=>{heldBat=!!value;localBat.visible=heldBat;if(!heldBat)swingStarted=0;};
- const publishPose=()=>updateLobbyPose({...position,yaw,pitch,bat:heldBat,swingSeq,down:isKnocked(performance.now())});
+ const publishPose=()=>updateLobbyPose({...position,yaw,pitch,bat:heldBat,swingSeq,down:isKnocked(performance.now()),npcHitSeq,npcHitTarget});
  // Once a bat is picked up it stays with the player throughout the whole lobby.
  const swingBat=()=>{const now=performance.now();if(!heldBat||isKnocked(now)||now-swingStarted<440)return;swingSeq++;swingStarted=now;publishPose();};
  const useFightAction=()=>{if(heldBat){swingBat();return;}if(inFightArea(position.x,position.z)&&nearestBatDistance()<1.55){setHeldBat(true);publishPose();}};
@@ -180,6 +186,25 @@ function open(ctx={}){
    else showFightMessage(`TOUCHÉ · ${hitsTaken}/3`,300);
    return true;
  };
+ const applyNpcHit=(target,t)=>{
+   const npc=(roomVisual.casinoNpcs||[]).find(n=>n.id===target);if(!npc)return false;
+   npc.hits=(npc.hits||0)+1;npc.hitAt=t;npc.hitUntil=t+430;
+   if(npc.hits>=3){npc.hits=0;npc.downStarted=t;npc.downUntil=t+2400;}
+   return true;
+ };
+ const tryLocalNpcHit=t=>{
+   if(!heldBat||!swingStarted||npcSwingProcessed===swingSeq)return;
+   const age=t-swingStarted;if(age<150)return;if(age>330){npcSwingProcessed=swingSeq;return;}
+   let best=null,bestDist=99;const fx=-Math.sin(yaw),fz=-Math.cos(yaw);
+   for(const npc of roomVisual.casinoNpcs||[]){const dx=npc.x-position.x,dz=npc.z-position.z,dist=Math.hypot(dx,dz);if(dist>.18&&dist<2.15){const dot=(dx/dist)*fx+(dz/dist)*fz;if(dot>.10&&dist<bestDist){best=npc;bestDist=dist;}}}
+   if(!best)return;npcSwingProcessed=swingSeq;npcHitSeq++;npcHitTarget=best.id;applyNpcHit(best.id,t);publishPose();showFightMessage('CROUPIER TOUCHÉ !',280);
+ };
+ const syncRemoteNpcHit=(id,raw,t)=>{
+   const seq=Number.isSafeInteger(raw?.npcHitSeq)?raw.npcHitSeq:0,prev=remoteNpcSeq.get(id);
+   if(prev===undefined){remoteNpcSeq.set(id,seq);return;}if(seq<=prev)return;remoteNpcSeq.set(id,seq);
+   if(raw?.npcHitTarget==='roulette'||raw?.npcHitTarget==='blackjack')applyNpcHit(raw.npcHitTarget,t);
+ };
+ const animateCasinoNpcs=t=>{for(const npc of roomVisual.casinoNpcs||[]){const g=npc.group;if(!g)continue;if(t<(npc.downUntil||0)){const a=Math.min(1,(t-(npc.downStarted||t))/260),b=Math.min(1,((npc.downUntil||t)-t)/380),f=Math.min(a,b);g.rotation.z=-1.28*f;g.position.y=.03*f;}else if(t<(npc.hitUntil||0)){const q=Math.max(0,1-(t-(npc.hitAt||t))/430);g.rotation.z=Math.sin(q*Math.PI*2)*.16*q;g.position.y=0;}else{g.rotation.z*=.72;if(Math.abs(g.rotation.z)<.002)g.rotation.z=0;g.position.y=0;}}};
  // One physical press = one swing. Using pointerdown only avoids the delayed synthetic click
  // some mobile WebViews emit after pointerdown, which previously caused a second bat swing.
  fightAction.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();lastFightPointerAt=performance.now();useFightAction();});
@@ -188,6 +213,10 @@ function open(ctx={}){
  const nearestCasinoMachine=()=>{
    let best={distance:99,spot:null};for(const spot of roomVisual.casinoMachineSpots||[]){const distance=Math.hypot(position.x-spot.x,position.z-spot.z);if(distance<best.distance)best={distance,spot};}return best;
  };
+ const nearestCasinoTable=()=>{
+   let best={distance:99,spot:null};for(const spot of roomVisual.casinoTableSpots||[]){const distance=Math.hypot(position.x-spot.x,position.z-spot.z);if(distance<best.distance)best={distance,spot};}return best;
+ };
+ const nearestCasinoInteraction=()=>{const machine=nearestCasinoMachine(),table=nearestCasinoTable();return table.distance<machine.distance?{...table,type:'table'}:{...machine,type:'machine'};};
  const renderNativeSlots=(round,busy=false,bonusOverride=null,balanceOverride=null)=>{
    casinoNative.replaceChildren();
    if(typeof window.ONECasinoSlots!=='function'){casinoNative.textContent='Machine ONE indisponible.';return null;}
@@ -228,11 +257,41 @@ function open(ctx={}){
      renderNativeSlots(casinoData.round?.kind==='slots'?casinoData.round:null,false);if(Number(e?.status)>=400&&Number(e?.status)<500)casinoPending=null;renderCasinoState((e?.message||'Impossible de confirmer le tirage.')+(casinoPending?' · Retouche pour retrouver le même résultat.':''));
    }finally{casinoBusy=false;renderCasinoState();}
  }
- casinoAction.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();const near=nearestCasinoMachine();if(near.distance<1.45)openCasinoMachine(near.spot);});casinoAction.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});
+ let tableCasinoBusy=false,tableCasinoData=null,tableCasinoKind='',tableStake=10,rouletteBets={},rouletteBetHistory=[];
+ const tableEl=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
+ const tableCardTotal=cards=>{let total=(cards||[]).filter(c=>c!==null).reduce((n,c)=>n+Math.min(c%13+1,10),0);for(const c of cards||[])if(c!==null&&c%13===0&&total+10<=21)total+=10;return total;};
+ const tableCard=(c)=>{if(c===null)return tableEl('span','ONE','one3d-bj-card back');const rank=['A','2','3','4','5','6','7','8','9','10','V','D','R'][c%13],suit=['♠','♥','♦','♣'][Math.floor(c/13)],node=tableEl('span',rank+suit,'one3d-bj-card'+([1,2].includes(Math.floor(c/13))?' red':''));return node;};
+ const tableButton=(label,fn,disabled=false,cls='one3d-table-action')=>{const b=tableEl('button',label,cls);b.type='button';b.disabled=disabled||tableCasinoBusy;b.addEventListener('click',fn);return b;};
+ const currentTableRound=()=>tableCasinoData?.round?.kind===tableCasinoKind?tableCasinoData.round:null;
+ const updateTableBalance=()=>{const b=Number(tableCasinoData?.balance);tableBalance.textContent=Number.isFinite(b)?b.toLocaleString('fr-FR')+' Points ONE':'Connexion aux Points ONE…';};
+ function renderBlackjack(){
+   tableBody.replaceChildren();const r=currentTableRound(),other=tableCasinoData?.round&&!tableCasinoData.round.settled&&tableCasinoData.round.kind!=='blackjack';
+   const toolbar=tableEl('div',undefined,'one3d-table-toolbar'),label=tableEl('label','Mise '),select=tableEl('select');for(const n of [10,25,50,100]){const o=tableEl('option',n+' Points');o.value=n;select.append(o);}select.value=String(tableStake);select.disabled=tableCasinoBusy||!!(r&&!r.settled)||!!other;select.onchange=()=>{tableStake=Number(select.value)||10;renderTableCasino();};label.append(select);toolbar.append(label);tableBody.append(toolbar);
+   const felt=tableEl('section',undefined,'one3d-blackjack-felt');
+   const dealer=tableEl('div',undefined,'one3d-bj-side'),player=tableEl('div',undefined,'one3d-bj-side');dealer.append(tableEl('strong',r?'Croupier · '+tableCardTotal(r.dealer)+(r.settled?' points':' visibles'):'Croupier'));const dr=tableEl('div',undefined,'one3d-bj-cards');for(const c of r?.dealer||[null,null])dr.append(tableCard(c));dealer.append(dr);player.append(tableEl('strong',r?'Ta main · '+tableCardTotal(r.player)+' points':'Ta main'));const pr=tableEl('div',undefined,'one3d-bj-cards');for(const c of r?.player||[null,null])pr.append(tableCard(c));player.append(pr);felt.append(dealer,player);if(r?.settled)felt.append(tableEl('div',(r.result||'Manche terminée')+(r.payout?' · +'+r.payout+' Points ONE':''),'one3d-casino-result'));tableBody.append(felt);
+   const actions=tableEl('div',undefined,'one3d-table-toolbar');if(other){actions.append(tableEl('small','Termine d’abord ta partie '+String(tableCasinoData.round.kind).toUpperCase()+'.'));}else if(r&&!r.settled){actions.append(tableButton('CARTE',()=>playTableAction('hit')),tableButton('RESTER',()=>playTableAction('stand')));}else actions.append(tableButton('DISTRIBUER · '+tableStake+' PTS',()=>startTableRound('blackjack'),Number(tableCasinoData?.balance||0)<tableStake));tableBody.append(actions);
+ }
+ const rouletteRed=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+ const rouletteClass=n=>n===0?'green':rouletteRed.has(n)?'red':'black';
+ function addRouletteBet(key){if(tableCasinoBusy||!tableCasinoData)return;const total=Object.values(rouletteBets).reduce((a,b)=>a+b,0);if(total+tableStake>Math.min(Number(tableCasinoData.balance||0),5000)){tableStatus.textContent='Le total dépasse ton solde ou 5 000 Points ONE.';return;}rouletteBets[key]=(rouletteBets[key]||0)+tableStake;rouletteBetHistory.push({key,amount:tableStake});renderTableCasino();}
+ function renderRoulette(){
+   tableBody.replaceChildren();const r=currentTableRound(),other=tableCasinoData?.round&&!tableCasinoData.round.settled&&tableCasinoData.round.kind!=='roulette';
+   const toolbar=tableEl('div',undefined,'one3d-table-toolbar'),label=tableEl('label','Jeton '),select=tableEl('select');for(const n of [10,25,50,100]){const o=tableEl('option',n+' Points');o.value=n;select.append(o);}select.value=String(tableStake);select.disabled=tableCasinoBusy||!!other;select.onchange=()=>{tableStake=Number(select.value)||10;renderTableCasino();};label.append(select);toolbar.append(label);if(r?.settled){const result=tableEl('div',String(r.number),'one3d-roulette-result '+(r.color||rouletteClass(Number(r.number))));toolbar.append(result);}tableBody.append(toolbar);
+   const grid=tableEl('div',undefined,'one3d-roulette-bets');for(let n=0;n<=36;n++){const key='n:'+n,b=tableEl('button',String(n),rouletteClass(n)+(rouletteBets[key]?' has-bet':''));b.type='button';b.disabled=tableCasinoBusy||!!other;b.onclick=()=>addRouletteBet(key);grid.append(b);}for(const [key,label,cls] of [['red','ROUGE','red'],['black','NOIR','black'],['even','PAIR',''],['odd','IMPAIR',''],['low','1–18',''],['high','19–36','']]){const b=tableEl('button',label,cls+(rouletteBets[key]?' has-bet':''));b.type='button';b.disabled=tableCasinoBusy||!!other;b.onclick=()=>addRouletteBet(key);grid.append(b);}tableBody.append(grid);
+   const total=Object.values(rouletteBets).reduce((a,b)=>a+b,0),summary=tableEl('div',undefined,'one3d-bet-summary');summary.append(tableEl('strong','Total : '+total+' pts'));summary.append(tableButton('ANNULER',()=>{const last=rouletteBetHistory.pop();if(last){rouletteBets[last.key]-=last.amount;if(rouletteBets[last.key]<=0)delete rouletteBets[last.key];renderTableCasino();}},!rouletteBetHistory.length||!!other));summary.append(tableButton('EFFACER',()=>{rouletteBets={};rouletteBetHistory=[];renderTableCasino();},!total||!!other));summary.append(tableButton(tableCasinoBusy?'ROUE EN COURS…':'LANCER LA ROULETTE',()=>startTableRound('roulette'),!total||!!other||Number(tableCasinoData?.balance||0)<total));tableBody.append(summary);if(r?.settled)tableBody.append(tableEl('div',(r.result||'Résultat : '+r.number)+(r.payout?' · +'+r.payout+' Points ONE':' · aucun gain'),'one3d-casino-result'));
+ }
+ function renderTableCasino(message=''){updateTableBalance();tableTitle.textContent='ONE CASINO · '+(tableCasinoKind==='blackjack'?'BLACKJACK':'ROULETTE');tableStatus.textContent=message||tableStatus.textContent||'';if(tableCasinoKind==='blackjack')renderBlackjack();else renderRoulette();}
+ async function loadTableCasino(){const api=window.ONEUI?.api;if(!api){tableStatus.textContent='Le service Points ONE n’est pas chargé.';return;}tableCasinoBusy=true;tableStatus.textContent='Connexion à ONE Casino…';try{tableCasinoData=await api('/points/state');window.ONEUpdateBalance?.(tableCasinoData.balance);renderTableCasino('Prêt à jouer.');}catch(e){tableStatus.textContent=e?.message||'ONE Casino est momentanément indisponible.';}finally{tableCasinoBusy=false;renderTableCasino(tableStatus.textContent);}}
+ async function openCasinoTable(spot){if(!spot||casinoOpen)return;casinoOpen=true;tableCasinoKind=spot.kind;tableCasinoPanel.hidden=false;keys.clear();stickInput.x=stickInput.y=0;tableBody.replaceChildren();tableStatus.textContent='Chargement…';await loadTableCasino();}
+ const closeTableCasino=()=>{casinoOpen=false;tableCasinoPanel.hidden=true;tableBody.replaceChildren();keys.clear();stickInput.x=stickInput.y=0;};
+ async function startTableRound(kind){if(tableCasinoBusy||!tableCasinoData)return;const api=window.ONEUI?.api;if(!api)return;tableCasinoBusy=true;renderTableCasino(kind==='roulette'?'La roue tourne…':'Distribution…');try{if(kind==='roulette'){const total=Object.values(rouletteBets).reduce((a,b)=>a+b,0),body={id:crypto.randomUUID(),kind:'roulette',stake:total,bets:Object.entries(rouletteBets).map(([key,amount])=>({key,amount}))};tableCasinoData=await api('/points/play','POST',body);rouletteBets={};rouletteBetHistory=[];}else tableCasinoData=await api('/points/play','POST',{id:crypto.randomUUID(),kind:'blackjack',stake:tableStake});window.ONEUpdateBalance?.(tableCasinoData.balance);renderTableCasino(kind==='roulette'?'La bille s’est arrêtée.':'À toi de jouer.');}catch(e){renderTableCasino(e?.message||'Action impossible.');}finally{tableCasinoBusy=false;renderTableCasino(tableStatus.textContent);}}
+ async function playTableAction(action){const r=currentTableRound();if(tableCasinoBusy||!r||r.settled)return;const api=window.ONEUI?.api;if(!api)return;tableCasinoBusy=true;renderTableCasino(action==='hit'?'Carte…':'Le croupier termine la main…');try{tableCasinoData=await api('/points/blackjack','POST',{id:r.id,version:r.version,action});window.ONEUpdateBalance?.(tableCasinoData.balance);renderTableCasino(tableCasinoData.round?.settled?tableCasinoData.round.result:'À toi.');}catch(e){renderTableCasino(e?.message||'Action impossible.');}finally{tableCasinoBusy=false;renderTableCasino(tableStatus.textContent);}}
+ tableCasinoPanel.querySelector('[data-table-close]').addEventListener('click',closeTableCasino);tableCasinoPanel.addEventListener('pointerdown',e=>e.stopPropagation());tableCasinoPanel.addEventListener('pointermove',e=>e.stopPropagation());
+ casinoAction.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();const near=nearestCasinoInteraction();if(near.distance>=1.55)return;if(near.type==='table')openCasinoTable(near.spot);else openCasinoMachine(near.spot);});casinoAction.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});
  casinoPanel.querySelector('[data-casino-close]').addEventListener('click',closeCasino);casinoSpin.addEventListener('click',spinCasino);casinoPanel.addEventListener('pointerdown',e=>e.stopPropagation());casinoPanel.addEventListener('pointermove',e=>e.stopPropagation());
  function drawStatus(next){
    state=next;const key=JSON.stringify([next.room,next.self,next.host,next.notice,next.joined,next.ready,next.canStart,next.connecting,next.players]);if(key===statusKey)return;statusKey=key;
-   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R73';
+   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R74';
    shell.querySelector('[data-status]').textContent=next.notice;
    const readyButton=shell.querySelector('button[data-ready]'),start=shell.querySelector('[data-start]');
    readyButton.disabled=!next.joined||!next.players.some(p=>p.id===next.self);readyButton.textContent=next.ready?'✓ Prêt':'Je suis prêt';readyButton.setAttribute('aria-pressed',String(next.ready));
@@ -272,9 +331,10 @@ function open(ctx={}){
    if(canMove(x,position.z))position.x=x;if(canMove(position.x,z))position.z=z;
    const fightHere=inFightArea(position.x,position.z);
    const nearBat=!heldBat&&!knocked&&fightHere&&nearestBatDistance()<1.55;fightAction.hidden=casinoOpen||knocked||(!heldBat&&!nearBat);fightAction.dataset.mode=heldBat?'swing':'pickup';fightAction.textContent=heldBat?'FRAPPER':'RAMASSER BATTE';
-   const nearMachine=nearestCasinoMachine(),canUseCasino=!knocked&&!casinoOpen&&nearMachine.distance<1.45;casinoAction.hidden=!canUseCasino;if(canUseCasino)casinoAction.textContent='JOUER · '+(nearMachine.spot?.name||'MACHINE');runButton.disabled=controlsLocked;
-   if(t-lastSend>100){updateLobbyPose({...position,yaw,pitch,bat:heldBat,swingSeq,down:knocked});lastSend=t;}
-   for(const [id,v] of avatars){syncHeadCamera(id,v);const p=lobbyPose(id);if(!p)continue;tryRemoteHit(p,v,t);v.track.push(p,t);const pose=v.track.at(t);if(pose){animateAvatar(v,{...pose,dead:p.down===true},dt);if(p.down===true)v.cameraHead.position.set(1.62,.20,-.025);else v.cameraHead.position.set(0,1.72,-.025);orientAvatarCamera(v,{x:position.x,y:1.65,z:position.z});poseRemoteBat(v,p,t);}}
+   const nearCasino=nearestCasinoInteraction(),canUseCasino=!knocked&&!casinoOpen&&nearCasino.distance<1.55;casinoAction.hidden=!canUseCasino;if(canUseCasino)casinoAction.textContent=nearCasino.type==='table'?'JOUER · '+(nearCasino.spot?.name||'TABLE'):'JOUER · '+(nearCasino.spot?.name||'MACHINE');runButton.disabled=controlsLocked;
+   tryLocalNpcHit(t);animateCasinoNpcs(t);
+   if(t-lastSend>100){updateLobbyPose({...position,yaw,pitch,bat:heldBat,swingSeq,down:knocked,npcHitSeq,npcHitTarget});lastSend=t;}
+   for(const [id,v] of avatars){syncHeadCamera(id,v);const p=lobbyPose(id);if(!p)continue;tryRemoteHit(p,v,t);syncRemoteNpcHit(id,p,t);v.track.push(p,t);const pose=v.track.at(t);if(pose){animateAvatar(v,{...pose,dead:p.down===true},dt);if(p.down===true)v.cameraHead.position.set(1.62,.20,-.025);else v.cameraHead.position.set(0,1.72,-.025);orientAvatarCamera(v,{x:position.x,y:1.65,z:position.z});poseRemoteBat(v,p,t);}}
    const fallIn=knocked?clamp((t-knockStarted)/260,0,1):0,fallOut=knocked?clamp((knockedUntil-t)/430,0,1):0,fall=knocked?Math.min(fallIn,fallOut):0;
    camera.position.set(position.x,1.65-1.03*fall,position.z);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch+.12*fall;camera.rotation.z=-1.05*fall;
    if(localBat.visible){
@@ -318,7 +378,7 @@ function open(ctx={}){
   listen(runButton,'pointercancel',()=>{if(!sprintToggle)setSprint(false);});
   listen(runButton,'lostpointercapture',()=>{if(!sprintToggle)setSprint(false);});
   const movement=['KeyW','KeyA','KeyS','KeyD','KeyZ','KeyQ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
-  listen(window,'keydown',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();setSprint(true);}else if(movement.includes(e.code)){e.preventDefault();keys.add(e.code);}else if(e.code==='KeyF'&&!fightAction.hidden){e.preventDefault();if(!e.repeat)useFightAction();}else if(e.code==='KeyG'&&!casinoAction.hidden){e.preventDefault();if(!e.repeat){const near=nearestCasinoMachine();openCasinoMachine(near.spot);}}else if(e.code==='KeyE'){e.preventDefault();gameScreen.open();}else if(e.code==='Escape'){if(casinoOpen)closeCasino();else close();}});listen(window,'keyup',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')setSprint(false);else keys.delete(e.code);});listen(window,'blur',()=>{keys.clear();stopStick();look=null;setSprint(false);});listen(document,'visibilitychange',()=>{keys.clear();stopStick();setSprint(false);last=performance.now();budget.reset();});
+  listen(window,'keydown',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();setSprint(true);}else if(movement.includes(e.code)){e.preventDefault();keys.add(e.code);}else if(e.code==='KeyF'&&!fightAction.hidden){e.preventDefault();if(!e.repeat)useFightAction();}else if(e.code==='KeyG'&&!casinoAction.hidden){e.preventDefault();if(!e.repeat){const near=nearestCasinoInteraction();if(near.type==='table')openCasinoTable(near.spot);else openCasinoMachine(near.spot);}}else if(e.code==='KeyE'){e.preventDefault();gameScreen.open();}else if(e.code==='Escape'){if(!tableCasinoPanel.hidden)closeTableCasino();else if(casinoOpen)closeCasino();else close();}});listen(window,'keyup',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')setSprint(false);else keys.delete(e.code);});listen(window,'blur',()=>{keys.clear();stopStick();look=null;setSprint(false);});listen(document,'visibilitychange',()=>{keys.clear();stopStick();setSprint(false);last=performance.now();budget.reset();});
  shell.querySelector('[data-close]').onclick=()=>close();shell.querySelector('button[data-ready]').onclick=setLobbyReady;shell.querySelector('[data-start]').onclick=startRound;shell.querySelector('[data-reconnect]').onclick=()=>joinLobby(ctx,true);
  active={shell,renderer,scene,ro,stop(){stopped=true;alive=false;gameScreen.dispose();roomVisual.dispose();for(const v of avatars.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}cancelAnimationFrame(raf);abort.abort();off();},inspect:()=>({position:{...position},yaw,avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
  raf=requestAnimationFrame(frame);joinLobby(ctx);
