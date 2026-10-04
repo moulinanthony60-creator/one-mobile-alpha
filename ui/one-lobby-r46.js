@@ -1,12 +1,12 @@
-import {prepareScene} from './three17-r46-warmup.js?v=lobby-world-casino-v76';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-world-casino-v76';
+import {prepareScene} from './three17-r46-warmup.js?v=lobby-world-casino-v77';
+import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-world-casino-v77';
 
-import * as THREE from './three.module.js?v=lobby-world-casino-v76';
-import {buildRoom} from './one-lobby-r46-room.js?v=lobby-world-casino-v76';
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-world-casino-v76';
-import {createRenderBudget} from './three17-r46-render.js?v=lobby-world-casino-v76';
+import * as THREE from './three.module.js?v=lobby-world-casino-v77';
+import {buildRoom} from './one-lobby-r46-room.js?v=lobby-world-casino-v77';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-world-casino-v77';
+import {createRenderBudget} from './three17-r46-render.js?v=lobby-world-casino-v77';
 
-import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-world-casino-v76';
+import {lobbyState,subscribeLobby,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-world-casino-v77';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
