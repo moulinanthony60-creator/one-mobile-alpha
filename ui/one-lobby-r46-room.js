@@ -1,7 +1,7 @@
-import * as THREE from './three.module.js?v=lobby-fight-v64';
-import {GLTFLoader} from './GLTFLoader.js?v=lobby-fight-v64';
+import * as THREE from './three.module.js?v=lobby-casino-v69';
+import {GLTFLoader} from './GLTFLoader.js?v=lobby-casino-v69';
 
-// R64: expanded ONE lobby with clear side passages, casino room and open ONE FIGHT room.
+// R69: expanded ONE lobby with playable casino machines and open ONE FIGHT room.
 export function buildRoom(scene,renderer,alive,dispose){
  const root=new THREE.Group();root.name='ONE-lobby-r62';scene.add(root);
  const mobile=matchMedia('(pointer:coarse)').matches||innerWidth<700;
@@ -127,10 +127,28 @@ export function buildRoom(scene,renderer,alive,dispose){
  mesh(new THREE.CylinderGeometry(.24,.24,.44,18),darkMetal,0,.37,0,rouletteTable);
  const wheel=mesh(new THREE.CylinderGeometry(.42,.42,.08,28),darkMetal,0,.92,0,rouletteTable);
  mesh(new THREE.TorusGeometry(.44,.04,10,34),gold,0,.92,0,rouletteTable).rotation.x=Math.PI/2;
- for(const dx of [-2.7,-1.6,1.6,2.7]){
-  const slot=new THREE.Group();casinoRoot.add(slot);slot.position.set(-17.8+dx,0,-4.65);
-  box(.95,1.95,.85,darkMetal,0,.98,0,slot);box(.7,1.0,.06,glassMat,0,1.18,.44,slot);box(.74,.12,.2,gold,0,.38,.29,slot);
-  for(let i=0;i<3;i++)box(.14,.14,.02,mat([0xe5536a,0xf0d067,0x53c89a][i],.5,.1),-.2+i*.2,1.18,.48,slot);
+ const casinoMachineSpots=[],casinoMachines=[];
+ const slotNames=['GOLDEN ONE','PURPLE 7','MINT JACKPOT','NIGHT ONE'];
+ const slotColors=[0xf0c95d,0xaa78f0,0x62d5ae,0x79a8ff];
+ function slotTexture(title,color){
+  const cv=document.createElement('canvas');cv.width=512;cv.height=256;const g=cv.getContext('2d');
+  const grad=g.createLinearGradient(0,0,512,256);grad.addColorStop(0,'#10131c');grad.addColorStop(1,'#27213a');g.fillStyle=grad;g.fillRect(0,0,512,256);
+  g.strokeStyle='#'+color.toString(16).padStart(6,'0');g.lineWidth=12;g.shadowColor=g.strokeStyle;g.shadowBlur=24;g.strokeRect(16,16,480,224);g.shadowBlur=0;
+  g.textAlign='center';g.fillStyle='#fff7e5';g.font='900 46px system-ui';g.fillText(title,256,70);g.font='900 60px system-ui';g.fillText('7   ONE   7',256,148);g.fillStyle='#e7d99b';g.font='700 25px system-ui';g.fillText('10 · 25 · 50 · 100 POINTS',256,210);
+  const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;return tex;
+ }
+ for(const [i,dx] of [-2.7,-1.6,1.6,2.7].entries()){
+  const slot=new THREE.Group();casinoRoot.add(slot);slot.position.set(-17.8+dx,0,-4.65);casinoMachines.push(slot);
+  const accent=mat(slotColors[i],.34,.46),body=mat(i===3?0x1d2232:0x302b35,.62,.18);
+  box(1.02,2.12,.92,body,0,1.06,0,slot);box(1.08,.16,.98,accent,0,2.05,0,slot);box(1.06,.13,1.00,accent,0,.12,0,slot);
+  const marquee=plane(.86,.36,new THREE.MeshBasicMaterial({map:slotTexture(slotNames[i],slotColors[i]),toneMapped:false}),0,1.78,.471,slot);marquee.renderOrder=2;
+  box(.78,.76,.055,glassMat,0,1.23,.472,slot);
+  for(let r=0;r<3;r++){const reel=plane(.205,.31,new THREE.MeshBasicMaterial({color:[0xffefe0,0xeaf7ff,0xf3eaff][r],toneMapped:false}),-.245+r*.245,1.26,.507,slot);reel.renderOrder=3;}
+  for(let r=0;r<3;r++){const symbol=plane(.13,.13,new THREE.MeshBasicMaterial({color:[0xe5536a,0xf0d067,0x53c89a][r],toneMapped:false}),-.245+r*.245,1.26,.512,slot);symbol.renderOrder=4;}
+  box(.72,.18,.24,accent,0,.72,.41,slot);mesh(new THREE.CylinderGeometry(.09,.09,.07,18),mat(0xe3e6ed,.34,.35),-.18,.73,.57,slot).rotation.x=Math.PI/2;
+  mesh(new THREE.CylinderGeometry(.035,.035,.52,12),darkMetal,.57,1.05,.05,slot).rotation.z=-.18;mesh(new THREE.SphereGeometry(.09,12,8),accent,.66,1.30,.05,slot);
+  box(.78,.10,.30,gold,0,.42,.38,slot);box(.46,.05,.15,darkMetal,0,.39,.55,slot);
+  casinoMachineSpots.push({x:-17.8+dx,z:-3.72,index:i,name:slotNames[i]});
  }
  const bar=casinoRoot;
  box(4.8,1.02,.62,mat(0x432f2b,.8,.05),-17.8,.51,4.85,bar);box(5.1,.12,.86,gold,-17.8,1.05,4.86,bar);
@@ -200,5 +218,5 @@ export function buildRoom(scene,renderer,alive,dispose){
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const t=y/h;data.set([Math.round(155-60*t),Math.round(163-75*t),Math.round(182-102*t),255],(y*w+x)*4);}
  const environment=new THREE.DataTexture(data,w,h);environment.mapping=THREE.EquirectangularReflectionMapping;environment.needsUpdate=true;
  const pmrem=new THREE.PMREMGenerator(renderer),env=pmrem.fromEquirectangular(environment);scene.environment=env.texture;scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
- return {screen,ready,fightBatSpots,dispose(){scene.environment=null;env.dispose();}};
+ return {screen,ready,fightBatSpots,casinoMachineSpots,casinoMachines,dispose(){scene.environment=null;env.dispose();}};
 }
