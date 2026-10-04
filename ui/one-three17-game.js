@@ -13,7 +13,7 @@ const { BUILD, EYE_HEIGHT, PLAYER_RADIUS, createGroundFloor, blockedAt, floorHei
  * Ce module ne dépend pas du rendu : géométrie et collisions lisent LES MÊMES
  * volumes. Il est aussi importé par les tests de circulation hors navigateur.
  */
-const BUILD = 'R57 · MULTITOUCH STABLE';
+const BUILD = 'R60 · MAISON REAMENAGEE';
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.28;
 const WALL_HEIGHT = 3.0;
@@ -230,32 +230,107 @@ function createGroundFloor() {
       volume(id+'-chant-'+side, x, y1-.125, (z0+z1)/2, .07, .25, z1-z0, 'plaster', true, 'slab');
   }
 
-  // Ground furniture
-  b('canape-assise', -5.9, .36, 4.55, 1.20, .72, 2.8, 'fabric'); b('canape-dossier', -6.38, .78, 4.55, .24, 1.18, 2.8, 'fabric'); for (const z of [3.18, 5.92]) b('canape-accoudoir-' + z, -5.90, .60, z, 1.20, .42, .22, 'fabric');
-  table('table-basse', -4.35, 0, 4.5, 1.25, 1.65, .50); b('meuble-tv', -3.6, .31, 8.9, 2.05, .62, .55); b('tv-cadre', -3.6, 1.32, 9.22, 1.65, .95, .12, 'dark'); b('tv-ecran', -3.6, 1.32, 9.147, 1.50, .80, .014, 'screen', false); b('bibliotheque', -6.42, 1.02, 2.35, .62, 2.04, 1.15, 'wood');
-  table('table-repas', -5.55, 0, -0.90, 1.55, 1.15, .80); b('buffet', -6.44, .48, -1.05, .70, .96, 2.0); b('cuisine-meubles-ouest', -6.4, .46, -9.9, .88, .92, 3.1, 'cabinet'); b('cuisine-plan-ouest', -6.4, .965, -9.9, .96, .09, 3.15, 'stone'); b('cuisine-meubles-nord', -4.5, .46, -11.4, 3.15, .92, .88, 'cabinet'); b('cuisine-plan-nord', -4.5, .965, -11.4, 3.2, .09, .96, 'stone'); b('frigo', -2.38, 1.0, -11.08, .98, 2.0, 1.1, 'enamel');
-  b('lit-sommier', 4.75, .23, 6.6, 1.95, .46, 2.9, 'wood'); b('lit-matelas', 4.75, .52, 6.6, 1.94, .18, 2.85, 'linen'); b('lit-couverture', 4.75, .635, 6.25, 1.94, .07, 2.08, 'fabric'); b('lit-tete', 4.75, .64, 8.05, 2.05, 1.15, .17, 'wood'); b('chevet', 3.15, .32, 7.7, .65, .64, .68, 'wood'); b('armoire', 12.92, 1.04, 4.93, .70, 2.08, 1.65, 'wood');
-  b('baignoire-base', 12.3, .17, 1.7, 1.5, .34, 2.35, 'enamel'); b('lavabo-meuble', 5.00, .39, 0.35, 1.25, .78, .65, 'cabinet'); b('miroir-cadre', 3.85, 1.69, -0.34, 1.2, 1.13, .06, 'trim', false); b('miroir', 3.85, 1.69, -0.301, 1.07, 1.0, .014, 'mirror', false); b('wc-base', 3.6, .22, 2.68, .50, .44, .64, 'enamel');
+  // R60 — Maison réaménagée pièce par pièce. Les entrées et axes centraux
+  // restent volontairement libres pour éviter qu’un joueur se coince.
 
-  // R36: meubler les nouveaux +4 m sans refermer les axes de circulation des escaliers.
+  // RDC · Salon : mobilier en périphérie, grand passage côté hall.
+  b('canape-assise', -5.9, .36, 4.55, 1.20, .72, 2.8, 'fabric');
+  b('canape-dossier', -6.38, .78, 4.55, .24, 1.18, 2.8, 'fabric');
+  for (const z of [3.18, 5.92]) b('canape-accoudoir-' + z, -5.90, .60, z, 1.20, .42, .22, 'fabric');
+  table('table-basse', -4.35, 0, 4.5, 1.25, 1.65, .50);
+  b('meuble-tv', -3.6, .31, 8.9, 2.05, .62, .55);
+  b('tv-cadre', -3.6, 1.32, 9.22, 1.65, .95, .12, 'dark');
+  b('tv-ecran', -3.6, 1.32, 9.147, 1.50, .80, .014, 'screen', false);
+  b('bibliotheque', -6.42, 1.02, 2.35, .62, 2.04, 1.15, 'wood');
+
+  // RDC · Salle à manger : la table est décollée du buffet pour circuler tout autour.
+  table('table-repas', -4.15, 0, -1.0, 1.85, 1.35, .80);
+  b('buffet', -6.52, .48, -1.0, .70, .96, 2.0);
+
+  // RDC · Cuisine : tout le gros mobilier reste contre les murs, centre entièrement libre.
+  b('cuisine-meubles-ouest', -6.4, .46, -9.9, .88, .92, 3.1, 'cabinet');
+  b('cuisine-plan-ouest', -6.4, .965, -9.9, .96, .09, 3.15, 'stone');
+  b('cuisine-meubles-nord', -4.5, .46, -11.4, 3.15, .92, .88, 'cabinet');
+  b('cuisine-plan-nord', -4.5, .965, -11.4, 3.2, .09, .96, 'stone');
+  b('frigo', -6.38, 1.0, -6.55, .98, 2.0, 1.1, 'enamel');
+
+  // RDC · Chambre : le lit et le chevet quittent complètement l’axe de la porte (z ≈ 6.3).
+  b('lit-sommier', 9.25, .23, 6.85, 1.95, .46, 2.9, 'wood');
+  b('lit-matelas', 9.25, .52, 6.85, 1.94, .18, 2.85, 'linen');
+  b('lit-couverture', 9.25, .635, 6.50, 1.94, .07, 2.08, 'fabric');
+  b('lit-tete', 9.25, .64, 8.30, 2.05, 1.15, .17, 'wood');
+  b('chevet', 7.75, .32, 8.45, .65, .64, .68, 'wood');
+  b('armoire', 12.92, 1.04, 4.65, .70, 2.08, 1.65, 'wood');
+
+  // RDC · Salle de bain : sanitaires sur les murs, entrée dégagée.
+  b('baignoire-base', 12.3, .17, 1.7, 1.5, .34, 2.35, 'enamel');
+  b('lavabo-meuble', 6.0, .39, 0.02, 1.25, .78, .65, 'cabinet');
+  b('miroir-cadre', 6.0, 1.69, -0.34, 1.2, 1.13, .06, 'trim', false);
+  b('miroir', 6.0, 1.69, -0.301, 1.07, 1.0, .014, 'mirror', false);
+  b('wc-base', 5.20, .22, 2.75, .50, .44, .64, 'enamel');
+
+  // RDC · Grand palier : mobilier uniquement sur les bords des escaliers.
   b('rdc-palier-armoire', 12.78, 1.02, -9.75, .72, 2.04, 1.55, 'wood');
   b('rdc-palier-banc', 10.85, .28, -10.85, 2.0, .56, .58, 'wood');
   b('rdc-palier-console', 6.05, .43, -11.35, 1.35, .86, .52, 'cabinet');
 
-  // Upper furniture
-  b('nursery-bed', -5.4, UPPER_Y + .28, 5.6, 1.6, .55, 2.6, 'linen'); b('nursery-wardrobe', -6.2, UPPER_Y + 1.0, 3.9, .72, 2.0, 1.35, 'wood'); table('nursery-desk', -3.3, UPPER_Y, 4.1, 1.1, .6, .72); b('toy-box', -2, UPPER_Y + .25, 6.5, .9, .5, .7, 'wood');
-  b('office-shelf', -6.25, UPPER_Y + 1.0, 1.2, .7, 2.0, 1.5, 'wood'); table('office-desk', -4.1, UPPER_Y, 1.1, 1.7, .75, .76); b('office-cabinet', -2.1, UPPER_Y + .55, 0.2, .8, 1.1, .65, 'cabinet');
-  b('storage-shelf-a', -6, UPPER_Y + 1.0, -9.8, .7, 2.0, 1.5, 'wood'); b('storage-shelf-b', -3.7, UPPER_Y + 1.0, -9.2, .7, 2.0, 1.5, 'wood'); b('storage-crate-a', -2, UPPER_Y + .25, -6.8, .9, .5, .9, 'wood'); b('storage-crate-b', -2.8, UPPER_Y + .25, -10.8, .7, .5, .7, 'wood');
-  b('upper-vanity', 5.00, UPPER_Y + .45, 0.6, 1.2, .9, .55, 'cabinet'); b('upper-bath-tub', 12.3, UPPER_Y + .18, 1.2, 1.35, .36, 2.0, 'enamel'); b('upper-master-bed', 4.5, UPPER_Y + .28, 6.6, 2.1, .55, 3.2, 'linen'); b('upper-master-wardrobe', 12.85, UPPER_Y + 1.0, 4.9, .8, 2.0, 1.6, 'wood'); table('upper-master-table', 5.00, UPPER_Y, 7.9, 1.1, .7, .72);
-  b('upper-palier-armoire', 12.78, UPPER_Y + 1.02, -9.7, .72, 2.04, 1.55, 'wood'); b('upper-palier-commode', 10.85, UPPER_Y + .43, -10.90, 1.55, .86, .52, 'cabinet'); table('upper-palier-table', 6.05, UPPER_Y, -11.35, 1.05, .60, .68);
+  // ÉTAGE · Chambre enfant : lit au fond, bureau au mur nord, porte totalement libre.
+  b('nursery-bed', -5.5, UPPER_Y + .28, 7.9, 1.6, .55, 2.6, 'linen');
+  b('nursery-wardrobe', -6.45, UPPER_Y + 1.0, 4.0, .72, 2.0, 1.35, 'wood');
+  table('nursery-desk', -3.55, UPPER_Y, 3.55, 1.1, .6, .72);
+  b('toy-box', -2.05, UPPER_Y + .25, 8.65, .9, .5, .7, 'wood');
 
-  // Basement furniture
-  b('cellar-shelf-a', -6.05, BASEMENT_Y + 1.0, -10.3, .7, 2.0, 1.55, 'wood'); b('cellar-shelf-b', -3.2, BASEMENT_Y + 1.0, -10, .7, 2.0, 1.55, 'wood');
-  b('laundry-machine', -6, BASEMENT_Y + .55, -2.9, 1.0, 1.1, .9, 'enamel'); b('laundry-sink', -3.8, BASEMENT_Y + .55, -2.9, 1.2, 1.1, .8, 'metal'); b('laundry-cabinet', -2, BASEMENT_Y + 1.0, -1, .8, 2.0, 1.2, 'wood');
-  b('ritual-table', -5.45, BASEMENT_Y + .45, 1.55, 1.35, .8, 1.6, 'wood'); b('ritual-crate', -6, BASEMENT_Y + .25, 3, .9, .5, .9, 'wood');
-  b('storage-rack', 5.00, BASEMENT_Y + 1.0, 0.70, 1.4, 2.0, .65, 'metal'); b('storage-locker', 12.85, BASEMENT_Y + 1.0, 1.1, .8, 2.0, 1.1, 'metal');
-  b('boiler-body', 12.6, BASEMENT_Y + 1.0, 3.8, 1.1, 2.0, 1.05, 'metal'); b('boiler-pipe', 12.6, BASEMENT_Y + 2.15, 3.8, .16, .65, .16, 'metal'); table('boiler-bench', 5.00, BASEMENT_Y, 4.65, 1.55, .65, .72);
-  b('basement-palier-rack', 12.78, BASEMENT_Y + 1.0, -9.65, .72, 2.0, 1.65, 'metal'); b('basement-palier-crate-a', 10.85, BASEMENT_Y + .32, -10.90, .95, .64, .8, 'wood'); b('basement-palier-crate-b', 9.55, BASEMENT_Y + .25, -11.45, .70, .5, .65, 'wood');
+  // ÉTAGE · Bureau : plus aucun meuble en face de la porte.
+  b('office-shelf', -6.45, UPPER_Y + 1.0, 0.0, .7, 2.0, 1.5, 'wood');
+  table('office-desk', -4.2, UPPER_Y, 2.45, 1.7, .75, .76);
+  b('office-cabinet', -2.0, UPPER_Y + .55, -0.45, .8, 1.1, .65, 'cabinet');
+
+  // ÉTAGE · Débarras : caisses rabattues sur les côtés, couloir central continu.
+  b('storage-shelf-a', -6.0, UPPER_Y + 1.0, -9.8, .7, 2.0, 1.5, 'wood');
+  b('storage-shelf-b', -3.7, UPPER_Y + 1.0, -10.9, .7, 2.0, 1.5, 'wood');
+  b('storage-crate-a', -5.2, UPPER_Y + .25, -6.8, .9, .5, .9, 'wood');
+  b('storage-crate-b', -5.8, UPPER_Y + .25, -2.0, .7, .5, .7, 'wood');
+
+  // ÉTAGE · Salle d’eau : meuble vasque éloigné de l’entrée.
+  b('upper-vanity', 6.0, UPPER_Y + .45, 0.05, 1.2, .9, .55, 'cabinet');
+  b('upper-bath-tub', 12.3, UPPER_Y + .18, 1.2, 1.35, .36, 2.0, 'enamel');
+
+  // ÉTAGE · Suite : même principe que la chambre RDC, axe de porte dégagé sur plusieurs mètres.
+  b('upper-master-bed', 9.15, UPPER_Y + .28, 6.9, 2.1, .55, 3.2, 'linen');
+  b('upper-master-wardrobe', 12.85, UPPER_Y + 1.0, 4.6, .8, 2.0, 1.6, 'wood');
+  table('upper-master-table', 7.25, UPPER_Y, 8.75, 1.1, .7, .72);
+
+  // ÉTAGE · Grand palier : mobilier contre les murs, trémie et passages libres.
+  b('upper-palier-armoire', 12.78, UPPER_Y + 1.02, -9.7, .72, 2.04, 1.55, 'wood');
+  b('upper-palier-commode', 10.85, UPPER_Y + .43, -10.90, 1.55, .86, .52, 'cabinet');
+  table('upper-palier-table', 6.05, UPPER_Y, -11.35, 1.05, .60, .68);
+
+  // SOUS-SOL · Cave : rayonnages au fond, accès central libre.
+  b('cellar-shelf-a', -6.05, BASEMENT_Y + 1.0, -10.3, .7, 2.0, 1.55, 'wood');
+  b('cellar-shelf-b', -3.8, BASEMENT_Y + 1.0, -10.9, .7, 2.0, 1.55, 'wood');
+
+  // SOUS-SOL · Buanderie : machines regroupées sur les murs ouest/nord.
+  b('laundry-machine', -6.25, BASEMENT_Y + .55, -3.45, 1.0, 1.1, .9, 'enamel');
+  b('laundry-sink', -4.95, BASEMENT_Y + .55, -3.45, 1.2, 1.1, .8, 'metal');
+  b('laundry-cabinet', -6.35, BASEMENT_Y + 1.0, -1.1, .8, 2.0, 1.2, 'wood');
+
+  // SOUS-SOL · Pièce murée : table au fond, trajet porte → centre conservé.
+  b('ritual-table', -5.45, BASEMENT_Y + .45, 1.55, 1.35, .8, 1.6, 'wood');
+  b('ritual-crate', -6, BASEMENT_Y + .25, 3.7, .9, .5, .9, 'wood');
+
+  // SOUS-SOL · Réserve : étagère remontée contre le mur nord, centre dégagé.
+  b('storage-rack', 6.4, BASEMENT_Y + 1.0, -0.05, 1.4, 2.0, .65, 'metal');
+  b('storage-locker', 12.85, BASEMENT_Y + 1.0, 1.1, .8, 2.0, 1.1, 'metal');
+
+  // SOUS-SOL · Chaufferie : établi au mur sud, entrée et chaudière accessibles.
+  b('boiler-body', 12.6, BASEMENT_Y + 1.0, 3.8, 1.1, 2.0, 1.05, 'metal');
+  b('boiler-pipe', 12.6, BASEMENT_Y + 2.15, 3.8, .16, .65, .16, 'metal');
+  table('boiler-bench', 6.0, BASEMENT_Y, 5.05, 1.55, .65, .72);
+
+  // SOUS-SOL · Grand palier : rayonnage et caisses collés au pourtour.
+  b('basement-palier-rack', 12.78, BASEMENT_Y + 1.0, -9.65, .72, 2.0, 1.65, 'metal');
+  b('basement-palier-crate-a', 10.85, BASEMENT_Y + .32, -10.90, .95, .64, .8, 'wood');
+  b('basement-palier-crate-b', 9.55, BASEMENT_Y + .25, -11.45, .70, .5, .65, 'wood');
 
   // Decorative windows (RDC only)
   for (const win of [{ x: -6.865, z: 6.7, side: 'west' }, { x: layout.west+.135, z: -10.0, side: 'west' }, { x: layout.east-.135, z: 7.7, side: 'east' }, { x: layout.east-.135, z: 1.35, side: 'east' }]) {
@@ -265,25 +340,25 @@ function createGroundFloor() {
 
   // Items hidden in searchable furniture
   const items = [
-    { id: 'key', reveal: { x:-2.1, y:UPPER_Y+1.42, z:.2 }, label: 'Clé ancienne', room: 'upper-office', x: -2.1, y: UPPER_Y + .95, z: .2, color: 0xd5b567, taken: false, hidden: true },
-    { id: 'fuse', reveal: { x:5.0, y:BASEMENT_Y+1.2, z:1.30 }, label: 'Fusible', room: 'basement-storage', x: 5.0, y: BASEMENT_Y + 1.1, z: .70, color: 0x75c5e0, taken: false, hidden: true },
-    { id: 'seal', reveal: { x:-5.48, y:UPPER_Y+1.2, z:3.9 }, label: 'Sceau', room: 'upper-nursery', x: -6.2, y: UPPER_Y + 1.0, z: 3.9, color: 0xb19dda, taken: false, hidden: true },
+    { id: 'key', reveal: { x:-2.65, y:UPPER_Y+1.42, z:-.45 }, label: 'Clé ancienne', room: 'upper-office', x: -2.0, y: UPPER_Y + .95, z: -.45, color: 0xd5b567, taken: false, hidden: true }, label: 'Clé ancienne', room: 'upper-office', x: -2.1, y: UPPER_Y + .95, z: .2, color: 0xd5b567, taken: false, hidden: true },
+    { id: 'fuse', reveal: { x:6.4, y:BASEMENT_Y+1.2, z:.55 }, label: 'Fusible', room: 'basement-storage', x: 6.4, y: BASEMENT_Y + 1.1, z: -.05, color: 0x75c5e0, taken: false, hidden: true }, label: 'Fusible', room: 'basement-storage', x: 5.0, y: BASEMENT_Y + 1.1, z: .70, color: 0x75c5e0, taken: false, hidden: true },
+    { id: 'seal', reveal: { x:-5.75, y:UPPER_Y+1.2, z:4.0 }, label: 'Sceau', room: 'upper-nursery', x: -6.45, y: UPPER_Y + 1.0, z: 4.0, color: 0xb19dda, taken: false, hidden: true }, label: 'Sceau', room: 'upper-nursery', x: -6.2, y: UPPER_Y + 1.0, z: 3.9, color: 0xb19dda, taken: false, hidden: true },
     { id: 'revive', label: 'Sceau de rappel', room: 'basement-ritual', x: -5.45, y: BASEMENT_Y + 1.02, z: 1.55, color: 0xffc866, taken: false, hidden: false, revive: true },
   ];
   // searchable spots
-  container('c-buffet', 'Buffet', -6.2, .9, -1.05, 'dining'); container('c-kitchen-left', 'Placard de cuisine', -6.1, .95, -10.4, 'kitchen'); container('c-fridge', 'Frigo', -2.15, 1.0, -11.08, 'kitchen');
-  container('c-bed-chevet', 'Table de chevet', 3.15, .7, 7.7, 'bedroom'); container('c-armoire-rdc', 'Armoire', 12.72, 1.0, 4.93, 'bedroom');
-  container('c-nursery-wardrobe', 'Armoire enfant', -6.2, UPPER_Y + 1.0, 3.9, 'upper-nursery', 'seal'); container('c-nursery-box', 'Coffre à jouets', -2.0, UPPER_Y + .3, 6.5, 'upper-nursery');
-  container('c-office-cabinet', 'Caisson de bureau', -2.1, UPPER_Y + .7, 0.2, 'upper-office', 'key'); container('c-office-shelf', 'Étagère', -6.25, UPPER_Y + 1.1, 1.2, 'upper-office');
-  container('c-storage-crate', 'Caisse', -2.0, UPPER_Y + .3, -6.8, 'upper-storage'); container('c-master-wardrobe', 'Grande armoire', 12.65, UPPER_Y + 1.0, 4.9, 'upper-master');
-  container('c-cellar-shelf', 'Étagère de cave', -6.05, BASEMENT_Y + 1.1, -10.3, 'basement-cellar'); container('c-laundry-cabinet', 'Armoire buanderie', -2.0, BASEMENT_Y + 1.0, -1, 'basement-laundry');
-  container('c-storage-rack', 'Étagère métallique', 5.0, BASEMENT_Y + 1.1, .70, 'basement-storage', 'fuse'); container('c-storage-locker', 'Casier', 12.65, BASEMENT_Y + 1.0, 1.1, 'basement-storage');
-  container('c-boiler-bench', 'Établi', 5.0, BASEMENT_Y + .8, 4.65, 'basement-boiler'); container('c-ritual-crate', 'Caisse humide', -6.0, BASEMENT_Y + .3, 3, 'basement-ritual');
+  container('c-buffet', 'Buffet', -6.30, .9, -1.0, 'dining'); container('c-kitchen-left', 'Placard de cuisine', -6.1, .95, -10.4, 'kitchen'); container('c-fridge', 'Frigo', -6.10, 1.0, -6.55, 'kitchen');
+  container('c-bed-chevet', 'Table de chevet', 7.75, .7, 8.45, 'bedroom'); container('c-armoire-rdc', 'Armoire', 12.72, 1.0, 4.65, 'bedroom');
+  container('c-nursery-wardrobe', 'Armoire enfant', -6.25, UPPER_Y + 1.0, 4.0, 'upper-nursery', 'seal'); container('c-nursery-box', 'Coffre à jouets', -2.05, UPPER_Y + .3, 8.65, 'upper-nursery');
+  container('c-office-cabinet', 'Caisson de bureau', -2.0, UPPER_Y + .7, -0.45, 'upper-office', 'key'); container('c-office-shelf', 'Étagère', -6.15, UPPER_Y + 1.1, 0.0, 'upper-office');
+  container('c-storage-crate', 'Caisse', -5.2, UPPER_Y + .3, -6.8, 'upper-storage'); container('c-master-wardrobe', 'Grande armoire', 12.65, UPPER_Y + 1.0, 4.6, 'upper-master');
+  container('c-cellar-shelf', 'Étagère de cave', -6.05, BASEMENT_Y + 1.1, -10.3, 'basement-cellar'); container('c-laundry-cabinet', 'Armoire buanderie', -6.15, BASEMENT_Y + 1.0, -1.1, 'basement-laundry');
+  container('c-storage-rack', 'Étagère métallique', 6.4, BASEMENT_Y + 1.1, -.05, 'basement-storage', 'fuse'); container('c-storage-locker', 'Casier', 12.65, BASEMENT_Y + 1.0, 1.1, 'basement-storage');
+  container('c-boiler-bench', 'Établi', 6.0, BASEMENT_Y + .8, 5.05, 'basement-boiler'); container('c-ritual-crate', 'Caisse humide', -6.0, BASEMENT_Y + .3, 3, 'basement-ritual');
   container('c-rdc-palier-console', 'Console du palier', 7.15, .7, -11.28, 'stairs-ground'); container('c-upper-palier-commode', 'Commode du palier', 9.25, UPPER_Y + .7, -11.28, 'upper-landing'); container('c-basement-palier-crate', 'Caisse du palier', 9.8, BASEMENT_Y + .45, -11.15, 'basement-landing');
   // hide spots
-  hide('h-under-bed', 'Sous le lit', 4.75, GROUND_Y, 5.7, 'bedroom', 4.75, 4.85); hide('h-wardrobe-rdc', 'Armoire', 12.72, GROUND_Y, 4.9, 'bedroom', 11.8, 4.9);
-  hide('h-nursery-wardrobe', 'Armoire enfant', -6.0, UPPER_Y, 3.9, 'upper-nursery', -5.1, 3.9); hide('h-storage-box', 'Coin du débarras', -2.2, UPPER_Y, -10.7, 'upper-storage', -1.8, -10.2);
-  hide('h-master-wardrobe', 'Dressing', 12.65, UPPER_Y, 4.9, 'upper-master', 11.8, 4.9); hide('h-cellar-shelf', 'Derrière l’étagère', -6.35, BASEMENT_Y, -10.3, 'basement-cellar', -5.3, -10.3);
+  hide('h-under-bed', 'Sous le lit', 9.25, GROUND_Y, 5.65, 'bedroom', 7.70, 5.65); hide('h-wardrobe-rdc', 'Armoire', 12.72, GROUND_Y, 4.65, 'bedroom', 11.55, 4.65);
+  hide('h-nursery-wardrobe', 'Armoire enfant', -6.25, UPPER_Y, 4.0, 'upper-nursery', -5.30, 4.10); hide('h-storage-box', 'Coin du débarras', -5.8, UPPER_Y, -2.0, 'upper-storage', -4.80, -2.0);
+  hide('h-master-wardrobe', 'Dressing', 12.65, UPPER_Y, 4.6, 'upper-master', 11.55, 4.6); hide('h-cellar-shelf', 'Derrière l’étagère', -6.35, BASEMENT_Y, -10.3, 'basement-cellar', -5.3, -10.3);
   hide('h-storage-locker', 'Casier', 12.65, BASEMENT_Y, 1.1, 'basement-storage', 11.8, 1.1); hide('h-boiler-corner', 'Coin chaufferie', 12.7, BASEMENT_Y, 4.8, 'basement-boiler', 11.6, 4.8);
   hide('h-rdc-palier-armoire', 'Armoire du palier', 12.55, GROUND_Y, -9.75, 'stairs-ground', 11.45, -9.75); hide('h-upper-palier-armoire', 'Armoire du grand palier', 12.55, UPPER_Y, -9.7, 'upper-landing', 11.45, -9.7); hide('h-basement-palier-rack', 'Derrière le rayonnage', 12.52, BASEMENT_Y, -9.65, 'basement-landing', 11.35, -9.65);
 

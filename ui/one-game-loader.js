@@ -1,7 +1,7 @@
 /* Keep game engines out of the initial home, camera and messaging load. */
 (()=>{
  let pending=null,generation=0,loading=null;
- window.oneEnsureThree17=()=>pending||=(import('./one-three17-game.js?v=network-fluid-v59').catch(error=>{pending=null;throw error;}));
+ window.oneEnsureThree17=()=>pending||=(import('./one-three17-game.js?v=house-layout-v60').catch(error=>{pending=null;throw error;}));
  const close=()=>{generation++;loading?.remove();loading=null;};
  async function open(options){
   if(loading)return;
