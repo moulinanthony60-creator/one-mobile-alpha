@@ -6,7 +6,7 @@ import {buildRoom} from './one-lobby-r46-room.js?v=lobby-shoot-v88';
 import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v88';
 import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v88';
 
-import {lobbyState,subscribeLobby,subscribeLobbyShot,sendLobbyShot,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-shoot-v91';
+import {lobbyState,subscribeLobby,subscribeLobbyShot,sendLobbyShot,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-shoot-v93';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};

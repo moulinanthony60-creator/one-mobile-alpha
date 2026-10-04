@@ -1,6 +1,6 @@
-import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v84';
-import * as THREE from './three.module.js?v=lobby-shoot-v84';
-import {createCoopWorld,controls} from './three17-r46-world.js?v=lobby-shoot-v84';
+import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v93';
+import * as THREE from './three.module.js?v=lobby-shoot-v93';
+import {createCoopWorld,controls} from './three17-r46-world.js?v=lobby-shoot-v93';
 
 const packet=(kind,data={})=>({game:'317',v:1,kind,...data});
 const now=()=>performance.now();
@@ -68,6 +68,7 @@ const host=()=>roomNow()?.members?.find(m=>m.isHost);
 const isHost=()=>!!me()&&me().accountId===host()?.accountId;
 const connected=id=>id===me()?.accountId||!!link()?.peers().some(p=>p.accountId===id&&p.connected);
 const send=(to,kind,data)=>link()?.send(to,packet(kind,{room:roomNow()?.id,...data}));
+const sendReliable=(to,kind,data)=>{const l=link(),msg=packet(kind,{room:roomNow()?.id,...data});return l?.sendReliable?l.sendReliable(to,msg):l?.send(to,msg);};
 const member=id=>roomNow()?.members?.find(m=>m.accountId===id);
 function broadcast(kind,data,ids=roster.map(m=>m.id)){for(const id of ids)if(id!==me()?.accountId)send(id,kind,data);}
 function canStart(){return joined&&isHost()&&!!openGame&&!pending&&roster.length>=2&&roster.length<=4&&roster.every(p=>p.ready&&connected(p.id));}
@@ -82,19 +83,20 @@ function redraw(){for(const fn of observers)fn(lobbyState());}
 export function subscribeLobby(fn){observers.add(fn);fn(lobbyState());return()=>observers.delete(fn);}
 export function subscribeLobbyShot(fn){shotObservers.add(fn);return()=>shotObservers.delete(fn);}
 function rememberShot(id){const t=now();for(const [key,at] of seenShotEvents)if(t-at>5000)seenShotEvents.delete(key);if(seenShotEvents.has(id))return false;seenShotEvents.set(id,t);return true;}
-function sendShotBurst(to,kind,payload){let delivered=false;for(const delay of [0,55,125,220])setTimeout(()=>{if(!joined||round)return;delivered=send(to,kind,payload)||delivered;},delay);return true;}
+function emitShot(payload){if(!payload||payload.target!==me()?.accountId||!rememberShot(payload.id))return false;for(const fn of shotObservers)fn({id:payload.id,shooter:payload.shooter,target:payload.target});return true;}
 export function sendLobbyShot(target){
  const shooter=me()?.accountId,owner=host()?.accountId;
  if(!joined||round||!shooter||typeof target!=='string'||!target||target===shooter||!roster.some(p=>p.id===target))return false;
  const payload={id:crypto.randomUUID(),shooter,target};
- // The game data channel is intentionally unordered/unreliable. Send the same
- // event a few times and de-duplicate it on receipt so a single dropped packet
- // can no longer make a valid shot disappear.
- sendShotBurst(target,'shot-hit45',payload);
- // Guests can also route the one-shot event through the host. This covers
- // topologies where two guests do not have a usable direct data channel.
- if(owner&&owner!==shooter&&owner!==target)sendShotBurst(owner,'shot-relay45',payload);
- return true;
+ // Gun hits are discrete gameplay events: always route them over the reliable
+ // data channel. Guests send to the host, which either applies the hit locally
+ // or relays it reliably to the target. The host sends directly to guests.
+ if(isHost()){
+   if(target===shooter)return false;
+   return sendReliable(target,'shot-hit46',payload)!==false;
+ }
+ if(!owner)return false;
+ return sendReliable(owner,'shot-route46',payload)!==false;
 }
 function rebuildRoster(){
   if(!joined||!isHost()||round)return;
@@ -115,11 +117,12 @@ function receive(from,p){
   }else if(p.kind==='lobby43'&&from===host()?.accountId&&joined&&!round&&validRoster(p.players)){
     roster=p.players;hostSeen=now();if(!pending)notice='';redraw();
   }else if(p.kind==='busy43'&&from===host()?.accountId&&joined&&!round){notice='Une partie est en cours. Rejoins la prochaine.';redraw();}
-  else if(p.kind==='shot-relay45'&&joined&&!round&&isHost()&&typeof p.id==='string'&&p.id.length===36&&p.shooter===from&&typeof p.target==='string'&&p.target!==from&&roster.some(m=>m.id===from)&&roster.some(m=>m.id===p.target)){
-    sendShotBurst(p.target,'shot-hit45',{id:p.id,shooter:from,target:p.target,relay:true});
+  else if(p.kind==='shot-route46'&&joined&&!round&&isHost()&&typeof p.id==='string'&&p.id.length===36&&p.shooter===from&&typeof p.target==='string'&&p.target!==from&&roster.some(m=>m.id===from)&&roster.some(m=>m.id===p.target)){
+    if(p.target===me()?.accountId)emitShot({id:p.id,shooter:from,target:p.target});
+    else sendReliable(p.target,'shot-hit46',{id:p.id,shooter:from,target:p.target,relay:true});
   }
-  else if(p.kind==='shot-hit45'&&joined&&!round&&typeof p.id==='string'&&p.id.length===36&&typeof p.shooter==='string'&&typeof p.target==='string'&&p.target===me()?.accountId&&roster.some(m=>m.id===p.shooter)&&((from===p.shooter)||((p.relay===true)&&from===host()?.accountId))&&rememberShot(p.id)){
-    for(const fn of shotObservers)fn({id:p.id,shooter:p.shooter,target:p.target});
+  else if(p.kind==='shot-hit46'&&joined&&!round&&typeof p.id==='string'&&p.id.length===36&&typeof p.shooter==='string'&&typeof p.target==='string'&&p.target===me()?.accountId&&roster.some(m=>m.id===p.shooter)&&((from===p.shooter)||from===host()?.accountId)){
+    emitShot({id:p.id,shooter:p.shooter,target:p.target});
   }
   else if(p.kind==='pose43'&&joined&&!round&&isHost()&&validPose(p.pose)&&roster.some(m=>m.id===from&&m.session===p.session))poses.set(from,p.pose);
   else if(p.kind==='poses43'&&joined&&!round&&from===host()?.accountId&&Array.isArray(p.poses)&&p.poses.length<=4){
