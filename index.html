@@ -2833,7 +2833,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
  document.getElementById('searchBtn').addEventListener('click',()=>{if(document.body.classList.contains('oneShellOpen')){leave();state.filter='all';state.mode=null;}},true);
 
  const nav=document.createElement('nav');nav.className='oneMainNav';nav.setAttribute('aria-label','Espaces ONE');
- nav.innerHTML='<button data-one-space="one-social"><span class="symbol">◉</span><span><b>ONE Social</b><small>Photos & publications</small></span></button><button data-one-space="one"><span class="symbol">▣</span><span><b>ONE</b><small>Vidéos verticales</small></span></button>';
+ nav.innerHTML='<button data-one-space="one-social"><span class="symbol">◉</span><span><b>ONE Social</b><small>Photos & publications</small></span></button><button data-one-space="one"><span class="symbol">▣</span><span><b>ONE</b><small>Vidéos verticales</small></span></button><button data-one-space="party" hidden aria-hidden="true" tabindex="-1"></button>';
  header.querySelector('.brandrow').after(nav);
  const label=document.createElement('p');label.className='oneSourcesLabel';label.textContent='Sources de contenu';header.querySelector('.tabsRail').before(label);
  for(const filter of ['all','one','cinema']){const b=document.querySelector('#chips [data-filter="'+filter+'"]');if(b)b.hidden=true;}
