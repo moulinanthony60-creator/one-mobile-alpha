@@ -50,7 +50,7 @@ async function listPosts(kind='post',options={}){
  }
  return [...by.values()].sort((a,b)=>(Number(b.created)||Date.parse(b.created||0)||0)-(Number(a.created)||Date.parse(a.created||0)||0));
 }
-window.ONESharing=Object.assign(window.ONESharing||{},{uiVersion:'117',listOwnPosts,listPosts,isOwnPost,cached:(kind='post')=>[...(onePostsCache[kind==='story'?'story':'post']||[])],localMedia:id=>oneLocalMedia.get(String(id||''))||null});
+window.ONESharing=Object.assign(window.ONESharing||{},{uiVersion:'118-one-feed',listOwnPosts,listPosts,isOwnPost,cached:(kind='post')=>[...(onePostsCache[kind==='story'?'story':'post']||[])],localMedia:id=>oneLocalMedia.get(String(id||''))||null});
 function publish(file,caption,progress,kind,session=token(),mediaType='unknown'){return new Promise((resolve,reject)=>{if(!session||token()!==session)return reject(Error('Ton compte a changé. Rouvre le partage.'));let keys=ids.get(file);if(!keys){keys={};ids.set(file,keys)}const slot=kind+':'+mediaType,id=keys[slot]||(keys[slot]=crypto.randomUUID());const x=new XMLHttpRequest();x.open('POST',BASE+'/posts?'+new URLSearchParams({clientId:id,caption,kind,mediaType}));x.timeout=120000;x.setRequestHeader('Authorization','Bearer '+session);x.setRequestHeader('Content-Type',file.type||(mediaType==='video'?'video/mp4':'image/jpeg'));x.upload.onprogress=e=>{if(e.lengthComputable)progress('Publication · '+Math.round(e.loaded/e.total*100)+' %');};x.onerror=()=>reject(Error('Connexion interrompue. Réessaie : la publication ne sera pas dupliquée.'));x.ontimeout=()=>reject(Error('Envoi trop long. Vérifie ta connexion puis réessaie.'));x.onload=()=>{let d;try{d=JSON.parse(x.responseText)}catch{return reject(Error('Réponse du serveur indisponible.'))}if(x.status<200||x.status>=300||!d.ok)return reject(Error(d.error||'Publication indisponible. Mets à jour le serveur ONE.'));rememberOwned(d,{clientId:id,mediaType,kind,caption});
  const account=accountLocal()||{},serverPost=d.post||d.publication||{},postId=String(serverPost.id||d.postId||d.id||id),created=Number(serverPost.created||serverPost.createdAt||Date.now())||Date.now();
  const optimistic={...serverPost,id:postId,caption:String(caption||serverPost.caption||''),kind,mediaType,mime:String(file.type||(mediaType==='video'?'video/mp4':'image/jpeg')),created,mine:true,name:serverPost.name||account.displayName||account.name||'Moi',_optimistic:true};
@@ -72,8 +72,8 @@ window.oneCameraShare=(original,dialog,options={})=>{
  function row(key,name,hint,kind,friend,accept='any'){
   const label=node('label','oneDestination'),input=node('input'),copy=node('span'),result=node('small','oneDestinationResult');label.dataset.kind=kind;label.dataset.accept=accept;input.type='checkbox';input.setAttribute('aria-label',name);const incompatible=accept!=='any'&&initialMedia!=='unknown'&&accept!==initialMedia;if(incompatible){label.dataset.incompatible='true';result.textContent=accept==='video'?'Réservé aux vidéos':'Réservé aux photos';}copy.append(node('b','',name),node('small','',hint),result);label.append(input,copy);const item={key,name,kind,friend,input,label,result,state:'pending',incompatible};items.set(key,item);input.onchange=()=>{if(input.checked&&kind==='post'){for(const other of items.values())if(other!==item&&other.kind==='post'&&other.input.checked)other.input.checked=false;}update();};return label;
  }
- panel.append(row('one-video','ONE Vidéo','Feed vertical ONE','post',null,'video'),row('one-photo','ONE Photo','Fil photo ONE','post',null,'photo'),row('story','Story','Visible 24 heures','story'));
- const defaultDestination=initialMedia==='video'?items.get('one-video'):initialMedia==='photo'?items.get('one-photo'):null;if(defaultDestination&&!defaultDestination.incompatible)defaultDestination.input.checked=true;
+ panel.append(row('one-feed','Fil ONE','Visible par les membres ONE','post',null,initialMedia==='unknown'?'any':initialMedia),row('story','Ma story','Dans Moments · visible 24 heures','story'));
+ const defaultDestination=items.get('one-feed');if(defaultDestination&&!defaultDestination.incompatible)defaultDestination.input.checked=true;
  const friendsBox=node('div','oneFriendChoices'),friendsToggle=button('Choisir mes amis',async()=>{friendsBox.hidden=!friendsBox.hidden;friendsToggle.setAttribute('aria-expanded',String(!friendsBox.hidden));if(!friendsBox.hidden&&!friendsLoaded)await loadFriends();},'oneFriendsToggle');friendsToggle.setAttribute('aria-expanded','false');friendsBox.hidden=true;panel.append(friendsToggle,friendsBox);
  async function loadFriends(){
   friendsBox.replaceChildren(node('p','','Chargement des amis…'));friendsToggle.disabled=true;
@@ -119,7 +119,7 @@ window.oneCameraShare=(original,dialog,options={})=>{
    if(sent)window.dispatchEvent(new Event('one-posts-updated'));
   }finally{running=false;dialog.removeEventListener('cancel',block);if(close)close.disabled=false;update();}
  }
- status('Choisis ONE Vidéo, ONE Photo, Story ou un ami.');update();
+ status('Choisis où partager ton contenu.');update();
 };
 
 let currentCleanup,currentHost,currentRefresh;
