@@ -3545,9 +3545,8 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
  }
  function hero(){const h=el('section',undefined,'os-welcome-art');h.append(el('span','À PLUSIEURS, PARTOUT DANS ONE','os-eyebrow'),el('h2','Crée ton espace\navec tes amis'),el('p','Regarde, joue, discute. Tout ça ensemble.'));return h;}
  const appearances=['lounge','violet','emerald'];
- function roomAppearance(id){try{return JSON.parse(localStorage.getItem('one_room_appearance_v117')||'{}')[id]||'lounge';}catch{return 'lounge';}}
- function saveAppearance(id,value){if(!id||!appearances.includes(value))return;try{const all=JSON.parse(localStorage.getItem('one_room_appearance_v117')||'{}');all[id]=value;localStorage.setItem('one_room_appearance_v117',JSON.stringify(all));}catch{}tray.dataset.appearance=value;}
- function appearancePicker(initial,change){const box=el('fieldset',undefined,'os-appearance'),row=el('div',undefined,'os-appearance-options');box.append(el('legend','Personnalisation'),row);const labels=['Lounge doré','Néon violet','Table émeraude'];appearances.forEach((key,i)=>{const b=button('',()=>{row.querySelectorAll('button').forEach(n=>n.setAttribute('aria-pressed',String(n===b)));change(key);},'os-appearance-choice');b.dataset.appearance=key;b.setAttribute('aria-label',labels[i]);b.setAttribute('aria-pressed',String(key===initial));b.append(el('span',labels[i]));row.append(b);});box.append(el('small','Ambiance visuelle sur cet appareil.','os-muted'));return box;}
+ function roomAppearance(id){return 'lounge';}
+ function saveAppearance(id,value){tray.dataset.appearance='lounge';}
  function create(){
   const form=el('form',undefined,'os-create');form.append(ONEUI.icon('together'));
   const label=el('label','Nom du salon'),input=el('input');input.name='name';input.maxLength=80;input.required=true;input.placeholder='Soirée entre amis';input.value=createDraft.name;label.append(input);form.append(label);
@@ -3556,7 +3555,7 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
    const l=el('label',text),r=el('input');r.type='radio';r.name='visibility';r.value=value;r.checked=value===createDraft.visibility;r.onchange=()=>{if(r.checked)createDraft.visibility=value;};l.prepend(r);field.append(l);
   }
   form.prepend(field);
-  form.append(appearancePicker(createDraft.appearance,value=>{createDraft.appearance=value;}),el('p','Jusqu’à 16 membres · choisis une activité plus tard.','os-muted'));
+  form.append(el('p','Jusqu’à 16 membres · choisis une activité plus tard.','os-muted'));
   const submit=button(createUncertain?'Vérifier mon salon':'Créer le salon',null,'os-primary os-wide');submit.type='submit';submit.dataset.salonSubmit='';
   form.append(submit,button('Retour',()=>change('welcome')),el('small','Connexion salons · V15.2','os-muted'));content.append(form);
   input.oninput=()=>{input.setCustomValidity('');createDraft.name=input.value;};
@@ -3647,7 +3646,7 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
  async function media(kind){if(mediaPending)return;mediaPending=true;status.textContent='';syncMediaButtons();try{await window.ONEPartyMedia?.toggle?.(kind);}catch(e){status.textContent=e.message;}finally{mediaPending=false;syncMediaButtons();}}
  function invite(){if(!room?.isHost)return;const d=dialog('Inviter dans le salon');d.append(button('Choisir dans mes amis',()=>{d.close();window.oneOpenFriends?.();},'os-primary os-wide'));const l=el('label','ID ou code ONE de ton ami'),input=el('input');input.placeholder='ABCD-EFGH';l.append(input);const s=el('p');s.setAttribute('role','status');const send=button('Envoyer l’invitation',async()=>{if(!input.value.trim())return;send.disabled=true;try{await api('/party/invite?recipient='+encodeURIComponent(input.value.trim()),'POST');s.textContent='Invitation envoyée.';}catch(e){s.textContent=e.message;}finally{send.disabled=false;}},'os-primary');d.append(l,send,s);}
  function share(){if(!room)return;const d=dialog('Partager le salon'),s=el('p');if(room.visibility!=='public'){d.append(el('p','Ce salon est privé. Son hôte invite les membres depuis Amis ONE.'),button('Ouvrir mes amis',()=>{d.close();window.oneOpenFriends?.();},'os-primary'));return;}const url=new URL(location.pathname,location.origin);url.searchParams.set('salon',room.id);qr(d,url.href,'QR pour rejoindre '+room.name);d.append(el('p',room.name),button('Copier le lien',()=>copy(url.href,s),'os-primary'),button('Copier l’identifiant',()=>copy(room.id,s)),s);}
- function settings(){if(!room)return;const r=room,d=dialog('Paramètres du salon');d.append(el('h3',r.name),el('p',r.members.length+' membres · capacité actuelle : 16'),appearancePicker(roomAppearance(r.id),value=>saveAppearance(r.id,value)));if(r.isHost){const l=el('label','Visibilité'),select=el('select');for(const [v,t]of [['private','Privé · sur invitation'],['public','Public · visible dans la recherche']])select.append(new Option(t,v));select.value=r.visibility;l.append(select);const s=el('p'),save=button('Enregistrer',async()=>{save.disabled=true;try{await api('/party/public-settings?'+new URLSearchParams({visibility:select.value,kind:r.gameKind||'bluff'}),'POST');d.close();load(true);}catch(e){s.textContent=e.message;}finally{save.disabled=false;}},'os-primary');d.append(l,save,s);}d.append(button(r.isHost?'Fermer le salon pour tous':'Quitter le salon',()=>{d.close();leave();},'os-danger'));}
+ function settings(){if(!room)return;const r=room,d=dialog('Paramètres du salon');d.append(el('h3',r.name),el('p',r.members.length+' membres · capacité actuelle : 16'));if(r.isHost){const l=el('label','Visibilité'),select=el('select');for(const [v,t]of [['private','Privé · sur invitation'],['public','Public · visible dans la recherche']])select.append(new Option(t,v));select.value=r.visibility;l.append(select);const s=el('p'),save=button('Enregistrer',async()=>{save.disabled=true;try{await api('/party/public-settings?'+new URLSearchParams({visibility:select.value,kind:r.gameKind||'bluff'}),'POST');d.close();load(true);}catch(e){s.textContent=e.message;}finally{save.disabled=false;}},'os-primary');d.append(l,save,s);}d.append(button(r.isHost?'Fermer le salon pour tous':'Quitter le salon',()=>{d.close();leave();},'os-danger'));}
  function leave(){if(!room)return;const isHost=room.isHost,d=dialog(isHost?'Fermer le salon ?':'Quitter le salon ?');d.append(el('p',isHost?'Le salon sera fermé pour tous ses membres. Les appels et la partie s’arrêteront.':'Tu quitteras ce salon et son appel.'));const yes=button(isHost?'Fermer pour tous':'Confirmer mon départ',async()=>{yes.disabled=true;if(await command('/party/leave'))d.close();else{yes.disabled=false;d.append(el('p',status.textContent));}},'os-danger');d.append(yes,button('Rester dans le salon',()=>d.close()));}
  window.addEventListener('one-party-action-error',e=>{status.textContent=e.detail;});window.oneShareSalon=share;window.oneInviteSalon=invite;window.oneAskLeaveSalon=leave;window.oneRefreshSalonState=load;
  window.addEventListener('one-party-refresh',()=>load(true));window.addEventListener('one-account-changed',()=>{createOperation++;createController?.abort();createController=null;cancelStateLoad();busy=false;tray.removeAttribute('aria-busy');createUncertain=false;acknowledgedCreateId='';createDraft={name:'',visibility:'private',appearance:'lounge'};signature='';invitations=[];feedback('','');publish(null);view='welcome';render();load(true);});window.addEventListener('one-space-open',()=>load());
@@ -4032,7 +4031,7 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
  if(!bottom||!home||!create||!shop||!search||!settings)return;
  shop.innerHTML='<span class="ico">▢</span>Boutique'; shop.setAttribute('aria-label','Boutique');
  search.innerHTML='<span class="ico">⌕</span>Rechercher'; search.setAttribute('aria-label','Rechercher');
- bottom.replaceChildren(home,shop,create,search,settings);
+ /* V96: bottom navigation is owned by the final mobile navigation patch. */
  shop.onclick=()=>{document.body.classList.remove('oneSideScreen');window.oneShowSpace?.('shop');};
  search.onclick=()=>{ document.body.classList.remove('oneSideScreen'); const shell=document.getElementById('oneFoundation'); if(shell&&!shell.hidden) history.back(); setTimeout(()=>{const t=document.getElementById('oneSearchToggle'); if(t&&t.getAttribute('aria-expanded')!=='true')t.click(); document.getElementById('search')?.focus();},80); };
  const left=document.createElement('span'),right=document.createElement('span');left.className='oneMainNavSwipeHint left';right.className='oneMainNavSwipeHint right';left.textContent='‹';right.textContent='›';document.body.append(left,right);
@@ -4916,7 +4915,7 @@ body.oneHomeClean>button[data-one-obsolete-home]{
  hideOldHomeLaunchers();
 
  // Ordre demandé : Accueil · Boutique · Créer · Recherche · Réglages.
- bottom.replaceChildren(home,shop,create,search,settings);
+ /* V96: bottom navigation is owned by the final mobile navigation patch. */
 
  // Icône loupe explicite : aucun ancien patch d'icônes ne peut la remplacer.
  search.setAttribute('aria-label','Recherche');
@@ -4943,10 +4942,7 @@ body.oneHomeClean>button[data-one-obsolete-home]{
  observer.observe(brandrow,{childList:true,subtree:true});
 
  // Sécurise l'ordre de la barre du bas.
- requestAnimationFrame(()=>{
-   const wanted=[home,shop,create,search,settings].filter(Boolean);
-   if(wanted.some((n,i)=>bottom.children[i]!==n)||bottom.children.length!==wanted.length)bottom.replaceChildren(...wanted);
- });
+ requestAnimationFrame(()=>{});
 })();
 </script>
 
@@ -5126,11 +5122,7 @@ body.oneHomeClean>button[data-one-obsolete-home]{
    if(bell.parentNode!==controls)controls.insertBefore(bell,account);
    if(bell.nextElementSibling!==account)controls.insertBefore(bell,account);
 
-   // Ordre exact demandé en bas.
-   const wanted=[home,shop,create,search,settings];
-   if(wanted.some((n,i)=>bottom.children[i]!==n)||bottom.children.length!==wanted.length){
-     bottom.replaceChildren(...wanted);
-   }
+   // V96: the final mobile navigation patch owns the bottom bar.
  }
 
  cleanHeader();
@@ -5721,7 +5713,7 @@ body.oneProviderYoutube #oneProviderBadge{
 
 
 <style id="one-ui-v95-polish">
-/* V95 — navigation, account, salon and call controls */
+/* V96 — navigation, account, salon and call controls */
 .bottom{grid-template-columns:repeat(5,minmax(0,1fr))!important}
 #oneCreationNav{display:flex!important;flex-direction:column;align-items:center;justify-content:center;border:0;background:transparent;color:#aeb2c6;font-size:11px;font-weight:800;min-width:0;padding:7px 3px 5px;touch-action:manipulation}
 #oneCreationNav .ico{display:grid;place-items:center;height:23px;margin-bottom:3px;color:#ff8ccf}
@@ -5750,16 +5742,14 @@ body.oneProviderYoutube #oneProviderBadge{
 #oneSalonTray .os-create{display:grid!important;gap:10px!important;padding-bottom:12px!important}
 #oneSalonTray .os-create>svg{display:none!important}
 #oneSalonTray .os-create fieldset{margin:0!important;padding:0!important;border:0!important;min-width:0}
-#oneSalonTray .os-create fieldset:not(.os-appearance){display:grid!important;grid-template-columns:1fr 1fr;gap:8px}
-#oneSalonTray .os-create fieldset:not(.os-appearance)>legend{grid-column:1/-1;margin-bottom:2px;font-weight:800}
-#oneSalonTray .os-create fieldset:not(.os-appearance)>label{min-height:58px;display:flex;align-items:center;gap:9px;padding:10px 12px!important;border:1px solid #60417d;border-radius:14px;background:#171127!important;font-size:13px!important}
-#oneSalonTray .os-create fieldset:not(.os-appearance)>label:has(input:checked){border-color:#b45cff;background:#26163a!important;box-shadow:0 0 0 1px #b45cff55 inset}
+
+#oneSalonTray .os-create fieldset{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
+#oneSalonTray .os-create fieldset>legend{grid-column:1/-1;margin-bottom:2px;font-weight:800}
+#oneSalonTray .os-create fieldset>label{min-height:58px;display:flex;align-items:center;gap:9px;padding:10px 12px!important;border:1px solid #60417d;border-radius:14px;background:#171127!important;font-size:13px!important}
+#oneSalonTray .os-create fieldset>label:has(input:checked){border-color:#b45cff;background:#26163a!important;box-shadow:0 0 0 1px #b45cff55 inset}
 #oneSalonTray .os-create input[type=radio]{width:20px;height:20px;flex:0 0 20px;accent-color:#a751ff}
 #oneSalonTray .os-create>label{display:grid;gap:6px;font-weight:800}
 #oneSalonTray .os-create>label input{min-height:48px!important}
-#oneSalonTray .os-appearance-options{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
-#oneSalonTray .os-appearance-choice{min-height:92px!important;border-radius:14px!important;padding:0!important;overflow:hidden!important}
-#oneSalonTray .os-appearance-choice span{font-size:11px!important;padding:7px 4px!important}
 #oneSalonTray .os-create .os-primary.os-wide{min-height:50px!important;margin-top:2px!important}
 #oneSalonTray .os-create>button:not(.os-primary){width:max-content!important;min-height:40px!important;padding:7px 14px!important}
 /* Call bar: compact, with camera visibility modes. */
@@ -5787,7 +5777,13 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
        creation.innerHTML='<span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18.5V6.8A2.8 2.8 0 0 1 6.8 4h7.6l5.6 5.6v8.9A2.5 2.5 0 0 1 17.5 21h-11A2.5 2.5 0 0 1 4 18.5Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M14 4v6h6M8 15h8M12 11v8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>Création';
      }
      if(legacySettings){let holder=document.querySelector('.oneLegacyNavHolder');if(!holder){holder=document.createElement('div');holder.className='oneLegacyNavHolder';document.body.append(holder);}holder.append(legacySettings);legacySettings.hidden=true;}
-     bottom.replaceChildren(home,shop,create,search,creation);
+     const enforceBottomNav=()=>{
+       const wanted=[home,shop,create,search,creation];
+       if(wanted.some((n,i)=>bottom.children[i]!==n)||bottom.children.length!==wanted.length)bottom.replaceChildren(...wanted);
+     };
+     enforceBottomNav();
+     const bottomNavObserver=new MutationObserver(()=>queueMicrotask(enforceBottomNav));bottomNavObserver.observe(bottom,{childList:true});
+     setTimeout(enforceBottomNav,300);setTimeout(enforceBottomNav,1200);
      const renderCreation=()=>{
        window.oneShowSpace?.('home',false);
        const shell=document.getElementById('oneFoundation');if(!shell)return;
@@ -5812,11 +5808,11 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
 
    // Camera bubbles can be normal, mini or completely hidden without stopping the call.
    const bar=document.getElementById('oneCallBar');
-   let cameraMode=localStorage.getItem('one_call_camera_view_v95')||'normal';
+   let cameraMode=localStorage.getItem('one_call_camera_view_v96')||'normal';
    const applyCameraMode=()=>{
      document.body.classList.toggle('oneCallCamsMini',cameraMode==='mini');document.body.classList.toggle('oneCallCamsHidden',cameraMode==='hidden');
      const b=document.getElementById('oneCallVideoVisibility');if(b){b.textContent=cameraMode==='normal'?'Vidéos · normal':cameraMode==='mini'?'Vidéos · mini':'Vidéos · masquées';b.setAttribute('aria-label',cameraMode==='hidden'?'Réafficher les caméras':'Changer l’affichage des caméras');}
-     localStorage.setItem('one_call_camera_view_v95',cameraMode);
+     localStorage.setItem('one_call_camera_view_v96',cameraMode);
    };
    const cycleCameraMode=()=>{cameraMode=cameraMode==='normal'?'mini':cameraMode==='mini'?'hidden':'normal';applyCameraMode();};
    if(bar&&!document.getElementById('oneCallVideoVisibility')){const b=document.createElement('button');b.type='button';b.id='oneCallVideoVisibility';b.onclick=cycleCameraMode;const leave=[...bar.querySelectorAll('button')].find(x=>/Quitter/i.test(x.textContent||''));bar.insertBefore(b,leave||null);}
