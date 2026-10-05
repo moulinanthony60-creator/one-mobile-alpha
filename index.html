@@ -5889,25 +5889,17 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
        return videos;
      }
      function openCreationTikTokInOne(x){
+       if(!x)return;const raw=String(x.tiktokId||x.id||'').replace(/^tt_(?:ext_)?/,'');const id=String(x.id||('tt_'+raw));
+       if(!id)return;
        try{loadTikTokLocal();}catch{}
-       if(!x?.id)return;
-       const id=String(x.id);
        if(Array.isArray(tiktokItems)){
-         const existing=tiktokItems.findIndex(v=>String(v.id)===id);
-         if(existing>0){const [row]=tiktokItems.splice(existing,1);tiktokItems.unshift(row);}else if(existing<0)tiktokItems.unshift(x);
+         let target=tiktokItems.find(v=>String(v.id)===id||String(v.tiktokId||'')===raw);
+         if(!target){target={...x,id:x.id||('tt_'+raw),p:'tiktok',tiktokId:raw,tiktokPlayable:true,embedLink:x.embedLink||('https://www.tiktok.com/player/v1/'+raw),url:x.url||('https://www.tiktok.com/player/v1/'+raw)};tiktokItems.unshift(target);}else{const i=tiktokItems.indexOf(target);if(i>0){tiktokItems.splice(i,1);tiktokItems.unshift(target);}}
        }
-       const feed=document.getElementById('vfeed'),root=document.getElementById('vfeedScroller');
-       if(!feed||!root){window.toast?.('Lecteur TikTok ONE indisponible.');return;}
+       const feed=document.getElementById('vfeed'),root=document.getElementById('vfeedScroller');if(!feed||!root){window.toast?.('Lecteur TikTok ONE indisponible.');return;}
        feed.dataset.creationReturn='1';
        try{openVerticalFeed('tiktok');}catch{window.toast?.('Lecteur TikTok ONE indisponible.');return;}
-       const focusTarget=()=>{
-         const slide=[...root.querySelectorAll('.vslide')].find(el=>String(el.dataset.id)===id);
-         if(!slide)return false;
-         slide.scrollIntoView({behavior:'auto',block:'start'});root.scrollTop=slide.offsetTop;
-         setTimeout(()=>window.v17ActivateTikTok?.(slide),60);
-         return true;
-       };
-       if(!focusTarget())setTimeout(()=>{try{renderVerticalFeed();}catch{}focusTarget();},80);
+       let tries=0;const focus=()=>{tries++;const slides=[...root.querySelectorAll('.vslide')],slide=slides.find(el=>String(el.dataset.id)===id||String(v17ItemById(el.dataset.id)?.tiktokId||'')===raw);if(slide){slide.scrollIntoView({behavior:'auto',block:'start'});root.scrollTop=slide.offsetTop;setTimeout(()=>{try{v17ActivateTikTok(slide)}catch{slide.querySelector('.vslidePlay')?.click();}},80);return;}if(tries<14){try{renderVerticalFeed();}catch{}setTimeout(focus,90);}else window.toast?.('Vidéo TikTok introuvable dans le lecteur ONE.');};setTimeout(focus,40);
      }
      async function loadTikTokCreation(host,status,own){
        status.textContent='Chargement de tes vidéos TikTok…';
@@ -6046,7 +6038,7 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
 
 <link rel="stylesheet" href="ui/one-home-camera.css?v=appels-sonnerie-v56">
 <script src="ui/one-home-camera.js?v=appels-sonnerie-v56"></script>
-<script src="ui/one-media-text.js?v=appels-sonnerie-v56"></script><script src="ui/one-sharing.js?v=ui-creation-tiktok-v112"></script>
+<script src="ui/one-media-text.js?v=appels-sonnerie-v56"></script><script src="ui/one-sharing.js?v=ui-feed-publish-v117"></script>
 
 
 <link rel="stylesheet" href="ui/one-visual-v20.css?v=appels-sonnerie-v56">
@@ -6120,6 +6112,7 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
  if(typeof base==='function')window.oneShowSpace=function(space,push=true){if(space==='one'){open(push);return}cleanup();return base(space,push)};
  document.addEventListener('click',e=>{const b=e.target.closest('.oneMainNav [data-one-space="one"]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();open(true)},true);
  window.addEventListener('popstate',e=>{if(e.state?.oneSpace==='one')setTimeout(()=>open(false),0)});
+ window.addEventListener('one-posts-updated',()=>{if(document.querySelector('.oneNativeHub'))void render();});
  window.addEventListener('pagehide',cleanup);
 })();
 </script>
