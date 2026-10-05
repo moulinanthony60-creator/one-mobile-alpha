@@ -5719,6 +5719,114 @@ body.oneProviderYoutube #oneProviderBadge{
 }
 </style>
 
+
+<style id="one-ui-v95-polish">
+/* V95 — navigation, account, salon and call controls */
+.bottom{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+#oneCreationNav{display:flex!important;flex-direction:column;align-items:center;justify-content:center;border:0;background:transparent;color:#aeb2c6;font-size:11px;font-weight:800;min-width:0;padding:7px 3px 5px;touch-action:manipulation}
+#oneCreationNav .ico{display:grid;place-items:center;height:23px;margin-bottom:3px;color:#ff8ccf}
+#oneCreationNav .ico svg{width:22px;height:22px}
+#oneCreationNav.active{color:#ffb1dd}
+#oneCreationNav.active .ico{filter:drop-shadow(0 0 8px #ff5eb777)}
+.oneLegacyNavHolder{display:none!important}
+.oneCreationHub{padding:10px 0 96px}
+.oneCreationHero{padding:20px;border:1px solid #68408f;border-radius:20px;background:linear-gradient(135deg,#211638,#111b31);overflow:hidden}
+.oneCreationHero h1{margin:6px 0 8px;font-size:28px;letter-spacing:-.8px}.oneCreationHero p{margin:0;color:#b9bed1;line-height:1.5}
+.oneCreationActions{display:grid;grid-template-columns:1.2fr .8fr;gap:10px;margin-top:16px}.oneCreationActions button{min-height:50px;border-radius:13px;font-weight:900;border:1px solid #574868;background:#171d2c;color:#fff}.oneCreationActions .primary{background:linear-gradient(135deg,#8b4cff,#d94aa4);border-color:#ba6aff}
+.oneCreationGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.oneCreationTile{padding:15px;border:1px solid #303850;border-radius:16px;background:#111726}.oneCreationTile b{display:block;font-size:14px}.oneCreationTile small{display:block;color:#9da6bd;margin-top:5px;line-height:1.4}
+/* Account modal: less stacked, clearer hierarchy. */
+#accountModal .sheet{width:min(620px,calc(100vw - 20px))!important;max-height:calc(100dvh - 92px)!important;padding:16px!important;border-radius:24px!important}
+#accountModal .oneAccountHead{top:-16px!important;padding:8px 0 10px!important;background:#151023!important}
+#accountModal .oneAccountHead h3{font-size:22px!important;color:#ffe4a2!important}
+#accountModal .oneAccountHead + p{display:none!important}
+#accountModal .accountSummary{margin:6px 0 10px!important;padding:10px!important}
+#accountModal .platformList{gap:7px!important}
+#accountModal .platformRow{padding:9px 10px!important}
+#accountModal .accountActions{gap:7px!important;margin-top:9px!important}
+#accountModal .accountActions button{min-height:42px!important;padding:8px!important}
+#oneAccountSettingsEntry{min-height:38px;padding:0 12px;border:1px solid #745795;border-radius:11px;background:#2a2038;color:#f5e9ff;font-weight:850;white-space:nowrap}
+#oneAccountSettingsEntry:active{transform:scale(.97)}
+/* Salon creation: denser and easier to scan on a phone. */
+#oneSalonTray .os-create{display:grid!important;gap:10px!important;padding-bottom:12px!important}
+#oneSalonTray .os-create>svg{display:none!important}
+#oneSalonTray .os-create fieldset{margin:0!important;padding:0!important;border:0!important;min-width:0}
+#oneSalonTray .os-create fieldset:not(.os-appearance){display:grid!important;grid-template-columns:1fr 1fr;gap:8px}
+#oneSalonTray .os-create fieldset:not(.os-appearance)>legend{grid-column:1/-1;margin-bottom:2px;font-weight:800}
+#oneSalonTray .os-create fieldset:not(.os-appearance)>label{min-height:58px;display:flex;align-items:center;gap:9px;padding:10px 12px!important;border:1px solid #60417d;border-radius:14px;background:#171127!important;font-size:13px!important}
+#oneSalonTray .os-create fieldset:not(.os-appearance)>label:has(input:checked){border-color:#b45cff;background:#26163a!important;box-shadow:0 0 0 1px #b45cff55 inset}
+#oneSalonTray .os-create input[type=radio]{width:20px;height:20px;flex:0 0 20px;accent-color:#a751ff}
+#oneSalonTray .os-create>label{display:grid;gap:6px;font-weight:800}
+#oneSalonTray .os-create>label input{min-height:48px!important}
+#oneSalonTray .os-appearance-options{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+#oneSalonTray .os-appearance-choice{min-height:92px!important;border-radius:14px!important;padding:0!important;overflow:hidden!important}
+#oneSalonTray .os-appearance-choice span{font-size:11px!important;padding:7px 4px!important}
+#oneSalonTray .os-create .os-primary.os-wide{min-height:50px!important;margin-top:2px!important}
+#oneSalonTray .os-create>button:not(.os-primary){width:max-content!important;min-height:40px!important;padding:7px 14px!important}
+/* Call bar: compact, with camera visibility modes. */
+#oneCallBar{display:grid!important;grid-template-columns:minmax(0,1fr) repeat(4,auto);align-items:center;gap:6px;padding:7px 8px!important;border-radius:16px!important;bottom:calc(76px + env(safe-area-inset-bottom))!important}
+#oneCallBar[hidden]{display:none!important}
+#oneCallBar>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:4px}
+#oneCallBar button{min-height:38px!important;margin:0!important;padding:7px 10px!important;border-radius:10px!important;font-size:11px!important;white-space:nowrap}
+body.oneCallCamsMini .oneCamBubble:not(.seated){width:74px!important;height:96px!important;border-radius:14px!important}
+body.oneCallCamsMini .oneCamBubble:not(.seated)>header{height:24px!important;font-size:9px!important;padding:4px!important}
+body.oneCallCamsMini .oneCamBubble:not(.seated)>video{width:74px!important;height:72px!important}
+body.oneCallCamsMini .oneCamBubble:not(.seated)>.initial{top:38px!important;font-size:22px!important}
+body.oneCallCamsHidden .oneCamBubble{display:none!important}
+#oneCallVideoVisibility{background:#232b3d!important;border-color:#53637d!important}
+@media(max-width:560px){#oneCallBar{grid-template-columns:repeat(4,1fr)!important;left:8px!important;right:8px!important}#oneCallBar>span{grid-column:1/-1;font-size:10px}.oneCreationActions{grid-template-columns:1fr}.oneCreationGrid{grid-template-columns:1fr 1fr}#accountModal .sheet{max-height:calc(100dvh - 78px)!important}}
+</style>
+<script id="one-ui-v95-polish-js">
+(()=>{
+ const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
+ ready(()=>{
+   const bottom=document.querySelector('.bottom'),home=document.getElementById('oneHomeNav'),shop=document.getElementById('askOne'),create=document.getElementById('discover'),search=document.getElementById('savedNav'),legacySettings=document.getElementById('profile');
+   if(bottom&&home&&shop&&create&&search){
+     let creation=document.getElementById('oneCreationNav');
+     if(!creation){
+       creation=document.createElement('button');creation.type='button';creation.className='nav';creation.id='oneCreationNav';creation.setAttribute('aria-label','Création');
+       creation.innerHTML='<span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18.5V6.8A2.8 2.8 0 0 1 6.8 4h7.6l5.6 5.6v8.9A2.5 2.5 0 0 1 17.5 21h-11A2.5 2.5 0 0 1 4 18.5Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M14 4v6h6M8 15h8M12 11v8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>Création';
+     }
+     if(legacySettings){let holder=document.querySelector('.oneLegacyNavHolder');if(!holder){holder=document.createElement('div');holder.className='oneLegacyNavHolder';document.body.append(holder);}holder.append(legacySettings);legacySettings.hidden=true;}
+     bottom.replaceChildren(home,shop,create,search,creation);
+     const renderCreation=()=>{
+       window.oneShowSpace?.('home',false);
+       const shell=document.getElementById('oneFoundation');if(!shell)return;
+       shell.innerHTML='<section class="oneCreationHub" aria-label="Création"><div class="oneCreationHero"><span class="oneEyebrow">Studio ONE</span><h1>Création</h1><p>Crée, monte et prépare tes contenus depuis un espace dédié.</p><div class="oneCreationActions"><button type="button" class="primary" data-v95-new-project>＋ Nouveau projet</button><button type="button" data-v95-home>Retour accueil</button></div></div><div class="oneCreationGrid"><article class="oneCreationTile"><b>Studio</b><small>Montage et outils de création ONE.</small></article><article class="oneCreationTile"><b>Mes créations</b><small>Retrouve tes projets depuis le Studio.</small></article></div></section>';
+       shell.hidden=false;document.body.classList.add('oneShellOpen','oneSideScreen');
+       document.querySelectorAll('.bottom>.nav').forEach(n=>n.classList.toggle('active',n===creation));
+       shell.querySelector('[data-v95-new-project]')?.addEventListener('click',()=>{if(typeof window.openOneStudio==='function')window.openOneStudio();else create.click();});
+       shell.querySelector('[data-v95-home]')?.addEventListener('click',()=>home.click());
+     };
+     creation.onclick=e=>{e.preventDefault();e.stopPropagation();renderCreation();};
+     bottom.addEventListener('click',e=>{const b=e.target.closest('.nav');if(b&&b!==creation)creation.classList.remove('active');},true);
+   }
+
+   // Settings live inside Compte ONE instead of the bottom navigation.
+   const account=document.getElementById('accountModal'),head=account?.querySelector('.oneAccountHead'),close=document.getElementById('closeAccount');
+   if(head&&!document.getElementById('oneAccountSettingsEntry')){
+     const settings=document.createElement('button');settings.type='button';settings.id='oneAccountSettingsEntry';settings.textContent='⚙ Réglages';settings.setAttribute('aria-label','Ouvrir les réglages ONE');
+     settings.onclick=()=>{account.classList.remove('show');const modal=document.getElementById('settingsModal');if(modal){modal.classList.add('show');const sheet=modal.querySelector('.sheet');if(sheet)sheet.scrollTop=0;}else document.getElementById('profile')?.click();};
+     head.insertBefore(settings,close||null);
+   }
+   const advanced=document.getElementById('openAdvancedSettings');if(advanced)advanced.textContent='Réglages ONE';
+
+   // Camera bubbles can be normal, mini or completely hidden without stopping the call.
+   const bar=document.getElementById('oneCallBar');
+   let cameraMode=localStorage.getItem('one_call_camera_view_v95')||'normal';
+   const applyCameraMode=()=>{
+     document.body.classList.toggle('oneCallCamsMini',cameraMode==='mini');document.body.classList.toggle('oneCallCamsHidden',cameraMode==='hidden');
+     const b=document.getElementById('oneCallVideoVisibility');if(b){b.textContent=cameraMode==='normal'?'Vidéos · normal':cameraMode==='mini'?'Vidéos · mini':'Vidéos · masquées';b.setAttribute('aria-label',cameraMode==='hidden'?'Réafficher les caméras':'Changer l’affichage des caméras');}
+     localStorage.setItem('one_call_camera_view_v95',cameraMode);
+   };
+   const cycleCameraMode=()=>{cameraMode=cameraMode==='normal'?'mini':cameraMode==='mini'?'hidden':'normal';applyCameraMode();};
+   if(bar&&!document.getElementById('oneCallVideoVisibility')){const b=document.createElement('button');b.type='button';b.id='oneCallVideoVisibility';b.onclick=cycleCameraMode;const leave=[...bar.querySelectorAll('button')].find(x=>/Quitter/i.test(x.textContent||''));bar.insertBefore(b,leave||null);}
+   applyCameraMode();
+   window.ONECallCameraVisibility={cycle:cycleCameraMode,set(mode){if(['normal','mini','hidden'].includes(mode)){cameraMode=mode;applyCameraMode();}},get:()=>cameraMode};
+   window.addEventListener('one-salon-rendered',()=>{const dock=document.querySelector('#oneSalonRoom .os-room-tools .os-room-tools, #oneSalonRoom .os-room-tools, #oneSalonRoom .os-room-tools .os-room-tools');const target=document.querySelector('#oneSalonRoom .os-room-tools .os-room-tools')||document.querySelector('#oneSalonRoom .os-room-tools')||document.querySelector('#oneSalonRoom .os-room-tools');if(target&&!target.querySelector('[data-v95-camera-view]')){const b=document.createElement('button');b.type='button';b.dataset.v95CameraView='';b.textContent='▣ Affichage caméras';b.onclick=cycleCameraMode;target.append(b);}});
+ });
+})();
+</script>
+
 </body>
 </html>
 
