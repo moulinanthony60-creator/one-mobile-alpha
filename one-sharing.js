@@ -5,7 +5,16 @@ const token=()=>window.oneAccountToken?.()||'';
 async function api(base,path,options={}){const session=token();if(!session)throw Error('Connecte-toi à ONE pour continuer.');const r=await fetch(base+path,{...options,headers:{Authorization:'Bearer '+session,...options.headers},cache:'no-store',signal:options.signal||AbortSignal.timeout(15000)});const d=await r.json().catch(()=>({}));if(token()!==session)throw Error('Le compte a changé. Rouvre cet écran.');if(!r.ok)throw Error(d.error||(r.status===404?'Mets à jour le serveur ONE pour activer les publications.':'Service indisponible. Réessaie.'));return d;}
 const ids=new WeakMap();
 const onePostsCache={post:[],story:[]};
-const isOwnPost=x=>{const v=x?.mine;return v===true||v===1||v==='1'||String(v??'').toLowerCase()==='true';};
+const accountLocal=()=>{try{return typeof oneAccountLocal==='function'?oneAccountLocal():JSON.parse(localStorage.getItem('one_account_v06')||'null')}catch{return null}};
+const isOwnPost=x=>{
+ const v=x?.mine;if(v===true||v===1||v==='1'||String(v??'').toLowerCase()==='true')return true;
+ const a=accountLocal();if(!a)return false;
+ const aid=String(a.id||a.userId||''),pid=String(x?.accountId||x?.account_id||x?.userId||x?.user_id||x?.authorId||x?.author_id||'');
+ if(aid&&pid&&aid===pid)return true;
+ const email=String(a.email||'').trim().toLowerCase(),pemail=String(x?.email||x?.authorEmail||x?.author_email||'').trim().toLowerCase();if(email&&pemail&&email===pemail)return true;
+ const dn=String(a.displayName||'').trim().toLowerCase(),pn=String(x?.name||x?.displayName||x?.authorName||'').trim().toLowerCase();
+ return !!(dn&&pn&&dn===pn);
+};
 function rememberPosts(kind,rows,reset=false){
  const key=kind==='story'?'story':'post',current=reset?[]:[...(onePostsCache[key]||[])],by=new Map(current.map(x=>[String(x.id),x]));
  for(const x of rows||[])if(x?.id)by.set(String(x.id),x);
@@ -25,7 +34,17 @@ async function listOwnPosts(kind='post',options={}){
  }
  return [...by.values()].sort((a,b)=>(Number(b.created)||Date.parse(b.created||0)||0)-(Number(a.created)||Date.parse(a.created||0)||0));
 }
-window.ONESharing=Object.assign(window.ONESharing||{},{listOwnPosts,cached:(kind='post')=>[...(onePostsCache[kind==='story'?'story':'post']||[])]});
+async function listPosts(kind='post',options={}){
+ const key=kind==='story'?'story':'post',maxPages=Math.max(1,Math.min(80,Number(options.maxPages)||20)),limit=Math.max(1,Math.min(240,Number(options.limit)||160));
+ const by=new Map((onePostsCache[key]||[]).map(x=>[String(x.id),x]));let cursor=null;
+ for(let page=0;page<maxPages&&by.size<limit;page++){
+  const params='?'+new URLSearchParams({kind:key,...(cursor?{before:cursor.created,cursor:cursor.id}:{})});
+  const d=await api(BASE,'/posts'+params,{signal:options.signal});const rows=Array.isArray(d.posts)?d.posts:[];rememberPosts(key,rows,page===0);
+  for(const x of rows)if(x?.id)by.set(String(x.id),x);if(!d.more||!rows.length)break;cursor=rows.at(-1);
+ }
+ return [...by.values()].sort((a,b)=>(Number(b.created)||Date.parse(b.created||0)||0)-(Number(a.created)||Date.parse(a.created||0)||0));
+}
+window.ONESharing=Object.assign(window.ONESharing||{},{listOwnPosts,listPosts,isOwnPost,cached:(kind='post')=>[...(onePostsCache[kind==='story'?'story':'post']||[])]});
 function publish(file,caption,progress,kind,session=token()){return new Promise((resolve,reject)=>{if(!session||token()!==session)return reject(Error('Ton compte a changé. Rouvre le partage.'));let keys=ids.get(file);if(!keys){keys={};ids.set(file,keys)}const id=keys[kind]||(keys[kind]=crypto.randomUUID());const x=new XMLHttpRequest();x.open('POST',BASE+'/posts?'+new URLSearchParams({clientId:id,caption,kind}));x.timeout=120000;x.setRequestHeader('Authorization','Bearer '+session);x.setRequestHeader('Content-Type',file.type);x.upload.onprogress=e=>{if(e.lengthComputable)progress('Publication · '+Math.round(e.loaded/e.total*100)+' %');};x.onerror=()=>reject(Error('Connexion interrompue. Réessaie : la publication ne sera pas dupliquée.'));x.ontimeout=()=>reject(Error('Envoi trop long. Vérifie ta connexion puis réessaie.'));x.onload=()=>{let d;try{d=JSON.parse(x.responseText)}catch{return reject(Error('Réponse du serveur indisponible.'))}if(x.status<200||x.status>=300||!d.ok)return reject(Error(d.error||'Publication indisponible. Mets à jour le serveur ONE.'));resolve(d)};x.send(file)});}
 window.oneCameraShare=(original,dialog,options={})=>{
  dialog.oneShareCleanup?.();dialog.querySelector('.oneCaptureDestinations')?.remove();
