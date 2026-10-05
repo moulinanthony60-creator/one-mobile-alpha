@@ -5834,6 +5834,44 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
        }catch(e){if(e.name!=='AbortError'&&own===creationLoad)status.textContent=e.message||'Impossible de charger tes publications ONE.';}
      }
      async function refreshTikTokCreationData(){if(!window.oneProviderReady?.('tiktok')||!window.ONEConnections?.refresh)return;const previous=window.ONEConnections.tiktokData;try{window.ONEConnections.tiktokData=null;await window.ONEConnections.refresh();for(let i=0;i<24&&!window.ONEConnections.tiktokData;i++)await new Promise(r=>setTimeout(r,125));if(!window.ONEConnections.tiktokData&&previous)window.ONEConnections.tiktokData=previous;}catch{if(!window.ONEConnections.tiktokData&&previous)window.ONEConnections.tiktokData=previous;}try{loadTikTokLocal();}catch{}}
+     const TT_CREATION_PROFILE_CACHE='one_creation_tiktok_profile_v113';
+     const ttNormHandle=v=>String(v||'').trim().replace(/^@/,'').toLowerCase();
+     const ttConnectedHandle=raw=>{
+       const p=raw?.profile||{},direct=[p.unique_id,p.uniqueId,p.username,p.user_name,p.userName,p.handle];
+       for(const v of direct){const h=ttNormHandle(v);if(h)return h;}
+       for(const v of [p.profile_deep_link,p.profileDeepLink,p.url,p.profile_url,p.profileUrl,...(Array.isArray(raw?.videos)?raw.videos.map(x=>x?.share_url||x?.shareUrl||x?.url):[])]){
+         const m=String(v||'').match(/tiktok\.com\/@([^/?#]+)/i);if(m)return ttNormHandle(decodeURIComponent(m[1]));
+       }
+       const fallback=ttNormHandle(p.display_name||p.displayName);return /^[a-z0-9._]{2,24}$/i.test(fallback)?fallback:'';
+     };
+     const ttDiscoveredVideo=(node,handle)=>{
+       if(!node||typeof node!=='object'||Array.isArray(node))return null;
+       const authorObj=node.author&&typeof node.author==='object'?node.author:null;
+       const author=ttNormHandle(authorObj?.uniqueId||authorObj?.unique_id||authorObj?.unique_id_str||node.authorName||node.author_name||node.uniqueId||node.unique_id);
+       if(handle&&author&&author!==handle)return null;
+       const id=String(node.id||node.itemId||node.item_id||node.aweme_id||node.video_id||node.videoId||'');if(!/^\d{8,}$/.test(id))return null;
+       const video=node.video&&typeof node.video==='object'?node.video:{},stats=node.stats||node.statistics||node.metrics||{};
+       const pickUrl=v=>typeof v==='string'?v:Array.isArray(v)?String(v[0]||''):String(v?.urlList?.[0]||v?.url_list?.[0]||v?.url||'');
+       const cover=pickUrl(video.cover||video.originCover||video.origin_cover||video.dynamicCover||node.cover||node.cover_image_url||node.thumbnail);
+       const created=Number(node.createTime||node.create_time||node.createTimestamp||0)||0;
+       return {id,title:String(node.desc||node.title||node.video_description||'Vidéo TikTok'),video_description:String(node.desc||node.title||node.video_description||'Vidéo TikTok'),cover_image_url:cover,share_url:'https://www.tiktok.com/@'+encodeURIComponent(handle||author||'creator')+'/video/'+id,create_time:created>1e12?Math.floor(created/1000):created,duration:Number(video.duration||node.duration||0)||0,view_count:Number(stats.playCount||stats.play_count||stats.viewCount||stats.view_count||stats.views||0)||0,like_count:Number(stats.diggCount||stats.digg_count||stats.likeCount||stats.like_count||stats.likes||0)||0,comment_count:Number(stats.commentCount||stats.comment_count||stats.comments||0)||0,share_count:Number(stats.shareCount||stats.share_count||stats.shares||0)||0,_publicDiscovered:true};
+     };
+     async function discoverConnectedTikTokVideos(raw,{force=false}={}){
+       const handle=ttConnectedHandle(raw);if(!handle||typeof window.oneConnectedFetch!=='function')return [];
+       if(!force){try{const c=JSON.parse(localStorage.getItem(TT_CREATION_PROFILE_CACHE)||'null');if(c?.handle===handle&&Date.now()-Number(c.at||0)<300000&&Array.isArray(c.videos))return c.videos;}catch{}}
+       const found=new Map(),walk=(node,depth=0)=>{if(!node||depth>13||found.size>=60)return;if(Array.isArray(node)){for(const x of node)walk(x,depth+1);return;}if(typeof node!=='object')return;const v=ttDiscoveredVideo(node,handle);if(v)found.set(v.id,{...(found.get(v.id)||{}),...v});for(const [k,val] of Object.entries(node)){if(k==='textExtra'||k==='challenges'||k==='music'||k==='commerceInfo')continue;walk(val,depth+1);}};
+       try{
+         const r=await window.oneConnectedFetch('https://www.tiktok.com/@'+encodeURIComponent(handle),{cache:'no-store'});if(!r?.ok)return [];
+         const html=await r.text();
+         for(const m of html.matchAll(/<script[^>]*type=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/gi)){try{walk(JSON.parse(m[1]));}catch{}}
+         if(!found.size){const safeHandle=handle.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),re=new RegExp('/@'+safeHandle+'/video/(\\d{8,})','gi');for(const m of html.matchAll(re))found.set(m[1],{id:m[1],title:'Vidéo TikTok',video_description:'Vidéo TikTok',share_url:'https://www.tiktok.com/@'+encodeURIComponent(handle)+'/video/'+m[1],_publicDiscovered:true});}
+       }catch{}
+       const missing=[...found.values()].filter(v=>!v.cover_image_url||v.title==='Vidéo TikTok').slice(0,12);
+       await Promise.allSettled(missing.map(async v=>{try{const r=await window.oneConnectedFetch('https://www.tiktok.com/oembed?url='+encodeURIComponent(v.share_url),{cache:'no-store'});if(!r?.ok)return;const d=await r.json();if(d.title)v.title=v.video_description=d.title;if(d.thumbnail_url)v.cover_image_url=d.thumbnail_url;if(d.author_name&&!handle)v.creator=d.author_name;}catch{}}));
+       const videos=[...found.values()].sort((a,b)=>Number(b.create_time||0)-Number(a.create_time||0));
+       try{localStorage.setItem(TT_CREATION_PROFILE_CACHE,JSON.stringify({handle,at:Date.now(),videos:videos.slice(0,40)}));}catch{}
+       return videos;
+     }
      function openCreationTikTokInOne(x){
        try{loadTikTokLocal();}catch{}
        if(!x?.id)return;
@@ -5857,10 +5895,13 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
      }
      async function loadTikTokCreation(host,status,own){status.textContent='Actualisation de tes vidéos TikTok…';await refreshTikTokCreationData();if(own!==creationLoad)return;try{loadTikTokLocal();}catch{}
        const pool=Array.isArray(tiktokItems)?tiktokItems:[],raw=window.ONEConnections?.tiktokData||null,rawVideos=Array.isArray(raw?.videos)?raw.videos:[];
+       const discovered=await discoverConnectedTikTokVideos(raw,{force:true});if(own!==creationLoad)return;
        const rawId=v=>{const direct=String(v?.id||v?.tiktokId||'');if(/^\d{8,}$/.test(direct))return direct;try{return String(tiktokIdFromText(v?.share_url||v?.shareUrl||v?.url||v?.embed_link||v?.embedLink||'')||'');}catch{return '';}};
-       const ownIds=new Set(rawVideos.map(rawId).filter(Boolean));
-       const rows=pool.filter(x=>!x.isTikTokExternal&&ownIds.has(String(x.tiktokId||''))).sort((a,b)=>Number(b.publishedTs||0)-Number(a.publishedTs||0));
-       status.textContent=rows.length?rows.length+' vidéo'+(rows.length>1?'s':'')+' publiée'+(rows.length>1?'s':'')+' par ton compte TikTok.':(window.oneProviderReady?.('tiktok')?'Aucune vidéo publiée par ton compte TikTok trouvée.':'Connecte TikTok dans Compte ONE.');
+       const mergedVideos=new Map();for(const v of [...rawVideos,...discovered]){const id=rawId(v);if(id)mergedVideos.set(id,{...(mergedVideos.get(id)||{}),...v,id});}
+       const ownIds=new Set(mergedVideos.keys()),freshPool=oneBuildTikTokPool({profile:raw?.profile||{},videos:[...mergedVideos.values()]},[]).items,byId=new Map();
+       for(const x of [...pool,...freshPool]){const id=String(x?.tiktokId||'');if(!x?.isTikTokExternal&&ownIds.has(id))byId.set(id,{...(byId.get(id)||{}),...x});}
+       const rows=[...byId.values()].sort((a,b)=>Number(b.publishedTs||0)-Number(a.publishedTs||0));
+       const apiCount=rawVideos.length,foundCount=discovered.length;status.textContent=rows.length?rows.length+' vidéo'+(rows.length>1?'s':'')+' publiée'+(rows.length>1?'s':'')+' par ton compte TikTok'+(foundCount>apiCount?' · profil synchronisé':'')+'.':(window.oneProviderReady?.('tiktok')?'Aucune vidéo publiée par ton compte TikTok trouvée.':'Connecte TikTok dans Compte ONE.');
        for(const x of rows.slice(0,48)){const stats=creationStats(x);makeCreationCard(host,{title:x.title||'Vidéo TikTok',meta:'TikTok'+(x.publishedTs?' · '+creationDate(x.publishedTs):''),thumbnail:x.thumbnail||'',badge:'TIKTOK',stats,open:()=>openCreationTikTokInOne(x)});}
      }
      function loadStudioCreation(host,status){status.textContent='Prépare un nouveau contenu dans le Studio ONE.';const card=document.createElement('article');card.className='oneCreationStudioCard';card.innerHTML='<h3>Studio ONE</h3><p>Filme, importe ou prépare une vidéo avant de la partager.</p><button type="button">＋ Nouveau projet</button>';card.querySelector('button').onclick=()=>{if(typeof window.openOneStudio==='function')window.openOneStudio();else create.click();};host.append(card);}
