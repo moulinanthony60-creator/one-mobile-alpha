@@ -5818,9 +5818,9 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
        try{
          status.textContent=wantPhoto?'Recherche de tes photos ONE…':'Recherche de tes vidéos ONE…';
          let posts=[],stories=[];
-         if(!window.ONESharing?.listOwnPosts)throw Error('Module publications ONE non chargé. Recharge ONE.');[posts,stories]=await Promise.all([window.ONESharing.listOwnPosts('post',{signal,maxPages:80,limit:180}),window.ONESharing.listOwnPosts('story',{signal,maxPages:30,limit:100})]);
+         if(!window.ONESharing?.listOwnPosts)throw Error('Module publications ONE non chargé. Recharge ONE.');[posts,stories]=await Promise.all([(window.ONESharing.listOwnFeedPosts||window.ONESharing.listOwnPosts)('post',{signal,maxPages:80,limit:180}),window.ONESharing.listOwnPosts('story',{signal,maxPages:30,limit:100})]);
          if(own!==creationLoad)return;
-         const found=new Map();for(const x of posts||[])if(x?.id&&window.ONESharing?.isFeedPost?.(x))found.set(String(x.id),{...x,caption:window.ONESharing?.cleanCaption?.(x.caption)??x.caption,_kind:'post'});for(const x of stories||[])if(x?.id)found.set(String(x.id),{...x,_kind:'story'});
+         const found=new Map();for(const x of posts||[])if(x?.id)found.set(String(x.id),{...x,_kind:'post'});for(const x of stories||[])if(x?.id)found.set(String(x.id),{...x,_kind:'story'});
          const rows=[...found.values()].sort((a,b)=>(Number(b.created)||Date.parse(b.created||0)||0)-(Number(a.created)||Date.parse(a.created||0)||0));
          if(!rows.length){status.textContent='Aucune publication ONE retrouvée pour ce compte.';return;}
          let visible=0,checked=0;status.textContent='Vérification de '+rows.length+' publication'+(rows.length>1?'s':'')+' ONE…';
@@ -6040,7 +6040,7 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
 
 <link rel="stylesheet" href="ui/one-home-camera.css?v=appels-sonnerie-v56">
 <script src="ui/one-home-camera.js?v=appels-sonnerie-v56"></script>
-<script src="ui/one-media-text.js?v=appels-sonnerie-v56"></script><script src="ui/one-sharing.js?v=ui-feed-publish-v121-one-feed-route"></script>
+<script src="ui/one-media-text.js?v=appels-sonnerie-v56"></script><script src="ui/one-sharing.js?v=ui-feed-publish-v122-native-feed"></script>
 
 
 <link rel="stylesheet" href="ui/one-visual-v20.css?v=appels-sonnerie-v56">
@@ -6102,7 +6102,7 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
  const date=v=>{const n=Number(v)||Date.parse(v||'');return Number.isFinite(n)&&n>0?new Date(n).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}):''};
  const metric=(x,...keys)=>{for(const k of keys){const n=Number(x?.[k]??x?.stats?.[k]??x?.statistics?.[k]);if(Number.isFinite(n)&&n>=0)return n}return null};
  const count=n=>n==null?'—':n>=1e6?(n/1e6).toFixed(1).replace('.0','')+' M':n>=1e3?(n/1e3).toFixed(1).replace('.0','')+' k':String(n);
- const allRows=async signal=>{const posts=await (window.ONESharing?.listPosts?.('post',{signal,maxPages:24,limit:160})||[]);const by=new Map();for(const x of posts||[])if(x?.id&&window.ONESharing?.isFeedPost?.(x))by.set(String(x.id),{...x,caption:window.ONESharing?.cleanCaption?.(x.caption)??x.caption,_kind:'post'});return [...by.values()].sort((a,b)=>(Number(b.created)||Date.parse(b.created||0)||0)-(Number(a.created)||Date.parse(a.created||0)||0));};
+ const allRows=async signal=>{const posts=await ((window.ONESharing?.listFeedPosts||window.ONESharing?.listPosts)?.('post',{signal,maxPages:24,limit:160})||[]);const by=new Map();for(const x of posts||[])if(x?.id)by.set(String(x.id),{...x,_kind:'post'});return [...by.values()].sort((a,b)=>(Number(b.created)||Date.parse(b.created||0)||0)-(Number(a.created)||Date.parse(a.created||0)||0));};
  const mediaBlob=async(post,signal)=>{const local=window.ONESharing?.localMedia?.(post?.id);if(local)return local;const token=window.oneAccountToken?.();if(!token)throw Error('Connecte-toi à ONE.');const r=await fetch(BASE+'/posts/'+encodeURIComponent(post.id)+'/media',{headers:{Authorization:'Bearer '+token},cache:'no-store',signal});if(!r.ok)throw Error('Média indisponible');return r.blob();};
  const mediaClass=async(post,blob)=>{const bt=String(blob?.type||'').toLowerCase(),hint=[post?.mime,post?.type,post?.mediaType,post?.contentType,post?.content_type].map(v=>String(v||'').toLowerCase()).join(' '),name=[post?.fileName,post?.filename,post?.mediaName,post?.url].map(v=>String(v||'').toLowerCase()).join(' ');if(bt.startsWith('image/')||hint.includes('image/')||/\.(?:jpe?g|png|webp|gif|heic|avif)(?:$|\?|\s)/.test(name))return'image';if(bt.startsWith('video/')||hint.includes('video/')||/\.(?:mp4|webm|mov|m4v|ogv)(?:$|\?|\s)/.test(name))return'video';const head=new Uint8Array(await blob.slice(0,16).arrayBuffer()),ascii=String.fromCharCode(...head);if((head[0]===0xff&&head[1]===0xd8&&head[2]===0xff)||(head[0]===0x89&&head[1]===0x50&&head[2]===0x4e&&head[3]===0x47)||ascii.startsWith('GIF8')||(ascii.startsWith('RIFF')&&ascii.slice(8,12)==='WEBP')||/ftyp(?:avif|heic|heix|mif1)/.test(ascii.slice(4,12)))return'image';if((head[0]===0x1a&&head[1]===0x45&&head[2]===0xdf&&head[3]===0xa3)||ascii.slice(4,8)==='ftyp')return'video';return'unknown'};
  function shell(){return document.getElementById('oneFoundation')}
