@@ -5,8 +5,13 @@ const token=()=>window.oneAccountToken?.()||'';
 async function api(base,path,options={}){const session=token();if(!session)throw Error('Connecte-toi à ONE pour continuer.');const r=await fetch(base+path,{...options,headers:{Authorization:'Bearer '+session,...options.headers},cache:'no-store',signal:options.signal||AbortSignal.timeout(15000)});const d=await r.json().catch(()=>({}));if(token()!==session)throw Error('Le compte a changé. Rouvre cet écran.');if(!r.ok)throw Error(d.error||(r.status===404?'Mets à jour le serveur ONE pour activer les publications.':'Service indisponible. Réessaie.'));return d;}
 const ids=new WeakMap();
 const onePostsCache={post:[],story:[]};
+const OWN_KEY='one_owned_publications_v106';
+const ownedLocal=()=>{try{const v=JSON.parse(localStorage.getItem(OWN_KEY)||'[]');return Array.isArray(v)?v:[]}catch{return []}};
+const rememberOwned=(result,{clientId,mediaType,kind,caption})=>{try{const id=String(result?.post?.id||result?.publication?.id||result?.postId||result?.id||clientId||'');if(!id)return;const rows=ownedLocal().filter(x=>String(x.id)!==id);rows.unshift({id,mediaType,kind,caption:String(caption||''),created:Date.now()});localStorage.setItem(OWN_KEY,JSON.stringify(rows.slice(0,120)));}catch{}};
+const ownedIds=()=>new Set(ownedLocal().map(x=>String(x.id)));
 const accountLocal=()=>{try{return typeof oneAccountLocal==='function'?oneAccountLocal():JSON.parse(localStorage.getItem('one_account_v06')||'null')}catch{return null}};
 const isOwnPost=x=>{
+ if(x?.id&&ownedIds().has(String(x.id)))return true;
  const v=x?.mine;if(v===true||v===1||v==='1'||String(v??'').toLowerCase()==='true')return true;
  const a=accountLocal();if(!a)return false;
  const aid=String(a.id||a.userId||''),pid=String(x?.accountId||x?.account_id||x?.userId||x?.user_id||x?.authorId||x?.author_id||'');
@@ -44,8 +49,8 @@ async function listPosts(kind='post',options={}){
  }
  return [...by.values()].sort((a,b)=>(Number(b.created)||Date.parse(b.created||0)||0)-(Number(a.created)||Date.parse(a.created||0)||0));
 }
-window.ONESharing=Object.assign(window.ONESharing||{},{listOwnPosts,listPosts,isOwnPost,cached:(kind='post')=>[...(onePostsCache[kind==='story'?'story':'post']||[])]});
-function publish(file,caption,progress,kind,session=token()){return new Promise((resolve,reject)=>{if(!session||token()!==session)return reject(Error('Ton compte a changé. Rouvre le partage.'));let keys=ids.get(file);if(!keys){keys={};ids.set(file,keys)}const id=keys[kind]||(keys[kind]=crypto.randomUUID());const x=new XMLHttpRequest();x.open('POST',BASE+'/posts?'+new URLSearchParams({clientId:id,caption,kind}));x.timeout=120000;x.setRequestHeader('Authorization','Bearer '+session);x.setRequestHeader('Content-Type',file.type);x.upload.onprogress=e=>{if(e.lengthComputable)progress('Publication · '+Math.round(e.loaded/e.total*100)+' %');};x.onerror=()=>reject(Error('Connexion interrompue. Réessaie : la publication ne sera pas dupliquée.'));x.ontimeout=()=>reject(Error('Envoi trop long. Vérifie ta connexion puis réessaie.'));x.onload=()=>{let d;try{d=JSON.parse(x.responseText)}catch{return reject(Error('Réponse du serveur indisponible.'))}if(x.status<200||x.status>=300||!d.ok)return reject(Error(d.error||'Publication indisponible. Mets à jour le serveur ONE.'));resolve(d)};x.send(file)});}
+window.ONESharing=Object.assign(window.ONESharing||{},{uiVersion:'106',listOwnPosts,listPosts,isOwnPost,cached:(kind='post')=>[...(onePostsCache[kind==='story'?'story':'post']||[])]});
+function publish(file,caption,progress,kind,session=token(),mediaType='unknown'){return new Promise((resolve,reject)=>{if(!session||token()!==session)return reject(Error('Ton compte a changé. Rouvre le partage.'));let keys=ids.get(file);if(!keys){keys={};ids.set(file,keys)}const slot=kind+':'+mediaType,id=keys[slot]||(keys[slot]=crypto.randomUUID());const x=new XMLHttpRequest();x.open('POST',BASE+'/posts?'+new URLSearchParams({clientId:id,caption,kind,mediaType}));x.timeout=120000;x.setRequestHeader('Authorization','Bearer '+session);x.setRequestHeader('Content-Type',file.type|| (mediaType==='video'?'video/mp4':'image/jpeg'));x.upload.onprogress=e=>{if(e.lengthComputable)progress('Publication · '+Math.round(e.loaded/e.total*100)+' %');};x.onerror=()=>reject(Error('Connexion interrompue. Réessaie : la publication ne sera pas dupliquée.'));x.ontimeout=()=>reject(Error('Envoi trop long. Vérifie ta connexion puis réessaie.'));x.onload=()=>{let d;try{d=JSON.parse(x.responseText)}catch{return reject(Error('Réponse du serveur indisponible.'))}if(x.status<200||x.status>=300||!d.ok)return reject(Error(d.error||'Publication indisponible. Mets à jour le serveur ONE.'));rememberOwned(d,{clientId:id,mediaType,kind,caption});resolve(d)};x.send(file)});}
 window.oneCameraShare=(original,dialog,options={})=>{
  dialog.oneShareCleanup?.();dialog.querySelector('.oneCaptureDestinations')?.remove();
  const panel=node('section','oneCaptureDestinations oneMultiShare');dialog.append(panel);
@@ -96,7 +101,7 @@ window.oneCameraShare=(original,dialog,options={})=>{
      if(item.kind==='friend'){
       if(!window.oneSendMediaToFriend)throw Error('La messagerie n’est pas encore prête. Réessaie.');
       const ok=await window.oneSendMediaToFriend(file,item.friend,{openConversation:false,throwOnError:true,onProgress:progress});if(!ok)throw Error('Envoi non confirmé. Réessaie.');
-     }else await publish(file,caption.value,progress,item.kind,session);
+     }else await publish(file,caption.value,progress,item.kind,session,item.accept==='any'?(String(file.type||'').startsWith('video/')?'video':'photo'):item.accept);
      item.state='sent';item.result.textContent='✓ Envoyé';sent++;
     }catch(e){item.state='failed';item.result.textContent='Échec · '+e.message;}
     update();
