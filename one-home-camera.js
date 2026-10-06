@@ -1,0 +1,82 @@
+(() => {
+'use strict';
+let dialog,stream,recorder,url,target,seq=0,mode='photo',facing='environment',busy=false,held=false,long=false,holdTimer,timer,limit,zoom,desired,zoomBusy=false,oldOverflow,oldFocus;
+const $=s=>dialog.querySelector(s),el=t=>document.createElement(t),status=t=>$('[role=status]').textContent=t;
+const track=()=>stream?.getVideoTracks()[0],active=()=>dialog?.open&&dialog.dataset.preview!=='true';
+function stop(){stream?.getTracks().forEach(t=>t.stop());stream=null;}
+function timers(){clearTimeout(holdTimer);clearTimeout(limit);clearInterval(timer);}
+function reset(){const view=$('.oneCaptureView');view.onclick=null;view.onkeydown=null;for(const a of ['role','tabindex','aria-label'])view.removeAttribute(a);$('.onePreviewActions')?.remove();dialog.dataset.sharing='false';dialog.oneShareCleanup?.();dialog.oneShareCleanup=null;seq++;timers();held=false;long=false;busy=false;if(recorder&&recorder.state!=='inactive'){recorder.onstop=null;recorder.stop()}recorder=null;stop();zoom=null;desired=undefined;$('.oneCaptureView video')?.pause();if(url)URL.revokeObjectURL(url);url=null;$('.oneCaptureDestinations')?.remove();dialog.dataset.recording='false';dialog.dataset.busy='false';}
+function controls(){dialog.dataset.mode=mode;for(const b of dialog.querySelectorAll('[data-mode]'))b.setAttribute('aria-pressed',String(b.dataset.mode===mode));$('[data-shutter]').setAttribute('aria-label',recorder?.state==='recording'?'Arrêter la vidéo':mode==='photo'?'Prendre une photo':'Enregistrer une vidéo');for(const b of dialog.querySelectorAll('[data-mode],[data-flip],[data-gallery]'))b.disabled=busy||recorder?.state==='recording';dialog.dataset.busy=String(busy);}
+function configureZoom(){const t=track(),z=t?.getCapabilities?.().zoom;zoom=z&&Number.isFinite(z.min)&&z.max>z.min?z:null;$('[data-zoom-controls]').hidden=true;$('[data-zoom-buttons]').replaceChildren();if(!zoom)return;const s=$('[data-zoom]');s.min=z.min;s.max=z.max;s.step=z.step||.1;s.value=t.getSettings().zoom??z.min;for(const n of [...new Set([z.min,1,2,3,5].filter(n=>n>=z.min&&n<=z.max))]){const b=el('button');b.type='button';b.textContent=Number(n.toFixed(1))+'×';b.onclick=()=>setZoom(n);$('[data-zoom-buttons]').append(b)}$('[data-zoom-value]').textContent=Number(Number(s.value).toFixed(1))+'×';}
+async function setZoom(n){if(!zoom||!track())return;const z=zoom;desired=Math.max(z.min,Math.min(z.max,z.min+Math.round((n-z.min)/(z.step||.1))*(z.step||.1)));if(zoomBusy)return;zoomBusy=true;try{while(desired!==undefined&&track()){const value=desired,t=track();desired=undefined;try{await t.applyConstraints({advanced:[{zoom:value}]});if(track()!==t)continue;const actual=t.getSettings().zoom??value;$('[data-zoom]').value=actual;$('[data-zoom-value]').textContent=Number(actual.toFixed(1))+'×'}catch{if(track()===t)status('Ce zoom est indisponible sur cette caméra.')}}}finally{zoomBusy=false}}
+async function live(){reset();const ticket=seq;dialog.dataset.preview='false';$('h2').textContent='ONE';$('[data-resume]').hidden=true;$('[data-zoom-controls]').hidden=true;$('[data-quality]').textContent='';$('.oneCaptureView').replaceChildren();busy=true;controls();status('Ouverture de la caméra…');try{if(!navigator.mediaDevices?.getUserMedia)throw Error('unsupported');const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}},audio:false});if(ticket!==seq||!active()||document.hidden){s.getTracks().forEach(t=>t.stop());return}stream=s;const v=el('video');v.autoplay=true;v.muted=true;v.playsInline=true;v.srcObject=s;$('.oneCaptureView').replaceChildren(v);await v.play();if(ticket!==seq)return;dialog.dataset.facing=facing;configureZoom();const settings=track().getSettings();$('[data-quality]').textContent=settings.width&&settings.height?settings.width+' × '+settings.height:'';status(mode==='photo'?'Appuie pour une photo · maintiens pour filmer':'Appuie pour démarrer la vidéo')}catch(e){if(ticket!==seq)return;stop();$('[data-resume]').hidden=false;status(e.name==='NotAllowedError'?'Autorise la caméra dans les permissions de ONE, puis réessaie.':'Caméra indisponible. Réessaie ou choisis un média dans Galerie.')}finally{if(ticket===seq){busy=false;controls()}}}
+function preview(f){
+ if(!f)return;
+ if(!f.type){const type=({jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',mp4:'video/mp4',webm:'video/webm',mov:'video/quicktime'})[f.name.split('.').pop().toLowerCase()];if(type)f=new File([f],f.name,{type})}
+ if(!/^(image|video)\//.test(f.type)){status('Choisis une photo ou une vidéo compatible.');return}
+ if(!f.size||f.size>40*1024*1024){status('Ce média est vide ou dépasse 40 Mo. Choisis une vidéo plus courte.');return}
+ reset();const ticket=seq,original=f;let editing=false;
+ dialog.dataset.preview='true';dialog.dataset.sharing='false';$('h2').textContent='Ton moment';
+ const view=$('.oneCaptureView'),m=el(f.type.startsWith('video/')?'video':'img');
+ url=URL.createObjectURL(f);m.src=url;
+ if(m.tagName==='VIDEO'){m.playsInline=true;m.loop=true;m.autoplay=true;m.muted=true;}else m.alt='Photo en grand écran';
+ view.replaceChildren(m);
+ const actions=el('section');actions.className='onePreviewActions';
+ const hint=el('p');hint.textContent='Appuie sur l’image pour écrire';
+ const row=el('div'),again=el('button'),edit=el('button'),share=el('button'),play=el('button'),sound=el('button');
+ again.textContent='Reprendre';again.onclick=live;
+ edit.textContent='Aa Texte';edit.onclick=editText;
+ play.textContent='Pause';play.hidden=m.tagName!=='VIDEO';sound.textContent='Activer le son';sound.hidden=m.tagName!=='VIDEO';sound.onclick=()=>{m.muted=!m.muted;sound.textContent=m.muted?'Activer le son':'Couper le son'};if(m.tagName==='VIDEO'){m.onplay=()=>play.textContent='Pause';m.onpause=()=>play.textContent='Lire la vidéo';m.onloadeddata=()=>{if(dialog.open&&ticket===seq&&dialog.dataset.sharing!=='true')m.play().catch(()=>play.textContent='Lire la vidéo')};}
+ play.onclick=async()=>{if(m.paused){try{await m.play();play.textContent='Pause'}catch{status('Lecture indisponible.')}}else{m.pause();play.textContent='Lire la vidéo'}};
+ share.textContent=target?'Envoyer →':'Partager →';share.className='capturePrimary';
+ share.onclick=async()=>{
+  if(editing||share.disabled)return;
+  m.pause?.();
+  if(target){const callback=target;dialog.close();callback(f);return}
+  share.disabled=true;
+  const label=share.textContent;
+  share.textContent='Préparation…';
+  status('Préparation du partage…');
+  try{
+   const until=Date.now()+8000;
+   while(typeof window.oneCameraShare!=='function'&&Date.now()<until){
+    await new Promise(r=>setTimeout(r,100));
+   }
+   if(typeof window.oneCameraShare!=='function')throw Error('Le partage ONE ne s’est pas chargé. Recharge ONE.');
+   if(!f||!f.size)throw Error('Le média n’est pas encore prêt. Réessaie.');
+   dialog.dataset.sharing='true';$('h2').textContent='Partager';actions.hidden=true;view.onclick=null;
+   view.removeAttribute('role');view.removeAttribute('tabindex');view.removeAttribute('aria-label');view.onkeydown=null;
+   if(m.tagName==='VIDEO'){m.controls=true;m.loop=false;}
+   await Promise.resolve(window.oneCameraShare(f,dialog,{source:original,preview:true}));
+   dialog.scrollTop=0;
+  }catch(e){
+   status(e?.message||'Partage indisponible. Réessaie.');
+   share.disabled=false;
+   share.textContent=label;
+   if(m.tagName==='VIDEO')m.play().catch(()=>{});
+  }
+ };
+ row.append(again,edit,share);actions.append(hint,play,sound,row);dialog.append(actions);
+ async function editText(){
+  if(editing||!window.oneEditCapture)return;editing=true;m.pause?.();play.textContent='Lire la vidéo';
+  try{const result=await window.oneEditCapture(original);if(!result||ticket!==seq||!dialog.open)return;f=result;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(f);m.src=url;status('');hint.textContent='Appuie pour modifier le texte · partage quand tu es prêt';}
+  finally{editing=false;if(ticket===seq&&dialog.open&&dialog.dataset.sharing!=='true'&&m.tagName==='VIDEO')m.play().catch(()=>play.textContent='Lire la vidéo');}
+ }
+ view.setAttribute('role','button');view.setAttribute('tabindex','0');view.setAttribute('aria-label','Écrire sur la photo ou la vidéo');view.onclick=editText;
+ view.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();editText()}};
+ status('');
+}
+
+async function photo(){if(busy||!track())return;busy=true;controls();const ticket=seq,t=track();try{let blob;if(window.ImageCapture){try{const capture=new ImageCapture(t);blob=await capture.takePhoto()}catch{/* Some cameras only support stream snapshots. */}}if(!blob){const v=$('.oneCaptureView video');if(!v?.videoWidth)throw Error('La caméra se prépare. Réessaie dans un instant.');const c=el('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95))}if(!blob)throw Error('La photo n’a pas pu être créée. Réessaie.');if(ticket===seq&&active())preview(new File([blob],'ONE-photo-'+Date.now()+'.jpg',{type:blob.type||'image/jpeg'}))}catch(e){if(ticket===seq)status(e.message)}finally{if(ticket===seq){busy=false;controls()}}}
+async function video(fromHold=false){if(recorder?.state==='recording'){recorder.stop();return}if(busy||!track())return;if(!window.MediaRecorder){status('L’enregistrement vidéo n’est pas disponible dans ce navigateur.');return}busy=true;controls();const ticket=seq;try{status('Activation du micro…');const audio=await navigator.mediaDevices.getUserMedia({audio:true,video:false});if(ticket!==seq||!active()||document.hidden||(fromHold&&!held)){audio.getTracks().forEach(t=>t.stop());if(ticket===seq)status('Maintiens à nouveau la touche pour filmer.');return}audio.getAudioTracks().forEach(t=>stream.addTrack(t));const mime=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/webm;codecs=vp8,opus','video/webm','video/mp4'].find(m=>MediaRecorder.isTypeSupported(m));const r=new MediaRecorder(stream,{...(mime?{mimeType:mime}:{}),videoBitsPerSecond:4500000,audioBitsPerSecond:128000});recorder=r;const parts=[];let bytes=0,failed=false;r.ondataavailable=e=>{if(e.data.size){parts.push(e.data);bytes+=e.data.size;if(bytes>=36*1024*1024&&r.state==='recording')r.stop()}};r.onerror=()=>{failed=true;status('L’enregistrement a échoué. Réessaie.')};r.onstop=()=>{timers();if(ticket!==seq)return;recorder=null;dialog.dataset.recording='false';stream?.getAudioTracks().forEach(t=>{t.stop();stream.removeTrack(t)});controls();if(failed||!bytes){status('La vidéo n’a pas pu être enregistrée. Réessaie.');return}const type=r.mimeType||parts[0]?.type||'video/webm';preview(new File(parts,'ONE-video-'+Date.now()+(type.includes('mp4')?'.mp4':'.webm'),{type}))};r.start(250);dialog.dataset.recording='true';const start=Date.now();status('Enregistrement · 0 s / 60 s');timer=setInterval(()=>status('Enregistrement · '+Math.floor((Date.now()-start)/1000)+' s / 60 s'),500);limit=setTimeout(()=>{if(r.state==='recording')r.stop()},60000)}catch(e){if(ticket!==seq)return;stream?.getAudioTracks().forEach(t=>{t.stop();stream.removeTrack(t)});status(e.name==='NotAllowedError'?'Autorise le micro pour enregistrer une vidéo avec le son.':'La vidéo n’a pas démarré. Réessaie.')}finally{if(ticket===seq){busy=false;controls()}}}
+function gallery(){if(busy||recorder?.state==='recording')return;const i=$('[data-input]');i.value='';i.click()}
+function setMode(next){if(busy||recorder?.state==='recording')return;mode=next;controls();status(next==='photo'?'Appuie pour une photo · maintiens pour filmer':'Appuie pour démarrer la vidéo')}
+function gestures(view){const points=new Map();let start,pinch;const distance=()=>{const[a,b]=[...points.values()];return Math.hypot(a.x-b.x,a.y-b.y)};view.addEventListener('pointerdown',e=>{if(!active())return;view.setPointerCapture(e.pointerId);points.set(e.pointerId,{x:e.clientX,y:e.clientY});if(points.size===1)start={x:e.clientX,y:e.clientY};if(points.size===2){start=null;pinch={distance:distance(),zoom:Number($('[data-zoom]').value)}}});view.addEventListener('pointermove',e=>{if(!points.has(e.pointerId))return;points.set(e.pointerId,{x:e.clientX,y:e.clientY});if(points.size===2&&pinch?.distance&&zoom)setZoom(pinch.zoom*distance()/pinch.distance)});const end=e=>{if(e.type==='pointerup'&&points.size===1&&start&&active()){const dx=e.clientX-start.x,dy=e.clientY-start.y;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)setMode(dx<0?'video':'photo')}points.delete(e.pointerId);start=null;pinch=null};view.addEventListener('pointerup',end);view.addEventListener('pointercancel',end)}
+function build(){dialog=el('dialog');dialog.className='oneCapture onePhoneCapture oneFullCamera';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-labelledby','oneCaptureTitle');dialog.innerHTML=`<header><button data-close aria-label="Fermer la caméra">×</button><h2 id="oneCaptureTitle">ONE</h2><span data-quality></span><button data-flip aria-label="Changer de caméra">↻</button></header><div class="oneCaptureView"></div><button data-resume hidden>Réessayer la caméra</button><div class="oneCameraDock"><p role="status" aria-live="polite"></p><div data-zoom-controls hidden><div data-zoom-buttons></div><label class="oneZoomSlider"><input data-zoom aria-label="Zoom caméra" type="range"><output data-zoom-value></output></label></div><div class="oneCameraModes" aria-label="Mode de capture"><button data-mode="photo">Photo</button><button data-mode="video">Vidéo</button><button data-gallery>Galerie</button></div><div class="oneShutterRow"><span></span><button data-shutter aria-label="Prendre une photo"><span></span></button><span class="oneCameraMark">ONE<span>CRÉER</span></span></div></div><input data-input type="file" accept="image/*,video/*" hidden>`;document.body.append(dialog);$('[data-close]').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{reset();target=null;document.body.style.overflow=oldOverflow;oldFocus?.focus?.()});$('[data-flip]').onclick=()=>{facing=facing==='environment'?'user':'environment';live()};$('[data-resume]').onclick=live;$('[data-gallery]').onclick=gallery;$('[data-input]').onchange=e=>preview(e.target.files[0]);$('[data-zoom]').oninput=e=>setZoom(Number(e.target.value));for(const b of dialog.querySelectorAll('[data-mode]'))b.onclick=()=>setMode(b.dataset.mode);const shutter=$('[data-shutter]');shutter.oncontextmenu=e=>e.preventDefault();shutter.onpointerdown=e=>{if(e.button!==0||busy||mode!=='photo'||recorder?.state==='recording')return;held=true;long=false;shutter.setPointerCapture(e.pointerId);holdTimer=setTimeout(()=>{if(held){long=true;video(true)}},350)};const release=e=>{clearTimeout(holdTimer);held=false;if(e.type==='pointercancel')long=true;if(long&&recorder?.state==='recording')recorder.stop()};shutter.onpointerup=release;shutter.onpointercancel=release;shutter.onclick=()=>{if(long){long=false;return}if(recorder?.state==='recording'||mode==='video')video();else photo()};gestures($('.oneCaptureView'));for(const name of ['touchstart','touchmove','touchend'])dialog.addEventListener(name,e=>e.stopPropagation(),{passive:true})}
+function open(callback){if(!dialog)build();if(dialog.open)return;target=typeof callback==='function'?callback:null;oldFocus=document.activeElement;oldOverflow=document.body.style.overflow;document.body.style.overflow='hidden';dialog.showModal();mode='photo';live()}
+window.addEventListener('click',e=>{if(e.target.closest?.('.bottom #discover')){e.preventDefault();e.stopImmediatePropagation();open()}},true);window.oneOpenCamera=open;window.openOneStudio=open;window.oneTakePhoneMedia=callback=>open(callback);window.oneRetakeCapture=live;
+document.addEventListener('visibilitychange',()=>{if(!active())return;if(document.hidden){clearTimeout(holdTimer);held=false;if(recorder?.state==='recording'){recorder.stop();stop()}else{seq++;busy=false;stop()}}else if(!stream&&!recorder)live()});
+})();
+
+
+
