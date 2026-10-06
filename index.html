@@ -6177,6 +6177,30 @@ window.addEventListener('DOMContentLoaded',()=>{
  new MutationObserver(paint).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});paint();
 })();
 </script>
+
+<style id="one-v139-nav-source-color">
+.bottomNav{--one-bottom:#7884ff;--one-bottom-active:#66a2ff}
+.bottomNav #home,.bottomNav #shop,.bottomNav #discover,.bottomNav #search,.bottomNav #creation,
+.bottomNav #home *,.bottomNav #shop *,.bottomNav #discover *,.bottomNav #search *,.bottomNav #creation *{
+ color:var(--one-bottom)!important;
+ -webkit-text-fill-color:var(--one-bottom)!important;
+ text-shadow:none!important;
+}
+.bottomNav #home svg *,.bottomNav #shop svg *,.bottomNav #discover svg *,
+.bottomNav #search svg *,.bottomNav #creation svg *{
+ fill:var(--one-bottom)!important;stroke:var(--one-bottom)!important;
+}
+.bottomNav #home.active,.bottomNav #shop.active,.bottomNav #discover.active,
+.bottomNav #search.active,.bottomNav #creation.active{
+ background:linear-gradient(145deg,#685bf03d,#539cff35)!important;
+ box-shadow:inset 0 0 0 1px #788aff40,0 0 24px #5d82ff25!important;
+}
+.bottomNav #home.active *,.bottomNav #shop.active *,.bottomNav #discover.active *,
+.bottomNav #search.active *,.bottomNav #creation.active *{
+ color:var(--one-bottom-active)!important;
+ -webkit-text-fill-color:var(--one-bottom-active)!important;
+}
+</style>
 </body>
 </html>
 
