@@ -2160,8 +2160,8 @@ v17ApplySound();
 <script>
 (()=>{
  const studio=document.getElementById('oneStudio'),file=document.getElementById('studioFile'),format=document.getElementById('studioType'),preview=document.getElementById('studioPreview');let objectUrl=null;
- window.openOneLegacyStudio=()=>{closeVerticalFeed();studio.hidden=false;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.id==='discover'));document.getElementById('studioTitle').focus();};
- document.getElementById('discover').onclick=()=>window.oneOpenCamera?.();
+ window.openOneStudio=()=>{closeVerticalFeed();studio.hidden=false;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.id==='discover'));document.getElementById('studioTitle').focus();};
+ document.getElementById('discover').onclick=openOneStudio;
  document.querySelector('.bottom').addEventListener('click',e=>{if(e.target.closest('button')?.id!=='discover'){studio.hidden=true;preview.querySelector('video')?.pause();}},true);
  const closeStudio=()=>{studio.hidden=true;preview.querySelector('video')?.pause();closeVerticalFeed();state.filter='all';state.mode=null;state.query='';document.getElementById('search').value='';resetCreatorMode(true);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.id==='feedNav'));document.querySelectorAll('#chips .chip').forEach(n=>n.classList.toggle('active',n.dataset.filter==='all'));render();syncTwitchFilters();syncVerticalLauncher();window.scrollTo({top:0,behavior:'auto'});document.getElementById('oneHome').focus();};
  document.getElementById('studioBack').onclick=closeStudio;
@@ -6022,15 +6022,6 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
 @media(max-width:390px){.oneCreationTikTokGrid{gap:5px!important}.oneCreationTikTokGrid .oneCreationMediaCopy{padding:5px}.oneCreationTikTokGrid .oneCreationStats span{font-size:5.5px}.oneCreationTikTokGrid .oneCreationStats b{font-size:5.5px!important}.oneCreationTikTokGrid .oneCreationOpen{min-height:26px;font-size:7px}}
 
 </style>
-<script>
-window.addEventListener('DOMContentLoaded',()=>{
-  if(typeof window.oneOpenCamera==='function'){
-    window.openOneStudio=window.oneOpenCamera;
-    const createBtn=document.getElementById('discover');
-    if(createBtn) createBtn.onclick=(e)=>{e?.preventDefault?.();e?.stopPropagation?.();window.oneOpenCamera();};
-  }
-});
-</script>
 </body>
 </html>
 
@@ -6048,7 +6039,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 <script src="ui/one-chat-v8.js?v=appels-sonnerie-v56"></script>
 
 <link rel="stylesheet" href="ui/one-home-camera.css?v=appels-sonnerie-v56">
-<script src="ui/one-home-camera-v126.js?v=126"></script>
+<script src="ui/one-home-camera.js?v=v129-clean"></script>
 <script src="ui/one-media-text.js?v=appels-sonnerie-v56"></script><script src="ui/one-sharing-v125.js?v=125"></script>
 
 
