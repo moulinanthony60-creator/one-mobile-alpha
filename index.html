@@ -4273,7 +4273,7 @@ body.oneSideScreen .oneMainNavSwipeHint{display:none!important}
  const shell=()=>document.getElementById('oneFoundation');
  const templates={
   ai:'<section class="oneAiSwipeScreen"><span class="oneEyebrow">Ton assistant personnel</span><h1 class="oneShellTitle">ONE IA</h1><p class="oneShellLead">Pose une question sans quitter la navigation par swipe.</p><div class="oneAiSwipeHero"><div class="oneAiOrb">✦</div><b>Que veux-tu savoir ?</b><span>ONE IA utilise le véritable assistant déjà présent dans l’application.</span><div class="oneAiInlineComposer"><textarea id="oneAiInlineQuestion" rows="4" placeholder="Pose ta question à ONE IA…"></textarea><button type="button" data-five-ai>Demander à ONE IA</button></div><div id="oneAiInlineStatus"></div></div></section>',
-  moments:'<section class="oneMomentsScreen"><span class="oneEyebrow">Ce que vivent tes amis</span><h1 class="oneShellTitle">Moments</h1><p class="oneShellLead">Les stories et activités de ton univers ONE.</p><section class="oneStoriesV135"><div class="oneStoriesV135Head"><h2>Stories</h2><button class="oneSecondary" type="button" data-v135-story-refresh>Actualiser</button></div><div class="oneStoriesRail" data-v135-stories><button class="oneStoryBubble oneStoryMine" type="button" data-v135-add-story><span class="oneStoryCircle">＋</span><b>Ma Story</b></button></div></section><div class="oneMomentsTabs"><button class="active" data-five-moment="foryou">Pour toi</button><button data-five-moment="following">Abonnements</button><button data-five-moment="friends">Amis</button><button data-five-moment="rooms">Salons</button></div><div class="oneMomentsBody"></div></section>',
+  moments:'<section class="oneMomentsScreen oneMomentsV136"><div class="oneMomentsTop"><div><span class="oneEyebrow">Ce que vivent tes amis</span><h1 class="oneShellTitle">Moments</h1></div><div class="oneMomentsTopActions"><button type="button" data-v136-messages>💬<small>Messages</small></button><button type="button" data-v136-friends>👥<small>Amis</small></button></div></div><p class="oneShellLead">Les stories de ton univers ONE.</p><div class="oneStoriesV136"><section><div class="oneStoriesV136Title"><h2>Ma Story</h2><button type="button" data-v135-add-story>＋ Ajouter</button></div><div class="oneStoriesRail oneStoriesMineRail" data-v136-my-stories><button class="oneStoryBubble oneStoryMine" type="button" data-v135-add-story><span class="oneStoryCircle">＋</span><b>Ma Story</b></button></div></section><section><div class="oneStoriesV136Title"><h2>Stories de mes amis</h2></div><div class="oneStoriesRail" data-v136-friend-stories><span class="oneStoriesEmpty">Aucune story d’ami pour le moment.</span></div></section><section><div class="oneStoriesV136Title"><h2>Mes abonnements ONE</h2></div><div class="oneStoriesRail" data-v136-follow-stories><span class="oneStoriesEmpty">Les stories des comptes ONE suivis apparaîtront ici.</span></div></section><section><div class="oneStoriesV136Title"><h2>Découvrir</h2><button type="button" data-v135-story-refresh>Actualiser</button></div><div class="oneStoriesRail" data-v136-discover-stories><span class="oneStoriesEmpty">Découvre de nouveaux créateurs ONE.</span></div></section></div></section>',
   discover:'<section class="oneSocialFacebook"><div class="oneSocialFacebookHead"><div><span class="oneEyebrow">Communauté ONE</span><h1>ONE Social</h1></div><button type="button" data-one-social-refresh aria-label="Actualiser">↻</button></div><div class="oneSocialComposer"><span class="oneSocialComposerAvatar" data-one-social-avatar>O</span><button type="button" class="oneSocialComposerMain" data-one-social-compose>Quoi de neuf ?</button><button type="button" class="oneSocialComposerPhoto" data-one-social-compose aria-label="Publier une photo">▧</button></div><section id="oneDiscoverNativeFeed" data-social-layout="1" aria-label="Fil ONE Social"></section></section>'
  };
  function momentBody(tab){const h=document.querySelector('.oneMomentsBody');if(!h)return; if(tab==='friends'){h.innerHTML='<div id="oneMomentFriends" class="oneInlinePanel"><p class="oneInlineLoading">Chargement…</p></div>';loadFriends(h.querySelector('#oneMomentFriends'));return} if(tab==='rooms'){h.innerHTML='<div class="oneInlinePanel"><button class="oneInlineAction" data-five-rooms>Ouvrir mes salons ONE</button><p class="oneInlineEmpty">Tes salons restent accessibles depuis cet écran.</p></div>';return} if(tab==='following'){h.innerHTML='<div class="oneMomentsHero"><b>Tes abonnements.<br>Au même endroit.</b><span>Retrouve les créateurs que tu suis sur YouTube, Twitch et TikTok.</span></div><div class="oneMomentsPlatforms"><button data-five-source="youtube">YouTube</button><button data-five-source="twitch">Twitch</button><button data-five-source="tiktok">TikTok</button></div>';return} h.innerHTML='<div class="oneMomentsHero"><b>Découvre ce qui bouge.</b><span>Retrouve tes créateurs et les activités de ton univers.</span></div><div class="oneMomentsPlatforms"><button data-five-source="youtube">YouTube</button><button data-five-source="twitch">Twitch</button><button data-five-source="tiktok">TikTok</button></div>'}
@@ -6074,20 +6074,46 @@ window.addEventListener('DOMContentLoaded',()=>{
 })();
 </script>
 
-<script id="one-v135-moments-stories">
+<script id="one-v136-moments-stories">
 (()=>{
- async function paintStories(){
-  const rail=document.querySelector('[data-v135-stories]');if(!rail)return;
-  [...rail.querySelectorAll('.oneStoryBubble:not(.oneStoryMine)')].forEach(x=>x.remove());
+ const bubble=(p,label)=>{const b=document.createElement('button');b.type='button';b.className='oneStoryBubble';b.innerHTML='<span class="oneStoryCircle"></span><b></b>';b.querySelector('.oneStoryCircle').textContent=String(p?.name||label||'O').slice(0,1).toUpperCase();b.querySelector('b').textContent=label||p?.name||'ONE';b.onclick=()=>window.toast?.('Lecture des stories ONE bientôt disponible.');return b;};
+ async function paint(){
+  const mine=document.querySelector('[data-v136-my-stories]'),friends=document.querySelector('[data-v136-friend-stories]'),follow=document.querySelector('[data-v136-follow-stories]'),discover=document.querySelector('[data-v136-discover-stories]');if(!mine||!friends||!follow||!discover)return;
   try{
-   const rows=await window.ONESharing?.listPosts?.('story',{maxPages:3,limit:30})||[];
-   for(const p of rows){const b=document.createElement('button');b.type='button';b.className='oneStoryBubble';b.innerHTML='<span class="oneStoryCircle"></span><b></b>';b.querySelector('.oneStoryCircle').textContent=String(p.name||'O').slice(0,1).toUpperCase();b.querySelector('b').textContent=p.mine?'Ma Story':(p.name||'ONE');b.onclick=()=>window.toast?.('Lecture des stories ONE bientôt disponible.');rail.appendChild(b);}
+   const rows=await window.ONESharing?.listPosts?.('story',{maxPages:4,limit:40})||[];
+   [friends,follow,discover].forEach(x=>x.replaceChildren());
+   mine.querySelectorAll('.oneStoryBubble:not(.oneStoryMine)').forEach(x=>x.remove());
+   const my=rows.filter(x=>x.mine),others=rows.filter(x=>!x.mine);
+   my.forEach(p=>mine.appendChild(bubble(p,'Ma Story')));
+   /* The current /posts story payload does not expose friend/follow relationships yet.
+      Keep those sections honest and put public non-owned stories in Discover. */
+   const empty=(host,text)=>{const e=document.createElement('span');e.className='oneStoriesEmpty';e.textContent=text;host.appendChild(e);};
+   empty(friends,'Aucune story d’ami disponible.');
+   empty(follow,'Les stories de tes abonnements ONE apparaîtront ici.');
+   if(others.length)others.forEach(p=>discover.appendChild(bubble(p,p.name||'Créateur ONE')));else empty(discover,'Aucune story publique à découvrir pour le moment.');
   }catch{}
  }
- document.addEventListener('click',e=>{if(e.target.closest('[data-v135-add-story]')){e.preventDefault();window.oneOpenCamera?.();}if(e.target.closest('[data-v135-story-refresh]')){e.preventDefault();paintStories();}},true);
- window.addEventListener('one-space-open',()=>setTimeout(paintStories,80));window.addEventListener('one-posts-updated',()=>setTimeout(paintStories,80));
+ document.addEventListener('click',e=>{
+  if(e.target.closest('[data-v135-add-story]')){e.preventDefault();window.oneOpenCamera?.();}
+  if(e.target.closest('[data-v135-story-refresh]')){e.preventDefault();paint();}
+  if(e.target.closest('[data-v136-messages]')){e.preventDefault();window.oneShowSpace?.('messages');}
+  if(e.target.closest('[data-v136-friends]')){e.preventDefault();window.oneShowSpace?.('friends');}
+ },true);
+ const mo=new MutationObserver(()=>{if(document.querySelector('.oneMomentsV136'))paint();});mo.observe(document.body,{subtree:true,childList:true});
+ window.addEventListener('one-posts-updated',paint);
 })();
 </script>
+
+<style id="one-v136-moments-nav">
+:root{--one-nav-accent:#756cff;--one-nav-blue:#579cff}
+.bottomNav .nav,.bottomNav .nav .ico,.bottomNav .nav span{color:#aeb6d7!important}
+.bottomNav .nav.active{color:#fff!important;background:linear-gradient(145deg,#6f4fe033,#4d94ff24)!important;box-shadow:inset 0 0 0 1px #8177ff22,0 -8px 28px #5d72ff16!important}
+.bottomNav .nav.active .ico,.bottomNav .nav.active span{color:#8b82ff!important}
+.bottomNav .nav.active .ico{filter:drop-shadow(0 0 9px #6594ff88)}
+.bottomNav:before{background:linear-gradient(90deg,#714fff,#579cff)!important}
+.oneMomentsV136{padding-bottom:30px}.oneMomentsTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.oneMomentsTopActions{display:flex;gap:9px}.oneMomentsTopActions button{width:72px;min-height:66px;border:1px solid #3b4567;border-radius:20px;background:linear-gradient(145deg,#171b2b,#111626);color:#fff;font-size:22px;font-weight:900}.oneMomentsTopActions small{display:block;font-size:10px;margin-top:3px;color:#c4c9dd}.oneStoriesV136{display:grid;gap:24px;margin-top:24px}.oneStoriesV136 section{min-width:0}.oneStoriesV136Title{display:flex;align-items:center;justify-content:space-between;gap:12px}.oneStoriesV136Title h2{margin:0;font-size:20px}.oneStoriesV136Title button{border:1px solid #59618a;border-radius:14px;background:#171c2d;color:#ddd;padding:9px 12px;font-weight:800}.oneStoriesV136 .oneStoriesRail{min-height:94px}.oneStoriesEmpty{display:flex;align-items:center;min-width:min(76vw,360px);padding:14px;border:1px solid #2c334a;border-radius:16px;background:#111624;color:#9fa7bf;font-size:12px}.oneStoryCircle{background:linear-gradient(145deg,#1b2032,#101421)!important;border-color:#7667f4!important}.oneStoryMine .oneStoryCircle{border-color:#687fff!important}
+@media(min-width:760px){.oneMomentsTopActions button{width:84px}.oneStoriesV136{gap:28px}}
+</style>
 </body>
 </html>
 
