@@ -6219,6 +6219,46 @@ body:not(.oneShellOpen) .card{box-shadow:0 4px 16px #0002!important}
 }
 </style>
 
+
+<style id="one-v146-search-ui">
+body.oneSearchPage #oneHomeIntro,body.oneSearchPage .sectionHead,body.oneSearchPage #discoveryBar,body.oneSearchPage #verticalLaunchers,body.oneSearchPage #learnbar,body.oneSearchPage #twitchBanner{display:none!important}
+body.oneSearchPage .topbar{padding-bottom:12px!important}
+body.oneSearchPage .topbar>.search{display:flex!important;margin:10px 14px 0!important;gap:8px!important}
+body.oneSearchPage .topbar>.search input{min-height:52px!important;border-radius:18px!important;font-size:16px!important;padding:0 16px!important}
+body.oneSearchPage .topbar>.search button{min-width:94px!important;border-radius:18px!important}
+#oneSearchLanding{display:none;padding:18px 16px 110px;max-width:760px;margin:auto}
+body.oneSearchPage #oneSearchLanding{display:block}
+body.oneSearchPage #feed:not(.oneSearchHasQuery){display:none!important}
+body.oneSearchPage #creatorResults:empty{display:none!important}
+.oneSearchTitle{font-size:28px;margin:4px 0 5px}.oneSearchSub{color:#aeb5c9;margin:0 0 20px;line-height:1.45}
+.oneSearchCats{display:flex;gap:8px;overflow:auto;padding:2px 0 18px;scrollbar-width:none}.oneSearchCats::-webkit-scrollbar{display:none}.oneSearchCats button{white-space:nowrap;border:1px solid #353d58;background:#131827;color:#e8ebf7;border-radius:999px;padding:10px 14px;font-weight:800}.oneSearchCats button.active{background:#fff;color:#10131d;border-color:#fff}
+.oneSearchBlock{margin:12px 0 24px}.oneSearchBlockHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.oneSearchBlock h2{font-size:18px;margin:0}.oneSearchClear{border:0;background:transparent;color:#a985ff;font-weight:800}.oneSearchRecent{display:flex;flex-wrap:wrap;gap:8px}.oneSearchRecent button{border:1px solid #32394f;background:#111625;color:#dce1f0;border-radius:14px;padding:10px 12px}
+.oneSearchSuggest{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.oneSearchSuggest button{text-align:left;min-height:76px;border:1px solid #30374e;border-radius:17px;background:linear-gradient(145deg,#151a2b,#0f1422);color:#fff;padding:13px}.oneSearchSuggest b{display:block;font-size:14px}.oneSearchSuggest small{display:block;color:#9fa8bf;margin-top:5px}
+body.oneSearchPage #searchTypes{margin:10px 16px!important}body.oneSearchPage #creatorResults{margin-top:8px!important}
+</style>
+<div id="oneSearchLanding">
+ <h1 class="oneSearchTitle">Recherche</h1><p class="oneSearchSub">Trouve rapidement un créateur, une vidéo ou un contenu.</p>
+ <div class="oneSearchCats" role="tablist"><button class="active" data-one-search-filter="all">Tout</button><button data-one-search-filter="one">ONE</button><button data-one-search-filter="tiktok">TikTok</button><button data-one-search-filter="youtube">YouTube</button><button data-one-search-filter="twitch">Twitch</button></div>
+ <section class="oneSearchBlock"><div class="oneSearchBlockHead"><h2>Recherches récentes</h2><button class="oneSearchClear" type="button">Effacer</button></div><div class="oneSearchRecent"></div></section>
+ <section class="oneSearchBlock"><div class="oneSearchBlockHead"><h2>Découvrir</h2></div><div class="oneSearchSuggest"><button data-one-search-q="gaming france"><b>🎮 Gaming</b><small>Créateurs et vidéos</small></button><button data-one-search-q="musique france"><b>🎵 Musique</b><small>Artistes et contenus</small></button><button data-one-search-q="tech france"><b>💻 Tech</b><small>Créateurs à découvrir</small></button><button data-one-search-q="sport france"><b>⚡ Sport</b><small>Vidéos populaires</small></button></div></section>
+</div>
+<script id="one-v146-search-js">
+(()=>{
+ const nav=document.getElementById('savedNav'),input=document.getElementById('search'),btn=document.getElementById('searchBtn'),landing=document.getElementById('oneSearchLanding'),feed=document.getElementById('feed');if(!nav||!input||!btn||!landing)return;
+ const recentBox=landing.querySelector('.oneSearchRecent');
+ function recents(){let a=[];try{a=JSON.parse(localStorage.getItem('one_profile_v17')||'{}').searches||[]}catch{}return a.slice(0,8)}
+ function paintRecent(){recentBox.replaceChildren();const a=recents();if(!a.length){const x=document.createElement('span');x.className='oneStoriesEmpty';x.textContent='Tes recherches apparaîtront ici.';recentBox.append(x);return}for(const q of a){const b=document.createElement('button');b.type='button';b.textContent='↻ '+q;b.onclick=()=>run(q);recentBox.append(b)}}
+ function filter(v){document.querySelectorAll('[data-one-search-filter]').forEach(x=>x.classList.toggle('active',x.dataset.oneSearchFilter===v));state.filter=v;state.mode=null;state.query='';input.value='';feed.classList.remove('oneSearchHasQuery');render();}
+ function run(q){q=String(q||'').trim();if(!q)return;input.value=q;feed.classList.add('oneSearchHasQuery');btn.click();setTimeout(paintRecent,150)}
+ function open(){document.body.classList.add('oneSearchPage');closeVerticalFeed?.();state.filter='all';state.mode=null;state.query='';input.value='';feed.classList.remove('oneSearchHasQuery');document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n===nav));window.oneSelectBottomNav?.('savedNav');document.querySelectorAll('[data-one-search-filter]').forEach(x=>x.classList.toggle('active',x.dataset.oneSearchFilter==='all'));paintRecent();render();setTimeout(()=>input.focus({preventScroll:true}),80)}
+ nav.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();open()},true);
+ document.getElementById('oneHomeNav')?.addEventListener('click',()=>document.body.classList.remove('oneSearchPage'),true);document.getElementById('askOne')?.addEventListener('click',()=>document.body.classList.remove('oneSearchPage'),true);document.getElementById('discover')?.addEventListener('click',()=>document.body.classList.remove('oneSearchPage'),true);document.getElementById('oneCreationNav')?.addEventListener('click',()=>document.body.classList.remove('oneSearchPage'),true);
+ landing.addEventListener('click',e=>{const f=e.target.closest('[data-one-search-filter]');if(f){filter(f.dataset.oneSearchFilter);return}const q=e.target.closest('[data-one-search-q]');if(q)run(q.dataset.oneSearchQ)});
+ landing.querySelector('.oneSearchClear').onclick=()=>{try{const k='one_profile_v17',o=JSON.parse(localStorage.getItem(k)||'{}');o.searches=[];localStorage.setItem(k,JSON.stringify(o))}catch{}recentBox.replaceChildren();paintRecent()};
+ input.addEventListener('input',()=>{if(document.body.classList.contains('oneSearchPage')&&!input.value.trim())feed.classList.remove('oneSearchHasQuery')});
+ btn.addEventListener('click',()=>{if(document.body.classList.contains('oneSearchPage')&&input.value.trim())feed.classList.add('oneSearchHasQuery')},true);
+})();
+</script>
 </body>
 </html>
 
