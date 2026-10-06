@@ -4865,11 +4865,11 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
   font-size:21px!important;
 }
 .bottom .nav .ico svg{width:22px!important;height:22px!important}
-.bottom #oneHomeNav .ico{color:#a97cff!important}
-.bottom #discover .ico{color:#ff769e!important}
-.bottom #savedNav .ico{color:#50d9ff!important}
-.bottom #askOne .ico{color:#ffc45c!important}
-.bottom #profile .ico{color:#68e2ad!important}
+.bottom #oneHomeNav .ico,
+.bottom #discover .ico,
+.bottom #savedNav .ico,
+.bottom #askOne .ico,
+.bottom #profile .ico{color:#7884ff!important}
 .bottom .nav.active{
   color:#fff!important;
   background:linear-gradient(180deg,#ffffff0e,#ffffff05)!important;
@@ -6240,6 +6240,22 @@ window.addEventListener('DOMContentLoaded',()=>{
  setTimeout(apply,250);setTimeout(apply,1000);
 })();
 </script>
+
+<style id="one-v141-real-bottom-nav">
+.bottom #oneHomeNav,.bottom #askOne,.bottom #discover,.bottom #savedNav,.bottom #profile,
+.bottom #oneHomeNav *,.bottom #askOne *,.bottom #discover *,.bottom #savedNav *,.bottom #profile *{
+ color:#7884ff!important;-webkit-text-fill-color:#7884ff!important;
+}
+.bottom #oneHomeNav.active,.bottom #askOne.active,.bottom #discover.active,.bottom #savedNav.active,.bottom #profile.active{
+ color:#68a2ff!important;-webkit-text-fill-color:#68a2ff!important;
+ background:linear-gradient(180deg,#655cf02f,#579cff20)!important;
+ box-shadow:inset 0 0 0 1px #7587ff25!important;
+}
+.bottom #oneHomeNav.active *,.bottom #askOne.active *,.bottom #discover.active *,
+.bottom #savedNav.active *,.bottom #profile.active *{
+ color:#68a2ff!important;-webkit-text-fill-color:#68a2ff!important;
+}
+</style>
 </body>
 </html>
 
