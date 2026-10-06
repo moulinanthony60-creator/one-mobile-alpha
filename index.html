@@ -4869,7 +4869,7 @@ dialog.oneFriendsDialog.oneThreadFullscreen .oneV79MediaChip.opened:not(.mine){o
 .bottom #discover .ico,
 .bottom #savedNav .ico,
 .bottom #askOne .ico,
-.bottom #profile .ico{color:#7884ff!important}
+.bottom #profile .ico{color:#f2f3ff!important}
 .bottom .nav.active{
   color:#fff!important;
   background:linear-gradient(180deg,#ffffff0e,#ffffff05)!important;
@@ -5732,10 +5732,10 @@ body.oneProviderYoutube #oneProviderBadge{
 /* V96 — navigation, account, salon and call controls */
 .bottom{grid-template-columns:repeat(5,minmax(0,1fr))!important}
 #oneCreationNav{display:flex!important;flex-direction:column;align-items:center;justify-content:center;border:0;background:transparent;color:#aeb2c6;font-size:11px;font-weight:800;min-width:0;padding:7px 3px 5px;touch-action:manipulation}
-#oneCreationNav .ico{display:grid;place-items:center;height:23px;margin-bottom:3px;color:#ff8ccf}
+#oneCreationNav .ico{display:grid;place-items:center;height:23px;margin-bottom:3px;color:#f2f3ff}
 #oneCreationNav .ico svg{width:22px;height:22px}
-#oneCreationNav.active{color:#ffb1dd}
-#oneCreationNav.active .ico{filter:drop-shadow(0 0 8px #ff5eb777)}
+#oneCreationNav.active{color:#a67cff}
+#oneCreationNav.active .ico{color:#a67cff;filter:drop-shadow(0 0 8px #8d5cff88)}
 .oneLegacyNavHolder{display:none!important}
 .oneCreationHub{padding:10px 0 96px}
 .oneCreationHero{padding:20px;border:1px solid #68408f;border-radius:20px;background:linear-gradient(135deg,#211638,#111b31);overflow:hidden}
@@ -5940,7 +5940,7 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
        shell.hidden=false;document.body.classList.add('oneShellOpen','oneSideScreen');document.querySelectorAll('.bottom>.nav').forEach(n=>n.classList.toggle('active',n===creation));
        shell.querySelector('[data-v97-new]')?.addEventListener('click',()=>{if(typeof window.openOneStudio==='function')window.openOneStudio();else create.click();});shell.querySelector('[data-creation-refresh]')?.addEventListener('click',()=>void renderCreationTab(creationTab));shell.querySelectorAll('[data-creation-tab]').forEach(b=>b.onclick=()=>renderCreationTab(b.dataset.creationTab));void renderCreationTab(creationTab);
      };
-     creation.onclick=e=>{e.preventDefault();e.stopPropagation();renderCreation();};
+     creation.onclick=e=>{e.preventDefault();e.stopPropagation();window.oneSelectBottomNav?.('oneCreationNav');renderCreation();};
      const wrapCreationShare=()=>{const fn=window.oneShareVertical;if(typeof fn!=='function'||fn.__creationShareWrapped)return;const wrapped=async function(id,...rest){const out=await fn.call(this,id,...rest);try{const x=v17ItemById(String(id)),raw=oneTikTokRawId(x);if(raw){const m=oneTikTokShareMap();m[raw]=Number(m[raw]||0)+1;localStorage.setItem(ONE_TT_SHARE_CACHE,JSON.stringify(m));window.dispatchEvent(new Event('one-creation-data-changed'));}}catch{}return out;};wrapped.__creationShareWrapped=true;window.oneShareVertical=wrapped;};wrapCreationShare();
      const wrapCreationRating=name=>{const fn=window[name];if(typeof fn!=='function'||fn.__creationRefreshWrapped)return;const wrapped=function(...args){const out=fn.apply(this,args);queueMicrotask(()=>window.dispatchEvent(new Event('one-creation-data-changed')));return out;};wrapped.__creationRefreshWrapped=true;window[name]=wrapped;};wrapCreationRating('rateItem');wrapCreationRating('v17Rate');
      window.addEventListener('one-posts-updated',()=>{if(document.querySelector('.oneCreationHub')&&creationTab==='one')void renderCreationTab('one');});
@@ -6147,128 +6147,34 @@ window.addEventListener('DOMContentLoaded',()=>{
 .bottomNav:before{background:linear-gradient(90deg,#725cff,#559cff)!important}
 </style>
 
-<style id="one-v138-nav-final">
-#home,#shop,#discover,#search,#creation,
-#home .ico,#shop .ico,#discover .ico,#search .ico,#creation .ico,
-#home span,#shop span,#discover span,#search span,#creation span{
- color:#7884ff!important;-webkit-text-fill-color:#7884ff!important;
+
+<style id="one-v144-bottom-nav-final">
+.bottom #oneHomeNav,.bottom #askOne,.bottom #discover,.bottom #savedNav,.bottom #oneCreationNav,
+.bottom #oneHomeNav *,.bottom #askOne *,.bottom #discover *,.bottom #savedNav *,.bottom #oneCreationNav *{
+ color:#f2f3ff!important;-webkit-text-fill-color:#f2f3ff!important;
 }
-#home svg,#home svg *,#shop svg,#shop svg *,#discover svg,#discover svg *,
-#search svg,#search svg *,#creation svg,#creation svg *{
- fill:#7884ff!important;stroke:#7884ff!important;
+.bottom #oneHomeNav.active,.bottom #askOne.active,.bottom #discover.active,.bottom #savedNav.active,.bottom #oneCreationNav.active{
+ background:linear-gradient(145deg,#7048dc48,#5365bd2d)!important;
+ box-shadow:inset 0 0 0 1px #9b72ff42,0 0 24px #784cff28!important;
 }
-#home.active,#shop.active,#discover.active,#search.active,#creation.active{
- background:linear-gradient(145deg,#665bf033,#519cff32)!important;
- box-shadow:inset 0 0 0 1px #738aff40,0 -8px 30px #587fff2c!important;
+.bottom #oneHomeNav.active,.bottom #askOne.active,.bottom #discover.active,.bottom #savedNav.active,.bottom #oneCreationNav.active,
+.bottom #oneHomeNav.active *,.bottom #askOne.active *,.bottom #discover.active *,.bottom #savedNav.active *,.bottom #oneCreationNav.active *{
+ color:#a67cff!important;-webkit-text-fill-color:#a67cff!important;
 }
-#home.active,#shop.active,#discover.active,#search.active,#creation.active,
-#home.active .ico,#shop.active .ico,#discover.active .ico,#search.active .ico,#creation.active .ico,
-#home.active span,#shop.active span,#discover.active span,#search.active span,#creation.active span{
- color:#65a4ff!important;-webkit-text-fill-color:#65a4ff!important;
-}
-#home.active svg,#home.active svg *,#shop.active svg,#shop.active svg *,
-#discover.active svg,#discover.active svg *,#search.active svg,#search.active svg *,
-#creation.active svg,#creation.active svg *{fill:#65a4ff!important;stroke:#65a4ff!important}
 </style>
-<script id="one-v138-nav-paint">
+<script id="one-v144-bottom-nav-final-js">
 (()=>{
- const ids=['home','shop','discover','search','creation'];
- function paint(){for(const id of ids){const b=document.getElementById(id);if(!b)continue;b.style.setProperty('color',b.classList.contains('active')?'#65a4ff':'#7884ff','important');for(const el of b.querySelectorAll('.ico,span,i,b')){el.style.setProperty('color',b.classList.contains('active')?'#65a4ff':'#7884ff','important');el.style.setProperty('-webkit-text-fill-color',b.classList.contains('active')?'#65a4ff':'#7884ff','important');}}}
- new MutationObserver(paint).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});paint();
-})();
-</script>
-
-<style id="one-v139-nav-source-color">
-.bottomNav{--one-bottom:#7884ff;--one-bottom-active:#66a2ff}
-.bottomNav #home,.bottomNav #shop,.bottomNav #discover,.bottomNav #search,.bottomNav #creation,
-.bottomNav #home *,.bottomNav #shop *,.bottomNav #discover *,.bottomNav #search *,.bottomNav #creation *{
- color:var(--one-bottom)!important;
- -webkit-text-fill-color:var(--one-bottom)!important;
- text-shadow:none!important;
-}
-.bottomNav #home svg *,.bottomNav #shop svg *,.bottomNav #discover svg *,
-.bottomNav #search svg *,.bottomNav #creation svg *{
- fill:var(--one-bottom)!important;stroke:var(--one-bottom)!important;
-}
-.bottomNav #home.active,.bottomNav #shop.active,.bottomNav #discover.active,
-.bottomNav #search.active,.bottomNav #creation.active{
- background:linear-gradient(145deg,#685bf03d,#539cff35)!important;
- box-shadow:inset 0 0 0 1px #788aff40,0 0 24px #5d82ff25!important;
-}
-.bottomNav #home.active *,.bottomNav #shop.active *,.bottomNav #discover.active *,
-.bottomNav #search.active *,.bottomNav #creation.active *{
- color:var(--one-bottom-active)!important;
- -webkit-text-fill-color:var(--one-bottom-active)!important;
-}
-</style>
-
-<style id="one-v140-bottom-nav-exact-css">
-.bottomNav #home,.bottomNav #shop,.bottomNav #discover,.bottomNav #search,.bottomNav #creation{--nav-color:#7884ff!important;--accent:#7884ff!important}
-.bottomNav #home .ico,.bottomNav #shop .ico,.bottomNav #discover .ico,.bottomNav #search .ico,.bottomNav #creation .ico{color:#7884ff!important;-webkit-text-fill-color:#7884ff!important;filter:drop-shadow(0 0 7px #6c86ff44)!important}
-.bottomNav #home.active .ico,.bottomNav #shop.active .ico,.bottomNav #discover.active .ico,.bottomNav #search.active .ico,.bottomNav #creation.active .ico{color:#66a2ff!important;-webkit-text-fill-color:#66a2ff!important;filter:drop-shadow(0 0 9px #66a2ff88)!important}
-</style>
-
-<script id="one-v140-bottom-nav-exact">
-(()=>{
- const ids=['home','shop','discover','search','creation'];
- const base='#7884ff',active='#66a2ff';
- function apply(){
-  ids.forEach(id=>{
-   const n=document.getElementById(id);if(!n)return;
-   const c=n.classList.contains('active')?active:base;
-   n.style.setProperty('color',c,'important');
-   n.style.setProperty('-webkit-text-fill-color',c,'important');
-   n.querySelectorAll('*').forEach(el=>{
-    el.style.setProperty('color',c,'important');
-    el.style.setProperty('-webkit-text-fill-color',c,'important');
-    if(el instanceof SVGElement){
-     el.style.setProperty('fill',c,'important');
-     el.style.setProperty('stroke',c,'important');
-    }
-   });
-  });
- }
- const obs=new MutationObserver(apply);
- window.addEventListener('DOMContentLoaded',()=>{
-  apply();
-  const nav=document.querySelector('.bottomNav');
-  if(nav)obs.observe(nav,{subtree:true,attributes:true,attributeFilter:['class','style'],childList:true});
-  document.querySelector('.bottomNav')?.addEventListener('click',()=>requestAnimationFrame(apply),true);
+ const ids=['oneHomeNav','askOne','discover','savedNav','oneCreationNav'];
+ const paint=()=>ids.forEach(id=>{const n=document.getElementById(id);if(!n)return;const c=n.classList.contains('active')?'#a67cff':'#f2f3ff';[n,...n.querySelectorAll('.ico,.ico *,span,svg,path,circle')].forEach(el=>{el.style?.setProperty('color',c,'important');el.style?.setProperty('-webkit-text-fill-color',c,'important')})});
+ const select=id=>{ids.forEach(x=>document.getElementById(x)?.classList.toggle('active',x===id));paint()};
+ window.oneSelectBottomNav=select;
+ addEventListener('DOMContentLoaded',()=>{
+   ids.forEach(id=>{const b=document.getElementById(id);if(!b)return;b.addEventListener('click',()=>{queueMicrotask(()=>select(id));setTimeout(()=>select(id),100)},true)});
+   paint();
+   const nav=document.querySelector('.bottom');if(nav)new MutationObserver(paint).observe(nav,{subtree:true,attributes:true,attributeFilter:['class','style'],childList:true});
  });
- window.addEventListener('pageshow',apply);
- window.addEventListener('one-space-open',apply);
- setTimeout(apply,250);setTimeout(apply,1000);
+ addEventListener('pageshow',paint);
 })();
-</script>
-
-<style id="one-v141-real-bottom-nav">
-.bottom #oneHomeNav,.bottom #askOne,.bottom #discover,.bottom #savedNav,.bottom #profile,
-.bottom #oneHomeNav *,.bottom #askOne *,.bottom #discover *,.bottom #savedNav *,.bottom #profile *{
- color:#7884ff!important;-webkit-text-fill-color:#7884ff!important;
-}
-.bottom #oneHomeNav.active,.bottom #askOne.active,.bottom #discover.active,.bottom #savedNav.active,.bottom #profile.active{
- color:#68a2ff!important;-webkit-text-fill-color:#68a2ff!important;
- background:linear-gradient(180deg,#655cf02f,#579cff20)!important;
- box-shadow:inset 0 0 0 1px #7587ff25!important;
-}
-.bottom #oneHomeNav.active *,.bottom #askOne.active *,.bottom #discover.active *,
-.bottom #savedNav.active *,.bottom #profile.active *{
- color:#68a2ff!important;-webkit-text-fill-color:#68a2ff!important;
-}
-</style>
-
-<style id="one-v143-nav-final">
-.bottom #oneHomeNav,.bottom #askOne,.bottom #discover,.bottom #savedNav,.bottom #profile,
-.bottom #oneHomeNav *,.bottom #askOne *,.bottom #discover *,.bottom #savedNav *,.bottom #profile *{color:#f2f3ff!important;-webkit-text-fill-color:#f2f3ff!important}
-.bottom #oneHomeNav.active,.bottom #askOne.active,.bottom #discover.active,.bottom #savedNav.active,.bottom #profile.active{background:linear-gradient(145deg,#7048dc48,#5365bd2d)!important;box-shadow:inset 0 0 0 1px #9b72ff42,0 0 24px #784cff28!important}
-.bottom #oneHomeNav.active,.bottom #askOne.active,.bottom #discover.active,.bottom #savedNav.active,.bottom #profile.active,
-.bottom #oneHomeNav.active *,.bottom #askOne.active *,.bottom #discover.active *,.bottom #savedNav.active *,.bottom #profile.active *{color:#a67cff!important;-webkit-text-fill-color:#a67cff!important}
-</style>
-<script id="one-v143-nav-active-sync">
-(()=>{const ids=['oneHomeNav','askOne','discover','savedNav','profile'];
-const paint=()=>ids.forEach(id=>{const n=document.getElementById(id);if(!n)return;const c=n.classList.contains('active')?'#a67cff':'#f2f3ff';[n,...n.querySelectorAll('.ico,span')].forEach(el=>{el.style.setProperty('color',c,'important');el.style.setProperty('-webkit-text-fill-color',c,'important')})});
-const select=id=>{ids.forEach(x=>document.getElementById(x)?.classList.toggle('active',x===id));paint()};
-addEventListener('DOMContentLoaded',()=>{ids.forEach(id=>{const b=document.getElementById(id);if(!b)return;b.addEventListener('click',()=>{queueMicrotask(()=>select(id));setTimeout(()=>select(id),80);setTimeout(()=>select(id),250)},true)});paint();const nav=document.querySelector('.bottom');if(nav)new MutationObserver(paint).observe(nav,{subtree:true,attributes:true,attributeFilter:['class','style']})});addEventListener('pageshow',paint)})();
 </script>
 </body>
 </html>
@@ -6364,7 +6270,7 @@ function setMode(next){if(busy||recorder?.state==='recording')return;mode=next;c
 function gestures(view){const points=new Map();let start,pinch;const distance=()=>{const[a,b]=[...points.values()];return Math.hypot(a.x-b.x,a.y-b.y)};view.addEventListener('pointerdown',e=>{if(!active())return;view.setPointerCapture(e.pointerId);points.set(e.pointerId,{x:e.clientX,y:e.clientY});if(points.size===1)start={x:e.clientX,y:e.clientY};if(points.size===2){start=null;pinch={distance:distance(),zoom:Number($('[data-zoom]').value)}}});view.addEventListener('pointermove',e=>{if(!points.has(e.pointerId))return;points.set(e.pointerId,{x:e.clientX,y:e.clientY});if(points.size===2&&pinch?.distance&&zoom)setZoom(pinch.zoom*distance()/pinch.distance)});const end=e=>{if(e.type==='pointerup'&&points.size===1&&start&&active()){const dx=e.clientX-start.x,dy=e.clientY-start.y;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)setMode(dx<0?'video':'photo')}points.delete(e.pointerId);start=null;pinch=null};view.addEventListener('pointerup',end);view.addEventListener('pointercancel',end)}
 function build(){dialog=el('dialog');dialog.className='oneCapture onePhoneCapture oneFullCamera';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-labelledby','oneCaptureTitle');dialog.innerHTML=`<header><button data-close aria-label="Fermer la caméra">×</button><h2 id="oneCaptureTitle">ONE</h2><span data-quality></span><button data-flip aria-label="Changer de caméra">↻</button></header><div class="oneCaptureView"></div><button data-resume hidden>Réessayer la caméra</button><div class="oneCameraDock"><p role="status" aria-live="polite"></p><div data-zoom-controls hidden><div data-zoom-buttons></div><label class="oneZoomSlider"><input data-zoom aria-label="Zoom caméra" type="range"><output data-zoom-value></output></label></div><div class="oneCameraModes" aria-label="Mode de capture"><button data-mode="photo">Photo</button><button data-mode="video">Vidéo</button><button data-gallery>Galerie</button></div><div class="oneShutterRow"><span></span><button data-shutter aria-label="Prendre une photo"><span></span></button><span class="oneCameraMark">ONE<span>CRÉER</span></span></div></div><input data-input type="file" accept="image/*,video/*" hidden>`;document.body.append(dialog);$('[data-close]').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{reset();target=null;document.body.style.overflow=oldOverflow;oldFocus?.focus?.()});$('[data-flip]').onclick=()=>{facing=facing==='environment'?'user':'environment';live()};$('[data-resume]').onclick=live;$('[data-gallery]').onclick=gallery;$('[data-input]').onchange=e=>preview(e.target.files[0]);$('[data-zoom]').oninput=e=>setZoom(Number(e.target.value));for(const b of dialog.querySelectorAll('[data-mode]'))b.onclick=()=>setMode(b.dataset.mode);const shutter=$('[data-shutter]');shutter.oncontextmenu=e=>e.preventDefault();shutter.onpointerdown=e=>{if(e.button!==0||busy||mode!=='photo'||recorder?.state==='recording')return;held=true;long=false;shutter.setPointerCapture(e.pointerId);holdTimer=setTimeout(()=>{if(held){long=true;video(true)}},350)};const release=e=>{clearTimeout(holdTimer);held=false;if(e.type==='pointercancel')long=true;if(long&&recorder?.state==='recording')recorder.stop()};shutter.onpointerup=release;shutter.onpointercancel=release;shutter.onclick=()=>{if(long){long=false;return}if(recorder?.state==='recording'||mode==='video')video();else photo()};gestures($('.oneCaptureView'));for(const name of ['touchstart','touchmove','touchend'])dialog.addEventListener(name,e=>e.stopPropagation(),{passive:true})}
 function open(callback){if(!dialog)build();if(dialog.open)return;target=typeof callback==='function'?callback:null;oldFocus=document.activeElement;oldOverflow=document.body.style.overflow;document.body.style.overflow='hidden';dialog.showModal();mode='photo';live()}
-window.addEventListener('click',e=>{if(e.target.closest?.('.bottom #discover')){e.preventDefault();e.stopImmediatePropagation();open()}},true);window.oneOpenCamera=open;window.openOneStudio=open;window.oneTakePhoneMedia=callback=>open(callback);window.oneRetakeCapture=live;
+window.addEventListener('click',e=>{if(e.target.closest?.('.bottom #discover')){e.preventDefault();e.stopImmediatePropagation();window.oneSelectBottomNav?.('discover');open()}},true);window.oneOpenCamera=open;window.openOneStudio=open;window.oneTakePhoneMedia=callback=>open(callback);window.oneRetakeCapture=live;
 document.addEventListener('visibilitychange',()=>{if(!active())return;if(document.hidden){clearTimeout(holdTimer);held=false;if(recorder?.state==='recording'){recorder.stop();stop()}else{seq++;busy=false;stop()}}else if(!stream&&!recorder)live()});
 })();
 
