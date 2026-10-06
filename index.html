@@ -6176,6 +6176,49 @@ window.addEventListener('DOMContentLoaded',()=>{
  addEventListener('pageshow',paint);
 })();
 </script>
+<style id="one-v145-ui-polish">
+/* V145 — finition visuelle uniquement, aucune logique métier modifiée */
+/* Moments: moins de vide, sections plus proches d'un rail de stories */
+.oneMomentsV136 .oneShellLead{margin-bottom:14px!important}
+.oneMomentsV136 .oneStoriesV136{gap:18px!important;margin-top:18px!important}
+.oneMomentsV136 .oneStoriesV136Title h2{font-size:19px!important}
+.oneMomentsV136 .oneStoriesRail{min-height:82px!important;padding-top:8px!important;padding-bottom:4px!important}
+.oneMomentsV136 .oneStoriesEmpty{min-width:0!important;width:auto!important;max-width:100%!important;padding:10px 12px!important;border-style:dashed!important;background:#0e1320!important;border-radius:13px!important;color:#8f98b0!important}
+.oneMomentsV136 .oneStoryBubble{flex-basis:66px!important}
+.oneMomentsV136 .oneStoryCircle{width:58px!important;height:58px!important}
+.oneMomentsV136 .oneStoriesV136Title button{padding:8px 11px!important;border-radius:12px!important;font-size:12px!important}
+/* ONE Social: compositeur compact au repos, développé quand on écrit */
+.oneSocialFacebook{padding-bottom:18px!important}
+.oneSocialComposerV137{padding:10px!important;border-radius:17px!important;transition:.18s ease!important}
+.oneSocialComposerV137 textarea{min-height:46px!important;max-height:150px!important;resize:none!important}
+.oneSocialComposerV137:not(:focus-within) textarea:placeholder-shown{height:46px!important;min-height:46px!important}
+.oneSocialComposerV137:not(:focus-within) .oneSocialComposerTools{margin-top:6px!important}
+.oneSocialComposerV137:not(:focus-within) .oneSocialComposerTools button{padding:7px 9px!important;font-size:12px!important}
+.oneSocialComposerV137 .oneSocialComposerStatus:empty{display:none!important}
+.oneSocialFacebook .oneNativePost{border-radius:16px!important;margin-bottom:12px!important}
+.oneSocialFacebook .oneNativePost>header{padding:11px 12px!important}
+.oneSocialFacebook .oneNativePost>p{padding:0 12px 10px!important}
+.oneSocialFacebook .oneNativePostActions button{min-height:42px!important}
+/* Chat / Salon: hiérarchie plus légère, membres et actions moins massifs */
+#oneFoundation #oneSalonTray.oneSalonEmbedded{border-radius:18px!important}
+#oneFoundation #oneSalonTray.oneSalonEmbedded>header{min-height:58px!important;padding:10px 12px!important}
+#oneFoundation #oneSalonTray.oneSalonEmbedded #oneSalonBody{padding-top:0!important}
+#oneFoundation #oneSalonRoom .os-room-tools{gap:8px!important}
+#oneFoundation #oneSalonRoom .os-room-tools button{min-height:44px!important;border-radius:14px!important}
+#oneFoundation #oneSalonRoom .os-members{gap:8px!important;overflow-x:auto!important;scrollbar-width:none!important}
+#oneFoundation #oneSalonRoom .os-members::-webkit-scrollbar{display:none!important}
+#oneFoundation #oneSalonRoom .os-member{flex:0 0 auto!important}
+#oneFoundation #oneSalonRoom h2,#oneFoundation #oneSalonRoom h3{letter-spacing:-.35px!important}
+/* Accueil: gagner de la hauteur sans changer le contenu */
+body:not(.oneShellOpen) .hero{margin-bottom:12px!important}
+body:not(.oneShellOpen) .card{box-shadow:0 4px 16px #0002!important}
+@media(max-width:520px){
+ .oneMomentsV136 .oneStoriesV136{gap:16px!important}
+ .oneSocialHeadActions button{height:52px!important;min-width:48px!important}
+ .oneSocialHeadActions small{font-size:7px!important}
+}
+</style>
+
 </body>
 </html>
 
