@@ -6201,6 +6201,45 @@ window.addEventListener('DOMContentLoaded',()=>{
  -webkit-text-fill-color:var(--one-bottom-active)!important;
 }
 </style>
+
+<style id="one-v140-bottom-nav-exact-css">
+.bottomNav #home,.bottomNav #shop,.bottomNav #discover,.bottomNav #search,.bottomNav #creation{--nav-color:#7884ff!important;--accent:#7884ff!important}
+.bottomNav #home .ico,.bottomNav #shop .ico,.bottomNav #discover .ico,.bottomNav #search .ico,.bottomNav #creation .ico{color:#7884ff!important;-webkit-text-fill-color:#7884ff!important;filter:drop-shadow(0 0 7px #6c86ff44)!important}
+.bottomNav #home.active .ico,.bottomNav #shop.active .ico,.bottomNav #discover.active .ico,.bottomNav #search.active .ico,.bottomNav #creation.active .ico{color:#66a2ff!important;-webkit-text-fill-color:#66a2ff!important;filter:drop-shadow(0 0 9px #66a2ff88)!important}
+</style>
+
+<script id="one-v140-bottom-nav-exact">
+(()=>{
+ const ids=['home','shop','discover','search','creation'];
+ const base='#7884ff',active='#66a2ff';
+ function apply(){
+  ids.forEach(id=>{
+   const n=document.getElementById(id);if(!n)return;
+   const c=n.classList.contains('active')?active:base;
+   n.style.setProperty('color',c,'important');
+   n.style.setProperty('-webkit-text-fill-color',c,'important');
+   n.querySelectorAll('*').forEach(el=>{
+    el.style.setProperty('color',c,'important');
+    el.style.setProperty('-webkit-text-fill-color',c,'important');
+    if(el instanceof SVGElement){
+     el.style.setProperty('fill',c,'important');
+     el.style.setProperty('stroke',c,'important');
+    }
+   });
+  });
+ }
+ const obs=new MutationObserver(apply);
+ window.addEventListener('DOMContentLoaded',()=>{
+  apply();
+  const nav=document.querySelector('.bottomNav');
+  if(nav)obs.observe(nav,{subtree:true,attributes:true,attributeFilter:['class','style'],childList:true});
+  document.querySelector('.bottomNav')?.addEventListener('click',()=>requestAnimationFrame(apply),true);
+ });
+ window.addEventListener('pageshow',apply);
+ window.addEventListener('one-space-open',apply);
+ setTimeout(apply,250);setTimeout(apply,1000);
+})();
+</script>
 </body>
 </html>
 
