@@ -6022,6 +6022,16 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
 @media(max-width:390px){.oneCreationTikTokGrid{gap:5px!important}.oneCreationTikTokGrid .oneCreationMediaCopy{padding:5px}.oneCreationTikTokGrid .oneCreationStats span{font-size:5.5px}.oneCreationTikTokGrid .oneCreationStats b{font-size:5.5px!important}.oneCreationTikTokGrid .oneCreationOpen{min-height:26px;font-size:7px}}
 
 </style>
+<script id="one-share-v132-diagnostic">
+window.addEventListener('DOMContentLoaded',()=>{
+  window.__ONE_V132={
+    camera:typeof window.oneOpenCamera==='function',
+    sharing:typeof window.oneCameraShare==='function',
+    posts:typeof window.ONESharing?.listPosts==='function',
+    ownPosts:typeof window.ONESharing?.listOwnPosts==='function'
+  };
+});
+</script>
 </body>
 </html>
 
@@ -6039,8 +6049,239 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
 <script src="ui/one-chat-v8.js?v=appels-sonnerie-v56"></script>
 
 <link rel="stylesheet" href="ui/one-home-camera.css?v=appels-sonnerie-v56">
-<script src="ui/one-home-camera.js?v=v129-clean"></script>
-<script src="ui/one-media-text.js?v=appels-sonnerie-v56"></script><script src="ui/one-sharing-v125.js?v=131"></script>
+<script id="one-home-camera-v132-inline">
+(() => {
+'use strict';
+let dialog,stream,recorder,url,target,seq=0,mode='photo',facing='environment',busy=false,held=false,long=false,holdTimer,timer,limit,zoom,desired,zoomBusy=false,oldOverflow,oldFocus;
+const $=s=>dialog.querySelector(s),el=t=>document.createElement(t),status=t=>$('[role=status]').textContent=t;
+const track=()=>stream?.getVideoTracks()[0],active=()=>dialog?.open&&dialog.dataset.preview!=='true';
+function stop(){stream?.getTracks().forEach(t=>t.stop());stream=null;}
+function timers(){clearTimeout(holdTimer);clearTimeout(limit);clearInterval(timer);}
+function reset(){const view=$('.oneCaptureView');view.onclick=null;view.onkeydown=null;for(const a of ['role','tabindex','aria-label'])view.removeAttribute(a);$('.onePreviewActions')?.remove();dialog.dataset.sharing='false';dialog.oneShareCleanup?.();dialog.oneShareCleanup=null;seq++;timers();held=false;long=false;busy=false;if(recorder&&recorder.state!=='inactive'){recorder.onstop=null;recorder.stop()}recorder=null;stop();zoom=null;desired=undefined;$('.oneCaptureView video')?.pause();if(url)URL.revokeObjectURL(url);url=null;$('.oneCaptureDestinations')?.remove();dialog.dataset.recording='false';dialog.dataset.busy='false';}
+function controls(){dialog.dataset.mode=mode;for(const b of dialog.querySelectorAll('[data-mode]'))b.setAttribute('aria-pressed',String(b.dataset.mode===mode));$('[data-shutter]').setAttribute('aria-label',recorder?.state==='recording'?'Arrêter la vidéo':mode==='photo'?'Prendre une photo':'Enregistrer une vidéo');for(const b of dialog.querySelectorAll('[data-mode],[data-flip],[data-gallery]'))b.disabled=busy||recorder?.state==='recording';dialog.dataset.busy=String(busy);}
+function configureZoom(){const t=track(),z=t?.getCapabilities?.().zoom;zoom=z&&Number.isFinite(z.min)&&z.max>z.min?z:null;$('[data-zoom-controls]').hidden=true;$('[data-zoom-buttons]').replaceChildren();if(!zoom)return;const s=$('[data-zoom]');s.min=z.min;s.max=z.max;s.step=z.step||.1;s.value=t.getSettings().zoom??z.min;for(const n of [...new Set([z.min,1,2,3,5].filter(n=>n>=z.min&&n<=z.max))]){const b=el('button');b.type='button';b.textContent=Number(n.toFixed(1))+'×';b.onclick=()=>setZoom(n);$('[data-zoom-buttons]').append(b)}$('[data-zoom-value]').textContent=Number(Number(s.value).toFixed(1))+'×';}
+async function setZoom(n){if(!zoom||!track())return;const z=zoom;desired=Math.max(z.min,Math.min(z.max,z.min+Math.round((n-z.min)/(z.step||.1))*(z.step||.1)));if(zoomBusy)return;zoomBusy=true;try{while(desired!==undefined&&track()){const value=desired,t=track();desired=undefined;try{await t.applyConstraints({advanced:[{zoom:value}]});if(track()!==t)continue;const actual=t.getSettings().zoom??value;$('[data-zoom]').value=actual;$('[data-zoom-value]').textContent=Number(actual.toFixed(1))+'×'}catch{if(track()===t)status('Ce zoom est indisponible sur cette caméra.')}}}finally{zoomBusy=false}}
+async function live(){reset();const ticket=seq;dialog.dataset.preview='false';$('h2').textContent='ONE';$('[data-resume]').hidden=true;$('[data-zoom-controls]').hidden=true;$('[data-quality]').textContent='';$('.oneCaptureView').replaceChildren();busy=true;controls();status('Ouverture de la caméra…');try{if(!navigator.mediaDevices?.getUserMedia)throw Error('unsupported');const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}},audio:false});if(ticket!==seq||!active()||document.hidden){s.getTracks().forEach(t=>t.stop());return}stream=s;const v=el('video');v.autoplay=true;v.muted=true;v.playsInline=true;v.srcObject=s;$('.oneCaptureView').replaceChildren(v);await v.play();if(ticket!==seq)return;dialog.dataset.facing=facing;configureZoom();const settings=track().getSettings();$('[data-quality]').textContent=settings.width&&settings.height?settings.width+' × '+settings.height:'';status(mode==='photo'?'Appuie pour une photo · maintiens pour filmer':'Appuie pour démarrer la vidéo')}catch(e){if(ticket!==seq)return;stop();$('[data-resume]').hidden=false;status(e.name==='NotAllowedError'?'Autorise la caméra dans les permissions de ONE, puis réessaie.':'Caméra indisponible. Réessaie ou choisis un média dans Galerie.')}finally{if(ticket===seq){busy=false;controls()}}}
+function preview(f){
+ if(!f)return;
+ if(!f.type){const type=({jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',mp4:'video/mp4',webm:'video/webm',mov:'video/quicktime'})[f.name.split('.').pop().toLowerCase()];if(type)f=new File([f],f.name,{type})}
+ if(!/^(image|video)\//.test(f.type)){status('Choisis une photo ou une vidéo compatible.');return}
+ if(!f.size||f.size>40*1024*1024){status('Ce média est vide ou dépasse 40 Mo. Choisis une vidéo plus courte.');return}
+ reset();const ticket=seq,original=f;let editing=false;
+ dialog.dataset.preview='true';dialog.dataset.sharing='false';$('h2').textContent='Ton moment';
+ const view=$('.oneCaptureView'),m=el(f.type.startsWith('video/')?'video':'img');
+ url=URL.createObjectURL(f);m.src=url;
+ if(m.tagName==='VIDEO'){m.playsInline=true;m.loop=true;m.autoplay=true;m.muted=true;}else m.alt='Photo en grand écran';
+ view.replaceChildren(m);
+ const actions=el('section');actions.className='onePreviewActions';
+ const hint=el('p');hint.textContent='Appuie sur l’image pour écrire';
+ const row=el('div'),again=el('button'),edit=el('button'),share=el('button'),play=el('button'),sound=el('button');
+ again.textContent='Reprendre';again.onclick=live;
+ edit.textContent='Aa Texte';edit.onclick=editText;
+ play.textContent='Pause';play.hidden=m.tagName!=='VIDEO';sound.textContent='Activer le son';sound.hidden=m.tagName!=='VIDEO';sound.onclick=()=>{m.muted=!m.muted;sound.textContent=m.muted?'Activer le son':'Couper le son'};if(m.tagName==='VIDEO'){m.onplay=()=>play.textContent='Pause';m.onpause=()=>play.textContent='Lire la vidéo';m.onloadeddata=()=>{if(dialog.open&&ticket===seq&&dialog.dataset.sharing!=='true')m.play().catch(()=>play.textContent='Lire la vidéo')};}
+ play.onclick=async()=>{if(m.paused){try{await m.play();play.textContent='Pause'}catch{status('Lecture indisponible.')}}else{m.pause();play.textContent='Lire la vidéo'}};
+ share.textContent=target?'Envoyer →':'Partager →';share.className='capturePrimary';
+ share.onclick=async()=>{
+  if(editing||share.disabled)return;
+  m.pause?.();
+  if(target){const callback=target;dialog.close();callback(f);return}
+  share.disabled=true;
+  const label=share.textContent;
+  share.textContent='Préparation…';
+  status('Préparation du partage…');
+  try{
+   const until=Date.now()+8000;
+   while(typeof window.oneCameraShare!=='function'&&Date.now()<until){
+    await new Promise(r=>setTimeout(r,100));
+   }
+   if(typeof window.oneCameraShare!=='function')throw Error('Le partage ONE ne s’est pas chargé. Recharge ONE.');
+   if(!f||!f.size)throw Error('Le média n’est pas encore prêt. Réessaie.');
+   dialog.dataset.sharing='true';$('h2').textContent='Partager';actions.hidden=true;view.onclick=null;
+   view.removeAttribute('role');view.removeAttribute('tabindex');view.removeAttribute('aria-label');view.onkeydown=null;
+   if(m.tagName==='VIDEO'){m.controls=true;m.loop=false;}
+   await Promise.resolve(window.oneCameraShare(f,dialog,{source:original,preview:true}));
+   dialog.scrollTop=0;
+  }catch(e){
+   status(e?.message||'Partage indisponible. Réessaie.');
+   share.disabled=false;
+   share.textContent=label;
+   if(m.tagName==='VIDEO')m.play().catch(()=>{});
+  }
+ };
+ row.append(again,edit,share);actions.append(hint,play,sound,row);dialog.append(actions);
+ async function editText(){
+  if(editing||!window.oneEditCapture)return;editing=true;m.pause?.();play.textContent='Lire la vidéo';
+  try{const result=await window.oneEditCapture(original);if(!result||ticket!==seq||!dialog.open)return;f=result;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(f);m.src=url;status('');hint.textContent='Appuie pour modifier le texte · partage quand tu es prêt';}
+  finally{editing=false;if(ticket===seq&&dialog.open&&dialog.dataset.sharing!=='true'&&m.tagName==='VIDEO')m.play().catch(()=>play.textContent='Lire la vidéo');}
+ }
+ view.setAttribute('role','button');view.setAttribute('tabindex','0');view.setAttribute('aria-label','Écrire sur la photo ou la vidéo');view.onclick=editText;
+ view.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();editText()}};
+ status('');
+}
+
+async function photo(){if(busy||!track())return;busy=true;controls();const ticket=seq,t=track();try{let blob;if(window.ImageCapture){try{const capture=new ImageCapture(t);blob=await capture.takePhoto()}catch{/* Some cameras only support stream snapshots. */}}if(!blob){const v=$('.oneCaptureView video');if(!v?.videoWidth)throw Error('La caméra se prépare. Réessaie dans un instant.');const c=el('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95))}if(!blob)throw Error('La photo n’a pas pu être créée. Réessaie.');if(ticket===seq&&active())preview(new File([blob],'ONE-photo-'+Date.now()+'.jpg',{type:blob.type||'image/jpeg'}))}catch(e){if(ticket===seq)status(e.message)}finally{if(ticket===seq){busy=false;controls()}}}
+async function video(fromHold=false){if(recorder?.state==='recording'){recorder.stop();return}if(busy||!track())return;if(!window.MediaRecorder){status('L’enregistrement vidéo n’est pas disponible dans ce navigateur.');return}busy=true;controls();const ticket=seq;try{status('Activation du micro…');const audio=await navigator.mediaDevices.getUserMedia({audio:true,video:false});if(ticket!==seq||!active()||document.hidden||(fromHold&&!held)){audio.getTracks().forEach(t=>t.stop());if(ticket===seq)status('Maintiens à nouveau la touche pour filmer.');return}audio.getAudioTracks().forEach(t=>stream.addTrack(t));const mime=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/webm;codecs=vp8,opus','video/webm','video/mp4'].find(m=>MediaRecorder.isTypeSupported(m));const r=new MediaRecorder(stream,{...(mime?{mimeType:mime}:{}),videoBitsPerSecond:4500000,audioBitsPerSecond:128000});recorder=r;const parts=[];let bytes=0,failed=false;r.ondataavailable=e=>{if(e.data.size){parts.push(e.data);bytes+=e.data.size;if(bytes>=36*1024*1024&&r.state==='recording')r.stop()}};r.onerror=()=>{failed=true;status('L’enregistrement a échoué. Réessaie.')};r.onstop=()=>{timers();if(ticket!==seq)return;recorder=null;dialog.dataset.recording='false';stream?.getAudioTracks().forEach(t=>{t.stop();stream.removeTrack(t)});controls();if(failed||!bytes){status('La vidéo n’a pas pu être enregistrée. Réessaie.');return}const type=r.mimeType||parts[0]?.type||'video/webm';preview(new File(parts,'ONE-video-'+Date.now()+(type.includes('mp4')?'.mp4':'.webm'),{type}))};r.start(250);dialog.dataset.recording='true';const start=Date.now();status('Enregistrement · 0 s / 60 s');timer=setInterval(()=>status('Enregistrement · '+Math.floor((Date.now()-start)/1000)+' s / 60 s'),500);limit=setTimeout(()=>{if(r.state==='recording')r.stop()},60000)}catch(e){if(ticket!==seq)return;stream?.getAudioTracks().forEach(t=>{t.stop();stream.removeTrack(t)});status(e.name==='NotAllowedError'?'Autorise le micro pour enregistrer une vidéo avec le son.':'La vidéo n’a pas démarré. Réessaie.')}finally{if(ticket===seq){busy=false;controls()}}}
+function gallery(){if(busy||recorder?.state==='recording')return;const i=$('[data-input]');i.value='';i.click()}
+function setMode(next){if(busy||recorder?.state==='recording')return;mode=next;controls();status(next==='photo'?'Appuie pour une photo · maintiens pour filmer':'Appuie pour démarrer la vidéo')}
+function gestures(view){const points=new Map();let start,pinch;const distance=()=>{const[a,b]=[...points.values()];return Math.hypot(a.x-b.x,a.y-b.y)};view.addEventListener('pointerdown',e=>{if(!active())return;view.setPointerCapture(e.pointerId);points.set(e.pointerId,{x:e.clientX,y:e.clientY});if(points.size===1)start={x:e.clientX,y:e.clientY};if(points.size===2){start=null;pinch={distance:distance(),zoom:Number($('[data-zoom]').value)}}});view.addEventListener('pointermove',e=>{if(!points.has(e.pointerId))return;points.set(e.pointerId,{x:e.clientX,y:e.clientY});if(points.size===2&&pinch?.distance&&zoom)setZoom(pinch.zoom*distance()/pinch.distance)});const end=e=>{if(e.type==='pointerup'&&points.size===1&&start&&active()){const dx=e.clientX-start.x,dy=e.clientY-start.y;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)setMode(dx<0?'video':'photo')}points.delete(e.pointerId);start=null;pinch=null};view.addEventListener('pointerup',end);view.addEventListener('pointercancel',end)}
+function build(){dialog=el('dialog');dialog.className='oneCapture onePhoneCapture oneFullCamera';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-labelledby','oneCaptureTitle');dialog.innerHTML=`<header><button data-close aria-label="Fermer la caméra">×</button><h2 id="oneCaptureTitle">ONE</h2><span data-quality></span><button data-flip aria-label="Changer de caméra">↻</button></header><div class="oneCaptureView"></div><button data-resume hidden>Réessayer la caméra</button><div class="oneCameraDock"><p role="status" aria-live="polite"></p><div data-zoom-controls hidden><div data-zoom-buttons></div><label class="oneZoomSlider"><input data-zoom aria-label="Zoom caméra" type="range"><output data-zoom-value></output></label></div><div class="oneCameraModes" aria-label="Mode de capture"><button data-mode="photo">Photo</button><button data-mode="video">Vidéo</button><button data-gallery>Galerie</button></div><div class="oneShutterRow"><span></span><button data-shutter aria-label="Prendre une photo"><span></span></button><span class="oneCameraMark">ONE<span>CRÉER</span></span></div></div><input data-input type="file" accept="image/*,video/*" hidden>`;document.body.append(dialog);$('[data-close]').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{reset();target=null;document.body.style.overflow=oldOverflow;oldFocus?.focus?.()});$('[data-flip]').onclick=()=>{facing=facing==='environment'?'user':'environment';live()};$('[data-resume]').onclick=live;$('[data-gallery]').onclick=gallery;$('[data-input]').onchange=e=>preview(e.target.files[0]);$('[data-zoom]').oninput=e=>setZoom(Number(e.target.value));for(const b of dialog.querySelectorAll('[data-mode]'))b.onclick=()=>setMode(b.dataset.mode);const shutter=$('[data-shutter]');shutter.oncontextmenu=e=>e.preventDefault();shutter.onpointerdown=e=>{if(e.button!==0||busy||mode!=='photo'||recorder?.state==='recording')return;held=true;long=false;shutter.setPointerCapture(e.pointerId);holdTimer=setTimeout(()=>{if(held){long=true;video(true)}},350)};const release=e=>{clearTimeout(holdTimer);held=false;if(e.type==='pointercancel')long=true;if(long&&recorder?.state==='recording')recorder.stop()};shutter.onpointerup=release;shutter.onpointercancel=release;shutter.onclick=()=>{if(long){long=false;return}if(recorder?.state==='recording'||mode==='video')video();else photo()};gestures($('.oneCaptureView'));for(const name of ['touchstart','touchmove','touchend'])dialog.addEventListener(name,e=>e.stopPropagation(),{passive:true})}
+function open(callback){if(!dialog)build();if(dialog.open)return;target=typeof callback==='function'?callback:null;oldFocus=document.activeElement;oldOverflow=document.body.style.overflow;document.body.style.overflow='hidden';dialog.showModal();mode='photo';live()}
+window.addEventListener('click',e=>{if(e.target.closest?.('.bottom #discover')){e.preventDefault();e.stopImmediatePropagation();open()}},true);window.oneOpenCamera=open;window.openOneStudio=open;window.oneTakePhoneMedia=callback=>open(callback);window.oneRetakeCapture=live;
+document.addEventListener('visibilitychange',()=>{if(!active())return;if(document.hidden){clearTimeout(holdTimer);held=false;if(recorder?.state==='recording'){recorder.stop();stop()}else{seq++;busy=false;stop()}}else if(!stream&&!recorder)live()});
+})();
+
+
+
+
+</script>
+<script src="ui/one-media-text.js?v=appels-sonnerie-v56"></script>
+<script id="one-sharing-v132-inline">
+(()=>{'use strict';
+const BASE='https://one-messages-api.moulinanthony60.workers.dev',PEOPLE='https://one-comments-api.moulinanthony60.workers.dev';
+const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
+const token=()=>window.oneAccountToken?.()||'';
+async function api(base,path,options={}){const session=token();if(!session)throw Error('Connecte-toi à ONE pour continuer.');const r=await fetch(base+path,{...options,headers:{Authorization:'Bearer '+session,...options.headers},cache:'no-store',signal:options.signal||AbortSignal.timeout(15000)});const d=await r.json().catch(()=>({}));if(token()!==session)throw Error('Le compte a changé. Rouvre cet écran.');if(!r.ok)throw Error(d.error||(r.status===404?'Mets à jour le serveur ONE pour activer les publications.':'Service indisponible. Réessaie.'));return d;}
+const ids=new WeakMap();
+const onePostsCache={post:[],story:[]};
+const oneLocalMedia=new Map();
+const OWN_KEY='one_owned_publications_v106';
+const ownedLocal=()=>{try{const v=JSON.parse(localStorage.getItem(OWN_KEY)||'[]');return Array.isArray(v)?v:[]}catch{return []}};
+const rememberOwned=(result,{clientId,mediaType,kind,caption})=>{try{const id=String(result?.post?.id||result?.publication?.id||result?.postId||result?.id||clientId||'');if(!id)return;const rows=ownedLocal().filter(x=>String(x.id)!==id);rows.unshift({id,mediaType,kind,caption:String(caption||''),created:Date.now()});localStorage.setItem(OWN_KEY,JSON.stringify(rows.slice(0,120)));}catch{}};
+const ownedIds=()=>new Set(ownedLocal().map(x=>String(x.id)));
+const accountLocal=()=>{try{return typeof oneAccountLocal==='function'?oneAccountLocal():JSON.parse(localStorage.getItem('one_account_v06')||'null')}catch{return null}};
+const isOwnPost=x=>{
+ if(x?.id&&ownedIds().has(String(x.id)))return true;
+ const v=x?.mine;if(v===true||v===1||v==='1'||String(v??'').toLowerCase()==='true')return true;
+ const a=accountLocal();if(!a)return false;
+ const aid=String(a.id||a.userId||''),pid=String(x?.accountId||x?.account_id||x?.userId||x?.user_id||x?.authorId||x?.author_id||'');
+ if(aid&&pid&&aid===pid)return true;
+ const email=String(a.email||'').trim().toLowerCase(),pemail=String(x?.email||x?.authorEmail||x?.author_email||'').trim().toLowerCase();if(email&&pemail&&email===pemail)return true;
+ const dn=String(a.displayName||'').trim().toLowerCase(),pn=String(x?.name||x?.displayName||x?.authorName||'').trim().toLowerCase();
+ return !!(dn&&pn&&dn===pn);
+};
+function rememberPosts(kind,rows,reset=false){
+ const key=kind==='story'?'story':'post',now=Date.now(),keepOptimistic=(onePostsCache[key]||[]).filter(x=>x?._optimistic&&now-(Number(x.created)||0)<15*60*1000),current=reset?keepOptimistic:[...(onePostsCache[key]||[])],by=new Map(current.map(x=>[String(x.id),x]));
+ for(const x of rows||[])if(x?.id){const id=String(x.id),prev=by.get(id)||{};by.set(id,{...prev,...x,_optimistic:false});}
+ onePostsCache[key]=[...by.values()].sort((a,b)=>(Number(b.created)||Date.parse(b.created||0)||0)-(Number(a.created)||Date.parse(a.created||0)||0));
+ window.dispatchEvent(new CustomEvent('one-native-posts-loaded',{detail:{kind:key,posts:onePostsCache[key]}}));
+}
+async function listOwnPosts(kind='post',options={}){
+ const key=kind==='story'?'story':'post',maxPages=Math.max(1,Math.min(80,Number(options.maxPages)||30)),limit=Math.max(1,Math.min(120,Number(options.limit)||100));
+ const cached=(onePostsCache[key]||[]).filter(isOwnPost);
+ const by=new Map(cached.map(x=>[String(x.id),x]));let cursor=null;
+ for(let page=0;page<maxPages&&by.size<limit;page++){
+  const params='?'+new URLSearchParams({kind:key,...(cursor?{before:cursor.created,cursor:cursor.id}:{})});
+  const d=await api(BASE,'/posts'+params,{signal:options.signal});const rows=Array.isArray(d.posts)?d.posts:[];
+  rememberPosts(key,rows,page===0);
+  for(const x of rows)if(isOwnPost(x)&&x?.id)by.set(String(x.id),x);
+  if(!d.more||!rows.length)break;cursor=rows.at(-1);
+ }
+ return [...by.values()].sort((a,b)=>(Number(b.created)||Date.parse(b.created||0)||0)-(Number(a.created)||Date.parse(a.created||0)||0));
+}
+async function listPosts(kind='post',options={}){
+ const key=kind==='story'?'story':'post',maxPages=Math.max(1,Math.min(80,Number(options.maxPages)||20)),limit=Math.max(1,Math.min(240,Number(options.limit)||160));
+ const by=new Map((onePostsCache[key]||[]).map(x=>[String(x.id),x]));let cursor=null;
+ for(let page=0;page<maxPages&&by.size<limit;page++){
+  const params='?'+new URLSearchParams({kind:key,...(cursor?{before:cursor.created,cursor:cursor.id}:{})});
+  const d=await api(BASE,'/posts'+params,{signal:options.signal});const rows=Array.isArray(d.posts)?d.posts:[];rememberPosts(key,rows,page===0);
+  for(const x of rows)if(x?.id)by.set(String(x.id),x);if(!d.more||!rows.length)break;cursor=rows.at(-1);
+ }
+ return [...by.values()].sort((a,b)=>(Number(b.created)||Date.parse(b.created||0)||0)-(Number(a.created)||Date.parse(a.created||0)||0));
+}
+window.ONESharing=Object.assign(window.ONESharing||{},{uiVersion:'123',listOwnPosts,listPosts,isOwnPost,cached:(kind='post')=>[...(onePostsCache[kind==='story'?'story':'post']||[])],localMedia:id=>oneLocalMedia.get(String(id||''))||null});
+function publish(file,caption,progress,kind,session=token(),mediaType='unknown'){return new Promise((resolve,reject)=>{if(!session||token()!==session)return reject(Error('Ton compte a changé. Rouvre le partage.'));let keys=ids.get(file);if(!keys){keys={};ids.set(file,keys)}const slot=kind+':'+mediaType,id=keys[slot]||(keys[slot]=crypto.randomUUID());const x=new XMLHttpRequest();x.open('POST',BASE+'/posts?'+new URLSearchParams({clientId:id,caption,kind,mediaType}));x.timeout=120000;x.setRequestHeader('Authorization','Bearer '+session);x.setRequestHeader('Content-Type',file.type||(mediaType==='video'?'video/mp4':'image/jpeg'));x.upload.onprogress=e=>{if(e.lengthComputable)progress('Publication · '+Math.round(e.loaded/e.total*100)+' %');};x.onerror=()=>reject(Error('Connexion interrompue. Réessaie : la publication ne sera pas dupliquée.'));x.ontimeout=()=>reject(Error('Envoi trop long. Vérifie ta connexion puis réessaie.'));x.onload=()=>{let d;try{d=JSON.parse(x.responseText)}catch{return reject(Error('Réponse du serveur indisponible.'))}if(x.status<200||x.status>=300||!d.ok)return reject(Error(d.error||'Publication indisponible. Mets à jour le serveur ONE.'));rememberOwned(d,{clientId:id,mediaType,kind,caption});
+ const account=accountLocal()||{},serverPost=d.post||d.publication||{},postId=String(serverPost.id||d.postId||d.id||id),created=Number(serverPost.created||serverPost.createdAt||Date.now())||Date.now();
+ const optimistic={...serverPost,id:postId,caption:String(caption||serverPost.caption||''),kind,mediaType,mime:String(file.type||(mediaType==='video'?'video/mp4':'image/jpeg')),created,mine:true,name:serverPost.name||account.displayName||account.name||'Moi',_optimistic:true};
+ oneLocalMedia.set(postId,file);oneLocalMedia.set(String(id),file);
+ rememberPosts(kind,[optimistic],false);
+ window.dispatchEvent(new CustomEvent('one-posts-updated',{detail:{kind,post:optimistic,mediaType}}));
+ resolve(d)};x.send(file)});}
+window.oneCameraShare=(original,dialog,options={})=>{
+ dialog.oneShareCleanup?.();dialog.querySelector('.oneCaptureDestinations')?.remove();
+ const panel=node('section','oneCaptureDestinations oneMultiShare');dialog.append(panel);
+ const status=text=>{dialog.querySelector('[role=status]').textContent=text;};
+ const session=token(),items=new Map();let file=original,editedURL=null,running=false,started=false,disposed=false,friendsLoaded=false;const initialType=String(original?.type||'').toLowerCase(),initialMedia=initialType.startsWith('video/')?'video':initialType.startsWith('image/')?'photo':'unknown';
+ const button=(text,fn,cls='')=>{const b=node('button',cls,text);b.type='button';b.onclick=fn;return b;};
+ const cleanup=()=>{disposed=true;if(editedURL)URL.revokeObjectURL(editedURL);dialog.removeEventListener('close',cleanup);};
+ dialog.oneShareCleanup=cleanup;dialog.addEventListener('close',cleanup,{once:true});
+ const title=node('h3','','Partager'),intro=node('p','oneMultiIntro','Choisis où publier ce contenu.');
+ const edit=button('Aa · Ajouter du texte',async()=>{if(!window.oneEditCapture){status('L’éditeur se prépare. Réessaie.');return}dialog.querySelector('.oneCaptureView video')?.pause();const result=await window.oneEditCapture(options.source||original);if(!result||disposed)return;file=result;if(editedURL)URL.revokeObjectURL(editedURL);editedURL=URL.createObjectURL(file);const media=dialog.querySelector('.oneCaptureView img,.oneCaptureView video');media.src=editedURL;edit.textContent='Aa · Modifier le texte';status('Texte intégré au média. Choisis les destinations.');},'oneTextEdit');
+ edit.hidden=!!options.preview;panel.append(edit,title,intro);
+ function row(key,name,hint,kind,friend,accept='any'){
+  const label=node('label','oneDestination'),input=node('input'),copy=node('span'),result=node('small','oneDestinationResult');label.dataset.kind=kind;label.dataset.accept=accept;input.type='checkbox';input.setAttribute('aria-label',name);const incompatible=accept!=='any'&&initialMedia!=='unknown'&&accept!==initialMedia;if(incompatible){label.dataset.incompatible='true';result.textContent=accept==='video'?'Réservé aux vidéos':'Réservé aux photos';}copy.append(node('b','',name),node('small','',hint),result);label.append(input,copy);const item={key,name,kind,friend,input,label,result,state:'pending',incompatible};items.set(key,item);input.onchange=()=>{if(input.checked&&kind==='post'){for(const other of items.values())if(other!==item&&other.kind==='post'&&other.input.checked)other.input.checked=false;}update();};return label;
+ }
+ panel.append(row('one-video','Fil ONE','Feed vidéo vertical ONE','post',null,'video'),row('one-photo','ONE Photo','Fil photo ONE','post',null,'photo'),row('story','Story','Visible 24 heures','story'));
+ const defaultDestination=initialMedia==='video'?items.get('one-video'):initialMedia==='photo'?items.get('one-photo'):null;if(defaultDestination&&!defaultDestination.incompatible)defaultDestination.input.checked=true;
+ const friendsBox=node('div','oneFriendChoices'),friendsToggle=button('Choisir mes amis',async()=>{friendsBox.hidden=!friendsBox.hidden;friendsToggle.setAttribute('aria-expanded',String(!friendsBox.hidden));if(!friendsBox.hidden&&!friendsLoaded)await loadFriends();},'oneFriendsToggle');friendsToggle.setAttribute('aria-expanded','false');friendsBox.hidden=true;panel.append(friendsToggle,friendsBox);
+ async function loadFriends(){
+  friendsBox.replaceChildren(node('p','','Chargement des amis…'));friendsToggle.disabled=true;
+  try{if(token()!==session)throw Error('Ton compte a changé. Ferme puis rouvre le partage.');const d=await api(PEOPLE,'/friends/state');if(disposed||token()!==session)return;friendsBox.replaceChildren();const friends=(d.relationships||[]).filter(f=>f.status==='accepted');
+   for(const f of friends){const friend={id:String(f.id),name:f.name||f.displayName||'Ami ONE'};if(!items.has('friend:'+friend.id))friendsBox.append(row('friend:'+friend.id,friend.name,'Message privé · média supprimé après ouverture','friend',friend));}
+   if(!friends.length)friendsBox.append(node('p','','Aucun ami accepté pour le moment.'));friendsLoaded=true;
+  }catch(e){if(!disposed)friendsBox.replaceChildren(node('p','',e.message),button('Réessayer',loadFriends));}finally{if(!disposed)friendsToggle.disabled=running;update();}
+ }
+ const captionLabel=node('label','oneMultiCaption','Légende (facultatif)'),caption=node('textarea');caption.rows=2;caption.maxLength=1000;caption.placeholder='Raconte ce moment…';captionLabel.append(caption);captionLabel.hidden=true;
+ const summary=node('p','oneMultiSummary'),send=button('Choisis une destination',sendAll,'capturePrimary oneMultiSend'),done=button('Terminer',()=>dialog.close(),'oneMultiDone'),retake=button('Changer de photo ou vidéo',()=>window.oneRetakeCapture?.());done.hidden=true;
+ panel.append(captionLabel,summary,send,done,retake);
+ function update(){
+  const selected=[...items.values()].filter(x=>x.input.checked),pending=selected.filter(x=>x.state!=='sent');
+  captionLabel.hidden=!selected.some(x=>x.kind!=='friend');
+  summary.textContent=selected.length?selected.length+' destination'+(selected.length>1?'s':'')+' sélectionnée'+(selected.length>1?'s':''):'';
+  send.disabled=running||!pending.length;send.textContent=running?'Partage en cours…':!pending.length?(selected.length?'Partage terminé':'Choisis une destination'):(started?'Réessayer / partager':'Partager')+' · '+pending.length;
+  for(const x of items.values()){if(x.incompatible)x.input.checked=false;x.input.disabled=x.incompatible||running||x.state==='sent';x.label.dataset.state=x.state;}
+  edit.disabled=running||started;caption.disabled=running||started;retake.disabled=running;friendsToggle.disabled=running;
+  done.disabled=running;done.hidden=![...items.values()].some(x=>x.state==='sent');
+ }
+ async function sendAll(){
+  if(running)return;const queue=[...items.values()].filter(x=>x.input.checked&&x.state!=='sent');if(!queue.length)return;
+  if(!session||token()!==session){status('Connecte-toi avec le même compte puis rouvre le partage.');return;}
+  running=true;started=true;update();const block=e=>e.preventDefault();dialog.addEventListener('cancel',block);const close=dialog.querySelector('[data-close]');if(close)close.disabled=true;
+  let sent=0;
+  try{
+   for(const item of queue){
+    if(disposed)break;
+    if(token()!==session){status('Ton compte a changé. Les envois restants ont été arrêtés.');break;}
+    item.state='sending';item.result.textContent='En cours…';update();
+    try{
+     const progress=text=>{item.result.textContent=text;status(item.name+' · '+text);};
+     if(item.kind==='friend'){
+      if(!window.oneSendMediaToFriend)throw Error('La messagerie n’est pas encore prête. Réessaie.');
+      const ok=await window.oneSendMediaToFriend(file,item.friend,{openConversation:false,throwOnError:true,onProgress:progress});if(!ok)throw Error('Envoi non confirmé. Réessaie.');
+     }else await publish(file,caption.value,progress,item.kind,session,item.accept==='any'?(String(file.type||'').startsWith('video/')?'video':'photo'):item.accept);
+     item.state='sent';item.result.textContent='✓ Envoyé';sent++;
+    }catch(e){item.state='failed';item.result.textContent='Échec · '+e.message;}
+    update();
+   }
+   const failures=queue.filter(x=>x.state!=='sent').length;
+   if(token()===session)status(failures?'Certains envois ont échoué. Réessaie : les destinations déjà livrées ne seront pas renvoyées.':'Partagé sur toutes les destinations sélectionnées.');
+   if(sent)window.dispatchEvent(new Event('one-posts-updated'));
+  }finally{running=false;dialog.removeEventListener('cancel',block);if(close)close.disabled=false;update();}
+ }
+ status('Choisis ONE Vidéo, ONE Photo, Story ou un ami.');update();
+};
+
+let currentCleanup,currentHost,currentRefresh;
+window.oneMountNativeFeed=(host,kind='post',options={})=>{
+ if(!host?.isConnected)return;currentCleanup?.();currentHost=host;host.replaceChildren();host.classList.add('oneNativeFeed');host.dataset.kind=kind;const wantedMedia=String(options?.mediaType||'').toLowerCase();const social=options?.social===true;const heading=node('header'),title=node('h2','',kind==='story'?'Stories':social?'Publications':'Le fil ONE'),create=node('button','','＋'),refresh=node('button','','Actualiser');create.setAttribute('aria-label','Créer une publication');create.onclick=()=>window.oneOpenCamera?.();heading.append(title,create,refresh);const intro=node('p','',kind==='story'?'Les stories des membres ONE · visibles 24 h.':'Les photos et vidéos partagées par les membres ONE.'),message=node('p'),list=node('div'),more=node('button','','Voir plus');message.setAttribute('role','status');more.dataset.more='';more.hidden=true;host.append(heading,intro,message,list,more);
+ let stopped=false,busy=false,refreshAgain=false,cursor=null;const urls=new Set(),controller=new AbortController();const expiryTimer=setInterval(()=>{for(const item of list.children){if(Number(item.dataset.expires)>0&&Number(item.dataset.expires)<=Date.now()){item.querySelector('video')?.pause();item.remove();}}},15000);const observer=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){observer.unobserve(e.target);loadMedia(e.target)}},{rootMargin:'150px'});
+ currentCleanup=()=>{stopped=true;currentRefresh=null;clearInterval(expiryTimer);controller.abort();observer.disconnect();for(const u of urls)URL.revokeObjectURL(u);list.querySelectorAll('video').forEach(v=>v.pause());host.replaceChildren();};
+ async function loadMedia(box){if(stopped||!box.isConnected)return;box.replaceChildren(node('p','','Chargement…'));try{let blob=oneLocalMedia.get(String(box.dataset.id||''));if(!blob){const r=await fetch(BASE+'/posts/'+box.dataset.id+'/media',{headers:{Authorization:'Bearer '+token()},signal:controller.signal,cache:'no-store'});if(!r.ok)throw Error('Média indisponible.');blob=await r.blob();}if(stopped||!box.isConnected)return;const url=URL.createObjectURL(blob);urls.add(url);const hint=(box.dataset.mediaType+' '+box.dataset.mime+' '+String(blob.type||'')).toLowerCase(),isVideo=hint.includes('video');const media=node(isVideo?'video':'img');media.src=url;if(media.tagName==='VIDEO'){media.controls=true;media.playsInline=true;media.preload='metadata';media.addEventListener('play',()=>list.querySelectorAll('video').forEach(v=>{if(v!==media)v.pause()}))}else media.alt='Publication ONE';media.onerror=()=>{box.replaceChildren(node('p','','Ce format ne peut pas être affiché sur cet appareil.'))};box.replaceChildren(media);}catch(e){if(stopped)return;const retry=node('button','','Réessayer le chargement');retry.onclick=()=>loadMedia(box);box.replaceChildren(retry);}}
+ function card(p){const article=node('article','oneNativePost'),head=node('header'),avatar=node('span','onePostAvatar',(p.name||'O').slice(0,1)),identity=node('div'),stamp=node('time','',new Date(p.created).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'}));stamp.dateTime=new Date(p.created).toISOString();identity.append(node('b','',p.name||'Membre ONE'),stamp);head.append(avatar,identity);if(p.mine){const del=node('button','onePostDelete','Supprimer');del.onclick=async()=>{if(del.dataset.confirm!=='true'){del.dataset.confirm='true';del.textContent='Confirmer';setTimeout(()=>{del.dataset.confirm='false';del.textContent='Supprimer'},4000);return}del.disabled=true;try{await api(BASE,'/posts/'+p.id+'/delete',{method:'POST'});article.remove();if(!list.children.length)message.textContent='Aucune publication pour le moment.';}catch(e){message.textContent=e.message;del.disabled=false}};head.append(del)}article.dataset.expires=p.expires||0;const media=node('div','onePostMedia');media.dataset.id=p.id;media.dataset.mime=p.mime||'';media.dataset.mediaType=p.mediaType||p.media_type||'';article.append(head);if(p.caption)article.append(node('p','',p.caption));article.append(media);if(social){const actions=node('div','oneNativePostActions');const like=node('button','','♥ J’aime'),comment=node('button','','💬 Commenter'),share=node('button','','↗ Partager');like.type=comment.type=share.type='button';like.onclick=()=>window.toast?.('J’aime ONE bientôt disponible sur les publications.');comment.onclick=()=>window.toast?.('Commentaires ONE bientôt disponibles sur les publications.');share.onclick=async()=>{try{if(navigator.share)await navigator.share({title:'ONE Social',text:p.caption||'Publication ONE'});else window.toast?.('Partage disponible depuis ONE.')}catch{}};actions.append(like,comment,share);article.append(actions)}list.append(article);observer.observe(media);}
+ async function load(reset=false){if(stopped)return;if(busy){if(reset)refreshAgain=true;return;}busy=true;refresh.disabled=true;more.disabled=true;message.textContent='Chargement du fil…';try{const params='?'+new URLSearchParams({kind,...(cursor&&!reset?{before:cursor.created,cursor:cursor.id}:{})});const d=await api(BASE,'/posts'+params,{signal:controller.signal});if(stopped||!host.isConnected)return;if(reset){observer.disconnect();list.replaceChildren();for(const u of urls)URL.revokeObjectURL(u);urls.clear();cursor=null}rememberPosts(kind,d.posts||[],reset);const sourceRows=reset?[...(onePostsCache[kind==='story'?'story':'post']||[])]:[...(d.posts||[])];const rows=sourceRows.filter(p=>{if(!wantedMedia)return true;const mt=String(p.mediaType||p.media_type||p.mime||'').toLowerCase();if(wantedMedia==='photo')return !mt||mt.includes('image')||mt==='photo'||mt.includes('octet-stream');if(wantedMedia==='video')return mt.includes('video')||mt==='video';return true;});for(const p of rows)card(p);if(d.posts?.length)cursor=d.posts.at(-1);more.hidden=!d.more;message.textContent=list.children.length?'':wantedMedia==='photo'?'Aucune publication photo pour le moment.':'Aucune publication pour le moment. Partage la première !';}catch(e){if(!stopped)message.textContent=e.message;}finally{busy=false;refresh.disabled=false;more.disabled=false;if(refreshAgain&&!stopped){refreshAgain=false;void load(true);}}}
+ currentRefresh=()=>load(true);window.oneRefreshNativeFeed=()=>currentRefresh?.();refresh.onclick=currentRefresh;more.onclick=()=>load();load(true);
+};
+window.addEventListener('one-posts-updated',()=>{if(currentHost?.isConnected)currentRefresh?.();});
+window.addEventListener('one-account-changed',()=>{currentCleanup?.();currentCleanup=null;});window.addEventListener('one-space-open',()=>{setTimeout(()=>{if(currentHost&&!currentHost.isConnected){currentCleanup?.();currentCleanup=null;currentHost=null}mountStories()},0)});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)currentHost?.querySelectorAll('video').forEach(v=>v.pause());});
+function mountStories(){const moments=document.querySelector('.oneMomentsScreen');if(!moments||moments.querySelector('#oneStories'))return;const host=node('section');host.id='oneStories';host.setAttribute('aria-label','Stories ONE');moments.insertBefore(host,moments.querySelector('.oneMomentsTabs'));window.oneMountNativeFeed(host,'story');}
+const shell=document.getElementById('oneFoundation');if(shell)new MutationObserver(()=>{mountStories()}).observe(shell,{childList:true,subtree:true});mountStories();
+const waitingFeed=document.getElementById('oneNativeFeed');if(waitingFeed&&!waitingFeed.classList.contains('oneNativeFeed'))window.oneMountNativeFeed(waitingFeed);
+})();
+
+
+
+
+</script>
 
 
 <link rel="stylesheet" href="ui/one-visual-v20.css?v=appels-sonnerie-v56">
