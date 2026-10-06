@@ -6120,8 +6120,8 @@ window.addEventListener('DOMContentLoaded',()=>{
  function resetPhoto(){picked=null;if(obj){URL.revokeObjectURL(obj);obj=null;}const b=q('[data-social-preview]');if(b){b.hidden=true;b.querySelector('img').removeAttribute('src');}}
  function choose(f){const st=q('[data-social-status]');if(!f||!String(f.type||'').startsWith('image/')){if(st)st.textContent='Choisis une photo.';return;}picked=f;if(obj)URL.revokeObjectURL(obj);obj=URL.createObjectURL(f);const b=q('[data-social-preview]');b.querySelector('img').src=obj;b.hidden=false;if(st)st.textContent='Photo prête.';}
  document.addEventListener('click',async e=>{
-  if(e.target.closest('[data-social-messages]')){e.preventDefault();window.oneShowSpace?.('messages');return;}
-  if(e.target.closest('[data-social-friends]')){e.preventDefault();window.oneShowSpace?.('friends');return;}
+  if(e.target.closest('[data-social-messages]')){e.preventDefault();window.oneOpenSwipeDiscussions?.(true);return;}
+  if(e.target.closest('[data-social-friends]')){e.preventDefault();window.oneOpenSwipeDiscussions?.(true);let n=0;const pick=()=>{const b=document.querySelector('#oneFoundation [data-social-tab="friends"]');if(b){b.click();return;}if(n++<30)setTimeout(pick,50);};setTimeout(pick,40);return;}
   if(!root())return;
   if(e.target.closest('[data-social-gallery]')){e.preventDefault();q('[data-social-file]')?.click();return;}
   if(e.target.closest('[data-social-camera]')){e.preventDefault();if(typeof window.oneTakePhoneMedia!=='function'){q('[data-social-status]').textContent='Appareil photo indisponible.';return;}window.oneTakePhoneMedia(f=>choose(f));return;}
@@ -6146,6 +6146,37 @@ window.addEventListener('DOMContentLoaded',()=>{
 .bottomNav .nav.active{background:linear-gradient(145deg,#6857ee30,#559cff2b)!important;box-shadow:inset 0 0 0 1px #7188ff35,0 -8px 28px #607cff22!important}
 .bottomNav:before{background:linear-gradient(90deg,#725cff,#559cff)!important}
 </style>
+
+<style id="one-v138-nav-final">
+#home,#shop,#discover,#search,#creation,
+#home .ico,#shop .ico,#discover .ico,#search .ico,#creation .ico,
+#home span,#shop span,#discover span,#search span,#creation span{
+ color:#7884ff!important;-webkit-text-fill-color:#7884ff!important;
+}
+#home svg,#home svg *,#shop svg,#shop svg *,#discover svg,#discover svg *,
+#search svg,#search svg *,#creation svg,#creation svg *{
+ fill:#7884ff!important;stroke:#7884ff!important;
+}
+#home.active,#shop.active,#discover.active,#search.active,#creation.active{
+ background:linear-gradient(145deg,#665bf033,#519cff32)!important;
+ box-shadow:inset 0 0 0 1px #738aff40,0 -8px 30px #587fff2c!important;
+}
+#home.active,#shop.active,#discover.active,#search.active,#creation.active,
+#home.active .ico,#shop.active .ico,#discover.active .ico,#search.active .ico,#creation.active .ico,
+#home.active span,#shop.active span,#discover.active span,#search.active span,#creation.active span{
+ color:#65a4ff!important;-webkit-text-fill-color:#65a4ff!important;
+}
+#home.active svg,#home.active svg *,#shop.active svg,#shop.active svg *,
+#discover.active svg,#discover.active svg *,#search.active svg,#search.active svg *,
+#creation.active svg,#creation.active svg *{fill:#65a4ff!important;stroke:#65a4ff!important}
+</style>
+<script id="one-v138-nav-paint">
+(()=>{
+ const ids=['home','shop','discover','search','creation'];
+ function paint(){for(const id of ids){const b=document.getElementById(id);if(!b)continue;b.style.setProperty('color',b.classList.contains('active')?'#65a4ff':'#7884ff','important');for(const el of b.querySelectorAll('.ico,span,i,b')){el.style.setProperty('color',b.classList.contains('active')?'#65a4ff':'#7884ff','important');el.style.setProperty('-webkit-text-fill-color',b.classList.contains('active')?'#65a4ff':'#7884ff','important');}}}
+ new MutationObserver(paint).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});paint();
+})();
+</script>
 </body>
 </html>
 
