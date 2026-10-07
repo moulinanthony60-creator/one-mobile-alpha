@@ -6457,6 +6457,63 @@ body.oneSearchPage #searchTypes{margin:10px 16px!important}body.oneSearchPage #c
  #oneSalonTray:has(#oneSalonRoom:not([hidden])) #oneSalonBody{padding:10px 12px 20px!important}
 }
 </style>
+
+<style id="salon-v160-finition">
+/* Passe de finition sur la base plein écran v159 */
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) #oneSalonBody{padding-top:8px!important}
+.sr157{gap:7px!important}
+.sr157-top{grid-template-columns:40px auto 1fr 40px!important}
+.sr157-round{height:40px!important}
+.sr157-profile{grid-template-columns:52px 1fr!important;gap:8px!important}
+.sr157-cover{width:52px!important;height:52px!important;border-radius:14px!important}
+.sr157-meta h2{font-size:22px!important}
+.sr157-faces{grid-column:1/2!important;gap:3px!important}
+.sr157-faces .avatar,.sr157-empty{width:27px!important;height:27px!important}
+.sr157-faces .sr157-empty:nth-of-type(n+3){display:none!important}
+.sr157-qa{grid-column:2/3!important;display:grid!important;grid-template-columns:1.25fr .72fr .8fr!important;align-self:center!important}
+.sr157-qa button{padding:8px 5px!important;font-size:11px!important}
+.sr157-tabs{margin-top:1px!important}
+.sr157-tabs button{padding:7px 2px!important}
+.sr157-card{padding:9px!important}
+.sr157-choose h3{font-size:14px!important}
+.sr157-actions{margin-top:7px!important;gap:6px!important}
+.sr157-action{flex:0 0 88px!important;min-height:94px!important;padding:7px!important}
+.sr157-action .sr157-ico{font-size:20px!important;margin:auto auto 2px!important}
+.sr157-action b{font-size:10.5px!important}.sr157-action small{font-size:7.5px!important}
+.sr157-feedrow{padding:4px 0!important}.sr157-feedrow .avatar{width:27px!important;height:27px!important}
+.sr157-feed .os-muted{margin:4px 0 0!important;font-size:10px!important;line-height:1.3!important}
+.sr157-members{max-height:52px!important;align-items:center!important}
+.sr157-members .os-player{max-width:110px!important;min-height:44px!important;padding:4px!important}
+.sr157-members .os-player img,.sr157-members .os-player .avatar{width:38px!important;height:38px!important}
+.sr157-invite{display:inline-flex!important;width:auto!important;padding:7px 10px!important;margin-top:6px!important}
+.sr157-chat{padding-bottom:9px!important}.sr157-composer{padding:9px 12px!important}
+.sr157-utilities{margin-top:-2px!important}
+</style>
+<script id="salon-v160-tabs">
+(()=>{
+ function initSalonTabs(){
+  const root=document.querySelector('.sr157'); if(!root||root.dataset.tabsReady)return;
+  root.dataset.tabsReady='1';
+  const tabs=[...root.querySelectorAll('.sr157-tabs button')];
+  const choose=root.querySelector('.sr157-choose');
+  const cards=[...root.querySelectorAll('.sr157-card')];
+  const activity=cards.find(x=>x.querySelector('.sr157-feed'));
+  const members=cards.find(x=>x.querySelector('.sr157-members'));
+  const chat=cards.find(x=>x.classList.contains('sr157-chat'));
+  function show(name){
+   tabs.forEach(b=>b.classList.toggle('active',b.textContent.includes(name)));
+   [choose,activity,members,chat].forEach(x=>{if(x)x.hidden=false});
+   if(name==='Membres'){if(choose)choose.hidden=true;if(activity)activity.hidden=true;if(chat)chat.hidden=true;}
+   if(name==='Activités'){if(members)members.hidden=true;if(chat)chat.hidden=true;}
+   if(name==='Fichiers'){if(choose)choose.hidden=true;if(activity)activity.hidden=true;if(members)members.hidden=true;if(chat){chat.hidden=false;const h=chat.querySelector('h3');if(h)h.textContent='Fichiers du salon';const c=chat.querySelector('.sr157-composer');if(c)c.textContent='＋ Ajouter un fichier';}}
+   if(name==='Accueil'&&chat){const h=chat.querySelector('h3');if(h)h.textContent='Discussion du salon';const c=chat.querySelector('.sr157-composer');if(c)c.textContent='Écrire au salon…';}
+  }
+  ['Accueil','Membres','Activités','Fichiers'].forEach((name,i)=>tabs[i]?.addEventListener('click',e=>{e.preventDefault();show(name)}));
+ }
+ new MutationObserver(initSalonTabs).observe(document.body,{subtree:true,childList:true});
+ addEventListener('DOMContentLoaded',initSalonTabs);
+})();
+</script>
 </body>
 </html>
 
