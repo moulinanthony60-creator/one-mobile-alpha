@@ -3680,10 +3680,8 @@ const actionRow=el('div',undefined,'sr157-actions');
 const mk=(cls,ico,title,sub,fn)=>{const b=button('',fn,'sr157-action '+cls);b.append(el('span',ico,'sr157-ico'),el('b',title),el('small',sub));return b;};
 actionRow.append(
  mk('watch','▷','Regarder ensemble','ONE, YouTube, Twitch…',()=>{window.oneCloseSalon();window.oneShowSpace?.('together');}),
- mk('play','⌁','Jouer ensemble','Jeux & mini-jeux',()=>{window.oneCloseSalon();window.oneShowSpace?.('party');}),
- mk('voice','🎙','Vocal','Discussion en direct',()=>{const b=document.querySelector('#onePartyChat button:last-of-type');if(b)b.click();}),
- mk('share','▣','Partager','Écran, caméra ou contenu',()=>{const b=document.querySelector('[data-v95-camera-view]');if(b)b.click();else document.querySelector('[data-salon-media="camera"]')?.click();}),
- mk('lobby','◇','Lobby 3D','Espace immersif',()=>window.ONEOpen3DLobby({room}))
+ mk('play','⌁','Jouer ensemble','Sans appel obligatoire',()=>{window.oneCloseSalon();window.oneShowSpace?.('party');}),
+ mk('call','☎','Rejoindre l’appel','Micro et caméra facultatifs',()=>{const b=document.querySelector('#onePartyChat button:last-of-type');if(b)b.click();else window.toast?.('Appel du salon indisponible.');})
 );choose.append(actionRow);app.append(choose);
 
 if(r.activity){const running=el('section',undefined,'sr157-card sr157-running');running.append(el('h3','Activité en cours'));ONEUI.activity(running,{room:r});app.append(running);}
@@ -3703,9 +3701,7 @@ const chatCard=el('section',undefined,'sr157-card sr157-chat');chatCard.append(e
 if(r.savedGroupId)chatCard.append(el('div','📌 Conversation du salon','sr157-pin'));
 const composer=button('Écrire au salon…',()=>{const c=document.getElementById('onePartyChat');if(c){c.hidden=false;c.scrollIntoView({block:'nearest'});c.querySelector('textarea')?.focus();}},'sr157-composer');chatCard.append(composer);app.append(chatCard);
 
-const utilities=el('div',undefined,'sr157-utilities');
-const micButton=button('♩ Micro',()=>media('mic')),camButton=button('▣ Caméra',()=>media('camera'));micButton.dataset.salonMedia='mic';camButton.dataset.salonMedia='camera';
-utilities.append(micButton,camButton,button('Quitter',leave,'os-danger'));app.append(utilities);
+const utilities=el('div',undefined,'sr157-utilities');utilities.append(button('Quitter le salon',leave,'os-danger'));app.append(utilities);
 
 roomIntro.append(app);syncMediaButtons();}
  let mediaPending=false;
@@ -6514,7 +6510,12 @@ body.oneSearchPage #searchTypes{margin:10px 16px!important}body.oneSearchPage #c
  addEventListener('DOMContentLoaded',initSalonTabs);
 })();
 </script>
-</body>
+<style id="salon-v161-actions">
+.sr157-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;overflow:visible!important}
+.sr157-action{min-width:0!important;width:auto!important;min-height:104px!important;flex:none!important}
+.sr157-action.call{background:linear-gradient(155deg,#0d795b,#082e27)!important;border:1px solid #35d6a7!important}
+.sr157-utilities{justify-content:flex-end!important}.sr157-utilities .os-danger{flex:0 0 auto!important;padding:8px 12px!important}
+</style></body>
 </html>
 
 
