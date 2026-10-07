@@ -3468,7 +3468,7 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 </script><script src="ui/game-shell.js?v=014117"></script><script id="one-salons-v15">
 (()=>{
  const {el,button,api,avatar,dialog,qr,copy,tile}=ONEUI;
- const tray=el('aside',undefined,'os-salon');tray.id='oneSalonTray';tray.hidden=true;tray.setAttribute('aria-label','Salons ONE');const head=el('header'),heading=el('h2','Salons ONE'),close=button('×',()=>window.oneCloseSalon(),'os-close');close.setAttribute('aria-label','Fermer la fenêtre du salon');head.append(heading,close);const shell=el('div');shell.id='oneSalonBody';const status=el('p',undefined,'os-status');status.setAttribute('role','status');const content=el('div'),sharedPlayer=el('section');sharedPlayer.id='oneSalonTogether';sharedPlayer.hidden=true;const roomFrame=el('div'),roomIntro=el('div'),roomGame=el('div'),roomTools=el('div'),activities=el('section',undefined,'os-choose'),tiles=el('div',undefined,'os-tiles'),togetherTile=tile('together',()=>{window.oneCloseSalon();window.oneShowSpace?.('together');});roomFrame.id='oneSalonRoom';roomFrame.hidden=true;activities.append(el('h3','Que voulez-vous faire dans ce salon ?'),tiles);togetherTile.querySelector('b')&&(togetherTile.querySelector('b').textContent='Regarder ensemble');togetherTile.querySelector('small')&&(togetherTile.querySelector('small').textContent='ONE, YouTube, Twitch…');tiles.append(togetherTile,sharedPlayer);const partyTile=tile('party',()=>{window.oneCloseSalon();window.oneShowSpace?.('party');});partyTile.querySelector('b')&&(partyTile.querySelector('b').textContent='Jouer ensemble');partyTile.querySelector('small')&&(partyTile.querySelector('small').textContent='Jeux & mini-jeux');tiles.append(partyTile);const vocalTile=button('',()=>{const b=document.querySelector('#onePartyChat button:last-of-type');if(b)b.click();},'os-tile');vocalTile.dataset.kind='vocal';vocalTile.append(el('span','🎙','os-tile-icon'),el('b','Vocal'),el('small','Discussion en direct'));tiles.append(vocalTile);const shareTile=button('',()=>{const b=document.querySelector('[data-v95-camera-view]');if(b)b.click();else document.querySelector('[data-salon-media="camera"]')?.click();},'os-tile');shareTile.dataset.kind='share';shareTile.append(el('span','▣','os-tile-icon'),el('b','Partager'),el('small','Écran, caméra ou contenu'));tiles.append(shareTile);const lobby3d=button('',()=>{window.ONEOpen3DLobby({room});},'os-tile');lobby3d.dataset.kind='lobby3d';lobby3d.append(el('span','◈','os-tile-icon'),el('b','Lobby 3D'),el('small','Se retrouver · lancer 3:17'));tiles.append(lobby3d);roomFrame.append(roomIntro,activities,roomGame,roomTools);shell.append(status,content,roomFrame);tray.append(head,shell);document.body.append(tray);
+ const tray=el('aside',undefined,'os-salon');tray.id='oneSalonTray';tray.hidden=true;tray.setAttribute('aria-label','Salons ONE');const head=el('header'),heading=el('h2','Salons ONE'),close=button('×',()=>window.oneCloseSalon(),'os-close');close.setAttribute('aria-label','Fermer la fenêtre du salon');head.append(heading,close);const shell=el('div');shell.id='oneSalonBody';const status=el('p',undefined,'os-status');status.setAttribute('role','status');const content=el('div'),sharedPlayer=el('section');sharedPlayer.id='oneSalonTogether';sharedPlayer.hidden=true;const roomFrame=el('div'),roomIntro=el('div'),roomGame=el('div'),roomTools=el('div'),activities=el('section',undefined,'os-choose'),tiles=el('div',undefined,'os-tiles'),togetherTile=tile('together',()=>{window.oneCloseSalon();window.oneShowSpace?.('together');});roomFrame.id='oneSalonRoom';roomFrame.hidden=true;activities.append(el('h3','Que fait-on ?'),el('p','Chacun choisit : regarder une vidéo ou rejoindre un jeu.','os-muted'),tiles);tiles.append(togetherTile,sharedPlayer);for(const kind of ['party','one'])tiles.append(tile(kind,()=>{window.oneCloseSalon();window.oneShowSpace?.(kind);}));const lobby3d=button('',()=>{window.ONEOpen3DLobby({room});},'os-tile');lobby3d.dataset.kind='lobby3d';lobby3d.append(el('span','◈','os-tile-icon'),el('b','Lobby 3D'),el('small','Se retrouver · lancer 3:17'));tiles.append(lobby3d);roomFrame.append(roomIntro,activities,roomGame,roomTools);shell.append(status,content,roomFrame);tray.append(head,shell);document.body.append(tray);
  let room=null,invitations=[],view='welcome',busy=false,epoch=0,signature='',returnFocus=null;
  // V15: one state request at a time, no form replacement while submitting.
  let loadController=null,loadPromise=null,lastStateError=null,statusOrigin='';
@@ -3655,47 +3655,59 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
  function publicSearch(parent){const section=el('section',undefined,'os-discover');section.append(el('h3','Salons publics'),el('p','Trouve un salon et partage le moment.','os-muted'));const form=el('form',undefined,'os-search'),input=el('input');input.type='search';input.placeholder='Nom du salon ou de son hôte';input.setAttribute('aria-label','Rechercher un salon');const submit=button('Rechercher',null);submit.type='submit';const list=el('div',undefined,'os-room-list');form.append(input,submit);section.append(form,list);parent.append(section);let serial=0;async function search(){const own=++serial;submit.disabled=true;list.replaceChildren(el('p','Recherche…','os-muted'));try{const d=await api('/party/public?'+new URLSearchParams({q:input.value,open:'0'}));if(own!==serial||!section.isConnected)return;list.replaceChildren();for(const r of d.rooms){const row=el('article',undefined,'os-public-room');const cover=el('div',undefined,'os-public-cover');cover.append(el('span',r.playing?'En partie':'Ouvert','os-public-badge'));row.append(cover,avatar({name:r.host}),el('h4',r.name),el('p',r.host+' · '+r.count+' membres'));const b=button(r.playing?'Partie en cours':'Rejoindre',()=>joinPublic(r.id),'os-primary');b.disabled=r.count>=16||r.playing;b.title=r.playing?'Le serveur bloque l’entrée pendant une partie. Rejoins dès le retour au salon.':'';row.append(b);list.append(row);}if(!d.rooms.length)list.append(el('p','Aucun salon trouvé. Crée le tien pour réunir tes amis.','os-muted'));if(d.more)list.append(el('p','Précise ta recherche pour voir d’autres salons.','os-muted'));}catch(e){if(section.isConnected)list.replaceChildren(el('p',e.message));}finally{submit.disabled=false;}}form.onsubmit=e=>{e.preventDefault();search();};search();}
  async function friends(parent){const section=el('section',undefined,'os-friends-preview');section.append(el('h3','Tes amis'));parent.append(section);try{const d=await api('/friends/state');if(!section.isConnected)return;const list=(d.relationships||[]).filter(f=>f.status==='accepted').sort((a,b)=>Number(b.online)-Number(a.online));for(const f of list.slice(0,5)){const row=button('',()=>window.oneOpenFriends?.(),'os-friend-mini');row.append(avatar(f),el('b',f.name),el('small',f.online?'En ligne':'Hors ligne'));section.append(row);}if(!list.length)section.append(el('p','Ajoute des amis pour commencer votre soirée.','os-muted'));}catch{section.append(el('p','Tes amis sont disponibles depuis Amis ONE.','os-muted'));}}
  function renderRoom(){roomIntro.replaceChildren();roomGame.replaceChildren();roomTools.replaceChildren();tray.dataset.appearance=roomAppearance(room.id);const r=room;
-const hero=el('section',undefined,'oneSalonV156Hero');
-const heroTop=el('div',undefined,'oneSalonV156Top');
-const back=button('‹',()=>change('browse'),'oneSalonV156Back');back.setAttribute('aria-label','Retour aux salons');
-const state=el('span','● Salon actif','oneSalonV156State');
-const gear=button('⚙',settings,'oneSalonV156Gear');gear.setAttribute('aria-label','Paramètres du salon');
-heroTop.append(back,state,gear);hero.append(heroTop);
-const identity=el('div',undefined,'oneSalonV156Identity');
-const roomPic=el('div','ONE','oneSalonV156RoomPic');
-const idText=el('div');idText.append(el('h2',r.name),el('p',r.members.length+'/16 membres · '+(r.visibility==='public'?'Public':'Privé'),'os-muted'));
-identity.append(roomPic,idText);hero.append(identity);
-const avatarRow=el('div',undefined,'oneSalonV156AvatarRow');for(const m of r.members.slice(0,5))avatarRow.append(avatar(m));for(let i=r.members.length;i<Math.min(5,16);i++)avatarRow.append(el('span','＋','oneSalonV156AvatarEmpty'));
-const quick=el('div',undefined,'oneSalonV156Quick');
-const inviteQuick=button('🔗 Inviter',invite);inviteQuick.disabled=!r.isHost;
-quick.append(inviteQuick,button('▦ QR',share),button('⚙ Gérer',settings));identity.append(avatarRow,quick);
-const tabs=el('nav',undefined,'oneSalonV156Tabs');
-for(const [ic,lab] of [['⌂','Accueil'],['♧','Membres'],['▣','Activités'],['□','Fichiers']]){const b=button(ic+' '+lab,()=>{},lab==='Accueil'?'active':'');tabs.append(b);}
-hero.append(tabs);roomIntro.append(hero);
+/* V157: interface du salon reconstruite de zéro. Les fonctions réseau historiques restent inchangées. */
+const app=el('div',undefined,'sr157');
+const top=el('div',undefined,'sr157-top');
+const back=button('‹',()=>change('browse'),'sr157-round');back.setAttribute('aria-label','Retour aux salons');
+top.append(back,el('strong','Salons'),el('span','● Salon actif','sr157-live'),button('•••',settings,'sr157-round'));
+app.append(top);
 
-togetherTile.hidden=!!r.together;tiles.classList.toggle('ot-has-video',!!r.together);
-activities.querySelector('h3').textContent='Que voulez-vous faire dans ce salon ?';
-if(r.activity)ONEUI.activity(roomGame,{room:r});
+const profile=el('section',undefined,'sr157-profile');
+const cover=el('div','ONE','sr157-cover');
+const meta=el('div',undefined,'sr157-meta');meta.append(el('h2',r.name),el('p',r.members.length+'/16 membres · '+(r.visibility==='public'?'Public':'Privé'),'os-muted'));
+profile.append(cover,meta);
+const faces=el('div',undefined,'sr157-faces');for(const m of r.members.slice(0,5))faces.append(avatar(m));for(let i=r.members.length;i<Math.min(5,16);i++)faces.append(el('span','＋','sr157-empty'));
+profile.append(faces);
+const qa=el('div',undefined,'sr157-qa');const inv=button('🔗 Inviter',invite);inv.disabled=!r.isHost;qa.append(inv,button('▦ QR',share),button('⚙ Gérer',settings));profile.append(qa);
+app.append(profile);
 
-const overview=el('section',undefined,'oneSalonV156Overview');
-const act=el('section',undefined,'oneSalonV156Card');
-const ah=el('div',undefined,'oneSalonV156Head');ah.append(el('h3','Activité du salon'),button('Voir tout ›',()=>{},'oneSalonLink'));act.append(ah);
-const actList=el('div',undefined,'oneSalonV156ActivityList');
-if(r.activity)actList.append(el('p','● Une activité est en cours dans le salon.','oneSalonV156ActivityRow'));
-for(const m of r.members.slice(0,3)){const row=el('div',undefined,'oneSalonV156ActivityRow');row.append(avatar(m),el('span',(m.name||'Membre')+(m.isHost?' · Hôte':'')));actList.append(row);}
-if(!r.activity&&r.members.length<2)actList.append(el('p','Le salon est prêt. Invite des amis ou lance une activité.','os-muted'));
-act.append(actList);overview.append(act);
+const tabs=el('nav',undefined,'sr157-tabs');
+[['⌂','Accueil'],['♧','Membres'],['▣','Activités'],['□','Fichiers']].forEach(([ic,lab],n)=>{const b=button(ic+' '+lab,()=>{},n===0?'active':'');tabs.append(b);});
+app.append(tabs);
 
-const memberCard=el('section',undefined,'oneSalonV156Card');
-const mh=el('div',undefined,'oneSalonV156Head');mh.append(el('h3','Membres ('+r.members.length+'/16)'),button('Voir tout ›',()=>{},'oneSalonLink'));memberCard.append(mh);
-const mini=el('div',undefined,'oneSalonV156Members');for(const m of r.members.slice(0,6))mini.append(ONEUI.player(m));
-const inviteWide=button('＋ Inviter des membres',invite,'oneSalonV156Invite');inviteWide.disabled=!r.isHost;memberCard.append(mini,inviteWide);overview.append(memberCard);
+const choose=el('section',undefined,'sr157-card sr157-choose');choose.append(el('h3','Que voulez-vous faire dans ce salon ?'));
+const actionRow=el('div',undefined,'sr157-actions');
+const mk=(cls,ico,title,sub,fn)=>{const b=button('',fn,'sr157-action '+cls);b.append(el('span',ico,'sr157-ico'),el('b',title),el('small',sub));return b;};
+actionRow.append(
+ mk('watch','▷','Regarder ensemble','ONE, YouTube, Twitch…',()=>{window.oneCloseSalon();window.oneShowSpace?.('together');}),
+ mk('play','⌁','Jouer ensemble','Jeux & mini-jeux',()=>{window.oneCloseSalon();window.oneShowSpace?.('party');}),
+ mk('voice','🎙','Vocal','Discussion en direct',()=>{const b=document.querySelector('#onePartyChat button:last-of-type');if(b)b.click();}),
+ mk('share','▣','Partager','Écran, caméra ou contenu',()=>{const b=document.querySelector('[data-v95-camera-view]');if(b)b.click();else document.querySelector('[data-salon-media="camera"]')?.click();}),
+ mk('lobby','◇','Lobby 3D','Espace immersif',()=>window.ONEOpen3DLobby({room}))
+);choose.append(actionRow);app.append(choose);
 
-const discuss=el('section',undefined,'oneSalonV156Card oneSalonV156Discuss');discuss.append(el('h3','Discussion du salon'));
-if(r.savedGroupId)discuss.append(el('div','📌 Conversation du salon enregistrée','oneSalonV156Pinned'));
-const openChat=button('Écrire au salon…',()=>{const c=document.getElementById('onePartyChat');if(c){c.hidden=false;c.scrollIntoView({block:'nearest'});c.querySelector('textarea')?.focus();}},'oneSalonV156Composer');
-discuss.append(openChat);overview.append(discuss);roomTools.append(overview);
-syncMediaButtons();}
+if(r.activity){const running=el('section',undefined,'sr157-card sr157-running');running.append(el('h3','Activité en cours'));ONEUI.activity(running,{room:r});app.append(running);}
+
+const feed=el('section',undefined,'sr157-card');const fh=el('div',undefined,'sr157-head');fh.append(el('h3','Activité du salon'),button('Voir tout ›',()=>{},'sr157-link'));feed.append(fh);
+const fl=el('div',undefined,'sr157-feed');
+if(r.activity)fl.append(el('p','● Une activité est en cours','sr157-feedrow'));
+for(const m of r.members.slice(0,3)){const row=el('div',undefined,'sr157-feedrow');row.append(avatar(m),el('span',(m.name||'Membre')+(m.isHost?' est dans le salon · Hôte':' est dans le salon')));fl.append(row);}
+if(!r.activity&&r.members.length<2)fl.append(el('p','Le salon est prêt. Invite des amis ou lance une activité.','os-muted'));
+feed.append(fl);app.append(feed);
+
+const membersCard=el('section',undefined,'sr157-card');const mh=el('div',undefined,'sr157-head');mh.append(el('h3','Membres ('+r.members.length+'/16)'),button('Voir tout ›',()=>{},'sr157-link'));membersCard.append(mh);
+const ml=el('div',undefined,'sr157-members');for(const m of r.members.slice(0,6))ml.append(ONEUI.player(m));membersCard.append(ml);
+const addm=button('＋ Inviter des membres',invite,'sr157-invite');addm.disabled=!r.isHost;membersCard.append(addm);app.append(membersCard);
+
+const chatCard=el('section',undefined,'sr157-card sr157-chat');chatCard.append(el('h3','Discussion du salon'));
+if(r.savedGroupId)chatCard.append(el('div','📌 Conversation du salon','sr157-pin'));
+const composer=button('Écrire au salon…',()=>{const c=document.getElementById('onePartyChat');if(c){c.hidden=false;c.scrollIntoView({block:'nearest'});c.querySelector('textarea')?.focus();}},'sr157-composer');chatCard.append(composer);app.append(chatCard);
+
+const utilities=el('div',undefined,'sr157-utilities');
+const micButton=button('♩ Micro',()=>media('mic')),camButton=button('▣ Caméra',()=>media('camera'));micButton.dataset.salonMedia='mic';camButton.dataset.salonMedia='camera';
+utilities.append(micButton,camButton,button('Quitter',leave,'os-danger'));app.append(utilities);
+
+roomIntro.append(app);syncMediaButtons();}
  let mediaPending=false;
  function syncMediaButtons(){const state=window.ONEPartyMedia?.status?.()||{};for(const b of roomTools.querySelectorAll('[data-salon-media]')){const kind=b.dataset.salonMedia,on=!!state[kind],label=kind==='mic'?'Micro':'Caméra';b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',(on?'Couper le ':'Activer le ')+(kind==='mic'?'micro':'caméra'));if(kind==='camera')b.setAttribute('aria-label',(on?'Couper la ':'Activer la ')+'caméra');b.textContent=(kind==='mic'?'♩ ':'▣ ')+label+(on?' · ON':' · OFF');b.disabled=mediaPending||!!state.busy;}}
  window.addEventListener('one-media-state',syncMediaButtons);
@@ -6355,50 +6367,17 @@ body.oneSearchPage #searchTypes{margin:10px 16px!important}body.oneSearchPage #c
 </script>
 
 
-<style id="one-v155-salon-redesign">
-#oneFoundation #oneSalonRoom{display:flex;flex-direction:column;gap:14px}
-#oneFoundation #oneSalonRoom .os-room-heading{display:grid!important;grid-template-columns:auto 1fr auto!important;gap:10px!important;align-items:center!important}
-#oneFoundation #oneSalonRoom .os-room-name{font-size:27px!important;margin:10px 0 2px!important}
-#oneFoundation #oneSalonRoom .os-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
-#oneFoundation #oneSalonRoom .os-actions button{min-height:54px!important;border-radius:16px!important}
-#oneFoundation #oneSalonRoom .hub-save-room{display:none!important}
-#oneFoundation #oneSalonRoom>.os-choose{background:#101525!important;border:1px solid #2d3550!important;border-radius:20px!important;padding:14px!important;margin:0!important}
-#oneFoundation #oneSalonRoom>.os-choose>h3{font-size:17px!important;margin:0 0 12px!important}
-#oneFoundation #oneSalonRoom .os-tiles{display:grid!important;grid-template-columns:repeat(5,minmax(112px,1fr))!important;gap:10px!important;overflow-x:auto!important;padding:0 0 4px!important;scroll-snap-type:x proximity}
-#oneFoundation #oneSalonRoom .os-tile{min-width:112px!important;min-height:168px!important;border-radius:18px!important;padding:14px 10px!important;scroll-snap-align:start}
-#oneFoundation #oneSalonRoom .os-tile b{font-size:15px!important}
-#oneFoundation #oneSalonRoom .os-tile small{font-size:11px!important;line-height:1.35!important}
-#oneFoundation #oneSalonRoom .os-tile[data-kind="vocal"]{background:linear-gradient(160deg,#075b45,#08271f)!important;border-color:#1cd69b!important}
-#oneFoundation #oneSalonRoom .os-tile[data-kind="share"]{background:linear-gradient(160deg,#7c3219,#2a1716)!important;border-color:#ff8547!important}
-#oneFoundation #oneSalonRoom .os-members{padding:4px 0 8px!important}
-#oneFoundation #oneSalonRoom>.os-room-tools>.os-room-tools{display:none!important}
-.oneSalonOverview{display:grid;gap:12px;margin-top:2px}.oneSalonOverview>section{background:#101525;border:1px solid #2d3550;border-radius:18px;padding:14px}.oneSalonSectionHead{display:flex;align-items:center;justify-content:space-between;gap:12px}.oneSalonSectionHead h3,.oneSalonDiscuss h3{margin:0;font-size:17px}.oneSalonLink{border:0;background:none;color:#9d7cff;font-weight:800}.oneSalonActivityList{display:grid;gap:8px;margin-top:10px}.oneSalonActivityRow{display:flex;align-items:center;gap:10px;margin:0;padding:8px 0;border-top:1px solid #242b3d}.oneSalonActivityRow:first-child{border-top:0}.oneSalonActivityRow .avatar{width:36px!important;height:36px!important}.oneSalonInviteWide{border:1px solid #6952a0;background:#171b2b;color:#fff;border-radius:14px;padding:10px 13px;font-weight:800}.oneSalonMiniMembers{display:flex;gap:8px;overflow:auto;margin-top:10px}.oneSalonComposer{width:100%;margin-top:10px;text-align:left;border:1px solid #343b55;background:#090d19;color:#9ba4ba;border-radius:999px;padding:13px 16px;font-weight:700}
-#onePartyChat{border-radius:18px!important;margin-top:12px!important}
-@media(max-width:520px){#oneFoundation #oneSalonRoom .os-tiles{grid-template-columns:repeat(5,128px)!important}#oneFoundation #oneSalonRoom .os-tile{min-width:128px!important}.oneSalonSectionHead{align-items:flex-start}.oneSalonInviteWide{font-size:11px}}
-</style>
-
-<style id="one-salon-v156-structure">
-#oneFoundation #oneSalonRoom{display:grid!important;gap:14px!important}
-#oneFoundation #oneSalonRoom>.os-choose{order:2!important;background:#0d1220!important;border:1px solid #2a3146!important;border-radius:18px!important;padding:12px!important}
-#oneFoundation #oneSalonRoom>.os-choose>h3{font-size:17px!important;margin:0 0 10px!important;color:#f4f4fb!important}
-#oneFoundation #oneSalonRoom .os-tiles{display:flex!important;gap:9px!important;overflow-x:auto!important;padding:0 0 4px!important;scroll-snap-type:x mandatory}
-#oneFoundation #oneSalonRoom .os-tile{flex:0 0 116px!important;min-width:116px!important;min-height:142px!important;border-radius:17px!important;padding:12px 9px!important;scroll-snap-align:start}
-#oneFoundation #oneSalonRoom .os-tile b{font-size:14px!important}.os-tile small{font-size:10px!important}
-#oneFoundation #oneSalonRoom>div:first-child{order:1!important}
-#oneFoundation #oneSalonRoom>div:nth-of-type(2){order:3!important}
-#oneFoundation #oneSalonRoom>div:nth-of-type(3){order:4!important}
-.oneSalonV156Hero{display:grid;gap:12px;background:linear-gradient(160deg,#111527,#090d19);border:1px solid #303850;border-radius:20px;padding:14px}
-.oneSalonV156Top{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:10px}
-.oneSalonV156Back,.oneSalonV156Gear{height:48px;border:1px solid #3a425d;background:#14192a;color:#fff;border-radius:16px;font-size:22px}
-.oneSalonV156State{justify-self:center;border:1px solid #16a87c;background:#073d35;color:#66f2c8;border-radius:999px;padding:10px 18px;font-weight:900}
-.oneSalonV156Identity{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:center}.oneSalonV156RoomPic{width:76px;height:76px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#6b43df,#282041);border:1px solid #8e6af0;font-weight:900}.oneSalonV156Identity h2{margin:0 0 3px;font-size:27px}.oneSalonV156Identity p{margin:0}
-.oneSalonV156AvatarRow{grid-column:1/-1;display:flex;gap:7px;align-items:center}.oneSalonV156AvatarRow .avatar,.oneSalonV156AvatarEmpty{width:38px!important;height:38px!important;border-radius:50%;display:grid;place-items:center;background:#151a2b;border:1px solid #4a5270}
-.oneSalonV156Quick{grid-column:1/-1;display:grid;grid-template-columns:1.25fr .8fr .9fr;gap:8px}.oneSalonV156Quick button{border:1px solid #51436f;background:#17152a;color:#fff;border-radius:14px;padding:11px 8px;font-weight:800}
-.oneSalonV156Tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:#0b0f1c;border:1px solid #272e43;border-radius:16px;padding:5px}.oneSalonV156Tabs button{border:0;background:transparent;color:#aeb5c9;border-radius:12px;padding:10px 5px;font-weight:800}.oneSalonV156Tabs button.active{background:#4c287c;color:#fff;box-shadow:inset 0 0 0 1px #a35cff}
-.oneSalonV156Overview{display:grid;gap:12px}.oneSalonV156Card{background:#101525;border:1px solid #2d3550;border-radius:18px;padding:14px}.oneSalonV156Head{display:flex;align-items:center;justify-content:space-between;gap:10px}.oneSalonV156Head h3,.oneSalonV156Discuss h3{margin:0;font-size:17px}.oneSalonV156ActivityList{display:grid;gap:6px;margin-top:9px}.oneSalonV156ActivityRow{display:flex;align-items:center;gap:9px;padding:8px 0;margin:0;border-top:1px solid #242b3d}.oneSalonV156ActivityRow:first-child{border-top:0}.oneSalonV156ActivityRow .avatar{width:34px!important;height:34px!important}.oneSalonV156Members{display:flex;gap:7px;overflow:auto;margin-top:9px}.oneSalonV156Invite{width:100%;margin-top:10px;border:1px solid #65518f;background:#171b2b;color:#fff;border-radius:14px;padding:11px;font-weight:900}.oneSalonV156Pinned{margin-top:10px;padding:10px 12px;border-radius:12px;background:#35205d;color:#d9c8ff}.oneSalonV156Composer{width:100%;margin-top:10px;text-align:left;border:1px solid #343b55;background:#090d19;color:#aeb5c9;border-radius:999px;padding:13px 16px;font-weight:800}
-#oneFoundation #oneSalonRoom .os-room-heading,#oneFoundation #oneSalonRoom .os-actions,#oneFoundation #oneSalonRoom .hub-save-room,#oneFoundation #oneSalonRoom #oneSocialMembers{display:none!important}
-#oneFoundation #oneSalonRoom>.os-room-tools>.os-room-tools{display:none!important}
-@media(max-width:430px){.oneSalonV156Quick{grid-template-columns:1fr 74px 82px}.oneSalonV156Tabs button{font-size:11px}.oneSalonV156State{font-size:12px;padding:9px 12px}}
+<style id="salon-rebuild-v157">
+/* V157 — écran Salon autonome, reconstruit de zéro */
+#oneFoundation #oneSalonRoom{display:block!important;background:transparent!important;border:0!important;padding:0!important}
+#oneFoundation #oneSalonRoom>.os-choose,#oneFoundation #oneSalonRoom>div:nth-child(2),#oneFoundation #oneSalonRoom>div:nth-child(3){display:none!important}
+.sr157{display:grid;gap:12px;padding:4px 2px 18px;color:#f5f6ff}
+.sr157 button{font:inherit}.sr157-top{display:grid;grid-template-columns:46px auto 1fr 46px;gap:9px;align-items:center}.sr157-top>strong{font-size:19px}.sr157-round{height:44px;border:1px solid #333b54;border-radius:15px;background:#131827;color:#fff;font-size:21px}.sr157-live{justify-self:end;padding:9px 13px;border:1px solid #0fae7e;border-radius:999px;background:#073d34;color:#6af0ca;font-weight:900;font-size:12px}
+.sr157-profile{display:grid;grid-template-columns:72px 1fr;gap:11px;align-items:center}.sr157-cover{width:72px;height:72px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#6840dd,#27213e);border:1px solid #8c68e9;font-weight:900}.sr157-meta h2{font-size:27px;margin:0 0 3px}.sr157-meta p{margin:0}.sr157-faces{grid-column:1/-1;display:flex;align-items:center;gap:6px}.sr157-faces .avatar,.sr157-empty{width:36px!important;height:36px!important;border-radius:50%;display:grid;place-items:center;background:#151a2b;border:1px solid #49516c}.sr157-qa{grid-column:1/-1;display:grid;grid-template-columns:1.25fr .75fr .85fr;gap:7px}.sr157-qa button{padding:11px 7px;border-radius:13px;border:1px solid #55466f;background:#171529;color:#fff;font-weight:800}
+.sr157-tabs{display:grid;grid-template-columns:repeat(4,1fr);padding:5px;background:#0b0f1b;border:1px solid #292f43;border-radius:15px}.sr157-tabs button{border:0;background:transparent;color:#abb2c7;padding:10px 3px;border-radius:11px;font-size:11px;font-weight:800}.sr157-tabs .active{background:#54298a;color:#fff;box-shadow:inset 0 0 0 1px #a45cff}
+.sr157-card{background:#0f1423;border:1px solid #2c344b;border-radius:18px;padding:13px}.sr157-card h3{font-size:17px;margin:0}.sr157-choose{padding-bottom:10px}.sr157-actions{display:flex;gap:8px;overflow-x:auto;margin-top:11px;padding-bottom:3px;scroll-snap-type:x mandatory}.sr157-action{flex:0 0 112px;min-height:142px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:5px;padding:12px 10px;border-radius:17px;color:#fff;text-align:left;scroll-snap-align:start}.sr157-action .sr157-ico{font-size:30px;margin:auto auto 8px}.sr157-action b{font-size:14px}.sr157-action small{font-size:10px;line-height:1.3}.sr157-action.watch{background:linear-gradient(155deg,#147cd2,#09294e);border:1px solid #2bc2ff}.sr157-action.play{background:linear-gradient(155deg,#c528b6,#45145e);border:1px solid #f06ee1}.sr157-action.voice{background:linear-gradient(155deg,#0d815e,#07372c);border:1px solid #39d9a6}.sr157-action.share{background:linear-gradient(155deg,#9a421d,#351913);border:1px solid #ff9152}.sr157-action.lobby{background:linear-gradient(155deg,#55338d,#1e1733);border:1px solid #9572d2}
+.sr157-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.sr157-link{border:0;background:none;color:#9f80ff;font-weight:900}.sr157-feed{display:grid;gap:3px;margin-top:8px}.sr157-feedrow{display:flex;gap:9px;align-items:center;margin:0;padding:8px 0;border-top:1px solid #232a3d}.sr157-feedrow:first-child{border-top:0}.sr157-feedrow .avatar{width:34px!important;height:34px!important}.sr157-members{display:flex;gap:7px;overflow-x:auto;margin-top:9px}.sr157-invite{width:100%;margin-top:10px;padding:11px;border-radius:13px;border:1px solid #624f89;background:#171b2b;color:#fff;font-weight:900}.sr157-pin{margin-top:9px;padding:9px 11px;border-radius:11px;background:#33205b;color:#ddceff}.sr157-composer{width:100%;margin-top:9px;padding:12px 15px;text-align:left;border-radius:999px;border:1px solid #353c55;background:#090d18;color:#aab2c7;font-weight:700}.sr157-utilities{display:flex;gap:7px}.sr157-utilities button{flex:1;padding:10px;border-radius:12px;border:1px solid #333b52;background:#111625;color:#fff}
+@media(max-width:390px){.sr157-action{flex-basis:106px}.sr157-qa{grid-template-columns:1fr 68px 76px}.sr157-tabs button{font-size:10px}}
 </style>
 </body>
 </html>
