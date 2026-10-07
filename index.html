@@ -6421,6 +6421,42 @@ body.oneSearchPage #searchTypes{margin:10px 16px!important}body.oneSearchPage #c
  .sr157-action{flex-basis:104px!important}
 }
 </style>
+
+<style id="salon-v159-fullscreen">
+/* Salon ouvert = vraie page plein écran indépendante du Chat */
+#oneSalonTray:has(#oneSalonRoom:not([hidden])){
+ position:fixed!important;inset:0 0 72px 0!important;z-index:910!important;
+ width:100%!important;max-width:none!important;height:auto!important;
+ padding:0!important;margin:0!important;border:0!important;border-radius:0!important;
+ background:#080b15!important;overflow:auto!important;box-shadow:none!important;
+}
+#oneSalonTray:has(#oneSalonRoom:not([hidden]))>header{display:none!important}
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) #oneSalonBody{
+ width:100%!important;max-width:720px!important;margin:0 auto!important;
+ padding:14px 18px 26px!important;background:#080b15!important;
+}
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) #oneSalonBody>#oneSalonsVersion,
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) #oneSalonBody>.os-status,
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) #oneSalonBody>div:not(#oneSalonRoom){
+ display:none!important
+}
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) #oneSalonRoom{
+ display:block!important;width:100%!important;max-width:none!important;
+ margin:0!important;padding:0!important;background:transparent!important;border:0!important
+}
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) .sr157{
+ width:100%!important;max-width:none!important;margin:0!important;padding:0!important
+}
+/* no legacy Salon ONE banner / legacy surrounding card */
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) .os-room-heading,
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) .os-room-name,
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) .os-actions,
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) .hub-save-room,
+#oneSalonTray:has(#oneSalonRoom:not([hidden])) #oneSocialMembers{display:none!important}
+@media(max-width:520px){
+ #oneSalonTray:has(#oneSalonRoom:not([hidden])) #oneSalonBody{padding:10px 12px 20px!important}
+}
+</style>
 </body>
 </html>
 
