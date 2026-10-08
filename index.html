@@ -3668,7 +3668,7 @@ const meta=el('div',undefined,'sr157-meta');meta.append(el('h2',r.name),el('p',r
 profile.append(cover,meta);
 const faces=el('div',undefined,'sr157-faces');for(const m of r.members.slice(0,5))faces.append(avatar(m));for(let i=r.members.length;i<Math.min(5,16);i++)faces.append(el('span','＋','sr157-empty'));
 profile.append(faces);
-const qa=el('div',undefined,'sr157-qa');const inv=button('🔗 Inviter',invite);inv.disabled=!r.isHost;qa.append(inv,button('▦ QR',share),button('⚙ Gérer',settings));profile.append(qa);
+const qa=el('div',undefined,'sr157-qa');const inv=button('🔗 Inviter',invite);inv.disabled=!r.isHost;qa.append(inv,button('▦ QR',share),button('⚙ Gérer',()=>{const d=dialog('Gérer le salon');d.append(button('Paramètres du salon',()=>{d.close();settings();},'os-primary'),button('Quitter le salon',()=>{d.close();leave();},'os-danger'));}));profile.append(qa);
 app.append(profile);
 
 const tabs=el('nav',undefined,'sr157-tabs');
@@ -3691,7 +3691,7 @@ const feed=el('section',undefined,'sr157-card');const fh=el('div',undefined,'sr1
 const fl=el('div',undefined,'sr157-feed');
 if(r.activity)fl.append(el('p','● Une activité est en cours','sr157-feedrow'));
 for(const m of r.members.slice(0,3)){const row=el('div',undefined,'sr157-feedrow');row.append(avatar(m),el('span',(m.name||'Membre')+(m.isHost?' est dans le salon · Hôte':' est dans le salon')));fl.append(row);}
-if(!r.activity&&r.members.length<2)fl.append(el('p','Le salon est prêt. Invite des amis ou lance une activité.','os-muted'));
+if(!r.activity&&r.members.length<2)fl.append(el('p','Le salon est prêt ! Lance une activité avec tes amis.','os-muted'));
 feed.append(fl);app.append(feed);
 
 const membersCard=el('section',undefined,'sr157-card');const mh=el('div',undefined,'sr157-head');mh.append(el('h3','Membres ('+r.members.length+'/16)'),button('Voir tout ›',()=>{},'sr157-link'));membersCard.append(mh);
@@ -3701,7 +3701,7 @@ const chatCard=el('section',undefined,'sr157-card sr157-chat');chatCard.append(e
 if(r.savedGroupId)chatCard.append(el('div','📌 Conversation du salon','sr157-pin'));
 const composer=button('Écrire au salon…',()=>{const c=document.getElementById('onePartyChat');if(c){c.hidden=false;c.scrollIntoView({block:'nearest'});c.querySelector('textarea')?.focus();}},'sr157-composer');chatCard.append(composer);app.append(chatCard);
 
-const utilities=el('div',undefined,'sr157-utilities');utilities.append(button('Quitter le salon',leave,'os-danger'));app.append(utilities);
+const utilities=el('div',undefined,'sr157-utilities');utilities.hidden=true;app.append(utilities);
 
 
 const pages=el('section',undefined,'sr164-pages');
@@ -6527,6 +6527,15 @@ body.oneSearchPage #searchTypes{margin:10px 16px!important}body.oneSearchPage #c
 .sr157-tabs button{font-size:11px!important;white-space:nowrap}
 .sr164-page{min-height:180px!important}.sr164-page[hidden]{display:none!important}
 .sr164-page .sr164-member .avatar{width:42px!important;height:42px!important;border-radius:50%!important}
+</style><style id="salon-v166-polish">
+.sr157-qa{grid-column:2/3!important;gap:5px!important}.sr157-qa button{padding:7px 4px!important;font-size:11px!important}
+.sr157-actions{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+.sr157-action{min-height:86px!important;border-radius:15px!important;padding:7px 5px!important;align-items:center!important;text-align:center!important;justify-content:center!important}
+.sr157-action .sr157-ico{margin:0 0 4px!important;font-size:23px!important}.sr157-action b{font-size:10px!important;line-height:1.15!important}.sr157-action small{font-size:8px!important;line-height:1.1!important}
+.sr157-choose{border-color:#232b40!important;background:transparent!important;padding:9px!important}.sr157-choose h3{font-size:14px!important}
+.sr157-feed .os-muted{margin:4px 0!important}.sr157-utilities{display:none!important}
+.sr157-members{max-height:58px!important;overflow:hidden!important}.sr157-card{border-radius:16px!important}
+@media(max-width:390px){.sr157-actions{gap:4px!important}.sr157-action{padding:6px 3px!important}.sr157-action b{font-size:9px!important}}
 </style></body>
 </html>
 
