@@ -3672,7 +3672,7 @@ const qa=el('div',undefined,'sr157-qa');const inv=button('🔗 Inviter',invite);
 app.append(profile);
 
 const tabs=el('nav',undefined,'sr157-tabs');
-[['⌂','Accueil'],['♧','Membres'],['▣','Activités'],['□','Fichiers']].forEach(([ic,lab],n)=>{const b=button(ic+' '+lab,()=>{},n===0?'active':'');tabs.append(b);});
+[['⌂','Salon'],['♧','Messages'],['♙','Membres'],['□','Médias']].forEach(([ic,lab],n)=>{const b=button(ic+' '+lab,()=>{},n===0?'active':'');tabs.append(b);});
 app.append(tabs);
 
 const choose=el('section',undefined,'sr157-card sr157-choose');choose.append(el('h3','Que voulez-vous faire dans ce salon ?'));
@@ -3704,6 +3704,20 @@ const composer=button('Écrire au salon…',()=>{const c=document.getElementById
 
 const utilities=el('div',undefined,'sr157-utilities');utilities.append(button('Quitter le salon',leave,'os-danger'));app.append(utilities);
 
+
+const pages=el('section',undefined,'sr164-pages');
+const messagesPage=el('section',undefined,'sr157-card sr164-page');messagesPage.hidden=true;
+messagesPage.append(el('h3','💬 Messages du salon'),el('p','Retrouve la conversation de ton salon.','os-muted'));
+const openMessages=button('Ouvrir la conversation',()=>{const c=document.getElementById('onePartyChat');if(c){c.hidden=false;c.scrollIntoView({block:'nearest'});c.querySelector('textarea')?.focus();}else if(r.savedGroupId){window.oneCloseSalon();window.oneOpenFriends?.('group:'+r.savedGroupId);}},'sr164-open');messagesPage.append(openMessages);
+const membersPage=el('section',undefined,'sr157-card sr164-page');membersPage.hidden=true;membersPage.append(el('h3','👥 Membres du salon'));
+for(const m of r.members){const line=el('div',undefined,'sr164-member');line.append(avatar(m),el('span',(m.name||'Membre')+(m.isHost?' · Hôte':'')));membersPage.append(line)}
+const inviteMembers=button('＋ Inviter un membre',invite,'sr164-open');inviteMembers.disabled=!r.isHost;membersPage.append(inviteMembers);
+const mediaPage=el('section',undefined,'sr157-card sr164-page');mediaPage.hidden=true;mediaPage.append(el('h3','📁 Médias du salon'),el('p','Les médias partagés dans la conversation du salon sont accessibles depuis le chat.','os-muted'));
+mediaPage.append(button('Ouvrir les fichiers partagés',()=>{const c=document.getElementById('onePartyChat');if(c){c.hidden=false;c.scrollIntoView({block:'nearest'});}},'sr164-open'));
+pages.append(messagesPage,membersPage,mediaPage);app.append(pages);
+const homeNodes=[choose,feed,membersCard,chatCard];
+function salonPage(index){[...tabs.children].forEach((b,i)=>{b.classList.toggle('active',i===index);b.setAttribute('aria-selected',String(i===index))});homeNodes.forEach(n=>n.hidden=index!==0);[messagesPage,membersPage,mediaPage].forEach((n,i)=>n.hidden=index!==i+1);}
+[...tabs.children].forEach((b,i)=>b.addEventListener('click',()=>salonPage(i)));salonPage(0);
 roomIntro.append(app);syncMediaButtons();}
  let mediaPending=false;
  function syncMediaButtons(){const state=window.ONEPartyMedia?.status?.()||{};for(const b of roomTools.querySelectorAll('[data-salon-media]')){const kind=b.dataset.salonMedia,on=!!state[kind],label=kind==='mic'?'Micro':'Caméra';b.setAttribute('aria-pressed',String(on));b.setAttribute('aria-label',(on?'Couper le ':'Activer le ')+(kind==='mic'?'micro':'caméra'));if(kind==='camera')b.setAttribute('aria-label',(on?'Couper la ':'Activer la ')+'caméra');b.textContent=(kind==='mic'?'♩ ':'▣ ')+label+(on?' · ON':' · OFF');b.disabled=mediaPending||!!state.busy;}}
@@ -6486,31 +6500,7 @@ body.oneSearchPage #searchTypes{margin:10px 16px!important}body.oneSearchPage #c
 .sr157-chat{padding-bottom:9px!important}.sr157-composer{padding:9px 12px!important}
 .sr157-utilities{margin-top:-2px!important}
 </style>
-<script id="salon-v160-tabs">
-(()=>{
- function initSalonTabs(){
-  const root=document.querySelector('.sr157'); if(!root||root.dataset.tabsReady)return;
-  root.dataset.tabsReady='1';
-  const tabs=[...root.querySelectorAll('.sr157-tabs button')];
-  const choose=root.querySelector('.sr157-choose');
-  const cards=[...root.querySelectorAll('.sr157-card')];
-  const activity=cards.find(x=>x.querySelector('.sr157-feed'));
-  const members=cards.find(x=>x.querySelector('.sr157-members'));
-  const chat=cards.find(x=>x.classList.contains('sr157-chat'));
-  function show(name){
-   tabs.forEach(b=>b.classList.toggle('active',b.textContent.includes(name)));
-   [choose,activity,members,chat].forEach(x=>{if(x)x.hidden=false});
-   if(name==='Membres'){if(choose)choose.hidden=true;if(activity)activity.hidden=true;if(chat)chat.hidden=true;}
-   if(name==='Activités'){if(members)members.hidden=true;if(chat)chat.hidden=true;}
-   if(name==='Fichiers'){if(choose)choose.hidden=true;if(activity)activity.hidden=true;if(members)members.hidden=true;if(chat){chat.hidden=false;const h=chat.querySelector('h3');if(h)h.textContent='Fichiers du salon';const c=chat.querySelector('.sr157-composer');if(c)c.textContent='＋ Ajouter un fichier';}}
-   if(name==='Accueil'&&chat){const h=chat.querySelector('h3');if(h)h.textContent='Discussion du salon';const c=chat.querySelector('.sr157-composer');if(c)c.textContent='Écrire au salon…';}
-  }
-  ['Accueil','Membres','Activités','Fichiers'].forEach((name,i)=>tabs[i]?.addEventListener('click',e=>{e.preventDefault();show(name)}));
- }
- new MutationObserver(initSalonTabs).observe(document.body,{subtree:true,childList:true});
- addEventListener('DOMContentLoaded',initSalonTabs);
-})();
-</script>
+
 <style id="salon-v161-actions">
 .sr157-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;overflow:visible!important}
 .sr157-action{min-width:0!important;width:auto!important;min-height:104px!important;flex:none!important}
@@ -6528,7 +6518,7 @@ body.oneSearchPage #searchTypes{margin:10px 16px!important}body.oneSearchPage #c
 .sr157-chat{position:sticky!important;bottom:0!important;z-index:8!important;background:#0b1220f5!important;backdrop-filter:blur(12px);border-radius:16px!important}
 .sr157-composer{border-radius:999px!important;background:#141d2e!important}
 .sr157-feed .os-muted{font-size:12px!important}
-</style><style id="salon-v163-lobby">.sr157-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}.sr157-action{padding:7px 4px!important;min-height:104px!important}.sr157-action b{font-size:10px!important}.sr157-action small{font-size:8px!important}.sr157-action.lobby{background:linear-gradient(155deg,#6541b3,#26193e)!important;border:1px solid #a582fa!important}@media(max-width:390px){.sr157-action b{font-size:9px!important}}</style></body>
+</style><style id="salon-v163-lobby">.sr157-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}.sr157-action{padding:7px 4px!important;min-height:104px!important}.sr157-action b{font-size:10px!important}.sr157-action small{font-size:8px!important}.sr157-action.lobby{background:linear-gradient(155deg,#6541b3,#26193e)!important;border:1px solid #a582fa!important}@media(max-width:390px){.sr157-action b{font-size:9px!important}}</style><style id="salon-v164-pages">.sr164-pages:empty{display:none}.sr164-page{display:grid;gap:12px;min-height:240px}.sr164-page[hidden],.sr157-card[hidden],.sr157-choose[hidden]{display:none!important}.sr164-open{background:linear-gradient(120deg,#6633bb,#874af1);border:1px solid #a277f4;color:#fff;padding:12px;border-radius:14px;font-weight:800}.sr164-member{display:flex;align-items:center;gap:12px;border-bottom:1px solid #303449;padding:9px 0}.sr164-member img{width:42px;height:42px;border-radius:50%;object-fit:cover}.sr157-tabs button{font-size:12px!important}.sr157-chat{display:none!important}</style></body>
 </html>
 
 
