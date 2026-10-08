@@ -3681,7 +3681,8 @@ const mk=(cls,ico,title,sub,fn)=>{const b=button('',fn,'sr157-action '+cls);b.ap
 actionRow.append(
  mk('watch','▷','Regarder ensemble','ONE, YouTube, Twitch…',()=>{window.oneCloseSalon();window.oneShowSpace?.('together');}),
  mk('play','⌁','Jouer ensemble','Sans appel obligatoire',()=>{window.oneCloseSalon();window.oneShowSpace?.('party');}),
- mk('call','☎','Rejoindre l’appel','Micro et caméra facultatifs',()=>{const b=document.querySelector('#onePartyChat button:last-of-type');if(b)b.click();else window.toast?.('Appel du salon indisponible.');})
+ mk('call','☎','Rejoindre l’appel','Micro et caméra facultatifs',()=>{const b=document.querySelector('#onePartyChat button:last-of-type');if(b)b.click();else window.toast?.('Appel du salon indisponible.');}),
+ mk('lobby','◇','Lobby 3D','Espace immersif',()=>window.ONEOpen3DLobby?.({room:r}))
 );choose.append(actionRow);app.append(choose);
 
 if(r.activity){const running=el('section',undefined,'sr157-card sr157-running');running.append(el('h3','Activité en cours'));ONEUI.activity(running,{room:r});app.append(running);}
@@ -6527,7 +6528,7 @@ body.oneSearchPage #searchTypes{margin:10px 16px!important}body.oneSearchPage #c
 .sr157-chat{position:sticky!important;bottom:0!important;z-index:8!important;background:#0b1220f5!important;backdrop-filter:blur(12px);border-radius:16px!important}
 .sr157-composer{border-radius:999px!important;background:#141d2e!important}
 .sr157-feed .os-muted{font-size:12px!important}
-</style></body>
+</style><style id="salon-v163-lobby">.sr157-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}.sr157-action{padding:7px 4px!important;min-height:104px!important}.sr157-action b{font-size:10px!important}.sr157-action small{font-size:8px!important}.sr157-action.lobby{background:linear-gradient(155deg,#6541b3,#26193e)!important;border:1px solid #a582fa!important}@media(max-width:390px){.sr157-action b{font-size:9px!important}}</style></body>
 </html>
 
 
