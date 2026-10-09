@@ -3723,7 +3723,7 @@ const loungeJoin=button('📞 Rejoindre sans micro ni caméra',()=>window.dispat
 const loungeMic=button('🎤 Micro',()=>document.querySelector('#oneCallBar [data-lounge-mic]')?.click(),'sr164-open');
 const loungeCam=button('📹 Caméra',()=>document.querySelector('#oneCallBar [data-lounge-cam]')?.click(),'sr164-open');
 const loungeLeave=button('🔴 Quitter l’appel',()=>document.querySelector('#oneCallBar [data-lounge-leave]')?.click(),'sr164-open');
-loungeActions.append(loungeJoin,loungeMic,loungeCam,loungeLeave);mediaPage.append(loungeActions);loungeMic.hidden=loungeCam.hidden=loungeLeave.hidden=true;
+loungeActions.append(loungeJoin);mediaPage.append(loungeActions);loungeMic.hidden=loungeCam.hidden=loungeLeave.hidden=true;
 window.oneSalonOpenLounge=()=>{salonPage(3);refreshLoungeVideos();loungeStatus.textContent=document.querySelector('#oneCallBar')?.hidden?'Hors appel':'Appel en cours';};window.addEventListener('one-lounge-state',e=>{loungeStatus.textContent=e.detail?.active?'Appel en cours':'Hors appel';loungeJoin.hidden=!!e.detail?.active;loungeMic.hidden=loungeCam.hidden=loungeLeave.hidden=!e.detail?.active;});
 pages.append(messagesPage,membersPage,mediaPage);app.append(pages);
 const homeNodes=[choose,feed];membersCard.hidden=true;
@@ -6068,7 +6068,7 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
      localStorage.setItem('one_call_camera_view_v96',cameraMode);
    };
    const cycleCameraMode=()=>{cameraMode=cameraMode==='normal'?'mini':cameraMode==='mini'?'hidden':'normal';applyCameraMode();};
-   if(bar&&!document.getElementById('oneCallVideoVisibility')){const b=document.createElement('button');b.type='button';b.id='oneCallVideoVisibility';b.onclick=cycleCameraMode;const leave=[...bar.querySelectorAll('button')].find(x=>/Quitter/i.test(x.textContent||''));bar.insertBefore(b,leave||null);}
+   if(false&&bar&&!document.getElementById('oneCallVideoVisibility')){const b=document.createElement('button');b.type='button';b.id='oneCallVideoVisibility';b.onclick=cycleCameraMode;const leave=[...bar.querySelectorAll('button')].find(x=>/Quitter/i.test(x.textContent||''));bar.insertBefore(b,leave||null);}
    applyCameraMode();
    window.ONECallCameraVisibility={cycle:cycleCameraMode,set(mode){if(['normal','mini','hidden'].includes(mode)){cameraMode=mode;applyCameraMode();}},get:()=>cameraMode};
    window.addEventListener('one-salon-rendered',()=>{const dock=document.querySelector('#oneSalonRoom .os-room-tools .os-room-tools, #oneSalonRoom .os-room-tools, #oneSalonRoom .os-room-tools .os-room-tools');const target=document.querySelector('#oneSalonRoom .os-room-tools .os-room-tools')||document.querySelector('#oneSalonRoom .os-room-tools')||document.querySelector('#oneSalonRoom .os-room-tools');if(target&&!target.querySelector('[data-v95-camera-view]')){const b=document.createElement('button');b.type='button';b.dataset.v95CameraView='';b.textContent='▣ Affichage caméras';b.onclick=cycleCameraMode;target.append(b);}});
@@ -6604,6 +6604,18 @@ window.addEventListener('one-lounge-state',refresh);document.addEventListener('D
 #oneCallBar.oneCallExpanded [data-lounge-leave]{background:#bb2855!important}
 #oneCallBar.oneCallExpanded [data-lounge-leave]::after{content:'📵'}
 #oneCallBar.oneCallExpanded [data-lounge-mic],#oneCallBar.oneCallExpanded [data-lounge-cam],#oneCallBar.oneCallExpanded [data-lounge-leave]{justify-self:center!important;width:56px!important;height:56px!important}
+</style><style id="one-v178-final-controls">
+#oneCallBar.oneCallExpanded:not([hidden]){grid-template-columns:repeat(3,58px)!important;width:max-content!important;max-width:calc(100vw - 28px)!important;gap:14px!important;padding:15px 18px!important;justify-content:center!important;align-items:center!important;bottom:180px!important;right:14px!important;left:auto!important;background:#191529f7!important}
+#oneCallBar.oneCallExpanded>span{font-size:12px!important;grid-column:1/-1!important;color:#eee!important}
+#oneCallBar.oneCallExpanded button{border:1px solid #8d67c4!important;background:#35234f!important;width:58px!important;height:58px!important;min-width:58px!important;border-radius:50%!important;display:grid!important;place-items:center!important;font-size:0!important;color:transparent!important;overflow:hidden!important}
+#oneCallBar.oneCallExpanded button::after{content:none!important}
+#oneCallBar.oneCallExpanded button::before{font-size:27px!important;color:#fff!important;line-height:1!important}
+#oneCallBar.oneCallExpanded [data-lounge-mic]::before{content:'🎙'!important}
+#oneCallBar.oneCallExpanded [data-lounge-cam]::before{content:'▣'!important;font-size:29px!important}
+#oneCallBar.oneCallExpanded [data-lounge-leave]{background:#cf174d!important;border-color:#ff587b!important}
+#oneCallBar.oneCallExpanded [data-lounge-leave]::before{content:'☎'!important;transform:rotate(135deg);display:block}
+.sr168-lounge .sr168-actions [data-lounge-mic],.sr168-lounge .sr168-actions [data-lounge-cam],.sr168-lounge .sr168-actions [data-lounge-leave]{display:none!important}
+.sr168-lounge .sr168-actions{grid-template-columns:1fr!important}
 </style></body>
 </html>
 
