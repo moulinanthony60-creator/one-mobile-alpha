@@ -6571,17 +6571,17 @@ document.addEventListener('DOMContentLoaded',sync);window.addEventListener('one-
 })();</script><style id="one-v174-camera-panels">
 body .oneCamBubble:not(.seated){display:none!important}
 #oneV174Cameras{position:fixed;inset:0;pointer-events:none;z-index:10001}
-.oneV174Rail{position:absolute;top:23%;bottom:18%;width:min(31vw,170px);display:flex;flex-direction:column;gap:6px;transition:transform .22s ease;pointer-events:none}
+.oneV174Rail{position:absolute;top:29%;bottom:27%;width:min(23vw,112px);display:flex;flex-direction:column;gap:6px;transition:transform .22s ease;pointer-events:none}
 .oneV174Rail.left{left:0;transform:translateX(calc(-100% + 25px))}.oneV174Rail.right{right:0;transform:translateX(calc(100% - 25px))}
 .oneV174Rail.open{transform:translateX(0)}
-.oneV174Handle{position:absolute;top:44%;width:27px;height:60px;border:1px solid #b58bff;background:#4a257e;color:white;font-size:22px;pointer-events:auto;cursor:pointer}
+.oneV174Handle{position:absolute;top:44%;width:23px;height:48px;border:1px solid #b58bff;background:#4a257e;color:white;font-size:22px;pointer-events:auto;cursor:pointer}
 .oneV174Rail.left .oneV174Handle{right:0;transform:translateX(100%);border-radius:0 12px 12px 0}
 .oneV174Rail.right .oneV174Handle{left:0;transform:translateX(-100%);border-radius:12px 0 0 12px}
 .oneV174Rail:not(.open) .oneV174Handle{transform:none}.oneV174Rail.left:not(.open) .oneV174Handle{right:0}.oneV174Rail.right:not(.open) .oneV174Handle{left:0}
-.oneV174Slots{height:100%;display:flex;flex-direction:column;gap:5px;padding:5px;background:#121026e8;border:1px solid #664394;border-radius:12px;overflow:hidden;pointer-events:auto}
+.oneV174Slots{height:100%;display:flex;flex-direction:column;gap:4px;padding:4px;background:#121026e8;border:1px solid #664394;border-radius:12px;overflow:hidden;pointer-events:auto}
 .oneV174Slot{flex:1;min-height:0;position:relative;border:1px solid #4b3b66;border-radius:10px;background:#201932;overflow:hidden;color:#eee}
-.oneV174Slot video{width:100%;height:100%;object-fit:cover}.oneV174Slot span{position:absolute;left:4px;top:3px;font:11px system-ui;background:#080811a9;border-radius:5px;padding:2px 4px}
-.oneV174Empty{display:grid;place-items:center;height:100%;font:12px system-ui;color:#afa6bf}
+.oneV174Slot video{width:100%;height:100%;object-fit:cover}.oneV174Slot span{position:absolute;left:4px;top:3px;font:9px system-ui;background:#080811a9;border-radius:5px;padding:2px 4px}
+.oneV174Empty{display:grid;place-items:center;height:100%;font:10px system-ui;color:#afa6bf}
 body:not(.oneV173InLounge) #oneV174Cameras:not(.hasCall){display:none}
 </style><script id="one-v174-camera-panels-script">(()=>{
 const root=document.createElement('div');root.id='oneV174Cameras';const rails={};const open={left:false,right:false};
