@@ -3773,7 +3773,7 @@ roomIntro.append(app);syncMediaButtons();}
  const gameVoice=btn('Rejoindre le vocal',async()=>{if(call)stopCall();else await joinCall({mic:false,camera:false});syncGameVoice();}),gameVoiceStatus=el('span');gameVoiceStatus.setAttribute('role','status');gameVoice.id='oneGameVoiceJoin';gameVoiceStatus.id='oneGameVoiceStatus';
  function syncGameVoice(){const game=document.getElementById('onePartyGame'),target=game?.querySelector('.cg-tools')||game;if(target&&room){if(gameVoice.parentNode!==target)target.append(gameVoice,gameVoiceStatus);gameVoice.textContent=joining?'Connexion…':call?'Quitter le vocal':'Rejoindre le vocal';gameVoice.disabled=joining;gameVoiceStatus.textContent=status.textContent||'';}else{gameVoice.remove();gameVoiceStatus.remove();}}
  new MutationObserver(syncGameVoice).observe(join,{attributes:true,childList:true,subtree:true});new MutationObserver(syncGameVoice).observe(status,{childList:true,subtree:true});window.addEventListener('one-game-rendered',()=>{syncGameVoice();mount();});window.addEventListener('one-party-state',()=>queueMicrotask(syncGameVoice));
- const bar=el('div');bar.id='oneCallBar';bar.hidden=true;const callStatus=el('span'),mic=btn('Couper le micro',toggleMic),cam=btn('Activer la caméra',toggleCam),leave=btn('Quitter l’appel',()=>stopCall());mic.dataset.loungeMic='1';cam.dataset.loungeCam='1';leave.dataset.loungeLeave='1';bar.append(callStatus,mic,cam,leave);document.body.append(bar);
+ const bar=el('div');bar.id='oneCallBar';bar.hidden=true;const callStatus=el('span'),mic=btn('🎤',toggleMic),cam=btn('📷',toggleCam),leave=btn('📵',()=>stopCall());mic.dataset.loungeMic='1';cam.dataset.loungeCam='1';leave.dataset.loungeLeave='1';mic.title='Micro';cam.title='Caméra';leave.title='Raccrocher';mic.setAttribute('aria-label','Micro');cam.setAttribute('aria-label','Caméra');leave.setAttribute('aria-label','Quitter l’appel');bar.append(callStatus,mic,cam,leave);document.body.append(bar);
  const floatPhone=document.createElement('button');floatPhone.type='button';floatPhone.id='oneCallFloatingPhone';floatPhone.textContent='📞';floatPhone.title='Ouvrir les commandes Lounge';floatPhone.hidden=true;document.body.append(floatPhone);
  let dragStart=null,dragged=false;floatPhone.addEventListener('pointerdown',e=>{dragged=false;dragStart={x:e.clientX,y:e.clientY,left:floatPhone.getBoundingClientRect().left,top:floatPhone.getBoundingClientRect().top};floatPhone.setPointerCapture(e.pointerId)});floatPhone.addEventListener('pointermove',e=>{if(!dragStart)return;const dx=e.clientX-dragStart.x,dy=e.clientY-dragStart.y;if(Math.hypot(dx,dy)>7)dragged=true;if(dragged){floatPhone.style.left=Math.max(8,Math.min(innerWidth-60,dragStart.left+dx))+'px';floatPhone.style.top=Math.max(70,Math.min(innerHeight-150,dragStart.top+dy))+'px';floatPhone.style.right='auto';floatPhone.style.bottom='auto'}});floatPhone.addEventListener('pointerup',()=>{dragStart=null});floatPhone.addEventListener('click',()=>{if(dragged){dragged=false;return}bar.classList.toggle('oneCallExpanded')});
  const callStateObserver=new MutationObserver(()=>{floatPhone.hidden=bar.hidden;if(bar.hidden)bar.classList.remove('oneCallExpanded')});callStateObserver.observe(bar,{attributes:true,attributeFilter:['hidden']});
@@ -6594,7 +6594,17 @@ for(const [side,offset] of [['left',0],['right',4]]){const r=rails[side];r.rail.
 let scheduled=false;const refresh=()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;paint();});};
 new MutationObserver(refresh).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','class','data-camera-owner']});
 window.addEventListener('one-lounge-state',refresh);document.addEventListener('DOMContentLoaded',refresh);refresh();
-})();</script></body>
+})();</script><style id="one-v177-compact-call-icons">
+#oneCallBar.oneCallExpanded:not([hidden]){width:min(290px,calc(100vw - 24px))!important;left:auto!important;right:12px!important;bottom:180px!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important;padding:12px!important;border-radius:20px!important;max-height:230px!important;overflow:visible!important}
+#oneCallBar.oneCallExpanded>span{grid-column:1/-1!important;text-align:center!important;font-size:12px!important}
+#oneCallBar.oneCallExpanded button{width:100%!important;min-width:0!important;height:48px!important;border-radius:50%!important;font-size:0!important;display:grid!important;place-items:center!important;padding:0!important}
+#oneCallBar.oneCallExpanded button::after{font-size:24px!important;line-height:1!important}
+#oneCallBar.oneCallExpanded [data-lounge-mic]::after{content:'🎤'}
+#oneCallBar.oneCallExpanded [data-lounge-cam]::after{content:'📷'}
+#oneCallBar.oneCallExpanded [data-lounge-leave]{background:#bb2855!important}
+#oneCallBar.oneCallExpanded [data-lounge-leave]::after{content:'📵'}
+#oneCallBar.oneCallExpanded [data-lounge-mic],#oneCallBar.oneCallExpanded [data-lounge-cam],#oneCallBar.oneCallExpanded [data-lounge-leave]{justify-self:center!important;width:56px!important;height:56px!important}
+</style></body>
 </html>
 
 
