@@ -7020,3 +7020,18 @@ const waitingFeed=document.getElementById('oneNativeFeed');if(waitingFeed&&!wait
 
 <style id='v170-no-duplicates'>.sr157-chat{display:none!important}#onePartyChat [data-old-voice]{display:none!important}.sr157-members{display:none!important}.sr157-card:has(>.sr157-members){display:none!important}</style>
 <style id="one-v180-lounge-join-fix">.sr168-lounge .sr168-actions[hidden],.sr168-lounge .sr168-actions button[hidden]{display:none!important}.sr168-lounge .sr168-actions button:not([hidden]){display:block!important}</style>
+
+<style id="one-v185-real-camera-sizing">
+/* Explicit override of legacy v174/v175 constraints; 4 fixed slots per side. */
+#oneV174Cameras .oneV174Rail{width:clamp(118px,36vw,160px)!important;height:min(560px,68dvh)!important;top:50%!important;bottom:auto!important;max-height:calc(100dvh - 185px)!important;}
+#oneV174Cameras .oneV174Rail.left{left:0!important;right:auto!important;}
+#oneV174Cameras .oneV174Rail.right{right:0!important;left:auto!important;}
+#oneV174Cameras .oneV174Rail.open{transform:translateY(-50%) translateX(0)!important;}
+#oneV174Cameras .oneV174Rail.left:not(.open){transform:translateY(-50%) translateX(calc(-100% + 20px))!important;}
+#oneV174Cameras .oneV174Rail.right:not(.open){transform:translateY(-50%) translateX(calc(100% - 20px))!important;}
+#oneV174Cameras .oneV174Slots{height:100%!important;min-height:0!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:5px!important;padding:5px!important;box-sizing:border-box!important;}
+#oneV174Cameras .oneV174Slot{min-height:0!important;min-width:0!important;height:100%!important;width:100%!important;overflow:hidden!important;position:relative!important;}
+#oneV174Cameras .oneV174Slot video{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;}
+#oneV174Cameras .oneV174Rail:not(.open) .oneV174Slots{visibility:hidden!important;pointer-events:none!important;}
+@media(max-width:390px){#oneV174Cameras .oneV174Rail{width:clamp(108px,34vw,140px)!important;}}
+</style>
