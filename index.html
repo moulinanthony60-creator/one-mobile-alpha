@@ -6629,8 +6629,6 @@ function paint(){const phone=document.getElementById('oneCallFloatingPhone');con
 const sources=[...document.querySelectorAll('.oneCamBubble:not(.seated)')].filter(el=>el.isConnected).slice(0,8);
 for(const [side,offset] of [['left',0],['right',4]]){
   const r=rails[side];const subset=sources.slice(offset,offset+4);
-  // Height follows actual connected participants, never the four-slot capacity.
-  r.rail.style.setProperty('--one-visible-cameras',String(subset.length));
   // A rail without participants is hidden, not populated with placeholders.
   r.rail.hidden=!subset.length;
   r.rail.classList.toggle('open',open[side]&&subset.length>0);
@@ -6695,7 +6693,50 @@ body:has(#oneV174Cameras.hasCall) .oneCamBubble:not(.seated){opacity:0!important
 .oneV174Rail.left:not(.open){transform:translateX(calc(-100% + 20px))!important}
 .oneV174Rail.right:not(.open){transform:translateX(calc(100% - 20px))!important}
 @media(max-height:650px){.oneV174Rail{height:min(420px,65vh)!important;top:18%!important}}
-</style></style></body>
+</style></style>
+<style id="one-v191-rail-fit-content">
+/* Each rail is sized by its actual camera tiles, never by screen height. */
+#oneV174Cameras .oneV174Rail.open{
+  height:max-content!important;
+  max-height:78dvh!important;
+  top:16dvh!important;
+  bottom:auto!important;
+  width:min(33vw,240px)!important;
+  overflow:visible!important;
+}
+#oneV174Cameras .oneV174Rail.open .oneV174Slots{
+  height:auto!important;
+  max-height:78dvh!important;
+  overflow-y:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  grid-template-rows:none!important;
+  padding:4px!important;
+  gap:6px!important;
+}
+#oneV174Cameras .oneV174Rail.open .oneV174Slot{
+  height: min(31vw,220px)!important;
+  min-height:min(31vw,220px)!important;
+  flex:0 0 auto!important;
+}
+#oneV174Cameras .oneV174Rail:not(.open){
+  height:48px!important;
+  top:38dvh!important;
+  width:min(33vw,240px)!important;
+}
+#oneV174Cameras .oneV174Rail:not(.open) .oneV174Slots{
+  visibility:hidden!important;
+  pointer-events:none!important;
+  height:0!important;
+  padding:0!important;
+  border:0!important;
+}
+#oneV174Cameras .oneV174Handle{
+  top:50%!important;
+  margin-top:-19px!important;
+}
+</style>
+</body>
 <style id="one-v181-premium-call">
 #oneCallBar:not(.oneCallExpanded){display:none!important}
 #oneCallBar.oneCallExpanded:not([hidden]){display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;align-items:center!important;position:fixed!important;left:50%!important;right:auto!important;bottom:calc(156px + env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important;width:min(350px,calc(100vw - 28px))!important;padding:15px 16px 18px!important;background:#171426f7!important;border:1px solid #8054c3!important;border-radius:25px!important;box-shadow:0 18px 45px #0009!important;z-index:10004!important;max-height:none!important;overflow:visible!important}
@@ -6709,25 +6750,7 @@ body:has(#oneV174Cameras.hasCall) .oneCamBubble:not(.seated){opacity:0!important
 #oneCallBar.oneCallExpanded [data-lounge-leave] svg{width:29px!important;height:29px!important}
 .sr168-lounge .sr168-actions button[hidden]{display:none!important}
 .oneV174Rail:not(.open) .oneV174Slots{visibility:hidden!important;pointer-events:none!important}
-</style>
-<style id="one-v190-adaptive-camera-rails">
-/* One real participant = one tile. Empty seats never reserve vertical space. */
-#oneV174Cameras .oneV174Rail {
-  height: min(calc(var(--one-visible-cameras, 1) * 220px + 8px), 76dvh) !important;
-  top: 50% !important;
-  bottom: auto !important;
-  margin-top: 0 !important;
-  translate: 0 -50%;
-}
-#oneV174Cameras .oneV174Slots {
-  height: 100% !important;
-  grid-template-rows: repeat(var(--one-visible-cameras, 1), minmax(0, 1fr)) !important;
-  grid-auto-rows: minmax(0, 1fr) !important;
-}
-#oneV174Cameras .oneV174Slot {height:100% !important;min-height:0 !important;}
-#oneV174Cameras .oneV174Rail[hidden] {display:none !important;}
-</style>
-</html>
+</style></html>
 
 
 
