@@ -6622,7 +6622,16 @@ body:has(#oneV174Cameras.hasCall) .oneCamBubble:not(.seated){opacity:0!important
 .oneV174Rail:not(.open) .oneV174Slots{visibility:hidden!important;pointer-events:none!important}
 .oneV174Rail.left:not(.open){transform:translateX(calc(-100% + 20px))!important}
 .oneV174Rail.right:not(.open){transform:translateX(calc(100% - 20px))!important}
-</style></body>
+<style id="one-v184-camera-size-only">
+/* Four stable slots per side, 40% larger than v182. */
+.oneV174Rail{height:420px!important;top:calc(50% - 210px)!important;width:min(26.6vw,115px)!important}
+.oneV174Slots{grid-template-rows:repeat(4,minmax(0,1fr))!important}
+.oneV174Slot{min-height:0!important;height:100%!important}
+.oneV174Slot video{width:100%!important;height:100%!important;object-fit:cover!important}
+.oneV174Rail.left:not(.open){transform:translateX(calc(-100% + 20px))!important}
+.oneV174Rail.right:not(.open){transform:translateX(calc(100% - 20px))!important}
+@media(max-height:650px){.oneV174Rail{height:min(420px,65vh)!important;top:18%!important}}
+</style></style></body>
 <style id="one-v181-premium-call">
 #oneCallBar:not(.oneCallExpanded){display:none!important}
 #oneCallBar.oneCallExpanded:not([hidden]){display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;align-items:center!important;position:fixed!important;left:50%!important;right:auto!important;bottom:calc(156px + env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important;width:min(350px,calc(100vw - 28px))!important;padding:15px 16px 18px!important;background:#171426f7!important;border:1px solid #8054c3!important;border-radius:25px!important;box-shadow:0 18px 45px #0009!important;z-index:10004!important;max-height:none!important;overflow:visible!important}
