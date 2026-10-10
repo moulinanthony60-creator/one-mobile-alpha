@@ -6606,60 +6606,97 @@ body.oneCallCamsHidden .oneCamBubble{display:none!important}
 const sync=()=>{const inLounge=!!document.querySelector('.sr168-lounge:not([hidden])');document.body.classList.toggle('oneV173InLounge',inLounge);const bar=document.getElementById('oneCallBar');const phone=document.getElementById('oneCallFloatingPhone');if(!bar||!phone)return;if(!inLounge)bar.classList.remove('oneCallExpanded');phone.hidden=bar.hidden;};
 new MutationObserver(sync).observe(document.body,{childList:true,subtree:true});document.addEventListener('click',()=>setTimeout(sync,0));
 document.addEventListener('DOMContentLoaded',sync);window.addEventListener('one-lounge-state',sync);
-})();</script><style id="one-v174-camera-panels">
+})();</script><style id="one-v192-camera-panels">
+/* Camera panels share one sizing rule in every open/closed state. */
 body .oneCamBubble:not(.seated){display:none!important}
-#oneV174Cameras{position:fixed;inset:0;pointer-events:none;z-index:10001}
-.oneV174Rail{position:absolute;top:25%;height:340px;bottom:auto;width:min(21vw,104px);display:flex;flex-direction:column;gap:6px;transition:transform .22s ease;pointer-events:none}
-.oneV174Rail.left{left:0;transform:translateX(calc(-100% + 25px))}.oneV174Rail.right{right:0;transform:translateX(calc(100% - 25px))}
-.oneV174Rail.open{transform:translateX(0)}.oneV174Rail[hidden]{display:none!important}
-.oneV174Handle{position:absolute;top:44%;width:23px;height:48px;border:1px solid #b58bff;background:#4a257e;color:white;font-size:22px;pointer-events:auto;cursor:pointer}
-.oneV174Rail.left .oneV174Handle{right:0;transform:translateX(100%);border-radius:0 12px 12px 0}
-.oneV174Rail.right .oneV174Handle{left:0;transform:translateX(-100%);border-radius:12px 0 0 12px}
-.oneV174Rail:not(.open) .oneV174Handle{transform:none}.oneV174Rail.left:not(.open) .oneV174Handle{right:0}.oneV174Rail.right:not(.open) .oneV174Handle{left:0}
-.oneV174Slots{height:100%;display:grid;grid-auto-rows:minmax(0,1fr);gap:4px;padding:4px;background:#121026e8;border:1px solid #664394;border-radius:12px;overflow:hidden;pointer-events:auto}
-.oneV174Slot{min-height:0;height:100%;position:relative;border:1px solid #4b3b66;border-radius:10px;background:#201932;overflow:hidden;color:#eee}
-.oneV174Slot video{width:100%;height:100%;object-fit:cover}.oneV174Slot span{position:absolute;left:4px;top:3px;font:9px system-ui;background:#080811a9;border-radius:5px;padding:2px 4px}
-.oneV174Empty{display:grid;place-items:center;height:100%;font:10px system-ui;color:#afa6bf}
-body:not(.oneV173InLounge) #oneV174Cameras:not(.hasCall){display:none}
-</style><script id="one-v174-camera-panels-script">(()=>{
-const root=document.createElement('div');root.id='oneV174Cameras';const rails={};const open={left:false,right:false};
-for(const side of ['left','right']){const rail=document.createElement('aside');rail.className='oneV174Rail '+side;const slots=document.createElement('div');slots.className='oneV174Slots';const handle=document.createElement('button');handle.type='button';handle.className='oneV174Handle';handle.setAttribute('aria-label','Afficher ou masquer les caméras '+side);handle.onclick=()=>{open[side]=!open[side];paint();};rail.append(slots,handle);root.append(rail);rails[side]={rail,slots,handle};}
+#oneV174Cameras{position:fixed;inset:calc(72px + env(safe-area-inset-top)) 0 calc(96px + env(safe-area-inset-bottom));pointer-events:none;z-index:10001;--one-camera-height:calc(100vh - 168px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+@supports(height:100dvh){#oneV174Cameras{--one-camera-height:calc(100dvh - 168px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}}
+#oneV174Cameras[hidden],#oneV174Cameras .oneV174Rail[hidden],body.oneCallCamsHidden #oneV174Cameras{display:none!important}
+#oneV174Cameras .oneV174Rail{position:absolute;top:50%;bottom:auto;width:clamp(108px,33vw,160px);height:auto;max-height:100%;pointer-events:none;transition:transform .22s ease}
+#oneV174Cameras .oneV174Rail.left{left:0;transform:translate(-100%,-50%)}
+#oneV174Cameras .oneV174Rail.right{right:0;transform:translate(100%,-50%)}
+#oneV174Cameras .oneV174Rail.open{transform:translate(0,-50%)}
+#oneV174Cameras .oneV174Slots{display:flex;flex-direction:column;gap:6px;width:100%;height:auto;max-height:max(48px,var(--one-camera-height));box-sizing:border-box;padding:5px;background:#121026ed;border:1px solid #664394;border-radius:12px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;pointer-events:auto}
+#oneV174Cameras .oneV174Rail:not(.open) .oneV174Slots{visibility:hidden;pointer-events:none}
+#oneV174Cameras .oneV174Slot{position:relative;flex:0 0 auto;box-sizing:border-box;width:100%;height:auto;min-width:0;min-height:0;aspect-ratio:1;border:1px solid #4b3b66;border-radius:9px;background:#201932;overflow:hidden;color:#eee}
+#oneV174Cameras .oneV174Slot video{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
+#oneV174Cameras .oneV174Slot span{position:absolute;left:4px;right:4px;top:4px;width:fit-content;max-width:calc(100% - 8px);box-sizing:border-box;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:10px system-ui;background:#080811bb;border-radius:5px;padding:2px 4px}
+#oneV174Cameras .oneV174Handle{position:absolute;top:50%;display:grid;place-items:center;box-sizing:border-box;width:28px;height:44px;min-width:0;min-height:0;margin:0;padding:0;border:1px solid #b58bff;background:#4a257e;color:white;font:24px/1 system-ui;pointer-events:auto;touch-action:manipulation;cursor:pointer}
+#oneV174Cameras .oneV174Rail.left .oneV174Handle{right:0;transform:translate(100%,-50%);border-radius:0 12px 12px 0}
+#oneV174Cameras .oneV174Rail.right .oneV174Handle{left:0;transform:translate(-100%,-50%);border-radius:12px 0 0 12px}
+#oneV174Cameras .oneV174Handle:focus-visible{outline:2px solid white;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){#oneV174Cameras .oneV174Rail{transition:none}}
+</style><script id="one-v192-camera-panels-script">
+(()=>{
+const root=document.createElement('div');root.id='oneV174Cameras';root.hidden=true;
+const rails={},open={left:false,right:false};
+let scheduled=false;
+const refresh=()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;paint();});};
+for(const side of ['left','right']){
+  const rail=document.createElement('aside');rail.className='oneV174Rail '+side;rail.hidden=true;
+  const slots=document.createElement('div');slots.className='oneV174Slots';slots.id='oneCameraSlots-'+side;
+  const handle=document.createElement('button');handle.type='button';handle.className='oneV174Handle';
+  handle.setAttribute('aria-controls',slots.id);
+  handle.onclick=()=>{open[side]=!open[side];refresh();};
+  rail.append(slots,handle);root.append(rail);rails[side]={rail,slots,handle,tiles:new Map()};
+}
 document.body.append(root);
-function paint(){const phone=document.getElementById('oneCallFloatingPhone');const bar=document.getElementById('oneCallBar');const active=!!(phone&&!phone.hidden&&bar&&!bar.hidden);root.classList.toggle('hasCall',active);root.hidden=!active;
-const sources=[...document.querySelectorAll('.oneCamBubble:not(.seated)')].filter(el=>el.isConnected).slice(0,8);
-for(const [side,offset] of [['left',0],['right',4]]){
-  const r=rails[side];const subset=sources.slice(offset,offset+4);
-  // A rail without participants is hidden, not populated with placeholders.
-  r.rail.hidden=!subset.length;
-  r.rail.classList.toggle('open',open[side]&&subset.length>0);
-  r.handle.textContent=side==='left'?(open[side]?'‹':'›'):(open[side]?'›':'‹');
-  const keys=subset.map((el,i)=>el.dataset.cameraOwner||el.querySelector('header')?.textContent||String(i));
-  if(r.slots.dataset.keys!==keys.join('|')||r.slots.children.length!==subset.length){
-    r.slots.replaceChildren();
-    for(const el of subset){
-      const tile=document.createElement('div');tile.className='oneV174Slot';
-      const name=document.createElement('span');name.textContent=el.querySelector('header')?.textContent||'Participant';
-      const source=el.querySelector('video');const video=document.createElement('video');
-      video.autoplay=true;video.playsInline=true;video.muted=true;video.srcObject=source?.srcObject||null;
-      tile.append(video,name);
-      if(!video.srcObject?.getVideoTracks()?.some(t=>t.enabled&&t.readyState==='live')){
-        const avatar=document.createElement('div');avatar.className='oneV174Empty';avatar.textContent=name.textContent;tile.append(avatar);
-      }
-      r.slots.append(tile);
-    }
-    r.slots.dataset.keys=keys.join('|');
-  }else{
-    for(let i=0;i<subset.length;i++){
-      const source=subset[i]?.querySelector('video');const video=r.slots.children[i]?.querySelector('video');
-      if(video&&video.srcObject!==source?.srcObject)video.srcObject=source?.srcObject||null;
-    }
+const watched=new Map();
+function watchSources(sources){
+  const targets=new Set();
+  for(const source of sources){
+    targets.add(source);
+    if(source.srcObject){targets.add(source.srcObject);for(const track of source.srcObject.getVideoTracks())targets.add(track);}
+  }
+  for(const [target,events] of watched){if(!targets.has(target)){for(const event of events)target.removeEventListener(event,refresh);watched.delete(target);}}
+  for(const target of targets){if(watched.has(target))continue;
+    const events=target instanceof HTMLVideoElement?['loadedmetadata','emptied','playing']:target instanceof MediaStream?['addtrack','removetrack']:['mute','unmute','ended'];
+    for(const event of events)target.addEventListener(event,refresh);watched.set(target,events);
   }
 }
+function paint(){
+  const bar=document.getElementById('oneCallBar');const active=!!bar&&!bar.hidden;
+  root.classList.toggle('hasCall',active);
+  if(!active){open.left=open.right=false;}
+  const bubbles=active?[...document.querySelectorAll('.oneCamBubble:not(.seated)')]:[];
+  watchSources(bubbles.map(el=>el.querySelector('video')).filter(Boolean));
+  const cameras=bubbles.filter(el=>{
+    const video=el.querySelector('video');
+    // The remote media signal can turn a camera off without ending its receiver track.
+    return video&&!video.classList.contains('off')&&video.srcObject?.getVideoTracks().some(t=>t.enabled&&!t.muted&&t.readyState==='live');
+  }).slice(0,8);
+  root.hidden=!active||!cameras.length||document.body.classList.contains('oneCallCamsHidden');
+  for(const [side,offset] of [['left',0],['right',4]]){
+    const r=rails[side],subset=cameras.slice(offset,offset+4),expanded=open[side]&&subset.length>0;
+    r.rail.hidden=!subset.length;r.rail.classList.toggle('open',expanded);
+    r.slots.inert=!expanded;r.slots.setAttribute('aria-hidden',String(!expanded));
+    r.handle.setAttribute('aria-expanded',String(expanded));
+    r.handle.setAttribute('aria-label',(expanded?'Masquer':'Afficher')+' les caméras à '+(side==='left'?'gauche':'droite'));
+    r.handle.textContent=side==='left'?(expanded?'‹':'›'):(expanded?'›':'‹');
+    for(const [source,tile] of r.tiles){if(!subset.includes(source)){tile.querySelector('video').srcObject=null;tile.remove();r.tiles.delete(source);}}
+    subset.forEach((source,index)=>{
+      let tile=r.tiles.get(source);
+      if(!tile){
+        tile=document.createElement('div');tile.className='oneV174Slot';
+        const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=true;
+        tile.append(video,document.createElement('span'));r.tiles.set(source,tile);
+      }
+      const name=source.querySelector('header')?.textContent||'Participant';
+      const label=tile.querySelector('span');if(label.textContent!==name)label.textContent=name;
+      const owner=source.dataset.cameraOwner||'';if(tile.dataset.cameraOwner!==owner)tile.dataset.cameraOwner=owner;
+      const video=tile.querySelector('video'),stream=source.querySelector('video').srcObject;
+      if(video.srcObject!==stream){video.srcObject=stream;video.play().catch(()=>{});}
+      if(r.slots.children[index]!==tile)r.slots.insertBefore(tile,r.slots.children[index]||null);
+    });
+  }
 }
-let scheduled=false;const refresh=()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;paint();});};
-new MutationObserver(refresh).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','class','data-camera-owner']});
-window.addEventListener('one-lounge-state',refresh);document.addEventListener('DOMContentLoaded',refresh);refresh();
-})();</script><style id="one-v179-clean-call-ui">
+// Ignore this component's own rendering mutations so an idle call doesn't repaint every frame.
+const observer=new MutationObserver(records=>{if(records.some(record=>!root.contains(record.target)))refresh();});
+observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','class','data-camera-owner']});
+for(const event of ['one-lounge-state','one-media-state','one-salon-visibility','one-game-rendered'])window.addEventListener(event,refresh);
+document.addEventListener('DOMContentLoaded',refresh);refresh();
+})();
+</script><style id="one-v179-clean-call-ui">
 /* Single floating control panel. Existing call logic and draggable phone are retained. */
 #oneCallBar{display:none!important}
 #oneCallBar.oneCallExpanded:not([hidden]){display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:9px!important;position:fixed!important;left:50%!important;right:auto!important;bottom:calc(165px + env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important;width:min(350px,calc(100vw - 36px))!important;max-height:none!important;padding:15px!important;border-radius:23px!important;background:#171326f5!important;border:1px solid #9564dd!important;box-shadow:0 12px 35px #000a!important;z-index:10004!important;overflow:visible!important;align-items:center!important}
@@ -6675,67 +6712,8 @@ window.addEventListener('one-lounge-state',refresh);document.addEventListener('D
 .sr168-lounge .sr168-actions{display:flex!important;justify-content:center!important;margin-top:16px!important}.sr168-lounge .sr168-actions button{width:100%!important;max-width:320px!important;min-height:56px!important;border-radius:16px!important;background:linear-gradient(120deg,#6638b8,#9345ed)!important;color:#fff!important;font-size:16px!important;font-weight:700!important}
 /* Keep the source camera nodes for the streams but hide their duplicate floating UI. */
 body:has(#oneV174Cameras.hasCall) .oneCamBubble:not(.seated){opacity:0!important;pointer-events:none!important}
-/* Camera rails: four compact fixed slots, not a huge stretched portrait. */
-.oneV174Rail{top:calc(50% - 150px)!important;height:300px!important;width:min(19vw,82px)!important}
-.oneV174Slots{gap:4px!important;padding:3px!important}
-.oneV174Slot{aspect-ratio:auto!important}
-.oneV174Slot video{object-fit:cover!important}
-.oneV174Handle{height:38px!important;width:20px!important;font-size:19px!important}
-.oneV174Rail:not(.open) .oneV174Slots{visibility:hidden!important;pointer-events:none!important}
-.oneV174Rail.left:not(.open){transform:translateX(calc(-100% + 20px))!important}
-.oneV174Rail.right:not(.open){transform:translateX(calc(100% - 20px))!important}
-<style id="one-v184-camera-size-only">
-/* Four stable slots per side, 40% larger than v182. */
-.oneV174Rail{height:420px!important;top:calc(50% - 210px)!important;width:min(26.6vw,115px)!important}
-.oneV174Slots{grid-template-rows:repeat(4,minmax(0,1fr))!important}
-.oneV174Slot{min-height:0!important;height:100%!important}
-.oneV174Slot video{width:100%!important;height:100%!important;object-fit:cover!important}
-.oneV174Rail.left:not(.open){transform:translateX(calc(-100% + 20px))!important}
-.oneV174Rail.right:not(.open){transform:translateX(calc(100% - 20px))!important}
-@media(max-height:650px){.oneV174Rail{height:min(420px,65vh)!important;top:18%!important}}
-</style></style>
-<style id="one-v191-rail-fit-content">
-/* Each rail is sized by its actual camera tiles, never by screen height. */
-#oneV174Cameras .oneV174Rail.open{
-  height:max-content!important;
-  max-height:78dvh!important;
-  top:16dvh!important;
-  bottom:auto!important;
-  width:min(33vw,240px)!important;
-  overflow:visible!important;
-}
-#oneV174Cameras .oneV174Rail.open .oneV174Slots{
-  height:auto!important;
-  max-height:78dvh!important;
-  overflow-y:auto!important;
-  display:flex!important;
-  flex-direction:column!important;
-  grid-template-rows:none!important;
-  padding:4px!important;
-  gap:6px!important;
-}
-#oneV174Cameras .oneV174Rail.open .oneV174Slot{
-  height: min(31vw,220px)!important;
-  min-height:min(31vw,220px)!important;
-  flex:0 0 auto!important;
-}
-#oneV174Cameras .oneV174Rail:not(.open){
-  height:48px!important;
-  top:38dvh!important;
-  width:min(33vw,240px)!important;
-}
-#oneV174Cameras .oneV174Rail:not(.open) .oneV174Slots{
-  visibility:hidden!important;
-  pointer-events:none!important;
-  height:0!important;
-  padding:0!important;
-  border:0!important;
-}
-#oneV174Cameras .oneV174Handle{
-  top:50%!important;
-  margin-top:-19px!important;
-}
 </style>
+
 </body>
 <style id="one-v181-premium-call">
 #oneCallBar:not(.oneCallExpanded){display:none!important}
@@ -6749,7 +6727,7 @@ body:has(#oneV174Cameras.hasCall) .oneCamBubble:not(.seated){opacity:0!important
 #oneCallBar.oneCallExpanded [data-lounge-leave]{background:#d51b51!important;border-color:#e74a77!important}
 #oneCallBar.oneCallExpanded [data-lounge-leave] svg{width:29px!important;height:29px!important}
 .sr168-lounge .sr168-actions button[hidden]{display:none!important}
-.oneV174Rail:not(.open) .oneV174Slots{visibility:hidden!important;pointer-events:none!important}
+
 </style></html>
 
 
@@ -7126,17 +7104,4 @@ const waitingFeed=document.getElementById('oneNativeFeed');if(waitingFeed&&!wait
 <style id='v170-no-duplicates'>.sr157-chat{display:none!important}#onePartyChat [data-old-voice]{display:none!important}.sr157-members{display:none!important}.sr157-card:has(>.sr157-members){display:none!important}</style>
 <style id="one-v180-lounge-join-fix">.sr168-lounge .sr168-actions[hidden],.sr168-lounge .sr168-actions button[hidden]{display:none!important}.sr168-lounge .sr168-actions button:not([hidden]){display:block!important}</style>
 
-<style id="one-v185-real-camera-sizing">
-/* Explicit override of legacy v174/v175 constraints; 4 fixed slots per side. */
-#oneV174Cameras .oneV174Rail{width:clamp(118px,36vw,160px)!important;height:min(560px,68dvh)!important;top:50%!important;bottom:auto!important;max-height:calc(100dvh - 185px)!important;}
-#oneV174Cameras .oneV174Rail.left{left:0!important;right:auto!important;}
-#oneV174Cameras .oneV174Rail.right{right:0!important;left:auto!important;}
-#oneV174Cameras .oneV174Rail.open{transform:translateY(-50%) translateX(0)!important;}
-#oneV174Cameras .oneV174Rail.left:not(.open){transform:translateY(-50%) translateX(calc(-100% + 20px))!important;}
-#oneV174Cameras .oneV174Rail.right:not(.open){transform:translateY(-50%) translateX(calc(100% - 20px))!important;}
-#oneV174Cameras .oneV174Slots{height:100%!important;min-height:0!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:5px!important;padding:5px!important;box-sizing:border-box!important;}
-#oneV174Cameras .oneV174Slot{min-height:0!important;min-width:0!important;height:100%!important;width:100%!important;overflow:hidden!important;position:relative!important;}
-#oneV174Cameras .oneV174Slot video{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;}
-#oneV174Cameras .oneV174Rail:not(.open) .oneV174Slots{visibility:hidden!important;pointer-events:none!important;}
-@media(max-width:390px){#oneV174Cameras .oneV174Rail{width:clamp(108px,34vw,140px)!important;}}
-</style>
+
