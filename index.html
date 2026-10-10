@@ -6760,15 +6760,122 @@ body:has(#oneV174Cameras.hasCall) .oneCamBubble:not(.seated){opacity:0!important
 <script src="ui/one-chat-v8.js?v=audit-v194"></script>
 
 <link rel="stylesheet" href="ui/one-home-camera.css?v=appels-sonnerie-v56">
+<style id="one-photo-text-v195">
+/* The photo and its text share one coordinate system, including landscape images. */
+html body dialog.oneFullCamera[data-photo-text=true]:not([data-sharing=true]) .oneCaptureView img{object-fit:contain}
+.onePhotoTextLayer{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.onePhotoTextSurface{position:absolute;pointer-events:none}
+html body .oneFullCamera .onePhotoTextLabel{position:absolute;transform:translate(-50%,-50%);margin:0;border:0;border-radius:0;min-height:0;max-width:none;background:transparent;font-family:system-ui,sans-serif;font-weight:700;white-space:pre;text-align:center;box-shadow:none;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.oneFullCamera .onePhotoTextLabel[data-style=band]{background:rgba(0,0,0,.55)}
+.oneFullCamera .onePhotoTextLabel[data-style=bold]{text-shadow:0 1px 4px #000b}
+.oneFullCamera .onePhotoTextLabel[data-style=outline]{-webkit-text-stroke:.06em #16121e;paint-order:stroke fill}
+.oneFullCamera .onePhotoTextLabel:active{cursor:grabbing}
+.oneFullCamera .onePhotoTextEntry{position:absolute;right:16px;top:calc(94px + env(safe-area-inset-top));z-index:5;width:48px;height:48px;border:1px solid #ffffff60;border-radius:50%;background:#08060b80;color:#fff;font:700 26px system-ui;padding:0;box-shadow:0 2px 12px #0004;touch-action:manipulation}
+.oneFullCamera .onePhotoTextComposer{position:absolute;inset:0;z-index:6;background:#0003;overflow:hidden}
+html body dialog.oneFullCamera[data-text-editing=true]{height:var(--photo-edit-height,100dvh)!important;max-height:none!important}
+.oneFullCamera[data-text-editing=true] .onePreviewActions,.oneFullCamera[data-text-editing=true]>.oneCameraDock{display:none!important}
+.oneFullCamera[data-text-editing=true]>header h2{visibility:hidden}
+html body dialog.oneFullCamera[data-text-editing=true]>header{z-index:7!important;pointer-events:none}
+.oneFullCamera[data-text-editing=true]>header [data-close]{pointer-events:auto}
+.oneFullCamera .onePhotoTextInput{position:absolute;left:0;width:100%;max-width:none;transform:translateY(-50%);margin:0!important;border:0!important;outline:none!important;box-shadow:none!important;border-radius:0;padding:7px 18px!important;background:rgba(0,0,0,.55);color:white;font:700 27px/1.25 system-ui,sans-serif;text-align:center;resize:none;caret-color:white;overflow-y:auto;overscroll-behavior:contain}
+.oneFullCamera .onePhotoTextInput::placeholder{color:#ffffffa8}
+.oneFullCamera .onePhotoTextInput[data-style=bold],.oneFullCamera .onePhotoTextInput[data-style=outline]{background:transparent;text-shadow:0 1px 4px #000b}
+.oneFullCamera .onePhotoTextInput[data-style=outline]{-webkit-text-stroke:.06em #16121e;paint-order:stroke fill}
+.oneFullCamera .onePhotoTextDone{position:absolute;right:16px;top:calc(var(--editor-top,0px) + max(16px,env(safe-area-inset-top)));height:44px;min-width:58px;padding:0 16px;border-radius:24px;border:1px solid #ffffff50;background:#ffffff;color:#16121e;font:800 15px system-ui;box-shadow:0 2px 12px #0003}
+.oneFullCamera .onePhotoTextTools{position:absolute;left:0;right:0;bottom:var(--editor-bottom,0px);padding:12px 12px max(8px,env(safe-area-inset-bottom));background:linear-gradient(transparent,#0c0911de 35%);display:grid;gap:6px;max-width:640px;margin:0 auto}
+.oneFullCamera .onePhotoTextFormats{display:flex;gap:6px;align-items:center}
+.oneFullCamera .onePhotoTextFormats>button{flex:none;min-height:42px;border-radius:22px;border:1px solid #ffffff38;background:#16101ebd;padding:0 11px;font:650 12px system-ui;color:#fff}
+.oneFullCamera .onePhotoTextFormats>button[aria-pressed=true]{background:#fff;color:#17121f;border-color:white}
+.oneFullCamera .onePhotoTextSize{display:flex;align-items:center;gap:7px;min-width:0;flex:1;color:#fff;font:12px system-ui}
+.oneFullCamera .onePhotoTextSize input{padding:0;margin:0;min-width:38px;width:100%;height:40px;accent-color:#c595ff;touch-action:none}
+.oneFullCamera .onePhotoTextPalette{display:flex;align-items:center;justify-content:space-between;gap:0}
+.oneFullCamera .onePhotoTextColor{display:grid;place-items:center;flex:1;min-width:30px;min-height:44px;padding:0;border:0;background:transparent;border-radius:50%}
+.oneFullCamera .onePhotoTextColor:before{content:'';display:block;width:23px;height:23px;background:var(--swatch);border-radius:50%;box-shadow:0 0 0 1px #ffffff70}
+.oneFullCamera .onePhotoTextColor[aria-pressed=true]:before{box-shadow:0 0 0 2px #111,0 0 0 4px white}
+.oneFullCamera .onePhotoTextRemove{min-height:44px;border:0;background:transparent;padding:0 8px;color:#fff;font:12px system-ui;text-decoration:underline;text-underline-offset:3px}
+.oneFullCamera .onePhotoTextComposer button,.oneFullCamera .onePhotoTextEntry{font-family:system-ui,sans-serif!important;transition:none!important}
+.oneFullCamera[data-photo-text=true] .onePreviewActions>div{justify-content:space-between}
+.oneFullCamera[data-photo-text=true] .onePreviewActions>p{margin-bottom:12px}
+.oneFullCamera .onePhotoTextEntry:focus-visible,.oneFullCamera .onePhotoTextLabel:focus-visible,.oneFullCamera .onePhotoTextTools button:focus-visible{outline:2px solid #d5afff;outline-offset:3px}
+@media(max-width:370px){.oneFullCamera .onePhotoTextFormats>button{padding:0 9px}.oneFullCamera .onePhotoTextSize{gap:3px;font-size:11px}.oneFullCamera .onePhotoTextTools{padding-left:8px;padding-right:8px}}
+
+</style>
+<script id="one-photo-text-engine-v195">
+/* Photo text stays editable on the review screen; pixels are composed only when sharing. */
+(()=>{'use strict';
+window.oneMountPhotoText=({dialog,view,image,file})=>{
+ const abort=new AbortController(),signal=abort.signal;
+ const state={text:'',color:'#ffffff',size:7,style:'band',x:.5,y:.5};
+ let editing=false,disposed=false,locked=false,frame=0,drag=null,suppressClick=false,cached=null,revision=0;
+ const node=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls||'';if(text)e.textContent=text;return e};
+ const button=(cls,text,label)=>{const e=node('button',cls,text);e.type='button';if(label)e.setAttribute('aria-label',label);return e};
+ const root=node('div','onePhotoTextLayer'),surface=node('div','onePhotoTextSurface');
+ const text=button('onePhotoTextLabel','','Modifier le texte sur la photo');text.hidden=true;surface.append(text);root.append(surface);view.append(root);
+ const entry=button('onePhotoTextEntry','T','Écrire sur la photo');
+ const panel=node('section','onePhotoTextComposer');panel.hidden=true;panel.setAttribute('aria-label','Texte sur la photo');
+ const done=button('onePhotoTextDone','OK','Terminer la saisie');
+ const input=node('textarea','onePhotoTextInput');input.rows=1;input.maxLength=180;input.placeholder='Écris ton message…';input.setAttribute('aria-label','Texte sur la photo');input.setAttribute('enterkeyhint','enter');input.spellcheck=true;
+ const tools=node('div','onePhotoTextTools'),formats=node('div','onePhotoTextFormats'),palette=node('div','onePhotoTextPalette');
+ formats.setAttribute('role','group');formats.setAttribute('aria-label','Style du texte');palette.setAttribute('role','group');palette.setAttribute('aria-label','Couleur du texte');
+ for(const [style,label]of [['band','Bandeau'],['bold','Gras'],['outline','Contour']]){const b=button('',label);b.dataset.style=style;b.addEventListener('click',()=>{state.style=style;changed();},{signal});formats.append(b)}
+ const sizeLabel=node('label','onePhotoTextSize','Taille'),size=node('input');size.type='range';size.min=3;size.max=11;size.step=.25;size.value=state.size;size.setAttribute('aria-label','Taille du texte');sizeLabel.append(size);formats.append(sizeLabel);
+ for(const [color,label]of [['#ffffff','Blanc'],['#101018','Noir'],['#ffde59','Jaune'],['#ff5579','Rose'],['#b987ff','Violet'],['#61d5ff','Bleu'],['#74e8b5','Vert']]){const b=button('onePhotoTextColor','',label);b.dataset.color=color;b.style.setProperty('--swatch',color);b.addEventListener('click',()=>{state.color=color;changed();},{signal});palette.append(b)}
+ const remove=button('onePhotoTextRemove','Supprimer','Supprimer le texte');remove.addEventListener('click',()=>{input.value='';state.text='';changed();finishEditing();},{signal});palette.append(remove);
+ tools.append(formats,palette);panel.append(input,done,tools);dialog.append(entry,panel);dialog.dataset.photoText='true';
+ const measure=document.createElement('canvas').getContext('2d');
+ function geometry(){const r=view.getBoundingClientRect(),iw=image.naturalWidth||r.width,ih=image.naturalHeight||r.height,k=Math.min(r.width/iw,r.height/ih);return {left:(r.width-iw*k)/2,top:(r.height-ih*k)/2,w:iw*k,h:ih*k}}
+ function rowsFor(value,width,font){measure.font='700 '+font+'px system-ui, sans-serif';const rows=[];for(const p of value.split('\n')){let line='';for(const word of p.split(/(\s+)/)){if(line&&measure.measureText(line+word).width>width){rows.push(line.trimEnd());line=''}for(const char of word){if(line&&measure.measureText(line+char).width>width){rows.push(line);line=''}line+=char}}rows.push(line.trimEnd())}return rows.length?rows:['']}
+ function metrics(w,h){let font=w*state.size/100,rows=rowsFor(state.text,w*.86,font);const maxHeight=h*.82;if(rows.length*font*1.25>maxHeight){font*=maxHeight/(rows.length*font*1.25);rows=rowsFor(state.text,w*.86,font)}const line=font*1.25,pad=font*.35;measure.font='700 '+font+'px system-ui, sans-serif';const width=state.style==='band'?w:Math.min(w,Math.max(...rows.map(r=>measure.measureText(r).width))+pad*2),height=rows.length*line+pad*2;return {font,rows,line,pad,width,height}}
+ const clamp=(v,a,b)=>Math.max(a,Math.min(Math.max(a,b),v));
+ function render(){frame=0;if(disposed)return;const g=geometry(),m=metrics(g.w,g.h);surface.style.cssText=`left:${g.left}px;top:${g.top}px;width:${g.w}px;height:${g.h}px`;
+  const x=state.style==='band'?g.w/2:clamp(state.x*g.w,m.width/2,g.w-m.width/2),y=clamp(state.y*g.h,m.height/2,g.h-m.height/2);
+  text.hidden=!state.text.trim()||editing;text.dataset.style=state.style;text.textContent=m.rows.join('\n');text.style.cssText=`left:${x}px;top:${y}px;width:${m.width}px;padding:${m.pad}px;font-size:${m.font}px;line-height:${m.line}px;color:${state.color}`;
+  input.dataset.style=state.style;input.style.color=state.color;input.style.fontSize=Math.max(18,Math.min(34,g.w*state.size/100))+'px';
+  for(const b of formats.querySelectorAll('[data-style]'))b.setAttribute('aria-pressed',String(b.dataset.style===state.style));for(const b of palette.querySelectorAll('[data-color]'))b.setAttribute('aria-pressed',String(b.dataset.color===state.color));
+  if(editing)layoutComposer();
+ }
+ function schedule(){if(!frame&&!disposed)frame=requestAnimationFrame(render)}
+ function changed(){revision++;cached=null;render()}
+ function layoutComposer(){const r=dialog.getBoundingClientRect(),vv=window.visualViewport,top=Math.max(0,(vv?.offsetTop||0)-r.top),bottom=Math.min(r.height,(vv?.offsetTop||0)+(vv?.height||innerHeight)-r.top),height=bottom-top;panel.style.setProperty('--editor-top',top+'px');panel.style.setProperty('--editor-bottom',Math.max(0,r.height-bottom)+'px');input.style.height='0px';input.style.height=Math.min(Math.max(38,input.scrollHeight),Math.max(44,height-220))+'px';input.style.top=(top+Math.max(76,(height-120)/2))+'px';}
+ function edit(){if(disposed||locked||dialog.dataset.sharing==='true')return;dialog.style.setProperty('--photo-edit-height',dialog.getBoundingClientRect().height+'px');editing=true;panel.hidden=false;entry.hidden=true;dialog.dataset.textEditing='true';input.value=state.text;render();input.focus({preventScroll:true});input.setSelectionRange(input.value.length,input.value.length)}
+ function finishEditing(){if(disposed)return;editing=false;panel.hidden=true;entry.hidden=false;dialog.dataset.textEditing='false';input.blur();render()}
+ entry.addEventListener('click',e=>{e.stopPropagation();edit()},{signal});done.addEventListener('click',finishEditing,{signal});
+ input.addEventListener('input',()=>{state.text=input.value;changed()},{signal});size.addEventListener('input',()=>{state.size=Number(size.value);changed()},{signal});
+ // Keep the keyboard in place while choosing a colour or a font.
+ tools.addEventListener('pointerdown',e=>{if(e.target.closest('button'))e.preventDefault()},{signal});
+ panel.addEventListener('click',e=>{e.stopPropagation();if(e.target===panel)finishEditing()},{signal});
+ dialog.addEventListener('cancel',e=>{if(editing){e.preventDefault();finishEditing()}},{signal});
+ dialog.querySelector('[data-close]')?.addEventListener('click',e=>{if(editing){e.preventDefault();e.stopImmediatePropagation();finishEditing()}},{capture:true,signal});
+ text.addEventListener('pointerdown',e=>{if(locked||editing||e.button!==0)return;e.stopPropagation();suppressClick=false;const g=geometry(),m=metrics(g.w,g.h);state.x=state.style==='band'?.5:clamp(state.x,m.width/(2*g.w),1-m.width/(2*g.w));state.y=clamp(state.y,m.height/(2*g.h),1-m.height/(2*g.h));drag={id:e.pointerId,x:e.clientX,y:e.clientY,ox:state.x,oy:state.y,moved:false};text.setPointerCapture(e.pointerId)},{signal});
+ text.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!drag.moved&&Math.hypot(dx,dy)<5)return;drag.moved=true;const g=geometry(),m=metrics(g.w,g.h);state.x=state.style==='band'?.5:clamp(drag.ox+dx/g.w,m.width/(2*g.w),1-m.width/(2*g.w));state.y=clamp(drag.oy+dy/g.h,m.height/(2*g.h),1-m.height/(2*g.h));revision++;cached=null;schedule()},{signal});
+ const end=e=>{if(!drag||e.pointerId!==drag.id)return;suppressClick=drag.moved||e.type==='pointercancel';drag=null;};text.addEventListener('pointerup',end,{signal});text.addEventListener('pointercancel',end,{signal});
+ text.addEventListener('click',e=>{e.stopPropagation();if(suppressClick){suppressClick=false;return}edit()},{signal});
+ image.addEventListener('load',schedule,{signal});window.addEventListener('resize',schedule,{signal});window.visualViewport?.addEventListener('resize',schedule,{signal});window.visualViewport?.addEventListener('scroll',schedule,{signal});
+ const resize=new ResizeObserver(schedule);resize.observe(view);render();
+ async function exportFile(){finishEditing();if(!state.text.trim())return file;if(cached?.revision===revision)return cached.file;locked=true;entry.disabled=true;
+  try{await image.decode();if(disposed)throw Error('Photo fermée.');const scale=Math.min(1,2560/Math.max(image.naturalWidth,image.naturalHeight)),canvas=document.createElement('canvas');canvas.width=Math.round(image.naturalWidth*scale);canvas.height=Math.round(image.naturalHeight*scale);const ctx=canvas.getContext('2d');if(!ctx)throw Error('Photo indisponible. Réessaie.');ctx.drawImage(image,0,0,canvas.width,canvas.height);const w=canvas.width,h=canvas.height,m=metrics(w,h),x=state.style==='band'?w/2:clamp(state.x*w,m.width/2,w-m.width/2),y=clamp(state.y*h,m.height/2,h-m.height/2);
+   ctx.font='700 '+m.font+'px system-ui, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';if(state.style==='band'){ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,y-m.height/2,w,m.height)}else if(state.style==='bold'){ctx.shadowColor='rgba(0,0,0,.65)';ctx.shadowBlur=m.font*.12;ctx.shadowOffsetY=m.font*.06}ctx.fillStyle=state.color;ctx.strokeStyle='#16121e';ctx.lineWidth=m.font*.09;
+   m.rows.forEach((row,i)=>{const ry=y+(i-(m.rows.length-1)/2)*m.line;if(state.style==='outline')ctx.strokeText(row,x,ry);ctx.fillText(row,x,ry)});const blob=await new Promise(r=>canvas.toBlob(r,'image/jpeg',.95));if(disposed)throw Error('Photo fermée.');if(!blob)throw Error('La photo n’a pas pu être préparée. Réessaie.');const result=new File([blob],'ONE-photo-'+Date.now()+'.jpg',{type:'image/jpeg'});cached={revision,file:result};return result;
+  }finally{locked=false;if(!disposed)entry.disabled=false}
+ }
+ function hide(value=true){finishEditing();root.hidden=value;entry.hidden=value}
+ function destroy(){if(disposed)return;disposed=true;abort.abort();resize.disconnect();cancelAnimationFrame(frame);root.remove();panel.remove();entry.remove();delete dialog.dataset.photoText;delete dialog.dataset.textEditing;cached=null}
+ return {edit,exportFile,hide,destroy};
+};
+})();
+
+
+</script>
 <script id="one-home-camera-v132-inline">
 (() => {
 'use strict';
+let photoEditor=null;
 let dialog,stream,recorder,url,target,seq=0,mode='photo',facing='environment',busy=false,held=false,long=false,holdTimer,timer,limit,zoom,desired,zoomBusy=false,oldOverflow,oldFocus;
 const $=s=>dialog.querySelector(s),el=t=>document.createElement(t),status=t=>$('[role=status]').textContent=t;
 const track=()=>stream?.getVideoTracks()[0],active=()=>dialog?.open&&dialog.dataset.preview!=='true';
 function stop(){stream?.getTracks().forEach(t=>t.stop());stream=null;}
 function timers(){clearTimeout(holdTimer);clearTimeout(limit);clearInterval(timer);}
-function reset(){const view=$('.oneCaptureView');view.onclick=null;view.onkeydown=null;for(const a of ['role','tabindex','aria-label'])view.removeAttribute(a);$('.onePreviewActions')?.remove();dialog.dataset.sharing='false';dialog.oneShareCleanup?.();dialog.oneShareCleanup=null;seq++;timers();held=false;long=false;busy=false;if(recorder&&recorder.state!=='inactive'){recorder.onstop=null;recorder.stop()}recorder=null;stop();zoom=null;desired=undefined;$('.oneCaptureView video')?.pause();if(url)URL.revokeObjectURL(url);url=null;$('.oneCaptureDestinations')?.remove();dialog.dataset.recording='false';dialog.dataset.busy='false';}
+function reset(){photoEditor?.destroy();photoEditor=null;const view=$('.oneCaptureView');view.onclick=null;view.onkeydown=null;for(const a of ['role','tabindex','aria-label'])view.removeAttribute(a);$('.onePreviewActions')?.remove();dialog.dataset.sharing='false';dialog.oneShareCleanup?.();dialog.oneShareCleanup=null;seq++;timers();held=false;long=false;busy=false;if(recorder&&recorder.state!=='inactive'){recorder.onstop=null;recorder.stop()}recorder=null;stop();zoom=null;desired=undefined;$('.oneCaptureView video')?.pause();if(url)URL.revokeObjectURL(url);url=null;$('.oneCaptureDestinations')?.remove();dialog.dataset.recording='false';dialog.dataset.busy='false';}
 function controls(){dialog.dataset.mode=mode;for(const b of dialog.querySelectorAll('[data-mode]'))b.setAttribute('aria-pressed',String(b.dataset.mode===mode));$('[data-shutter]').setAttribute('aria-label',recorder?.state==='recording'?'Arrêter la vidéo':mode==='photo'?'Prendre une photo':'Enregistrer une vidéo');for(const b of dialog.querySelectorAll('[data-mode],[data-flip],[data-gallery]'))b.disabled=busy||recorder?.state==='recording';dialog.dataset.busy=String(busy);}
 function configureZoom(){const t=track(),z=t?.getCapabilities?.().zoom;zoom=z&&Number.isFinite(z.min)&&z.max>z.min?z:null;$('[data-zoom-controls]').hidden=true;$('[data-zoom-buttons]').replaceChildren();if(!zoom)return;const s=$('[data-zoom]');s.min=z.min;s.max=z.max;s.step=z.step||.1;s.value=t.getSettings().zoom??z.min;for(const n of [...new Set([z.min,1,2,3,5].filter(n=>n>=z.min&&n<=z.max))]){const b=el('button');b.type='button';b.textContent=Number(n.toFixed(1))+'×';b.onclick=()=>setZoom(n);$('[data-zoom-buttons]').append(b)}$('[data-zoom-value]').textContent=Number(Number(s.value).toFixed(1))+'×';}
 async function setZoom(n){if(!zoom||!track())return;const z=zoom;desired=Math.max(z.min,Math.min(z.max,z.min+Math.round((n-z.min)/(z.step||.1))*(z.step||.1)));if(zoomBusy)return;zoomBusy=true;try{while(desired!==undefined&&track()){const value=desired,t=track();desired=undefined;try{await t.applyConstraints({advanced:[{zoom:value}]});if(track()!==t)continue;const actual=t.getSettings().zoom??value;$('[data-zoom]').value=actual;$('[data-zoom-value]').textContent=Number(actual.toFixed(1))+'×'}catch{if(track()===t)status('Ce zoom est indisponible sur cette caméra.')}}}finally{zoomBusy=false}}
@@ -6784,49 +6891,49 @@ function preview(f){
  url=URL.createObjectURL(f);m.src=url;
  if(m.tagName==='VIDEO'){m.playsInline=true;m.loop=true;m.autoplay=true;m.muted=true;}else m.alt='Photo en grand écran';
  view.replaceChildren(m);
+ if(m.tagName==='IMG')photoEditor=window.oneMountPhotoText({dialog,view,image:m,file:original});
  const actions=el('section');actions.className='onePreviewActions';
  const hint=el('p');hint.textContent='Appuie sur l’image pour écrire';
  const row=el('div'),again=el('button'),edit=el('button'),share=el('button'),play=el('button'),sound=el('button');
  again.textContent='Reprendre';again.onclick=live;
- edit.textContent='Aa Texte';edit.onclick=editText;
+ edit.textContent='Aa Texte';edit.onclick=editText;edit.hidden=!!photoEditor;
  play.textContent='Pause';play.hidden=m.tagName!=='VIDEO';sound.textContent='Activer le son';sound.hidden=m.tagName!=='VIDEO';sound.onclick=()=>{m.muted=!m.muted;sound.textContent=m.muted?'Activer le son':'Couper le son'};if(m.tagName==='VIDEO'){m.onplay=()=>play.textContent='Pause';m.onpause=()=>play.textContent='Lire la vidéo';m.onloadeddata=()=>{if(dialog.open&&ticket===seq&&dialog.dataset.sharing!=='true')m.play().catch(()=>play.textContent='Lire la vidéo')};}
  play.onclick=async()=>{if(m.paused){try{await m.play();play.textContent='Pause'}catch{status('Lecture indisponible.')}}else{m.pause();play.textContent='Lire la vidéo'}};
  share.textContent=target?'Envoyer →':'Partager →';share.className='capturePrimary';
  share.onclick=async()=>{
   if(editing||share.disabled)return;
-  m.pause?.();
-  if(target){const callback=target;dialog.close();callback(f);return}
-  share.disabled=true;
-  const label=share.textContent;
-  share.textContent='Préparation…';
-  status('Préparation du partage…');
+  share.disabled=true;const label=share.textContent;share.textContent='Préparation…';m.pause?.();
   try{
-   const until=Date.now()+8000;
-   while(typeof window.oneCameraShare!=='function'&&Date.now()<until){
-    await new Promise(r=>setTimeout(r,100));
-   }
+   if(photoEditor)f=await photoEditor.exportFile();
+   if(ticket!==seq||!dialog.open)return;
+   if(target){const callback=target;dialog.close();callback(f);return;}
+   status('Préparation du partage…');const until=Date.now()+8000;
+   while(typeof window.oneCameraShare!=='function'&&Date.now()<until){await new Promise(r=>setTimeout(r,100));if(ticket!==seq||!dialog.open)return;}
    if(typeof window.oneCameraShare!=='function')throw Error('Le partage ONE ne s’est pas chargé. Recharge ONE.');
-   if(!f||!f.size)throw Error('Le média n’est pas encore prêt. Réessaie.');
+   if(!f?.size)throw Error('Le média n’est pas encore prêt. Réessaie.');
+   if(photoEditor){if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(f);m.src=url;photoEditor.hide();}
    dialog.dataset.sharing='true';$('h2').textContent='Partager';actions.hidden=true;view.onclick=null;
    view.removeAttribute('role');view.removeAttribute('tabindex');view.removeAttribute('aria-label');view.onkeydown=null;
    if(m.tagName==='VIDEO'){m.controls=true;m.loop=false;}
-   await Promise.resolve(window.oneCameraShare(f,dialog,{source:original,preview:true}));
-   dialog.scrollTop=0;
+   await Promise.resolve(window.oneCameraShare(f,dialog,{source:original,preview:true}));dialog.scrollTop=0;
   }catch(e){
-   status(e?.message||'Partage indisponible. Réessaie.');
-   share.disabled=false;
-   share.textContent=label;
+   if(ticket!==seq||!dialog.open)return;
+   dialog.oneShareCleanup?.();dialog.oneShareCleanup=null;$('.oneCaptureDestinations')?.remove();
+   dialog.dataset.sharing='false';$('h2').textContent='Ton moment';actions.hidden=false;view.onclick=editText;
+   if(photoEditor){if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(original);m.src=url;photoEditor.hide(false);}
+   status(e?.message||'Partage indisponible. Réessaie.');share.disabled=false;share.textContent=label;
    if(m.tagName==='VIDEO')m.play().catch(()=>{});
   }
  };
  row.append(again,edit,share);actions.append(hint,play,sound,row);dialog.append(actions);
  async function editText(){
+  if(photoEditor){photoEditor.edit();return;}
   if(editing||!window.oneEditCapture)return;editing=true;m.pause?.();play.textContent='Lire la vidéo';
   try{const result=await window.oneEditCapture(original);if(!result||ticket!==seq||!dialog.open)return;f=result;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(f);m.src=url;status('');hint.textContent='Appuie pour modifier le texte · partage quand tu es prêt';}
   finally{editing=false;if(ticket===seq&&dialog.open&&dialog.dataset.sharing!=='true'&&m.tagName==='VIDEO')m.play().catch(()=>play.textContent='Lire la vidéo');}
  }
  view.setAttribute('role','button');view.setAttribute('tabindex','0');view.setAttribute('aria-label','Écrire sur la photo ou la vidéo');view.onclick=editText;
- view.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();editText()}};
+ view.onkeydown=e=>{if(e.target===view&&(e.key==='Enter'||e.key===' ')){e.preventDefault();editText()}};
  status('');
 }
 
