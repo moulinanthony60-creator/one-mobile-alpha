@@ -3719,12 +3719,12 @@ const loungeParticipants=el('div',undefined,'sr168-participants');mediaPage.appe
  const refreshLoungeVideos=()=>{const videoNodes=[...document.querySelectorAll('#oneCallVideos video,#onePartyCallVideos video,.oneCallVideo video')];loungeVideoGrid.replaceChildren();for(const video of videoNodes){if(!video.srcObject)continue;const tile=document.createElement('video');tile.autoplay=true;tile.playsInline=true;tile.muted=true;tile.srcObject=video.srcObject;loungeVideoGrid.append(tile)}if(!loungeVideoGrid.children.length)loungeVideoGrid.append(el('p','Aucune caméra active pour le moment.','os-muted'));};
 
 const loungeActions=el('div',undefined,'sr168-actions');
-const loungeJoin=button('📞 Rejoindre sans micro ni caméra',()=>window.dispatchEvent(new CustomEvent('one-salon-call-request',{detail:{mic:false,camera:false}})),'sr164-open');
+const loungeJoin=button('📞 Rejoindre l’appel',()=>window.dispatchEvent(new CustomEvent('one-salon-call-request',{detail:{mic:false,camera:false}})),'sr164-open');
 const loungeMic=button('🎤 Micro',()=>document.querySelector('#oneCallBar [data-lounge-mic]')?.click(),'sr164-open');
 const loungeCam=button('📹 Caméra',()=>document.querySelector('#oneCallBar [data-lounge-cam]')?.click(),'sr164-open');
 const loungeLeave=button('🔴 Quitter l’appel',()=>document.querySelector('#oneCallBar [data-lounge-leave]')?.click(),'sr164-open');
 loungeActions.append(loungeJoin);mediaPage.append(loungeActions);loungeMic.hidden=loungeCam.hidden=loungeLeave.hidden=true;
-window.oneSalonOpenLounge=()=>{salonPage(3);refreshLoungeVideos();loungeStatus.textContent=document.querySelector('#oneCallBar')?.hidden?'Hors appel':'Appel en cours';};window.addEventListener('one-lounge-state',e=>{loungeStatus.textContent=e.detail?.active?'Appel en cours':'Hors appel';loungeJoin.hidden=!!e.detail?.active;loungeMic.hidden=loungeCam.hidden=loungeLeave.hidden=!e.detail?.active;});
+window.oneSalonOpenLounge=()=>{salonPage(3);refreshLoungeVideos();const active=!document.querySelector('#oneCallBar')?.hidden;loungeStatus.textContent=active?'Appel en cours':'Hors appel';loungeJoin.hidden=active;};window.addEventListener('one-lounge-state',e=>{loungeStatus.textContent=e.detail?.active?'Appel en cours':'Hors appel';loungeJoin.hidden=!!e.detail?.active;loungeMic.hidden=loungeCam.hidden=loungeLeave.hidden=!e.detail?.active;});
 pages.append(messagesPage,membersPage,mediaPage);app.append(pages);
 const homeNodes=[choose,feed];membersCard.hidden=true;
 function salonPage(index){const legacy=document.getElementById('onePartyChat');if(legacy){legacy.hidden=index!==1;const oldJoin=legacy.querySelector('[data-old-voice]');if(oldJoin)oldJoin.hidden=true;}[...tabs.children].forEach((b,i)=>{b.classList.toggle('active',i===index);b.setAttribute('aria-selected',String(i===index))});homeNodes.forEach(n=>n.hidden=index!==0);[messagesPage,membersPage,mediaPage].forEach((n,i)=>n.hidden=index!==i+1);}
@@ -6607,7 +6607,7 @@ window.addEventListener('one-lounge-state',refresh);document.addEventListener('D
 #oneCallBar.oneCallExpanded [data-lounge-leave]::before{content:'☎'!important;transform:rotate(135deg)}
 #oneCallBar.oneCallExpanded button::after{content:none!important}
 /* Only the call panel controls the call: remove duplicated lounge call buttons. */
-.sr168-lounge .sr168-actions{display:none!important}
+.sr168-lounge .sr168-actions{display:flex!important;justify-content:center!important;margin-top:16px!important}.sr168-lounge .sr168-actions button{width:100%!important;max-width:320px!important;min-height:56px!important;border-radius:16px!important;background:linear-gradient(120deg,#6638b8,#9345ed)!important;color:#fff!important;font-size:16px!important;font-weight:700!important}
 /* Keep the source camera nodes for the streams but hide their duplicate floating UI. */
 body:has(#oneV174Cameras.hasCall) .oneCamBubble:not(.seated){opacity:0!important;pointer-events:none!important}
 /* Camera rails: four compact fixed slots, not a huge stretched portrait. */
@@ -6994,3 +6994,4 @@ const waitingFeed=document.getElementById('oneNativeFeed');if(waitingFeed&&!wait
 </script>
 
 <style id='v170-no-duplicates'>.sr157-chat{display:none!important}#onePartyChat [data-old-voice]{display:none!important}.sr157-members{display:none!important}.sr157-card:has(>.sr157-members){display:none!important}</style>
+<style id="one-v180-lounge-join-fix">.sr168-lounge .sr168-actions[hidden],.sr168-lounge .sr168-actions button[hidden]{display:none!important}.sr168-lounge .sr168-actions button:not([hidden]){display:block!important}</style>
