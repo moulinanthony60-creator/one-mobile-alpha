@@ -6594,28 +6594,31 @@ for(const [side,offset] of [['left',0],['right',4]]){const r=rails[side];r.rail.
 let scheduled=false;const refresh=()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;paint();});};
 new MutationObserver(refresh).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','class','data-camera-owner']});
 window.addEventListener('one-lounge-state',refresh);document.addEventListener('DOMContentLoaded',refresh);refresh();
-})();</script><style id="one-v177-compact-call-icons">
-#oneCallBar.oneCallExpanded:not([hidden]){width:min(290px,calc(100vw - 24px))!important;left:auto!important;right:12px!important;bottom:180px!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important;padding:12px!important;border-radius:20px!important;max-height:230px!important;overflow:visible!important}
-#oneCallBar.oneCallExpanded>span{grid-column:1/-1!important;text-align:center!important;font-size:12px!important}
-#oneCallBar.oneCallExpanded button{width:100%!important;min-width:0!important;height:48px!important;border-radius:50%!important;font-size:0!important;display:grid!important;place-items:center!important;padding:0!important}
-#oneCallBar.oneCallExpanded button::after{font-size:24px!important;line-height:1!important}
-#oneCallBar.oneCallExpanded [data-lounge-mic]::after{content:'🎤'}
-#oneCallBar.oneCallExpanded [data-lounge-cam]::after{content:'📷'}
-#oneCallBar.oneCallExpanded [data-lounge-leave]{background:#bb2855!important}
-#oneCallBar.oneCallExpanded [data-lounge-leave]::after{content:'📵'}
-#oneCallBar.oneCallExpanded [data-lounge-mic],#oneCallBar.oneCallExpanded [data-lounge-cam],#oneCallBar.oneCallExpanded [data-lounge-leave]{justify-self:center!important;width:56px!important;height:56px!important}
-</style><style id="one-v178-final-controls">
-#oneCallBar.oneCallExpanded:not([hidden]){grid-template-columns:repeat(3,58px)!important;width:max-content!important;max-width:calc(100vw - 28px)!important;gap:14px!important;padding:15px 18px!important;justify-content:center!important;align-items:center!important;bottom:180px!important;right:14px!important;left:auto!important;background:#191529f7!important}
-#oneCallBar.oneCallExpanded>span{font-size:12px!important;grid-column:1/-1!important;color:#eee!important}
-#oneCallBar.oneCallExpanded button{border:1px solid #8d67c4!important;background:#35234f!important;width:58px!important;height:58px!important;min-width:58px!important;border-radius:50%!important;display:grid!important;place-items:center!important;font-size:0!important;color:transparent!important;overflow:hidden!important}
-#oneCallBar.oneCallExpanded button::after{content:none!important}
-#oneCallBar.oneCallExpanded button::before{font-size:27px!important;color:#fff!important;line-height:1!important}
+})();</script><style id="one-v179-clean-call-ui">
+/* Single floating control panel. Existing call logic and draggable phone are retained. */
+#oneCallBar{display:none!important}
+#oneCallBar.oneCallExpanded:not([hidden]){display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:9px!important;position:fixed!important;left:50%!important;right:auto!important;bottom:calc(165px + env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important;width:min(350px,calc(100vw - 36px))!important;max-height:none!important;padding:15px!important;border-radius:23px!important;background:#171326f5!important;border:1px solid #9564dd!important;box-shadow:0 12px 35px #000a!important;z-index:10004!important;overflow:visible!important;align-items:center!important}
+#oneCallBar.oneCallExpanded>span{grid-column:1/-1!important;text-align:center!important;font-size:13px!important;color:#e5dafa!important}
+#oneCallBar.oneCallExpanded button{width:55px!important;height:55px!important;min-width:0!important;padding:0!important;margin:auto!important;display:grid!important;place-items:center!important;border:1px solid #7755a7!important;border-radius:50%!important;background:#322345!important;color:white!important;font-size:0!important;line-height:1!important}
+#oneCallBar.oneCallExpanded button::before{font-family:Arial,sans-serif!important;font-size:27px!important;color:#fff!important;line-height:1!important}
 #oneCallBar.oneCallExpanded [data-lounge-mic]::before{content:'🎙'!important}
-#oneCallBar.oneCallExpanded [data-lounge-cam]::before{content:'▣'!important;font-size:29px!important}
-#oneCallBar.oneCallExpanded [data-lounge-leave]{background:#cf174d!important;border-color:#ff587b!important}
-#oneCallBar.oneCallExpanded [data-lounge-leave]::before{content:'☎'!important;transform:rotate(135deg);display:block}
-.sr168-lounge .sr168-actions [data-lounge-mic],.sr168-lounge .sr168-actions [data-lounge-cam],.sr168-lounge .sr168-actions [data-lounge-leave]{display:none!important}
-.sr168-lounge .sr168-actions{grid-template-columns:1fr!important}
+#oneCallBar.oneCallExpanded [data-lounge-cam]::before{content:'📹'!important}
+#oneCallBar.oneCallExpanded [data-lounge-leave]{background:#d4194e!important;border-color:#ff547a!important}
+#oneCallBar.oneCallExpanded [data-lounge-leave]::before{content:'☎'!important;transform:rotate(135deg)}
+#oneCallBar.oneCallExpanded button::after{content:none!important}
+/* Only the call panel controls the call: remove duplicated lounge call buttons. */
+.sr168-lounge .sr168-actions{display:none!important}
+/* Keep the source camera nodes for the streams but hide their duplicate floating UI. */
+body:has(#oneV174Cameras.hasCall) .oneCamBubble:not(.seated){opacity:0!important;pointer-events:none!important}
+/* Camera rails: four compact fixed slots, not a huge stretched portrait. */
+.oneV174Rail{top:calc(50% - 150px)!important;height:300px!important;width:min(19vw,82px)!important}
+.oneV174Slots{gap:4px!important;padding:3px!important}
+.oneV174Slot{aspect-ratio:auto!important}
+.oneV174Slot video{object-fit:cover!important}
+.oneV174Handle{height:38px!important;width:20px!important;font-size:19px!important}
+.oneV174Rail:not(.open) .oneV174Slots{visibility:hidden!important;pointer-events:none!important}
+.oneV174Rail.left:not(.open){transform:translateX(calc(-100% + 20px))!important}
+.oneV174Rail.right:not(.open){transform:translateX(calc(100% - 20px))!important}
 </style></body>
 </html>
 
