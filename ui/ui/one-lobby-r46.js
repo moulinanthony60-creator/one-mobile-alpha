@@ -1,8 +1,11 @@
 import {prepareScene} from './three17-r46-warmup.js?v=lobby-shoot-v88';
-import {createGameScreen} from './one-arcade-r198-picker.js?v=games-v198';
+import * as gamePicker from './one-arcade-r198-picker.js?v=fix-v200';
+const {createGameScreen}=gamePicker;
 
 import * as THREE from './three.module.js?v=lobby-shoot-v88';
-import {buildRoom} from './one-lobby-r46-room.js?v=games-v198';
+import * as roomModule from './one-lobby-r46-room.js?v=fix-v200';
+const {buildRoom}=roomModule;
+export const release=gamePicker.release==='v200'&&roomModule.release==='v200'?'v200':'incomplete';
 import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v88';
 import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v88';
 
@@ -334,8 +337,8 @@ function open(ctx={}){
  function stopStick(){drag=null;stickInput.x=stickInput.y=0;knob.style.transform='';}
  listen(stick,'pointerup',stopStick);listen(stick,'pointercancel',stopStick);
  const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();let touchX=0,touchY=0,moved=false;
- function hitScreen(x,y){const b=renderer.domElement.getBoundingClientRect();pointer.set((x-b.left)/b.width*2-1,-(y-b.top)/b.height*2+1);ray.setFromCamera(pointer,camera);if(ray.intersectObject(roomVisual.screen).length)gameScreen.open();}
- const zone=shell.querySelector('.one3d-look');zone.style.width='100%';listen(zone,'pointerdown',e=>{look=e.pointerId;touchX=lx=e.clientX;touchY=ly=e.clientY;moved=false;zone.setPointerCapture(look);});listen(zone,'pointermove',e=>{if(look!==e.pointerId)return;if(Math.hypot(e.clientX-touchX,e.clientY-touchY)>7)moved=true;if(!moved)return;yaw=Math.atan2(Math.sin(yaw-(e.clientX-lx)*.006),Math.cos(yaw-(e.clientX-lx)*.006));pitch=clamp(pitch-(e.clientY-ly)*.004,-.75,.65);lx=e.clientX;ly=e.clientY;});listen(zone,'pointerup',e=>{if(look===e.pointerId&&!moved)hitScreen(e.clientX,e.clientY);look=null;});listen(zone,'pointercancel',()=>look=null);
+ function hitScreen(x,y){const b=renderer.domElement.getBoundingClientRect();pointer.set((x-b.left)/b.width*2-1,-(y-b.top)/b.height*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObject(roomVisual.screen)[0];if(hit)gameScreen.open(roomVisual.gameBoard.gameAt(hit.uv));}
+ const zone=shell.querySelector('.one3d-look');zone.style.width='100%';listen(zone,'pointerdown',e=>{look=e.pointerId;touchX=lx=e.clientX;touchY=ly=e.clientY;moved=false;zone.setPointerCapture(look);});listen(zone,'pointermove',e=>{if(look!==e.pointerId)return;if(Math.hypot(e.clientX-touchX,e.clientY-touchY)>7)moved=true;if(!moved)return;yaw=Math.atan2(Math.sin(yaw-(e.clientX-lx)*.006),Math.cos(yaw-(e.clientX-lx)*.006));pitch=clamp(pitch-(e.clientY-ly)*.004,-.75,.65);lx=e.clientX;ly=e.clientY;});listen(zone,'pointerup',()=>{look=null;});listen(zone,'pointercancel',()=>{look=null;moved=true;});listen(zone,'click',e=>{if(!moved)hitScreen(e.clientX,e.clientY);});
   const sessionPanel=shell.querySelector('.one3d-session'),panelToggle=shell.querySelector('[data-panel-toggle]');
   const setPanelOpen=open=>{sessionPanel.dataset.collapsed=String(!open);panelToggle.setAttribute('aria-expanded',String(open));panelToggle.setAttribute('aria-label',open?'Réduire les commandes du salon':'Afficher les commandes du salon');panelToggle.textContent=open?'−':'+';};
   listen(panelToggle,'click',()=>setPanelOpen(sessionPanel.dataset.collapsed==='true'));
@@ -348,7 +351,7 @@ function open(ctx={}){
   const movement=['KeyW','KeyA','KeyS','KeyD','KeyZ','KeyQ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
   listen(window,'keydown',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();setSprint(true);}else if(movement.includes(e.code)){e.preventDefault();keys.add(e.code);}else if(e.code==='KeyF'&&!fightAction.hidden){e.preventDefault();if(!e.repeat)useFightAction();}else if(e.code==='KeyE'){e.preventDefault();gameScreen.open();}else if(e.code==='Escape')close();});listen(window,'keyup',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')setSprint(false);else keys.delete(e.code);});listen(window,'blur',()=>{keys.clear();stopStick();look=null;setSprint(false);});listen(document,'visibilitychange',()=>{keys.clear();stopStick();setSprint(false);last=performance.now();budget.reset();});
  shell.querySelector('[data-close]').onclick=()=>close();shell.querySelector('[data-reconnect]').onclick=()=>joinLobby(ctx,true);
- active={shell,renderer,scene,ro,stop(){stopped=true;alive=false;gameScreen.dispose();roomVisual.dispose();for(const v of avatars.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}cancelAnimationFrame(raf);abort.abort();offShot();off();},inspect:()=>({position:{...position},yaw,avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
+ active={shell,renderer,scene,ro,stop(){stopped=true;alive=false;gameScreen.dispose();roomVisual.dispose();for(const v of avatars.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}cancelAnimationFrame(raf);abort.abort();offShot();off();},inspect:()=>({position:{...position},yaw,avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),board:roomVisual.gameBoard.targets.map(t=>{const p=roomVisual.screen.localToWorld(new THREE.Vector3((t.u-.5)*roomVisual.screen.geometry.parameters.width,(t.v-.5)*roomVisual.screen.geometry.parameters.height,0)).project(camera),b=renderer.domElement.getBoundingClientRect();return {id:t.id,x:b.left+(p.x+1)*b.width/2,y:b.top+(1-p.y)*b.height/2};}),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
  raf=requestAnimationFrame(frame);joinLobby(ctx);
 }
 function disposeObject(object){

@@ -1,5 +1,6 @@
 import {GAMES} from './one-arcade-r198-core.js?v=games-v198';
 import {arcadeState,selectGame,toggleReady,startArcade,subscribeArcade} from './one-arcade-r198-session.js?v=games-v198';
+export const release='v200';
 
 export function createGameScreen({shell,lobbyState,setReady,startRound,reset}){
  const style=document.createElement('style');style.textContent=`
@@ -23,5 +24,5 @@ export function createGameScreen({shell,lobbyState,setReady,startRound,reset}){
  q('button[data-ready]').onclick=()=>{if(arcadeState().selection.game==='317')setReady();else toggleReady();refresh();};q('[data-start]').onclick=()=>{if(arcadeState().selection.game==='317')startRound();else startArcade();};q('[data-screen-close]').onclick=()=>panel.close();
  panel.addEventListener('close',()=>{reset();shell.querySelector('[data-screen-open]')?.focus();});for(const event of['keydown','pointerdown','pointerup','pointermove','click','touchstart','touchmove','touchend'])panel.addEventListener(event,e=>e.stopPropagation());
  const off=subscribeArcade(refresh),timer=setInterval(refresh,180);
- return {get opened(){return panel.open;},open(){if(panel.open)return;reset();signature='';panel.showModal();refresh();},close(){panel.close();},dispose(){disposed=true;off();clearInterval(timer);panel.remove();style.remove();}};
+ return {get opened(){return panel.open;},open(gameId){if(panel.open)return;reset();const a=arcadeState();if(games.some(g=>g.id===gameId)&&lobbyState().isHost&&!a.pending&&a.selection.game!==gameId)selectGame(gameId,1);signature='';panel.showModal();refresh();if(gameId&&arcadeState().selection.game===gameId)q('.screen-setup').scrollIntoView({block:'nearest'});},close(){panel.close();},dispose(){disposed=true;off();clearInterval(timer);panel.remove();style.remove();}};
 }

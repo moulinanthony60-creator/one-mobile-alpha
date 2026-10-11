@@ -1,5 +1,7 @@
 import * as THREE from './three.module.js?v=lobby-shoot-v89';
 import {GLTFLoader} from './GLTFLoader.js?v=lobby-shoot-v89';
+import {createGameBoard} from './one-lobby-r199-board.js?v=fix-v200';
+export const release='v200';
 
 // R69: expanded ONE lobby with playable casino machines and open ONE FIGHT room.
 export function buildRoom(scene,renderer,alive,dispose){
@@ -68,18 +70,11 @@ export function buildRoom(scene,renderer,alive,dispose){
  for(const x of [-17.8,17.8]){tube(9.4,.045,.045,x,3.86,-4.85);tube(9.4,.045,.045,x,3.86,4.85);} 
  for(const x of [-4.8,4.8])tube(3.2,.035,.035,x,.16,-3.52);
  
- // Poster / game screen in main room.
- const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=512;const c=canvas.getContext('2d'),gradient=c.createLinearGradient(0,0,1024,512);
- gradient.addColorStop(0,'#e9dbff');gradient.addColorStop(.5,'#f7e5de');gradient.addColorStop(1,'#caeee5');c.fillStyle=gradient;c.fillRect(0,0,1024,512);
- c.fillStyle='#aa83dc26';for(const [x,y,r] of [[100,50,190],[980,400,180],[840,0,100]]){c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();}
- c.textAlign='center';c.fillStyle='#655074';c.font='600 23px system-ui';c.fillText('VOTRE ÉCRAN DE JEUX 3D',512,85);
- c.fillStyle='#62418b';c.font='800 186px system-ui';c.fillText('ONE',512,280);
- c.fillStyle='#735889';c.font='500 31px system-ui';c.fillText('Touchez pour choisir votre jeu',512,353);
- c.font='600 23px system-ui';c.fillText('PEINTURE · MURDER · TIR · PROP HUNT · 3:17',512,435);
- const poster=new THREE.CanvasTexture(canvas);poster.colorSpace=THREE.SRGBColorSpace;
- box(5.78,2.92,.18,cream,0,2.25,-6.64);const screen=plane(5.54,2.72,new THREE.MeshBasicMaterial({map:poster,toneMapped:false}),0,2.25,-6.54);
- for(const x of [-2.92,2.92])tube(.045,2.99,.045,x,2.25,-6.49);
- for(const y of [.755,3.745])tube(5.88,.045,.045,0,y,-6.49);
+ // The five visible cards are also the touch targets on the wall screen.
+ const gameBoard=createGameBoard(),poster=new THREE.CanvasTexture(gameBoard.canvas);poster.colorSpace=THREE.SRGBColorSpace;poster.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+ box(6.38,3.28,.18,cream,0,2.08,-6.64);const screen=plane(6.16,3.08,new THREE.MeshBasicMaterial({map:poster,toneMapped:false}),0,2.08,-6.54);
+ for(const x of [-3.22,3.22])tube(.045,3.35,.045,x,2.08,-6.49);
+ for(const y of [.405,3.755])tube(6.48,.045,.045,0,y,-6.49);
  
  // Main lounge rug / shadows
  const rugCanvas=document.createElement('canvas');rugCanvas.width=rugCanvas.height=512;const rc=rugCanvas.getContext('2d');rc.fillStyle='#beaad7';rc.fillRect(0,0,512,512);let seed=731;
@@ -209,5 +204,5 @@ export function buildRoom(scene,renderer,alive,dispose){
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const t=y/h;data.set([Math.round(155-60*t),Math.round(163-75*t),Math.round(182-102*t),255],(y*w+x)*4);}
  const environment=new THREE.DataTexture(data,w,h);environment.mapping=THREE.EquirectangularReflectionMapping;environment.needsUpdate=true;
  const pmrem=new THREE.PMREMGenerator(renderer),env=pmrem.fromEquirectangular(environment);scene.environment=env.texture;scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
- return {root,screen,ready,fightBatSpots,gunSpots,shootTargets,dispose(){scene.environment=null;env.dispose();}};
+ return {root,screen,gameBoard,ready,fightBatSpots,gunSpots,shootTargets,dispose(){scene.environment=null;env.dispose();}};
 }
