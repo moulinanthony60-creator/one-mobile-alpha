@@ -201,8 +201,11 @@ export function leaveLobby(){
 function heartbeat(){
   if(!joined||round||arcadeActive)return;
   if(pending&&now()-pending.at>8000){pending=null;notice='Un joueur ne répond pas au lancement. Réessayez la connexion.';}
+  const match=window.ONEMatchmaking?.current();
+  // Public search is automatic. A late game-selection packet may reset readiness.
+  if(match?.game==='317')ready=true;
   if(isHost())rebuildRoster();else if(host())send(host().accountId,'hello43',{ready,session,poseVersion:203});
-  const match=window.ONEMatchmaking?.current();if(match?.game==='317'&&!pending){if(legacyPublicRoom!==roomNow()?.id){legacyPublicRoom=roomNow()?.id;ready=true;}if(isHost()&&roster.length===match.capacity&&canStart())void startRound();}
+  if(match?.game==='317'&&!pending&&isHost()&&roster.length===match.capacity&&canStart())void startRound();
   redraw();
 }
 export function installCoop(open){

@@ -38,12 +38,108 @@ export const WORLDS={
  shoot:{width:40,depth:30,name:'Traverse · quartier industriel',floor:'#a5adb3',sky:'#a8c8d8',surface:'concrete',spawns:[[-16,-8],[16,8],[-16,-3],[16,3],[-16,3],[16,-3],[-16,8],[16,-8]],walls:[...boundary(40,30,5),wall(-8,-9,.6,7,3.3,1),wall(8,9,.6,7,3.3,2),wall(-8,7,1.7,4,2.2,1),wall(8,-7,1.7,4,2.2,2),wall(0,-10,4,1.5,1.5,5),wall(0,10,4,1.5,1.5,5),wall(0,0,3,.7,2.6,5)],props:objects([['crate',-13,-12],['barrel',-12,-12],['crate',13,12],['barrel',12,12],['crate',-3,-4],['barrel',-4,-4],['crate',3,4],['barrel',4,4],['cone',-10,0],['cone',10,0],['crate',-4,8],['crate',4,-8],['trolley',-18,11],['trolley',18,-11],['barrel',-2,13],['barrel',2,-13],['crate',-18,-12],['crate',18,12]]),zones:[[-16,0,6,28,3],[16,0,6,28,4]],labels:['BASE BLEUE','BASE ROSE']},
  murder:{width:40,depth:32,name:'Villa Minuit · les salons',floor:'#b08c64',sky:'#7f91a8',surface:'wood',spawns:[[-16,-10],[16,-10],[-16,-3],[16,-3],[-16,3],[16,3],[-16,10],[16,10]],walls:[...boundary(40,32,5),wall(-6,-11,.45,9,3.7,1),wall(-6,11,.45,9,3.7,2),wall(6,-11,.45,9,3.7,3),wall(6,11,.45,9,3.7,4),wall(-14,-5,6,.4,3.2,1),wall(14,5,6,.4,3.2,4)],props:objects([['sofa',-13,-12],['table',-13,-9],['lamp',-16,-12],['shelf',-9,-13],['plant',-18,-13],['sofa',13,12],['table',13,9],['lamp',16,12],['shelf',9,13],['plant',18,13],['table',-13,9],['chair',-13,7.6],['chair',-13,10.4],['arcade',-9,13],['plant',-18,13],['shelf',13,-12],['chair',13,-8],['lamp',16,-12],['plant',18,-13],['bench',0,-10],['bench',0,10],['sculpture',-3,0],['sculpture',3,0],['plant',-9,0],['plant',9,0],['shelf',-3,-13],['shelf',3,13],['stool',10,-8],['stool',-10,8]]),zones:[[-13,-10,12,9,1],[-13,10,12,9,2],[13,-10,12,9,3],[13,10,12,9,4]],labels:['BIBLIOTHÈQUE / SALON','ATELIER / VESTIBULE']}
 };
+// Two outer galleries add hiding routes without closing the central paths.
+{
+ const m=WORLDS.paint;m.width=64;m.depth=48;m.name='Les ateliers Chromatiques · Grande galerie';
+ m.walls.splice(0,4,...boundary(64,48,0));
+ m.spawns=[[-28,-19],[28,-19],[-28,-7],[28,-7],[-28,7],[28,7],[-28,19],[28,19]];
+ m.seekerSpawn=[0,21];m.hunt=190;
+ for(const s of [-1,1])for(const z of [-14,14])m.walls.push(wall(s*24,z,.4,12,4.2,s<0?1:3));
+ for(const s of [-1,1])for(const z of [-20,-12,-4,4,12,20]){
+  const rows=[['shelf',s*30.8,z,Math.abs(z)%6],['paintpot',s*29.6,z-1,2],['stool',s*28.6,z+.9,1],['crate',s*25.8,z+.9,3]];
+  for(const [type,x,d,c]of rows)m.props.push({id:'extra'+m.props.length,type,x,z:d,c});
+ }
+ for(const z of [-21,21])for(const x of [-18,-10,10,18])for(const [type,dx,dz,c]of [['easel',0,0,4],['paintpot',1.3,0,2],['bench',0,z<0?2:-2,1],['plant',-1.7,0,1]])m.props.push({id:'extra'+m.props.length,type,x:x+dx,z:z+dz,c});
+ m.zones.push([-28,-13,7,19,1],[-28,13,7,19,2],[28,-13,7,19,3],[28,13,7,19,4],[0,-21,38,5,5],[0,21,38,5,0]);
+}
+{
+ const m=WORLDS.prop;m.width=64;m.depth=48;m.name='La grande brocante · Dépôts et ateliers';m.walls.splice(0,4,...boundary(64,48,0));
+ m.spawns=[[-28,-18],[28,-18],[-28,-6],[28,-6],[-28,6],[28,6],[-28,18],[28,18]];m.seekerSpawn=[0,21];m.hunt=190;
+ for(const side of [-1,1])for(const z of [-16,0,16]){
+  // Low-to-high furniture forms reachable jumping routes.
+  for(const [type,dx,dz,c]of [['stool',0,0,0],['table',1.5,0,1],['shelf',3.5,0,2],['crate',1.5,2,3],['barrel',4,2,4],['lamp',4.6,-1.8,5],['plant',-1.4,-1.4,1]])m.props.push({id:'prop-extra'+m.props.length,type,x:side*(25+dx),z:z+dz,c});
+ }
+ for(const z of [-21,21])for(const x of [-18,-9,9,18])for(const [type,dx,dz,c]of [['sofa',0,0,2],['stool',-1.6,0,0],['table',0,z<0?1.8:-1.8,1],['trolley',2.2,0,3],['cone',3.3,0,4]])m.props.push({id:'prop-extra'+m.props.length,type,x:x+dx,z:z+dz,c});
+ m.zones.push([-27,0,9,45,2],[27,0,9,45,3],[0,-21,38,5,0],[0,21,38,5,4]);
+}
+
 const worldBlocks=new WeakMap();
 export function worldFor(game){return WORLDS[game]||WORLD;}
 export function blocksFor(world=WORLD){if(!worldBlocks.has(world))worldBlocks.set(world,[...world.walls,...world.props.map(p=>({...p,...PROP_TYPES[p.type]}))]);return worldBlocks.get(world);}
-export const avatarScale=game=>game==='paint'?.7:game==='prop'?.76:1;
-export function bodyRadius(p){return p.prop?Math.max(PROP_TYPES[p.prop].w,PROP_TYPES[p.prop].d)/2+.02:.3*(p.scale||1);}
+export const avatarScale=game=>game==='paint'?.35:game==='prop'?.76:1;
+export function bodyRadius(p){if(p.paintPose)return paintRadius(p);return p.prop?Math.max(PROP_TYPES[p.prop].w,PROP_TYPES[p.prop].d)/2+.02:.3*(p.scale||1);}
 export function freePosition(x,z,r=.3,world=WORLD){return Math.abs(x)<world.width/2-.2-r&&Math.abs(z)<world.depth/2-.2-r&&!blocksFor(world).some(b=>Math.abs(x-b.x)<b.w/2+r&&Math.abs(z-b.z)<b.d/2+r);}
+
+// The six painted body pieces define both the displayed pose and shot volumes.
+export const PAINT_POSES={stand:'Debout',crouch:'Accroupi',prone:'Allongé',spread:'Écarté'};
+export const PAINT_CEILING=4.2;
+const ident=[1,0,0,0,1,0,0,0,1];
+const rotX=a=>[1,0,0,0,Math.cos(a),-Math.sin(a),0,Math.sin(a),Math.cos(a)];
+const rotY=a=>[Math.cos(a),0,Math.sin(a),0,1,0,-Math.sin(a),0,Math.cos(a)];
+const rotZ=a=>[Math.cos(a),-Math.sin(a),0,Math.sin(a),Math.cos(a),0,0,0,1];
+const vector=(r,v)=>[0,1,2].map(i=>r[i*3]*v[0]+r[i*3+1]*v[1]+r[i*3+2]*v[2]);
+const multiply=(a,b)=>Array.from({length:9},(_,i)=>{const y=Math.floor(i/3),x=i%3;return a[y*3]*b[x]+a[y*3+1]*b[x+3]+a[y*3+2]*b[x+6];});
+export function paintModel(p){
+ const pose=p.paintPose||'stand',part=(size,position,rotation=ident)=>({size,position,rotation});
+ const pieces=[part([.43,.43,.4],[0,1.54,0]),part([.48,.62,.3],[0,.99,0]),part([.13,.55,.2],[-.30,1,0]),part([.13,.55,.2],[.30,1,0]),part([.2,.64,.27],[-.13,.34,0]),part([.2,.64,.27],[.13,.34,0])];
+ if(pose==='crouch'){
+  pieces[0].position=[0,.98,-.06];pieces[1].position=[0,.64,.03];pieces[1].rotation=rotX(-.16);
+  for(const [i,s]of [[2,-1],[3,1]]){pieces[i].position=[s*.30,.57,-.14];pieces[i].rotation=rotX(-.65);}
+  for(const [i,s]of [[4,-1],[5,1]]){pieces[i].position=[s*.15,.22,.02];pieces[i].rotation=rotX(1.05);}
+ }else if(pose==='spread'){
+  for(const [i,s]of [[2,-1],[3,1]]){pieces[i].position=[s*.46,1.13,0];pieces[i].rotation=rotZ(s*-.95);}
+  for(const [i,s]of [[4,-1],[5,1]]){pieces[i].position=[s*.23,.33,0];pieces[i].rotation=rotZ(s*.34);}
+ }
+ if(pose==='prone'||p.anchor?.kind==='ceiling'){for(const piece of pieces){piece.position=vector(rotX(-Math.PI/2),piece.position).map((n,i)=>n+[0,.235,.86][i]);piece.rotation=multiply(rotX(-Math.PI/2),piece.rotation);}const bottom=Math.min(...pieces.map(piece=>piece.position[1]-piece.size.reduce((sum,n,j)=>sum+Math.abs(piece.rotation[3+j])*n/2,0)));for(const piece of pieces)piece.position[1]+=.025-bottom;}
+ if(p.anchor?.kind==='ceiling')for(const piece of pieces){piece.position=vector(rotX(Math.PI),piece.position);piece.rotation=multiply(rotX(Math.PI),piece.rotation);}
+ return pieces;
+}
+export function paintYaw(p){return p.anchor?.kind==='wall'?Math.atan2(p.anchor.nx,p.anchor.nz):p.frozen?(p.facing||0):(p.yaw||0);}
+export function paintParts(p){const scale=p.scale||.35,r=rotY(paintYaw(p));return paintModel(p).map(piece=>({size:piece.size.map(n=>n*scale),position:vector(r,piece.position.map(n=>n*scale)).map((n,i)=>n+[p.x||0,p.y||0,p.z||0][i]),rotation:multiply(r,piece.rotation)}));}
+export function paintBounds(p){const min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];for(const part of paintParts(p))for(let axis=0;axis<3;axis++){const extent=part.size.reduce((sum,n,j)=>sum+Math.abs(part.rotation[axis*3+j])*n/2,0);min[axis]=Math.min(min[axis],part.position[axis]-extent);max[axis]=Math.max(max[axis],part.position[axis]+extent);}return {min,max,w:max[0]-min[0],h:max[1]-min[1],d:max[2]-min[2]};}
+export function paintRadius(p){const model=paintBounds({...p,x:0,y:0,z:0,yaw:0,frozen:false,anchor:p.anchor?.kind==='ceiling'?{kind:'ceiling'}:null});return Math.hypot(Math.max(Math.abs(model.min[0]),Math.abs(model.max[0])),Math.max(Math.abs(model.min[2]),Math.abs(model.max[2])))+.015;}
+export function paintEye(p){const h=paintParts(p)[0];return {x:h.position[0],y:h.position[1]+.02*(p.anchor?.kind==='ceiling'?-1:1),z:h.position[2]};}
+export function paintRayHit(o,d,p,range=45){let hit=Infinity;for(const part of paintParts(p)){const r=part.rotation,inv=[r[0],r[3],r[6],r[1],r[4],r[7],r[2],r[5],r[8]],v=vector(inv,[o.x-part.position[0],o.y-part.position[1],o.z-part.position[2]]),dir=vector(inv,[d.x,d.y,d.z]);hit=Math.min(hit,rayBox({x:v[0],y:v[1]+part.size[1]/2,z:v[2]},{x:dir[0],y:dir[1],z:dir[2]},{x:0,z:0,w:part.size[0],h:part.size[1],d:part.size[2]},range));}return hit;}
+export function paintFits(p,world=worldFor('paint'),ignore=-1){const b=paintBounds(p);if(b.min[0]<-world.width/2+.2||b.max[0]>world.width/2-.2||b.min[2]<-world.depth/2+.2||b.max[2]>world.depth/2-.2||b.min[1]<-.025||b.max[1]>PAINT_CEILING-.005)return false;return !blocksFor(world).some((o,i)=>i!==ignore&&b.min[0]<o.x+o.w/2&&b.max[0]>o.x-o.w/2&&b.min[2]<o.z+o.d/2&&b.max[2]>o.z-o.d/2&&b.min[1]<o.h&&b.max[1]>0);}
+function wallPosition(p,a,world){const w=world.walls[a.wall],n=a.nx?'x':'z',extent=a.nx?w.w:w.d,normal=a.nx||a.nz,b=paintBounds({...p,x:0,y:0,z:0,anchor:a}),depth=Math.max(Math.abs(b.min[a.nx?0:2]),Math.abs(b.max[a.nx?0:2]));return {...p,anchor:a,[n]:w[n]+normal*(extent/2+depth+.03)};}
+export function nearbyPaintWall(p,world=worldFor('paint')){if(p.anchor||p.falling)return null;let best=null,range=1.1;world.walls.forEach((w,wall)=>{for(const [nx,nz]of [[1,0],[-1,0],[0,1],[0,-1]]){const a={kind:'wall',wall,nx,nz},next=wallPosition(p,a,world),d=Math.hypot(p.x-next.x,p.z-next.z),along=nx?Math.abs(p.z-w.z)<w.d/2-.4:Math.abs(p.x-w.x)<w.w/2-.4;if((p.x-w.x)*nx+(p.z-w.z)*nz<(nx?w.w:w.d)/2||!along||d>range||!paintFits(next,world))continue;const o=paintEye(p),dest=paintEye(next),length=Math.hypot(dest.x-o.x,dest.y-o.y,dest.z-o.z),direction={x:(dest.x-o.x)/(length||1),y:(dest.y-o.y)/(length||1),z:(dest.z-o.z)/(length||1)};if(blocksFor(world).some((b,i)=>i!==wall&&rayBox(o,direction,b,length)<length-.02))continue;best=next;range=d;}});return best;}
+export function paintDrop(p,world=worldFor('paint')){let next={...p,paintPose:'stand',anchor:null,frozen:false,facing:p.yaw||0};const r=paintRadius(next);if(p.anchor?.kind==='wall'){next.x+=p.anchor.nx*(r+.04);next.z+=p.anchor.nz*(r+.04);}if(!freePosition(next.x,next.z,r,world))return null;next.falling=next.y>0;next.velocity=0;return next;}
+export function changePaintPose(p,pose,world=worldFor('paint')){if(!Object.hasOwn(PAINT_POSES,pose)||p.falling)return false;let next={...p,paintPose:pose};if(p.anchor?.kind==='wall')next=wallPosition(next,p.anchor,world);if(!paintFits(next,world))return false;Object.assign(p,next);return true;}
+export function advancePaint(p,input,dt,world=worldFor('paint')){
+ if(p.falling){p.velocity=(p.velocity||0)-9*dt;p.y=Math.max(0,(p.y||0)+p.velocity*dt);if(p.y===0){p.falling=false;p.velocity=0;}return;}
+ if(p.frozen)return;
+ const a=p.anchor;
+ if(a?.kind==='wall'){
+  const w=world.walls[a.wall],b=paintBounds({...p,y:0}),maxY=Math.max(0,w.h-b.max[1]-.03),next={...p,y:clamp((p.y||0)-input.z*1.7*dt,0,maxY)};
+  next.x+=a.nz*input.x*1.7*dt;next.z-=a.nx*input.x*1.7*dt;
+  const margin=paintRadius(p),within=a.nx?Math.abs(next.z-w.z)<w.d/2-margin:Math.abs(next.x-w.x)<w.w/2-margin;
+  if(within&&paintFits(next,world))Object.assign(p,next);
+  if(input.z<-.1&&p.y>=maxY-.02&&w.h>=PAINT_CEILING-.08){const roof={...p,anchor:{kind:'ceiling'},paintPose:'prone',y:PAINT_CEILING-.025};const offset=paintRadius(roof)+.06;roof.x=w.x+a.nx*(w.w/2+offset)+(a.nx?0:p.x-w.x);roof.z=w.z+a.nz*(w.d/2+offset)+(a.nz?0:p.z-w.z);if(paintFits(roof,world))Object.assign(p,roof);}
+ }else if(a?.kind==='ceiling'){
+  const steps=Math.max(1,Math.ceil(Math.hypot(input.x,input.z)*1.9*dt/.06));for(let i=0;i<steps;i++){const dx=input.x*1.9*dt/steps,dz=input.z*1.9*dt/steps;for(const [key,v]of [['x',dx],['z',dz]]){const next={...p,[key]:p[key]+v};if(paintFits(next,world))p[key]=next[key];}}
+ }else{const speed=p.paintPose==='prone'?1.2:p.paintPose==='crouch'?2.0:3.8;moveBody(p,input.x*speed*dt,input.z*speed*dt,paintRadius(p),world);p.y=0;}
+}
+export function validPaintPlayer(p){return Object.hasOwn(PAINT_POSES,p.paintPose)&&Number.isFinite(p.y)&&p.y>=0&&p.y<=PAINT_CEILING&&Number.isFinite(p.facing)&&typeof p.falling==='boolean'&&(!p.anchor||(p.anchor.kind==='ceiling'&&Math.abs(p.y-(PAINT_CEILING-.025))<.001)||(p.anchor.kind==='wall'&&Number.isInteger(p.anchor.wall)&&p.anchor.wall>=0&&p.anchor.wall<worldFor('paint').walls.length&&[[1,0],[-1,0],[0,1],[0,-1]].some(([x,z])=>x===p.anchor.nx&&z===p.anchor.nz)));}
+
+export function propFree(x,z,y,r,world=worldFor('prop')){return Math.abs(x)<world.width/2-.2-r&&Math.abs(z)<world.depth/2-.2-r&&!blocksFor(world).some(b=>y<b.h-.012&&Math.abs(x-b.x)<b.w/2+r&&Math.abs(z-b.z)<b.d/2+r);}
+function propSupport(p,b,r){return Math.abs(p.x-b.x)<b.w/2+r*.6&&Math.abs(p.z-b.z)<b.d/2+r*.6;}
+export function advanceProp(p,input,dt,world=worldFor('prop')){
+ const radius=bodyRadius(p),speed=p.moveSpeed||(p.prop?3:3.8),steps=Math.max(1,Math.ceil(dt/.012)),slice=dt/steps;
+ for(let i=0;i<steps;i++){
+  const before=p.y||0;if(!p.grounded)p.velocity=(p.velocity||0)-10*slice;let y=before+(p.velocity||0)*slice;
+  if((p.velocity||0)<=0){let top=0;for(const b of blocksFor(world))if(before>=b.h-.025&&y<=b.h&&propSupport(p,b,radius))top=Math.max(top,b.h);if(y<=top){y=top;p.velocity=0;p.grounded=true;}}
+  p.y=Math.max(0,y);
+  if(!p.frozen){const dx=input.x*speed*slice,dz=input.z*speed*slice;if(propFree(p.x+dx,p.z,p.y,radius,world))p.x+=dx;if(propFree(p.x,p.z+dz,p.y,radius,world))p.z+=dz;}
+  if(p.grounded&&p.y>.001&&!blocksFor(world).some(b=>Math.abs(p.y-b.h)<.03&&propSupport(p,b,radius)))p.grounded=false;
+ }
+}
+
+export function shootSpawn(players,self,world,randomize,serial=0){
+ const candidates=world.spawns.concat([[-16,7],[16,-7],[-9,-12],[9,12],[-2,-12],[2,12],[-16,0],[16,0]]).filter(([x,z])=>freePosition(x,z,.31,world));
+ const enemies=players.filter(p=>p.id!==self.id&&p.connected&&p.alive&&p.team!==self.team),friends=players.filter(p=>p.id!==self.id&&p.connected&&p.alive&&p.team===self.team),blocks=blocksFor(world);
+ const ranked=candidates.map(([x,z],i)=>{let score=20;for(const p of enemies){const distance=Math.hypot(x-p.x,z-p.z),d={x:(p.x-x)/(distance||1),y:0,z:(p.z-z)/(distance||1)},covered=blocks.some(b=>rayBox({x,y:1.5,z},d,b,distance)<distance);score=Math.min(score,distance+(covered?8:0));}if(friends.some(p=>Math.hypot(x-p.x,z-p.z)<1.2))score-=30;if(Math.hypot(x-(self.lastSpawn?.[0]??999),z-(self.lastSpawn?.[1]??999))<1)score-=10;return {x,z,score,i};}).sort((a,b)=>b.score-a.score);
+ const safe=ranked.filter(p=>p.score>=ranked[0].score-3).slice(0,4),pick=safe[(Math.floor(randomize()*safe.length)+serial)%safe.length];return [pick.x,pick.z];
+}
 
 export const PAINT_GRID=12,PAINT_CELLS=PAINT_GRID*PAINT_GRID*36;
 export function encodeSkin(pixels){let result='',count=0,last=pixels[0];for(const color of pixels){if(color!==last||count===1295){result+=count.toString(36).padStart(2,'0')+last;count=0;last=color;}count++;}result+=count.toString(36).padStart(2,'0')+last;if(result.length<=1800)return result;let packed='~';for(let i=0;i<pixels.length;i+=2)packed+=(pixels[i]*6+pixels[i+1]).toString(36);return packed;}
@@ -59,9 +155,9 @@ export function moveBody(p,dx,dz,r=.3,world=WORLD){
  const free=(x,z)=>freePosition(x,z,r,world);
  const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.16));for(let i=0;i<steps;i++){if(free(p.x+dx/steps,p.z))p.x+=dx/steps;if(free(p.x,p.z+dz/steps))p.z+=dz/steps;}return p;
 }
-export function rayBox(o,d,b,max=50){let near=0,far=max;for(const [k,lo,hi]of [['x',b.x-b.w/2,b.x+b.w/2],['y',0,b.h],['z',b.z-b.d/2,b.z+b.d/2]]){if(Math.abs(d[k])<1e-8){if(o[k]<lo||o[k]>hi)return Infinity;}else{let a=(lo-o[k])/d[k],c=(hi-o[k])/d[k];if(a>c)[a,c]=[c,a];near=Math.max(near,a);far=Math.min(far,c);if(near>far)return Infinity;}}return near;}
+export function rayBox(o,d,b,max=50){let near=0,far=max;for(const [k,lo,hi]of [['x',b.x-b.w/2,b.x+b.w/2],['y',b.y||0,(b.y||0)+b.h],['z',b.z-b.d/2,b.z+b.d/2]]){if(Math.abs(d[k])<1e-8){if(o[k]<lo||o[k]>hi)return Infinity;}else{let a=(lo-o[k])/d[k],c=(hi-o[k])/d[k];if(a>c)[a,c]=[c,a];near=Math.max(near,a);far=Math.min(far,c);if(near>far)return Infinity;}}return near;}
 export function dimensions(p){return p.prop?PROP_TYPES[p.prop]:{w:.6*(p.scale||1),h:(p.frozen?1.0:1.8)*(p.scale||1),d:.6*(p.scale||1)};}
-export function eyeHeight(p){return p.prop?Math.min(1.15,dimensions(p).h*.8):(p.frozen?.8:1.57)*(p.scale||1);}
+export function eyeHeight(p){if(p.paintPose)return paintEye(p).y;return (p.y||0)+(p.prop?Math.min(1.15,dimensions(p).h*.8):(p.frozen?.8:1.57)*(p.scale||1));}
 export function aim(p){return {x:-Math.sin(p.yaw)*Math.cos(p.pitch),y:Math.sin(p.pitch),z:-Math.cos(p.yaw)*Math.cos(p.pitch)};}
 export function nearbyProp(p,world=WORLD){let best=null,distance=2.8;for(const o of world.props){const d=Math.hypot(o.x-p.x,o.z-p.z);if(d<distance){distance=d;best=o;}}return best;}
 const random=()=>crypto.getRandomValues(new Uint32Array(1))[0]/4294967296;
@@ -70,7 +166,8 @@ export function createMatch({game,size=1,players,randomize=random}){
  const shuffled=players.map(p=>({...p}));for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(randomize()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
  const world=worldFor(game),blocks=blocksFor(world),hiding=game==='paint'||game==='prop',state={game,size,elapsed:0,phase:hiding?'prepare':'play',until:hiding?world.prepare:180,score:[0,0],target:size*5,finished:false,winner:'',reason:'',gun:null,events:[],players:[]};
  const hunters=Math.max(1,Math.floor(players.length/3));
- state.players=shuffled.map((p,i)=>{const role=game==='shoot'?'fighter':game==='murder'?i===0?'murderer':i===1?'armed':'innocent':i<hunters?'seeker':'hider';const team=game==='shoot'?i%2:role==='hider'?1:0,spawn=game==='shoot'?world.spawns[i]:hiding&&role==='seeker'?world.seekerSpawn:world.spawns[i];return {id:p.id,name:String(p.name||'Membre').slice(0,40),role,team,scale:avatarScale(game),paintPixels:new Uint8Array(PAINT_CELLS),skin:encodeSkin(new Uint8Array(PAINT_CELLS)),x:spawn[0],z:spawn[1],yaw:spawn[0]<-1?-Math.PI/2:spawn[0]>1?Math.PI/2:0,pitch:0,hp:100,alive:true,connected:true,kills:0,deaths:0,ammo:12,reloadAt:0,respawnAt:0,invincible:0,cooldown:0,drawn:game==='shoot'||role==='seeker',colors:[0,0,0],prop:null,propColor:0,frozen:false,seq:0,input:{x:0,z:0}}});
+ state.players=shuffled.map((p,i)=>{const role=game==='shoot'?'fighter':game==='murder'?i===0?'murderer':i===1?'armed':'innocent':i<hunters?'seeker':'hider';const team=game==='shoot'?i%2:role==='hider'?1:0,spawn=game==='shoot'?world.spawns[i]:hiding&&role==='seeker'?world.seekerSpawn:world.spawns[i];return {id:p.id,name:String(p.name||'Membre').slice(0,40),role,team,y:0,velocity:0,grounded:true,falling:false,paintPose:game==='paint'?'stand':null,anchor:null,facing:0,scale:avatarScale(game),paintPixels:new Uint8Array(PAINT_CELLS),skin:encodeSkin(new Uint8Array(PAINT_CELLS)),x:spawn[0],z:spawn[1],yaw:spawn[0]<-1?-Math.PI/2:spawn[0]>1?Math.PI/2:0,pitch:0,hp:100,alive:true,connected:true,kills:0,deaths:0,ammo:game==='shoot'?24:12,weaponMode:'auto',stamina:100,burstLeft:0,burstAt:0,burstSeq:0,respawnSerial:0,reloadAt:0,respawnAt:0,invincible:0,cooldown:0,drawn:game==='shoot'||role==='seeker',colors:[0,0,0],prop:null,propColor:0,frozen:false,seq:0,input:{x:0,z:0}}});
+ if(game==='shoot')for(const p of state.players){const pos=shootSpawn(state.players,p,world,randomize);p.x=pos[0];p.z=pos[1];p.lastSpawn=pos;p.yaw=p.x<0?-Math.PI/2:Math.PI/2;}
  const player=id=>state.players.find(p=>p.id===id);
  function finish(winner,reason){if(state.finished)return;state.finished=true;state.phase='finished';state.winner=winner;state.reason=reason;for(const p of state.players)p.input={x:0,z:0};}
  function endCheck(){
@@ -79,34 +176,41 @@ export function createMatch({game,size=1,players,randomize=random}){
   else if(game==='murder'){if(!live.some(p=>p.role==='murderer'))finish('Les innocents gagnent','Le tueur a été arrêté.');else if(!live.some(p=>p.role!=='murderer'))finish('Le tueur gagne','Tous les innocents ont été éliminés.');}
   else if(!live.some(p=>p.role==='hider'))finish('Les chasseurs gagnent','Tous les joueurs cachés ont été trouvés.');else if(!live.some(p=>p.role==='seeker'))finish('Les cachés gagnent','Il ne reste aucun chasseur.');
  }
- function eliminate(p,by){if(!p.alive)return;p.alive=false;p.hp=0;p.deaths++;p.input={x:0,z:0};if(by&&by!==p)by.kills++;if(game==='murder'&&p.role==='armed')state.gun={x:p.x,z:p.z};if(game==='shoot'){p.respawnAt=state.elapsed+3;if(by&&by.team!==p.team){state.score[by.team]++;if(state.score[by.team]>=state.target)finish(by.team===0?'Équipe bleue gagnante':'Équipe rose gagnante','Objectif de '+state.target+' éliminations atteint.');}}endCheck();}
- function input(id,data){const p=player(id);if(!p||!p.connected||!data||![data.x,data.z,data.yaw,data.pitch].every(Number.isFinite))return false;p.input={x:clamp(data.x,-1,1),z:clamp(data.z,-1,1)};const length=Math.hypot(p.input.x,p.input.z);if(length>1){p.input.x/=length;p.input.z/=length;}p.yaw=Math.atan2(Math.sin(data.yaw),Math.cos(data.yaw));p.pitch=clamp(data.pitch,-1.25,1.25);return true;}
+ function eliminate(p,by){if(!p.alive)return;p.alive=false;p.burstLeft=0;p.hp=0;p.deaths++;p.input={x:0,z:0};if(by&&by!==p)by.kills++;if(game==='murder'&&p.role==='armed')state.gun={x:p.x,z:p.z};if(game==='shoot'){p.respawnAt=state.elapsed+3;if(by&&by.team!==p.team){state.score[by.team]++;if(state.score[by.team]>=state.target)finish(by.team===0?'Équipe bleue gagnante':'Équipe rose gagnante','Objectif de '+state.target+' éliminations atteint.');}}endCheck();}
+ function input(id,data){const p=player(id);if(!p||!p.connected||!data||![data.x,data.z,data.yaw,data.pitch].every(Number.isFinite))return false;p.input={x:clamp(data.x,-1,1),z:clamp(data.z,-1,1),sprint:game==='shoot'&&data.sprint===true};const length=Math.hypot(p.input.x,p.input.z);if(length>1){p.input.x/=length;p.input.z/=length;}p.yaw=Math.atan2(Math.sin(data.yaw),Math.cos(data.yaw));p.pitch=clamp(data.pitch,-1.25,1.25);return true;}
  function action(id,a){const p=player(id);if(!p||!p.connected||!p.alive||state.finished||!a||!Number.isSafeInteger(a.seq)||a.seq<=p.seq||a.seq>1e9)return false;
-  if(!['fire','reload','draw','paint','brush','transform','freeze','pickup'].includes(a.type))return false;p.seq=a.seq;
+  if(!['fire','reload','draw','paint','brush','transform','freeze','pickup','pose','attach','detach','jump','weapon'].includes(a.type))return false;p.seq=a.seq;
   if(Number.isFinite(a.yaw)&&Number.isFinite(a.pitch)){p.yaw=Math.atan2(Math.sin(a.yaw),Math.cos(a.yaw));p.pitch=clamp(a.pitch,-1.25,1.25);}
-  if(a.type==='paint'){if(game!=='paint'||p.role!=='hider'||!['prepare','play'].includes(state.phase)||!Number.isInteger(a.part)||a.part<0||a.part>2||!Number.isInteger(a.color)||a.color<0||a.color>=COLORS.length)return false;p.colors[a.part]=a.color;p.paintPixels.fill(a.color,[0,1,4][a.part]*PAINT_CELLS/6,[1,4,6][a.part]*PAINT_CELLS/6);p.skin=encodeSkin(p.paintPixels);return true;}
-  if(a.type==='brush'){if(game!=='paint'||p.role!=='hider'||!['prepare','play'].includes(state.phase))return false;return stampSkin(p,a);}
-  if(a.type==='freeze'){if(p.role!=='hider')return false;p.frozen=!p.frozen;return true;}
-  if(a.type==='transform'){const obj=world.props.find(o=>o.id===a.prop);if(game!=='prop'||p.role!=='hider'||!obj||Math.hypot(obj.x-p.x,obj.z-p.z)>2.8)return false;const radius=bodyRadius({prop:obj.type});if(!freePosition(p.x,p.z,radius,world))return false;p.prop=obj.type;p.propColor=obj.c;p.frozen=false;return true;}
+  if(a.type==='weapon'){if(game!=='shoot'||!['auto','burst'].includes(a.mode))return false;p.weaponMode=a.mode;p.burstLeft=0;return true;}
+  if(a.type==='jump'){if(!['prop','shoot'].includes(game)||!p.grounded||state.phase==='prepare'&&p.role==='seeker')return false;p.velocity=6;p.grounded=false;p.frozen=false;return true;}
+  if(['pose','attach','detach'].includes(a.type)){if(game!=='paint'||p.role!=='hider'||p.falling)return false;if(a.type==='pose')return changePaintPose(p,a.pose,world);if(a.type==='attach'){const next=nearbyPaintWall(p,world);if(!next)return false;Object.assign(p,next,{frozen:false});return true;}const next=p.anchor&&paintDrop(p,world);if(!next)return false;Object.assign(p,next);return true;}
+  if(a.type==='paint'){if(game!=='paint'||p.role!=='hider'||p.falling||!['prepare','play'].includes(state.phase)||!Number.isInteger(a.part)||a.part<0||a.part>2||!Number.isInteger(a.color)||a.color<0||a.color>=COLORS.length)return false;p.colors[a.part]=a.color;p.paintPixels.fill(a.color,[0,1,4][a.part]*PAINT_CELLS/6,[1,4,6][a.part]*PAINT_CELLS/6);p.skin=encodeSkin(p.paintPixels);return true;}
+  if(a.type==='brush'){if(game!=='paint'||p.role!=='hider'||p.falling||!['prepare','play'].includes(state.phase))return false;return stampSkin(p,a);}
+  if(a.type==='freeze'){if(p.role!=='hider'||p.falling||game==='prop'&&!p.grounded)return false;p.facing=p.yaw;p.frozen=!p.frozen;return true;}
+  if(a.type==='transform'){const obj=world.props.find(o=>o.id===a.prop);if(game!=='prop'||p.role!=='hider'||!obj||Math.hypot(obj.x-p.x,obj.z-p.z)>2.8)return false;const radius=bodyRadius({prop:obj.type});if(!propFree(p.x,p.z,p.y||0,radius,world))return false;p.prop=obj.type;p.propColor=obj.c;p.frozen=false;return true;}
   if(a.type==='pickup'){if(game!=='murder'||p.role!=='innocent'||!state.gun||Math.hypot(state.gun.x-p.x,state.gun.z-p.z)>1.8)return false;p.role='armed';p.ammo=12;state.gun=null;return true;}
   if(a.type==='draw'){if(game!=='murder'||!['armed','murderer'].includes(p.role))return false;p.drawn=!p.drawn;return true;}
-  if(a.type==='reload'){if(!(game==='shoot'||p.role==='armed'||p.role==='seeker')||p.reloadAt||p.ammo===12)return false;p.reloadAt=state.elapsed+1.5;return true;}
+  if(a.type==='reload'){if(!(game==='shoot'||p.role==='armed'||p.role==='seeker')||p.reloadAt||p.ammo===(game==='shoot'?24:12))return false;p.burstLeft=0;p.reloadAt=state.elapsed+1.5;return true;}
+  return fire(p,id,a);
+ }
+ function fire(p,id,a,internal=false){
+  if(!p.alive||state.finished||game==='shoot'&&p.burstLeft>0&&!internal)return false;
   if(state.phase!=='play'||p.cooldown>state.elapsed||p.reloadAt||!(game==='shoot'||p.role==='seeker'||game==='murder'&&p.drawn&&p.role!=='innocent'))return false;
-  const knife=p.role==='murderer',range=knife?1.85:45;if(!knife&&p.ammo<=0){p.reloadAt=state.elapsed+1.5;return false;}p.cooldown=state.elapsed+(knife?.65:game==='shoot'?.24:.85);if(!knife)p.ammo--;
-  const o={x:p.x,y:eyeHeight(p),z:p.z},d=aim(p);let nearest=range,hit=null;
+  const knife=p.role==='murderer',range=knife?1.85:45;if(!knife&&p.ammo<=0){p.burstLeft=0;p.reloadAt=state.elapsed+1.5;return false;}p.cooldown=state.elapsed+(knife?.65:game==='shoot'?(p.weaponMode==='burst'?.085:.13):.85);if(game==='shoot'&&p.weaponMode==='burst'&&!internal){p.burstLeft=2;p.burstAt=state.elapsed+.09;p.burstSeq=a.seq;}if(!knife)p.ammo--;
+  const o=game==='paint'?paintEye(p):{x:p.x,y:eyeHeight(p),z:p.z},d=aim(p);let nearest=range,hit=null;
   for(const b of blocks)nearest=Math.min(nearest,rayBox(o,d,b,range));
-  for(const other of state.players){if(other===p||!other.alive||!other.connected||other.invincible>state.elapsed)continue;const distance=rayBox(o,d,{...other,...dimensions(other)},range);if(distance<nearest){nearest=distance;hit=other;}}
-  const event={id:id+':'+a.seq,from:id,x:p.x,z:p.z,hit:null,knife};
+  for(const other of state.players){if(other===p||!other.alive||!other.connected||other.invincible>state.elapsed)continue;const distance=game==='paint'?paintRayHit(o,d,other,range):rayBox(o,d,{...other,...dimensions(other)},range);if(distance<nearest){nearest=distance;hit=other;}}
+  const event={id:id+':'+a.seq+(internal?':burst'+p.burstLeft:''),from:id,x:p.x,z:p.z,hit:null,knife};
   if(hit){if(game==='shoot'&&hit.team===p.team){}else if(hiding&&hit.role==='seeker'){}else{hit.hp-=game==='shoot'?25:100;event.hit=hit.id;if(hit.hp<=0)eliminate(hit,p);if(game==='murder'&&p.role==='armed'&&hit.role!=='murderer')eliminate(p,p);}}
   else if(hiding&&p.role==='seeker'){p.hp-=5;if(p.hp<=0)eliminate(p,p);}
   state.events.push(event);if(state.events.length>12)state.events.shift();endCheck();return true;
  }
  function tick(dt){if(state.finished||!Number.isFinite(dt)||dt<=0)return;state.elapsed+=Math.min(dt,30);const moveDt=Math.min(dt,.1);
   if(state.phase==='prepare'&&state.elapsed>=state.until){state.phase='play';state.until=state.elapsed+(world.hunt||120);}
-  for(const p of state.players){if(!p.connected)continue;if(p.reloadAt&&state.elapsed>=p.reloadAt){p.ammo=12;p.reloadAt=0;}if(game==='shoot'&&!p.alive&&state.elapsed>=p.respawnAt){const i=state.players.indexOf(p),pos=world.spawns[i];p.x=pos[0];p.z=pos[1];p.alive=true;p.hp=100;p.ammo=12;p.reloadAt=0;p.invincible=state.elapsed+1.5;}if(!p.alive||p.frozen||state.phase==='prepare'&&p.role==='seeker')continue;const speed=game==='shoot'?4.8:p.prop?3:3.8;moveBody(p,p.input.x*speed*moveDt,p.input.z*speed*moveDt,bodyRadius(p),world);}
+  for(const p of state.players){if(!p.connected)continue;if(p.reloadAt&&state.elapsed>=p.reloadAt){p.ammo=game==='shoot'?24:12;p.reloadAt=0;}if(game==='shoot'&&!p.alive&&state.elapsed>=p.respawnAt){const pos=shootSpawn(state.players,p,world,randomize,++p.respawnSerial);p.x=pos[0];p.z=pos[1];p.y=0;p.velocity=0;p.grounded=true;p.stamina=100;p.lastSpawn=pos;p.alive=true;p.hp=100;p.ammo=24;p.reloadAt=0;p.invincible=state.elapsed+1.5;}if(!p.alive||state.phase==='prepare'&&p.role==='seeker')continue;if(game==='paint'){advancePaint(p,p.input,moveDt,world);continue;}if(game==='prop'){advanceProp(p,p.input,moveDt,world);continue;}if(game==='shoot'){const run=p.input.sprint&&Math.hypot(p.input.x,p.input.z)>.05&&p.stamina>0;p.moveSpeed=run?6.8:4.8;p.stamina=clamp(p.stamina+(run?-24:16)*moveDt,0,100);advanceProp(p,p.input,moveDt,world);if(p.burstLeft&&state.elapsed>=p.burstAt){if(fire(p,p.id,{seq:p.burstSeq},true)){p.burstLeft--;p.burstAt=state.elapsed+.09;if(!p.burstLeft)p.cooldown=state.elapsed+.38;}else p.burstLeft=0;}continue;}if(p.frozen)continue;const speed=game==='shoot'?4.8:p.prop?3:3.8;moveBody(p,p.input.x*speed*moveDt,p.input.z*speed*moveDt,bodyRadius(p),world);}
   if(state.elapsed>=state.until&&state.phase==='play'){if(game==='shoot')finish(state.score[0]===state.score[1]?'Égalité':state.score[0]>state.score[1]?'Équipe bleue gagnante':'Équipe rose gagnante','Temps écoulé.');else finish(game==='murder'?'Les innocents gagnent':'Les cachés gagnent','Temps écoulé.');}endCheck();
  }
  function remove(id){const p=player(id);if(p){p.connected=false;eliminate(p);endCheck();}}
- function snapshot(id){const mine=player(id);return {game,size,phase:state.phase,remaining:Math.max(0,state.until-state.elapsed),score:[...state.score],target:state.target,finished:state.finished,winner:state.winner,reason:state.reason,gun:state.gun,events:state.events.slice(-6),selfRole:mine?.role,players:state.players.filter(p=>!(state.phase==='prepare'&&mine?.role==='seeker'&&p.role==='hider')).map(p=>({id:p.id,name:p.name,scale:p.scale,skin:game==='paint'?p.skin:null,x:p.x,z:p.z,yaw:p.yaw,pitch:p.pitch,hp:p.hp,alive:p.alive,connected:p.connected,kills:p.kills,deaths:p.deaths,team:game==='shoot'?p.team:null,role:state.finished||p.id===id?p.role:null,weapon:p.drawn?(p.role==='murderer'?'knife':['armed','seeker','fighter'].includes(p.role)?'gun':null):null,colors:[...p.colors],prop:p.prop,propColor:p.propColor,frozen:p.frozen,ammo:p.id===id?p.ammo:null,reloading:p.id===id&&!!p.reloadAt,respawn:p.id===id&&!p.alive&&game==='shoot'?Math.max(0,p.respawnAt-state.elapsed):0}))};}
+ function snapshot(id){const mine=player(id);return {game,size,phase:state.phase,remaining:Math.max(0,state.until-state.elapsed),score:[...state.score],target:state.target,finished:state.finished,winner:state.winner,reason:state.reason,gun:state.gun,events:state.events.slice(-6),selfRole:mine?.role,players:state.players.filter(p=>!(state.phase==='prepare'&&mine?.role==='seeker'&&p.role==='hider')).map(p=>({id:p.id,name:p.name,weaponMode:p.weaponMode,stamina:p.stamina,y:p.y,velocity:p.velocity,grounded:p.grounded,falling:p.falling,paintPose:p.paintPose,anchor:p.anchor?{...p.anchor}:null,facing:p.facing,scale:p.scale,skin:game==='paint'?p.skin:null,x:p.x,z:p.z,yaw:p.yaw,pitch:p.pitch,hp:p.hp,alive:p.alive,connected:p.connected,kills:p.kills,deaths:p.deaths,team:game==='shoot'?p.team:null,role:state.finished||p.id===id?p.role:null,weapon:p.drawn?(p.role==='murderer'?'knife':['armed','seeker','fighter'].includes(p.role)?'gun':null):null,colors:[...p.colors],prop:p.prop,propColor:p.propColor,frozen:p.frozen,ammo:p.id===id?p.ammo:null,reloading:p.id===id&&!!p.reloadAt,respawn:p.id===id&&!p.alive&&game==='shoot'?Math.max(0,p.respawnAt-state.elapsed):0}))};}
  return {state,input,action,tick,remove,snapshot,finish};
 }
