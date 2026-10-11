@@ -1,7 +1,7 @@
 import {paintTiles,wallPictures} from './one-arcade-r209-surfaces.js';
 import * as THREE from './three.module.js';
 import {mergeGeometries} from './BufferGeometryUtils.js';
-import {COLORS,PAINT_GRID,decodeSkin,avatarScale,paintModel,PAINT_CEILING} from './one-arcade-r198-core.js';
+import {COLORS,PAINT_GRID,decodeSkin,avatarScale,paintModel,paintCompression,PAINT_CEILING} from './one-arcade-r198-core.js';
 
 function toolkit(root){const mats=new Map();const mat=(color,metal=0)=>{const key=color+':'+metal;if(!mats.has(key))mats.set(key,new THREE.MeshStandardMaterial({color,roughness:metal?.43:.8,metalness:metal}));return mats.get(key);};const add=(geo,color,x,y,z,metal=0)=>{const mesh=new THREE.Mesh(geo,mat(color,metal));mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;root.add(mesh);return mesh;};return {box:(w,h,d,x,y,z,c,m=0)=>add(new THREE.BoxGeometry(w,h,d),c,x,y,z,m),cyl:(r1,r2,h,x,y,z,c,m=0)=>add(new THREE.CylinderGeometry(r1,r2,h,16),c,x,y,z,m),ball:(r,x,y,z,c)=>add(new THREE.SphereGeometry(r,12,8),c,x,y,z),torus:(r,t,x,y,z,c)=>add(new THREE.TorusGeometry(r,t,6,18),c,x,y,z)};}
 export function makeProp(type,color){const g=new THREE.Group(),{box,cyl,ball,torus}=toolkit(g),metal='#35444d',wood='#9e7049',light='#d9b982';
@@ -69,15 +69,15 @@ export function paintHit(hit){if(!hit?.object?.userData||!Number.isInteger(hit.o
 
 function makePaintPerson(p){
  const g=new THREE.Group(),maps=Array.from({length:6},skinTexture);g.userData.skinMaps=maps;g.userData.paintPose=p.paintPose;g.userData.surface=p.anchor?.kind||'floor';
- const pieces=paintModel(p);
+ const pieces=paintModel(p),compression=paintCompression(p),flat=compression.some(n=>n<1);g.userData.flattened=flat;
  pieces.forEach((piece,part)=>{
-  const geo=roundedBox(...piece.size),uv=geo.attributes.uv,tile=PAINT_GRID+2;
+  const geo=flat?new THREE.BoxGeometry(...piece.size):roundedBox(...piece.size),uv=geo.attributes.uv,tile=PAINT_GRID+2;
   for(const group of geo.groups){const face=group.materialIndex,vertices=new Set();for(let i=group.start;i<group.start+group.count;i++)vertices.add(geo.index.getX(i));for(const i of vertices)uv.setXY(i,(face%3*tile+1+uv.getX(i)*PAINT_GRID)/(3*tile),1-(Math.floor(face/3)*tile+1+(1-uv.getY(i))*PAINT_GRID)/(2*tile));}
   const mesh=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:'#ffffff',map:maps[part],roughness:.83})),r=piece.rotation,matrix=new THREE.Matrix4().set(r[0],r[1],r[2],0,r[3],r[4],r[5],0,r[6],r[7],r[8],0,0,0,0,1);
-  mesh.quaternion.setFromRotationMatrix(matrix);mesh.position.fromArray(piece.position);mesh.userData.paintPart=part;mesh.castShadow=mesh.receiveShadow=true;g.add(mesh);
-  if(part===0){const {box}=toolkit(mesh);for(const x of [-.09,.09])box(.047,.052,.014,x,.05,-.204,'#1b3037');}
+  mesh.quaternion.setFromRotationMatrix(matrix);mesh.position.fromArray(piece.position);mesh.userData.paintPart=part;mesh.castShadow=!flat;mesh.receiveShadow=true;g.add(mesh);
+  if(part===0&&!flat){const {box}=toolkit(mesh);for(const x of [-.09,.09])box(.047,.052,.014,x,.05,-.204,'#1b3037');}
  });
- g.scale.setScalar(p.scale);syncSkin(g,p);return g;
+ g.scale.set(...compression.map(n=>n*p.scale));syncSkin(g,p);return g;
 }
 
 export function makeRifle(){const g=new THREE.Group(),{box,cyl}=toolkit(g);

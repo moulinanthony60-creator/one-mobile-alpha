@@ -108,18 +108,28 @@ export function paintModel(p){
  return pieces;
 }
 export function paintYaw(p){return paintSideAttached(p)?Math.atan2(p.anchor.nx,p.anchor.nz):p.frozen||p.anchor?.kind==='prop-top'?(p.facing||0):(p.yaw||0);}
-export function paintParts(p){const scale=p.scale||.35,r=rotY(paintYaw(p));return paintModel(p).map(piece=>({size:piece.size.map(n=>n*scale),position:vector(r,piece.position.map(n=>n*scale)).map((n,i)=>n+[p.x||0,p.y||0,p.z||0][i]),rotation:multiply(r,piece.rotation)}));}
+// Compress against the supporting surface, never shrink the seeker's body.
+export function paintCompression(p){
+ if(!p.paintPose||!(p.scale>0&&p.scale<.6))return [1,1,1];
+ if(paintSideAttached(p))return [1,1,.06];
+ if(p.anchor?.kind==='ceiling')return [1,.06,1];
+ return [1,1,1];
+}
+export function paintParts(p){const scale=p.scale||.35,r=rotY(paintYaw(p)),s=paintCompression(p);return paintModel(p).map(piece=>({size:piece.size.map(n=>n*scale),position:vector(r,piece.position.map((n,i)=>n*scale*s[i])).map((n,i)=>n+[p.x||0,p.y||0,p.z||0][i]),rotation:multiply(r,piece.rotation.map((n,i)=>n*s[Math.floor(i/3)]))}));}
 export function paintBounds(p){const min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];for(const part of paintParts(p))for(let axis=0;axis<3;axis++){const extent=part.size.reduce((sum,n,j)=>sum+Math.abs(part.rotation[axis*3+j])*n/2,0);min[axis]=Math.min(min[axis],part.position[axis]-extent);max[axis]=Math.max(max[axis],part.position[axis]+extent);}return {min,max,w:max[0]-min[0],h:max[1]-min[1],d:max[2]-min[2]};}
 export function paintRadius(p){const model=paintBounds({...p,x:0,y:0,z:0,yaw:0,frozen:false,anchor:p.anchor?.kind==='ceiling'?{kind:'ceiling'}:null});return Math.hypot(Math.max(Math.abs(model.min[0]),Math.abs(model.max[0])),Math.max(Math.abs(model.min[2]),Math.abs(model.max[2])))+.015;}
 export function paintEye(p){const h=paintParts(p)[0];return {x:h.position[0],y:h.position[1]+.02*(p.anchor?.kind==='ceiling'?-1:1),z:h.position[2]};}
-export function paintRayHit(o,d,p,range=45){let hit=Infinity;for(const part of paintParts(p)){const r=part.rotation,inv=[r[0],r[3],r[6],r[1],r[4],r[7],r[2],r[5],r[8]],v=vector(inv,[o.x-part.position[0],o.y-part.position[1],o.z-part.position[2]]),dir=vector(inv,[d.x,d.y,d.z]);hit=Math.min(hit,rayBox({x:v[0],y:v[1]+part.size[1]/2,z:v[2]},{x:dir[0],y:dir[1],z:dir[2]},{x:0,z:0,w:part.size[0],h:part.size[1],d:part.size[2]},range));}return hit;}
+// Invert the full affine transform: a flattened limb is no longer an
+// orthonormal box. Keep the ray unnormalised so t stays a world distance.
+function inverseMatrix(m){const [a,b,c,d,e,f,g,h,i]=m,A=e*i-f*h,B=c*h-b*i,C=b*f-c*e,D=f*g-d*i,E=a*i-c*g,F=c*d-a*f,G=d*h-e*g,H=b*g-a*h,I=a*e-b*d,det=a*A+b*D+c*G;return [A,B,C,D,E,F,G,H,I].map(n=>n/det);}
+export function paintRayHit(o,d,p,range=45){let hit=Infinity;for(const part of paintParts(p)){const r=part.rotation,inv=inverseMatrix(r),v=vector(inv,[o.x-part.position[0],o.y-part.position[1],o.z-part.position[2]]),dir=vector(inv,[d.x,d.y,d.z]);hit=Math.min(hit,rayBox({x:v[0],y:v[1]+part.size[1]/2,z:v[2]},{x:dir[0],y:dir[1],z:dir[2]},{x:0,z:0,w:part.size[0],h:part.size[1],d:part.size[2]},range));}return hit;}
 export const paintSideAttached=p=>['wall','prop'].includes(p.anchor?.kind);
 const topOf=b=>(b.y||0)+b.h;
 const onFootprint=(p,b)=>{const r=paintBounds(p);return r.min[0]<b.x+b.w/2&&r.max[0]>b.x-b.w/2&&r.min[2]<b.z+b.d/2&&r.max[2]>b.z-b.d/2;};
 function insideTop(p,b){const r=paintBounds(p);return r.min[0]>=b.x-b.w/2+.008&&r.max[0]<=b.x+b.w/2-.008&&r.min[2]>=b.z-b.d/2+.008&&r.max[2]<=b.z+b.d/2-.008;}
 function anchorBox(a,world){if(a.kind==='wall')return world.walls[a.wall];const p=world.props.find(o=>o.id===a.prop);return p?{...p,...PROP_TYPES[p.type]}:null;}
-export function paintFits(p,world=worldFor('paint'),ignore=-1){const b=paintBounds(p);if(b.min[0]<-world.width/2+.2||b.max[0]>world.width/2-.2||b.min[2]<-world.depth/2+.2||b.max[2]>world.depth/2-.2||b.min[1]<-.025||b.max[1]>PAINT_CEILING-.005)return false;return !blocksFor(world).some((o,i)=>i!==ignore&&b.min[0]<o.x+o.w/2&&b.max[0]>o.x-o.w/2&&b.min[2]<o.z+o.d/2&&b.max[2]>o.z-o.d/2&&b.min[1]<topOf(o)&&b.max[1]>(o.y||0));}
-function wallPosition(p,a,world){const w=anchorBox(a,world);if(!w)return null;const n=a.nx?'x':'z',extent=a.nx?w.w:w.d,normal=a.nx||a.nz,b=paintBounds({...p,x:0,y:0,z:0,anchor:a}),depth=Math.max(Math.abs(b.min[a.nx?0:2]),Math.abs(b.max[a.nx?0:2]));return {...p,anchor:a,[n]:w[n]+normal*(extent/2+depth+.03)};}
+export function paintFits(p,world=worldFor('paint'),ignore=-1){const b=paintBounds(p),edge=paintCompression(p).some(n=>n<1)?.17:.2;if(b.min[0]<-world.width/2+edge||b.max[0]>world.width/2-edge||b.min[2]<-world.depth/2+edge||b.max[2]>world.depth/2-edge||b.min[1]<-.025||b.max[1]>PAINT_CEILING-.005)return false;return !blocksFor(world).some((o,i)=>i!==ignore&&b.min[0]<o.x+o.w/2&&b.max[0]>o.x-o.w/2&&b.min[2]<o.z+o.d/2&&b.max[2]>o.z-o.d/2&&b.min[1]<topOf(o)&&b.max[1]>(o.y||0));}
+function wallPosition(p,a,world){const w=anchorBox(a,world);if(!w)return null;const n=a.nx?'x':'z',extent=a.nx?w.w:w.d,normal=a.nx||a.nz,b=paintBounds({...p,x:0,y:0,z:0,anchor:a}),depth=Math.max(Math.abs(b.min[a.nx?0:2]),Math.abs(b.max[a.nx?0:2]));return {...p,anchor:a,[n]:w[n]+normal*(extent/2+depth+(a.kind==='wall'?.018:.006))};}
 function propTop(p,id,world){
  const candidates=blocksFor(world).map((b,block)=>({b,block})).filter(({b})=>b.prop===id&&b.w>.22&&b.d>.22).sort((a,b)=>topOf(b.b)-topOf(a.b));
  for(const {b,block}of candidates)for(const pose of ['prone','crouch','stand']){
