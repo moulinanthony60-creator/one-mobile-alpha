@@ -4440,7 +4440,7 @@ callStatus.textContent='Appel en cours';bar.append(callStatus,mic,cam,sound,leav
    if(reliable){if(p.reliable){dc.close();return;}p.reliable=dc;}else{if(p.data){dc.close();return;}p.data=dc;}
    const changed=()=>window.dispatchEvent(new Event('one-game-link-state'));
    dc.onopen=changed;dc.onclose=changed;dc.onerror=changed;
-   dc.onmessage=e=>{if(call!==c||typeof e.data!=='string'||e.data.length>24000||!room?.members?.some(m=>m.accountId===accountId))return;
+   dc.onmessage=e=>{if(call!==c||typeof e.data!=='string'||e.data.length>48000||!room?.members?.some(m=>m.accountId===accountId))return;
     let packet;try{packet=JSON.parse(e.data);}catch{return;}if(packet?.game!=='317'||packet.v!==1)return;
     for(const listener of gameListeners){try{listener(accountId,packet);}catch(error){console.warn('ONE game packet rejected',error);}}
    };
@@ -4549,9 +4549,9 @@ callStatus.textContent='Appel en cours';bar.append(callStatus,mic,cam,sound,leav
   async connect(){if(reconnectTask)return reconnectTask;room=window.oneSocialRoom?.()||room;if(!room)throw Error('Rejoins d’abord un salon ONE.');await joinCall({data:true,mic:false});if(!call)throw lastJoinError||Error(status.textContent||'Connexion au salon indisponible.');},
   reconnect:reconnectCall,
   peers(){return call?[...call.peers.values()].filter(p=>p.accountId).map(p=>({accountId:p.accountId,connected:p.data?.readyState==='open',state:p.pc.connectionState})):[];},
-  send(to,packet){if(!call||packet?.game!=='317'||packet.v!==1)return false;const data=JSON.stringify(packet);if(data.length>24000)return false;
+  send(to,packet){if(!call||packet?.game!=='317'||packet.v!==1)return false;const data=JSON.stringify(packet);if(data.length>48000)return false;
    const p=[...call.peers.values()].find(p=>p.accountId===to&&p.data?.readyState==='open'&&p.data.bufferedAmount<=16384);if(!p)return false;try{p.data.send(data);return true;}catch{return false;}},
-  sendReliable(to,packet){if(!call||packet?.game!=='317'||packet.v!==1)return false;const data=JSON.stringify(packet);if(data.length>24000)return false;
+  sendReliable(to,packet){if(!call||packet?.game!=='317'||packet.v!==1)return false;const data=JSON.stringify(packet);if(data.length>48000)return false;
    const p=[...call.peers.values()].find(p=>p.accountId===to);if(!p)return false;const dc=p.reliable?.readyState==='open'?p.reliable:p.data?.readyState==='open'?p.data:null;if(!dc||dc.bufferedAmount>65536)return false;try{dc.send(data);return true;}catch{return false;}},
   subscribe(listener){gameListeners.add(listener);return()=>gameListeners.delete(listener);}
  };
@@ -4795,7 +4795,7 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
 /* Keep game engines out of the initial home, camera and messaging load. */
 (()=>{
  let pending=null,generation=0,loading=null,attempt=0;
- window.oneEnsureThree17=()=>pending||=(import('./one-3d-v205.js'+(attempt?'?retry='+attempt:'')).catch(error=>{pending=null;attempt++;throw error;}));
+ window.oneEnsureThree17=()=>pending||=(import('./one-3d-v206.js'+(attempt?'?retry='+attempt:'')).catch(error=>{pending=null;attempt++;throw error;}));
  const close=()=>{generation++;loading?.remove();loading=null;};
  async function open(options){
   if(loading)return;
