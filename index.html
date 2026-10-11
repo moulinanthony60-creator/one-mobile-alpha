@@ -3548,7 +3548,7 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 </script><script src="ui/game-shell.js?v=audit-v194"></script><script id="one-salons-v15">
 (()=>{
  const {el,button,api,avatar,dialog,qr,copy,tile}=ONEUI;
- const tray=el('aside',undefined,'os-salon');tray.id='oneSalonTray';tray.hidden=true;tray.setAttribute('aria-label','Salons ONE');const head=el('header'),heading=el('h2','Salons ONE'),close=button('×',()=>window.oneCloseSalon(),'os-close');close.setAttribute('aria-label','Fermer la fenêtre du salon');head.append(heading,close);const shell=el('div');shell.id='oneSalonBody';const status=el('p',undefined,'os-status');status.setAttribute('role','status');const content=el('div'),sharedPlayer=el('section');sharedPlayer.id='oneSalonTogether';sharedPlayer.hidden=true;const roomFrame=el('div'),roomIntro=el('div'),roomGame=el('div'),roomTools=el('div'),activities=el('section',undefined,'os-choose'),tiles=el('div',undefined,'os-tiles'),togetherTile=tile('together',()=>{window.oneCloseSalon();window.oneShowSpace?.('together');});roomFrame.id='oneSalonRoom';roomFrame.hidden=true;activities.append(el('h3','Que fait-on ?'),el('p','Chacun choisit : regarder une vidéo ou rejoindre un jeu.','os-muted'),tiles);tiles.append(togetherTile,sharedPlayer);for(const kind of ['party','one'])tiles.append(tile(kind,()=>{window.oneCloseSalon();window.oneShowSpace?.(kind);}));const lobby3d=button('',()=>{window.ONEOpen3DLobby({room});},'os-tile');lobby3d.dataset.kind='lobby3d';lobby3d.append(el('span','◈','os-tile-icon'),el('b','Lobby 3D'),el('small','Se retrouver · lancer 3:17'));tiles.append(lobby3d);roomFrame.append(roomIntro,roomGame,roomTools);shell.append(status,content,roomFrame);tray.append(head,shell);document.body.append(tray);
+ const tray=el('aside',undefined,'os-salon');tray.id='oneSalonTray';tray.hidden=true;tray.setAttribute('aria-label','Salons ONE');const head=el('header'),heading=el('h2','Salons ONE'),close=button('×',()=>window.oneCloseSalon(),'os-close');close.setAttribute('aria-label','Fermer la fenêtre du salon');head.append(heading,close);const shell=el('div');shell.id='oneSalonBody';const status=el('p',undefined,'os-status');status.setAttribute('role','status');const content=el('div'),sharedPlayer=el('section');sharedPlayer.id='oneSalonTogether';sharedPlayer.hidden=true;const roomFrame=el('div'),roomIntro=el('div'),roomGame=el('div'),roomTools=el('div'),activities=el('section',undefined,'os-choose'),tiles=el('div',undefined,'os-tiles'),togetherTile=tile('together',()=>{window.oneCloseSalon();window.oneShowSpace?.('together');});roomFrame.id='oneSalonRoom';roomFrame.hidden=true;activities.append(el('h3','Que fait-on ?'),el('p','Chacun choisit : regarder une vidéo ou rejoindre un jeu.','os-muted'),tiles);tiles.append(togetherTile,sharedPlayer);for(const kind of ['party','one'])tiles.append(tile(kind,()=>{window.oneCloseSalon();window.oneShowSpace?.(kind);}));const lobby3d=button('',()=>{window.ONEOpen3DLobby({room});},'os-tile');lobby3d.dataset.kind='lobby3d';lobby3d.append(el('span','◈','os-tile-icon'),el('b','Lobby 3D'),el('small','5 jeux · jusqu’à 8 joueurs'));tiles.append(lobby3d);roomFrame.append(roomIntro,roomGame,roomTools);shell.append(status,content,roomFrame);tray.append(head,shell);document.body.append(tray);
  let room=null,invitations=[],view='welcome',busy=false,epoch=0,signature='',returnFocus=null;
  // V15: one state request at a time, no form replacement while submitting.
  let loadController=null,loadPromise=null,lastStateError=null,statusOrigin='';
@@ -4075,7 +4075,7 @@ if(window.ONEPartyGameLink)document.documentElement.dataset.oneLobbyNetwork="r43
 @media(max-width:650px){.one3d-controls{display:none}.one3d-session{padding:10px}.one3d-session p{font-size:11px;margin:6px 0;min-height:30px}.one3d-actions button{font-size:11px;min-height:39px}.one3d-bottom{width:min(315px,calc(100vw - 130px))}.one3d-top small{display:block;font-size:9px}.one3d-players{max-width:73%}.one3d-game{font-size:9px}}
 @media(max-width:420px) and (orientation:portrait){.one3d-actions{flex-direction:column}.one3d-controls{display:none}}
 
-.one3d-shell{--one-lobby-release:r65;background:#11121a}.one3d-top b::after{content:" · R65";font-size:9px;color:#c8b0fa}
+.one3d-shell{--one-lobby-release:r65;background:#11121a}.one3d-top b::after{content:""}
 .one3d-visual-status{position:absolute;z-index:6;left:50%;top:75px;transform:translateX(-50%);padding:7px 12px;border-radius:8px;background:#111827cc;color:#e1d9ce;font:11px system-ui;text-align:center;pointer-events:none}
 .one3d-visual-status[hidden]{display:none}.one3d-session{background:linear-gradient(145deg,#1b1d2beF,#171420ef);border-color:#8f779b66;backdrop-filter:none}
 .one3d-top{background:#141722ed;backdrop-filter:none}.one3d-actions [data-start]{background:#705770}
@@ -4189,7 +4189,7 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
 .three17-scare img{height:100%;width:100%;object-fit:contain;filter:contrast(1.2) saturate(.45);transform:scale(1.04)}
 @keyframes one317scare{0%{opacity:0;transform:scale(.98)}10%{opacity:1;transform:scale(1.025)}78%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.three17-scare.show{animation:none;opacity:.80}.three17-hide-view{transition:none}}
-</style><script src="ui/one-game-loader.js?v=audit-v194"></script><script id="one317-r43-entry">
+</style><script src="ui/one-game-loader.js?v=games-v198"></script><script id="one317-r43-entry">
 (()=>{
  let opening=null;
  window.ONEOpen3DLobby=async context=>{
@@ -4199,7 +4199,7 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
   const cancel=ONEUI.button('Annuler',()=>box.close());box.append(status,cancel);
   box.addEventListener('close',()=>{if(opening===box)opening=null},{once:true});
   try{
-   const [module]=await Promise.all([import('./ui/one-lobby-r46.js?v=lobby-shoot-v94'),window.oneEnsureThree17()]);
+   const [module]=await Promise.all([import('./ui/one-lobby-r46.js?v=games-v198'),window.oneEnsureThree17()]);
    if(!box.open||!box.isConnected)return;
    module.open(context||{room:window.oneSocialRoom?.()});box.close();window.oneCloseSalon?.();
   }catch(error){
