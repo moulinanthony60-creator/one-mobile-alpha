@@ -4271,7 +4271,33 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
 .three17-scare img{height:100%;width:100%;object-fit:contain;filter:contrast(1.2) saturate(.45);transform:scale(1.04)}
 @keyframes one317scare{0%{opacity:0;transform:scale(.98)}10%{opacity:1;transform:scale(1.025)}78%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.three17-scare.show{animation:none;opacity:.80}.three17-hide-view{transition:none}}
-</style><script src="ui/one-game-loader.js?v=games-v198"></script><script id="one317-r43-entry">
+</style><script id="one-game-loader-v201">
+/* Keep game engines out of the initial home, camera and messaging load. */
+(()=>{
+ let pending=null,generation=0,loading=null,attempt=0;
+ window.oneEnsureThree17=()=>pending||=(import('./one-3d-v201.js'+(attempt?'?retry='+attempt:'')).catch(error=>{pending=null;attempt++;throw error;}));
+ const close=()=>{generation++;loading?.remove();loading=null;};
+ async function open(options){
+  if(loading)return;
+  const own=++generation,box=document.createElement('dialog');loading=box;
+  box.className='oneCommDialog';box.setAttribute('aria-label','Chargement de 3:17');
+  const title=document.createElement('h2');title.textContent='3:17';
+  const status=document.createElement('p');status.setAttribute('role','status');status.textContent='Préparation du jeu…';
+  const cancel=document.createElement('button');cancel.textContent='Annuler';cancel.onclick=close;
+  box.append(title,status,cancel);document.body.append(box);box.showModal();box.addEventListener('cancel',close);box.addEventListener('close',()=>{if(loading===box)close()},{once:true});
+  try{await window.oneEnsureThree17();if(own!==generation)return;close();window.ONEThree17.open(options);}
+  catch{if(own!==generation)return;status.textContent='Le jeu n’a pas pu charger. Vérifie ta connexion et réessaie.';const retry=document.createElement('button');retry.textContent='Réessayer';retry.onclick=()=>{close();open(options);};box.append(retry);}
+ }
+ window.ONEThree17={open,close,layoutInfo:()=>null,graphicsInfo:()=>null};
+ window.ONEThree17Coop={open:()=>window.ONEOpen3DLobby?.()};
+ window.addEventListener('one-account-changed',close);
+ window.addEventListener('pagehide',close);
+})();
+
+
+
+
+</script><script id="one317-r43-entry">
 (()=>{
  let opening=null;
  window.ONEOpen3DLobby=async context=>{
@@ -4281,15 +4307,13 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
   const cancel=ONEUI.button('Annuler',()=>box.close());box.append(status,cancel);
   box.addEventListener('close',()=>{if(opening===box)opening=null},{once:true});
   try{
-   const [module]=await Promise.all([import('./ui/one-lobby-r46.js?v=fix-v200'),window.oneEnsureThree17()]);
+   const module=await window.oneEnsureThree17();
    if(!box.open||!box.isConnected)return;
-   if(module.release!=='v200')throw Object.assign(Error('La mise à jour du lobby est incomplète. Publie aussi tous les fichiers du dossier ui, puis recharge ONE.'),{code:'ONE_UPDATE_INCOMPLETE'});
    module.open(context||{room:window.oneSocialRoom?.()});box.close();window.oneCloseSalon?.();
   }catch(error){
    if(!box.open||!box.isConnected)return;
-   const incomplete=error.code==='ONE_UPDATE_INCOMPLETE';
-   status.textContent=incomplete?error.message:'Le lobby n’a pas pu charger. Vérifie ta connexion et, après une mise à jour, la présence de tous les fichiers du dossier ui.';
-   const retry=ONEUI.button(incomplete?'Recharger ONE':'Réessayer',()=>{if(incomplete){location.reload();return;}box.close();opening=null;window.ONEOpen3DLobby(context)});box.insertBefore(retry,cancel);
+   status.textContent='Le lobby n’a pas pu charger. Vérifie ta connexion puis réessaie.';
+   const retry=ONEUI.button('Réessayer',()=>{box.close();opening=null;window.ONEOpen3DLobby(context)});box.insertBefore(retry,cancel);
   }
  };
 })();
