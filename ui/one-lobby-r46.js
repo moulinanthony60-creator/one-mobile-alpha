@@ -1,12 +1,15 @@
 import {prepareScene} from './three17-r46-warmup.js?v=lobby-shoot-v88';
-import {createGameScreen} from './one-lobby-r46-screen.js?v=lobby-shoot-v88';
+import * as gamePicker from './one-arcade-r198-picker.js?v=fix-v200';
+const {createGameScreen}=gamePicker;
 
 import * as THREE from './three.module.js?v=lobby-shoot-v88';
-import {buildRoom} from './one-lobby-r46-room.js?v=lobby-shoot-v88';
+import * as roomModule from './one-lobby-r46-room.js?v=fix-v200';
+const {buildRoom}=roomModule;
+export const release=gamePicker.release==='v200'&&roomModule.release==='v200'?'v200':'incomplete';
 import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v88';
 import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v88';
 
-import {lobbyState,subscribeLobby,subscribeLobbyShot,sendLobbyShot,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=lobby-shoot-v93';
+import {lobbyState,subscribeLobby,subscribeLobbyShot,sendLobbyShot,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=games-v198';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
@@ -14,7 +17,7 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 function open(ctx={}){
  if(active){active.shell.focus();return;}
  const shell=document.createElement('section');shell.className='one3d-shell';shell.tabIndex=-1;shell.setAttribute('role','dialog');shell.setAttribute('aria-modal','true');shell.setAttribute('aria-label','Lobby 3D partagé');
- shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small data-room></small></div><button type="button" data-close aria-label="Quitter le lobby 3D">Quitter</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">3:17 · 2–4 JOUEURS</div></div><button class="one3d-screen-button" data-screen-open>✦ Choisir un jeu</button><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Glisser pour regarder"></div><button class="one3d-run" type="button" data-run aria-pressed="false">COURIR</button><button class="one3d-fight-action" type="button" data-fight-action hidden>RAMASSER BATTE</button><div class="one3d-fight-hit" data-fight-hit hidden>TOUCHÉ !</div></div><footer class="one3d-bottom"><div class="one3d-session" data-collapsed="true"><button class="one3d-panel-toggle" type="button" data-panel-toggle aria-expanded="false" aria-label="Afficher les commandes du salon">+</button><span class="one3d-eyebrow">3:17 · FOUR</span><p data-status role="status">Connexion au salon…</p><div class="one3d-actions"><button type="button" data-ready disabled>Je suis prêt</button><button type="button" data-start disabled>Lancer 3:17</button></div><button type="button" data-reconnect>Réessayer la connexion</button></div></footer><p class="one3d-controls">ZQSD / WASD · flèches · glisser pour regarder · Maj courir · F action</p>`;
+ shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small data-room></small></div><button type="button" data-close aria-label="Quitter le lobby 3D">Quitter</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">5 JEUX · JUSQU’À 8 JOUEURS</div></div><button class="one3d-screen-button" data-screen-open>✦ Choisir un jeu</button><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Glisser pour regarder"></div><button class="one3d-run" type="button" data-run aria-pressed="false">COURIR</button><button class="one3d-fight-action" type="button" data-fight-action hidden>RAMASSER BATTE</button><div class="one3d-fight-hit" data-fight-hit hidden>TOUCHÉ !</div></div><footer class="one3d-bottom"><div class="one3d-session" data-collapsed="true"><button class="one3d-panel-toggle" type="button" data-panel-toggle aria-expanded="false" aria-label="Afficher les commandes du salon">+</button><span class="one3d-eyebrow">LE GROUPE</span><p data-status role="status">Connexion au salon…</p><button type="button" data-reconnect>Réessayer la connexion</button></div></footer><p class="one3d-controls">ZQSD / WASD · flèches · glisser pour regarder · Maj courir · F action</p>`;
  document.body.append(shell);shell.focus();
  const fightStyle=document.createElement('style');fightStyle.textContent=`
  .one3d-fight-action{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(174px,calc(env(safe-area-inset-bottom) + 170px));z-index:18;min-width:150px;min-height:50px;padding:9px 16px;border:1px solid #ff91b5;border-radius:17px;background:linear-gradient(135deg,#6e274a,#a33d67);color:#fff7fb;font:850 12px/1 system-ui;letter-spacing:.045em;box-shadow:0 8px 22px #0006,inset 0 1px #fff3;touch-action:manipulation;pointer-events:auto;-webkit-tap-highlight-color:transparent}
@@ -33,8 +36,8 @@ function open(ctx={}){
  catch(error){shell.querySelector('[data-status]').textContent='La 3D ne démarre pas dans ce navigateur. Ferme les autres jeux, puis réessaie.';shell.querySelector('[data-close]').onclick=()=>shell.remove();shell.querySelector('[data-reconnect]').onclick=()=>{shell.remove();open(ctx);};return;}
  let alive=true;const roomVisual=buildRoom(scene,renderer,()=>alive,disposeObject);
  const camera=new THREE.PerspectiveCamera(65,1,.05,60),position={x:0,z:4.8};let yaw=0,pitch=-.055,spawned=false;
- const colors=[0x9572bf,0x57a9b8,0xc78395,0x6eac90],avatars=new Map();
- const spawns=[[0,4.8],[-2.2,1.8],[0,2.0],[2.2,1.8]];
+ const colors=[0x9572bf,0x57a9b8,0xc78395,0x6eac90,0xd1aa70,0x719bc9,0xbb85b5,0x87b5a1],avatars=new Map();
+ const spawns=[[0,4.8],[-2.2,1.8],[0,2.0],[2.2,1.8],[-3.3,3.8],[3.3,3.8],[-1.5,5.3],[1.5,5.3]];
  const batWood=new THREE.MeshStandardMaterial({color:0xb77b45,roughness:.76,metalness:.03}),batGrip=new THREE.MeshStandardMaterial({color:0x252834,roughness:.82,metalness:.04});
  function makeBat(){
    const g=new THREE.Group(),part=(geo,material,y)=>{const m=new THREE.Mesh(geo,material);m.position.y=y;g.add(m);return m;};
@@ -161,7 +164,7 @@ function open(ctx={}){
  const keys=new Set(),stickInput={x:0,y:0},abort=new AbortController();
  const listen=(target,event,fn)=>target.addEventListener(event,fn,{signal:abort.signal});
  const gameScreen=createGameScreen({shell,lobbyState,setReady:setLobbyReady,startRound,reset(){keys.clear();stickInput.x=stickInput.y=0;look=null;}});
- const cameraRequest=window.ONEPartyMedia?.enable?.({camera:true});cameraRequest?.catch?.(()=>{});
+ // Keep a camera already enabled in the salon; entering a game needs data only.
  shell.querySelector('[data-screen-open]').onclick=()=>gameScreen.open();
  listen(renderer.domElement,'webglcontextlost',e=>{e.preventDefault();graphicsLost=true;keys.clear();loading.hidden=false;loading.querySelector('span').textContent='Affichage interrompu. Ton salon reste connecté…';});
  listen(renderer.domElement,'webglcontextrestored',async()=>{if(stopped)return;graphicsLost=false;try{await prepareScene(renderer,scene,camera,()=>alive&&!graphicsLost);if(stopped)return;assetsReady=true;loading.hidden=true;resizePending=true;budget.reset();last=performance.now();}catch{loading.querySelector('span').textContent='Reviens au salon puis rouvre la 3D pour réessayer.';}});
@@ -239,11 +242,9 @@ function open(ctx={}){
  fightAction.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();useFightAction();});fightAction.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();});
  function drawStatus(next){
    state=next;const key=JSON.stringify([next.room,next.self,next.host,next.notice,next.joined,next.ready,next.canStart,next.connecting,next.players]);if(key===statusKey)return;statusKey=key;
-   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/4 · R91';
-   shell.querySelector('[data-status]').textContent=next.notice;
-   const readyButton=shell.querySelector('button[data-ready]'),start=shell.querySelector('[data-start]');
-   readyButton.disabled=!next.joined||!next.players.some(p=>p.id===next.self);readyButton.textContent=next.ready?'✓ Prêt':'Je suis prêt';readyButton.setAttribute('aria-pressed',String(next.ready));
-   start.hidden=!next.isHost;start.disabled=!next.canStart;
+   shell.querySelector('[data-room]').textContent=next.room+' · '+next.players.length+'/8';
+   shell.querySelector('[data-status]').textContent=next.joined?next.players.length+' membre'+(next.players.length>1?'s':'')+' dans le lobby. Préparez votre partie sur l’écran de jeux.':next.notice;
+
    shell.querySelector('[data-reconnect]').disabled=next.connecting;
    chips.replaceChildren();
    next.players.forEach((p,i)=>{
@@ -336,8 +337,8 @@ function open(ctx={}){
  function stopStick(){drag=null;stickInput.x=stickInput.y=0;knob.style.transform='';}
  listen(stick,'pointerup',stopStick);listen(stick,'pointercancel',stopStick);
  const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();let touchX=0,touchY=0,moved=false;
- function hitScreen(x,y){const b=renderer.domElement.getBoundingClientRect();pointer.set((x-b.left)/b.width*2-1,-(y-b.top)/b.height*2+1);ray.setFromCamera(pointer,camera);if(ray.intersectObject(roomVisual.screen).length)gameScreen.open();}
- const zone=shell.querySelector('.one3d-look');zone.style.width='100%';listen(zone,'pointerdown',e=>{look=e.pointerId;touchX=lx=e.clientX;touchY=ly=e.clientY;moved=false;zone.setPointerCapture(look);});listen(zone,'pointermove',e=>{if(look!==e.pointerId)return;if(Math.hypot(e.clientX-touchX,e.clientY-touchY)>7)moved=true;if(!moved)return;yaw=Math.atan2(Math.sin(yaw-(e.clientX-lx)*.006),Math.cos(yaw-(e.clientX-lx)*.006));pitch=clamp(pitch-(e.clientY-ly)*.004,-.75,.65);lx=e.clientX;ly=e.clientY;});listen(zone,'pointerup',e=>{if(look===e.pointerId&&!moved)hitScreen(e.clientX,e.clientY);look=null;});listen(zone,'pointercancel',()=>look=null);
+ function hitScreen(x,y){const b=renderer.domElement.getBoundingClientRect();pointer.set((x-b.left)/b.width*2-1,-(y-b.top)/b.height*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObject(roomVisual.screen)[0];if(hit)gameScreen.open(roomVisual.gameBoard.gameAt(hit.uv));}
+ const zone=shell.querySelector('.one3d-look');zone.style.width='100%';listen(zone,'pointerdown',e=>{look=e.pointerId;touchX=lx=e.clientX;touchY=ly=e.clientY;moved=false;zone.setPointerCapture(look);});listen(zone,'pointermove',e=>{if(look!==e.pointerId)return;if(Math.hypot(e.clientX-touchX,e.clientY-touchY)>7)moved=true;if(!moved)return;yaw=Math.atan2(Math.sin(yaw-(e.clientX-lx)*.006),Math.cos(yaw-(e.clientX-lx)*.006));pitch=clamp(pitch-(e.clientY-ly)*.004,-.75,.65);lx=e.clientX;ly=e.clientY;});listen(zone,'pointerup',()=>{look=null;});listen(zone,'pointercancel',()=>{look=null;moved=true;});listen(zone,'click',e=>{if(!moved)hitScreen(e.clientX,e.clientY);});
   const sessionPanel=shell.querySelector('.one3d-session'),panelToggle=shell.querySelector('[data-panel-toggle]');
   const setPanelOpen=open=>{sessionPanel.dataset.collapsed=String(!open);panelToggle.setAttribute('aria-expanded',String(open));panelToggle.setAttribute('aria-label',open?'Réduire les commandes du salon':'Afficher les commandes du salon');panelToggle.textContent=open?'−':'+';};
   listen(panelToggle,'click',()=>setPanelOpen(sessionPanel.dataset.collapsed==='true'));
@@ -349,8 +350,8 @@ function open(ctx={}){
   listen(runButton,'lostpointercapture',()=>{if(!sprintToggle)setSprint(false);});
   const movement=['KeyW','KeyA','KeyS','KeyD','KeyZ','KeyQ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
   listen(window,'keydown',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();setSprint(true);}else if(movement.includes(e.code)){e.preventDefault();keys.add(e.code);}else if(e.code==='KeyF'&&!fightAction.hidden){e.preventDefault();if(!e.repeat)useFightAction();}else if(e.code==='KeyE'){e.preventDefault();gameScreen.open();}else if(e.code==='Escape')close();});listen(window,'keyup',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')setSprint(false);else keys.delete(e.code);});listen(window,'blur',()=>{keys.clear();stopStick();look=null;setSprint(false);});listen(document,'visibilitychange',()=>{keys.clear();stopStick();setSprint(false);last=performance.now();budget.reset();});
- shell.querySelector('[data-close]').onclick=()=>close();shell.querySelector('button[data-ready]').onclick=setLobbyReady;shell.querySelector('[data-start]').onclick=startRound;shell.querySelector('[data-reconnect]').onclick=()=>joinLobby(ctx,true);
- active={shell,renderer,scene,ro,stop(){stopped=true;alive=false;gameScreen.dispose();roomVisual.dispose();for(const v of avatars.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}cancelAnimationFrame(raf);abort.abort();offShot();off();},inspect:()=>({position:{...position},yaw,avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
+ shell.querySelector('[data-close]').onclick=()=>close();shell.querySelector('[data-reconnect]').onclick=()=>joinLobby(ctx,true);
+ active={shell,renderer,scene,ro,stop(){stopped=true;alive=false;gameScreen.dispose();roomVisual.dispose();for(const v of avatars.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}cancelAnimationFrame(raf);abort.abort();offShot();off();},inspect:()=>({position:{...position},yaw,avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),board:roomVisual.gameBoard.targets.map(t=>{const p=roomVisual.screen.localToWorld(new THREE.Vector3((t.u-.5)*roomVisual.screen.geometry.parameters.width,(t.v-.5)*roomVisual.screen.geometry.parameters.height,0)).project(camera),b=renderer.domElement.getBoundingClientRect();return {id:t.id,x:b.left+(p.x+1)*b.width/2,y:b.top+(1-p.y)*b.height/2};}),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
  raf=requestAnimationFrame(frame);joinLobby(ctx);
 }
 function disposeObject(object){

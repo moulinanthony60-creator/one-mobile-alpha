@@ -1,8 +1,8 @@
 (()=>{
  const pages=['discover','moments','home','social','ai'], names=['Découvrir','Moments','Accueil','Messages','ONE IA'];
- const blocked=t=>t?.closest?.('button,a,input,textarea,select,summary,[contenteditable],dialog,[role="dialog"],.modal,.topbar,.bottom,#vfeed,video,iframe');
+ const blocked=t=>ONEAudit.navigationBlocked(t);
  const index=()=>pages.indexOf(window.oneCurrentSpace?.()||'home');
- const modal=()=>!!document.querySelector('dialog[open],.modal.show,#vfeed.show,#oneCameraV79.open');
+ const modal=()=>ONEAudit.hasOverlay();
  function go(delta){const i=index();if(i<0||modal()||!pages[i+delta])return;window.oneShowSpace?.(pages[i+delta]);sync();}
  const nav=document.createElement('nav');nav.className='oneDesktopPages';nav.setAttribute('aria-label','Navigation entre les écrans ONE');
  const left=document.createElement('button'),right=document.createElement('button');for(const b of [left,right])b.type='button';nav.append(left,right);document.body.append(nav);left.onclick=()=>go(-1);right.onclick=()=>go(1);

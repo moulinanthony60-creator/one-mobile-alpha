@@ -30,8 +30,8 @@
    const art=el('div',undefined,'ot-content-art');art.dataset.otSource=item.source;
    art.append(el('span',sources.find(x=>x[0]===item.source)?.[2]||'▶','ot-content-symbol'));
    if(item.thumbnail){const img=el('img');img.src=item.thumbnail;img.alt='';img.loading='lazy';img.decoding='async';img.referrerPolicy='no-referrer';img.onerror=()=>img.remove();art.append(img);}
-   art.append(el('span',item.live?'● EN DIRECT':sources.find(x=>x[0]===item.source)?.[1]||'ONE','ot-content-badge'));
-   const title=el('h3',item.title),creator=el('p',item.creator||'Vidéo publique'),actions=el('div',undefined,'ot-content-actions');
+   art.append(el('span',sources.find(x=>x[0]===item.source)?.[1]||'ONE','ot-content-badge'));
+   const duration=el('span',item.live?'EN DIRECT':item.duration||'Durée indisponible','ot-duration');duration.dataset.live=String(!!item.live);duration.setAttribute('aria-label',item.live?'En direct':item.duration?'Durée : '+item.duration:'Durée non fournie par la source');art.append(duration);const title=el('h3',item.title),creator=el('p',item.creator||'Vidéo publique'),actions=el('div',undefined,'ot-content-actions');
    async function send(action){
     if(!canChoose||disposed||(action==='select'&&!host))return;
     const targetRoom=roomId,generation=request;

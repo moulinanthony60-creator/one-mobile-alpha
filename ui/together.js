@@ -14,7 +14,7 @@
   view.browser.setMedia(selected?.key||'');
   if(selected&&view.session.nextElementSibling!==view.browser.root)view.root.insertBefore(view.session,view.browser.root);
   else if(!selected&&view.browser.root.nextElementSibling!==view.session)view.root.insertBefore(view.browser.root,view.session);
-  view.root.dataset.host=String(host);view.root.dataset.revision=String(data?.revision??'');view.root.dataset.playing=String(!!data?.state.playing);view.root.dataset.live=String(!!media?.live);
+  view.root.dataset.armed=String(armed&&!failed);view.root.dataset.host=String(host);view.root.dataset.revision=String(data?.revision??'');view.root.dataset.playing=String(!!data?.state.playing);view.root.dataset.live=String(!!media?.live);
   view.role.textContent=room?(host?'Tu pilotes la lecture du salon.':'Propose une vidéo à la file commune. L’hôte pilote la lecture.'):'Crée ou rejoins un salon pour regarder ensemble.';
   view.play.textContent=data?.state.playing?'Ⅱ Pause pour tous':'▶ Lire ensemble';
   for(const b of [view.play,view.back,view.forward,view.stop])b.disabled=!host||!media||busy;
@@ -32,7 +32,7 @@
   const s=data.state,duration=adapter.duration(),target=Math.min(position(s,time()),duration?Math.max(0,duration-.1):86400);
   if(document.activeElement!==view.seek){view.seek.max=String(duration||Math.max(600,target+60));view.seek.value=String(target);}
   view.elapsed.textContent=format(target)+(duration?' / '+format(duration):'');
-  if(!armed){adapter.pause();view.status.textContent=s.playing?'Appuie sur « Rejoindre la lecture » au-dessus de la vidéo.':room?.isHost?'La séance est en pause. Appuie sur « Lire ensemble ».':'En attente du lancement de la lecture par l’hôte.';return;}
+  if(!armed){adapter.pause();view.status.textContent=s.playing?'Appuie sur « Rejoindre la lecture ».':room?.isHost?'La séance est en pause. Appuie sur « Lire ensemble ».':'En attente du lancement de la lecture par l’hôte.';return;}
   const now=performance.now();
   if(!s.media.live&&adapter.canSeek?.()!==null&&Math.abs(adapter.time()-target)>(s.playing?1.4:.15)&&now-lastSeek>2500){if(adapter.canSeek?.()===false){view.status.textContent='Ce fichier ne permet pas de rejoindre le passage commun. Choisis un autre lien.';return;}adapter.seek(target);lastSeek=now;}
   if(s.playing){if(adapter.paused()&&now-lastPlay>2500){lastPlay=now;adapter.play();}view.status.textContent=adapter.paused()?'Chargement du passage commun…':(s.media.live?'Direct Twitch · le décalage peut varier selon l’appareil':'Lecture partagée · '+room.name);}
@@ -81,7 +81,7 @@
   controls();if(changed&&next)poll();
  }
  function render(shell,localItem){clear();const root=el('section',undefined,'ot-together');root.id='oneTogether';shell.replaceChildren(root);
-  const head=el('header',undefined,'ot-head'),titles=el('div'),source=el('span','Un écran, votre salon','os-eyebrow'),title=el('h1','Together');titles.append(source,title);head.append(titles,button('Voir le salon',()=>window.oneOpenSalon?.()));
+  const head=el('header',undefined,'ot-head'),titles=el('div'),source=el('span','Un écran, votre salon','os-eyebrow'),title=el('h1','Together');titles.append(source,title);head.append(titles,button('← Salon',()=>{window.oneShowSpace?.('social');window.oneSetSocialTab?.('rooms');window.oneOpenSalon?.('welcome');}));
   const player=el('section',undefined,'ot-player'),status=el('p','Connexion au salon…','ot-status'),role=el('p',undefined,'os-muted'),feedback=el('p',undefined,'ot-feedback');status.setAttribute('role','status');feedback.setAttribute('role','status');
   const local=el('div',undefined,'ot-local'),join=button('Rejoindre la lecture',()=>{if(failed){mountMedia(data.state.media);return;}armed=true;note('');adapter?.play();if(!data.state.playing)adapter?.pause();lastSeek=0;sync();controls();},'os-primary'),sound=button('Couper le son',()=>{muted=!muted;adapter?.mute(muted);controls();}),full=button('⛶ Plein écran',()=>window.ONETogetherFullscreen.toggle(player,full));
   const activation=el('div',undefined,'ot-activation'),activationHint=el('p',undefined,'ot-activation-hint');activation.append(join,activationHint);
@@ -95,9 +95,9 @@
   const browser=ONETogetherBrowser.create({choose:share});
   const link=el('a','Ouvrir la source');link.target='_blank';link.rel='noopener noreferrer';link.className='ot-source-link';link.hidden=true;
   const members=el('div',undefined,'os-members os-together-members');members.id='oneTogetherMembers';const queue=el('ol',undefined,'ot-queue'),queueCount=el('h2','À suivre · 0');
-  const tools=el('div',undefined,'os-room-tools');for(const [kind,label]of [['mic','Micro'],['camera','Caméra']]){const b=button(label,async()=>{try{await window.ONEPartyMedia.toggle(kind);}catch(e){note(e.message);}mediaButtons();});b.dataset.togetherMedia=kind;tools.append(b);}tools.append(button('Chat',()=>{window.oneOpenSalon?.();const chat=document.getElementById('onePartyChat');if(chat){chat.hidden=false;chat.scrollIntoView({block:'nearest'});}}));
-  const session=el('section',undefined,'ot-session');session.setAttribute('aria-label','Vidéo du salon');session.append(activation,player,status,local,hostControls,timeline,link);
-  root.append(head,browser.root,session,role,feedback,manual,el('h2','Dans votre salon'),members,tools,queueCount,queue);
+
+  const session=el('section',undefined,'ot-session');session.setAttribute('aria-label','Vidéo du salon');session.append(player,status,timeline,hostControls,local,activation,link);
+  root.append(head,browser.root,session,role,feedback,manual,queueCount,queue);
   view={root,session,activationHint,player,status,feedback,role,title,source,link,local,join,sound,full,hostControls,play,back,forward,next,stop,seek,elapsed,editor,manual,browser,select,enqueue,members,queue,queueCount};
   updateRoom(window.oneSocialRoom?.()||null);if(!room)mountMedia(null);mediaButtons();
   if(localItem?.local)note('Cette création est un aperçu local. Pour la partager à distance, utilise un lien vidéo public.');

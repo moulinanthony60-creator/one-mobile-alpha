@@ -2,7 +2,7 @@
 import {prepareScene} from './three17-r46-warmup.js?v=appels-v56';
 import {createRenderBudget,createDoorPresenter} from './three17-r46-render.js?v=appels-v56';
 
-import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=network-fluid-v59';
+import { installCoop, createCoopRuntime } from './three17-r46-coop.js?v=games-v198';
 import * as THREE from './three.module.js?v=appels-v56';
 import { applyR40Materials, replaceR40Volume, addR40Details, createR40Environment, r40Mobile } from './three17-r44-visuals.js?v=appels-v56';
 import { createHorrorAudio } from './three17-r41-audio.js?v=appels-v56';

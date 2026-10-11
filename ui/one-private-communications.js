@@ -18,7 +18,7 @@ async function recordVoice(peer){
  const cancel=()=>{if(!rec.sending)cleanup();};rec.cleanup=cleanup;
  const close=iconButton('close','Fermer',cancel);heading.append(titles,close);
  const stage=el('div','oneVoiceStage'),mark=el('div','oneVoiceMark');mark.append(icon('mic'));const clock=el('div','oneVoiceClock','0:00'),bars=el('div','oneVoiceBars');bars.setAttribute('aria-hidden','true');for(let i=0;i<21;i++){const b=el('i');b.style.setProperty('--bar',String(10+(i*17)%31));b.style.setProperty('--delay',String(-(i%7)*.12)+'s');bars.append(b);}
- const status=el('p','oneVoiceStatus','Préparation du micro…');status.setAttribute('role','status');const hint=el('p','oneVoiceLimit','Jusqu’à 2 minutes · écoute avant d’envoyer'),controls=el('div','oneCommControls');stage.append(mark,clock,bars);d.append(heading,stage,status,hint,controls);d.addEventListener('cancel',e=>{e.preventDefault();cancel()});
+ const status=el('p','oneVoiceStatus','Préparation du micro…');status.setAttribute('role','status');const hint=el('p','oneVoiceLimit','Jusqu’à 2 minutes · écoute avant d’envoyer'),controls=el('div','oneCommControls');stage.append(mark,clock,bars);d.append(heading,stage,status,hint,controls);d.addEventListener('close',cleanup,{once:true});d.addEventListener('cancel',e=>{e.preventDefault();cancel()});
  try{
   await ready();if(rec.canceled||token()!==session){cleanup();return;}if(!window.MediaRecorder||!navigator.mediaDevices?.getUserMedia)throw Error('Enregistrement vocal indisponible sur ce navigateur.');
   rec.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});if(rec.canceled||token()!==session){rec.stream.getTracks().forEach(t=>t.stop());cleanup();return;}
@@ -164,7 +164,7 @@ function callUI(c,incomingCall=false){
   if(c.video){c.camera=iconButton('video','Caméra',()=>{const tracks=c.stream?.getVideoTracks()||[];if(!tracks.length)return;const enabled=!tracks[0].enabled;tracks.forEach(t=>t.enabled=enabled);c.local.hidden=!enabled;paintButton(c.camera,enabled?'video':'cameraOff',enabled?'Caméra':'Caméra coupée',enabled?'Couper la caméra':'Activer la caméra');c.camera.setAttribute('aria-pressed',String(!enabled));});c.camera.disabled=true;c.camera.setAttribute('aria-pressed','false');c.camera.setAttribute('aria-label','Couper la caméra');controls.append(c.camera);}
   controls.append(iconButton('end','Raccrocher',()=>endCall(c),'oneEndCall'));
  }
- d.addEventListener('cancel',e=>{e.preventDefault();endCall(c)});
+ d.addEventListener('close',()=>{if(!c.canceled)void endCall(c)},{once:true});d.addEventListener('cancel',e=>{e.preventDefault();endCall(c)});
 }
 function releaseCall(c){clearTimeout(c.connectTimer);clearTimeout(c.poll);clearInterval(c.durationTimer);if(c.pc){c.pc.ontrack=null;c.pc.onconnectionstatechange=null;c.pc.onicecandidate=null;c.pc.close();}c.stream?.getTracks().forEach(t=>t.stop());if(c.remote){c.remote.pause();c.remote.srcObject=null;}if(c.local)c.local.srcObject=null;}
 function closeCall(c){stopRingtone();if(notifiedCallId===c?.id)notifiedCallId='';c.canceled=true;releaseCall(c);c.dialog?.close();c.dialog?.remove();if(active===c)active=null;}

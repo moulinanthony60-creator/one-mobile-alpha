@@ -61,7 +61,9 @@ let publishedRoom=null;
 const roomNow=()=>normalizeRoom(window.oneSocialRoom?.()||publishedRoom);
 let joined=false,notice='',roster=[],round=null,unsubscribe=null,hostSeen=0,connecting=false,generation=0,session='',ready=false,pending=null;
 const applicants=new Map(),poses=new Map(),observers=new Set(),shotObservers=new Set(),seenShotEvents=new Map();
-let openGame=null;
+let openGame=null,arcadeActive=false;
+export function setLobbyGameActive(value){arcadeActive=!!value;pending=null;ready=false;if(!arcadeActive)heartbeat();redraw();}
+export function resetLobbyReady(){ready=false;notice='';heartbeat();redraw();}
 const link=()=>window.ONEPartyGameLink;
 const me=()=>roomNow()?.members?.find(m=>m.isYou);
 const host=()=>roomNow()?.members?.find(m=>m.isHost);
@@ -71,13 +73,13 @@ const send=(to,kind,data)=>link()?.send(to,packet(kind,{room:roomNow()?.id,...da
 const sendReliable=(to,kind,data)=>{const l=link(),msg=packet(kind,{room:roomNow()?.id,...data});return l?.sendReliable?l.sendReliable(to,msg):l?.send(to,msg);};
 const member=id=>roomNow()?.members?.find(m=>m.accountId===id);
 function broadcast(kind,data,ids=roster.map(m=>m.id)){for(const id of ids)if(id!==me()?.accountId)send(id,kind,data);}
-function canStart(){return joined&&isHost()&&!!openGame&&!pending&&roster.length>=2&&roster.length<=4&&roster.every(p=>p.ready&&connected(p.id));}
+function canStart(){return joined&&!arcadeActive&&isHost()&&!!openGame&&!pending&&roster.length>=2&&roster.length<=4&&roster.every(p=>p.ready&&connected(p.id));}
 export const lobbyPose=id=>poses.get(id);
 export function lobbyState(){
   const mine=me(),owner=host();
   let text=notice;
-  if(!text)text=joined&&!openGame?'Le jeu se charge encore. Si ce message reste affiché, recharge ONE.':connecting?'Connexion aux membres…':!joined?'Connexion au salon…':!owner?'Identification de l’hôte en cours…':!isHost()&&(!hostSeen||now()-hostSeen>7000)?'L’hôte doit aussi entrer dans le lobby 3D.':!roster.some(p=>p.id===mine?.accountId)?'Les quatre places sont prises. Attends une place libre.':roster.length<2?'Un ami doit entrer dans ce lobby depuis le même salon.':!roster.every(p=>p.ready)?'Chaque joueur choisit « Je suis prêt ».':isHost()?'Tout le monde est prêt. Tu peux lancer 3:17.':'Prêts ! L’hôte peut lancer 3:17.';
-  return {room:roomNow()?.name||'Salon ONE',self:mine?.accountId,host:owner?.accountId,isHost:isHost(),joined,connecting,ready,canStart:canStart(),notice:text,players:roster.map(p=>({...p,connected:connected(p.id)})),poses:Object.fromEntries(poses)};
+  if(!text)text=joined&&!openGame?'Le jeu se charge encore. Si ce message reste affiché, recharge ONE.':connecting?'Connexion aux membres…':!joined?'Connexion au salon…':!owner?'Identification de l’hôte en cours…':!isHost()&&(!hostSeen||now()-hostSeen>7000)?'L’hôte doit aussi entrer dans le lobby 3D.':!roster.some(p=>p.id===mine?.accountId)?'Les huit places sont prises. Attends une place libre.':roster.length>4?'Choisis un jeu pour ton groupe dans l’écran de jeux.':roster.length<2?'Un ami doit entrer dans ce lobby depuis le même salon.':!roster.every(p=>p.ready)?'Chaque joueur choisit « Je suis prêt ».':isHost()?'Tout le monde est prêt. Tu peux lancer 3:17.':'Prêts ! L’hôte peut lancer 3:17.';
+  return {room:roomNow()?.name||'Salon ONE',roomId:roomNow()?.id,playing:!!round||arcadeActive,self:mine?.accountId,host:owner?.accountId,isHost:isHost(),joined,connecting,ready,canStart:canStart(),notice:text,players:roster.map(p=>({...p,connected:connected(p.id)})),poses:Object.fromEntries(poses)};
 }
 function redraw(){for(const fn of observers)fn(lobbyState());}
 export function subscribeLobby(fn){observers.add(fn);fn(lobbyState());return()=>observers.delete(fn);}
@@ -86,7 +88,7 @@ function rememberShot(id){const t=now();for(const [key,at] of seenShotEvents)if(
 function emitShot(payload){if(!payload||payload.target!==me()?.accountId||!rememberShot(payload.id))return false;for(const fn of shotObservers)fn({id:payload.id,shooter:payload.shooter,target:payload.target});return true;}
 export function sendLobbyShot(target){
  const shooter=me()?.accountId,owner=host()?.accountId;
- if(!joined||round||!shooter||typeof target!=='string'||!target||target===shooter||!roster.some(p=>p.id===target))return false;
+ if(!joined||round||arcadeActive||!shooter||typeof target!=='string'||!target||target===shooter||!roster.some(p=>p.id===target))return false;
  const payload={id:crypto.randomUUID(),shooter,target};
  // Gun hits are discrete gameplay events: always route them over the reliable
  // data channel. Guests send to the host, which either applies the hit locally
@@ -99,9 +101,9 @@ export function sendLobbyShot(target){
  return sendReliable(owner,'shot-route46',payload)!==false;
 }
 function rebuildRoster(){
-  if(!joined||!isHost()||round)return;
+  if(!joined||!isHost()||round||arcadeActive)return;
   const mine=me();if(!mine)return;
-  const guests=[...applicants].filter(([id,a])=>id!==mine.accountId&&now()-a.at<7000&&member(id)&&connected(id)).slice(0,3);
+  const guests=[...applicants].filter(([id,a])=>id!==mine.accountId&&now()-a.at<7000&&member(id)&&connected(id)).slice(0,7);
   const next=[{id:mine.accountId,name:safeName(mine.name),ready,session},...guests.map(([id,a])=>({id,name:safeName(member(id).name),ready:a.ready,session:a.session}))];
   if(pending&&JSON.stringify(next)!==JSON.stringify(roster)){pending=null;notice='Le groupe a changé. Vérifiez les joueurs prêts, puis relancez.';}
   roster=next;for(const id of poses.keys())if(!roster.some(p=>p.id===id))poses.delete(id);
@@ -110,6 +112,7 @@ function rebuildRoster(){
 const validPose=p=>p&&[p.x,p.z,p.yaw].every(Number.isFinite)&&Math.abs(p.x)<=22.4&&Math.abs(p.z)<=6.2&&Math.abs(p.yaw)<=Math.PI*2&&(!('pitch' in p)||Number.isFinite(p.pitch)&&Math.abs(p.pitch)<=1.2)&&(!('bat' in p)||typeof p.bat==='boolean')&&(!('gun' in p)||typeof p.gun==='boolean')&&(!('down' in p)||typeof p.down==='boolean')&&(!('swingSeq' in p)||Number.isSafeInteger(p.swingSeq)&&p.swingSeq>=0&&p.swingSeq<=1000000000)&&(!('shotSeq' in p)||Number.isSafeInteger(p.shotSeq)&&p.shotSeq>=0&&p.shotSeq<=1000000000)&&(!('shotTarget' in p)||typeof p.shotTarget==='string'&&p.shotTarget.length<=160);
 function receive(from,p){
   if(!member(from)||p.room!==roomNow()?.id)return;
+  if(arcadeActive){if(p.kind==='hello43'&&isHost())send(from,'busy43',{});return;}
   if(p.kind==='hello43'&&isHost()&&typeof p.session==='string'&&p.session.length===36){
     if(round){send(from,'busy43',{});return;}
     if(!joined)return;
@@ -125,7 +128,7 @@ function receive(from,p){
     emitShot({id:p.id,shooter:p.shooter,target:p.target});
   }
   else if(p.kind==='pose43'&&joined&&!round&&isHost()&&validPose(p.pose)&&roster.some(m=>m.id===from&&m.session===p.session))poses.set(from,p.pose);
-  else if(p.kind==='poses43'&&joined&&!round&&from===host()?.accountId&&Array.isArray(p.poses)&&p.poses.length<=4){
+  else if(p.kind==='poses43'&&joined&&!round&&from===host()?.accountId&&Array.isArray(p.poses)&&p.poses.length<=8){
     for(const entry of p.poses)if(entry.id!==me()?.accountId&&roster.some(m=>m.id===entry.id)&&validPose(entry.pose))poses.set(entry.id,entry.pose);
   }else if(p.kind==='prepare43'&&from===host()?.accountId&&joined&&!round&&validRound(p.config)){
     if(!openGame){send(from,'reject43',{id:p.config.id});notice='Le jeu se charge encore. Réessayez dans quelques secondes.';redraw();return;}
@@ -137,8 +140,8 @@ function receive(from,p){
   else if(p.kind==='leave-lobby43'&&isHost()&&!round){applicants.delete(from);poses.delete(from);rebuildRoster();}
   else if(p.kind==='host-left43'&&from===host()?.accountId&&joined&&!round){roster=[];poses.clear();hostSeen=0;pending=null;notice='L’hôte a quitté le lobby. Attends son retour.';redraw();}
 }
-function validRoster(list){return Array.isArray(list)&&list.length>=1&&list.length<=4&&new Set(list.map(p=>p.id)).size===list.length&&list.every(p=>p&&typeof p.id==='string'&&member(p.id)&&typeof p.name==='string'&&p.name.length<=40&&typeof p.ready==='boolean'&&typeof p.session==='string'&&p.session.length===36);}
-function validRound(c){return c&&typeof c.id==='string'&&/^[a-f\d-]{36}$/i.test(c.id)&&c.room===roomNow()?.id&&c.host===host()?.accountId&&validRoster(c.players)&&c.players.length>=2&&c.players.every(p=>p.ready)&&c.players.some(p=>p.id===me()?.accountId&&p.session===session)&&c.players.some(p=>p.id===c.host)&&Number.isInteger(c.seed)&&c.seed>=0&&c.seed<=0xffffffff;}
+function validRoster(list){return Array.isArray(list)&&list.length>=1&&list.length<=8&&new Set(list.map(p=>p.id)).size===list.length&&list.every(p=>p&&typeof p.id==='string'&&member(p.id)&&typeof p.name==='string'&&p.name.length<=40&&typeof p.ready==='boolean'&&typeof p.session==='string'&&p.session.length===36);}
+function validRound(c){return c&&typeof c.id==='string'&&/^[a-f\d-]{36}$/i.test(c.id)&&c.room===roomNow()?.id&&c.host===host()?.accountId&&validRoster(c.players)&&c.players.length>=2&&c.players.length<=4&&c.players.every(p=>p.ready)&&c.players.some(p=>p.id===me()?.accountId&&p.session===session)&&c.players.some(p=>p.id===c.host)&&Number.isInteger(c.seed)&&c.seed>=0&&c.seed<=0xffffffff;}
 function launch(config){
   if(!validRound(config)||!openGame)return;
   round={...config,self:me().accountId};pending=null;notice='';
@@ -149,8 +152,8 @@ export function startRound(){
   const config={id:crypto.randomUUID(),room:roomNow().id,host:me().accountId,players:roster,seed:crypto.getRandomValues(new Uint32Array(1))[0]};
   pending={config,acks:new Set([me().accountId]),at:now()};notice='Préparation des joueurs…';broadcast('prepare43',{config});redraw();
 }
-export function setLobbyReady(){if(!joined||pending||!roster.some(p=>p.id===me()?.accountId))return;ready=!ready;notice='';heartbeat();redraw();}
-export function updateLobbyPose(pose){if(!joined||round||!validPose(pose))return;poses.set(me()?.accountId,pose);if(!isHost())send(host()?.accountId,'pose43',{pose,session});}
+export function setLobbyReady(){if(!joined||arcadeActive||pending||!roster.some(p=>p.id===me()?.accountId))return;ready=!ready;notice='';heartbeat();redraw();}
+export function updateLobbyPose(pose){if(!joined||round||arcadeActive||!validPose(pose))return;poses.set(me()?.accountId,pose);if(!isHost())send(host()?.accountId,'pose43',{pose,session});}
 function bind(){if(!unsubscribe&&link())unsubscribe=link().subscribe(receive);}
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function connectWithRetry(reconnect=false){
@@ -163,7 +166,7 @@ async function connectWithRetry(reconnect=false){
 }
 export async function joinLobby(context,reconnect=false){
   if(context?.room)publishedRoom=context.room;
-  if(round||connecting)return;
+  if(round||arcadeActive||connecting)return;
   const own=++generation;connecting=true;notice='';redraw();
   try{
     // L'état du salon est déjà fourni par l'écran précédent : on rejoint
@@ -188,10 +191,10 @@ export async function joinLobby(context,reconnect=false){
 export function leaveLobby(){
   generation++;
   if(joined&&!round){if(isHost())broadcast('host-left43',{});else send(host()?.accountId,'leave-lobby43',{});}
-  joined=false;connecting=false;ready=false;roster=[];pending=null;applicants.clear();poses.clear();notice='';
+  joined=false;arcadeActive=false;connecting=false;ready=false;roster=[];pending=null;applicants.clear();poses.clear();notice='';
 }
 function heartbeat(){
-  if(!joined||round)return;
+  if(!joined||round||arcadeActive)return;
   if(pending&&now()-pending.at>8000){pending=null;notice='Un joueur ne répond pas au lancement. Réessayez la connexion.';}
   if(isHost())rebuildRoster();else if(host())send(host().accountId,'hello43',{ready,session});
   redraw();
@@ -211,7 +214,7 @@ window.addEventListener('one-party-state',e=>{
 window.addEventListener('one-account-changed',()=>{window.ONEThree17?.close();window.ONELobby3D?.close();leaveLobby();});
 // Le lobby doit refléter une arrivée ou un départ presque immédiatement.
 setInterval(()=>{bind();heartbeat();},200);
-setInterval(()=>{if(joined&&isHost()&&!round)broadcast('poses43',{poses:[...poses].filter(([id])=>roster.some(p=>p.id===id)).map(([id,pose])=>({id,pose}))});},100);
+setInterval(()=>{if(joined&&isHost()&&!round&&!arcadeActive)broadcast('poses43',{poses:[...poses].filter(([id])=>roster.some(p=>p.id===id)).map(([id,pose])=>({id,pose}))});},100);
 
 function avatar(scene,name,color){return createAvatar(scene,name,color);}
 export function createCoopRuntime(config,b){
