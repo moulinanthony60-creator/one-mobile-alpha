@@ -3923,6 +3923,7 @@ roomIntro.append(app);syncMediaButtons();}
 
 </script><script id="one-party-communication-r43b" data-one-release="317r43b">
 (()=>{
+ if(window.ONEPartyGameLink?.release==='v200')return;
  const gameListeners=new Set();
  const API='https://one-comments-api.moulinanthony60.workers.dev';let room=null,call=null,joining=false,epoch=0,chatBusy=false,pending=null,mediaPending=false;
  const el=(tag,text)=>{const n=document.createElement(tag);if(text)n.textContent=text;return n;};
@@ -3969,7 +3970,7 @@ callStatus.textContent='Appel en cours';bar.append(callStatus,mic,cam,sound,leav
  const path=(c,action)=>'/party/call/'+action+'?room='+encodeURIComponent(c.room)+'&session='+encodeURIComponent(c.id);
  function signal(c,to,payload){c.queue=c.queue.catch(()=>{}).then(()=>{if(call!==c)return;return request(path(c,'signal'),'POST',{to,payload},c.token);});return c.queue;}
  function media(c){return {type:'media',camera:!!c.video?.enabled,mic:!!c.audio?.enabled};}
- function announce(c){window.dispatchEvent(new Event('one-media-state'));c.local.node.dataset.mic=String(!!c.audio?.enabled);for(const id of c.peers.keys())signal(c,id,media(c)).catch(()=>{});}
+ function announce(c){if(c.audio||c.video)c.dataOnly=false;window.dispatchEvent(new Event('one-media-state'));c.local.node.dataset.mic=String(!!c.audio?.enabled);for(const id of c.peers.keys())signal(c,id,media(c)).catch(()=>{});}
  function peer(c,id,name,initiator,accountId){let p=c.peers.get(id);if(p)return p;const pc=new RTCPeerConnection({iceServers:c.iceServers}),stream=new MediaStream();p={pc,stream,accountId,ice:[],bubble:bubble(name,stream,false,accountId),ready:false,data:null,reliable:null};c.peers.set(id,p);
   const attachData=dc=>{
    const reliable=dc.label==='one-game-reliable-v1';
@@ -3993,17 +3994,98 @@ callStatus.textContent='Appel en cours';bar.append(callStatus,mic,cam,sound,leav
   for(const info of d.peers){if(c.id<info.id&&!c.peers.has(info.id)){const p=peer(c,info.id,info.name,true,info.accountId);await tracks(c,p);await p.pc.setLocalDescription(await p.pc.createOffer());await signal(c,info.id,{type:'offer',sdp:p.pc.localDescription.sdp});}}
   for(const msg of d.signals){if(call!==c)return;const info=d.peers.find(x=>x.id===msg.sender);if(!info){c.after=msg.seq;continue;}const data=JSON.parse(msg.payload);let p=c.peers.get(msg.sender);if(data.type==='offer'){if(p&&p.pc.signalingState!=='stable'){c.after=msg.seq;continue;}p=p||peer(c,msg.sender,info.name,false,info.accountId);await p.pc.setRemoteDescription({type:'offer',sdp:data.sdp});await tracks(c,p);for(const candidate of p.ice.splice(0))await p.pc.addIceCandidate(candidate);await p.pc.setLocalDescription(await p.pc.createAnswer());await signal(c,msg.sender,{type:'answer',sdp:p.pc.localDescription.sdp});}else if(data.type==='answer'&&p){await p.pc.setRemoteDescription({type:'answer',sdp:data.sdp});for(const candidate of p.ice.splice(0))await p.pc.addIceCandidate(candidate);}else if(data.type==='candidate'){p=p||peer(c,msg.sender,info.name,false,info.accountId);if(p.pc.remoteDescription)await p.pc.addIceCandidate(data.candidate);else p.ice.push(data.candidate);}else if(data.type==='media'&&p){p.bubble.show(data.camera,data.mic);window.dispatchEvent(new Event('one-media-state'));}c.after=msg.seq;}
  }catch(e){if(call===c){callStatus.textContent=e.message;if([401,403,409].includes(e.status)||Date.now()-c.last>30000){stopCall();status.textContent=e.message;}}}finally{window.dispatchEvent(new Event('one-media-state'));if(call===c)c.timer=setTimeout(()=>poll(c),200);}}
- function syncCallBar(){bar.hidden=!call;bar.classList.toggle('sr168-call-active',!!call);window.dispatchEvent(new CustomEvent('one-lounge-state',{detail:{active:!!call}}));}
+ function syncCallBar(){const visible=!!call&&!call.dataOnly;bar.hidden=!visible;bar.classList.toggle('sr168-call-active',visible);window.dispatchEvent(new CustomEvent('one-lounge-state',{detail:{active:visible}}));}
  window.addEventListener('one-media-state',syncCallBar);window.addEventListener('one-salon-visibility',syncCallBar);
- async function joinCall(requirements={mic:false,camera:false}){if(!room||call||joining)return;joining=true;status.textContent='';join.disabled=true;const own=++epoch,id=room.id;let stream=null;try{if(((requirements.mic||requirements.camera)&&!navigator.mediaDevices?.getUserMedia)||!window.RTCPeerConnection)throw Error('Appels non pris en charge dans ce navigateur.');stream=(!requirements.mic&&!requirements.camera)||requirements.data?new MediaStream():await navigator.mediaDevices.getUserMedia({audio:requirements.mic?{echoCancellation:true,noiseSuppression:true}:false,video:requirements.camera?{width:{ideal:240},height:{ideal:180},frameRate:{ideal:12,max:15},facingMode:'user'}:false});if(own!==epoch||room?.id!==id){stream.getTracks().forEach(t=>t.stop());return;}const c={id:crypto.randomUUID(),room:id,token:oneAccountToken(),audio:stream.getAudioTracks()[0]||null,video:stream.getVideoTracks()[0]||null,peers:new Map(),after:0,queue:Promise.resolve(),last:Date.now()};const d=await request(path(c,'join'),'POST',{session:c.id},c.token);if(own!==epoch||room?.id!==id){stream.getTracks().forEach(t=>t.stop());request(path(c,'leave'),'POST',undefined,c.token).catch(()=>{});return;}c.iceServers=[...(Array.isArray(d.iceServers)?d.iceServers:[]),{urls:['stun:stun.cloudflare.com:3478','stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}];c.local=bubble('Moi',new MediaStream(c.video?[c.video]:[]),true);c.local.show(!!c.video);call=c;syncCallBar();callStatus.textContent=requirements.data?'Connexion au salon':'Appel rejoint';join.textContent='Quitter le vocal';mic.setAttribute('aria-pressed',String(!!c.audio));cam.setAttribute('aria-pressed',String(!!c.video));poll(c);}catch(e){stream?.getTracks().forEach(t=>t.stop());status.textContent=e.name==='NotAllowedError'?(requirements.camera?'Autorise la caméra dans ton navigateur.':'Autorise le micro dans ton navigateur.'):e.message;}finally{joining=false;join.disabled=false;}}
- function stopCall(options={}){epoch++;const c=call;call=null;window.dispatchEvent(new Event('one-media-state'));joining=false;join.disabled=false;join.textContent='Rejoindre le vocal';syncCallBar();if(!c)return;clearTimeout(c.timer);if(!options.keepTracks){c.audio?.stop();c.video?.stop();}c.local.remove();for(const p of c.peers.values()){p.pc.close();p.bubble.remove();}if(!options.skipLeave)request(path(c,'leave'),'POST',undefined,c.token).catch(()=>{});}
+ // The installed app and browser tabs share one account lock. Keep only the
+ // transport identifier (never the account token) so an interrupted window
+ // can release its own abandoned connection on the next opening.
+ let joinTask=null,reconnectTask=null,closingTask=Promise.resolve(),lastJoinError=null;
+ const savedSession=key=>{try{const value=JSON.parse(localStorage.getItem(key));return value&&/^[a-f0-9-]{36}$/i.test(value.id)&&typeof value.room==='string'&&value.room.length<200?value:null;}catch{return null;}};
+ function rememberSession(c){if(c.storageKey)try{localStorage.setItem(c.storageKey,JSON.stringify({id:c.id,room:c.room}));}catch{}}
+ function forgetSession(c){if(c.storageKey&&savedSession(c.storageKey)?.id===c.id)try{localStorage.removeItem(c.storageKey);}catch{}}
+ function reserveSession(account){
+  if(!navigator.locks?.request||!account)return Promise.resolve({release(){},key:null});
+  const key='one_party_connection_v200:'+account;
+  return new Promise((resolve,reject)=>{
+   navigator.locks.request(key,{ifAvailable:true},lock=>{
+    if(!lock){reject(Error('ONE est déjà connecté au salon dans une autre fenêtre de Chrome. Ferme cette autre fenêtre, puis réessaie ici.'));return;}
+    return new Promise(release=>resolve({release,key}));
+   }).catch(reject);
+  });
+ }
+ async function releaseRemote(c){
+  try{
+   // Cleanup must still run during pagehide and when request backoff is active.
+   const r=await fetch(API+path(c,'leave'),{method:'POST',headers:{Authorization:'Bearer '+c.token},keepalive:true,cache:'no-store',signal:AbortSignal.timeout(10000)});
+   if(!r.ok&&![401,403,409].includes(r.status))return false;
+   forgetSession(c);return true;
+  }catch{return false;}
+ }
+ function disposeCall(c,keepTracks=false){clearTimeout(c.timer);if(!keepTracks){c.audio?.stop();c.video?.stop();}c.local?.remove();for(const p of c.peers.values()){p.pc.close();p.bubble.remove();}}
+ function closeConnection(c,keepTracks=false){
+  disposeCall(c,keepTracks);
+  const done=releaseRemote(c).finally(()=>{c.releaseLock?.();c.releaseLock=null;});
+  closingTask=Promise.allSettled([closingTask,done]).then(()=>undefined);return done;
+ }
+ function joinCall(requirements={mic:false,camera:false}){
+  if(call)return Promise.resolve();if(joinTask)return joinTask;if(!room)return Promise.resolve();
+  joining=true;status.textContent='Connexion au salon…';lastJoinError=null;join.disabled=true;
+  const own=++epoch,id=room.id,token=oneAccountToken(),account=window.oneAccountLocal?.()?.id;
+  const current=()=>own===epoch&&room?.id===id&&token===oneAccountToken();
+  let stream=null,c=null,lease=null;
+  const task=(async()=>{
+   try{
+    await closingTask;if(!current())return;
+    if(((requirements.mic||requirements.camera)&&!navigator.mediaDevices?.getUserMedia)||!window.RTCPeerConnection)throw Error('Appels non pris en charge dans ce navigateur.');
+    lease=await reserveSession(account);if(!current())return;
+    const previous=lease.key&&savedSession(lease.key);
+    if(previous){status.textContent='Reprise de la connexion du salon…';let released=false;for(let attempt=0;attempt<2&&current();attempt++){if(await releaseRemote({...previous,token,storageKey:lease.key})){released=true;break;}if(attempt===0)await new Promise(r=>setTimeout(r,200));}if(!released&&current())throw Error('La connexion précédente ne répond pas encore. Réessaie dans un instant.');}
+    if(!current())return;
+    stream=(!requirements.mic&&!requirements.camera)||requirements.data?new MediaStream():await navigator.mediaDevices.getUserMedia({audio:requirements.mic?{echoCancellation:true,noiseSuppression:true}:false,video:requirements.camera?{width:{ideal:240},height:{ideal:180},frameRate:{ideal:12,max:15},facingMode:'user'}:false});
+    if(!current())return;
+    c={id:crypto.randomUUID(),room:id,token,storageKey:lease.key,releaseLock:lease.release,dataOnly:!!requirements.data,audio:stream.getAudioTracks()[0]||null,video:stream.getVideoTracks()[0]||null,peers:new Map(),after:0,queue:Promise.resolve(),last:Date.now()};
+    rememberSession(c);
+    const d=await request(path(c,'join'),'POST',{session:c.id},c.token);
+    if(!current())return;
+    c.iceServers=[...(Array.isArray(d.iceServers)?d.iceServers:[]),{urls:['stun:stun.cloudflare.com:3478','stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}];
+    c.local=bubble('Moi',new MediaStream(c.video?[c.video]:[]),true);c.local.show(!!c.video);call=c;
+    status.textContent='';syncCallBar();callStatus.textContent=requirements.data?'Connexion au salon':'Appel rejoint';join.textContent='Quitter le vocal';mic.setAttribute('aria-pressed',String(!!c.audio));cam.setAttribute('aria-pressed',String(!!c.video));poll(c);
+   }catch(e){if(current()){lastJoinError=e;status.textContent=e.name==='NotAllowedError'?(requirements.camera?'Autorise la caméra dans ton navigateur.':'Autorise le micro dans ton navigateur.'):e.message;}}
+   finally{
+    if(!c||call!==c){stream?.getTracks().forEach(t=>t.stop());if(c)await closeConnection(c);else lease?.release();}
+    if(joinTask===task){joinTask=null;joining=false;join.disabled=false;window.dispatchEvent(new Event('one-media-state'));}
+   }
+  })();joinTask=task;return task;
+ }
+ function stopCall(options={}){
+  epoch++;const c=call;call=null;join.textContent='Rejoindre le vocal';syncCallBar();window.dispatchEvent(new Event('one-media-state'));
+  if(!c)return closingTask;return closeConnection(c,options.keepTracks===true);
+ }
+ function reconnectCall(){
+  if(reconnectTask)return reconnectTask;
+  const task=(async()=>{
+   if(joinTask)await joinTask;
+   room=window.oneSocialRoom?.()||room;if(!room)throw Error('Rejoins d’abord un salon ONE.');
+   const old=call,media={audio:old?.audio?.readyState==='live'?old.audio:null,video:old?.video?.readyState==='live'?old.video:null};
+   const token=oneAccountToken(),id=room.id;const closing=stopCall({keepTracks:true}),own=epoch;
+   try{
+    await closing;if(own!==epoch||token!==oneAccountToken()||room?.id!==id)throw Error('Connexion annulée.');
+    await joinCall({data:old?old.dataOnly:true,mic:false});if(!call)throw lastJoinError||Error(status.textContent||'Connexion indisponible.');
+    call.audio=media.audio;call.video=media.video;call.local.video.srcObject=new MediaStream(media.video?[media.video]:[]);call.local.show(!!media.video);
+    for(const p of call.peers.values())await tracks(call,p);
+    mic.setAttribute('aria-pressed',String(!!call.audio));mic.setAttribute('aria-label',call.audio?'Couper le micro':'Activer le micro');cam.setAttribute('aria-pressed',String(!!call.video));cam.setAttribute('aria-label',call.video?'Couper la caméra':'Activer la caméra');announce(call);
+   }catch(e){media.audio?.stop();media.video?.stop();throw e;}
+  })();reconnectTask=task;return task.finally(()=>{if(reconnectTask===task)reconnectTask=null;});
+ }
+
  async function toggleMic(){const c=call;if(!c)return;if(c.audio?.readyState==='ended')c.audio=null;try{if(!c.audio){const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:false});if(call!==c){stream.getTracks().forEach(t=>t.stop());return;}c.audio=stream.getAudioTracks()[0];for(const p of c.peers.values())await tracks(c,p);}else{const old=c.audio;c.audio=null;old.stop();for(const p of c.peers.values())await tracks(c,p);}mic.setAttribute('aria-pressed',String(!!c.audio?.enabled));mic.setAttribute('aria-label',c.audio?.enabled?'Couper le micro':'Activer le micro');announce(c);}catch(e){callStatus.textContent='Micro non disponible : '+e.message;status.textContent=callStatus.textContent;window.dispatchEvent(new CustomEvent('one-party-action-error',{detail:status.textContent}));announce(c);}}
 
  async function toggleCam(){const c=call;if(!c||cam.disabled)return;cam.disabled=true;try{if(c.video){const old=c.video;c.video=null;old.stop();for(const p of c.peers.values())await tracks(c,p);c.local.video.srcObject=null;c.local.show(false);cam.setAttribute('aria-pressed','false');cam.setAttribute('aria-label','Activer la caméra');}else{const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:240},height:{ideal:180},frameRate:{ideal:12,max:15},facingMode:'user'},audio:false});if(call!==c){stream.getTracks().forEach(t=>t.stop());return;}c.video=stream.getVideoTracks()[0];c.local.video.srcObject=stream;c.local.show(true);for(const p of c.peers.values())await tracks(c,p);cam.setAttribute('aria-pressed','true');cam.setAttribute('aria-label','Couper la caméra');}announce(c);}catch(e){if(c.video){c.video.stop();c.video=null;c.local.video.srcObject=null;c.local.show(false);announce(c);}cam.setAttribute('aria-pressed','false');cam.setAttribute('aria-label','Activer la caméra');callStatus.textContent=e.name==='NotAllowedError'?'Caméra non autorisée.':e.message;status.textContent=callStatus.textContent;window.dispatchEvent(new CustomEvent('one-party-action-error',{detail:status.textContent}));}finally{cam.disabled=false;}}
 
  window.ONEPartyGameLink={
-  async connect(){room=window.oneSocialRoom?.()||room;if(!room)throw Error('Rejoins d’abord un salon ONE.');if(joining){const end=Date.now()+13000;while(joining&&Date.now()<end)await new Promise(r=>setTimeout(r,100));}if(joining)throw Error('La connexion du salon est en cours. Réessaie dans un instant.');if(!call)await joinCall({data:true,mic:false});if(!call)throw Error(status.textContent||'Connexion au salon indisponible.');},
-  async reconnect(){room=window.oneSocialRoom?.()||room;if(joining)throw Error('Connexion déjà en cours…');if(call){const old=call,media={audio:old.audio?.readyState==='live'?old.audio:null,video:old.video?.readyState==='live'?old.video:null};await request(path(old,'leave'),'POST',undefined,old.token).catch(()=>{});stopCall({keepTracks:true,skipLeave:true});await joinCall({data:true,mic:false});if(!call)throw Error(status.textContent||'Connexion indisponible.');call.audio=media.audio;call.video=media.video;call.local.video.srcObject=new MediaStream(media.video?[media.video]:[]);call.local.show(!!media.video);for(const p of call.peers.values())await tracks(call,p);mic.setAttribute('aria-pressed',String(!!call.audio));mic.setAttribute('aria-label',call.audio?'Couper le micro':'Activer le micro');cam.setAttribute('aria-pressed',String(!!call.video));cam.setAttribute('aria-label',call.video?'Couper la caméra':'Activer la caméra');announce(call);return;}await joinCall({data:true,mic:false});if(!call)throw Error(status.textContent||'Connexion indisponible.');},
+  release:'v200',
+  async connect(){if(reconnectTask)return reconnectTask;room=window.oneSocialRoom?.()||room;if(!room)throw Error('Rejoins d’abord un salon ONE.');await joinCall({data:true,mic:false});if(!call)throw lastJoinError||Error(status.textContent||'Connexion au salon indisponible.');},
+  reconnect:reconnectCall,
   peers(){return call?[...call.peers.values()].filter(p=>p.accountId).map(p=>({accountId:p.accountId,connected:p.data?.readyState==='open',state:p.pc.connectionState})):[];},
   send(to,packet){if(!call||packet?.game!=='317'||packet.v!==1)return false;const data=JSON.stringify(packet);if(data.length>24000)return false;
    const p=[...call.peers.values()].find(p=>p.accountId===to&&p.data?.readyState==='open'&&p.data.bufferedAmount<=16384);if(!p)return false;try{p.data.send(data);return true;}catch{return false;}},
@@ -4040,7 +4122,7 @@ callStatus.textContent='Appel en cours';bar.append(callStatus,mic,cam,sound,leav
 })();
 
 
-if(window.ONEPartyGameLink)document.documentElement.dataset.oneLobbyNetwork="r43b";
+if(window.ONEPartyGameLink)document.documentElement.dataset.oneLobbyNetwork="v200";
 </script><script src="ui/qrcode.js?v=014117"></script><script src="ui/jsQR.js?v=014117"></script><script src="ui/friend-scanner.js?v=014117"></script><script src="ui/friends.js?v=audit-v194"></script><script src="ui/bluff-scene.js?v=014117"></script><script src="ui/bluff-model-bridge.js?v=014117"></script><script src="ui/party-bluff.js?v=014117"></script><script src="ui/party-who.js?v=118r2"></script>
 <script src="ui/party-video-sync.js?v=014117"></script><script src="ui/party-reactions.js?v=014117"></script>
 <script src="ui/party-collection.js?v=118r2"></script>
@@ -4199,13 +4281,15 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
   const cancel=ONEUI.button('Annuler',()=>box.close());box.append(status,cancel);
   box.addEventListener('close',()=>{if(opening===box)opening=null},{once:true});
   try{
-   const [module]=await Promise.all([import('./ui/one-lobby-r46.js?v=board-v199'),window.oneEnsureThree17()]);
+   const [module]=await Promise.all([import('./ui/one-lobby-r46.js?v=fix-v200'),window.oneEnsureThree17()]);
    if(!box.open||!box.isConnected)return;
+   if(module.release!=='v200')throw Object.assign(Error('La mise à jour du lobby est incomplète. Publie aussi tous les fichiers du dossier ui, puis recharge ONE.'),{code:'ONE_UPDATE_INCOMPLETE'});
    module.open(context||{room:window.oneSocialRoom?.()});box.close();window.oneCloseSalon?.();
   }catch(error){
    if(!box.open||!box.isConnected)return;
-   status.textContent='Le lobby n’a pas pu se charger. Vérifie ta connexion puis réessaie.';
-   const retry=ONEUI.button('Réessayer',()=>{box.close();opening=null;window.ONEOpen3DLobby(context)});box.insertBefore(retry,cancel);
+   const incomplete=error.code==='ONE_UPDATE_INCOMPLETE';
+   status.textContent=incomplete?error.message:'Le lobby n’a pas pu charger. Vérifie ta connexion et, après une mise à jour, la présence de tous les fichiers du dossier ui.';
+   const retry=ONEUI.button(incomplete?'Recharger ONE':'Réessayer',()=>{if(incomplete){location.reload();return;}box.close();opening=null;window.ONEOpen3DLobby(context)});box.insertBefore(retry,cancel);
   }
  };
 })();
