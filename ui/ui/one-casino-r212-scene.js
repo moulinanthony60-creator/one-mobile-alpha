@@ -1,0 +1,53 @@
+import * as THREE from './three.module.js';
+import {buildPeople} from './one-casino-r212-people.js';
+import {stations} from './one-casino-r212-layout.js';
+export function buildCasino(root){
+ const group=new THREE.Group();group.name='Casino ONE';root.add(group);const models=new Map(),materials=new Map(),symbolMats=[],cardMats=new Map();
+ const mat=c=>{if(!materials.has(c))materials.set(c,new THREE.MeshStandardMaterial({color:c,roughness:.52,metalness:c==='#c8a969'?.65:.05}));return materials.get(c);};
+ const mesh=(geo,m,x,y,z,parent=group)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);parent.add(o);return o;},box=(w,h,d,c,x,y,z,parent)=>mesh(new THREE.BoxGeometry(w,h,d),mat(c),x,y,z,parent),cylinder=(r,h,c,x,y,z,parent)=>mesh(new THREE.CylinderGeometry(r,r,h,48),mat(c),x,y,z,parent);
+ function texture(draw,w=512,h=256){const cv=document.createElement('canvas');cv.width=w;cv.height=h;draw(cv.getContext('2d'),w,h);const map=new THREE.CanvasTexture(cv);map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=4;return new THREE.MeshStandardMaterial({map,roughness:.7});}
+ function label(text,w,h,x,y,z,parent=group,color='#ecd39a'){const m=texture((g,W,H)=>{g.fillStyle='#10232b';g.fillRect(0,0,W,H);g.strokeStyle='#c8a969';g.lineWidth=6;g.strokeRect(5,5,W-10,H-10);g.fillStyle=color;g.font='800 '+Math.min(H*.55,(W-30)/(.65*text.length))+'px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText(text,W/2,H/2,W-30);},768,Math.round(768*h/w));return mesh(new THREE.PlaneGeometry(w,h),m,x,y,z,parent);}
+ // Third room, joined by a walkable passage at the back of the main lounge.
+ box(3.6,.14,4.4,'#263b3c',0,-.09,9.1);box(18,.14,14,'#102f32',0,-.09,18);
+ for(const x of [-1.8,1.8])box(.18,4,4.2,'#213540',x,2,9.1);
+ for(const x of [-9,9]){box(.2,4,14,'#15242e',x,2,18);for(let z=12;z<25;z+=2){box(.14,2.8,.06,'#c8a969',x+(x>0?-.12:.12),1.8,z);}}
+ box(18,4,.2,'#15242e',0,2,25);for(const x of [-5.4,5.4])box(7.2,4,.2,'#15242e',x,2,11);
+ box(18,.12,14,'#24323c',0,4.03,18);box(3.6,.12,4.3,'#24323c',0,4.03,9.05);
+ for(const x of [-7.8,7.8])box(.035,.01,12,'#c8a969',x,.005,18);for(const z of [11.8,24.2])box(15.6,.01,.035,'#c8a969',0,.005,z);
+ for(let z=12;z<25;z+=2)for(let x=-8;x<9;x+=2){const tile=box(1.95,.007,1.95,(x+z)%4?'#16363a':'#193c40',x,.002,z);}
+ const neonCanvas=document.createElement('canvas');neonCanvas.width=1536;neonCanvas.height=320;const ng=neonCanvas.getContext('2d');ng.textAlign='center';ng.textBaseline='middle';ng.font='900 142px system-ui';ng.shadowColor='#b653ff';ng.shadowBlur=45;ng.strokeStyle='#a74bff';ng.lineWidth=17;ng.strokeText('ONE CASINO',768,160);ng.shadowBlur=22;ng.lineWidth=7;ng.strokeText('ONE CASINO',768,160);ng.fillStyle='#fff5df';ng.shadowBlur=12;ng.fillText('ONE CASINO',768,160);const neonMap=new THREE.CanvasTexture(neonCanvas);neonMap.colorSpace=THREE.SRGBColorSpace;
+ const neonMat=new THREE.MeshBasicMaterial({map:neonMap,transparent:true,depthWrite:false,toneMapped:false});const entry=mesh(new THREE.PlaneGeometry(4.4,.93),neonMat,0,3.43,6.82);entry.rotation.y=Math.PI;
+ const tubeMat=new THREE.MeshBasicMaterial({color:'#b868ff',toneMapped:false});for(const x of [-1.7,1.7])mesh(new THREE.BoxGeometry(.035,2.7,.035),tubeMat,x,1.4,6.83);mesh(new THREE.BoxGeometry(3.43,.035,.035),tubeMat,0,2.75,6.83);
+ const entranceLight=new THREE.PointLight('#b05aff',12,6,2);entranceLight.position.set(0,2.7,6.1);group.add(entranceLight);
+ label('ONE CASINO · À TOI DE JOUER',8,.85,0,3.2,24.83).rotation.y=Math.PI;
+ for(const z of [13,20]){const l=new THREE.PointLight('#ffe1a1',26,16,2);l.position.set(0,3.55,z);group.add(l);cylinder(.65,.1,'#c8a969',0,3.72,z);}
+ const symbols=['●','◆','♣','★','♦','7','W','B'],colors=['#bc3545','#d39228','#3d865e','#6951af','#22799e','#b63a67','#99681d','#366958'];
+ for(let i=0;i<8;i++)symbolMats.push(texture((g,W,H)=>{g.fillStyle='#f5eed9';g.fillRect(0,0,W,H);g.strokeStyle='#d2be86';g.lineWidth=9;g.strokeRect(8,8,W-16,H-16);g.fillStyle=colors[i];g.font='900 120px Georgia';g.textAlign='center';g.textBaseline='middle';g.fillText(symbols[i],W/2,H*.5);},256,256));
+ function cardMaterial(value){if(cardMats.has(value))return cardMats.get(value);const m=texture((g,W,H)=>{g.fillStyle=value===null?'#35455e':'#fff9e8';g.fillRect(0,0,W,H);g.strokeStyle='#c6a86b';g.lineWidth=8;g.strokeRect(7,7,W-14,H-14);g.textAlign='center';g.textBaseline='middle';if(value===null){g.fillStyle='#dfc68d';g.font='bold 44px system-ui';g.fillText('ONE',W/2,H/2);}else{const suit=Math.floor(value/13),rank=['A','2','3','4','5','6','7','8','9','10','J','Q','K'][value%13];g.fillStyle=suit===1||suit===2?'#ba334a':'#233039';g.font='bold 72px Georgia';g.fillText(rank,W/2,H*.28);g.font='80px Georgia';g.fillText(['♠','♥','♦','♣'][suit],W/2,H*.68);}},256,360);cardMats.set(value,m);return m;}
+ const cardGeo=new THREE.BoxGeometry(.43,.018,.63);
+ const wheelOrder=[0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26],reds=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+ for(const s of stations){const g=new THREE.Group();g.position.set(s.x,0,s.z);group.add(g);const model={station:s,group:g,busy:false,until:0,round:null,lastKey:'',parts:[],cardValues:[]};models.set(s.id,model);
+  if(s.kind==='slots'){
+   g.rotation.y=Math.PI;box(1.48,.18,1.18,'#0d1824',0,.09,0,g);box(1.32,2.32,.88,'#293142',0,1.27,0,g);for(const x of [-.68,.68])box(.065,2.4,1,'#c8a969',x,1.4,0,g);
+   box(1.32,.44,.98,'#162832',0,2.67,0,g);label(s.name.toUpperCase(),1.18,.32,0,2.66,.506,g);
+   box(1.21,1.05,.05,'#0a0f18',0,1.74,.474,g);
+   for(let c=0;c<5;c++)for(let r=0;r<3;r++){const tile=mesh(new THREE.BoxGeometry(.217,.29,.09),symbolMats[(c+r)%8],(c-2)*.231,2.055-r*.317,.526,g);tile.userData.casinoAnimated=true;model.parts.push(tile);}
+   const deck=box(1.33,.16,.44,'#c8a969',0,1.07,.64,g);deck.rotation.x=.16;cylinder(.075,.025,'#bc3545',.36,1.174,.65,g);box(.4,.018,.045,'#060e17',-.25,1.17,.67,g);label('POINTS ONE',.85,.19,0,.7,.455,g);
+   const lever=cylinder(.025,.58,'#c8a969',.79,1.42,0,g);mesh(new THREE.SphereGeometry(.09,12,8),mat('#963347'),.79,1.75,0,g);
+  }else if(s.kind==='roulette'){
+   cylinder(1.68,.18,'#49342c',0,.97,0,g);cylinder(1.56,.045,'#1b5644',0,1.075,0,g);cylinder(.36,.85,'#26303b',0,.47,0,g);cylinder(.95,.09,'#c8a969',0,1.14,0,g);
+   const wheelMat=texture((ctx,W,H)=>{const cx=W/2,cy=H/2;ctx.clearRect(0,0,W,H);for(let i=0;i<37;i++){const a=i*Math.PI*2/37-Math.PI/2,b=(i+1)*Math.PI*2/37-Math.PI/2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,W*.49,a,b);ctx.closePath();ctx.fillStyle=wheelOrder[i]===0?'#277349':reds.has(wheelOrder[i])?'#b63148':'#151c24';ctx.fill();ctx.save();ctx.translate(cx,cy);ctx.rotate((a+b)/2);ctx.fillStyle='#fff5dd';ctx.font='bold 22px system-ui';ctx.textAlign='center';ctx.fillText(String(wheelOrder[i]),W*.418,6);ctx.restore();}},1024,1024);
+   const rotor=mesh(new THREE.CircleGeometry(.89,96),wheelMat,0,1.195,0,g);rotor.rotation.x=-Math.PI/2;rotor.userData.casinoAnimated=true;model.rotor=rotor;const hub=cylinder(.39,.1,'#735040',0,1.25,0,g);cylinder(.065,.24,'#c8a969',0,1.41,0,g);for(let i=0;i<4;i++){const spoke=box(.68,.025,.035,'#c8a969',0,1.43,0,g);spoke.rotation.y=i*Math.PI/4;}
+   const ball=mesh(new THREE.SphereGeometry(.045,12,8),mat('#fff8de'),0,1.24,.76,g);model.ball=ball;ball.userData.casinoAnimated=true;
+   for(const [i,title]of ['ROUGE','NOIR','PAIR','IMPAIR'].entries()){const chip=label(title,.55,.23,(i-1.5)*.63,1.13,-1.15,g,i===0?'#ffa5a5':'#ecd39a');chip.rotation.set(-Math.PI/2,0,Math.PI);}
+  }else{
+   box(3.8,.2,2.55,'#51392b',0,.98,0,g);box(3.62,.035,2.35,'#185548',0,1.098,0,g);for(const x of [-1.45,1.45])for(const z of [-.85,.85])box(.18,.9,.18,'#18232a',x,.45,z,g);
+   const text=label('BLACKJACK · ONE',2.25,.4,0,1.125,0,g);text.rotation.set(-Math.PI/2,0,Math.PI);model.cards=new THREE.Group();g.add(model.cards);
+   for(const x of [-1.55,1.55])for(let n=0;n<5;n++)cylinder(.105,.025,n%2?'#cfb274':'#84354e',x,1.15+n*.027,.75,g);
+  }
+ }
+ function setRound(id,round){const m=models.get(id);if(!m||!round||round.kind!==m.station.kind)return;m.round=round;if(m.station.kind==='blackjack'){const key=JSON.stringify([round.player,round.dealer]);if(key===m.lastKey)return;m.lastKey=key;m.cards.clear();m.cardValues=[...round.player,...round.dealer];for(const [row,values]of [round.player,round.dealer].entries())values.forEach((value,i)=>{const face=cardMaterial(value),card=mesh(cardGeo,[mat('#e4d6b3'),mat('#e4d6b3'),face,mat('#35455e'),mat('#e4d6b3'),mat('#e4d6b3')],(i-(values.length-1)/2)*.48,1.15+i*.002,row===0?-.65:.65,m.cards);card.rotation.y=Math.PI+(i-(values.length-1)/2)*.035;});}}
+ for(const s of stations)if(s.kind==='blackjack')setRound(s.id,{kind:'blackjack',player:[null,null],dealer:[null,null]});
+ const people=buildPeople(group);
+ return {group,models,people,aim:ray=>people.aim(ray),melee:(p,y)=>people.melee(p,y),setRound,setBusy(id,busy){const m=models.get(id);if(m)m.busy=busy;},tick(t){for(const m of models.values()){if(m.station.kind==='slots')m.parts.forEach((o,i)=>{const c=Math.floor(i/3),r=i%3;o.rotation.x=m.busy?t/130+c*.2:0;o.material=symbolMats[m.busy?(Math.floor(t/100)+i)%8:m.round?.grid?.[c]?.[r]??(c+r)%8];o.updateMatrix();});if(m.rotor){const n=m.round?.number??0,angle=(wheelOrder.indexOf(n)+.5)*Math.PI*2/37-Math.PI/2;m.rotor.rotation.z=m.busy?t/450:0;m.rotor.updateMatrix();const a=m.busy?-t/260:angle;m.ball.position.set(Math.cos(a)*.76,1.245,Math.sin(a)*.76);m.ball.updateMatrix();}}},inspect:()=>[...models.values()].map(m=>({id:m.station.id,kind:m.station.kind,busy:m.busy,round:m.round?.id||null,number:m.round?.number,cards:m.cardValues,tiles:m.parts.length})),dispose(){for(const m of [...symbolMats,...cardMats.values()]){m.map?.dispose();m.dispose();}cardGeo.dispose();}};
+}

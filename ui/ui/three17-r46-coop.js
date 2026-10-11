@@ -1,4 +1,5 @@
 import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v93';
+import {validLobbyPosition} from './one-casino-r212-layout.js';
 import * as THREE from './three.module.js?v=lobby-shoot-v93';
 import {createCoopWorld,controls} from './three17-r46-world.js?v=lobby-shoot-v93';
 
@@ -61,7 +62,7 @@ let publishedRoom=null;
 const roomNow=()=>normalizeRoom(window.oneSocialRoom?.()||publishedRoom);
 let joined=false,notice='',roster=[],round=null,unsubscribe=null,hostSeen=0,connecting=false,generation=0,session='',ready=false,pending=null;
 const applicants=new Map(),poses=new Map(),observers=new Set(),shotObservers=new Set(),seenShotEvents=new Map();
-let openGame=null,arcadeActive=false;
+let openGame=null,arcadeActive=false,poseSequence=0,lastRosterSent=0;const receivedPoseSeq=new Map();
 export function setLobbyGameActive(value){arcadeActive=!!value;pending=null;ready=false;if(!arcadeActive)heartbeat();redraw();}
 export function resetLobbyReady(){ready=false;notice='';heartbeat();redraw();}
 const link=()=>window.ONEPartyGameLink;
@@ -104,21 +105,21 @@ function rebuildRoster(){
   if(!joined||!isHost()||round||arcadeActive)return;
   const mine=me();if(!mine)return;
   const guests=[...applicants].filter(([id,a])=>id!==mine.accountId&&now()-a.at<7000&&member(id)&&connected(id)).slice(0,7);
-  const next=[{id:mine.accountId,name:safeName(mine.name),ready,session},...guests.map(([id,a])=>({id,name:safeName(member(id).name),ready:a.ready,session:a.session}))];
+  const next=[{id:mine.accountId,name:safeName(mine.name),ready,session,poseVersion:203},...guests.map(([id,a])=>({id,name:safeName(member(id).name),ready:a.ready,session:a.session,poseVersion:a.poseVersion}))];
   if(pending&&JSON.stringify(next)!==JSON.stringify(roster)){pending=null;notice='Le groupe a changé. Vérifiez les joueurs prêts, puis relancez.';}
-  roster=next;for(const id of poses.keys())if(!roster.some(p=>p.id===id))poses.delete(id);
-  broadcast('lobby43',{players:roster},[...applicants.keys()].filter(id=>member(id))); redraw();
+  const changed=JSON.stringify(next)!==JSON.stringify(roster);if(!changed&&now()-lastRosterSent<800)return;lastRosterSent=now();roster=next;for(const id of poses.keys())if(!roster.some(p=>p.id===id))poses.delete(id);
+  broadcast('lobby43',{players:roster},[...applicants.keys()].filter(id=>member(id)));if(changed)redraw();
 }
-const validPose=p=>p&&[p.x,p.z,p.yaw].every(Number.isFinite)&&Math.abs(p.x)<=22.4&&Math.abs(p.z)<=6.2&&Math.abs(p.yaw)<=Math.PI*2&&(!('pitch' in p)||Number.isFinite(p.pitch)&&Math.abs(p.pitch)<=1.2)&&(!('bat' in p)||typeof p.bat==='boolean')&&(!('gun' in p)||typeof p.gun==='boolean')&&(!('down' in p)||typeof p.down==='boolean')&&(!('swingSeq' in p)||Number.isSafeInteger(p.swingSeq)&&p.swingSeq>=0&&p.swingSeq<=1000000000)&&(!('shotSeq' in p)||Number.isSafeInteger(p.shotSeq)&&p.shotSeq>=0&&p.shotSeq<=1000000000)&&(!('shotTarget' in p)||typeof p.shotTarget==='string'&&p.shotTarget.length<=160);
+const validPose=p=>p&&[p.x,p.z,p.yaw].every(Number.isFinite)&&validLobbyPosition(p.x,p.z)&&Math.abs(p.yaw)<=Math.PI*2&&(!('pitch' in p)||Number.isFinite(p.pitch)&&Math.abs(p.pitch)<=1.2)&&(!('bat' in p)||typeof p.bat==='boolean')&&(!('gun' in p)||typeof p.gun==='boolean')&&(!('down' in p)||typeof p.down==='boolean')&&(!('swingSeq' in p)||Number.isSafeInteger(p.swingSeq)&&p.swingSeq>=0&&p.swingSeq<=1000000000)&&(!('shotSeq' in p)||Number.isSafeInteger(p.shotSeq)&&p.shotSeq>=0&&p.shotSeq<=1000000000)&&(!('shotTarget' in p)||typeof p.shotTarget==='string'&&p.shotTarget.length<=160);
 function receive(from,p){
   if(!member(from)||p.room!==roomNow()?.id)return;
   if(arcadeActive){if(p.kind==='hello43'&&isHost())send(from,'busy43',{});return;}
   if(p.kind==='hello43'&&isHost()&&typeof p.session==='string'&&p.session.length===36){
     if(round){send(from,'busy43',{});return;}
     if(!joined)return;
-    applicants.set(from,{at:now(),ready:p.ready===true,session:p.session});rebuildRoster();
+    applicants.set(from,{at:now(),ready:p.ready===true,session:p.session,poseVersion:p.poseVersion===203?203:202});rebuildRoster();
   }else if(p.kind==='lobby43'&&from===host()?.accountId&&joined&&!round&&validRoster(p.players)){
-    roster=p.players;hostSeen=now();if(!pending)notice='';redraw();
+    const changed=JSON.stringify(roster)!==JSON.stringify(p.players);roster=p.players;hostSeen=now();if(!pending)notice='';if(changed)redraw();
   }else if(p.kind==='busy43'&&from===host()?.accountId&&joined&&!round){notice='Une partie est en cours. Rejoins la prochaine.';redraw();}
   else if(p.kind==='shot-route46'&&joined&&!round&&isHost()&&typeof p.id==='string'&&p.id.length===36&&p.shooter===from&&typeof p.target==='string'&&p.target!==from&&roster.some(m=>m.id===from)&&roster.some(m=>m.id===p.target)){
     if(p.target===me()?.accountId)emitShot({id:p.id,shooter:from,target:p.target});
@@ -127,9 +128,12 @@ function receive(from,p){
   else if(p.kind==='shot-hit46'&&joined&&!round&&typeof p.id==='string'&&p.id.length===36&&typeof p.shooter==='string'&&typeof p.target==='string'&&p.target===me()?.accountId&&roster.some(m=>m.id===p.shooter)&&((from===p.shooter)||from===host()?.accountId)){
     emitShot({id:p.id,shooter:p.shooter,target:p.target});
   }
+  else if(p.kind==='pose203'&&joined&&!round&&validPose(p.pose)&&Number.isSafeInteger(p.seq)&&p.seq>0&&roster.some(m=>m.id===from&&m.session===p.session)){
+    const prior=receivedPoseSeq.get(from);if(prior?.session===p.session&&p.seq<=prior.seq)return;receivedPoseSeq.set(from,{seq:p.seq,session:p.session,at:now()});poses.set(from,{...p.pose,netSeq:p.seq,netSession:p.session,receivedAt:now()});
+  }
   else if(p.kind==='pose43'&&joined&&!round&&isHost()&&validPose(p.pose)&&roster.some(m=>m.id===from&&m.session===p.session))poses.set(from,p.pose);
   else if(p.kind==='poses43'&&joined&&!round&&from===host()?.accountId&&Array.isArray(p.poses)&&p.poses.length<=8){
-    for(const entry of p.poses)if(entry.id!==me()?.accountId&&roster.some(m=>m.id===entry.id)&&validPose(entry.pose))poses.set(entry.id,entry.pose);
+    for(const entry of p.poses)if(entry.id!==me()?.accountId&&roster.some(m=>m.id===entry.id)&&validPose(entry.pose)&&now()-(receivedPoseSeq.get(entry.id)?.at||-Infinity)>2000)poses.set(entry.id,entry.pose);
   }else if(p.kind==='prepare43'&&from===host()?.accountId&&joined&&!round&&validRound(p.config)){
     if(!openGame){send(from,'reject43',{id:p.config.id});notice='Le jeu se charge encore. Réessayez dans quelques secondes.';redraw();return;}
     pending={config:p.config,at:now()};notice='Le groupe lance 3:17…';send(from,'ack43',{id:p.config.id,session});redraw();
@@ -147,13 +151,15 @@ function launch(config){
   round={...config,self:me().accountId};pending=null;notice='';
   window.ONELobby3D?.close?.({launch:true});window.oneCloseSalon?.();openGame({coop:round});
 }
-export function startRound(){
-  rebuildRoster();if(!canStart()){redraw();return;}
+let legacyReserve=false,legacyPublicRoom="";
+export async function startRound(){
+  if(legacyReserve)return;rebuildRoster();if(!canStart()){redraw();return;}
   const config={id:crypto.randomUUID(),room:roomNow().id,host:me().accountId,players:roster,seed:crypto.getRandomValues(new Uint32Array(1))[0]};
+  if(window.ONEMatchmaking?.current()){legacyReserve=true;try{await window.ONEMatchmaking.reserve({...config,game:'317',size:1});if(!joined||roomNow()?.id!==config.room||JSON.stringify(config.players)!==JSON.stringify(roster)||!canStart()){void window.ONEMatchmaking.reopen();return;}}catch(e){notice=e.message;redraw();return;}finally{legacyReserve=false;}}
   pending={config,acks:new Set([me().accountId]),at:now()};notice='Préparation des joueurs…';broadcast('prepare43',{config});redraw();
 }
 export function setLobbyReady(){if(!joined||arcadeActive||pending||!roster.some(p=>p.id===me()?.accountId))return;ready=!ready;notice='';heartbeat();redraw();}
-export function updateLobbyPose(pose){if(!joined||round||arcadeActive||!validPose(pose))return;poses.set(me()?.accountId,pose);if(!isHost())send(host()?.accountId,'pose43',{pose,session});}
+export function updateLobbyPose(pose){if(!joined||round||arcadeActive||!validPose(pose))return;poses.set(me()?.accountId,pose);broadcast('pose203',{pose,session,seq:++poseSequence});if(!isHost()&&roster.find(p=>p.id===host()?.accountId)?.poseVersion!==203)send(host()?.accountId,'pose43',{pose,session});}
 function bind(){if(!unsubscribe&&link())unsubscribe=link().subscribe(receive);}
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function connectWithRetry(reconnect=false){
@@ -183,7 +189,7 @@ export async function joinLobby(context,reconnect=false){
     if(!link())throw Error('Connexion absente : recharge ONE après avoir copié le dossier ui du correctif R43.');
     bind();await connectWithRetry(reconnect);
     if(own!==generation)return;
-    if(!joined){session=crypto.randomUUID();ready=false;poses.clear();roster=[];hostSeen=0;applicants.clear();}
+    if(!joined){session=crypto.randomUUID();poseSequence=0;receivedPoseSeq.clear();ready=false;poses.clear();roster=[];hostSeen=0;applicants.clear();}
     joined=true;notice='';heartbeat();
   }catch(e){if(own===generation){joined=false;notice=e.message||'Connexion impossible. Utilise Réessayer.';}}
   finally{if(own===generation){connecting=false;redraw();}}
@@ -196,7 +202,11 @@ export function leaveLobby(){
 function heartbeat(){
   if(!joined||round||arcadeActive)return;
   if(pending&&now()-pending.at>8000){pending=null;notice='Un joueur ne répond pas au lancement. Réessayez la connexion.';}
-  if(isHost())rebuildRoster();else if(host())send(host().accountId,'hello43',{ready,session});
+  const match=window.ONEMatchmaking?.current();
+  // Public search is automatic. A late game-selection packet may reset readiness.
+  if(match?.game==='317')ready=true;
+  if(isHost())rebuildRoster();else if(host())send(host().accountId,'hello43',{ready,session,poseVersion:203});
+  if(match?.game==='317'&&!pending&&isHost()&&roster.length===match.capacity&&canStart())void startRound();
   redraw();
 }
 export function installCoop(open){
@@ -213,8 +223,8 @@ window.addEventListener('one-party-state',e=>{
 });
 window.addEventListener('one-account-changed',()=>{window.ONEThree17?.close();window.ONELobby3D?.close();leaveLobby();});
 // Le lobby doit refléter une arrivée ou un départ presque immédiatement.
-setInterval(()=>{bind();heartbeat();},200);
-setInterval(()=>{if(joined&&isHost()&&!round&&!arcadeActive)broadcast('poses43',{poses:[...poses].filter(([id])=>roster.some(p=>p.id===id)).map(([id,pose])=>({id,pose}))});},100);
+setInterval(()=>{bind();heartbeat();},500);
+// Position packets go directly to each connected member, without the extra host relay.
 
 function avatar(scene,name,color){return createAvatar(scene,name,color);}
 export function createCoopRuntime(config,b){
@@ -353,3 +363,6 @@ function validSnapshot(s,ids,house){
 
 
 
+
+// Mixed-version rooms retain the older relay only for peers that need it.
+setInterval(()=>{if(!joined||!isHost()||round||arcadeActive||!roster.some(p=>p.poseVersion!==203))return;const entries=[...poses].filter(([id])=>roster.some(p=>p.id===id)).map(([id,pose])=>({id,pose}));for(const peer of roster)if(peer.id!==me()?.accountId)send(peer.id,'poses43',{poses:peer.poseVersion===203?entries.filter(e=>roster.find(p=>p.id===e.id)?.poseVersion!==203):entries});},100);
