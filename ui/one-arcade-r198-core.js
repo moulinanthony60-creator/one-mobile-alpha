@@ -1,3 +1,4 @@
+import {paintPropBlocks} from './one-arcade-r209-surfaces.js';
 import {roundLayout} from './one-arcade-r208-layout.js';
 // Shared geometry and host-authoritative rules. No DOM or transport dependency.
 export const GAMES=Object.freeze([
@@ -70,13 +71,14 @@ for(const game of ['paint','prop']){
  m.spawns=[[-35,-24],[35,-24],[-35,-8],[35,-8],[-35,8],[35,8],[-35,24],[35,24]];m.seekerSpawn=[0,27];
  m.zones.push([-36,0,7,56,1],[36,0,7,56,3],[0,-26,62,6,2],[0,26,62,6,4]);
 }
+WORLDS.paint.paintDetails=true;
 const roundWorlds=new Map();
 const worldBlocks=new WeakMap();
 export function worldFor(game,round='preview'){
  const base=WORLDS[game]||WORLD;if(game!=='paint'&&game!=='prop')return base;
  const key=game+':'+round;if(!roundWorlds.has(key)){const world=roundLayout(base,PROP_TYPES,game,round);roundWorlds.set(key,world);if(roundWorlds.size>12)roundWorlds.delete(roundWorlds.keys().next().value);}return roundWorlds.get(key);
 }
-export function blocksFor(world=WORLD){if(!worldBlocks.has(world))worldBlocks.set(world,[...world.walls,...world.props.map(p=>({...p,...PROP_TYPES[p.type]}))]);return worldBlocks.get(world);}
+export function blocksFor(world=WORLD){if(!worldBlocks.has(world))worldBlocks.set(world,[...world.walls,...world.props.flatMap(p=>world.paintDetails?paintPropBlocks(p,PROP_TYPES[p.type]):[{...p,...PROP_TYPES[p.type]}])]);return worldBlocks.get(world);}
 export const avatarScale=(game,role)=>game==='paint'?(role==='seeker'?1:.35):game==='prop'?.76:1;
 export function bodyRadius(p){if(p.paintPose)return paintRadius(p);return p.prop?Math.max(PROP_TYPES[p.prop].w,PROP_TYPES[p.prop].d)/2+.02:.3*(p.scale||1);}
 export function freePosition(x,z,r=.3,world=WORLD){return Math.abs(x)<world.width/2-.2-r&&Math.abs(z)<world.depth/2-.2-r&&!blocksFor(world).some(b=>Math.abs(x-b.x)<b.w/2+r&&Math.abs(z-b.z)<b.d/2+r);}
@@ -105,33 +107,74 @@ export function paintModel(p){
  if(p.anchor?.kind==='ceiling')for(const piece of pieces){piece.position=vector(rotX(Math.PI),piece.position);piece.rotation=multiply(rotX(Math.PI),piece.rotation);}
  return pieces;
 }
-export function paintYaw(p){return p.anchor?.kind==='wall'?Math.atan2(p.anchor.nx,p.anchor.nz):p.frozen?(p.facing||0):(p.yaw||0);}
+export function paintYaw(p){return paintSideAttached(p)?Math.atan2(p.anchor.nx,p.anchor.nz):p.frozen||p.anchor?.kind==='prop-top'?(p.facing||0):(p.yaw||0);}
 export function paintParts(p){const scale=p.scale||.35,r=rotY(paintYaw(p));return paintModel(p).map(piece=>({size:piece.size.map(n=>n*scale),position:vector(r,piece.position.map(n=>n*scale)).map((n,i)=>n+[p.x||0,p.y||0,p.z||0][i]),rotation:multiply(r,piece.rotation)}));}
 export function paintBounds(p){const min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];for(const part of paintParts(p))for(let axis=0;axis<3;axis++){const extent=part.size.reduce((sum,n,j)=>sum+Math.abs(part.rotation[axis*3+j])*n/2,0);min[axis]=Math.min(min[axis],part.position[axis]-extent);max[axis]=Math.max(max[axis],part.position[axis]+extent);}return {min,max,w:max[0]-min[0],h:max[1]-min[1],d:max[2]-min[2]};}
 export function paintRadius(p){const model=paintBounds({...p,x:0,y:0,z:0,yaw:0,frozen:false,anchor:p.anchor?.kind==='ceiling'?{kind:'ceiling'}:null});return Math.hypot(Math.max(Math.abs(model.min[0]),Math.abs(model.max[0])),Math.max(Math.abs(model.min[2]),Math.abs(model.max[2])))+.015;}
 export function paintEye(p){const h=paintParts(p)[0];return {x:h.position[0],y:h.position[1]+.02*(p.anchor?.kind==='ceiling'?-1:1),z:h.position[2]};}
 export function paintRayHit(o,d,p,range=45){let hit=Infinity;for(const part of paintParts(p)){const r=part.rotation,inv=[r[0],r[3],r[6],r[1],r[4],r[7],r[2],r[5],r[8]],v=vector(inv,[o.x-part.position[0],o.y-part.position[1],o.z-part.position[2]]),dir=vector(inv,[d.x,d.y,d.z]);hit=Math.min(hit,rayBox({x:v[0],y:v[1]+part.size[1]/2,z:v[2]},{x:dir[0],y:dir[1],z:dir[2]},{x:0,z:0,w:part.size[0],h:part.size[1],d:part.size[2]},range));}return hit;}
-export function paintFits(p,world=worldFor('paint'),ignore=-1){const b=paintBounds(p);if(b.min[0]<-world.width/2+.2||b.max[0]>world.width/2-.2||b.min[2]<-world.depth/2+.2||b.max[2]>world.depth/2-.2||b.min[1]<-.025||b.max[1]>PAINT_CEILING-.005)return false;return !blocksFor(world).some((o,i)=>i!==ignore&&b.min[0]<o.x+o.w/2&&b.max[0]>o.x-o.w/2&&b.min[2]<o.z+o.d/2&&b.max[2]>o.z-o.d/2&&b.min[1]<o.h&&b.max[1]>0);}
-function wallPosition(p,a,world){const w=world.walls[a.wall],n=a.nx?'x':'z',extent=a.nx?w.w:w.d,normal=a.nx||a.nz,b=paintBounds({...p,x:0,y:0,z:0,anchor:a}),depth=Math.max(Math.abs(b.min[a.nx?0:2]),Math.abs(b.max[a.nx?0:2]));return {...p,anchor:a,[n]:w[n]+normal*(extent/2+depth+.03)};}
-export function nearbyPaintWall(p,world=worldFor('paint')){if(p.anchor||p.falling)return null;let best=null,range=1.1;world.walls.forEach((w,wall)=>{for(const [nx,nz]of [[1,0],[-1,0],[0,1],[0,-1]]){const a={kind:'wall',wall,nx,nz},next=wallPosition(p,a,world),d=Math.hypot(p.x-next.x,p.z-next.z),along=nx?Math.abs(p.z-w.z)<w.d/2-.4:Math.abs(p.x-w.x)<w.w/2-.4;if((p.x-w.x)*nx+(p.z-w.z)*nz<(nx?w.w:w.d)/2||!along||d>range||!paintFits(next,world))continue;const o=paintEye(p),dest=paintEye(next),length=Math.hypot(dest.x-o.x,dest.y-o.y,dest.z-o.z),direction={x:(dest.x-o.x)/(length||1),y:(dest.y-o.y)/(length||1),z:(dest.z-o.z)/(length||1)};if(blocksFor(world).some((b,i)=>i!==wall&&rayBox(o,direction,b,length)<length-.02))continue;best=next;range=d;}});return best;}
-export function paintDrop(p,world=worldFor('paint')){let next={...p,paintPose:'stand',anchor:null,frozen:false,facing:p.yaw||0};const r=paintRadius(next);if(p.anchor?.kind==='wall'){next.x+=p.anchor.nx*(r+.04);next.z+=p.anchor.nz*(r+.04);}if(!freePosition(next.x,next.z,r,world))return null;next.falling=next.y>0;next.grounded=next.y===0;next.velocity=0;return next;}
-export function changePaintPose(p,pose,world=worldFor('paint')){if(!Object.hasOwn(PAINT_POSES,pose)||p.falling)return false;let next={...p,paintPose:pose};if(p.anchor?.kind==='wall')next=wallPosition(next,p.anchor,world);if(!paintFits(next,world))return false;Object.assign(p,next);return true;}
-export function advancePaint(p,input,dt,world=worldFor('paint')){
- if(p.falling){p.grounded=false;advanceProp(p,{x:0,z:0},dt,world);if(p.grounded)p.falling=false;return;}
- if(p.frozen)return;
- const a=p.anchor;
- if(a?.kind==='wall'){
-  const w=world.walls[a.wall],b=paintBounds({...p,y:0}),maxY=Math.max(0,w.h-b.max[1]-.03),next={...p,y:clamp((p.y||0)-input.z*1.7*dt,0,maxY)};
-  next.x+=a.nz*input.x*1.7*dt;next.z-=a.nx*input.x*1.7*dt;
-  const margin=paintRadius(p),within=a.nx?Math.abs(next.z-w.z)<w.d/2-margin:Math.abs(next.x-w.x)<w.w/2-margin;
-  if(within&&paintFits(next,world))Object.assign(p,next);
-  if(input.z<-.1&&p.y>=maxY-.02&&w.h<PAINT_CEILING-.08){const top={...p,anchor:null,paintPose:'stand',y:w.h+.006,grounded:true,velocity:0};if(a.nx)top.x=w.x;else top.z=w.z;if(paintFits(top,world))Object.assign(p,top);}
-  if(input.z<-.1&&p.y>=maxY-.02&&w.h>=PAINT_CEILING-.08){const roof={...p,anchor:{kind:'ceiling'},paintPose:'prone',y:PAINT_CEILING-.025};const offset=paintRadius(roof)+.06;roof.x=w.x+a.nx*(w.w/2+offset)+(a.nx?0:p.x-w.x);roof.z=w.z+a.nz*(w.d/2+offset)+(a.nz?0:p.z-w.z);if(paintFits(roof,world))Object.assign(p,roof);}
- }else if(a?.kind==='ceiling'){
-  const steps=Math.max(1,Math.ceil(Math.hypot(input.x,input.z)*1.9*dt/.06));for(let i=0;i<steps;i++){const dx=input.x*1.9*dt/steps,dz=input.z*1.9*dt/steps;for(const [key,v]of [['x',dx],['z',dz]]){const next={...p,[key]:p[key]+v};if(paintFits(next,world))p[key]=next[key];}}
- }else{p.moveSpeed=p.paintPose==='prone'?1.2:p.paintPose==='crouch'?2.0:3.8;advanceProp(p,input,dt,world);}
+export const paintSideAttached=p=>['wall','prop'].includes(p.anchor?.kind);
+const topOf=b=>(b.y||0)+b.h;
+const onFootprint=(p,b)=>{const r=paintBounds(p);return r.min[0]<b.x+b.w/2&&r.max[0]>b.x-b.w/2&&r.min[2]<b.z+b.d/2&&r.max[2]>b.z-b.d/2;};
+function insideTop(p,b){const r=paintBounds(p);return r.min[0]>=b.x-b.w/2+.008&&r.max[0]<=b.x+b.w/2-.008&&r.min[2]>=b.z-b.d/2+.008&&r.max[2]<=b.z+b.d/2-.008;}
+function anchorBox(a,world){if(a.kind==='wall')return world.walls[a.wall];const p=world.props.find(o=>o.id===a.prop);return p?{...p,...PROP_TYPES[p.type]}:null;}
+export function paintFits(p,world=worldFor('paint'),ignore=-1){const b=paintBounds(p);if(b.min[0]<-world.width/2+.2||b.max[0]>world.width/2-.2||b.min[2]<-world.depth/2+.2||b.max[2]>world.depth/2-.2||b.min[1]<-.025||b.max[1]>PAINT_CEILING-.005)return false;return !blocksFor(world).some((o,i)=>i!==ignore&&b.min[0]<o.x+o.w/2&&b.max[0]>o.x-o.w/2&&b.min[2]<o.z+o.d/2&&b.max[2]>o.z-o.d/2&&b.min[1]<topOf(o)&&b.max[1]>(o.y||0));}
+function wallPosition(p,a,world){const w=anchorBox(a,world);if(!w)return null;const n=a.nx?'x':'z',extent=a.nx?w.w:w.d,normal=a.nx||a.nz,b=paintBounds({...p,x:0,y:0,z:0,anchor:a}),depth=Math.max(Math.abs(b.min[a.nx?0:2]),Math.abs(b.max[a.nx?0:2]));return {...p,anchor:a,[n]:w[n]+normal*(extent/2+depth+.03)};}
+function propTop(p,id,world){
+ const candidates=blocksFor(world).map((b,block)=>({b,block})).filter(({b})=>b.prop===id&&b.w>.22&&b.d>.22).sort((a,b)=>topOf(b.b)-topOf(a.b));
+ for(const {b,block}of candidates)for(const pose of ['prone','crouch','stand']){
+  const next={...p,anchor:{kind:'prop-top',prop:id,block},paintPose:pose,facing:paintYaw(p),x:b.x,z:b.z,y:topOf(b)+.006,grounded:false,velocity:0};
+  const bounds=paintBounds(next);next.x+=b.x-(bounds.min[0]+bounds.max[0])/2;next.z+=b.z-(bounds.min[2]+bounds.max[2])/2;
+  if(insideTop(next,b)&&paintFits(next,world))return next;
+ }return null;
 }
-export function validPaintPlayer(p){return Object.hasOwn(PAINT_POSES,p.paintPose)&&Number.isFinite(p.y)&&p.y>=0&&p.y<=PAINT_CEILING&&Number.isFinite(p.facing)&&typeof p.falling==='boolean'&&Number.isFinite(p.velocity)&&typeof p.grounded==='boolean'&&(!p.anchor||(p.anchor.kind==='ceiling'&&Math.abs(p.y-(PAINT_CEILING-.025))<.001)||(p.anchor.kind==='wall'&&Number.isInteger(p.anchor.wall)&&p.anchor.wall>=0&&p.anchor.wall<worldFor('paint').walls.length&&[[1,0],[-1,0],[0,1],[0,-1]].some(([x,z])=>x===p.anchor.nx&&z===p.anchor.nz)));}
+export function nearbyPaintWall(p,world=worldFor('paint')){
+ if(p.anchor||p.falling)return null;let best=null,range=1.1;
+ const surfaces=[...world.walls.map((w,wall)=>({w,a:{kind:'wall',wall}})),...world.props.map(o=>({w:{...o,...PROP_TYPES[o.type]},a:{kind:'prop',prop:o.id}}))];
+ for(const {w,a}of surfaces)for(const [nx,nz]of [[1,0],[-1,0],[0,1],[0,-1]]){
+  const anchor={...a,nx,nz},next=wallPosition(p,anchor,world),shape=paintBounds({...p,x:0,y:0,z:0,anchor}),margin=(nx?shape.d:shape.w)/2+.015;
+  const d=Math.hypot(p.x-next.x,p.z-next.z),along=nx?Math.abs(p.z-w.z)<w.d/2-margin:Math.abs(p.x-w.x)<w.w/2-margin;
+  if((p.x-w.x)*nx+(p.z-w.z)*nz<(nx?w.w:w.d)/2||!along||d>range||p.y>w.h||!paintFits(next,world))continue;
+  if(a.kind==='prop'&&!propTop(next,a.prop,world))continue;
+  const o=paintEye(p),dest=paintEye(next),length=Math.hypot(dest.x-o.x,dest.y-o.y,dest.z-o.z),direction={x:(dest.x-o.x)/(length||1),y:(dest.y-o.y)/(length||1),z:(dest.z-o.z)/(length||1)};
+  if(blocksFor(world).some(b=>rayBox(o,direction,b,length)<length-.02))continue;best=next;range=d;
+ }return best;
+}
+function supportedPaint(p,world){return p.y<=.001||blocksFor(world).some(b=>Math.abs(p.y-topOf(b))<.035&&onFootprint(p,b));}
+export function paintDrop(p,world=worldFor('paint')){let next={...p,anchor:null,frozen:false,facing:p.yaw||0};if(paintSideAttached(p)){const r=paintRadius(next);next.x+=p.anchor.nx*(r+.04);next.z+=p.anchor.nz*(r+.04);}if(p.anchor?.kind==='ceiling')next.y=Math.min(next.y,PAINT_CEILING-paintBounds({...next,y:0}).max[1]-.015);if(!paintFits(next,world))return null;next.grounded=supportedPaint(next,world);next.falling=!next.grounded;next.velocity=0;return next;}
+export function changePaintPose(p,pose,world=worldFor('paint')){if(!Object.hasOwn(PAINT_POSES,pose)||p.falling)return false;let next={...p,paintPose:pose};if(paintSideAttached(p))next=wallPosition(next,p.anchor,world);if(!paintFits(next,world)||p.anchor?.kind==='prop-top'&&!insideTop(next,blocksFor(world)[p.anchor.block]))return false;Object.assign(p,next);return true;}
+export function advancePaintBody(p,input,dt,world=worldFor('paint')){
+ const blocks=blocksFor(world),speed=p.paintPose==='prone'?1.2:p.paintPose==='crouch'?2:3.8,steps=Math.max(1,Math.ceil(dt/.012)),slice=dt/steps;
+ for(let i=0;i<steps;i++){
+  const before=p.y||0,shape=paintBounds({...p,x:0,y:0,z:0});if(!p.grounded)p.velocity=(p.velocity||0)-10*slice;let y=before+(p.velocity||0)*slice;
+  if((p.velocity||0)<=0){let top=0;for(const b of blocks)if(before>=topOf(b)-.025&&y<=topOf(b)&&onFootprint(p,b))top=Math.max(top,topOf(b));if(y<=top){y=top;p.velocity=0;p.grounded=true;}}
+  else{let ceiling=PAINT_CEILING-.01;for(const b of blocks)if(before+shape.max[1]<=(b.y||0)+.01&&y+shape.max[1]>(b.y||0)&&onFootprint(p,b))ceiling=Math.min(ceiling,(b.y||0)-.006);if(y+shape.max[1]>ceiling){y=ceiling-shape.max[1];p.velocity=0;}}
+  p.y=Math.max(0,y);
+  if(!p.frozen)for(const [axis,n]of [['x',input.x],['z',input.z]]){const next={...p,[axis]:p[axis]+n*speed*slice};if(paintFits(next,world))p[axis]=next[axis];}
+  if(p.grounded&&!supportedPaint(p,world))p.grounded=false;
+ }
+}
+export function advancePaint(p,input,dt,world=worldFor('paint')){
+ if(p.falling){p.grounded=false;advancePaintBody(p,{x:0,z:0},dt,world);if(p.grounded)p.falling=false;return;}
+ if(p.frozen)return;const a=p.anchor;
+ if(paintSideAttached(p)){
+  const w=anchorBox(a,world);if(!w)return;const top=a.kind==='prop'?propTop(p,a.prop,world):null,b=paintBounds({...p,y:0}),maxY=Math.max(0,(top?top.y:w.h)-b.max[1]-.03),next={...p,y:clamp((p.y||0)-input.z*1.7*dt,0,maxY)};
+  next.x+=a.nz*input.x*1.7*dt;next.z-=a.nx*input.x*1.7*dt;
+  const body=paintBounds(next),within=a.nx?body.min[2]>w.z-w.d/2&&body.max[2]<w.z+w.d/2:body.min[0]>w.x-w.w/2&&body.max[0]<w.x+w.w/2;
+  if(within&&paintFits(next,world))Object.assign(p,next);
+  if(input.z<-.1&&p.y>=maxY-.02){
+   if(top)Object.assign(p,top); // The top keeps an anchor until the player releases it.
+   else if(w.h<PAINT_CEILING-.08){const ledge={...p,anchor:null,paintPose:'stand',y:w.h+.006,grounded:true,velocity:0};if(a.nx)ledge.x=w.x;else ledge.z=w.z;if(paintFits(ledge,world))Object.assign(p,ledge);}
+   else{const roof={...p,anchor:{kind:'ceiling'},paintPose:'prone',y:PAINT_CEILING-.025};const offset=paintRadius(roof)+.06;roof.x=w.x+a.nx*(w.w/2+offset)+(a.nx?0:p.x-w.x);roof.z=w.z+a.nz*(w.d/2+offset)+(a.nz?0:p.z-w.z);if(paintFits(roof,world))Object.assign(p,roof);}
+  }
+ }else if(a?.kind==='ceiling'||a?.kind==='prop-top'){
+  const steps=Math.max(1,Math.ceil(Math.hypot(input.x,input.z)*1.9*dt/.06));for(let i=0;i<steps;i++)for(const [axis,n]of [['x',input.x],['z',input.z]]){const next={...p,[axis]:p[axis]+n*1.9*dt/steps};if(paintFits(next,world)&&(a.kind==='ceiling'||insideTop(next,blocksFor(world)[a.block])))p[axis]=next[axis];}
+ }else advancePaintBody(p,input,dt,world);
+}
+export function validPaintPlayer(p,world=worldFor('paint')){
+ const a=p.anchor,normal=a&&[[1,0],[-1,0],[0,1],[0,-1]].some(([x,z])=>x===a.nx&&z===a.nz);
+ return Object.hasOwn(PAINT_POSES,p.paintPose)&&Number.isFinite(p.y)&&p.y>=0&&p.y<=PAINT_CEILING&&Number.isFinite(p.facing)&&typeof p.falling==='boolean'&&Number.isFinite(p.velocity)&&typeof p.grounded==='boolean'&&(!a||a.kind==='ceiling'&&Math.abs(p.y-(PAINT_CEILING-.025))<.001||a.kind==='wall'&&normal&&Number.isInteger(a.wall)&&a.wall>=0&&a.wall<world.walls.length||a.kind==='prop'&&normal&&world.props.some(o=>o.id===a.prop)||a.kind==='prop-top'&&Number.isInteger(a.block)&&a.block>=0&&blocksFor(world)[a.block]?.prop===a.prop&&Math.abs(p.y-topOf(blocksFor(world)[a.block])-.006)<.001);
+}
 
 export function propFree(x,z,y,r,world=worldFor('prop')){return Math.abs(x)<world.width/2-.2-r&&Math.abs(z)<world.depth/2-.2-r&&!blocksFor(world).some(b=>y<b.h-.012&&Math.abs(x-b.x)<b.w/2+r&&Math.abs(z-b.z)<b.d/2+r);}
 function propSupport(p,b,r){return Math.abs(p.x-b.x)<b.w/2+r*.6&&Math.abs(p.z-b.z)<b.d/2+r*.6;}
@@ -193,13 +236,14 @@ export function dimensions(p){return p.prop?PROP_TYPES[p.prop]:{w:.6*(p.scale||1
 export function eyeHeight(p){if(p.paintPose)return paintEye(p).y;return (p.y||0)+(p.prop?Math.min(1.15,dimensions(p).h*.8):(p.frozen?.8:1.57)*(p.scale||1));}
 export function aim(p){return {x:-Math.sin(p.yaw)*Math.cos(p.pitch),y:Math.sin(p.pitch),z:-Math.cos(p.yaw)*Math.cos(p.pitch)};}
 export function nearbyProp(p,world=WORLD){let best=null,distance=2.8;for(const o of world.props){const d=Math.hypot(o.x-p.x,o.z-p.z);if(d<distance){distance=d;best=o;}}return best;}
+export function propMaxHp(type){if(!type)return 100;const p=PROP_TYPES[type];if(!p)return 100;const volume=p.w*p.h*p.d;return volume<=.35?60:volume<=1.05?100:volume<=3?150:200;}
 const random=()=>crypto.getRandomValues(new Uint32Array(1))[0]/4294967296;
 export function createMatch({id='preview',game,size=1,players,randomize=random}){
  if(!validMode(game,size,players?.length)||new Set(players.map(p=>p.id)).size!==players.length)throw Error('Nombre de joueurs incompatible avec ce mode.');
  const shuffled=players.map(p=>({...p}));for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(randomize()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
  const world=worldFor(game,id),blocks=blocksFor(world),hiding=game==='paint'||game==='prop',state={game,size,elapsed:0,phase:hiding?'prepare':'play',until:hiding?world.prepare:180,score:[0,0],target:size*5,finished:false,winner:'',reason:'',gun:null,events:[],players:[]};
  const hunters=Math.max(1,Math.floor(players.length/3));
- state.players=shuffled.map((p,i)=>{const role=game==='shoot'?'fighter':game==='murder'?i===0?'murderer':i===1?'armed':'innocent':i<hunters?'seeker':'hider';const team=game==='shoot'?i%2:role==='hider'?1:0,spawn=game==='shoot'?world.spawns[i]:hiding&&role==='seeker'?world.seekerSpawn:world.spawns[i];return {id:p.id,name:String(p.name||'Membre').slice(0,40),role,team,y:0,velocity:0,grounded:true,falling:false,paintPose:game==='paint'?'stand':null,anchor:null,facing:0,scale:avatarScale(game,role),palette:[...COLORS],paintPixels:new Uint8Array(PAINT_CELLS),skin:encodeSkin(new Uint8Array(PAINT_CELLS)),x:spawn[0],z:spawn[1],yaw:spawn[0]<-1?-Math.PI/2:spawn[0]>1?Math.PI/2:0,pitch:0,hp:100,alive:true,connected:true,kills:0,deaths:0,ammo:game==='shoot'?24:12,weaponMode:'auto',stamina:100,burstLeft:0,burstAt:0,burstSeq:0,respawnSerial:0,reloadAt:0,respawnAt:0,invincible:0,cooldown:0,drawn:game==='shoot'||role==='seeker',colors:[0,0,0],prop:null,propColor:0,frozen:false,seq:0,input:{x:0,z:0}}});
+ state.players=shuffled.map((p,i)=>{const role=game==='shoot'?'fighter':game==='murder'?i===0?'murderer':i===1?'armed':'innocent':i<hunters?'seeker':'hider';const team=game==='shoot'?i%2:role==='hider'?1:0,spawn=game==='shoot'?world.spawns[i]:hiding&&role==='seeker'?world.seekerSpawn:world.spawns[i];return {id:p.id,name:String(p.name||'Membre').slice(0,40),role,team,y:0,velocity:0,grounded:true,falling:false,paintPose:game==='paint'?'stand':null,anchor:null,facing:0,scale:avatarScale(game,role),palette:[...COLORS],paintPixels:new Uint8Array(PAINT_CELLS),skin:encodeSkin(new Uint8Array(PAINT_CELLS)),x:spawn[0],z:spawn[1],yaw:spawn[0]<-1?-Math.PI/2:spawn[0]>1?Math.PI/2:0,pitch:0,hp:100,maxHp:100,healthRatio:1,alive:true,connected:true,kills:0,deaths:0,ammo:game==='shoot'?24:12,weaponMode:'auto',stamina:100,burstLeft:0,burstAt:0,burstSeq:0,respawnSerial:0,reloadAt:0,respawnAt:0,invincible:0,cooldown:0,drawn:game==='shoot'||role==='seeker',colors:[0,0,0],prop:null,propColor:0,frozen:false,seq:0,input:{x:0,z:0}}});
  if(game==='shoot')for(const p of state.players){const pos=shootSpawn(state.players,p,world,randomize);p.x=pos[0];p.z=pos[1];p.lastSpawn=pos;p.yaw=p.x<0?-Math.PI/2:Math.PI/2;}
  const player=id=>state.players.find(p=>p.id===id);
  function finish(winner,reason){if(state.finished)return;state.finished=true;state.phase='finished';state.winner=winner;state.reason=reason;for(const p of state.players)p.input={x:0,z:0};}
@@ -215,12 +259,12 @@ export function createMatch({id='preview',game,size=1,players,randomize=random})
   if(!['fire','reload','draw','paint','brush','transform','freeze','pickup','pose','attach','detach','jump','weapon'].includes(a.type))return false;p.seq=a.seq;
   if(Number.isFinite(a.yaw)&&Number.isFinite(a.pitch)){p.yaw=Math.atan2(Math.sin(a.yaw),Math.cos(a.yaw));p.pitch=clamp(a.pitch,-1.25,1.25);}
   if(a.type==='weapon'){if(game!=='shoot'||!['auto','burst'].includes(a.mode))return false;p.weaponMode=a.mode;p.burstLeft=0;return true;}
-  if(a.type==='jump'){if(!['paint','prop','shoot'].includes(game)||p.anchor||!p.grounded||state.phase==='prepare'&&p.role==='seeker')return false;p.velocity=6;p.grounded=false;p.frozen=false;return true;}
+  if(a.type==='jump'){if(game==='prop'&&p.frozen)return false;if(!['paint','prop','shoot'].includes(game)||p.anchor||!p.grounded||state.phase==='prepare'&&p.role==='seeker')return false;p.velocity=6;p.grounded=false;p.frozen=false;return true;}
   if(['pose','attach','detach'].includes(a.type)){if(game!=='paint'||p.role!=='hider'||p.falling)return false;if(a.type==='pose')return changePaintPose(p,a.pose,world);if(a.type==='attach'){const next=nearbyPaintWall(p,world);if(!next)return false;Object.assign(p,next,{frozen:false,grounded:false,velocity:0});return true;}const next=p.anchor&&paintDrop(p,world);if(!next)return false;Object.assign(p,next);return true;}
   if(a.type==='paint'){if(game!=='paint'||p.role!=='hider'||p.falling||!['prepare','play'].includes(state.phase)||!Number.isInteger(a.part)||a.part<0||a.part>2 )return false;const color=paintColor(p,a);if(color<0)return false;p.colors[a.part]=color;p.paintPixels.fill(color,[0,1,4][a.part]*PAINT_CELLS/6,[1,4,6][a.part]*PAINT_CELLS/6);p.skin=encodeSkin(p.paintPixels);return true;}
   if(a.type==='brush'){if(game!=='paint'||p.role!=='hider'||p.falling||!['prepare','play'].includes(state.phase))return false;return stampSkin(p,a);}
   if(a.type==='freeze'){if(p.role!=='hider'||p.falling||!p.anchor&&!p.grounded)return false;p.facing=p.yaw;p.frozen=!p.frozen;return true;}
-  if(a.type==='transform'){const obj=world.props.find(o=>o.id===a.prop);if(game!=='prop'||p.role!=='hider'||!obj||Math.hypot(obj.x-p.x,obj.z-p.z)>2.8)return false;const radius=bodyRadius({prop:obj.type});if(!propFree(p.x,p.z,p.y||0,radius,world))return false;p.prop=obj.type;p.propColor=obj.c;p.frozen=false;return true;}
+  if(a.type==='transform'){const obj=world.props.find(o=>o.id===a.prop);if(game!=='prop'||p.role!=='hider'||p.frozen||!obj||Math.hypot(obj.x-p.x,obj.z-p.z)>2.8)return false;const radius=bodyRadius({prop:obj.type});if(!propFree(p.x,p.z,p.y||0,radius,world))return false;p.prop=obj.type;p.propColor=obj.c;p.maxHp=propMaxHp(obj.type);p.hp=Math.max(1,Math.ceil(p.healthRatio*p.maxHp));return true;}
   if(a.type==='pickup'){if(game!=='murder'||p.role!=='innocent'||!state.gun||Math.hypot(state.gun.x-p.x,state.gun.z-p.z)>1.8)return false;p.role='armed';p.ammo=12;state.gun=null;return true;}
   if(a.type==='draw'){if(game!=='murder'||!['armed','murderer'].includes(p.role))return false;p.drawn=!p.drawn;return true;}
   if(a.type==='reload'){if(!(game==='shoot'||p.role==='armed'||p.role==='seeker')||p.reloadAt||p.ammo===(game==='shoot'?24:12))return false;p.burstLeft=0;p.reloadAt=state.elapsed+1.5;return true;}
@@ -234,7 +278,7 @@ export function createMatch({id='preview',game,size=1,players,randomize=random})
   for(const b of blocks)nearest=Math.min(nearest,rayBox(o,d,b,range));
   for(const other of state.players){if(other===p||!other.alive||!other.connected||other.invincible>state.elapsed)continue;const distance=game==='paint'?paintRayHit(o,d,other,range):rayBox(o,d,{...other,...dimensions(other)},range);if(distance<nearest){nearest=distance;hit=other;}}
   const event={id:id+':'+a.seq+(internal?':burst'+p.burstLeft:''),from:id,x:p.x,z:p.z,hit:null,knife};
-  if(hit){if(game==='shoot'&&hit.team===p.team){}else if(hiding&&hit.role==='seeker'){}else{hit.hp-=game==='shoot'?25:game==='prop'?35:100;event.hit=hit.id;if(hit.hp<=0)eliminate(hit,p);if(game==='murder'&&p.role==='armed'&&hit.role!=='murderer')eliminate(p,p);}}
+  if(hit){if(game==='shoot'&&hit.team===p.team){}else if(hiding&&hit.role==='seeker'){}else{hit.hp-=game==='shoot'?25:game==='prop'?35:100;hit.healthRatio=Math.max(0,hit.hp/hit.maxHp);event.hit=hit.id;if(hit.hp<=0)eliminate(hit,p);if(game==='murder'&&p.role==='armed'&&hit.role!=='murderer')eliminate(p,p);}}
   else if(hiding&&p.role==='seeker'){p.hp-=5;if(p.hp<=0)eliminate(p,p);}
   state.events.push(event);if(state.events.length>12)state.events.shift();endCheck();return true;
  }
@@ -244,6 +288,6 @@ export function createMatch({id='preview',game,size=1,players,randomize=random})
   if(state.elapsed>=state.until&&state.phase==='play'){if(game==='shoot')finish(state.score[0]===state.score[1]?'Égalité':state.score[0]>state.score[1]?'Équipe bleue gagnante':'Équipe rose gagnante','Temps écoulé.');else finish(game==='murder'?'Les innocents gagnent':'Les cachés gagnent','Temps écoulé.');}endCheck();
  }
  function remove(id){const p=player(id);if(p){p.connected=false;eliminate(p);endCheck();}}
- function snapshot(id){const mine=player(id);return {game,size,phase:state.phase,remaining:Math.max(0,state.until-state.elapsed),score:[...state.score],target:state.target,finished:state.finished,winner:state.winner,reason:state.reason,gun:state.gun,events:state.events.slice(-6),selfRole:mine?.role,players:state.players.filter(p=>!(state.phase==='prepare'&&mine?.role==='seeker'&&p.role==='hider')).map(p=>({id:p.id,name:p.name,palette:game==='paint'?[...p.palette]:null,weaponMode:p.weaponMode,stamina:p.stamina,y:p.y,velocity:p.velocity,grounded:p.grounded,falling:p.falling,paintPose:p.paintPose,anchor:p.anchor?{...p.anchor}:null,facing:p.facing,scale:p.scale,skin:game==='paint'?p.skin:null,x:p.x,z:p.z,yaw:p.yaw,pitch:p.pitch,hp:p.hp,alive:p.alive,connected:p.connected,kills:p.kills,deaths:p.deaths,team:game==='shoot'?p.team:null,role:game==='paint'||state.finished||p.id===id?p.role:null,weapon:p.drawn?(p.role==='murderer'?'knife':['armed','seeker','fighter'].includes(p.role)?'gun':null):null,colors:[...p.colors],prop:p.prop,propColor:p.propColor,frozen:p.frozen,ammo:p.id===id?p.ammo:null,reloading:p.id===id&&!!p.reloadAt,respawn:p.id===id&&!p.alive&&game==='shoot'?Math.max(0,p.respawnAt-state.elapsed):0}))};}
+ function snapshot(id){const mine=player(id);return {game,size,phase:state.phase,remaining:Math.max(0,state.until-state.elapsed),score:[...state.score],target:state.target,finished:state.finished,winner:state.winner,reason:state.reason,gun:state.gun,events:state.events.slice(-6),selfRole:mine?.role,players:state.players.filter(p=>!(state.phase==='prepare'&&mine?.role==='seeker'&&p.role==='hider')).map(p=>({id:p.id,name:p.name,palette:game==='paint'?[...p.palette]:null,weaponMode:p.weaponMode,stamina:p.stamina,y:p.y,velocity:p.velocity,grounded:p.grounded,falling:p.falling,paintPose:p.paintPose,anchor:p.anchor?{...p.anchor}:null,facing:p.facing,scale:p.scale,skin:game==='paint'?p.skin:null,x:p.x,z:p.z,yaw:p.yaw,pitch:p.pitch,hp:p.hp,maxHp:p.maxHp,alive:p.alive,connected:p.connected,kills:p.kills,deaths:p.deaths,team:game==='shoot'?p.team:null,role:game==='paint'||state.finished||p.id===id?p.role:null,weapon:p.drawn?(p.role==='murderer'?'knife':['armed','seeker','fighter'].includes(p.role)?'gun':null):null,colors:[...p.colors],prop:p.prop,propColor:p.propColor,frozen:p.frozen,ammo:p.id===id?p.ammo:null,reloading:p.id===id&&!!p.reloadAt,respawn:p.id===id&&!p.alive&&game==='shoot'?Math.max(0,p.respawnAt-state.elapsed):0}))};}
  return {world,state,input,action,tick,remove,snapshot,finish};
 }

@@ -28,7 +28,7 @@ export function roundLayout(base,types,game,round){
   }
   if(!placed)throw Error('Le parcours de meubles n’a pas pu être préparé.');
  }
- const pool=game==='paint'?['easel','easel','easel','easel','paintpot','paintpot','paintpot','paintpot','paintpot','sculpture','sculpture','sculpture','bench','bench','bench','plant','plant','plant','plant','crate','crate','crate','stool','stool','table','table','shelf','shelf','lamp','lamp','sofa','fountain']:['crate','barrel','shelf','table','chair','stool','lamp','plant','sofa','trolley','cone','arcade','bench'];
+ const pool=game==='paint'?['chair','chair','easel','easel','paintpot','paintpot','paintpot','paintpot','paintpot','sculpture','sculpture','sculpture','bench','bench','bench','plant','plant','plant','plant','crate','crate','crate','stool','stool','table','table','shelf','shelf','lamp','lamp','sofa','fountain']:['crate','barrel','shelf','table','chair','stool','lamp','plant','sofa','trolley','cone','arcade','bench'];
  const count=game==='paint'?220:240;
  // Shuffle a balanced set of types for every batch, independently of sectors:
  // this avoids putting the same kind of furniture in one corner every round.

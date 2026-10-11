@@ -29,3 +29,5 @@ html:has(.one-arcade),body:has(.one-arcade){overflow:hidden}
 @media(max-height:530px){.oa-climb{grid-column:1/-1}.oa-climb button{min-height:34px!important}.one-arcade:has([data-poses-open]:not([hidden])) .oa-actions{max-width:290px;gap:3px}.one-arcade:has([data-poses-open]:not([hidden])) .oa-actions button{min-height:33px;padding:5px 8px}.oa-picked{font-size:10px;margin-bottom:5px}.oa-picked i{width:22px;height:22px}}
 
 .one-arcade .oa-artbar [data-paint-all]{flex:1 0 100%;min-height:44px;background:#bff8db;color:#14382e;border-color:#d9ffe9;font-weight:800;order:0}
+
+.one-arcade .oa-actions button,.one-arcade [data-mic]{touch-action:none}
