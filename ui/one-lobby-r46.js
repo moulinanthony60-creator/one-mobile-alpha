@@ -336,7 +336,7 @@ function open(ctx={}){
    for(let i=tracers.length-1;i>=0;i--){const item=tracers[i],left=(item.end-t)/140;if(item.line.material){item.line.material.opacity=clamp(left,0,1);if(item.impact)item.line.scale.setScalar(1+(1-left)*2);}if(t>=item.end){scene.remove(item.line);item.line.geometry?.dispose?.();item.line.material?.dispose?.();tracers.splice(i,1);}}
    if(crossHitUntil&&t>=crossHitUntil){crossHitUntil=0;crosshair?.classList.remove('is-hit');}
    if(hitUntil&&t>=hitUntil){hitUntil=0;fightHit.hidden=true;fightHit.textContent='TOUCHÉ !';}
-   if(budget.shouldRender(t)){const began=performance.now();renderer.render(scene,camera);if(assetsReady)budget.record(t,performance.now()-began);}
+   if(budget.shouldRender(t)){const began=performance.now();renderer.render(scene,camera);casino.renderHands(renderer,camera);if(assetsReady)budget.record(t,performance.now()-began);}
  }
  const stick=shell.querySelector('.one3d-stick'),knob=shell.querySelector('.one3d-knob');
  function stickMove(e){const b=stick.getBoundingClientRect(),dx=e.clientX-b.left-b.width/2,dy=e.clientY-b.top-b.height/2,d=Math.hypot(dx,dy)||1,m=Math.min(32,d);stickInput.x=dx/d*m/32;stickInput.y=dy/d*m/32;knob.style.transform=`translate(${dx/d*m}px,${dy/d*m}px)`;}

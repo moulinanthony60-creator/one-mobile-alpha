@@ -1,4 +1,5 @@
 import * as THREE from './three.module.js';
+import {drawCasinoSymbol,casinoSymbolNames} from './one-casino-r216-symbols.js';
 import {buildPeople} from './one-casino-r212-people.js';
 import {stations} from './one-casino-r212-layout.js';
 export function buildCasino(root){
@@ -21,8 +22,7 @@ export function buildCasino(root){
  const entranceLight=new THREE.PointLight('#b05aff',12,6,2);entranceLight.position.set(0,2.7,6.1);group.add(entranceLight);
  label('ONE CASINO · À TOI DE JOUER',8,.85,0,3.2,24.83).rotation.y=Math.PI;
  for(const z of [13,20]){const l=new THREE.PointLight('#ffe1a1',26,16,2);l.position.set(0,3.55,z);group.add(l);cylinder(.65,.1,'#c8a969',0,3.72,z);}
- const symbols=['●','◆','♣','★','♦','7','W','B'],colors=['#bc3545','#d39228','#3d865e','#6951af','#22799e','#b63a67','#99681d','#366958'];
- for(let i=0;i<8;i++)symbolMats.push(texture((g,W,H)=>{g.fillStyle='#f5eed9';g.fillRect(0,0,W,H);g.strokeStyle='#d2be86';g.lineWidth=9;g.strokeRect(8,8,W-16,H-16);g.fillStyle=colors[i];g.font='900 120px Georgia';g.textAlign='center';g.textBaseline='middle';g.fillText(symbols[i],W/2,H*.5);},256,256));
+ for(let i=0;i<casinoSymbolNames.length;i++)symbolMats.push(texture((g,W,H)=>drawCasinoSymbol(g,W,H,i),320,416));
  function cardMaterial(value){if(cardMats.has(value))return cardMats.get(value);const m=texture((g,W,H)=>{g.fillStyle=value===null?'#35455e':'#fff9e8';g.fillRect(0,0,W,H);g.strokeStyle='#c6a86b';g.lineWidth=8;g.strokeRect(7,7,W-14,H-14);g.textAlign='center';g.textBaseline='middle';if(value===null){g.fillStyle='#dfc68d';g.font='bold 44px system-ui';g.fillText('ONE',W/2,H/2);}else{const suit=Math.floor(value/13),rank=['A','2','3','4','5','6','7','8','9','10','J','Q','K'][value%13];g.fillStyle=suit===1||suit===2?'#ba334a':'#233039';g.font='bold 72px Georgia';g.fillText(rank,W/2,H*.28);g.font='80px Georgia';g.fillText(['♠','♥','♦','♣'][suit],W/2,H*.68);}},256,360);cardMats.set(value,m);return m;}
  const cardGeo=new THREE.BoxGeometry(.43,.018,.63);
  const wheelOrder=[0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26],reds=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
@@ -30,8 +30,8 @@ export function buildCasino(root){
   if(s.kind==='slots'){
    g.rotation.y=Math.PI;const glow=new THREE.MeshBasicMaterial({color:['#a664df','#55c79a','#efb352','#c15e9c'][Number(s.id.slice(-1))],toneMapped:false});for(const x of [-.62,.62])mesh(new THREE.BoxGeometry(.018,1.06,.022),glow,x,1.74,.512,g);box(1.48,.18,1.18,'#0d1824',0,.09,0,g);box(1.32,2.32,.88,'#293142',0,1.27,0,g);for(const x of [-.68,.68])box(.065,2.4,1,'#c8a969',x,1.4,0,g);
    box(1.32,.44,.98,'#162832',0,2.67,0,g);label(s.name.toUpperCase(),1.18,.32,0,2.66,.506,g);
-   box(1.21,1.05,.05,'#0a0f18',0,1.74,.474,g);
-   for(let c=0;c<5;c++)for(let r=0;r<3;r++){const tile=mesh(new THREE.BoxGeometry(.217,.29,.09),symbolMats[(c+r)%8],(c-2)*.231,2.055-r*.317,.526,g);tile.userData.casinoAnimated=true;model.parts.push(tile);}
+   box(1.28,1.15,.05,'#0a0f18',0,1.74,.474,g);
+   for(let c=0;c<5;c++)for(let r=0;r<3;r++){const tile=mesh(new THREE.BoxGeometry(.235,.325,.09),symbolMats[(c+r)%8],(c-2)*.247,2.09-r*.342,.526,g);tile.userData.casinoAnimated=true;model.parts.push(tile);}
    label('POINTS ONE',.85,.19,0,.7,.455,g);
    const lever=cylinder(.025,.58,'#c8a969',.79,1.42,0,g);mesh(new THREE.SphereGeometry(.09,12,8),mat('#963347'),.79,1.75,0,g);
   }else if(s.kind==='roulette'){
@@ -48,5 +48,5 @@ export function buildCasino(root){
  function setRound(id,round){const m=models.get(id);if(!m||!round||round.kind!==m.station.kind)return;m.round=round;if(m.station.kind==='blackjack'){const key=JSON.stringify([round.player,round.dealer]);if(key===m.lastKey)return;m.lastKey=key;m.cards.clear();m.cardValues=[...round.player,...round.dealer];for(const [row,values]of [round.player,round.dealer].entries())values.forEach((value,i)=>{const face=cardMaterial(value),card=mesh(cardGeo,[mat('#e4d6b3'),mat('#e4d6b3'),face,mat('#35455e'),mat('#e4d6b3'),mat('#e4d6b3')],(i-(values.length-1)/2)*.48,.13+i*.002,row===0?-.65:.65,m.cards);card.rotation.y=Math.PI+(i-(values.length-1)/2)*.035;});}}
  for(const s of stations)if(s.kind==='blackjack')setRound(s.id,{kind:'blackjack',player:[null,null],dealer:[null,null]});
  const people=buildPeople(group);
- return {group,models,people,aim:ray=>people.aim(ray),melee:(p,y,r)=>people.melee(p,y,r),setRound,setBusy(id,busy){const m=models.get(id);if(m)m.busy=busy;},tick(t){for(const m of models.values()){if(m.station.kind==='slots')m.parts.forEach((o,i)=>{const c=Math.floor(i/3),r=i%3;o.rotation.x=m.busy?t/130+c*.2:0;o.material=symbolMats[m.busy?(Math.floor(t/100)+i)%8:m.round?.grid?.[c]?.[r]??(c+r)%8];o.updateMatrix();});if(m.rotor){const n=m.round?.number??0,angle=(wheelOrder.indexOf(n)+.5)*Math.PI*2/37-Math.PI/2;m.rotor.rotation.z=m.busy?t/450:0;m.rotor.updateMatrix();const a=m.busy?-t/260:angle;m.ball.position.set(Math.cos(a)*.76,1.245,.8+Math.sin(a)*.76);m.ball.updateMatrix();}}},inspect:()=>[...models.values()].map(m=>({id:m.station.id,kind:m.station.kind,busy:m.busy,round:m.round?.id||null,number:m.round?.number,cards:m.cardValues,tiles:m.parts.length})),dispose(){for(const m of [...symbolMats,...cardMats.values()]){m.map?.dispose();m.dispose();}cardGeo.dispose();}};
+ return {group,models,people,aim:ray=>people.aim(ray),melee:(p,y,r)=>people.melee(p,y,r),setRound,setBusy(id,busy){const m=models.get(id);if(m)m.busy=busy;},tick(t){for(const m of models.values()){if(m.station.kind==='slots')m.parts.forEach((o,i)=>{const c=Math.floor(i/3),r=i%3;o.rotation.x=m.busy?t/130+c*.2:0;o.material=symbolMats[m.busy?(Math.floor(t/100)+i)%8:m.round?.grid?.[c]?.[r]??(c+r)%8];o.updateMatrix();});if(m.rotor){const n=m.round?.number??0,angle=(wheelOrder.indexOf(n)+.5)*Math.PI*2/37-Math.PI/2;m.rotor.rotation.z=m.busy?t/450:0;m.rotor.updateMatrix();const a=m.busy?-t/260:angle;m.ball.position.set(Math.cos(a)*.76,1.245,.8+Math.sin(a)*.76);m.ball.updateMatrix();}}},inspect:()=>[...models.values()].map(m=>({id:m.station.id,kind:m.station.kind,busy:m.busy,round:m.round?.id||null,number:m.round?.number,cards:m.cardValues,tiles:m.parts.length,symbols:m.station.kind==='slots'?m.parts.map(o=>casinoSymbolNames[symbolMats.indexOf(o.material)]):undefined})),dispose(){for(const m of [...symbolMats,...cardMats.values()]){m.map?.dispose();m.dispose();}cardGeo.dispose();}};
 }
