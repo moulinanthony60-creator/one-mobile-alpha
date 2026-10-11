@@ -1,6 +1,7 @@
 import * as THREE from './three.module.js?v=lobby-shoot-v89';
 import {GLTFLoader} from './GLTFLoader.js?v=lobby-shoot-v89';
 import {createGameBoard} from './one-lobby-r199-board.js?v=fix-v200';
+import {buildCasino} from './one-casino-r212-scene.js';
 export const release='v200';
 
 // R69: expanded ONE lobby with playable casino machines and open ONE FIGHT room.
@@ -38,7 +39,7 @@ export function buildRoom(scene,renderer,alive,dispose){
  for(const [w,h,x,z] of [[18,14,0,0],[3.8,4.8,-10.9,0],[3.8,4.8,10.9,0],[10,12,-17.8,0],[10,12,17.8,0]]){const c=plane(w,h,ceilingMat,x,4,z);c.rotation.x=Math.PI/2;}
  
  // Central room shell with big side openings.
- addWall(18,4,.22,0,2,-7);addWall(18,4,.22,0,2,7);
+ addWall(18,4,.22,0,2,-7);for(const x of [-5.4,5.4])addWall(7.2,4,.22,x,2,7);box(3.6,1.15,.22,cream,0,3.425,7);
  for(const z of [-4.7,4.7]){addWall(.22,4,4.6,-9,2,z);addWall(.22,4,4.6,9,2,z);} // leaves wide opening in the middle
  
  // Passage shells
@@ -175,6 +176,7 @@ export function buildRoom(scene,renderer,alive,dispose){
  // Asset fit helpers for imported sofa/table and textured surfaces.
  function fit(source,x,z,w,d,h){const g=source.clone(true);g.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(g),size=bounds.getSize(new THREE.Vector3());g.scale.setScalar(Math.min(w/size.x,d/size.z,h/size.y));g.updateMatrixWorld(true);bounds.setFromObject(g);const center=bounds.getCenter(new THREE.Vector3());g.position.set(x-center.x,-bounds.min.y,z-center.z);return g;}
  function tune(m,rx,ry){const seen=new Set();for(const t of [m.map,m.normalMap,m.roughnessMap,m.metalnessMap,m.aoMap])if(t&&!seen.has(t)){seen.add(t);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);t.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());t.needsUpdate=true;}m.needsUpdate=true;}
+ const casino=buildCasino(root);
  const ready=Promise.allSettled(['sofa_02.glb','coffee_table_round_01.glb','surfaces.glb'].map(n=>loader.loadAsync(new URL(n,base).href))).then(results=>{
   if(!alive()){for(const r of results)if(r.status==='fulfilled')dispose(r.value.scene);return {complete:false};}
   if(results[0].status==='fulfilled'){
@@ -204,5 +206,5 @@ export function buildRoom(scene,renderer,alive,dispose){
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const t=y/h;data.set([Math.round(155-60*t),Math.round(163-75*t),Math.round(182-102*t),255],(y*w+x)*4);}
  const environment=new THREE.DataTexture(data,w,h);environment.mapping=THREE.EquirectangularReflectionMapping;environment.needsUpdate=true;
  const pmrem=new THREE.PMREMGenerator(renderer),env=pmrem.fromEquirectangular(environment);scene.environment=env.texture;scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
- return {root,screen,gameBoard,ready,fightBatSpots,gunSpots,shootTargets,dispose(){scene.environment=null;env.dispose();}};
+ return {root,screen,gameBoard,ready,fightBatSpots,gunSpots,shootTargets,casino,dispose(){casino.dispose();scene.environment=null;env.dispose();}};
 }

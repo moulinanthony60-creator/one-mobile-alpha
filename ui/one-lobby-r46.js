@@ -10,6 +10,9 @@ import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avata
 import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v88';
 
 import {lobbyState,subscribeLobby,subscribeLobbyShot,sendLobbyShot,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=games-v198';
+import {casinoControls} from './one-casino-r212-controls.js';
+import {casinoWalkable,inCasino} from './one-casino-r212-layout.js';
+import {casinoSecurity} from './one-casino-r212-security.js';
 let active=null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=u=>{u=clamp(u,0,1);return u*u*(3-2*u);};
@@ -165,7 +168,7 @@ function open(ctx={}){
  const listen=(target,event,fn)=>target.addEventListener(event,fn,{signal:abort.signal});
  const gameScreen=createGameScreen({shell,lobbyState,setReady:setLobbyReady,startRound,reset(){keys.clear();stickInput.x=stickInput.y=0;look=null;}});
  // Keep a camera already enabled in the salon; entering a game needs data only.
- shell.querySelector('[data-public-search]').onclick=()=>{keys.clear();stopStick();look=null;window.ONEMatchmaking?.open();};shell.querySelector('[data-screen-open]').onclick=()=>gameScreen.open();
+ shell.querySelector('[data-public-search]').onclick=()=>{casino.close();keys.clear();stopStick();look=null;window.ONEMatchmaking?.open();};shell.querySelector('[data-screen-open]').onclick=()=>gameScreen.open();
  listen(renderer.domElement,'webglcontextlost',e=>{e.preventDefault();graphicsLost=true;keys.clear();loading.hidden=false;loading.querySelector('span').textContent='Affichage interrompu. Ton salon reste connecté…';});
  listen(renderer.domElement,'webglcontextrestored',async()=>{if(stopped)return;graphicsLost=false;try{await prepareScene(renderer,scene,camera,()=>alive&&!graphicsLost);if(stopped)return;assetsReady=true;loading.hidden=true;resizePending=true;budget.reset();last=performance.now();}catch{loading.querySelector('span').textContent='Reviens au salon puis rouvre la 3D pour réessayer.';}});
  const inFightArea=(x,z)=>x>12.5&&x<22.2&&Math.abs(z)<5.6;
@@ -175,7 +178,7 @@ function open(ctx={}){
    const inLeftPass=x>-13.45&&x<-8.05&&Math.abs(z)<2.16;
    const inRightPass=x<13.45&&x>8.05&&Math.abs(z)<2.16;
    const inShoot=inShootArea(x,z),inFight=inFightArea(x,z);
-   return inMain||inLeftPass||inRightPass||inShoot||inFight;
+   return inMain||inLeftPass||inRightPass||inShoot||inFight||casinoWalkable(x,z);
  };
  let heldBat=false,heldGun=false,swingSeq=0,shotSeq=0,swingStarted=0,shotStarted=0,lastShotTarget='',lastHitAt=0,hitUntil=0,hitsTaken=0,knockedUntil=0,knockStarted=0;
  const nearestBatDistance=()=>Math.min(...(roomVisual.fightBatSpots||[]).map(s=>Math.hypot(position.x-s.x,position.z-s.z)),99);
@@ -184,7 +187,7 @@ function open(ctx={}){
  const setHeldGun=value=>{heldGun=!!value;localGun.visible=heldGun;if(!heldGun)shotStarted=0;if(heldGun){heldBat=false;localBat.visible=false;swingStarted=0;}};
  const setHeldBat=value=>{heldBat=!!value;localBat.visible=heldBat;if(!heldBat)swingStarted=0;if(heldBat){heldGun=false;localGun.visible=false;shotStarted=0;}};
  const publishPose=()=>updateLobbyPose({...position,yaw,pitch,bat:heldBat,gun:heldGun,swingSeq,shotSeq,shotTarget:lastShotTarget,down:isKnocked(performance.now())});
- const swingBat=()=>{const now=performance.now();if(!heldBat||isKnocked(now)||now-swingStarted<440)return;swingSeq++;swingStarted=now;publishPose();};
+ const swingBat=()=>{const now=performance.now();if(!heldBat||isKnocked(now)||now-swingStarted<440)return;swingSeq++;swingStarted=now;publishPose();const target=roomVisual.casino.melee(position,yaw);if(target)security.strike(target,'bat');};
  const shotOrigin=new THREE.Vector3(),shotDir=new THREE.Vector3(),shotRel=new THREE.Vector3(),shotPoint=new THREE.Vector3(),gunRay=new THREE.Raycaster(),tracers=[];
  const spawnTracer=(origin,dir,length=14)=>{const end=origin.clone().addScaledVector(dir,length),geo=new THREE.BufferGeometry().setFromPoints([origin.clone(),end]),material=new THREE.LineBasicMaterial({color:0xffdf8a,transparent:true,opacity:.95,toneMapped:false}),line=new THREE.Line(geo,material);scene.add(line);tracers.push({line,end:performance.now()+115});};
  const spawnImpact=point=>{const material=new THREE.MeshBasicMaterial({color:0xffe7a2,transparent:true,opacity:1,toneMapped:false}),spark=new THREE.Mesh(new THREE.SphereGeometry(.045,8,6),material);spark.position.copy(point);scene.add(spark);tracers.push({line:spark,end:performance.now()+140,impact:true});};
@@ -222,16 +225,17 @@ function open(ctx={}){
        if(d!==null&&d<bestDistance){bestDistance=d;best={id:String(id),distance:d,point:shotOrigin.clone().addScaledVector(shotDir,d),part:volume.part};}
      }
    }
+   const npc=roomVisual.casino.aim(gunRay);if(npc&&npc.distance<bestDistance){bestDistance=npc.distance;best=npc;}
    const targetHits=gunRay.intersectObjects(roomVisual.shootTargets||[],false);
    if(targetHits.length&&targetHits[0].distance<bestDistance){bestDistance=targetHits[0].distance;best={id:'',distance:bestDistance,point:targetHits[0].point.clone(),target:true};}
    // First solid object wins. Ignore the explicit target meshes themselves.
    const worldHits=roomVisual.root?gunRay.intersectObject(roomVisual.root,true):[];
    const targetSet=new Set(roomVisual.shootTargets||[]);
-   const blocker=worldHits.find(h=>!targetSet.has(h.object)&&h.distance>.20);
+   const blocker=worldHits.find(h=>!targetSet.has(h.object)&&!h.object.userData.casinoNpc&&h.distance>.20);
    if(blocker&&blocker.distance+0.02<bestDistance)return null;
    return best;
  };
- const shootGun=()=>{const now=performance.now();if(!heldGun||isKnocked(now)||now-shotStarted<300)return;const aimed=aimGun();lastShotTarget='';shotSeq++;shotStarted=now;localGun.userData.flash.visible=true;if(localGun.userData.slide)localGun.userData.slide.position.z=.085;spawnTracer(shotOrigin,shotDir,aimed?.distance||16);if(aimed?.point){spawnImpact(aimed.point);flashCrossHit(350);}if(aimed?.id)sendLobbyShot(String(aimed.id));publishPose();};
+ const shootGun=()=>{const now=performance.now();if(!heldGun||isKnocked(now)||now-shotStarted<300)return;const aimed=aimGun();lastShotTarget='';shotSeq++;shotStarted=now;localGun.userData.flash.visible=true;if(localGun.userData.slide)localGun.userData.slide.position.z=.085;spawnTracer(shotOrigin,shotDir,aimed?.distance||16);if(aimed?.point){spawnImpact(aimed.point);flashCrossHit(350);}if(aimed?.npc)security.strike(aimed.npc,'gun');else if(aimed?.id)sendLobbyShot(String(aimed.id));publishPose();};
  const useFightAction=()=>{
    if(heldGun){shootGun();return;}if(heldBat){swingBat();return;}
    const gunNear=inShootArea(position.x,position.z)&&nearestGunDistance()<1.45,batNear=inFightArea(position.x,position.z)&&nearestBatDistance()<1.55;
@@ -289,7 +293,7 @@ function open(ctx={}){
  function frame(t){
    if(stopped)return;raf=requestAnimationFrame(frame);if(document.hidden||!assetsReady||graphicsLost||(gameScreen.opened||!!window.ONEMatchmaking?.isOpen())){last=t;return;}applyResize();
    const dt=Math.min((t-last)/1000,.05);last=t;
-   const knocked=isKnocked(t),controlsLocked=knocked;
+   const knocked=isKnocked(t),controlsLocked=knocked||casino.opened;
    let forward=controlsLocked?0:(keys.has('KeyW')||keys.has('KeyZ')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0)-stickInput.y;
    let side=controlsLocked?0:(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('KeyQ')||keys.has('ArrowLeft')?1:0)+stickInput.x;
    const scale=Math.max(1,Math.hypot(forward,side));forward/=scale;side/=scale;
@@ -303,6 +307,7 @@ function open(ctx={}){
    for(const [id,v] of avatars){syncHeadCamera(id,v);const p=lobbyPose(id);if(!p)continue;tryRemoteHit(p,v,t);tryRemoteShot(p,v,t);v.track.push(p,t);const pose=v.track.at(t);if(pose){animateAvatar(v,{...pose,dead:p.down===true},dt);if(p.down===true)v.cameraHead.position.set(1.62,.20,-.025);else v.cameraHead.position.set(0,1.72,-.025);orientAvatarCamera(v,{x:position.x,y:1.65,z:position.z});poseRemoteBat(v,p,t);poseRemoteGun(v,p,t);}}
    const fallIn=knocked?clamp((t-knockStarted)/260,0,1):0,fallOut=knocked?clamp((knockedUntil-t)/430,0,1):0,fall=knocked?Math.min(fallIn,fallOut):0;
    camera.position.set(position.x,1.65-1.03*fall,position.z);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch+.12*fall;camera.rotation.z=-1.05*fall;
+   casino.tick(t,position,camera);security.tick(t);localBat.visible=heldBat&&!casino.opened;localGun.visible=heldGun&&!casino.opened;
    if(localBat.visible){
      let ox=.52,oy=-.37,oz=-.72,rz=-.72,rx=.38,ry=.08;
      if(swingStarted){
@@ -337,8 +342,8 @@ function open(ctx={}){
  function stopStick(){drag=null;stickInput.x=stickInput.y=0;knob.style.transform='';}
  listen(stick,'pointerup',stopStick);listen(stick,'pointercancel',stopStick);
  const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();let touchX=0,touchY=0,moved=false;
- function hitScreen(x,y){const b=renderer.domElement.getBoundingClientRect();pointer.set((x-b.left)/b.width*2-1,-(y-b.top)/b.height*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObject(roomVisual.screen)[0];if(hit)gameScreen.open(roomVisual.gameBoard.gameAt(hit.uv));}
- const zone=shell.querySelector('.one3d-look');zone.style.width='100%';listen(zone,'pointerdown',e=>{look=e.pointerId;touchX=lx=e.clientX;touchY=ly=e.clientY;moved=false;zone.setPointerCapture(look);});listen(zone,'pointermove',e=>{if(look!==e.pointerId)return;if(Math.hypot(e.clientX-touchX,e.clientY-touchY)>7)moved=true;if(!moved)return;yaw=Math.atan2(Math.sin(yaw-(e.clientX-lx)*.006),Math.cos(yaw-(e.clientX-lx)*.006));pitch=clamp(pitch-(e.clientY-ly)*.004,-.75,.65);lx=e.clientX;ly=e.clientY;});listen(zone,'pointerup',()=>{look=null;});listen(zone,'pointercancel',()=>{look=null;moved=true;});listen(zone,'click',e=>{if(!moved)hitScreen(e.clientX,e.clientY);});
+ function hitScreen(x,y){if(casino.opened)return;const b=renderer.domElement.getBoundingClientRect();pointer.set((x-b.left)/b.width*2-1,-(y-b.top)/b.height*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObject(roomVisual.screen)[0];if(hit)gameScreen.open(roomVisual.gameBoard.gameAt(hit.uv));}
+ const zone=shell.querySelector('.one3d-look');zone.style.width='100%';listen(zone,'pointerdown',e=>{if(casino.opened)return;look=e.pointerId;touchX=lx=e.clientX;touchY=ly=e.clientY;moved=false;zone.setPointerCapture(look);});listen(zone,'pointermove',e=>{if(look!==e.pointerId)return;if(Math.hypot(e.clientX-touchX,e.clientY-touchY)>7)moved=true;if(!moved)return;yaw=Math.atan2(Math.sin(yaw-(e.clientX-lx)*.006),Math.cos(yaw-(e.clientX-lx)*.006));pitch=clamp(pitch-(e.clientY-ly)*.004,-.75,.65);lx=e.clientX;ly=e.clientY;});listen(zone,'pointerup',()=>{look=null;});listen(zone,'pointercancel',()=>{look=null;moved=true;});listen(zone,'click',e=>{if(!moved)hitScreen(e.clientX,e.clientY);});
   const sessionPanel=shell.querySelector('.one3d-session'),panelToggle=shell.querySelector('[data-panel-toggle]');
   const setPanelOpen=open=>{sessionPanel.dataset.collapsed=String(!open);panelToggle.setAttribute('aria-expanded',String(open));panelToggle.setAttribute('aria-label',open?'Réduire les commandes du salon':'Afficher les commandes du salon');panelToggle.textContent=open?'−':'+';};
   listen(panelToggle,'click',()=>setPanelOpen(sessionPanel.dataset.collapsed==='true'));
@@ -349,9 +354,11 @@ function open(ctx={}){
   listen(runButton,'pointercancel',()=>{if(!sprintToggle)setSprint(false);});
   listen(runButton,'lostpointercapture',()=>{if(!sprintToggle)setSprint(false);});
   const movement=['KeyW','KeyA','KeyS','KeyD','KeyZ','KeyQ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
-  listen(window,'keydown',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();setSprint(true);}else if(movement.includes(e.code)){e.preventDefault();keys.add(e.code);}else if(e.code==='KeyF'&&!fightAction.hidden){e.preventDefault();if(!e.repeat)useFightAction();}else if(e.code==='KeyE'){e.preventDefault();gameScreen.open();}else if(e.code==='Escape')close();});listen(window,'keyup',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')setSprint(false);else keys.delete(e.code);});listen(window,'blur',()=>{keys.clear();stopStick();look=null;setSprint(false);});listen(document,'visibilitychange',()=>{keys.clear();stopStick();setSprint(false);last=performance.now();budget.reset();});
+  listen(window,'keydown',e=>{if(casino.opened){if(e.code==='Escape'){e.preventDefault();casino.close();}return;}if(e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();setSprint(true);}else if(movement.includes(e.code)){e.preventDefault();keys.add(e.code);}else if(e.code==='KeyF'&&!fightAction.hidden){e.preventDefault();if(!e.repeat)useFightAction();}else if(e.code==='KeyE'){e.preventDefault();if(casino.near)casino.open(casino.near);else gameScreen.open();}else if(e.code==='Escape')close();});listen(window,'keyup',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')setSprint(false);else keys.delete(e.code);});listen(window,'blur',()=>{keys.clear();stopStick();look=null;setSprint(false);});listen(document,'visibilitychange',()=>{keys.clear();stopStick();setSprint(false);last=performance.now();budget.reset();});
+ const casino=casinoControls({shell,visual:roomVisual.casino,reset(){keys.clear();stopStick();look=null;setSprint(false);},onStation(s){position.x=s.view[0];position.z=s.view[2];publishPose();}});
+ const security=casinoSecurity({visual:roomVisual.casino,lobbyState,lobbyPose,onHit(){casino.close();showFightMessage('LE VIDEUR TE REPOUSSE',350);},onExpel(){casino.close();position.x=0;position.z=4.8;yaw=0;setHeldBat(false);setHeldGun(false);keys.clear();stopStick();showFightMessage('EXPULSÉ DU CASINO',1800);publishPose();}});
  shell.querySelector('[data-close]').onclick=()=>close();shell.querySelector('[data-reconnect]').onclick=()=>joinLobby(ctx,true);
- active={shell,renderer,scene,ro,stop(){stopped=true;alive=false;gameScreen.dispose();roomVisual.dispose();for(const v of avatars.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}cancelAnimationFrame(raf);abort.abort();offShot();off();},inspect:()=>({position:{...position},yaw,avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),board:roomVisual.gameBoard.targets.map(t=>{const p=roomVisual.screen.localToWorld(new THREE.Vector3((t.u-.5)*roomVisual.screen.geometry.parameters.width,(t.v-.5)*roomVisual.screen.geometry.parameters.height,0)).project(camera),b=renderer.domElement.getBoundingClientRect();return {id:t.id,x:b.left+(p.x+1)*b.width/2,y:b.top+(1-p.y)*b.height/2};}),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
+ active={shell,renderer,scene,ro,place(x,z,angle=0,tilt=-.055){if(!canMove(x,z))return false;position.x=x;position.z=z;yaw=angle;pitch=tilt;publishPose();return true;},equip(w){setHeldBat(w==='bat');setHeldGun(w==='gun');publishPose();},stop(){stopped=true;alive=false;security.dispose();casino.dispose();gameScreen.dispose();roomVisual.dispose();for(const v of avatars.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}cancelAnimationFrame(raf);abort.abort();offShot();off();},inspect:()=>({position:{...position},yaw,heldBat,heldGun,casino:casino.inspect(),security:security.inspect(),avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),board:roomVisual.gameBoard.targets.map(t=>{const p=roomVisual.screen.localToWorld(new THREE.Vector3((t.u-.5)*roomVisual.screen.geometry.parameters.width,(t.v-.5)*roomVisual.screen.geometry.parameters.height,0)).project(camera),b=renderer.domElement.getBoundingClientRect();return {id:t.id,x:b.left+(p.x+1)*b.width/2,y:b.top+(1-p.y)*b.height/2};}),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
  raf=requestAnimationFrame(frame);joinLobby(ctx);
 }
 function disposeObject(object){
@@ -362,7 +369,7 @@ function close(options={}){
  if(!active)return;const a=active;active=null;a.stop();a.ro.disconnect();disposeObject(a.scene);a.renderer.dispose();a.renderer.forceContextLoss();a.scene.clear();a.shell.remove();
  if(!options.launch){leaveLobby();window.oneOpenSalon?.();}
 }
-window.ONELobby3D={open,close,...(window.__ONE317_TEST__===true?{inspect:()=>active?.inspect()}: {})};
+window.ONELobby3D={open,close,...(window.__ONE317_TEST__===true?{inspect:()=>active?.inspect(),place:(...a)=>active?.place(...a),equip:w=>active?.equip(w)}: {})};
 window.addEventListener('pagehide',()=>close({launch:true}));
 export {open,close};
 

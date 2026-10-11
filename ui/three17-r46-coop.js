@@ -1,4 +1,5 @@
 import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avatar.js?v=lobby-shoot-v93';
+import {validLobbyPosition} from './one-casino-r212-layout.js';
 import * as THREE from './three.module.js?v=lobby-shoot-v93';
 import {createCoopWorld,controls} from './three17-r46-world.js?v=lobby-shoot-v93';
 
@@ -109,7 +110,7 @@ function rebuildRoster(){
   const changed=JSON.stringify(next)!==JSON.stringify(roster);if(!changed&&now()-lastRosterSent<800)return;lastRosterSent=now();roster=next;for(const id of poses.keys())if(!roster.some(p=>p.id===id))poses.delete(id);
   broadcast('lobby43',{players:roster},[...applicants.keys()].filter(id=>member(id)));if(changed)redraw();
 }
-const validPose=p=>p&&[p.x,p.z,p.yaw].every(Number.isFinite)&&Math.abs(p.x)<=22.4&&Math.abs(p.z)<=6.2&&Math.abs(p.yaw)<=Math.PI*2&&(!('pitch' in p)||Number.isFinite(p.pitch)&&Math.abs(p.pitch)<=1.2)&&(!('bat' in p)||typeof p.bat==='boolean')&&(!('gun' in p)||typeof p.gun==='boolean')&&(!('down' in p)||typeof p.down==='boolean')&&(!('swingSeq' in p)||Number.isSafeInteger(p.swingSeq)&&p.swingSeq>=0&&p.swingSeq<=1000000000)&&(!('shotSeq' in p)||Number.isSafeInteger(p.shotSeq)&&p.shotSeq>=0&&p.shotSeq<=1000000000)&&(!('shotTarget' in p)||typeof p.shotTarget==='string'&&p.shotTarget.length<=160);
+const validPose=p=>p&&[p.x,p.z,p.yaw].every(Number.isFinite)&&validLobbyPosition(p.x,p.z)&&Math.abs(p.yaw)<=Math.PI*2&&(!('pitch' in p)||Number.isFinite(p.pitch)&&Math.abs(p.pitch)<=1.2)&&(!('bat' in p)||typeof p.bat==='boolean')&&(!('gun' in p)||typeof p.gun==='boolean')&&(!('down' in p)||typeof p.down==='boolean')&&(!('swingSeq' in p)||Number.isSafeInteger(p.swingSeq)&&p.swingSeq>=0&&p.swingSeq<=1000000000)&&(!('shotSeq' in p)||Number.isSafeInteger(p.shotSeq)&&p.shotSeq>=0&&p.shotSeq<=1000000000)&&(!('shotTarget' in p)||typeof p.shotTarget==='string'&&p.shotTarget.length<=160);
 function receive(from,p){
   if(!member(from)||p.room!==roomNow()?.id)return;
   if(arcadeActive){if(p.kind==='hello43'&&isHost())send(from,'busy43',{});return;}
