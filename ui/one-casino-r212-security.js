@@ -3,7 +3,11 @@ import {casinoWalkable,validLobbyPosition} from './one-casino-r212-layout.js';
 const walk=(x,z)=>(Math.abs(x)<8.1&&z>4.6&&z<6.1)||casinoWalkable(x,z);
 function waypoint(start,goal){
  const d=Math.hypot(goal.x-start.x,goal.z-start.z);let clear=true;for(let i=1;i<=Math.ceil(d/.15);i++){const f=i/Math.ceil(d/.15);if(!walk(start.x+(goal.x-start.x)*f,start.z+(goal.z-start.z)*f)){clear=false;break;}}if(clear)return goal;
- const cell=.4,key=(x,z)=>x+','+z,sx=Math.round(start.x/cell),sz=Math.round(start.z/cell),gx=Math.round(goal.x/cell),gz=Math.round(goal.z/cell),first=key(sx,sz),last=key(gx,gz),queue=[[sx,sz]],prev=new Map([[first,null]]);let found=false;
+ const cell=.4,key=(x,z)=>x+','+z;
+ // A legal player position may round into the table's padded collision box.
+ // Route to the closest walkable grid point instead of an unreachable cell.
+ const snap=p=>{const x=Math.round(p.x/cell),z=Math.round(p.z/cell),choices=[];for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){const a=x+dx,b=z+dz;if(walk(a*cell,b*cell))choices.push({x:a,z:b,d:Math.hypot(a*cell-p.x,b*cell-p.z)});}return choices.sort((a,b)=>a.d-b.d)[0];};
+ const from=snap(start),to=snap(goal);if(!from||!to)return start;const sx=from.x,sz=from.z,gx=to.x,gz=to.z,first=key(sx,sz),last=key(gx,gz),queue=[[sx,sz]],prev=new Map([[first,null]]);let found=false;
  for(let at=0;at<queue.length&&queue.length<2600;at++){const [x,z]=queue[at];if(key(x,z)===last){found=true;break;}for(const [dx,dz]of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,nz=z+dz,k=key(nx,nz);if(prev.has(k)||!walk(nx*cell,nz*cell))continue;prev.set(k,key(x,z));queue.push([nx,nz]);}}
  if(!found)return start;let next=last;while(prev.get(next)&&prev.get(next)!==first)next=prev.get(next);const [x,z]=next.split(',').map(Number);return {x:x*cell,z:z*cell};
 }
@@ -14,8 +18,8 @@ export function casinoSecurity({visual,lobbyState,lobbyPose,onHit,onExpel}){
  const link=()=>window.ONEPartyGameLink,me=()=>lobbyState().self,host=()=>lobbyState().host,isHost=()=>me()===host();
  const send=(id,data)=>link()?.sendReliable?.(id,{game:'317',v:1,kind:'casino212',room:lobbyState().roomId,epoch,...data});
  const broadcast=data=>{for(const p of lobbyState().players)if(p.id!==me())send(p.id,data);};
- function accept(from,p){const t=performance.now(),pose=lobbyPose(from),npc=npcs.find(n=>n.id===p.target);if(!npc||npc.down||!['bat','gun'].includes(p.weapon)||!pose||pose[p.weapon]!==true||!lobbyState().players.some(p=>p.id===from)||t-(rates.get(from)||-Infinity)<(p.weapon==='bat'?430:280))return false;
-  const dx=npc.x-pose.x,dz=npc.z-pose.z,d=Math.hypot(dx,dz);if(d>(p.weapon==='bat'?2.2:18)||d<.05||(-Math.sin(pose.yaw)*dx-Math.cos(pose.yaw)*dz)/d<(p.weapon==='bat'?.2:.88))return false;
+ function accept(from,p){const t=performance.now(),pose=lobbyPose(from),npc=npcs.find(n=>n.id===p.target);if(!npc||npc.down||!['bat','gun','hand'].includes(p.weapon)||!pose||(p.weapon==='hand'?(pose.bat===true||pose.gun===true):pose[p.weapon]!==true)||!lobbyState().players.some(p=>p.id===from)||t-(rates.get(from)||-Infinity)<(p.weapon==='gun'?280:430))return false;
+  const dx=npc.x-pose.x,dz=npc.z-pose.z,d=Math.hypot(dx,dz);if(d>(p.weapon==='gun'?18:p.weapon==='hand'?1.8:2.2)||d<.05||(-Math.sin(pose.yaw)*dx-Math.cos(pose.yaw)*dz)/d<(p.weapon==='gun'?.88:.2))return false;
   // Structural walls stop attacks even if a modified client sends an intent.
   for(let i=1;i<d/.15;i++){const f=i/(d/.15),x=pose.x+dx*f,z=pose.z+dz*f;if(z>6.1&&z<11.35&&Math.abs(x)>1.52||z>=11.35&&Math.abs(x)>=8.6)return false;}
   rates.set(from,t);npc.hits++;npc.lastStrike=t;npc.hit=1;npc.until=t+(npc.hits>=3?4500:400);if(npc.hits>=3)npc.down=true;

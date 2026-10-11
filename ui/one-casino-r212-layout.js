@@ -2,4 +2,4 @@ export const stations=[...[-6,-2,2,6].map((x,i)=>({id:'slots-'+i,kind:'slots',na
 export const inCasino=(x,z)=>Math.abs(x)<8.6&&z>11.35&&z<24.6;
 export const casinoWalkable=(x,z)=>(Math.abs(x)<1.52&&z>5.9&&z<11.6)||(inCasino(x,z)&&!stations.some(s=>Math.abs(x-s.x)<s.w/2+.32&&Math.abs(z-(s.colliderZ??s.z))<s.d/2+.32));
 export const validLobbyPosition=(x,z)=>Number.isFinite(x)&&Number.isFinite(z)&&((Math.abs(x)<=22.4&&Math.abs(z)<=6.2)||casinoWalkable(x,z));
-export function nearbyStation(p){return stations.filter(s=>inCasino(p.x,p.z)&&Math.hypot(p.x-s.x,p.z-s.z)<3.5).sort((a,b)=>Math.hypot(p.x-a.x,p.z-a.z)-Math.hypot(p.x-b.x,p.z-b.z))[0]||null;}
+export function nearbyStation(p){return stations.filter(s=>inCasino(p.x,p.z)&&Math.hypot(p.x-s.x,p.z-s.z)<(s.kind==='slots'?3.5:5.1)).sort((a,b)=>Math.hypot(p.x-a.x,p.z-a.z)-Math.hypot(p.x-b.x,p.z-b.z))[0]||null;}
