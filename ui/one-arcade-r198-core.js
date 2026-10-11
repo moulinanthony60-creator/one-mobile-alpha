@@ -66,7 +66,7 @@ export const WORLDS={
 const worldBlocks=new WeakMap();
 export function worldFor(game){return WORLDS[game]||WORLD;}
 export function blocksFor(world=WORLD){if(!worldBlocks.has(world))worldBlocks.set(world,[...world.walls,...world.props.map(p=>({...p,...PROP_TYPES[p.type]}))]);return worldBlocks.get(world);}
-export const avatarScale=game=>game==='paint'?.35:game==='prop'?.76:1;
+export const avatarScale=(game,role)=>game==='paint'?(role==='seeker'?1:.35):game==='prop'?.76:1;
 export function bodyRadius(p){if(p.paintPose)return paintRadius(p);return p.prop?Math.max(PROP_TYPES[p.prop].w,PROP_TYPES[p.prop].d)/2+.02:.3*(p.scale||1);}
 export function freePosition(x,z,r=.3,world=WORLD){return Math.abs(x)<world.width/2-.2-r&&Math.abs(z)<world.depth/2-.2-r&&!blocksFor(world).some(b=>Math.abs(x-b.x)<b.w/2+r&&Math.abs(z-b.z)<b.d/2+r);}
 
@@ -103,10 +103,10 @@ export function paintRayHit(o,d,p,range=45){let hit=Infinity;for(const part of p
 export function paintFits(p,world=worldFor('paint'),ignore=-1){const b=paintBounds(p);if(b.min[0]<-world.width/2+.2||b.max[0]>world.width/2-.2||b.min[2]<-world.depth/2+.2||b.max[2]>world.depth/2-.2||b.min[1]<-.025||b.max[1]>PAINT_CEILING-.005)return false;return !blocksFor(world).some((o,i)=>i!==ignore&&b.min[0]<o.x+o.w/2&&b.max[0]>o.x-o.w/2&&b.min[2]<o.z+o.d/2&&b.max[2]>o.z-o.d/2&&b.min[1]<o.h&&b.max[1]>0);}
 function wallPosition(p,a,world){const w=world.walls[a.wall],n=a.nx?'x':'z',extent=a.nx?w.w:w.d,normal=a.nx||a.nz,b=paintBounds({...p,x:0,y:0,z:0,anchor:a}),depth=Math.max(Math.abs(b.min[a.nx?0:2]),Math.abs(b.max[a.nx?0:2]));return {...p,anchor:a,[n]:w[n]+normal*(extent/2+depth+.03)};}
 export function nearbyPaintWall(p,world=worldFor('paint')){if(p.anchor||p.falling)return null;let best=null,range=1.1;world.walls.forEach((w,wall)=>{for(const [nx,nz]of [[1,0],[-1,0],[0,1],[0,-1]]){const a={kind:'wall',wall,nx,nz},next=wallPosition(p,a,world),d=Math.hypot(p.x-next.x,p.z-next.z),along=nx?Math.abs(p.z-w.z)<w.d/2-.4:Math.abs(p.x-w.x)<w.w/2-.4;if((p.x-w.x)*nx+(p.z-w.z)*nz<(nx?w.w:w.d)/2||!along||d>range||!paintFits(next,world))continue;const o=paintEye(p),dest=paintEye(next),length=Math.hypot(dest.x-o.x,dest.y-o.y,dest.z-o.z),direction={x:(dest.x-o.x)/(length||1),y:(dest.y-o.y)/(length||1),z:(dest.z-o.z)/(length||1)};if(blocksFor(world).some((b,i)=>i!==wall&&rayBox(o,direction,b,length)<length-.02))continue;best=next;range=d;}});return best;}
-export function paintDrop(p,world=worldFor('paint')){let next={...p,paintPose:'stand',anchor:null,frozen:false,facing:p.yaw||0};const r=paintRadius(next);if(p.anchor?.kind==='wall'){next.x+=p.anchor.nx*(r+.04);next.z+=p.anchor.nz*(r+.04);}if(!freePosition(next.x,next.z,r,world))return null;next.falling=next.y>0;next.velocity=0;return next;}
+export function paintDrop(p,world=worldFor('paint')){let next={...p,paintPose:'stand',anchor:null,frozen:false,facing:p.yaw||0};const r=paintRadius(next);if(p.anchor?.kind==='wall'){next.x+=p.anchor.nx*(r+.04);next.z+=p.anchor.nz*(r+.04);}if(!freePosition(next.x,next.z,r,world))return null;next.falling=next.y>0;next.grounded=next.y===0;next.velocity=0;return next;}
 export function changePaintPose(p,pose,world=worldFor('paint')){if(!Object.hasOwn(PAINT_POSES,pose)||p.falling)return false;let next={...p,paintPose:pose};if(p.anchor?.kind==='wall')next=wallPosition(next,p.anchor,world);if(!paintFits(next,world))return false;Object.assign(p,next);return true;}
 export function advancePaint(p,input,dt,world=worldFor('paint')){
- if(p.falling){p.velocity=(p.velocity||0)-9*dt;p.y=Math.max(0,(p.y||0)+p.velocity*dt);if(p.y===0){p.falling=false;p.velocity=0;}return;}
+ if(p.falling){p.grounded=false;advanceProp(p,{x:0,z:0},dt,world);if(p.grounded)p.falling=false;return;}
  if(p.frozen)return;
  const a=p.anchor;
  if(a?.kind==='wall'){
@@ -114,12 +114,13 @@ export function advancePaint(p,input,dt,world=worldFor('paint')){
   next.x+=a.nz*input.x*1.7*dt;next.z-=a.nx*input.x*1.7*dt;
   const margin=paintRadius(p),within=a.nx?Math.abs(next.z-w.z)<w.d/2-margin:Math.abs(next.x-w.x)<w.w/2-margin;
   if(within&&paintFits(next,world))Object.assign(p,next);
+  if(input.z<-.1&&p.y>=maxY-.02&&w.h<PAINT_CEILING-.08){const top={...p,anchor:null,paintPose:'stand',y:w.h+.006,grounded:true,velocity:0};if(a.nx)top.x=w.x;else top.z=w.z;if(paintFits(top,world))Object.assign(p,top);}
   if(input.z<-.1&&p.y>=maxY-.02&&w.h>=PAINT_CEILING-.08){const roof={...p,anchor:{kind:'ceiling'},paintPose:'prone',y:PAINT_CEILING-.025};const offset=paintRadius(roof)+.06;roof.x=w.x+a.nx*(w.w/2+offset)+(a.nx?0:p.x-w.x);roof.z=w.z+a.nz*(w.d/2+offset)+(a.nz?0:p.z-w.z);if(paintFits(roof,world))Object.assign(p,roof);}
  }else if(a?.kind==='ceiling'){
   const steps=Math.max(1,Math.ceil(Math.hypot(input.x,input.z)*1.9*dt/.06));for(let i=0;i<steps;i++){const dx=input.x*1.9*dt/steps,dz=input.z*1.9*dt/steps;for(const [key,v]of [['x',dx],['z',dz]]){const next={...p,[key]:p[key]+v};if(paintFits(next,world))p[key]=next[key];}}
- }else{const speed=p.paintPose==='prone'?1.2:p.paintPose==='crouch'?2.0:3.8;moveBody(p,input.x*speed*dt,input.z*speed*dt,paintRadius(p),world);p.y=0;}
+ }else{p.moveSpeed=p.paintPose==='prone'?1.2:p.paintPose==='crouch'?2.0:3.8;advanceProp(p,input,dt,world);}
 }
-export function validPaintPlayer(p){return Object.hasOwn(PAINT_POSES,p.paintPose)&&Number.isFinite(p.y)&&p.y>=0&&p.y<=PAINT_CEILING&&Number.isFinite(p.facing)&&typeof p.falling==='boolean'&&(!p.anchor||(p.anchor.kind==='ceiling'&&Math.abs(p.y-(PAINT_CEILING-.025))<.001)||(p.anchor.kind==='wall'&&Number.isInteger(p.anchor.wall)&&p.anchor.wall>=0&&p.anchor.wall<worldFor('paint').walls.length&&[[1,0],[-1,0],[0,1],[0,-1]].some(([x,z])=>x===p.anchor.nx&&z===p.anchor.nz)));}
+export function validPaintPlayer(p){return Object.hasOwn(PAINT_POSES,p.paintPose)&&Number.isFinite(p.y)&&p.y>=0&&p.y<=PAINT_CEILING&&Number.isFinite(p.facing)&&typeof p.falling==='boolean'&&Number.isFinite(p.velocity)&&typeof p.grounded==='boolean'&&(!p.anchor||(p.anchor.kind==='ceiling'&&Math.abs(p.y-(PAINT_CEILING-.025))<.001)||(p.anchor.kind==='wall'&&Number.isInteger(p.anchor.wall)&&p.anchor.wall>=0&&p.anchor.wall<worldFor('paint').walls.length&&[[1,0],[-1,0],[0,1],[0,-1]].some(([x,z])=>x===p.anchor.nx&&z===p.anchor.nz)));}
 
 export function propFree(x,z,y,r,world=worldFor('prop')){return Math.abs(x)<world.width/2-.2-r&&Math.abs(z)<world.depth/2-.2-r&&!blocksFor(world).some(b=>y<b.h-.012&&Math.abs(x-b.x)<b.w/2+r&&Math.abs(z-b.z)<b.d/2+r);}
 function propSupport(p,b,r){return Math.abs(p.x-b.x)<b.w/2+r*.6&&Math.abs(p.z-b.z)<b.d/2+r*.6;}
@@ -128,7 +129,7 @@ export function advanceProp(p,input,dt,world=worldFor('prop')){
  for(let i=0;i<steps;i++){
   const before=p.y||0;if(!p.grounded)p.velocity=(p.velocity||0)-10*slice;let y=before+(p.velocity||0)*slice;
   if((p.velocity||0)<=0){let top=0;for(const b of blocksFor(world))if(before>=b.h-.025&&y<=b.h&&propSupport(p,b,radius))top=Math.max(top,b.h);if(y<=top){y=top;p.velocity=0;p.grounded=true;}}
-  p.y=Math.max(0,y);
+  if(p.paintPose){const top=paintBounds({...p,y:0}).max[1],limit=PAINT_CEILING-top-.01;if(y>limit){y=limit;p.velocity=Math.min(0,p.velocity||0);}}p.y=Math.max(0,y);
   if(!p.frozen){const dx=input.x*speed*slice,dz=input.z*speed*slice;if(propFree(p.x+dx,p.z,p.y,radius,world))p.x+=dx;if(propFree(p.x,p.z+dz,p.y,radius,world))p.z+=dz;}
   if(p.grounded&&p.y>.001&&!blocksFor(world).some(b=>Math.abs(p.y-b.h)<.03&&propSupport(p,b,radius)))p.grounded=false;
  }
@@ -141,10 +142,31 @@ export function shootSpawn(players,self,world,randomize,serial=0){
  const safe=ranked.filter(p=>p.score>=ranked[0].score-3).slice(0,4),pick=safe[(Math.floor(randomize()*safe.length)+serial)%safe.length];return [pick.x,pick.z];
 }
 
-export const PAINT_GRID=12,PAINT_CELLS=PAINT_GRID*PAINT_GRID*36;
-export function encodeSkin(pixels){let result='',count=0,last=pixels[0];for(const color of pixels){if(color!==last||count===1295){result+=count.toString(36).padStart(2,'0')+last;count=0;last=color;}count++;}result+=count.toString(36).padStart(2,'0')+last;if(result.length<=1800)return result;let packed='~';for(let i=0;i<pixels.length;i+=2)packed+=(pixels[i]*6+pixels[i+1]).toString(36);return packed;}
-export function decodeSkin(text){if(typeof text!=='string'||text.length>1+PAINT_CELLS/2)return null;const data=new Uint8Array(PAINT_CELLS);if(text.startsWith('~')){if(text.length!==1+PAINT_CELLS/2||!/^~[0-9a-z]+$/.test(text))return null;for(let i=1;i<text.length;i++){const n=parseInt(text[i],36);data[(i-1)*2]=Math.floor(n/6);data[(i-1)*2+1]=n%6;}return data;}if(text.length%3)return null;let offset=0;for(let i=0;i<text.length;i+=3){const part=text.slice(i,i+3);if(!/^[0-9a-z]{2}[0-5]$/.test(part))return null;const count=parseInt(part.slice(0,2),36);if(!count||offset+count>data.length)return null;data.fill(Number(part[2]),offset,offset+count);offset+=count;}return offset===data.length?data:null;}
-export function stampSkin(p,a){if(!Number.isInteger(a.part)||a.part<0||a.part>5||!Number.isInteger(a.face)||a.face<0||a.face>5||![a.u,a.v,a.radius,a.color].every(Number.isInteger)||a.u<0||a.u>=PAINT_GRID||a.v<0||a.v>=PAINT_GRID||a.radius<1||a.radius>4||a.color<0||a.color>=COLORS.length)return false;const pixels=p.paintPixels.slice(),offset=(a.part*6+a.face)*PAINT_GRID*PAINT_GRID;for(let y=0;y<PAINT_GRID;y++)for(let x=0;x<PAINT_GRID;x++)if(Math.hypot(x-a.u,y-a.v)<=a.radius)pixels[offset+y*PAINT_GRID+x]=a.color;p.paintPixels=pixels;p.skin=encodeSkin(pixels);return true;}
+export const PAINT_GRID=12,PAINT_CELLS=PAINT_GRID*PAINT_GRID*36,PAINT_COLORS=32;
+const paintAlphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+export function encodeSkin(pixels){
+ let rle='',count=0,last=pixels[0];for(const c of pixels){if(c!==last||count===1295){rle+=count.toString(36).padStart(2,'0')+last.toString(36);count=0;last=c;}count++;}rle+=count.toString(36).padStart(2,'0')+last.toString(36);
+ if(rle.length<=1800)return rle;let packed='^',buffer=0,bits=0;for(const color of pixels){buffer=(buffer<<5)|color;bits+=5;while(bits>=6){bits-=6;packed+=paintAlphabet[(buffer>>bits)&63];}buffer&=(1<<bits)-1;}if(bits)packed+=paintAlphabet[buffer<<(6-bits)];return packed;
+}
+export function decodeSkin(text){
+ if(typeof text!=='string'||text.length>1+PAINT_CELLS*5/6)return null;const data=new Uint8Array(PAINT_CELLS);
+ if(text.startsWith('^')){if(text.length!==1+PAINT_CELLS*5/6||!/^\^[A-Za-z0-9+/]+$/.test(text))return null;let buffer=0,bits=0,offset=0;for(let i=1;i<text.length;i++){buffer=(buffer<<6)|paintAlphabet.indexOf(text[i]);bits+=6;while(bits>=5){bits-=5;data[offset++]=(buffer>>bits)&31;}buffer&=(1<<bits)-1;}return data;}
+ if(text.startsWith('~')){if(text.length!==1+PAINT_CELLS/2||!/^~[0-9a-z]+$/.test(text))return null;for(let i=1;i<text.length;i++){const n=parseInt(text[i],36);data[(i-1)*2]=Math.floor(n/6);data[(i-1)*2+1]=n%6;}return data;}
+ if(text.length%3)return null;let offset=0;for(let i=0;i<text.length;i+=3){const part=text.slice(i,i+3);if(!/^[0-9a-z]{2}[0-v]$/.test(part))return null;const count=parseInt(part.slice(0,2),36);if(!count||offset+count>data.length)return null;data.fill(parseInt(part[2],36),offset,offset+count);offset+=count;}return offset===data.length?data:null;
+}
+export function validPaintSkin(p){const pixels=decodeSkin(p.skin);return !!pixels&&Array.isArray(p.palette)&&p.palette.length>=6&&p.palette.length<=PAINT_COLORS&&p.palette.every(c=>typeof c==='string'&&/^#[0-9a-f]{6}$/.test(c))&&pixels.every(c=>c<p.palette.length);}
+function paintColor(p,a){
+ if(a.rgb!==undefined){if(typeof a.rgb!=='string'||!/^#[0-9a-fA-F]{6}$/.test(a.rgb))return -1;const rgb=a.rgb.toLowerCase(),old=p.palette.indexOf(rgb);if(old>=0)return old;
+  // Never overwrite a colour already used in the drawing.
+  if(p.palette.length<PAINT_COLORS){p.palette.push(rgb);return p.palette.length-1;}
+  const used=new Set(p.paintPixels);for(let i=6;i<p.palette.length;i++)if(!used.has(i)&&!p.colors.includes(i)){p.palette[i]=rgb;return i;}return -1;
+ }
+ return Number.isInteger(a.color)&&a.color>=0&&a.color<p.palette.length?a.color:-1;
+}
+export function stampSkin(p,a){
+ if(!Number.isInteger(a.part)||a.part<0||a.part>5||!Number.isInteger(a.face)||a.face<0||a.face>5||![a.u,a.v,a.radius].every(Number.isInteger)||a.u<0||a.u>=PAINT_GRID||a.v<0||a.v>=PAINT_GRID||a.radius<1||a.radius>4)return false;const color=paintColor(p,a);if(color<0)return false;
+ const pixels=p.paintPixels.slice(),offset=(a.part*6+a.face)*PAINT_GRID*PAINT_GRID;for(let y=0;y<PAINT_GRID;y++)for(let x=0;x<PAINT_GRID;x++)if(Math.hypot(x-a.u,y-a.v)<=a.radius)pixels[offset+y*PAINT_GRID+x]=color;p.paintPixels=pixels;p.skin=encodeSkin(pixels);return true;
+}
 
 export const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export function requiredPlayers(game,size=1){return game==='shoot'?size*2:GAMES.find(g=>g.id===game)?.min||99;}
@@ -166,7 +188,7 @@ export function createMatch({game,size=1,players,randomize=random}){
  const shuffled=players.map(p=>({...p}));for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(randomize()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
  const world=worldFor(game),blocks=blocksFor(world),hiding=game==='paint'||game==='prop',state={game,size,elapsed:0,phase:hiding?'prepare':'play',until:hiding?world.prepare:180,score:[0,0],target:size*5,finished:false,winner:'',reason:'',gun:null,events:[],players:[]};
  const hunters=Math.max(1,Math.floor(players.length/3));
- state.players=shuffled.map((p,i)=>{const role=game==='shoot'?'fighter':game==='murder'?i===0?'murderer':i===1?'armed':'innocent':i<hunters?'seeker':'hider';const team=game==='shoot'?i%2:role==='hider'?1:0,spawn=game==='shoot'?world.spawns[i]:hiding&&role==='seeker'?world.seekerSpawn:world.spawns[i];return {id:p.id,name:String(p.name||'Membre').slice(0,40),role,team,y:0,velocity:0,grounded:true,falling:false,paintPose:game==='paint'?'stand':null,anchor:null,facing:0,scale:avatarScale(game),paintPixels:new Uint8Array(PAINT_CELLS),skin:encodeSkin(new Uint8Array(PAINT_CELLS)),x:spawn[0],z:spawn[1],yaw:spawn[0]<-1?-Math.PI/2:spawn[0]>1?Math.PI/2:0,pitch:0,hp:100,alive:true,connected:true,kills:0,deaths:0,ammo:game==='shoot'?24:12,weaponMode:'auto',stamina:100,burstLeft:0,burstAt:0,burstSeq:0,respawnSerial:0,reloadAt:0,respawnAt:0,invincible:0,cooldown:0,drawn:game==='shoot'||role==='seeker',colors:[0,0,0],prop:null,propColor:0,frozen:false,seq:0,input:{x:0,z:0}}});
+ state.players=shuffled.map((p,i)=>{const role=game==='shoot'?'fighter':game==='murder'?i===0?'murderer':i===1?'armed':'innocent':i<hunters?'seeker':'hider';const team=game==='shoot'?i%2:role==='hider'?1:0,spawn=game==='shoot'?world.spawns[i]:hiding&&role==='seeker'?world.seekerSpawn:world.spawns[i];return {id:p.id,name:String(p.name||'Membre').slice(0,40),role,team,y:0,velocity:0,grounded:true,falling:false,paintPose:game==='paint'?'stand':null,anchor:null,facing:0,scale:avatarScale(game,role),palette:[...COLORS],paintPixels:new Uint8Array(PAINT_CELLS),skin:encodeSkin(new Uint8Array(PAINT_CELLS)),x:spawn[0],z:spawn[1],yaw:spawn[0]<-1?-Math.PI/2:spawn[0]>1?Math.PI/2:0,pitch:0,hp:100,alive:true,connected:true,kills:0,deaths:0,ammo:game==='shoot'?24:12,weaponMode:'auto',stamina:100,burstLeft:0,burstAt:0,burstSeq:0,respawnSerial:0,reloadAt:0,respawnAt:0,invincible:0,cooldown:0,drawn:game==='shoot'||role==='seeker',colors:[0,0,0],prop:null,propColor:0,frozen:false,seq:0,input:{x:0,z:0}}});
  if(game==='shoot')for(const p of state.players){const pos=shootSpawn(state.players,p,world,randomize);p.x=pos[0];p.z=pos[1];p.lastSpawn=pos;p.yaw=p.x<0?-Math.PI/2:Math.PI/2;}
  const player=id=>state.players.find(p=>p.id===id);
  function finish(winner,reason){if(state.finished)return;state.finished=true;state.phase='finished';state.winner=winner;state.reason=reason;for(const p of state.players)p.input={x:0,z:0};}
@@ -182,11 +204,11 @@ export function createMatch({game,size=1,players,randomize=random}){
   if(!['fire','reload','draw','paint','brush','transform','freeze','pickup','pose','attach','detach','jump','weapon'].includes(a.type))return false;p.seq=a.seq;
   if(Number.isFinite(a.yaw)&&Number.isFinite(a.pitch)){p.yaw=Math.atan2(Math.sin(a.yaw),Math.cos(a.yaw));p.pitch=clamp(a.pitch,-1.25,1.25);}
   if(a.type==='weapon'){if(game!=='shoot'||!['auto','burst'].includes(a.mode))return false;p.weaponMode=a.mode;p.burstLeft=0;return true;}
-  if(a.type==='jump'){if(!['prop','shoot'].includes(game)||!p.grounded||state.phase==='prepare'&&p.role==='seeker')return false;p.velocity=6;p.grounded=false;p.frozen=false;return true;}
-  if(['pose','attach','detach'].includes(a.type)){if(game!=='paint'||p.role!=='hider'||p.falling)return false;if(a.type==='pose')return changePaintPose(p,a.pose,world);if(a.type==='attach'){const next=nearbyPaintWall(p,world);if(!next)return false;Object.assign(p,next,{frozen:false});return true;}const next=p.anchor&&paintDrop(p,world);if(!next)return false;Object.assign(p,next);return true;}
-  if(a.type==='paint'){if(game!=='paint'||p.role!=='hider'||p.falling||!['prepare','play'].includes(state.phase)||!Number.isInteger(a.part)||a.part<0||a.part>2||!Number.isInteger(a.color)||a.color<0||a.color>=COLORS.length)return false;p.colors[a.part]=a.color;p.paintPixels.fill(a.color,[0,1,4][a.part]*PAINT_CELLS/6,[1,4,6][a.part]*PAINT_CELLS/6);p.skin=encodeSkin(p.paintPixels);return true;}
+  if(a.type==='jump'){if(!['paint','prop','shoot'].includes(game)||p.anchor||!p.grounded||state.phase==='prepare'&&p.role==='seeker')return false;p.velocity=6;p.grounded=false;p.frozen=false;return true;}
+  if(['pose','attach','detach'].includes(a.type)){if(game!=='paint'||p.role!=='hider'||p.falling)return false;if(a.type==='pose')return changePaintPose(p,a.pose,world);if(a.type==='attach'){const next=nearbyPaintWall(p,world);if(!next)return false;Object.assign(p,next,{frozen:false,grounded:false,velocity:0});return true;}const next=p.anchor&&paintDrop(p,world);if(!next)return false;Object.assign(p,next);return true;}
+  if(a.type==='paint'){if(game!=='paint'||p.role!=='hider'||p.falling||!['prepare','play'].includes(state.phase)||!Number.isInteger(a.part)||a.part<0||a.part>2 )return false;const color=paintColor(p,a);if(color<0)return false;p.colors[a.part]=color;p.paintPixels.fill(color,[0,1,4][a.part]*PAINT_CELLS/6,[1,4,6][a.part]*PAINT_CELLS/6);p.skin=encodeSkin(p.paintPixels);return true;}
   if(a.type==='brush'){if(game!=='paint'||p.role!=='hider'||p.falling||!['prepare','play'].includes(state.phase))return false;return stampSkin(p,a);}
-  if(a.type==='freeze'){if(p.role!=='hider'||p.falling||game==='prop'&&!p.grounded)return false;p.facing=p.yaw;p.frozen=!p.frozen;return true;}
+  if(a.type==='freeze'){if(p.role!=='hider'||p.falling||!p.anchor&&!p.grounded)return false;p.facing=p.yaw;p.frozen=!p.frozen;return true;}
   if(a.type==='transform'){const obj=world.props.find(o=>o.id===a.prop);if(game!=='prop'||p.role!=='hider'||!obj||Math.hypot(obj.x-p.x,obj.z-p.z)>2.8)return false;const radius=bodyRadius({prop:obj.type});if(!propFree(p.x,p.z,p.y||0,radius,world))return false;p.prop=obj.type;p.propColor=obj.c;p.frozen=false;return true;}
   if(a.type==='pickup'){if(game!=='murder'||p.role!=='innocent'||!state.gun||Math.hypot(state.gun.x-p.x,state.gun.z-p.z)>1.8)return false;p.role='armed';p.ammo=12;state.gun=null;return true;}
   if(a.type==='draw'){if(game!=='murder'||!['armed','murderer'].includes(p.role))return false;p.drawn=!p.drawn;return true;}
@@ -211,6 +233,6 @@ export function createMatch({game,size=1,players,randomize=random}){
   if(state.elapsed>=state.until&&state.phase==='play'){if(game==='shoot')finish(state.score[0]===state.score[1]?'Égalité':state.score[0]>state.score[1]?'Équipe bleue gagnante':'Équipe rose gagnante','Temps écoulé.');else finish(game==='murder'?'Les innocents gagnent':'Les cachés gagnent','Temps écoulé.');}endCheck();
  }
  function remove(id){const p=player(id);if(p){p.connected=false;eliminate(p);endCheck();}}
- function snapshot(id){const mine=player(id);return {game,size,phase:state.phase,remaining:Math.max(0,state.until-state.elapsed),score:[...state.score],target:state.target,finished:state.finished,winner:state.winner,reason:state.reason,gun:state.gun,events:state.events.slice(-6),selfRole:mine?.role,players:state.players.filter(p=>!(state.phase==='prepare'&&mine?.role==='seeker'&&p.role==='hider')).map(p=>({id:p.id,name:p.name,weaponMode:p.weaponMode,stamina:p.stamina,y:p.y,velocity:p.velocity,grounded:p.grounded,falling:p.falling,paintPose:p.paintPose,anchor:p.anchor?{...p.anchor}:null,facing:p.facing,scale:p.scale,skin:game==='paint'?p.skin:null,x:p.x,z:p.z,yaw:p.yaw,pitch:p.pitch,hp:p.hp,alive:p.alive,connected:p.connected,kills:p.kills,deaths:p.deaths,team:game==='shoot'?p.team:null,role:state.finished||p.id===id?p.role:null,weapon:p.drawn?(p.role==='murderer'?'knife':['armed','seeker','fighter'].includes(p.role)?'gun':null):null,colors:[...p.colors],prop:p.prop,propColor:p.propColor,frozen:p.frozen,ammo:p.id===id?p.ammo:null,reloading:p.id===id&&!!p.reloadAt,respawn:p.id===id&&!p.alive&&game==='shoot'?Math.max(0,p.respawnAt-state.elapsed):0}))};}
+ function snapshot(id){const mine=player(id);return {game,size,phase:state.phase,remaining:Math.max(0,state.until-state.elapsed),score:[...state.score],target:state.target,finished:state.finished,winner:state.winner,reason:state.reason,gun:state.gun,events:state.events.slice(-6),selfRole:mine?.role,players:state.players.filter(p=>!(state.phase==='prepare'&&mine?.role==='seeker'&&p.role==='hider')).map(p=>({id:p.id,name:p.name,palette:game==='paint'?[...p.palette]:null,weaponMode:p.weaponMode,stamina:p.stamina,y:p.y,velocity:p.velocity,grounded:p.grounded,falling:p.falling,paintPose:p.paintPose,anchor:p.anchor?{...p.anchor}:null,facing:p.facing,scale:p.scale,skin:game==='paint'?p.skin:null,x:p.x,z:p.z,yaw:p.yaw,pitch:p.pitch,hp:p.hp,alive:p.alive,connected:p.connected,kills:p.kills,deaths:p.deaths,team:game==='shoot'?p.team:null,role:game==='paint'||state.finished||p.id===id?p.role:null,weapon:p.drawn?(p.role==='murderer'?'knife':['armed','seeker','fighter'].includes(p.role)?'gun':null):null,colors:[...p.colors],prop:p.prop,propColor:p.propColor,frozen:p.frozen,ammo:p.id===id?p.ammo:null,reloading:p.id===id&&!!p.reloadAt,respawn:p.id===id&&!p.alive&&game==='shoot'?Math.max(0,p.respawnAt-state.elapsed):0}))};}
  return {state,input,action,tick,remove,snapshot,finish};
 }
