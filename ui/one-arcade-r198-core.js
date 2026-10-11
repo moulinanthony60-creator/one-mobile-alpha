@@ -1,12 +1,15 @@
 // Shared geometry and host-authoritative rules. No DOM or transport dependency.
 export const GAMES=Object.freeze([
- {id:'paint',name:'Cache-cache peinture',min:2,max:8,icon:'◒',color:'#ad70ed',description:'Peins ton personnage, prends la bonne pose et fonds-toi dans le décor.'},
+ {id:'paint',name:'Cache-cache peinture',min:2,max:8,icon:'◒',color:'#ad70ed',description:'Trouve une cachette, puis peins ton personnage sur place pour te fondre dans le décor.'},
  {id:'murder',name:'Murder',min:3,max:8,icon:'◇',color:'#e46c85',description:'Un tueur caché, un innocent armé. Observe, bluffe et survis.'},
  {id:'shoot',name:'Tir en équipes',min:2,max:8,icon:'◎',color:'#56b9ed',description:'Une arène, deux équipes : 1 contre 1 à 4 contre 4.'},
  {id:'prop',name:'Prop Hunt',min:2,max:8,icon:'▣',color:'#62c6a0',description:'Deviens un objet du décor et échappe aux chasseurs.'}
 ]);
 export const COLORS=['#d8c5ac','#517f70','#c67d60','#526e9a','#ab8eba','#555967'];
 export const PROP_TYPES={crate:{name:'Caisse',w:.9,h:.9,d:.9,icon:'▣'},chair:{name:'Chaise',w:.65,h:1.05,d:.65,icon:'♧'},plant:{name:'Plante',w:.7,h:1.35,d:.7,icon:'♣'},lamp:{name:'Lampe',w:.45,h:1.55,d:.45,icon:'♙'},barrel:{name:'Tonneau',w:.7,h:1.0,d:.7,icon:'◉'}};
+Object.assign(PROP_TYPES,{
+ table:{name:'Table',w:1.8,h:1,d:1.1},bench:{name:'Banc',w:1.8,h:1.15,d:.72},sofa:{name:'Canapé',w:2.1,h:1.15,d:1.05},shelf:{name:'Étagère',w:1.6,h:2.3,d:.72},easel:{name:'Chevalet',w:.95,h:1.9,d:.8},stool:{name:'Tabouret',w:.55,h:.7,d:.55},paintpot:{name:'Pot de peinture',w:.42,h:.52,d:.42},cone:{name:'Plot',w:.55,h:.85,d:.55},trolley:{name:'Chariot',w:1.15,h:1.2,d:.85},sculpture:{name:'Sculpture',w:.9,h:1.9,d:.9},fountain:{name:'Fontaine',w:2.5,h:1.7,d:2.5},arcade:{name:"Borne d’arcade",w:.85,h:1.8,d:.85}
+});
 export const WORLD={width:28,depth:22,walls:[
  {x:-14,z:0,w:.3,d:22,h:3.6,c:0},{x:14,z:0,w:.3,d:22,h:3.6,c:3},{x:0,z:-11,w:28,d:.3,h:3.6,c:1},{x:0,z:11,w:28,d:.3,h:3.6,c:2},
  {x:-7,z:-6,w:.28,d:6,h:3.2,c:1},{x:-7,z:6,w:.28,d:6,h:3.2,c:2},{x:7,z:-6,w:.28,d:6,h:3.2,c:3},{x:7,z:6,w:.28,d:6,h:3.2,c:4},
@@ -15,21 +18,37 @@ export const WORLD={width:28,depth:22,walls:[
  ['crate',-11,-8],['crate',-10,-8],['plant',-12,0],['chair',-10,5],['lamp',-12,8],['barrel',-4,-8],['chair',-4,0],['plant',-5,8],
  ['lamp',4,-8],['barrel',4,0],['crate',5,8],['chair',11,-8],['plant',12,-4],['barrel',10,0],['chair',10,5],['crate',12,8]
 ].map(([type,x,z],i)=>({id:'p'+i,type,x,z,c:i%COLORS.length})),spawns:[[-11,2],[11,-2],[-11,-2],[11,2],[-11,0],[11,0],[-11,4],[11,-4]]};
-// Each game shares one authoritative geometry with its renderer and collision checks.
-const boundary=WORLD.walls.slice(0,4);
+const boundary=(w,d,c=0)=>[{x:-w/2,z:0,w:.35,d,h:4.2,c},{x:w/2,z:0,w:.35,d,h:4.2,c},{x:0,z:-d/2,w,d:.35,h:4.2,c},{x:0,z:d/2,w,d:.35,h:4.2,c}];
 const wall=(x,z,w,d,h,c)=>({x,z,w,d,h,c});
 const objects=rows=>rows.map(([type,x,z,c],i)=>({id:'p'+i,type,x,z,c:c??i%COLORS.length}));
+const galleryProps=[];
+for(const side of [-1,1])for(const z of [-12,-6,2,8])galleryProps.push(['crate',side*19,z],['paintpot',side*18,z-1.1],['stool',side*20.3,z+.9]);
+for(const x of [-13,13])for(const z of [-12,12])galleryProps.push(['easel',x,z],['paintpot',x+1.4,z],['bench',x,z>0?z-3:z+3]);
+for(const x of [-4,4])for(const z of [-12,-6,6,12])galleryProps.push(['sculpture',x,z],['plant',x+(x<0?-1.6:1.6),z]);
+galleryProps.push(['fountain',0,0,3],['plant',-10,0,1],['plant',10,0,4],['bench',0,-9,1],['bench',0,9,4]);
+const depotProps=[];
+for(const side of [-1,1])for(const z of [-12,-6,2,8])depotProps.push(['crate',side*19,z],['barrel',side*20.5,z+1.2],['cone',side*18,z-1.2]);
+for(const x of [-13,13])for(const z of [-12,-5,5,12])depotProps.push(['shelf',x,z],['trolley',x+(x<0?-2:2),z+1.8]);
+for(const x of [-4,4])for(const z of [-11,11])depotProps.push(['table',x,z],['chair',x,z-1.2],['lamp',x+1.8,z],['plant',x-1.8,z]);
+depotProps.push(['sofa',-3,-3,2],['sofa',3,3,3],['bench',3,-3,1],['bench',-3,3,4],['arcade',0,-14,3],['arcade',0,14,4],['barrel',-10,0,2],['crate',10,0,0]);
+const spawns=[[-17,-10],[17,-10],[-17,-4],[17,-4],[-17,4],[17,4],[-17,10],[17,10]];
 export const WORLDS={
- shoot:{...WORLD,name:'Traverse',floor:'#aebec7',sky:'#99bccc',walls:[...WORLD.walls,wall(0,0,2,.55,1.95,5)],zones:[[-10,0,7,21,3],[10,0,7,21,4]],labels:['BASE BLEUE','BASE ROSE']},
- paint:{...WORLD,name:'Galerie Chromatique',floor:'#d8c5ac',sky:'#c4d4cc',walls:[...boundary,wall(-7,-6,.35,5,2.8,1),wall(-7,6,.35,5,2.8,2),wall(7,-6,.35,5,2.8,3),wall(7,6,.35,5,2.8,4),wall(-2,-6,3,.35,2.4,1),wall(2,6,3,.35,2.4,4),wall(0,0,2.4,.5,2.4,5)],zones:[[-10,-6,7,9,1],[-10,6,7,9,2],[10,-6,7,9,3],[10,6,7,9,4],[0,0,7,4,5]],labels:['GALERIE VERTE','GALERIE MAUVE']},
- murder:{...WORLD,name:'Villa Minuit',floor:'#b7afa5',sky:'#9cacb7',walls:[...boundary,wall(-5,-6.7,.35,7,3,1),wall(-5,6.7,.35,7,3,2),wall(5,-6.7,.35,7,3,3),wall(5,6.7,.35,7,3,4),wall(-10,-3,5.5,.35,3,1),wall(10,3,5.5,.35,3,4),wall(0,-7,2.4,1.2,1.1,5),wall(0,7,2.4,1.2,1.1,0)],props:objects([['plant',-12,-8],['chair',-9,-8],['lamp',-12,8],['chair',-9,7],['barrel',-3,-8],['plant',-3,4],['lamp',3,-4],['chair',3,8],['plant',12,-8],['chair',9,-7],['lamp',12,8],['crate',9,8]]),zones:[[-9.5,-7,8,7,1],[-9.5,7,8,7,2],[9.5,-7,8,7,3],[9.5,7,8,7,4]],labels:['SALON','BIBLIOTHÈQUE']},
- prop:{...WORLD,name:'Dépôt des curiosités',floor:'#b2bbb3',sky:'#a7c4bf',walls:[...boundary,wall(-5,-6,.5,5,2.3,1),wall(-5,6,.5,5,2.3,1),wall(5,-6,.5,5,2.3,2),wall(5,6,.5,5,2.3,2),wall(0,0,2,1.5,1.7,5)],props:objects([['crate',-11,-8],['crate',-10,-8],['crate',-9,-8],['plant',-12,0],['chair',-10,5],['lamp',-12,8],['lamp',-10,8],['barrel',-3,-8],['barrel',-2,-8],['chair',-3,0],['plant',-3,8],['plant',-2,8],['lamp',3,-8],['lamp',2,-8],['barrel',3,0],['crate',3,8],['crate',2,8],['chair',11,-8],['chair',10,-8],['plant',12,-4],['barrel',10,0],['barrel',12,0],['chair',10,5],['crate',12,8],['crate',11,8]]),zones:[[-9,0,7,20,1],[9,0,7,20,2]],labels:['DÉPÔT A','DÉPÔT B']}
+ paint:{width:44,depth:34,name:'Les ateliers Chromatiques',floor:'#d6c6ad',sky:'#c4d8db',surface:'tile',spawns,seekerSpawn:[0,15],prepare:55,hunt:160,walls:[...boundary(44,34,0),wall(-7,-11,.4,10,3.4,1),wall(-7,11,.4,10,3.4,2),wall(7,-11,.4,10,3.4,3),wall(7,11,.4,10,3.4,4),wall(-14,-5,6,.4,2.3,1),wall(14,5,6,.4,2.3,4)],props:objects(galleryProps),zones:[[-14,-10,13,12,1],[-14,10,13,12,2],[14,-10,13,12,3],[14,10,13,12,4]],labels:['ATELIERS / JARDIN','COULEURS / SCULPTURES']},
+ prop:{width:44,depth:34,name:'La brocante des objets perdus',floor:'#bbb6a8',sky:'#bfd0d7',surface:'concrete',spawns,seekerSpawn:[0,15],prepare:55,hunt:160,walls:[...boundary(44,34,0),wall(-7,-11,.45,10,3.6,1),wall(-7,11,.45,10,3.6,1),wall(7,-11,.45,10,3.6,2),wall(7,11,.45,10,3.6,2),wall(0,-7,4,.5,2.2,5),wall(0,7,4,.5,2.2,5)],props:objects(depotProps),zones:[[-14,0,12,32,1],[14,0,12,32,2]],labels:['MOBILIER / RÉSERVE','OBJETS / ATELIER']},
+ shoot:{width:40,depth:30,name:'Traverse · quartier industriel',floor:'#a5adb3',sky:'#a8c8d8',surface:'concrete',spawns:[[-16,-8],[16,8],[-16,-3],[16,3],[-16,3],[16,-3],[-16,8],[16,-8]],walls:[...boundary(40,30,5),wall(-8,-9,.6,7,3.3,1),wall(8,9,.6,7,3.3,2),wall(-8,7,1.7,4,2.2,1),wall(8,-7,1.7,4,2.2,2),wall(0,-10,4,1.5,1.5,5),wall(0,10,4,1.5,1.5,5),wall(0,0,3,.7,2.6,5)],props:objects([['crate',-13,-12],['barrel',-12,-12],['crate',13,12],['barrel',12,12],['crate',-3,-4],['barrel',-4,-4],['crate',3,4],['barrel',4,4],['cone',-10,0],['cone',10,0],['crate',-4,8],['crate',4,-8],['trolley',-18,11],['trolley',18,-11],['barrel',-2,13],['barrel',2,-13],['crate',-18,-12],['crate',18,12]]),zones:[[-16,0,6,28,3],[16,0,6,28,4]],labels:['BASE BLEUE','BASE ROSE']},
+ murder:{width:40,depth:32,name:'Villa Minuit · les salons',floor:'#b08c64',sky:'#7f91a8',surface:'wood',spawns:[[-16,-10],[16,-10],[-16,-3],[16,-3],[-16,3],[16,3],[-16,10],[16,10]],walls:[...boundary(40,32,5),wall(-6,-11,.45,9,3.7,1),wall(-6,11,.45,9,3.7,2),wall(6,-11,.45,9,3.7,3),wall(6,11,.45,9,3.7,4),wall(-14,-5,6,.4,3.2,1),wall(14,5,6,.4,3.2,4)],props:objects([['sofa',-13,-12],['table',-13,-9],['lamp',-16,-12],['shelf',-9,-13],['plant',-18,-13],['sofa',13,12],['table',13,9],['lamp',16,12],['shelf',9,13],['plant',18,13],['table',-13,9],['chair',-13,7.6],['chair',-13,10.4],['arcade',-9,13],['plant',-18,13],['shelf',13,-12],['chair',13,-8],['lamp',16,-12],['plant',18,-13],['bench',0,-10],['bench',0,10],['sculpture',-3,0],['sculpture',3,0],['plant',-9,0],['plant',9,0],['shelf',-3,-13],['shelf',3,13],['stool',10,-8],['stool',-10,8]]),zones:[[-13,-10,12,9,1],[-13,10,12,9,2],[13,-10,12,9,3],[13,10,12,9,4]],labels:['BIBLIOTHÈQUE / SALON','ATELIER / VESTIBULE']}
 };
 const worldBlocks=new WeakMap();
 export function worldFor(game){return WORLDS[game]||WORLD;}
 export function blocksFor(world=WORLD){if(!worldBlocks.has(world))worldBlocks.set(world,[...world.walls,...world.props.map(p=>({...p,...PROP_TYPES[p.type]}))]);return worldBlocks.get(world);}
-export function bodyRadius(p){return p.prop?Math.max(PROP_TYPES[p.prop].w,PROP_TYPES[p.prop].d)/2+.02:.3;}
-export function freePosition(x,z,r=.3,world=WORLD){return Math.abs(x)<world.width/2-.45&&Math.abs(z)<world.depth/2-.45&&!blocksFor(world).some(b=>Math.abs(x-b.x)<b.w/2+r&&Math.abs(z-b.z)<b.d/2+r);}
+export const avatarScale=game=>game==='paint'?.7:game==='prop'?.76:1;
+export function bodyRadius(p){return p.prop?Math.max(PROP_TYPES[p.prop].w,PROP_TYPES[p.prop].d)/2+.02:.3*(p.scale||1);}
+export function freePosition(x,z,r=.3,world=WORLD){return Math.abs(x)<world.width/2-.2-r&&Math.abs(z)<world.depth/2-.2-r&&!blocksFor(world).some(b=>Math.abs(x-b.x)<b.w/2+r&&Math.abs(z-b.z)<b.d/2+r);}
+
+export const PAINT_GRID=12,PAINT_CELLS=PAINT_GRID*PAINT_GRID*36;
+export function encodeSkin(pixels){let result='',count=0,last=pixels[0];for(const color of pixels){if(color!==last||count===1295){result+=count.toString(36).padStart(2,'0')+last;count=0;last=color;}count++;}result+=count.toString(36).padStart(2,'0')+last;if(result.length<=1800)return result;let packed='~';for(let i=0;i<pixels.length;i+=2)packed+=(pixels[i]*6+pixels[i+1]).toString(36);return packed;}
+export function decodeSkin(text){if(typeof text!=='string'||text.length>1+PAINT_CELLS/2)return null;const data=new Uint8Array(PAINT_CELLS);if(text.startsWith('~')){if(text.length!==1+PAINT_CELLS/2||!/^~[0-9a-z]+$/.test(text))return null;for(let i=1;i<text.length;i++){const n=parseInt(text[i],36);data[(i-1)*2]=Math.floor(n/6);data[(i-1)*2+1]=n%6;}return data;}if(text.length%3)return null;let offset=0;for(let i=0;i<text.length;i+=3){const part=text.slice(i,i+3);if(!/^[0-9a-z]{2}[0-5]$/.test(part))return null;const count=parseInt(part.slice(0,2),36);if(!count||offset+count>data.length)return null;data.fill(Number(part[2]),offset,offset+count);offset+=count;}return offset===data.length?data:null;}
+export function stampSkin(p,a){if(!Number.isInteger(a.part)||a.part<0||a.part>5||!Number.isInteger(a.face)||a.face<0||a.face>5||![a.u,a.v,a.radius,a.color].every(Number.isInteger)||a.u<0||a.u>=PAINT_GRID||a.v<0||a.v>=PAINT_GRID||a.radius<1||a.radius>4||a.color<0||a.color>=COLORS.length)return false;const pixels=p.paintPixels.slice(),offset=(a.part*6+a.face)*PAINT_GRID*PAINT_GRID;for(let y=0;y<PAINT_GRID;y++)for(let x=0;x<PAINT_GRID;x++)if(Math.hypot(x-a.u,y-a.v)<=a.radius)pixels[offset+y*PAINT_GRID+x]=a.color;p.paintPixels=pixels;p.skin=encodeSkin(pixels);return true;}
 
 export const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export function requiredPlayers(game,size=1){return game==='shoot'?size*2:GAMES.find(g=>g.id===game)?.min||99;}
@@ -41,17 +60,17 @@ export function moveBody(p,dx,dz,r=.3,world=WORLD){
  const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.16));for(let i=0;i<steps;i++){if(free(p.x+dx/steps,p.z))p.x+=dx/steps;if(free(p.x,p.z+dz/steps))p.z+=dz/steps;}return p;
 }
 export function rayBox(o,d,b,max=50){let near=0,far=max;for(const [k,lo,hi]of [['x',b.x-b.w/2,b.x+b.w/2],['y',0,b.h],['z',b.z-b.d/2,b.z+b.d/2]]){if(Math.abs(d[k])<1e-8){if(o[k]<lo||o[k]>hi)return Infinity;}else{let a=(lo-o[k])/d[k],c=(hi-o[k])/d[k];if(a>c)[a,c]=[c,a];near=Math.max(near,a);far=Math.min(far,c);if(near>far)return Infinity;}}return near;}
-export function dimensions(p){return p.prop?PROP_TYPES[p.prop]:{w:.6,h:p.frozen?1.0:1.8,d:.6};}
-export function eyeHeight(p){return p.prop?Math.min(1.15,dimensions(p).h*.8):p.frozen ? .8 : 1.57;}
+export function dimensions(p){return p.prop?PROP_TYPES[p.prop]:{w:.6*(p.scale||1),h:(p.frozen?1.0:1.8)*(p.scale||1),d:.6*(p.scale||1)};}
+export function eyeHeight(p){return p.prop?Math.min(1.15,dimensions(p).h*.8):(p.frozen?.8:1.57)*(p.scale||1);}
 export function aim(p){return {x:-Math.sin(p.yaw)*Math.cos(p.pitch),y:Math.sin(p.pitch),z:-Math.cos(p.yaw)*Math.cos(p.pitch)};}
 export function nearbyProp(p,world=WORLD){let best=null,distance=2.8;for(const o of world.props){const d=Math.hypot(o.x-p.x,o.z-p.z);if(d<distance){distance=d;best=o;}}return best;}
 const random=()=>crypto.getRandomValues(new Uint32Array(1))[0]/4294967296;
 export function createMatch({game,size=1,players,randomize=random}){
  if(!validMode(game,size,players?.length)||new Set(players.map(p=>p.id)).size!==players.length)throw Error('Nombre de joueurs incompatible avec ce mode.');
  const shuffled=players.map(p=>({...p}));for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(randomize()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
- const world=worldFor(game),blocks=blocksFor(world),hiding=game==='paint'||game==='prop',state={game,size,elapsed:0,phase:hiding?'prepare':'play',until:hiding?35:180,score:[0,0],target:size*5,finished:false,winner:'',reason:'',gun:null,events:[],players:[]};
+ const world=worldFor(game),blocks=blocksFor(world),hiding=game==='paint'||game==='prop',state={game,size,elapsed:0,phase:hiding?'prepare':'play',until:hiding?world.prepare:180,score:[0,0],target:size*5,finished:false,winner:'',reason:'',gun:null,events:[],players:[]};
  const hunters=Math.max(1,Math.floor(players.length/3));
- state.players=shuffled.map((p,i)=>{const role=game==='shoot'?'fighter':game==='murder'?i===0?'murderer':i===1?'armed':'innocent':i<hunters?'seeker':'hider';const team=game==='shoot'?i%2:role==='hider'?1:0,spawn=game==='shoot'?world.spawns[i]:hiding&&role==='seeker'?[0,9.5]:world.spawns[i];return {id:p.id,name:String(p.name||'Membre').slice(0,40),role,team,x:spawn[0],z:spawn[1],yaw:spawn[0]<-1?-Math.PI/2:spawn[0]>1?Math.PI/2:0,pitch:0,hp:100,alive:true,connected:true,kills:0,deaths:0,ammo:12,reloadAt:0,respawnAt:0,invincible:0,cooldown:0,drawn:game==='shoot'||role==='seeker',colors:[0,0,0],prop:null,propColor:0,frozen:false,seq:0,input:{x:0,z:0}}});
+ state.players=shuffled.map((p,i)=>{const role=game==='shoot'?'fighter':game==='murder'?i===0?'murderer':i===1?'armed':'innocent':i<hunters?'seeker':'hider';const team=game==='shoot'?i%2:role==='hider'?1:0,spawn=game==='shoot'?world.spawns[i]:hiding&&role==='seeker'?world.seekerSpawn:world.spawns[i];return {id:p.id,name:String(p.name||'Membre').slice(0,40),role,team,scale:avatarScale(game),paintPixels:new Uint8Array(PAINT_CELLS),skin:encodeSkin(new Uint8Array(PAINT_CELLS)),x:spawn[0],z:spawn[1],yaw:spawn[0]<-1?-Math.PI/2:spawn[0]>1?Math.PI/2:0,pitch:0,hp:100,alive:true,connected:true,kills:0,deaths:0,ammo:12,reloadAt:0,respawnAt:0,invincible:0,cooldown:0,drawn:game==='shoot'||role==='seeker',colors:[0,0,0],prop:null,propColor:0,frozen:false,seq:0,input:{x:0,z:0}}});
  const player=id=>state.players.find(p=>p.id===id);
  function finish(winner,reason){if(state.finished)return;state.finished=true;state.phase='finished';state.winner=winner;state.reason=reason;for(const p of state.players)p.input={x:0,z:0};}
  function endCheck(){
@@ -63,9 +82,10 @@ export function createMatch({game,size=1,players,randomize=random}){
  function eliminate(p,by){if(!p.alive)return;p.alive=false;p.hp=0;p.deaths++;p.input={x:0,z:0};if(by&&by!==p)by.kills++;if(game==='murder'&&p.role==='armed')state.gun={x:p.x,z:p.z};if(game==='shoot'){p.respawnAt=state.elapsed+3;if(by&&by.team!==p.team){state.score[by.team]++;if(state.score[by.team]>=state.target)finish(by.team===0?'Équipe bleue gagnante':'Équipe rose gagnante','Objectif de '+state.target+' éliminations atteint.');}}endCheck();}
  function input(id,data){const p=player(id);if(!p||!p.connected||!data||![data.x,data.z,data.yaw,data.pitch].every(Number.isFinite))return false;p.input={x:clamp(data.x,-1,1),z:clamp(data.z,-1,1)};const length=Math.hypot(p.input.x,p.input.z);if(length>1){p.input.x/=length;p.input.z/=length;}p.yaw=Math.atan2(Math.sin(data.yaw),Math.cos(data.yaw));p.pitch=clamp(data.pitch,-1.25,1.25);return true;}
  function action(id,a){const p=player(id);if(!p||!p.connected||!p.alive||state.finished||!a||!Number.isSafeInteger(a.seq)||a.seq<=p.seq||a.seq>1e9)return false;
-  if(!['fire','reload','draw','paint','transform','freeze','pickup'].includes(a.type))return false;p.seq=a.seq;
+  if(!['fire','reload','draw','paint','brush','transform','freeze','pickup'].includes(a.type))return false;p.seq=a.seq;
   if(Number.isFinite(a.yaw)&&Number.isFinite(a.pitch)){p.yaw=Math.atan2(Math.sin(a.yaw),Math.cos(a.yaw));p.pitch=clamp(a.pitch,-1.25,1.25);}
-  if(a.type==='paint'){if(game!=='paint'||p.role!=='hider'||state.phase!=='prepare'||!Number.isInteger(a.part)||a.part<0||a.part>2||!Number.isInteger(a.color)||a.color<0||a.color>=COLORS.length)return false;p.colors[a.part]=a.color;return true;}
+  if(a.type==='paint'){if(game!=='paint'||p.role!=='hider'||!['prepare','play'].includes(state.phase)||!Number.isInteger(a.part)||a.part<0||a.part>2||!Number.isInteger(a.color)||a.color<0||a.color>=COLORS.length)return false;p.colors[a.part]=a.color;p.paintPixels.fill(a.color,[0,1,4][a.part]*PAINT_CELLS/6,[1,4,6][a.part]*PAINT_CELLS/6);p.skin=encodeSkin(p.paintPixels);return true;}
+  if(a.type==='brush'){if(game!=='paint'||p.role!=='hider'||!['prepare','play'].includes(state.phase))return false;return stampSkin(p,a);}
   if(a.type==='freeze'){if(p.role!=='hider')return false;p.frozen=!p.frozen;return true;}
   if(a.type==='transform'){const obj=world.props.find(o=>o.id===a.prop);if(game!=='prop'||p.role!=='hider'||!obj||Math.hypot(obj.x-p.x,obj.z-p.z)>2.8)return false;const radius=bodyRadius({prop:obj.type});if(!freePosition(p.x,p.z,radius,world))return false;p.prop=obj.type;p.propColor=obj.c;p.frozen=false;return true;}
   if(a.type==='pickup'){if(game!=='murder'||p.role!=='innocent'||!state.gun||Math.hypot(state.gun.x-p.x,state.gun.z-p.z)>1.8)return false;p.role='armed';p.ammo=12;state.gun=null;return true;}
@@ -82,11 +102,11 @@ export function createMatch({game,size=1,players,randomize=random}){
   state.events.push(event);if(state.events.length>12)state.events.shift();endCheck();return true;
  }
  function tick(dt){if(state.finished||!Number.isFinite(dt)||dt<=0)return;state.elapsed+=Math.min(dt,30);const moveDt=Math.min(dt,.1);
-  if(state.phase==='prepare'&&state.elapsed>=state.until){state.phase='play';state.until=state.elapsed+120;}
+  if(state.phase==='prepare'&&state.elapsed>=state.until){state.phase='play';state.until=state.elapsed+(world.hunt||120);}
   for(const p of state.players){if(!p.connected)continue;if(p.reloadAt&&state.elapsed>=p.reloadAt){p.ammo=12;p.reloadAt=0;}if(game==='shoot'&&!p.alive&&state.elapsed>=p.respawnAt){const i=state.players.indexOf(p),pos=world.spawns[i];p.x=pos[0];p.z=pos[1];p.alive=true;p.hp=100;p.ammo=12;p.reloadAt=0;p.invincible=state.elapsed+1.5;}if(!p.alive||p.frozen||state.phase==='prepare'&&p.role==='seeker')continue;const speed=game==='shoot'?4.8:p.prop?3:3.8;moveBody(p,p.input.x*speed*moveDt,p.input.z*speed*moveDt,bodyRadius(p),world);}
   if(state.elapsed>=state.until&&state.phase==='play'){if(game==='shoot')finish(state.score[0]===state.score[1]?'Égalité':state.score[0]>state.score[1]?'Équipe bleue gagnante':'Équipe rose gagnante','Temps écoulé.');else finish(game==='murder'?'Les innocents gagnent':'Les cachés gagnent','Temps écoulé.');}endCheck();
  }
  function remove(id){const p=player(id);if(p){p.connected=false;eliminate(p);endCheck();}}
- function snapshot(id){const mine=player(id);return {game,size,phase:state.phase,remaining:Math.max(0,state.until-state.elapsed),score:[...state.score],target:state.target,finished:state.finished,winner:state.winner,reason:state.reason,gun:state.gun,events:state.events.slice(-6),selfRole:mine?.role,players:state.players.filter(p=>!(state.phase==='prepare'&&mine?.role==='seeker'&&p.role==='hider')).map(p=>({id:p.id,name:p.name,x:p.x,z:p.z,yaw:p.yaw,pitch:p.pitch,hp:p.hp,alive:p.alive,connected:p.connected,kills:p.kills,deaths:p.deaths,team:game==='shoot'?p.team:null,role:state.finished||p.id===id?p.role:null,weapon:p.drawn?(p.role==='murderer'?'knife':['armed','seeker','fighter'].includes(p.role)?'gun':null):null,colors:[...p.colors],prop:p.prop,propColor:p.propColor,frozen:p.frozen,ammo:p.id===id?p.ammo:null,reloading:p.id===id&&!!p.reloadAt,respawn:p.id===id&&!p.alive&&game==='shoot'?Math.max(0,p.respawnAt-state.elapsed):0}))};}
+ function snapshot(id){const mine=player(id);return {game,size,phase:state.phase,remaining:Math.max(0,state.until-state.elapsed),score:[...state.score],target:state.target,finished:state.finished,winner:state.winner,reason:state.reason,gun:state.gun,events:state.events.slice(-6),selfRole:mine?.role,players:state.players.filter(p=>!(state.phase==='prepare'&&mine?.role==='seeker'&&p.role==='hider')).map(p=>({id:p.id,name:p.name,scale:p.scale,skin:game==='paint'?p.skin:null,x:p.x,z:p.z,yaw:p.yaw,pitch:p.pitch,hp:p.hp,alive:p.alive,connected:p.connected,kills:p.kills,deaths:p.deaths,team:game==='shoot'?p.team:null,role:state.finished||p.id===id?p.role:null,weapon:p.drawn?(p.role==='murderer'?'knife':['armed','seeker','fighter'].includes(p.role)?'gun':null):null,colors:[...p.colors],prop:p.prop,propColor:p.propColor,frozen:p.frozen,ammo:p.id===id?p.ammo:null,reloading:p.id===id&&!!p.reloadAt,respawn:p.id===id&&!p.alive&&game==='shoot'?Math.max(0,p.respawnAt-state.elapsed):0}))};}
  return {state,input,action,tick,remove,snapshot,finish};
 }

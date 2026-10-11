@@ -17,7 +17,7 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 function open(ctx={}){
  if(active){active.shell.focus();return;}
  const shell=document.createElement('section');shell.className='one3d-shell';shell.tabIndex=-1;shell.setAttribute('role','dialog');shell.setAttribute('aria-modal','true');shell.setAttribute('aria-label','Lobby 3D partagé');
- shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small data-room></small></div><button type="button" data-close aria-label="Quitter le lobby 3D">Quitter</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">5 JEUX · JUSQU’À 8 JOUEURS</div></div><button class="one3d-screen-button" data-screen-open>✦ Choisir un jeu</button><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Glisser pour regarder"></div><button class="one3d-run" type="button" data-run aria-pressed="false">COURIR</button><button class="one3d-fight-action" type="button" data-fight-action hidden>RAMASSER BATTE</button><div class="one3d-fight-hit" data-fight-hit hidden>TOUCHÉ !</div></div><footer class="one3d-bottom"><div class="one3d-session" data-collapsed="true"><button class="one3d-panel-toggle" type="button" data-panel-toggle aria-expanded="false" aria-label="Afficher les commandes du salon">+</button><span class="one3d-eyebrow">LE GROUPE</span><p data-status role="status">Connexion au salon…</p><button type="button" data-reconnect>Réessayer la connexion</button></div></footer><p class="one3d-controls">ZQSD / WASD · flèches · glisser pour regarder · Maj courir · F action</p>`;
+ shell.innerHTML=`<header class="one3d-top"><div><b>ONE · LOBBY 3D</b><small data-room></small></div><button type="button" class="one3d-public" data-public-search>Partie publique</button><button type="button" data-close aria-label="Quitter le lobby 3D">Quitter</button></header><div class="one3d-stage"><div class="one3d-hud"><div class="one3d-players"></div><div class="one3d-game">5 JEUX · JUSQU’À 8 JOUEURS</div></div><button class="one3d-screen-button" data-screen-open>✦ Choisir un jeu</button><div class="one3d-cross"></div><div class="one3d-stick" aria-label="Joystick de déplacement"><div class="one3d-knob"></div></div><div class="one3d-look" aria-label="Glisser pour regarder"></div><button class="one3d-run" type="button" data-run aria-pressed="false">COURIR</button><button class="one3d-fight-action" type="button" data-fight-action hidden>RAMASSER BATTE</button><div class="one3d-fight-hit" data-fight-hit hidden>TOUCHÉ !</div></div><footer class="one3d-bottom"><div class="one3d-session" data-collapsed="true"><button class="one3d-panel-toggle" type="button" data-panel-toggle aria-expanded="false" aria-label="Afficher les commandes du salon">+</button><span class="one3d-eyebrow">LE GROUPE</span><p data-status role="status">Connexion au salon…</p><button type="button" data-reconnect>Réessayer la connexion</button></div></footer><p class="one3d-controls">ZQSD / WASD · flèches · glisser pour regarder · Maj courir · F action</p>`;
  document.body.append(shell);shell.focus();
  const fightStyle=document.createElement('style');fightStyle.textContent=`
  .one3d-fight-action{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(174px,calc(env(safe-area-inset-bottom) + 170px));z-index:18;min-width:150px;min-height:50px;padding:9px 16px;border:1px solid #ff91b5;border-radius:17px;background:linear-gradient(135deg,#6e274a,#a33d67);color:#fff7fb;font:850 12px/1 system-ui;letter-spacing:.045em;box-shadow:0 8px 22px #0006,inset 0 1px #fff3;touch-action:manipulation;pointer-events:auto;-webkit-tap-highlight-color:transparent}
@@ -165,7 +165,7 @@ function open(ctx={}){
  const listen=(target,event,fn)=>target.addEventListener(event,fn,{signal:abort.signal});
  const gameScreen=createGameScreen({shell,lobbyState,setReady:setLobbyReady,startRound,reset(){keys.clear();stickInput.x=stickInput.y=0;look=null;}});
  // Keep a camera already enabled in the salon; entering a game needs data only.
- shell.querySelector('[data-screen-open]').onclick=()=>gameScreen.open();
+ shell.querySelector('[data-public-search]').onclick=()=>{keys.clear();stopStick();look=null;window.ONEMatchmaking?.open();};shell.querySelector('[data-screen-open]').onclick=()=>gameScreen.open();
  listen(renderer.domElement,'webglcontextlost',e=>{e.preventDefault();graphicsLost=true;keys.clear();loading.hidden=false;loading.querySelector('span').textContent='Affichage interrompu. Ton salon reste connecté…';});
  listen(renderer.domElement,'webglcontextrestored',async()=>{if(stopped)return;graphicsLost=false;try{await prepareScene(renderer,scene,camera,()=>alive&&!graphicsLost);if(stopped)return;assetsReady=true;loading.hidden=true;resizePending=true;budget.reset();last=performance.now();}catch{loading.querySelector('span').textContent='Reviens au salon puis rouvre la 3D pour réessayer.';}});
  const inFightArea=(x,z)=>x>12.5&&x<22.2&&Math.abs(z)<5.6;
@@ -263,7 +263,7 @@ function open(ctx={}){
    const nx=position.x+dx/dist*push,nz=position.z+dz/dist*push;if(canMove(nx,position.z))position.x=nx;if(canMove(position.x,nz))position.z=nz;
  });
  function resize(){resizePending=true;}
- function applyResize(){if(!resizePending)return;const w=stage.clientWidth,h=stage.clientHeight;if(w<2||h<2)return;const r=Math.min(Math.min(devicePixelRatio||1,mobile?1:1.2)*budget.scale,Math.sqrt((mobile?620000:1150000)*budget.scale*budget.scale/(w*h)));if(w!==width||h!==height||r!==ratio){renderer.setDrawingBufferSize(w,h,r);camera.aspect=w/h;camera.updateProjectionMatrix();width=w;height=h;ratio=r;}resizePending=false;}
+ function applyResize(){if(!resizePending)return;const w=stage.clientWidth,h=stage.clientHeight;if(w<2||h<2)return;const r=Math.min(Math.max(1,Math.min(devicePixelRatio||1,mobile?1.6:2)*budget.scale),Math.sqrt(Math.max(w*h,mobile?1600000:3000000)/(w*h)));if(w!==width||h!==height||r!==ratio){renderer.setDrawingBufferSize(w,h,r);camera.aspect=w/h;camera.updateProjectionMatrix();width=w;height=h;ratio=r;}resizePending=false;}
  const ro=new ResizeObserver(resize);ro.observe(stage);resize();
  function tryRemoteHit(raw,v,t){
    const fight=ensureAvatarBat(v),seq=Number.isSafeInteger(raw.swingSeq)?raw.swingSeq:0;fight.holder.visible=raw.bat===true;
@@ -287,7 +287,7 @@ function open(ctx={}){
    // applies damage only when the shooter's own crosshair validated this player.
  }
  function frame(t){
-   if(stopped)return;raf=requestAnimationFrame(frame);if(document.hidden||!assetsReady||graphicsLost||gameScreen.opened){last=t;return;}if(!budget.shouldRender(t,resizePending))return;const began=performance.now();applyResize();
+   if(stopped)return;raf=requestAnimationFrame(frame);if(document.hidden||!assetsReady||graphicsLost||(gameScreen.opened||!!window.ONEMatchmaking?.isOpen())){last=t;return;}applyResize();
    const dt=Math.min((t-last)/1000,.05);last=t;
    const knocked=isKnocked(t),controlsLocked=knocked;
    let forward=controlsLocked?0:(keys.has('KeyW')||keys.has('KeyZ')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0)-stickInput.y;
@@ -299,7 +299,7 @@ function open(ctx={}){
    const fightHere=inFightArea(position.x,position.z),shootHere=inShootArea(position.x,position.z);
    const nearBat=!heldBat&&!heldGun&&!knocked&&fightHere&&nearestBatDistance()<1.55,nearGun=!heldBat&&!heldGun&&!knocked&&shootHere&&nearestGunDistance()<1.45;
    fightAction.hidden=knocked||(!heldBat&&!heldGun&&!nearBat&&!nearGun);fightAction.dataset.mode=heldGun?'gun':(heldBat?'swing':'pickup');fightAction.textContent=heldGun?'TIRER':heldBat?'FRAPPER':nearGun?'RAMASSER PISTOLET':'RAMASSER BATTE';runButton.disabled=controlsLocked;
-   if(t-lastSend>100){updateLobbyPose({...position,yaw,pitch,bat:heldBat,gun:heldGun,swingSeq,shotSeq,shotTarget:lastShotTarget,down:knocked});lastSend=t;}
+   if(t-lastSend>50){updateLobbyPose({...position,yaw,pitch,bat:heldBat,gun:heldGun,swingSeq,shotSeq,shotTarget:lastShotTarget,down:knocked});lastSend=t;}
    for(const [id,v] of avatars){syncHeadCamera(id,v);const p=lobbyPose(id);if(!p)continue;tryRemoteHit(p,v,t);tryRemoteShot(p,v,t);v.track.push(p,t);const pose=v.track.at(t);if(pose){animateAvatar(v,{...pose,dead:p.down===true},dt);if(p.down===true)v.cameraHead.position.set(1.62,.20,-.025);else v.cameraHead.position.set(0,1.72,-.025);orientAvatarCamera(v,{x:position.x,y:1.65,z:position.z});poseRemoteBat(v,p,t);poseRemoteGun(v,p,t);}}
    const fallIn=knocked?clamp((t-knockStarted)/260,0,1):0,fallOut=knocked?clamp((knockedUntil-t)/430,0,1):0,fall=knocked?Math.min(fallIn,fallOut):0;
    camera.position.set(position.x,1.65-1.03*fall,position.z);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch+.12*fall;camera.rotation.z=-1.05*fall;
@@ -329,7 +329,7 @@ function open(ctx={}){
    for(let i=tracers.length-1;i>=0;i--){const item=tracers[i],left=(item.end-t)/140;if(item.line.material){item.line.material.opacity=clamp(left,0,1);if(item.impact)item.line.scale.setScalar(1+(1-left)*2);}if(t>=item.end){scene.remove(item.line);item.line.geometry?.dispose?.();item.line.material?.dispose?.();tracers.splice(i,1);}}
    if(crossHitUntil&&t>=crossHitUntil){crossHitUntil=0;crosshair?.classList.remove('is-hit');}
    if(hitUntil&&t>=hitUntil){hitUntil=0;fightHit.hidden=true;fightHit.textContent='TOUCHÉ !';}
-   renderer.render(scene,camera);if(assetsReady)budget.record(t,performance.now()-began);
+   if(budget.shouldRender(t)){const began=performance.now();renderer.render(scene,camera);if(assetsReady)budget.record(t,performance.now()-began);}
  }
  const stick=shell.querySelector('.one3d-stick'),knob=shell.querySelector('.one3d-knob');
  function stickMove(e){const b=stick.getBoundingClientRect(),dx=e.clientX-b.left-b.width/2,dy=e.clientY-b.top-b.height/2,d=Math.hypot(dx,dy)||1,m=Math.min(32,d);stickInput.x=dx/d*m/32;stickInput.y=dy/d*m/32;knob.style.transform=`translate(${dx/d*m}px,${dy/d*m}px)`;}
