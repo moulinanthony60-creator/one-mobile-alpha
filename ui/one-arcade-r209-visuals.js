@@ -1,3 +1,5 @@
+import {makePictureMap} from './one-arcade-r211-gallery.js';
+import {makePaintBlaster} from './one-arcade-r211-paintgun.js';
 import {paintTiles,wallPictures} from './one-arcade-r209-surfaces.js';
 import * as THREE from './three.module.js';
 import {mergeGeometries} from './BufferGeometryUtils.js';
@@ -32,16 +34,11 @@ function tiledPaintSurface(stage,world,ceiling){
  for(const [color,geos]of parts){const material=new THREE.MeshStandardMaterial({color:color<0?(ceiling?'#d8c5ac':world.floor):COLORS[color],map,roughness:.9}),geometry=mergeGeometries(geos,false);geos.forEach(g=>g.dispose());const mesh=new THREE.Mesh(geometry,material);mesh.name='paint-'+(ceiling?'ceiling':'floor')+'-'+color;mesh.userData.paintSurface=ceiling?'ceiling':'floor';mesh.receiveShadow=true;stage.add(mesh);}
  return tiles.length;
 }
-function pictureMap(design){const canvas=document.createElement('canvas');canvas.width=512;canvas.height=336;const ctx=canvas.getContext('2d'),base=COLORS[design],accent=COLORS[(design+2)%6],other=COLORS[(design+4)%6];ctx.fillStyle=base;ctx.fillRect(0,0,512,336);ctx.fillStyle=accent;
- if(design%3===0){ctx.beginPath();ctx.arc(340,102,66,0,Math.PI*2);ctx.fill();ctx.fillStyle=other;ctx.beginPath();ctx.moveTo(0,270);ctx.lineTo(155,135);ctx.lineTo(270,250);ctx.lineTo(380,166);ctx.lineTo(512,285);ctx.lineTo(512,336);ctx.lineTo(0,336);ctx.fill();}
- else if(design%3===1){for(const [x,y,w,h]of [[30,35,175,118],[278,45,196,230],[68,205,177,98]])ctx.fillRect(x,y,w,h);ctx.fillStyle=other;ctx.fillRect(193,114,137,111);}
- else{for(let i=0;i<5;i++){ctx.fillStyle=i%2?other:accent;ctx.beginPath();ctx.ellipse(58+i*98,172,45,108-i*9,-.35,0,Math.PI*2);ctx.fill();}}
- const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=4;return map;}
 function addWallPictures(stage,furniture,world){const pictures=wallPictures(world),groups=new Map(),{box}=toolkit(furniture);
  for(const p of pictures){const g=new THREE.PlaneGeometry(p.w-.1,p.h-.1);g.rotateY(p.nx*Math.PI/2);g.translate(p.x,p.y,p.z);if(!groups.has(p.design))groups.set(p.design,[]);groups.get(p.design).push(g);
   for(const z of [p.z-p.w/2,p.z+p.w/2])box(.024,p.h+.07,.065,p.x,p.y,z,'#e5cfaa');for(const y of [p.y-p.h/2,p.y+p.h/2])box(.024,.065,p.w+.07,p.x,y,p.z,'#e5cfaa');
  }
- for(const [design,parts]of groups){const geometry=mergeGeometries(parts,false);parts.forEach(g=>g.dispose());const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({map:pictureMap(design),roughness:.92}));mesh.userData.wallPictures=true;mesh.receiveShadow=true;stage.add(mesh);}return pictures.length;
+ for(const [design,parts]of groups){const geometry=mergeGeometries(parts,false);parts.forEach(g=>g.dispose());const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({map:makePictureMap(design),roughness:.92}));mesh.userData.wallPictures=true;mesh.receiveShadow=true;stage.add(mesh);}return pictures.length;
 }
 
 export function buildStage(scene,world,game){const stage=new THREE.Group(),furniture=new THREE.Group();scene.add(stage,furniture);let paintTileCount=0,pictureCount=0;if(game==='paint'){paintTileCount=tiledPaintSurface(stage,world,false);tiledPaintSurface(stage,world,true);pictureCount=addWallPictures(stage,furniture,world);}else{const floorMap=texture(world.surface||'tile');floorMap.repeat.set(world.width/4,world.depth/4);const floorMat=new THREE.MeshStandardMaterial({color:world.floor,map:floorMap,bumpMap:floorMap,bumpScale:.035,roughness:.88});const floor=new THREE.Mesh(new THREE.PlaneGeometry(world.width,world.depth),floorMat);floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;stage.add(floor);}const wallMap=texture(game==='murder'?'wood':'brick');
@@ -50,7 +47,7 @@ export function buildStage(scene,world,game){const stage=new THREE.Group(),furni
  // Raised frames, window recesses and beams are actual geometry, above walkable space.
  const {box,cyl}=toolkit(furniture);for(let x=-world.width/2+4;x<world.width/2-2;x+=6){for(const z of [-world.depth/2+.22,world.depth/2-.22]){box(2.4,1.3,.06,x,2.65,z,'#678c9e');for(const dx of [-1.22,1.22])box(.09,1.48,.16,x+dx,2.65,z,'#e4d7bd');for(const y of [1.94,3.36])box(2.5,.09,.16,x,y,z,'#e4d7bd');box(.055,1.4,.16,x,2.65,z,'#e4d7bd');}}
  for(let x=-world.width/2+2;x<world.width/2;x+=6)box(.16,.18,world.depth,x,4.3,0,game==='murder'?'#62584f':'#526572');
- const batches=batchStatic(furniture);scene.userData.arcadeArt={objects:world.props.length,world:{width:world.width,depth:world.depth},batches,paintTileCount,pictureCount};return {stage,furniture};}
+ const batches=batchStatic(furniture);scene.userData.arcadeArt={objects:world.props.length,world:{width:world.width,depth:world.depth},batches,paintTileCount,pictureCount,pictureDesigns:game==='paint'?new Set(wallPictures(world).map(p=>p.design)).size:0};return {stage,furniture};}
 
 function roundedBox(w,h,d){const radius=Math.min(w,h,d)*.17,g=new THREE.BoxGeometry(w,h,d,3,3,3),p=g.attributes.position,n=g.attributes.normal;for(let i=0;i<p.count;i++){const v=new THREE.Vector3(p.getX(i),p.getY(i),p.getZ(i)),q=new THREE.Vector3(THREE.MathUtils.clamp(v.x,-w/2+radius,w/2-radius),THREE.MathUtils.clamp(v.y,-h/2+radius,h/2-radius),THREE.MathUtils.clamp(v.z,-d/2+radius,d/2-radius)),normal=v.clone().sub(q).normalize();v.copy(q).addScaledVector(normal,radius);p.setXYZ(i,v.x,v.y,v.z);n.setXYZ(i,normal.x,normal.y,normal.z);}return g;}
 function skinTexture(){const canvas=document.createElement('canvas'),tile=PAINT_GRID+2;canvas.width=tile*3;canvas.height=tile*2;const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;map.magFilter=THREE.LinearFilter;map.minFilter=THREE.LinearFilter;map.generateMipmaps=false;return map;}
@@ -77,6 +74,7 @@ function makePaintPerson(p){
   mesh.quaternion.setFromRotationMatrix(matrix);mesh.position.fromArray(piece.position);mesh.userData.paintPart=part;mesh.castShadow=!flat;mesh.receiveShadow=true;g.add(mesh);
   if(part===0&&!flat){const {box}=toolkit(mesh);for(const x of [-.09,.09])box(.047,.052,.014,x,.05,-.204,'#1b3037');}
  });
+ if(p.role==='seeker'&&p.weapon==='gun'){const sprayer=makePaintBlaster();sprayer.position.set(.28,1.06,-.34);g.add(sprayer);}
  g.scale.set(...compression.map(n=>n*p.scale));syncSkin(g,p);return g;
 }
 

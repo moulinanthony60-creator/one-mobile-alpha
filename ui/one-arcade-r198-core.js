@@ -7,6 +7,8 @@ export const GAMES=Object.freeze([
  {id:'shoot',name:'Tir en équipes',min:2,max:8,icon:'◎',color:'#56b9ed',description:'Une arène, deux équipes : 1 contre 1 à 4 contre 4.'},
  {id:'prop',name:'Prop Hunt',min:2,max:8,icon:'▣',color:'#62c6a0',description:'Deviens un objet du décor et échappe aux chasseurs.'}
 ]);
+export const PAINT_SHOT_COLORS=['#ae62f2','#2ddac2','#ffb446'];
+export function validPaintShot(p){return !!p&&[p.from,p.to].every(a=>Array.isArray(a)&&a.length===3&&a.every(n=>Number.isFinite(n)&&Math.abs(n)<=100))&&Math.hypot(...p.to.map((n,i)=>n-p.from[i]))<=45.01&&PAINT_SHOT_COLORS.includes(p.color)&&typeof p.surface==='boolean';}
 export const COLORS=['#d8c5ac','#517f70','#c67d60','#526e9a','#ab8eba','#555967'];
 export const PROP_TYPES={crate:{name:'Caisse',w:.9,h:.9,d:.9,icon:'▣'},chair:{name:'Chaise',w:.65,h:1.05,d:.65,icon:'♧'},plant:{name:'Plante',w:.7,h:1.35,d:.7,icon:'♣'},lamp:{name:'Lampe',w:.45,h:1.55,d:.45,icon:'♙'},barrel:{name:'Tonneau',w:.7,h:1.0,d:.7,icon:'◉'}};
 Object.assign(PROP_TYPES,{
@@ -251,9 +253,9 @@ const random=()=>crypto.getRandomValues(new Uint32Array(1))[0]/4294967296;
 export function createMatch({id='preview',game,size=1,players,randomize=random}){
  if(!validMode(game,size,players?.length)||new Set(players.map(p=>p.id)).size!==players.length)throw Error('Nombre de joueurs incompatible avec ce mode.');
  const shuffled=players.map(p=>({...p}));for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(randomize()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
- const world=worldFor(game,id),blocks=blocksFor(world),hiding=game==='paint'||game==='prop',state={game,size,elapsed:0,phase:hiding?'prepare':'play',until:hiding?world.prepare:180,score:[0,0],target:size*5,finished:false,winner:'',reason:'',gun:null,events:[],players:[]};
+ const world=worldFor(game,id),blocks=blocksFor(world),hiding=game==='paint'||game==='prop',state={game,size,elapsed:0,phase:hiding?'prepare':'play',until:hiding?world.prepare:180,score:[0,0],target:size*5,finished:false,winner:'',reason:'',gun:null,events:[],stones:[],grenades:[],players:[]};
  const hunters=Math.max(1,Math.floor(players.length/3));
- state.players=shuffled.map((p,i)=>{const role=game==='shoot'?'fighter':game==='murder'?i===0?'murderer':i===1?'armed':'innocent':i<hunters?'seeker':'hider';const team=game==='shoot'?i%2:role==='hider'?1:0,spawn=game==='shoot'?world.spawns[i]:hiding&&role==='seeker'?world.seekerSpawn:world.spawns[i];return {id:p.id,name:String(p.name||'Membre').slice(0,40),role,team,y:0,velocity:0,grounded:true,falling:false,paintPose:game==='paint'?'stand':null,anchor:null,facing:0,scale:avatarScale(game,role),palette:[...COLORS],paintPixels:new Uint8Array(PAINT_CELLS),skin:encodeSkin(new Uint8Array(PAINT_CELLS)),x:spawn[0],z:spawn[1],yaw:spawn[0]<-1?-Math.PI/2:spawn[0]>1?Math.PI/2:0,pitch:0,hp:100,maxHp:100,healthRatio:1,alive:true,connected:true,kills:0,deaths:0,ammo:game==='shoot'?24:12,weaponMode:'auto',stamina:100,burstLeft:0,burstAt:0,burstSeq:0,respawnSerial:0,reloadAt:0,respawnAt:0,invincible:0,cooldown:0,drawn:game==='shoot'||role==='seeker',colors:[0,0,0],prop:null,propColor:0,frozen:false,seq:0,input:{x:0,z:0}}});
+ state.players=shuffled.map((p,i)=>{const role=game==='shoot'?'fighter':game==='murder'?i===0?'murderer':i===1?'armed':'innocent':i<hunters?'seeker':'hider';const team=game==='shoot'?i%2:role==='hider'?1:0,spawn=game==='shoot'?world.spawns[i]:hiding&&role==='seeker'?world.seekerSpawn:world.spawns[i];return {id:p.id,name:String(p.name||'Membre').slice(0,40),role,team,y:0,velocity:0,grounded:true,falling:false,paintPose:game==='paint'?'stand':null,anchor:null,facing:0,scale:avatarScale(game,role),palette:[...COLORS],paintPixels:new Uint8Array(PAINT_CELLS),skin:encodeSkin(new Uint8Array(PAINT_CELLS)),x:spawn[0],z:spawn[1],yaw:spawn[0]<-1?-Math.PI/2:spawn[0]>1?Math.PI/2:0,pitch:0,hp:100,maxHp:100,healthRatio:1,alive:true,connected:true,kills:0,deaths:0,ammo:game==='shoot'?24:12,weaponMode:'auto',stamina:100,burstLeft:0,burstAt:0,burstSeq:0,respawnSerial:0,reloadAt:0,respawnAt:0,invincible:0,cooldown:0,stoneAt:0,grenades:game==='prop'&&role==='seeker'?2:0,grenadeAt:0,drawn:game==='shoot'||role==='seeker',colors:[0,0,0],prop:null,propColor:0,frozen:false,seq:0,input:{x:0,z:0}}});
  if(game==='shoot')for(const p of state.players){const pos=shootSpawn(state.players,p,world,randomize);p.x=pos[0];p.z=pos[1];p.lastSpawn=pos;p.yaw=p.x<0?-Math.PI/2:Math.PI/2;}
  const player=id=>state.players.find(p=>p.id===id);
  function finish(winner,reason){if(state.finished)return;state.finished=true;state.phase='finished';state.winner=winner;state.reason=reason;for(const p of state.players)p.input={x:0,z:0};}
@@ -266,8 +268,9 @@ export function createMatch({id='preview',game,size=1,players,randomize=random})
  function eliminate(p,by){if(!p.alive)return;p.alive=false;p.burstLeft=0;p.hp=0;p.deaths++;p.input={x:0,z:0};if(by&&by!==p)by.kills++;if(game==='murder'&&p.role==='armed')state.gun={x:p.x,z:p.z};if(game==='shoot'){p.respawnAt=state.elapsed+3;if(by&&by.team!==p.team){state.score[by.team]++;if(state.score[by.team]>=state.target)finish(by.team===0?'Équipe bleue gagnante':'Équipe rose gagnante','Objectif de '+state.target+' éliminations atteint.');}}endCheck();}
  function input(id,data){const p=player(id);if(!p||!p.connected||!data||![data.x,data.z,data.yaw,data.pitch].every(Number.isFinite))return false;p.input={x:clamp(data.x,-1,1),z:clamp(data.z,-1,1),sprint:game==='shoot'&&data.sprint===true};const length=Math.hypot(p.input.x,p.input.z);if(length>1){p.input.x/=length;p.input.z/=length;}p.yaw=Math.atan2(Math.sin(data.yaw),Math.cos(data.yaw));p.pitch=clamp(data.pitch,-1.25,1.25);return true;}
  function action(id,a){const p=player(id);if(!p||!p.connected||!p.alive||state.finished||!a||!Number.isSafeInteger(a.seq)||a.seq<=p.seq||a.seq>1e9)return false;
-  if(!['fire','reload','draw','paint','brush','transform','freeze','pickup','pose','attach','detach','jump','weapon'].includes(a.type))return false;p.seq=a.seq;
+  if(!['grenade','stone','fire','reload','draw','paint','brush','transform','freeze','pickup','pose','attach','detach','jump','weapon'].includes(a.type))return false;p.seq=a.seq;
   if(Number.isFinite(a.yaw)&&Number.isFinite(a.pitch)){p.yaw=Math.atan2(Math.sin(a.yaw),Math.cos(a.yaw));p.pitch=clamp(a.pitch,-1.25,1.25);}
+  if(a.type==='stone')return throwStone(p,id,a);if(a.type==='grenade')return throwGrenade(p,id,a);
   if(a.type==='weapon'){if(game!=='shoot'||!['auto','burst'].includes(a.mode))return false;p.weaponMode=a.mode;p.burstLeft=0;return true;}
   if(a.type==='jump'){if(game==='prop'&&p.frozen)return false;if(!['paint','prop','shoot'].includes(game)||p.anchor||!p.grounded||state.phase==='prepare'&&p.role==='seeker')return false;p.velocity=6;p.grounded=false;p.frozen=false;return true;}
   if(['pose','attach','detach'].includes(a.type)){if(game!=='paint'||p.role!=='hider'||p.falling)return false;if(a.type==='pose')return changePaintPose(p,a.pose,world);if(a.type==='attach'){const next=nearbyPaintWall(p,world);if(!next)return false;Object.assign(p,next,{frozen:false,grounded:false,velocity:0});return true;}const next=p.anchor&&paintDrop(p,world);if(!next)return false;Object.assign(p,next);return true;}
@@ -280,24 +283,85 @@ export function createMatch({id='preview',game,size=1,players,randomize=random})
   if(a.type==='reload'){if(!(game==='shoot'||p.role==='armed'||p.role==='seeker')||p.reloadAt||p.ammo===(game==='shoot'?24:12))return false;p.burstLeft=0;p.reloadAt=state.elapsed+1.5;return true;}
   return fire(p,id,a);
  }
+ function throwStone(p,id,a){
+  if(!hiding||p.role!=='hider'||state.phase!=='play'||p.stoneAt>state.elapsed||state.stones.length>=16)return false;
+  const o=game==='paint'?paintEye(p):{x:p.x,y:eyeHeight(p),z:p.z},d=aim(p);
+  state.stones.push({id:id+':stone:'+a.seq,from:id,x:o.x,y:o.y,z:o.z,vx:d.x*14,vy:d.y*14+2.4,vz:d.z*14,age:0});p.stoneAt=state.elapsed+1.2;return true;
+ }
+ function advanceStones(dt){
+  if(state.phase!=='play')return;
+  for(let i=state.stones.length-1;i>=0;i--){const s=state.stones[i];let ended=false;
+   const count=Math.max(1,Math.ceil(dt/.015)),step=dt/count;
+   for(let n=0;n<count&&!ended;n++){
+    const o={x:s.x,y:s.y,z:s.z},next={x:s.x+s.vx*step,y:s.y+s.vy*step-4.5*step*step,z:s.z+s.vz*step},length=Math.hypot(next.x-o.x,next.y-o.y,next.z-o.z),d={x:(next.x-o.x)/length,y:(next.y-o.y)/length,z:(next.z-o.z)/length};let nearest=length,hit=null,blocked=false;
+    for(const b of blocks){const distance=rayBox(o,d,b,length);if(distance<=nearest){nearest=distance;blocked=true;}}
+    if(Math.abs(d.y)>1e-8&&(d.y<0||game==='paint')){const distance=((d.y<0?0:PAINT_CEILING)-o.y)/d.y;if(distance>=0&&distance<=nearest){nearest=distance;blocked=true;}}
+    for(const p of state.players){if(p.id===s.from||!p.alive||!p.connected)continue;const distance=game==='paint'?paintRayHit(o,d,p,length):rayBox(o,d,{...p,...dimensions(p)},length);if(distance<nearest){nearest=distance;hit=p;blocked=true;}}
+    s.x=o.x+d.x*nearest;s.y=o.y+d.y*nearest;s.z=o.z+d.z*nearest;s.vy-=9*step;s.age+=step;
+    if(blocked||s.age>=2){const struck=hit?.role==='seeker'?hit:null;if(struck){struck.hp=Math.max(0,struck.hp-5);struck.healthRatio=struck.hp/struck.maxHp;if(struck.hp===0)eliminate(struck,player(s.from));}
+     state.events.push({id:s.id+':impact',from:s.from,x:s.x,z:s.z,hit:struck?.id||null,knife:false,stone:{at:[s.x,s.y,s.z]}});if(state.events.length>12)state.events.shift();ended=true;
+    }
+   }
+   if(ended)state.stones.splice(i,1);
+  }
+ }
+
+ function throwGrenade(p,id,a){
+  if(game!=='prop'||p.role!=='seeker'||state.phase!=='play'||p.grenades<=0||p.grenadeAt>state.elapsed||state.grenades.length>=8)return false;
+  const d=aim(p);state.grenades.push({id:id+':grenade:'+a.seq,from:id,x:p.x,y:eyeHeight(p),z:p.z,vx:d.x*11,vy:d.y*11+3.6,vz:d.z*11,age:0});p.grenades--;p.grenadeAt=state.elapsed+6;return true;
+ }
+ function explodeGrenade(g){
+  const hits=[],radius=3.2,o={x:g.x,y:g.y,z:g.z};
+  for(const p of state.players){
+   if(p.role!=='hider'||!p.alive||!p.connected)continue;
+   const size=dimensions(p),point={x:clamp(g.x,p.x-size.w/2,p.x+size.w/2),y:clamp(g.y,p.y,p.y+size.h),z:clamp(g.z,p.z-size.d/2,p.z+size.d/2)},distance=Math.hypot(point.x-g.x,point.y-g.y,point.z-g.z);
+   if(distance>radius)continue;
+   const d={x:(point.x-g.x)/(distance||1),y:(point.y-g.y)/(distance||1),z:(point.z-g.z)/(distance||1)};
+   if(distance>.001&&blocks.some(b=>rayBox(o,d,b,distance)<distance-.015))continue;
+   const damage=Math.round(70-52*distance/radius);p.hp=Math.max(0,p.hp-damage);p.healthRatio=p.hp/p.maxHp;hits.push(p.id);if(p.hp===0)eliminate(p,player(g.from));
+  }
+  state.events.push({id:g.id+':blast',from:g.from,x:g.x,z:g.z,hit:hits[0]||null,knife:false,grenade:{at:[g.x,g.y,g.z],radius,hits}});if(state.events.length>12)state.events.shift();
+ }
+ function advanceGrenades(dt){
+  if(game!=='prop'||state.phase!=='play')return;
+  for(let i=state.grenades.length-1;i>=0;i--){const g=state.grenades[i],count=Math.max(1,Math.ceil(dt/.012)),step=dt/count;
+   for(let n=0;n<count&&g.age<1.5;n++){
+    const o={x:g.x,y:g.y,z:g.z},next={x:g.x+g.vx*step,y:g.y+g.vy*step-4.5*step*step,z:g.z+g.vz*step},length=Math.hypot(next.x-o.x,next.y-o.y,next.z-o.z),d={x:(next.x-o.x)/(length||1),y:(next.y-o.y)/(length||1),z:(next.z-o.z)/(length||1)};let nearest=length,normal=null;
+    for(const b of blocks){const expanded={x:b.x,z:b.z,y:(b.y||0)-.1,w:b.w+.2,h:b.h+.2,d:b.d+.2},t=rayBox(o,d,expanded,length);if(t>nearest)continue;
+     nearest=t;const point={x:o.x+d.x*t,y:o.y+d.y*t,z:o.z+d.z*t},faces=[['x',expanded.x-expanded.w/2,-1],['x',expanded.x+expanded.w/2,1],['y',expanded.y,-1],['y',expanded.y+expanded.h,1],['z',expanded.z-expanded.d/2,-1],['z',expanded.z+expanded.d/2,1]].sort((a,b)=>Math.abs(point[a[0]]-a[1])-Math.abs(point[b[0]]-b[1]));normal={x:0,y:0,z:0};normal[faces[0][0]]=faces[0][2];
+    }
+    if(d.y<0){const t=(.1-o.y)/d.y;if(t>=0&&t<=nearest){nearest=t;normal={x:0,y:1,z:0};}}
+    // A direct hit on a hidden object detonates the launched grenade. Solid
+    // scenery still takes priority and causes a bounce until the fuse ends.
+    let contact=false;for(const p of state.players){if(p.role!=='hider'||!p.alive||!p.connected)continue;const size=dimensions(p),t=rayBox(o,d,{x:p.x,z:p.z,y:p.y-.1,w:size.w+.2,h:size.h+.2,d:size.d+.2},length);if(t<nearest){nearest=t;normal=null;contact=true;}}
+    g.x=o.x+d.x*nearest;g.y=o.y+d.y*nearest;g.z=o.z+d.z*nearest;g.vy-=9*step;
+    if(normal){const dot=g.vx*normal.x+g.vy*normal.y+g.vz*normal.z;if(dot<0){g.vx-=1.45*dot*normal.x;g.vy-=1.45*dot*normal.y;g.vz-=1.45*dot*normal.z;}g.x+=normal.x*.003;g.y+=normal.y*.003;g.z+=normal.z*.003;if(normal.y>.5){g.vx*=.65;g.vz*=.65;if(Math.abs(g.vy)<.3)g.vy=0;}}
+    g.age=contact?1.5:g.age+step;
+   }
+   if(g.age>=1.5){explodeGrenade(g);state.grenades.splice(i,1);}
+  }
+ }
+
  function fire(p,id,a,internal=false){
   if(!p.alive||state.finished||game==='shoot'&&p.burstLeft>0&&!internal)return false;
   if(state.phase!=='play'||p.cooldown>state.elapsed||p.reloadAt||!(game==='shoot'||p.role==='seeker'||game==='murder'&&p.drawn&&p.role!=='innocent'))return false;
-  const knife=p.role==='murderer',range=knife?1.85:45;if(!knife&&p.ammo<=0){p.burstLeft=0;p.reloadAt=state.elapsed+1.5;return false;}p.cooldown=state.elapsed+(knife?.65:game==='shoot'?(p.weaponMode==='burst'?.085:.13):.85);if(game==='shoot'&&p.weaponMode==='burst'&&!internal){p.burstLeft=2;p.burstAt=state.elapsed+.09;p.burstSeq=a.seq;}if(!knife)p.ammo--;
+  const knife=p.role==='murderer',range=knife?1.85:45;if(!knife&&p.ammo<=0){p.burstLeft=0;p.reloadAt=state.elapsed+1.5;return false;}p.cooldown=state.elapsed+(knife?.65:game==='shoot'?(p.weaponMode==='burst'?.085:.13):game==='paint'?.3:.85);if(game==='shoot'&&p.weaponMode==='burst'&&!internal){p.burstLeft=2;p.burstAt=state.elapsed+.09;p.burstSeq=a.seq;}if(!knife)p.ammo--;
   const o=game==='paint'?paintEye(p):{x:p.x,y:eyeHeight(p),z:p.z},d=aim(p);let nearest=range,hit=null;
   for(const b of blocks)nearest=Math.min(nearest,rayBox(o,d,b,range));
+  if(game==='paint'&&Math.abs(d.y)>1e-8){const t=((d.y<0?0:PAINT_CEILING)-o.y)/d.y;if(t>=0)nearest=Math.min(nearest,t);}
   for(const other of state.players){if(other===p||!other.alive||!other.connected||other.invincible>state.elapsed)continue;const distance=game==='paint'?paintRayHit(o,d,other,range):rayBox(o,d,{...other,...dimensions(other)},range);if(distance<nearest){nearest=distance;hit=other;}}
   const event={id:id+':'+a.seq+(internal?':burst'+p.burstLeft:''),from:id,x:p.x,z:p.z,hit:null,knife};
+  if(game==='paint'){event.paint={from:[o.x,o.y,o.z],to:[o.x+d.x*nearest,o.y+d.y*nearest,o.z+d.z*nearest],color:PAINT_SHOT_COLORS[state.players.indexOf(p)%PAINT_SHOT_COLORS.length],surface:!hit&&nearest<range};if(p.ammo===0)p.reloadAt=state.elapsed+1.5;}
   if(hit){if(game==='shoot'&&hit.team===p.team){}else if(hiding&&hit.role==='seeker'){}else{hit.hp-=game==='shoot'?25:game==='prop'?35:100;hit.healthRatio=Math.max(0,hit.hp/hit.maxHp);event.hit=hit.id;if(hit.hp<=0)eliminate(hit,p);if(game==='murder'&&p.role==='armed'&&hit.role!=='murderer')eliminate(p,p);}}
-  else if(hiding&&p.role==='seeker'){p.hp-=5;if(p.hp<=0)eliminate(p,p);}
+  else if(game==='prop'&&p.role==='seeker'){p.hp-=5;if(p.hp<=0)eliminate(p,p);}
   state.events.push(event);if(state.events.length>12)state.events.shift();endCheck();return true;
  }
  function tick(dt){if(state.finished||!Number.isFinite(dt)||dt<=0)return;state.elapsed+=Math.min(dt,30);const moveDt=Math.min(dt,.1);
   if(state.phase==='prepare'&&state.elapsed>=state.until){state.phase='play';state.until=state.elapsed+(world.hunt||120);}
   for(const p of state.players){if(!p.connected)continue;if(p.reloadAt&&state.elapsed>=p.reloadAt){p.ammo=game==='shoot'?24:12;p.reloadAt=0;}if(game==='shoot'&&!p.alive&&state.elapsed>=p.respawnAt){const pos=shootSpawn(state.players,p,world,randomize,++p.respawnSerial);p.x=pos[0];p.z=pos[1];p.y=0;p.velocity=0;p.grounded=true;p.stamina=100;p.lastSpawn=pos;p.alive=true;p.hp=100;p.ammo=24;p.reloadAt=0;p.invincible=state.elapsed+1.5;}if(!p.alive||state.phase==='prepare'&&p.role==='seeker')continue;if(game==='paint'){advancePaint(p,p.input,moveDt,world);continue;}if(game==='prop'){advanceProp(p,p.input,moveDt,world);continue;}if(game==='shoot'){const run=p.input.sprint&&Math.hypot(p.input.x,p.input.z)>.05&&p.stamina>0;p.moveSpeed=run?6.8:4.8;p.stamina=clamp(p.stamina+(run?-24:16)*moveDt,0,100);advanceProp(p,p.input,moveDt,world);if(p.burstLeft&&state.elapsed>=p.burstAt){if(fire(p,p.id,{seq:p.burstSeq},true)){p.burstLeft--;p.burstAt=state.elapsed+.09;if(!p.burstLeft)p.cooldown=state.elapsed+.38;}else p.burstLeft=0;}continue;}if(p.frozen)continue;const speed=game==='shoot'?4.8:p.prop?3:3.8;moveBody(p,p.input.x*speed*moveDt,p.input.z*speed*moveDt,bodyRadius(p),world);}
-  if(state.elapsed>=state.until&&state.phase==='play'){if(game==='shoot')finish(state.score[0]===state.score[1]?'Égalité':state.score[0]>state.score[1]?'Équipe bleue gagnante':'Équipe rose gagnante','Temps écoulé.');else finish(game==='murder'?'Les innocents gagnent':'Les cachés gagnent','Temps écoulé.');}endCheck();
+  advanceStones(moveDt);advanceGrenades(moveDt);if(state.finished){state.stones=[];state.grenades=[];}if(state.elapsed>=state.until&&state.phase==='play'){if(game==='shoot')finish(state.score[0]===state.score[1]?'Égalité':state.score[0]>state.score[1]?'Équipe bleue gagnante':'Équipe rose gagnante','Temps écoulé.');else finish(game==='murder'?'Les innocents gagnent':'Les cachés gagnent','Temps écoulé.');}endCheck();
  }
  function remove(id){const p=player(id);if(p){p.connected=false;eliminate(p);endCheck();}}
- function snapshot(id){const mine=player(id);return {game,size,phase:state.phase,remaining:Math.max(0,state.until-state.elapsed),score:[...state.score],target:state.target,finished:state.finished,winner:state.winner,reason:state.reason,gun:state.gun,events:state.events.slice(-6),selfRole:mine?.role,players:state.players.filter(p=>!(state.phase==='prepare'&&mine?.role==='seeker'&&p.role==='hider')).map(p=>({id:p.id,name:p.name,palette:game==='paint'?[...p.palette]:null,weaponMode:p.weaponMode,stamina:p.stamina,y:p.y,velocity:p.velocity,grounded:p.grounded,falling:p.falling,paintPose:p.paintPose,anchor:p.anchor?{...p.anchor}:null,facing:p.facing,scale:p.scale,skin:game==='paint'?p.skin:null,x:p.x,z:p.z,yaw:p.yaw,pitch:p.pitch,hp:p.hp,maxHp:p.maxHp,alive:p.alive,connected:p.connected,kills:p.kills,deaths:p.deaths,team:game==='shoot'?p.team:null,role:game==='paint'||state.finished||p.id===id?p.role:null,weapon:p.drawn?(p.role==='murderer'?'knife':['armed','seeker','fighter'].includes(p.role)?'gun':null):null,colors:[...p.colors],prop:p.prop,propColor:p.propColor,frozen:p.frozen,ammo:p.id===id?p.ammo:null,reloading:p.id===id&&!!p.reloadAt,respawn:p.id===id&&!p.alive&&game==='shoot'?Math.max(0,p.respawnAt-state.elapsed):0}))};}
+ function snapshot(id){const mine=player(id);return {game,size,phase:state.phase,remaining:Math.max(0,state.until-state.elapsed),score:[...state.score],target:state.target,finished:state.finished,winner:state.winner,reason:state.reason,gun:state.gun,grenades:state.finished?[]:state.grenades.map(({id,from,x,y,z})=>({id,from,x,y,z})),stones:state.stones.map(({id,from,x,y,z})=>({id,from,x,y,z})),events:state.events.slice(-6),selfRole:mine?.role,players:state.players.filter(p=>!(state.phase==='prepare'&&mine?.role==='seeker'&&p.role==='hider')).map(p=>({id:p.id,name:p.name,grenades:p.grenades,grenadeReadyIn:Math.max(0,p.grenadeAt-state.elapsed),stoneReadyIn:Math.max(0,p.stoneAt-state.elapsed),palette:game==='paint'?[...p.palette]:null,weaponMode:p.weaponMode,stamina:p.stamina,y:p.y,velocity:p.velocity,grounded:p.grounded,falling:p.falling,paintPose:p.paintPose,anchor:p.anchor?{...p.anchor}:null,facing:p.facing,scale:p.scale,skin:game==='paint'?p.skin:null,x:p.x,z:p.z,yaw:p.yaw,pitch:p.pitch,hp:p.hp,maxHp:p.maxHp,alive:p.alive,connected:p.connected,kills:p.kills,deaths:p.deaths,team:game==='shoot'?p.team:null,role:game==='paint'||state.finished||p.id===id?p.role:null,weapon:p.drawn?(p.role==='murderer'?'knife':['armed','seeker','fighter'].includes(p.role)?'gun':null):null,colors:[...p.colors],prop:p.prop,propColor:p.propColor,frozen:p.frozen,ammo:p.id===id?p.ammo:null,reloading:p.id===id&&!!p.reloadAt,respawn:p.id===id&&!p.alive&&game==='shoot'?Math.max(0,p.respawnAt-state.elapsed):0}))};}
  return {world,state,input,action,tick,remove,snapshot,finish};
 }

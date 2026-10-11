@@ -16,7 +16,7 @@ export function wallPictures(world){
   // Side walls and both faces of long interior partitions. End walls keep windows.
   if(w.d<4||w.w>1)return;
   const normals=wall===0?[1]:wall===1?[-1]:[1,-1],count=Math.max(1,Math.floor((w.d-2)/6));
-  for(const nx of normals)for(let i=0;i<count;i++)out.push({wall,nx,x:w.x+nx*(w.w/2+.014),z:w.z+(i-(count-1)/2)*6,y:1.65,w:2.35,h:1.55,design:(wall*3+i)%6});
+  for(const nx of normals)for(let i=0;i<count;i++)out.push({wall,nx,x:w.x+nx*(w.w/2+.014),z:w.z+(i-(count-1)/2)*6,y:1.65,w:2.35,h:1.55,design:(out.length*5+String(world.layoutSeed||world.name).split('').reduce((n,c)=>n+c.charCodeAt(0),0))%16});
  });
  return out;
 }
