@@ -4199,7 +4199,7 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
   const cancel=ONEUI.button('Annuler',()=>box.close());box.append(status,cancel);
   box.addEventListener('close',()=>{if(opening===box)opening=null},{once:true});
   try{
-   const [module]=await Promise.all([import('./ui/one-lobby-r46.js?v=games-v198'),window.oneEnsureThree17()]);
+   const [module]=await Promise.all([import('./ui/one-lobby-r46.js?v=board-v199'),window.oneEnsureThree17()]);
    if(!box.open||!box.isConnected)return;
    module.open(context||{room:window.oneSocialRoom?.()});box.close();window.oneCloseSalon?.();
   }catch(error){
