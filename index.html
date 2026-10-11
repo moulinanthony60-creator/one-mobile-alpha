@@ -514,7 +514,7 @@ body #oneTogether[data-live=true] .ot-timeline{display:none!important}
 @media(min-width:700px){body #oneTogether .ot-results{grid-template-columns:repeat(3,minmax(0,1fr))!important}body #oneFoundation .os-party-catalog .os-game-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 
 </style>
-</head>
+<style>.os202-match{max-height:88dvh;overflow:auto}.os202-match-games{max-height:42dvh;overflow:auto;overscroll-behavior:contain}.os202-match-games button{min-height:68px}.os203-room-note:empty{display:none}.os203-room-note{padding:12px;background:#362743;border-radius:12px}.os203-roster{padding:0;list-style:none}.os203-roster li{padding:12px;border-bottom:1px solid #ffffff22}.ogp-public{margin-top:14px}.one3d-top .one3d-public{width:auto!important;min-width:126px;height:44px;flex-shrink:0;padding:8px 14px!important;margin-left:auto;margin-right:8px;white-space:normal;max-width:135px;background:#285346;color:#fff;font-size:12px}.one3d-top .one3d-public::before,.one3d-top .one3d-public::after{display:none!important}@media(max-width:480px){.one3d-top .one3d-public{min-width:112px;max-width:112px;padding:7px}.one3d-top b{font-size:12px}}</style></head>
 <body>
 <div class="app">
   <header class="topbar">
@@ -3722,7 +3722,7 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
    if(!d.isConnected||token!==window.oneAccountToken?.()||window.oneSocialRoom?.()?.id!==room.id)return;
    wager=data.wager||{amount:0,version:0};playing=data.activeGame?.status==='playing';select.value=String(wager.amount);select.disabled=playing||!room.isHost;choice.hidden=false;update();
   }).catch(e=>{note.textContent=e.message;});
-  d.append(send,button('Annuler',()=>d.close()));
+  const publicPlay=button('Trouver une partie publique',()=>{d.close();window.ONEMatchmaking?.open(game.id);},'os-primary ogp-public');d.append(publicPlay,el('p','Adversaires automatiques · gratuit','os-muted'),send,button('Annuler',()=>d.close()));
  }
  function player(m){const row=el('article',undefined,'os-member');row.dataset.member=m.isYou?'local':m.accountId;const face=el('div',undefined,'os-face');face.dataset.cameraSeat=row.dataset.member;face.append(avatar(m));const presence=el('span',undefined,'os-presence');presence.title='Membre du salon · présence instantanée non fournie';face.append(presence);const mic=el('span','🎤 —','os-member-mic');mic.setAttribute('aria-label','État micro inconnu');face.append(mic);if(m.isHost)face.append(el('span','👑','os-crown'));row.append(face,el('b',m.name),el('small',m.isHost?'Hôte · dans le salon':'Dans le salon'));return row;}
  function syncMedia(){for(const row of document.querySelectorAll('.os-member[data-member]')){const state=window.ONEPartyMedia?.memberStatus?.(row.dataset.member),mic=row.querySelector('.os-member-mic'),dot=row.querySelector('.os-presence');if(mic){mic.textContent=state?.mic===true?'🎤':state?.mic===false?'🔇':'🎤 —';mic.setAttribute('aria-label',state?.mic===true?'Micro actif':state?.mic===false?'Micro coupé':'État micro inconnu');}if(dot){dot.dataset.online=String(!!state?.connected);dot.title=state?.connected?'Dans l’appel':'Membre du salon · présence instantanée non fournie';}}}
@@ -3837,26 +3837,116 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 
 </script><script id="one-matchmaking-v202">
 (()=>{
- const {el,button,api}=ONEUI;let dialog=null,pending=false,reopenTask=null;
- const games=[['paint','◒','Cache-cache peinture','4 joueurs · Galerie Chromatique'],['murder','◇','Murder','4 joueurs · Villa Minuit'],['shoot','◎','Tir en équipes','1 vs 1 à 4 vs 4 · Traverse'],['prop','▣','Prop Hunt','4 joueurs · Dépôt des curiosités']];
- const current=()=>window.oneSocialRoom?.()?.matchmaking;
- function open(){if(dialog?.isConnected){dialog.showModal();return;}let game='paint',size=1;const d=dialog=el('dialog',undefined,'os202-match');const head=el('header'),title=el('h2','Trouver une partie'),close=button('×',()=>d.close());close.setAttribute('aria-label','Fermer la recherche de partie');head.append(title,close);const info=el('p','Choisis ton jeu. ONE te place dans un salon public et lance la partie quand le groupe est prêt.','os-muted'),choices=el('div',undefined,'os202-match-games'),formats=el('div',undefined,'os202-match-formats'),status=el('p');status.setAttribute('role','status');
-  const start=button('Trouver une partie',find,'os-primary');
-  function paint(){for(const b of choices.children)b.setAttribute('aria-pressed',String(b.dataset.game===game));formats.hidden=game!=='shoot';for(const b of formats.children)b.setAttribute('aria-pressed',String(Number(b.dataset.size)===size));}
-  for(const [id,icon,name,description]of games){const b=button('',()=>{game=id;paint()});b.dataset.game=id;b.append(el('span',icon),el('b',name),el('small',description));choices.append(b);}
-  for(let n=1;n<=4;n++){const b=button(n+' vs '+n,()=>{size=n;paint()});b.dataset.size=n;formats.append(b);}
-  async function find(){if(pending)return;pending=true;close.disabled=start.disabled=true;for(const b of d.querySelectorAll('.os202-match-games button,.os202-match-formats button'))b.disabled=true;start.textContent='Recherche en cours…';status.textContent='';const token=window.oneAccountToken?.(),chosen=game,team=game==='shoot'?size:1;let found;
-   try{try{found=await api('/party/matchmake?'+new URLSearchParams({game:chosen,size:team}),'POST');}catch(e){if(!e.status||e.status>=500){const state=await api('/party/state','GET',undefined,{interactive:true});if(state.room?.matchmaking?.game===chosen&&state.room.matchmaking.size===team)found={id:state.room.id};else throw e;}else throw e;}
-    if(token!==window.oneAccountToken?.())return;await window.oneRefreshSalonState?.(true);const room=window.oneSocialRoom?.();if(room?.id!==found.id)throw Error('Ta place est réservée. Actualise le salon pour reprendre.');d.close();d.remove();dialog=null;await window.ONEOpen3DLobby?.({room});document.querySelector('[data-screen-open]')?.click();
-   }catch(e){if(token===window.oneAccountToken?.())status.textContent=e.status===404?'La recherche automatique attend la mise à jour du serveur ONE.':e.message;}
-   finally{pending=false;close.disabled=start.disabled=false;start.textContent='Trouver une partie';for(const b of d.querySelectorAll('.os202-match-games button,.os202-match-formats button'))b.disabled=false;}
+ const {el,button,api}=ONEUI;let dialog=null,pending=false,reopenTask=null,waitDialog=null,polling=false,openedRoom='';
+ const catalog={
+  "317": {
+    "name": "3:17 · FOUR",
+    "capacity": 2
+  },
+  "paint": {
+    "name": "Cache-cache peinture",
+    "capacity": 4
+  },
+  "murder": {
+    "name": "Murder",
+    "capacity": 4
+  },
+  "prop": {
+    "name": "Prop Hunt",
+    "capacity": 4
+  },
+  "shoot": {
+    "name": "Tir en équipes",
+    "capacity": 2
+  },
+  "bluff": {
+    "name": "ONE Bluff",
+    "capacity": 2,
+    "cards": true
+  },
+  "colors": {
+    "name": "ONE Couleurs",
+    "capacity": 2,
+    "cards": true
+  },
+  "douze": {
+    "name": "ONE Douze",
+    "capacity": 2,
+    "cards": true
+  },
+  "blackjack": {
+    "name": "ONE Blackjack",
+    "capacity": 2,
+    "cards": true
+  },
+  "poker": {
+    "name": "ONE Poker",
+    "capacity": 2,
+    "cards": true
+  },
+  "trio": {
+    "name": "ONE Trio",
+    "capacity": 3,
+    "cards": true
+  },
+  "codes": {
+    "name": "ONE Codes",
+    "capacity": 4,
+    "cards": true
+  },
+  "who": {
+    "name": "ONE Qui est-ce ?",
+    "capacity": 2,
+    "cards": true
+  },
+  "connect": {
+    "name": "ONE Puissance 4",
+    "capacity": 2,
+    "cards": true
+  },
+  "timer": {
+    "name": "ONE Timer",
+    "capacity": 2,
+    "cards": true
+  },
+  "wolf": {
+    "name": "ONE Loups",
+    "capacity": 6,
+    "cards": true
   }
-  d.addEventListener('cancel',e=>{if(pending)e.preventDefault()});d.addEventListener('close',()=>{if(!pending){d.remove();if(dialog===d)dialog=null;}});d.append(head,info,choices,formats,status,start);document.body.append(d);paint();d.showModal();
+};
+ const current=()=>window.oneSocialRoom?.()?.matchmaking;
+ async function leave(){if(pending)return;pending=true;try{await api('/party/leave','POST');window.ONELobby3D?.close?.();waitDialog?.close();await window.oneRefreshSalonState?.(true);window.oneShowSpace?.('social');window.oneSetSocialTab?.('rooms');}finally{pending=false;}}
+ function waiting(){const room=window.oneSocialRoom?.(),m=room?.matchmaking;if(!m||!catalog[m.game]?.cards)return;if(waitDialog?.isConnected){waitDialog.showModal();return;}
+  const d=waitDialog=el('dialog',undefined,'os202-match os203-wait'),h=el('header');h.append(el('h2',catalog[m.game].name),button('Réduire',()=>d.close()));d.append(h,el('p','Partie publique · gratuite','os-muted'),el('p','Recherche des joueurs…','os203-progress'),el('ul',undefined,'os203-roster'),button('Quitter la recherche',leave));d.addEventListener('close',()=>{d.remove();if(waitDialog===d)waitDialog=null;});document.body.append(d);d.showModal();updateWait(room);void poll();
  }
- window.ONEMatchmaking={open,current,async reserve(config){if(!current())return;await reopenTask;await api('/party/matchmaking/reserve','POST',{game:config.game,size:config.size,players:config.players.map(p=>p.id)});},reopen(){if(reopenTask)return reopenTask;if(!current()||!window.oneSocialRoom?.()?.isHost)return Promise.resolve();const token=window.oneAccountToken?.();const task=(async()=>{try{await api('/party/matchmaking/reopen','POST');if(token===window.oneAccountToken?.())await window.oneRefreshSalonState?.(true);}catch(e){if(token===window.oneAccountToken?.())window.oneToast?.(e.message);}})().finally(()=>{if(reopenTask===task)reopenTask=null;});reopenTask=task;return task;},async leave(){if(pending)return;pending=true;try{await api('/party/leave','POST');window.ONELobby3D?.close?.();await window.oneRefreshSalonState?.(true);window.oneShowSpace?.('social');window.oneSetSocialTab?.('rooms');}finally{pending=false;}}};
- setInterval(()=>{if(current()&&!document.hidden)window.oneRefreshSalonState?.(true)},25000);
- window.addEventListener('one-account-changed',()=>{dialog?.close();dialog?.remove();dialog=null;pending=false;});
+ function updateWait(room){if(!waitDialog)return;const m=room?.matchmaking;if(!m){waitDialog.close();return;}waitDialog.querySelector('.os203-progress').textContent=room.members.length+'/'+m.capacity+' joueurs · '+(room.members.length<m.capacity?'En attente des autres joueurs…':'La partie démarre…');const list=waitDialog.querySelector('ul');list.replaceChildren(...room.members.map(p=>el('li',p.name+(p.isYou?' · toi':''))));}
+ async function poll(){const room=window.oneSocialRoom?.(),m=room?.matchmaking;if(polling||pending||!catalog[m?.game]?.cards||document.hidden||openedRoom===room.id)return;polling=true;const token=window.oneAccountToken?.();try{await window.oneRefreshSalonState?.(true);if(token!==window.oneAccountToken?.()||window.oneSocialRoom?.()?.id!==room.id)return;updateWait(window.oneSocialRoom());const result=await api('/party/matchmaking/start','POST');if(token!==window.oneAccountToken?.()||window.oneSocialRoom?.()?.id!==room.id)return;if(result.started){openedRoom=room.id;waitDialog?.close();window.oneCloseSalon?.();window.oneShowSpace?.('party');await window.oneRefreshPartyGame?.();}else if(result.id){openedRoom=room.id;waitDialog?.close();window.oneShowSpace?.('party');await window.oneRefreshPartyGame?.();}}
+  catch(e){if(waitDialog)waitDialog.querySelector('.os203-progress').textContent=e.message;}finally{polling=false;}
+ }
+ function open(selected){if(dialog?.isConnected){dialog.showModal();return;}let game=catalog[selected]?selected:current()?.game||'paint',size=current()?.game===game?current().size:1;
+  const d=dialog=el('dialog',undefined,'os202-match'),head=el('header'),close=button('×',()=>d.close());close.setAttribute('aria-label','Fermer la recherche de partie');head.append(el('h2','Trouver une partie publique'),close);
+  const info=el('p','Choisis ton jeu. La partie démarre dès que le groupe est complet. Toutes les parties publiques sont gratuites.','os-muted'),choices=el('div',undefined,'os202-match-games'),formats=el('div',undefined,'os202-match-formats'),status=el('p'),roomNote=el('p',undefined,'os203-room-note');status.setAttribute('role','status');
+  const start=button('Trouver une partie',find,'os-primary');
+  function paint(){for(const b of choices.children)b.setAttribute('aria-pressed',String(b.dataset.game===game));formats.hidden=game!=='shoot';for(const b of formats.children)b.setAttribute('aria-pressed',String(Number(b.dataset.size)===size));const r=window.oneSocialRoom?.(),same=r?.matchmaking?.game===game&&r.matchmaking.size===(game==='shoot'?size:1);roomNote.textContent=r&&!same?(r.isHost?'La recherche fermera ton salon actuel pour tous ses membres.':'La recherche te fera quitter ton salon actuel.') :'';start.textContent=r&&!same?(r.isHost?'Fermer mon salon et rechercher':'Quitter ce salon et rechercher'):same?'Reprendre la recherche':'Trouver une partie';}
+  for(const [id,g]of Object.entries(catalog)){const b=button('',()=>{game=id;paint()});b.dataset.game=id;b.append(el('b',g.name),el('small',id==='shoot'?'1 vs 1 à 4 vs 4':g.capacity+' joueurs · '+(g.cards?'Table de jeu':'Jeu 3D')));choices.append(b);}
+  for(let n=1;n<=4;n++){const b=button(n+' vs '+n,()=>{size=n;paint()});b.dataset.size=n;formats.append(b);}
+  async function find(){if(pending)return;const token=window.oneAccountToken?.(),chosen=game,team=game==='shoot'?size:1,room=window.oneSocialRoom?.();pending=true;d.querySelectorAll('button').forEach(b=>b.disabled=true);start.textContent='Recherche en cours…';status.textContent='';
+   try{if(room&&!(room.matchmaking?.game===chosen&&room.matchmaking.size===team)){await api('/party/leave','POST');if(token!==window.oneAccountToken?.())return;window.ONELobby3D?.close?.();await window.oneRefreshSalonState?.(true);}
+    let found;try{found=await api('/party/matchmake?'+new URLSearchParams({game:chosen,size:team}),'POST');}catch(e){if(!e.status||e.status>=500){const state=await api('/party/state','GET',undefined,{interactive:true});if(state.room?.matchmaking?.game===chosen&&state.room.matchmaking.size===team)found={id:state.room.id};else throw e;}else throw e;}
+    if(token!==window.oneAccountToken?.())return;await window.oneRefreshSalonState?.(true);const fresh=window.oneSocialRoom?.();if(fresh?.id!==found.id)throw Error('Ta place est réservée. Actualise le salon pour reprendre.');d.close();d.remove();dialog=null;
+    if(catalog[chosen].cards){window.ONELobby3D?.close?.();openedRoom='';window.oneCloseSalon?.();window.oneShowSpace?.('party');waiting();}else{await window.ONEOpen3DLobby?.({room:fresh});document.querySelector('[data-screen-open]')?.click();}
+   }catch(e){if(token===window.oneAccountToken?.())status.textContent=e.status===404?'La recherche publique attend la mise à jour du serveur ONE.':e.message;}
+   finally{pending=false;d.querySelectorAll('button').forEach(b=>b.disabled=false);paint();if(waitDialog)void poll();}
+  }
+  for(const type of ['keydown','keyup','pointerdown','pointerup','click'])d.addEventListener(type,e=>e.stopPropagation());d.addEventListener('cancel',e=>{if(pending)e.preventDefault()});d.addEventListener('close',()=>{if(!pending){d.remove();if(dialog===d)dialog=null;}});d.append(head,info,choices,formats,roomNote,status,start);document.body.append(d);paint();d.showModal();d.querySelector('[data-game="'+game+'"]')?.scrollIntoView({block:'nearest'});
+ }
+ window.ONEMatchmaking={open,current,catalog,waiting,leave,isOpen:()=>!!dialog?.open,async reserve(config){if(!current())return;await reopenTask;await api('/party/matchmaking/reserve','POST',{game:config.game,size:config.size,players:config.players.map(p=>p.id)});},reopen(){if(reopenTask)return reopenTask;if(!current()||!window.oneSocialRoom?.()?.isHost)return Promise.resolve();const token=window.oneAccountToken?.();const task=(async()=>{try{await api('/party/matchmaking/reopen','POST');if(token===window.oneAccountToken?.())await window.oneRefreshSalonState?.(true);}catch(e){if(token===window.oneAccountToken?.())window.oneToast?.(e.message);}})().finally(()=>{if(reopenTask===task)reopenTask=null;});reopenTask=task;return task;}};
+ setInterval(poll,2000);setInterval(()=>{if(current()&&!document.hidden)window.oneRefreshSalonState?.(true)},25000);
+ window.addEventListener('one-party-state',e=>{if(!e.detail?.matchmaking){openedRoom='';waitDialog?.close();}else updateWait(e.detail);});
+ window.addEventListener('one-account-changed',()=>{dialog?.close();dialog?.remove();dialog=null;waitDialog?.close();pending=false;openedRoom='';});
 })();
+
 
 </script><script id="one-directory-v202">
 /* Account-scoped room discovery. Only authorized groups and public rooms are shown. */
@@ -4705,7 +4795,7 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
 /* Keep game engines out of the initial home, camera and messaging load. */
 (()=>{
  let pending=null,generation=0,loading=null,attempt=0;
- window.oneEnsureThree17=()=>pending||=(import('./one-3d-v202.js'+(attempt?'?retry='+attempt:'')).catch(error=>{pending=null;attempt++;throw error;}));
+ window.oneEnsureThree17=()=>pending||=(import('./one-3d-v204.js'+(attempt?'?retry='+attempt:'')).catch(error=>{pending=null;attempt++;throw error;}));
  const close=()=>{generation++;loading?.remove();loading=null;};
  async function open(options){
   if(loading)return;
