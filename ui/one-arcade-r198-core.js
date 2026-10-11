@@ -1,3 +1,4 @@
+import {roundLayout} from './one-arcade-r208-layout.js';
 // Shared geometry and host-authoritative rules. No DOM or transport dependency.
 export const GAMES=Object.freeze([
  {id:'paint',name:'Cache-cache peinture',min:2,max:8,icon:'◒',color:'#ad70ed',description:'Trouve une cachette, puis peins ton personnage sur place pour te fondre dans le décor.'},
@@ -63,8 +64,18 @@ export const WORLDS={
  m.zones.push([-27,0,9,45,2],[27,0,9,45,3],[0,-21,38,5,0],[0,21,38,5,4]);
 }
 
+// Larger galleries retain the familiar interior walls and their climb anchors.
+for(const game of ['paint','prop']){
+ const m=WORLDS[game];m.width=80;m.depth=60;m.walls.splice(0,4,...boundary(80,60,0));
+ m.spawns=[[-35,-24],[35,-24],[-35,-8],[35,-8],[-35,8],[35,8],[-35,24],[35,24]];m.seekerSpawn=[0,27];
+ m.zones.push([-36,0,7,56,1],[36,0,7,56,3],[0,-26,62,6,2],[0,26,62,6,4]);
+}
+const roundWorlds=new Map();
 const worldBlocks=new WeakMap();
-export function worldFor(game){return WORLDS[game]||WORLD;}
+export function worldFor(game,round='preview'){
+ const base=WORLDS[game]||WORLD;if(game!=='paint'&&game!=='prop')return base;
+ const key=game+':'+round;if(!roundWorlds.has(key)){const world=roundLayout(base,PROP_TYPES,game,round);roundWorlds.set(key,world);if(roundWorlds.size>12)roundWorlds.delete(roundWorlds.keys().next().value);}return roundWorlds.get(key);
+}
 export function blocksFor(world=WORLD){if(!worldBlocks.has(world))worldBlocks.set(world,[...world.walls,...world.props.map(p=>({...p,...PROP_TYPES[p.type]}))]);return worldBlocks.get(world);}
 export const avatarScale=(game,role)=>game==='paint'?(role==='seeker'?1:.35):game==='prop'?.76:1;
 export function bodyRadius(p){if(p.paintPose)return paintRadius(p);return p.prop?Math.max(PROP_TYPES[p.prop].w,PROP_TYPES[p.prop].d)/2+.02:.3*(p.scale||1);}
@@ -183,10 +194,10 @@ export function eyeHeight(p){if(p.paintPose)return paintEye(p).y;return (p.y||0)
 export function aim(p){return {x:-Math.sin(p.yaw)*Math.cos(p.pitch),y:Math.sin(p.pitch),z:-Math.cos(p.yaw)*Math.cos(p.pitch)};}
 export function nearbyProp(p,world=WORLD){let best=null,distance=2.8;for(const o of world.props){const d=Math.hypot(o.x-p.x,o.z-p.z);if(d<distance){distance=d;best=o;}}return best;}
 const random=()=>crypto.getRandomValues(new Uint32Array(1))[0]/4294967296;
-export function createMatch({game,size=1,players,randomize=random}){
+export function createMatch({id='preview',game,size=1,players,randomize=random}){
  if(!validMode(game,size,players?.length)||new Set(players.map(p=>p.id)).size!==players.length)throw Error('Nombre de joueurs incompatible avec ce mode.');
  const shuffled=players.map(p=>({...p}));for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(randomize()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
- const world=worldFor(game),blocks=blocksFor(world),hiding=game==='paint'||game==='prop',state={game,size,elapsed:0,phase:hiding?'prepare':'play',until:hiding?world.prepare:180,score:[0,0],target:size*5,finished:false,winner:'',reason:'',gun:null,events:[],players:[]};
+ const world=worldFor(game,id),blocks=blocksFor(world),hiding=game==='paint'||game==='prop',state={game,size,elapsed:0,phase:hiding?'prepare':'play',until:hiding?world.prepare:180,score:[0,0],target:size*5,finished:false,winner:'',reason:'',gun:null,events:[],players:[]};
  const hunters=Math.max(1,Math.floor(players.length/3));
  state.players=shuffled.map((p,i)=>{const role=game==='shoot'?'fighter':game==='murder'?i===0?'murderer':i===1?'armed':'innocent':i<hunters?'seeker':'hider';const team=game==='shoot'?i%2:role==='hider'?1:0,spawn=game==='shoot'?world.spawns[i]:hiding&&role==='seeker'?world.seekerSpawn:world.spawns[i];return {id:p.id,name:String(p.name||'Membre').slice(0,40),role,team,y:0,velocity:0,grounded:true,falling:false,paintPose:game==='paint'?'stand':null,anchor:null,facing:0,scale:avatarScale(game,role),palette:[...COLORS],paintPixels:new Uint8Array(PAINT_CELLS),skin:encodeSkin(new Uint8Array(PAINT_CELLS)),x:spawn[0],z:spawn[1],yaw:spawn[0]<-1?-Math.PI/2:spawn[0]>1?Math.PI/2:0,pitch:0,hp:100,alive:true,connected:true,kills:0,deaths:0,ammo:game==='shoot'?24:12,weaponMode:'auto',stamina:100,burstLeft:0,burstAt:0,burstSeq:0,respawnSerial:0,reloadAt:0,respawnAt:0,invincible:0,cooldown:0,drawn:game==='shoot'||role==='seeker',colors:[0,0,0],prop:null,propColor:0,frozen:false,seq:0,input:{x:0,z:0}}});
  if(game==='shoot')for(const p of state.players){const pos=shootSpawn(state.players,p,world,randomize);p.x=pos[0];p.z=pos[1];p.lastSpawn=pos;p.yaw=p.x<0?-Math.PI/2:Math.PI/2;}
@@ -223,7 +234,7 @@ export function createMatch({game,size=1,players,randomize=random}){
   for(const b of blocks)nearest=Math.min(nearest,rayBox(o,d,b,range));
   for(const other of state.players){if(other===p||!other.alive||!other.connected||other.invincible>state.elapsed)continue;const distance=game==='paint'?paintRayHit(o,d,other,range):rayBox(o,d,{...other,...dimensions(other)},range);if(distance<nearest){nearest=distance;hit=other;}}
   const event={id:id+':'+a.seq+(internal?':burst'+p.burstLeft:''),from:id,x:p.x,z:p.z,hit:null,knife};
-  if(hit){if(game==='shoot'&&hit.team===p.team){}else if(hiding&&hit.role==='seeker'){}else{hit.hp-=game==='shoot'?25:100;event.hit=hit.id;if(hit.hp<=0)eliminate(hit,p);if(game==='murder'&&p.role==='armed'&&hit.role!=='murderer')eliminate(p,p);}}
+  if(hit){if(game==='shoot'&&hit.team===p.team){}else if(hiding&&hit.role==='seeker'){}else{hit.hp-=game==='shoot'?25:game==='prop'?35:100;event.hit=hit.id;if(hit.hp<=0)eliminate(hit,p);if(game==='murder'&&p.role==='armed'&&hit.role!=='murderer')eliminate(p,p);}}
   else if(hiding&&p.role==='seeker'){p.hp-=5;if(p.hp<=0)eliminate(p,p);}
   state.events.push(event);if(state.events.length>12)state.events.shift();endCheck();return true;
  }
@@ -234,5 +245,5 @@ export function createMatch({game,size=1,players,randomize=random}){
  }
  function remove(id){const p=player(id);if(p){p.connected=false;eliminate(p);endCheck();}}
  function snapshot(id){const mine=player(id);return {game,size,phase:state.phase,remaining:Math.max(0,state.until-state.elapsed),score:[...state.score],target:state.target,finished:state.finished,winner:state.winner,reason:state.reason,gun:state.gun,events:state.events.slice(-6),selfRole:mine?.role,players:state.players.filter(p=>!(state.phase==='prepare'&&mine?.role==='seeker'&&p.role==='hider')).map(p=>({id:p.id,name:p.name,palette:game==='paint'?[...p.palette]:null,weaponMode:p.weaponMode,stamina:p.stamina,y:p.y,velocity:p.velocity,grounded:p.grounded,falling:p.falling,paintPose:p.paintPose,anchor:p.anchor?{...p.anchor}:null,facing:p.facing,scale:p.scale,skin:game==='paint'?p.skin:null,x:p.x,z:p.z,yaw:p.yaw,pitch:p.pitch,hp:p.hp,alive:p.alive,connected:p.connected,kills:p.kills,deaths:p.deaths,team:game==='shoot'?p.team:null,role:game==='paint'||state.finished||p.id===id?p.role:null,weapon:p.drawn?(p.role==='murderer'?'knife':['armed','seeker','fighter'].includes(p.role)?'gun':null):null,colors:[...p.colors],prop:p.prop,propColor:p.propColor,frozen:p.frozen,ammo:p.id===id?p.ammo:null,reloading:p.id===id&&!!p.reloadAt,respawn:p.id===id&&!p.alive&&game==='shoot'?Math.max(0,p.respawnAt-state.elapsed):0}))};}
- return {state,input,action,tick,remove,snapshot,finish};
+ return {world,state,input,action,tick,remove,snapshot,finish};
 }
