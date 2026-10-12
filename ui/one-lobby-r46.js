@@ -10,6 +10,7 @@ import {createAvatar,animateAvatar,orientAvatarCamera} from './three17-r44-avata
 import {createRenderBudget} from './three17-r46-render.js?v=lobby-shoot-v88';
 
 import {lobbyState,subscribeLobby,subscribeLobbyShot,sendLobbyShot,joinLobby,leaveLobby,startRound,setLobbyReady,updateLobbyPose,lobbyPose} from './three17-r46-coop.js?v=games-v198';
+import {createPistol} from './one-lobby-r217-weapons.js';
 import {casinoControls} from './one-casino-r212-controls.js';
 import {casinoWalkable,inCasino} from './one-casino-r212-layout.js';
 import {casinoSecurity} from './one-casino-r212-security.js';
@@ -46,39 +47,10 @@ function open(ctx={}){
    const g=new THREE.Group(),part=(geo,material,y)=>{const m=new THREE.Mesh(geo,material);m.position.y=y;g.add(m);return m;};
    part(new THREE.CylinderGeometry(.075,.112,.82,14),batWood,.39);part(new THREE.CylinderGeometry(.042,.065,.52,12),batWood,-.28);part(new THREE.CylinderGeometry(.052,.052,.25,12),batGrip,-.60);part(new THREE.CylinderGeometry(.075,.052,.08,12),batGrip,-.76);return g;
  }
- const localBat=makeBat();localBat.visible=false;scene.add(localBat);
- const batOffset=new THREE.Vector3();
- const gunMetal=new THREE.MeshStandardMaterial({color:0x24282e,roughness:.30,metalness:.74}),gunFrame=new THREE.MeshStandardMaterial({color:0x11151a,roughness:.52,metalness:.20}),gunGrip=new THREE.MeshStandardMaterial({color:0x0a0d11,roughness:.88,metalness:.02}),gunAccent=new THREE.MeshStandardMaterial({color:0x454b52,roughness:.32,metalness:.56}),gunInset=new THREE.MeshStandardMaterial({color:0x05070a,roughness:.44,metalness:.48}),muzzleMat=new THREE.MeshBasicMaterial({color:0xffd66f,toneMapped:false});
- function gunProfile(points,thickness,material,bevel=.006){
-   const shape=new THREE.Shape();points.forEach(([z,y],i)=>{const sx=-z;i?shape.lineTo(sx,y):shape.moveTo(sx,y);});shape.closePath();
-   const geo=new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:true,bevelThickness:bevel,bevelSize:bevel,bevelSegments:1,curveSegments:1});
-   const m=new THREE.Mesh(geo,material);m.rotation.y=Math.PI/2;m.position.x=-thickness/2;return m;
- }
- function makePistol(){
-   const g=new THREE.Group();
-   // Service-pistol silhouette based on the supplied reference: long low slide, compact frame and angled grip.
-   const slide=new THREE.Group();g.add(slide);
-   const slideBody=gunProfile([[-.535,.030],[-.505,.132],[-.445,.157],[.060,.157],[.098,.128],[.092,.034]],.176,gunMetal,.008);slide.add(slideBody);
-   const slideTop=gunProfile([[-.470,.155],[-.430,.180],[.035,.180],[.064,.157]],.128,gunAccent,.004);slide.add(slideTop);
-   const frame=gunProfile([[-.430,-.048],[-.365,.025],[.065,.030],[.100,-.105],[-.090,-.132],[-.350,-.105]],.160,gunFrame,.007);g.add(frame);
-   const grip=gunProfile([[-.055,-.115],[.080,-.095],[.185,-.395],[.020,-.420],[-.095,-.170]],.150,gunGrip,.010);g.add(grip);
-   const gripPanel=gunProfile([[-.030,-.155],[.058,-.145],[.128,-.352],[.010,-.370],[-.060,-.190]],.158,gunAccent,.004);gripPanel.scale.set(.76,1,.76);g.add(gripPanel);
-   const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.024,.024,.355,18),gunInset);barrel.position.set(0,.072,-.365);barrel.rotation.x=Math.PI/2;g.add(barrel);
-   const muzzle=new THREE.Mesh(new THREE.CylinderGeometry(.037,.037,.028,20),gunInset);muzzle.position.set(0,.072,-.546);muzzle.rotation.x=Math.PI/2;g.add(muzzle);
-   const recoilGuide=new THREE.Mesh(new THREE.CylinderGeometry(.016,.016,.026,14),gunAccent);recoilGuide.position.set(0,.025,-.545);recoilGuide.rotation.x=Math.PI/2;g.add(recoilGuide);
-   const magBase=gunProfile([[.115,-.382],[.192,-.399],[.185,-.438],[.026,-.447],[-.002,-.414]],.165,gunMetal,.004);g.add(magBase);
-   const guard=new THREE.Mesh(new THREE.TorusGeometry(.074,.011,8,26,Math.PI*1.72),gunFrame);guard.position.set(0,-.090,-.120);guard.rotation.set(0,Math.PI/2,.15);g.add(guard);
-   const trigger=new THREE.Mesh(new THREE.BoxGeometry(.014,.070,.018),gunAccent);trigger.position.set(0,-.085,-.130);trigger.rotation.x=-.28;g.add(trigger);
-   const port=new THREE.Mesh(new THREE.BoxGeometry(.112,.019,.082),gunInset);port.position.set(.045,.166,-.145);slide.add(port);
-   for(let i=0;i<6;i++){const serr=new THREE.Mesh(new THREE.BoxGeometry(.010,.070,.018),gunInset);serr.position.set(0,.100,.030-i*.024);slide.add(serr);}
-   const frontSight=new THREE.Mesh(new THREE.BoxGeometry(.020,.035,.034),gunInset);frontSight.position.set(0,.187,-.432);slide.add(frontSight);
-   const rearSightL=new THREE.Mesh(new THREE.BoxGeometry(.024,.034,.040),gunInset);rearSightL.position.set(-.035,.187,.015);slide.add(rearSightL);const rearSightR=rearSightL.clone();rearSightR.position.x=.035;slide.add(rearSightR);
-   // Slide stop / takedown detail on the left side.
-   const stop=new THREE.Mesh(new THREE.BoxGeometry(.016,.034,.070),gunAccent);stop.position.set(.090,.015,-.035);g.add(stop);
-   const flash=new THREE.Mesh(new THREE.SphereGeometry(.070,10,8),muzzleMat);flash.scale.set(.72,.72,1.75);flash.position.set(0,.072,-.579);flash.visible=false;g.add(flash);
-   g.userData={flash,slide};return g;
- }
- const localGun=makePistol();localGun.scale.setScalar(1.16);localGun.visible=false;scene.add(localGun);const gunOffset=new THREE.Vector3();
+ const localBat=makeBat();localBat.scale.setScalar(.62);localBat.visible=false;scene.add(localBat);
+ const batOffset=new THREE.Vector3(),handleOffset=new THREE.Vector3();
+ const makePistol=createPistol;
+ const localGun=makePistol();localGun.scale.setScalar(.85);localGun.visible=false;scene.add(localGun);const gunOffset=new THREE.Vector3();
  function ensureAvatarGun(v){if(v.fightGun)return v.fightGun;const holder=new THREE.Group();holder.position.set(.02,-.50,-.12);v.arms[1].add(holder);const gun=makePistol();gun.scale.setScalar(.82);gun.rotation.x=.02;holder.add(gun);holder.visible=false;v.fightGun={holder,gun,lastSeq:null,flashUntil:0,recoilUntil:0};return v.fightGun;}
  function poseRemoteGun(v,raw,t){const weapon=ensureAvatarGun(v),visible=raw.gun===true;weapon.holder.visible=visible;if(!visible)return;const recoil=t<weapon.recoilUntil?1-(weapon.recoilUntil-t)/120:0;v.arms[1].rotation.x=raw.down===true?.02:-1.23;v.arms[1].rotation.z=-.03;weapon.holder.rotation.set(-.03,0,0);weapon.holder.position.z=-.12+.055*Math.max(0,recoil);weapon.gun.userData.flash.visible=t<weapon.flashUntil;if(weapon.gun.userData.slide)weapon.gun.userData.slide.position.z=.070*Math.max(0,recoil);}
 
@@ -309,7 +281,7 @@ function open(ctx={}){
    for(const [id,v] of avatars){syncHeadCamera(id,v);const p=lobbyPose(id);if(!p)continue;tryRemoteHit(p,v,t);tryRemoteShot(p,v,t);v.track.push(p,t);const pose=v.track.at(t);if(pose){animateAvatar(v,{...pose,dead:p.down===true},dt);if(p.down===true)v.cameraHead.position.set(1.62,.20,-.025);else v.cameraHead.position.set(0,1.72,-.025);orientAvatarCamera(v,{x:position.x,y:1.65,z:position.z});poseRemoteBat(v,p,t);poseRemoteGun(v,p,t);}}
    const fallIn=knocked?clamp((t-knockStarted)/260,0,1):0,fallOut=knocked?clamp((knockedUntil-t)/430,0,1):0,fall=knocked?Math.min(fallIn,fallOut):0;
    camera.position.set(position.x,1.65-1.03*fall,position.z);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch+.12*fall;camera.rotation.z=-1.05*fall;
-   casino.tick(t,position,camera,heldBat||heldGun||knocked);security.tick(t);localBat.visible=heldBat;localGun.visible=heldGun;
+   casino.tick(t,position,camera,heldGun?'gun':heldBat?'bat':'none',knocked);security.tick(t);localBat.visible=heldBat;localGun.visible=heldGun;
    if(localBat.visible){
      let ox=.52,oy=-.37,oz=-.72,rz=-.72,rx=.38,ry=.08;
      if(swingStarted){
@@ -328,10 +300,10 @@ function open(ctx={}){
        }
        if(k>=1)swingStarted=0;
      }
-     batOffset.set(ox,oy,oz).applyQuaternion(camera.quaternion);localBat.position.copy(camera.position).add(batOffset);localBat.quaternion.copy(camera.quaternion);localBat.rotateZ(rz);localBat.rotateX(rx);localBat.rotateY(ry);
+     const portrait=clamp(1-camera.aspect,0,1);batOffset.set(Math.min(.25,.18*camera.aspect)+(ox-.52)*.45,-.28-portrait*.06+(oy+.37)*.40,-.72+(oz+.72)*.5).applyQuaternion(camera.quaternion);localBat.quaternion.copy(camera.quaternion);localBat.rotateZ(rz+portrait*.65);localBat.rotateX(rx);localBat.rotateY(ry);handleOffset.set(0,-.55,0).multiplyScalar(localBat.scale.x).applyQuaternion(localBat.quaternion);localBat.position.copy(camera.position).add(batOffset).sub(handleOffset);
    }
    if(localGun.visible){
-     const recoil=shotStarted?Math.max(0,1-(t-shotStarted)/150):0;gunOffset.set(.36,-.29,-.69+.09*recoil).applyQuaternion(camera.quaternion);localGun.position.copy(camera.position).add(gunOffset);localGun.quaternion.copy(camera.quaternion);localGun.rotateY(-.025);localGun.rotateX(.015+.10*recoil);localGun.userData.flash.visible=!!shotStarted&&t-shotStarted<90;if(localGun.userData.slide)localGun.userData.slide.position.z=.085*recoil;if(shotStarted&&t-shotStarted>175){shotStarted=0;localGun.userData.flash.visible=false;if(localGun.userData.slide)localGun.userData.slide.position.z=0;}
+     const recoil=shotStarted?Math.max(0,1-(t-shotStarted)/150):0,portrait=clamp(1-camera.aspect,0,1);localGun.scale.setScalar(.58-portrait*.18);gunOffset.set(Math.min(.28,.21*camera.aspect),-.19-portrait*.012,-.76+.045*recoil).applyQuaternion(camera.quaternion);localGun.position.copy(camera.position).add(gunOffset);localGun.quaternion.copy(camera.quaternion);localGun.rotateY(-.08);localGun.rotateX(.015+.14*recoil);localGun.rotateZ(-.06);localGun.userData.flash.visible=!!shotStarted&&t-shotStarted<90;if(localGun.userData.slide)localGun.userData.slide.position.z=.085*recoil;if(shotStarted&&t-shotStarted>175){shotStarted=0;localGun.userData.flash.visible=false;if(localGun.userData.slide)localGun.userData.slide.position.z=0;}
    }
    for(let i=tracers.length-1;i>=0;i--){const item=tracers[i],left=(item.end-t)/140;if(item.line.material){item.line.material.opacity=clamp(left,0,1);if(item.impact)item.line.scale.setScalar(1+(1-left)*2);}if(t>=item.end){scene.remove(item.line);item.line.geometry?.dispose?.();item.line.material?.dispose?.();tracers.splice(i,1);}}
    if(crossHitUntil&&t>=crossHitUntil){crossHitUntil=0;crosshair?.classList.remove('is-hit');}
@@ -361,10 +333,10 @@ function open(ctx={}){
   listen(runButton,'lostpointercapture',()=>{if(!sprintToggle)setSprint(false);});
   const movement=['KeyW','KeyA','KeyS','KeyD','KeyZ','KeyQ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
   listen(window,'keydown',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight'){e.preventDefault();setSprint(true);}else if(movement.includes(e.code)){e.preventDefault();keys.add(e.code);}else if(e.code==='KeyF'&&!fightAction.hidden){e.preventDefault();if(!e.repeat)useFightAction();}else if(e.code==='KeyE'){e.preventDefault();if(!casino.key(e))gameScreen.open();}else if(e.code==='Escape')close();});listen(window,'keyup',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')setSprint(false);else keys.delete(e.code);});listen(window,'blur',()=>{keys.clear();stopStick();look=null;casino.close();setSprint(false);});listen(document,'visibilitychange',()=>{keys.clear();stopStick();setSprint(false);last=performance.now();budget.reset();});
- const casino=casinoControls({shell,visual:roomVisual.casino});
+ const casino=casinoControls({shell,visual:roomVisual.casino});casino.attachWeapons(localBat,localGun);
  const security=casinoSecurity({visual:roomVisual.casino,lobbyState,lobbyPose,onHit(){casino.close();showFightMessage('LE VIDEUR TE REPOUSSE',350);},onExpel(){casino.close();position.x=0;position.z=4.8;yaw=0;setHeldBat(false);setHeldGun(false);keys.clear();stopStick();showFightMessage('EXPULSÉ DU CASINO',1800);publishPose();}});
  shell.querySelector('[data-close]').onclick=()=>close();shell.querySelector('[data-reconnect]').onclick=()=>joinLobby(ctx,true);
- active={shell,renderer,scene,ro,place(x,z,angle=0,tilt=-.055){if(!canMove(x,z))return false;position.x=x;position.z=z;yaw=angle;pitch=tilt;publishPose();return true;},equip(w){setHeldBat(w==='bat');setHeldGun(w==='gun');publishPose();},stop(){stopped=true;alive=false;security.dispose();casino.dispose();gameScreen.dispose();roomVisual.dispose();for(const v of avatars.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}cancelAnimationFrame(raf);abort.abort();offShot();off();},inspect:()=>({position:{...position},yaw,heldBat,heldGun,casino:casino.inspect(),security:security.inspect(),avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),board:roomVisual.gameBoard.targets.map(t=>{const p=roomVisual.screen.localToWorld(new THREE.Vector3((t.u-.5)*roomVisual.screen.geometry.parameters.width,(t.v-.5)*roomVisual.screen.geometry.parameters.height,0)).project(camera),b=renderer.domElement.getBoundingClientRect();return {id:t.id,x:b.left+(p.x+1)*b.width/2,y:b.top+(1-p.y)*b.height/2};}),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
+ active={shell,renderer,scene,ro,place(x,z,angle=0,tilt=-.055){if(!canMove(x,z))return false;position.x=x;position.z=z;yaw=angle;pitch=tilt;publishPose();return true;},equip(w){setHeldBat(w==='bat');setHeldGun(w==='gun');publishPose();},stop(){stopped=true;alive=false;security.dispose();casino.dispose();gameScreen.dispose();roomVisual.dispose();for(const v of avatars.values()){v.videoTexture?.dispose?.();v.videoTexture=null;}cancelAnimationFrame(raf);abort.abort();offShot();off();},inspect:()=>({position:{...position},yaw,heldBat,heldGun,weapon:{style:localGun.userData.style,shots:shotSeq,swings:swingSeq,recoil:localGun.userData.slide.position.z,flash:localGun.userData.flash.visible},casino:casino.inspect(),security:security.inspect(),avatars:[...avatars].map(([id,v])=>({id,x:v.group.position.x,z:v.group.position.z})),state:lobbyState(),board:roomVisual.gameBoard.targets.map(t=>{const p=roomVisual.screen.localToWorld(new THREE.Vector3((t.u-.5)*roomVisual.screen.geometry.parameters.width,(t.v-.5)*roomVisual.screen.geometry.parameters.height,0)).project(camera),b=renderer.domElement.getBoundingClientRect();return {id:t.id,x:b.left+(p.x+1)*b.width/2,y:b.top+(1-p.y)*b.height/2};}),graphics:{...budget.inspect(),width,height,ratio,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,assetsReady,assets:scene.userData.r45?.assets}})};
  raf=requestAnimationFrame(frame);joinLobby(ctx);
 }
 function disposeObject(object){
