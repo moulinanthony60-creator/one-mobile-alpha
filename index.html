@@ -4795,7 +4795,7 @@ html:has(.one3d-shell),body:has(.one3d-shell){overflow:hidden}
 /* Keep game engines out of the initial home, camera and messaging load. */
 (()=>{
  let pending=null,generation=0,loading=null,attempt=0;
- window.oneEnsureThree17=()=>pending||=(import('./one-3d-v216.js'+(attempt?'?retry='+attempt:'')).catch(error=>{pending=null;attempt++;throw error;}));
+ window.oneEnsureThree17=()=>pending||=(import('./one-3d-v218.js'+(attempt?'?retry='+attempt:'')).catch(error=>{pending=null;attempt++;throw error;}));
  const close=()=>{generation++;loading?.remove();loading=null;};
  async function open(options){
   if(loading)return;
