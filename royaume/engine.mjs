@@ -1,3 +1,4 @@
+import {assaultCommand,restoreAssault} from './expeditions.mjs?v=37';
 import {TRAINING,TRAINING_UNITS,barracksLevel,plotLevel} from './barracks.mjs?v=36';
 import {builderHutQuote,restoreBuilderHuts,builderHuts} from './builder-huts.mjs?v=34';
 import {armyHousing,housingError,campRemovalError} from './army-camps.mjs?v=34';
@@ -147,7 +148,9 @@ export function act(s,action,now=Date.now()){
  // All actions run on a copy: a rejected operation cannot partially spend resources.
  now=Math.max(now,s.lastTick);const n=structuredClone(s);advance(n,now);
  if(n.siege?.phase==='active'&&['hire-worker','clear-tree','upgrade-walls','cancel-wall-queue','place-building','place-walls','move-walls','upgrade-plot','upgrade','speedup','demolish','raid'].includes(action.type))throw new Error('Terminez la défense avant de modifier la base ou de lancer un raid.');
+ if(n.assault?.phase==='active'&&['raid','siege-start'].includes(action.type))throw new Error('Terminez votre attaque de village avant de lancer un autre combat.');
  switch(action.type){
+ case 'assault-start':case 'assault-deploy':case 'assault-spell':case 'assault-retreat':case 'assault-dismiss':assaultCommand(n,action);break;
  case 'clear-tree':{const tree=treeById(n.village,action.id);requireThat(tree?.clearable,'Cet arbre est hors du domaine ou déjà coupé.');requireThat(!jobFor(n,tree.id),'Un ouvrier coupe déjà cet arbre.');requireThat(freeWorkers(n)>0,'Tous vos ouvriers sont occupés.');const spec=treeDetails(tree,n.village);pay(n,{gold:spec.gold});startBuild(n,tree.id,spec.seconds,now,'clearing');break;}
  case 'siege-start':requireThat(!n.progressionVersion||n.buildings.castle>=3,'La défense se débloque à la citadelle niveau 3.');requireThat(!n.siege||n.siege.phase!=='active','Une défense est déjà en cours.');requireThat(!n.battle||n.battle.phase!=='active','Terminez votre raid avant de défendre la cité.');requireThat(!buildJobs(n).length,'Attendez la fin des chantiers avant l’épreuve.');n.siege=createSiege(n,action.tier);break;
  case 'siege-target':case 'siege-spell':siegeCommand(n.siege,action);settleSiege(n);break;
@@ -311,6 +314,7 @@ export function restoreState(raw,now=Date.now()){
    if(b.phase==='won')s.battle.reward=Object.fromEntries(['gold','wood','aether','xp','gems'].map(k=>[k,cap(Number(b.reward?.[k])||0,0,1e8)]));
   }
  }
+ restoreAssault(s,raw);
  return advance(s,now);
 }
 

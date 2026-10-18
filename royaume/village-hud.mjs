@@ -16,7 +16,7 @@ export function hudLayout(width,height,ui={}){
  for(const [i,key]of (ui.starter&&ui.level<3?['gold','wood']:Object.keys(RESOURCE_NAMES)).entries())add('res-'+key,resourceX,13+(ui.safeTop||0)+i*(resH+resGap),resW,resH,'resource-info',RESOURCE_NAMES[key],{dataId:key,kind:'resource'});
  const combat={x:m,y:height-bottom-mainH,w:mainW,h:mainH},build={...combat,x:width-m-mainW};
  if(!ui.selected&&!ui.placement&&!ui.siege){
-  if(!ui.starter||ui.level>=3)add('combat',combat.x,combat.y,combat.w,combat.h,'combat-menu','Combat');add('build',build.x,build.y,build.w,build.h,'village-shop','Construire');
+  if(!ui.starter||ui.level>=2)add('combat',combat.x,combat.y,combat.w,combat.h,'combat-menu','Combat');add('build',build.x,build.y,build.w,build.h,'village-shop','Construire');
   add('builder',build.x,build.y-29*s,build.w,25*s,'builder-status','Bâtisseur disponible');
   const button=Math.max(36,44*s);add('map',(width-button)/2,height-bottom-button,button,button,'village-tools',ui.expanded?'Fermer':'Menu');
  }

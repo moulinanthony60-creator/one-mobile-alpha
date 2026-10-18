@@ -1,0 +1,12 @@
+{
+  "name": "one-valdoria-api",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-18",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "one-valdoria",
+      "database_id": "071b1562-a479-4f0d-93ab-e22dbbe245ee"
+    }
+  ]
+}
