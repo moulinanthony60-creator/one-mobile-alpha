@@ -154,7 +154,7 @@ export function createVillagePainter(art){
   if(selected&&!placement){const p=state.village.structures.find(p=>p.id===selected),d=p&&defenseStats(p);if(d){const f=footprint(p.kind,p.rotation),at=project(p.x+(f.w-1)/2,p.z+(f.d-1)/2,camera,width,height);ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle='#fff0aaa6';ctx.fillStyle='#e3c56a0b';ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(at.x,at.y,d.range*t/Math.SQRT2,d.range*t/Math.sqrt(8),0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();}}
   const all=[];
   for(const p of scenery){const at=project(p.x,p.z,camera,width,height),sprite=sprites[p.kind],w=p.span*t,h=w*sprite.aspect;all.push({sprite,left:at.x-w/2,top:at.y-h*.91,width:w,height:h,flip:p.variant>.5,depth:p.x+p.z-.6,scenery:true,tree:p.id?p:null});}
-  const token=[state.troops,state.army?.archers,state.army?.cavalry,...state.village.structures.filter(p=>p.kind==='camp').map(p=>p.id+':'+p.level+':'+!!p.pending)].join('|');
+  const token=[state.troops,JSON.stringify(state.army),...state.village.structures.filter(p=>p.kind==='camp').map(p=>p.id+':'+p.level+':'+!!p.pending)].join('|');
   if(campGround!==groundKey||campToken!==token){campGround=groundKey;campToken=token;campPeople=campResidents(state,streets,time);campOccupancy=new Map(armyHousing(state).camps.map(c=>[c.id,c]));}
   for(const [i,p]of campPeople.entries())p.activityTime=time/1000+(p.idleSeed||0);
   const residents=[...life.sample(state,streets,time),...campPeople];

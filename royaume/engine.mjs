@@ -1,3 +1,4 @@
+import {TRAINING,TRAINING_UNITS,barracksLevel,plotLevel} from './barracks.mjs?v=36';
 import {builderHutQuote,restoreBuilderHuts,builderHuts} from './builder-huts.mjs?v=34';
 import {armyHousing,housingError,campRemovalError} from './army-camps.mjs?v=34';
 import {newRoyalPack,openRoyalPack,revealRoyalPack,finishRoyalPack,restoreRoyalPack} from './royal-pack.mjs?v=34';
@@ -15,14 +16,11 @@ import {constructionError,upgradeError,awardMilestones} from './progression.mjs?
 import {createSiege,stepSiege,settleSiege,siegeCommand,restoreSiege} from './siege.mjs?v=34';
 import {PLOTS,MAX_BUILDINGS,createVillage,createStarterVillage,expandTown,fortifyTown,wallPlan,restoreVillage,findFreePlot,placementError,villageBonus} from './village-state.mjs?v=34';
 export const VERSION = 1;
-export const TRAINING={
- guardians:{name:'Gardiens',singular:'gardien',kind:'camp',count:4,gold:120,wood:80,seconds:20,capacity:100,desc:'3 gardiens sont nécessaires pour lancer un raid.'},
- archers:{name:'Archers',singular:'archer',kind:'archery',count:3,gold:180,wood:120,seconds:30,capacity:60,desc:'Jusqu’à 3 par raid · +6 % d’attaque chacun.'},
- cavalry:{name:'Cavaliers',singular:'cavalier',kind:'stable',count:2,gold:240,wood:160,seconds:40,capacity:30,desc:'Jusqu’à 2 par raid · +5 % PV et +3 % d’attaque chacun.'}
-};
+export {TRAINING};
 export function troopCount(s,unit){return unit==='guardians'?s.troops:(s.army?.[unit]||0);}
-export function trainingCamp(s,unit){const spec=TRAINING[unit];return spec?s.village.structures.filter(p=>!p.pending&&(p.kind===spec.kind||(unit==='guardians'&&p.kind==='barracks'))).sort((a,b)=>Number(!!jobFor(s,a.id))-Number(!!jobFor(s,b.id))||(b.essential?s.buildings[b.id]:b.level)-(a.essential?s.buildings[a.id]:a.level)||(b.kind===spec.kind)-(a.kind===spec.kind))[0]:null;}
-export function trainingSeconds(s,unit){const p=trainingCamp(s,unit);return p?Math.max(8,TRAINING[unit].seconds-(p.essential?s.buildings[p.id]-1:p.level-1)*3):0;}
+export function trainingCamp(s,unit){const spec=TRAINING[unit];return spec?(s.village?.structures||[]).filter(p=>p.kind==='barracks'&&!p.pending&&plotLevel(s,p)>=spec.level).sort((a,b)=>Number(!!jobFor(s,a.id))-Number(!!jobFor(s,b.id))||plotLevel(s,b)-plotLevel(s,a))[0]||null:null;}
+export function trainingError(s,unit){const spec=TRAINING[unit];if(!spec)return 'Choisissez une unité à former.';const camp=trainingCamp(s,unit);if(!camp)return barracksLevel(s)?'Caserne niveau '+spec.level+' nécessaire pour former les '+spec.name.toLowerCase()+'.':'Construisez d’abord une caserne (citadelle 2).';return jobFor(s,camp.id)?'La caserne est en travaux. Attendez la fin du chantier.':null;}
+export function trainingSeconds(s,unit){const p=trainingCamp(s,unit);return p?Math.max(8,TRAINING[unit].seconds-(plotLevel(s,p)-1)*3):0;}
 export const TRAINING_LIMIT=6;
 export function trainingJobs(s){return [s.training,...(s.trainingQueue||[])].filter(Boolean);}
 export function upgradeFunds(s,cost){const missing={gold:Math.max(0,cost.gold-s.gold),wood:Math.max(0,cost.wood-s.wood)};return {missing,affordable:!missing.gold&&!missing.wood,collectable:['gold','wood'].every(k=>s[k]+Math.floor(s.stash[k])>=cost[k])};}
@@ -40,13 +38,18 @@ export function raidReadiness(s,id){const r=REGIONS[id];if(!r)return [];
  {id:'siege',label:'Cité disponible',met:s.siege?.phase!=='active'}
  ];
 }
-export function raidSupport(s){const archers=Math.min(3,s.army?.archers||0),cavalry=Math.min(2,s.army?.cavalry||0);return {archers,cavalry,attack:archers*.06+cavalry*.03,hp:cavalry*.05};}
+export function raidSupport(s){
+ const units=Object.fromEntries(TRAINING_UNITS.filter(k=>k!=='guardians').map(k=>[k,Math.min(TRAINING[k].raid,troopCount(s,k))]));
+ return {...units,units,attack:Object.entries(units).reduce((n,[k,count])=>n+count*TRAINING[k].attack,0),hp:Object.entries(units).reduce((n,[k,count])=>n+count*TRAINING[k].hp,0)};
+}
+export function raidSupportText(support){return Object.entries(support.units||{}).filter(([,n])=>n>0).map(([k,n])=>n+' '+(n===1?TRAINING[k].singular:TRAINING[k].name.toLowerCase())).join(', ');}
+
 
 export const BUILDINGS = {
   castle: {name:'Citadelle', subtitle:'Le cœur de votre royaume', icon:'castle', x:47,y:34, gold:450,wood:320, description:'Renforce votre cité et permet aux autres bâtiments de gagner de nouveaux niveaux.'},
   mine: {name:'Mine d’or',subtitle:'La richesse sous la montagne',icon:'gold',x:21,y:32,gold:260,wood:180,description:'Produit de l’or, même pendant votre absence. Chaque niveau augmente la production et la capacité.'},
   forge: {name:'Forge',subtitle:'Le feu de votre armée',icon:'anvil',x:32,y:54,gold:350,wood:240,description:'Chaque niveau donne 8 % d’attaque supplémentaire à tous vos héros pendant les raids.'},
-  barracks: {name:'Caserne',subtitle:'Des soldats prêts à vous suivre',icon:'swords',x:53,y:65,gold:320,wood:220,description:'Formez des gardiens pour accompagner vos héros. Trois gardiens partent à chaque raid.'},
+  barracks: {name:'Caserne',subtitle:'Des soldats prêts à vous suivre',icon:'swords',x:53,y:65,gold:320,wood:220,description:'Formez 10 types de troupes. Chaque niveau de 1 à 10 débloque une nouvelle unité ; les niveaux suivants accélèrent la formation.'},
   tree: {name:'Scierie',subtitle:'Une forêt généreuse',icon:'leaf',x:76,y:45,gold:240,wood:150,description:'Produit du bois et augmente les points de vie de vos héros de 5 % par niveau.'},
   shrine: {name:'Sanctuaire',subtitle:'L’écho d’une magie ancienne',icon:'crystal',x:71,y:66,gold:400,wood:280,description:'Produit de l’éther pour préparer des potions de soin.'}
 };
@@ -181,7 +184,7 @@ export function act(s,action,now=Date.now()){
  case 'train':return act(s,{type:'train-batch',unit:'guardians'},now);
  case 'train-batch':{
   const unit=action.unit,spec=TRAINING[unit];requireThat(!!spec,'Choisissez une unité à former.');requireThat(trainingJobs(n).length<TRAINING_LIMIT,'La file contient déjà 6 groupes.');
-  const camp=trainingCamp(n,unit);requireThat(!!camp,'Construisez d’abord le bâtiment de formation correspondant.');requireThat(!jobFor(n,camp.id),'Ce camp est en travaux. Attendez la fin du chantier.');
+  const error=trainingError(n,unit);requireThat(!error,error);const camp=trainingCamp(n,unit);
   const spaceError=housingError(n,unit,spec.count);requireThat(!spaceError,spaceError);pay(n,{gold:spec.gold,wood:spec.wood});
   const starts=trainingJobs(n).at(-1)?.ends||now,job={id:'training-'+now+'-'+(n.trainingSerial++),unit,campId:camp.id,starts,ends:starts+trainingSeconds(n,unit)*1000};
   if(n.training)(n.trainingQueue??=[]).push(job);else n.training=job;
@@ -212,9 +215,9 @@ export function act(s,action,now=Date.now()){
   requireThat(!n.progressionVersion||(n.buildings.castle>=3&&n.village.structures.some(p=>p.kind==='hall'&&!p.pending)&&n.team.length>0),'Construisez le Hall des héros à la citadelle 3 avant de partir en campagne.');
   requireThat(n.team.length>0,'Choisissez vos héros avant de partir.');const r=REGIONS[action.id];requireThat(!!r,'Territoire inconnu.');requireThat(action.id===0||n.cleared.includes(action.id-1),'Libérez le territoire précédent pour ouvrir cette route.');
   requireThat(!n.battle||n.battle.phase!=='active','Un raid est déjà en cours.');pay(n,{energy:r.energy,troops:3});
-  const support=raidSupport(n);n.army??={archers:0,cavalry:0};n.army.archers-=support.archers;n.army.cavalry-=support.cavalry;
+  const support=raidSupport(n);n.army??={archers:0,cavalry:0};for(const [unit,count]of Object.entries(support.units))if(count)n.army[unit]=(n.army[unit]||0)-count;
   const team=n.team.map(id=>{const h=heroStats(n,id),maxHp=Math.round(h.maxHp*(1+support.hp));return {...h,attack:Math.round(h.attack*(1+support.attack)),maxHp,hp:maxHp,cooldown:0,shield:false};});
-  n.battle={support,region:r.id,phase:'active',round:1,actor:0,acted:[],seed:now>>>0,team,enemies:r.enemies.map((name,i)=>({id:i,name,hp:Math.round(r.hp*(i===2?1.7:1)),maxHp:Math.round(r.hp*(i===2?1.7:1)),attack:Math.round(r.attack*(i===2?1.25:1))})),log:[`Renforts : 3 gardiens, ${support.archers} archers et ${support.cavalry} cavaliers. +${Math.round(support.attack*100)} % ATQ, +${Math.round(support.hp*100)} % PV.`,`Votre escouade entre dans ${r.name.toLowerCase()}.`,`Tour 1 · ${team[0].name} ouvre le combat.`]};break;
+  n.battle={support,region:r.id,phase:'active',round:1,actor:0,acted:[],seed:now>>>0,team,enemies:r.enemies.map((name,i)=>({id:i,name,hp:Math.round(r.hp*(i===2?1.7:1)),maxHp:Math.round(r.hp*(i===2?1.7:1)),attack:Math.round(r.attack*(i===2?1.25:1))})),log:[`Renforts : 3 gardiens, ${raidSupportText(support)||'aucun renfort supplémentaire'}. +${Math.round(support.attack*100)} % ATQ, +${Math.round(support.hp*100)} % PV.`,`Votre escouade entre dans ${r.name.toLowerCase()}.`,`Tour 1 · ${team[0].name} ouvre le combat.`]};break;
  }
  case 'combat':{
   const b=n.battle;requireThat(b?.phase==='active','Aucun combat actif.');const h=b.team[b.actor];requireThat(h&&h.hp>0,'Ce héros ne peut pas agir.');
@@ -274,12 +277,12 @@ export function restoreState(raw,now=Date.now()){
  s.claimed=Array.isArray(raw.claimed)?QUESTS.filter(q=>raw.claimed.includes(q.id)).map(q=>q.id):[];
  s.cleared=Array.isArray(raw.cleared)?REGIONS.filter(r=>raw.cleared.includes(r.id)).map(r=>r.id):[];s.stats.conquer=s.cleared.length;
  s.village=restoreVillage(raw.village,starter);if(starter)for(const id of Object.keys(BUILDINGS)){const p=s.village.structures.find(p=>p.id===id);s.buildings[id]=p?Math.min(s.buildings[id]||p.level,id==='castle'?MAX_BUILDING_LEVEL:s.buildings.castle):0;if(p)p.level=s.buildings[id];}
- for(const unit of ['archers','cavalry'])s.army[unit]=cap(Math.floor(Number(raw.army?.[unit])||0),0,100000);
+ for(const unit of TRAINING_UNITS.filter(k=>k!=='guardians')){const count=cap(Math.floor(Number(raw.army?.[unit])||0),0,100000);if(count||['archers','cavalry'].includes(unit))s.army[unit]=count;}
  prepareForest(s.village,raw.village?.forest);
  restoreBuilderHuts(raw,s);restoreBuilders(raw,s,now);restoreWallQueue(raw,s);restorePacks(raw,s);restoreHeroPacks(raw,s);restoreCollection(raw,s);restoreRoyalPack(raw,s,now);
  s.trainingSerial=Math.max(1,Math.min(1e9,Math.floor(raw.trainingSerial)||1));
  const restored=[],candidates=[raw.training,...(Array.isArray(raw.trainingQueue)?raw.trainingQueue.slice(0,TRAINING_LIMIT-1):[])];
- for(const q of candidates){const spec=TRAINING[q?.unit],previous=restored.at(-1);if(!spec||!Number.isFinite(q.starts)||!Number.isFinite(q.ends)||q.ends<=q.starts||q.ends-q.starts>spec.seconds*1000||q.ends-q.starts<8000||(!previous&&q.starts>now)||(previous&&q.starts!==previous.ends)||!s.village.structures.some(p=>!p.pending&&p.id===q.campId&&(p.kind===spec.kind||(q.unit==='guardians'&&p.kind==='barracks'))))break;
+ for(const q of candidates){const spec=TRAINING[q?.unit],previous=restored.at(-1);if(!spec||!Number.isFinite(q.starts)||!Number.isFinite(q.ends)||q.ends<=q.starts||q.ends-q.starts>spec.seconds*1000||q.ends-q.starts<8000||(!previous&&q.starts>now)||(previous&&q.starts!==previous.ends)||!s.village.structures.some(p=>!p.pending&&p.id===q.campId&&(p.kind==='barracks'&&plotLevel(s,p)>=spec.level||spec.legacyKind&&p.kind===spec.legacyKind)))break;
   const id=typeof q.id==='string'&&/^training-[\d-]+$/.test(q.id)&&q.id.length<80?q.id:'training-'+q.ends+'-'+s.trainingSerial++;
   if(restored.some(j=>j.id===id))break;restored.push({id,unit:q.unit,campId:q.campId,starts:q.starts,ends:q.ends});
  }
@@ -290,7 +293,7 @@ export function restoreState(raw,now=Date.now()){
 
  s.journal=Array.isArray(raw.journal)?raw.journal.slice(0,30).filter(j=>typeof j?.text==='string'&&Number.isFinite(j.time)).map(j=>({text:j.text.slice(0,200),time:j.time})):s.journal;
  // A single welcome camp is placed only on free terrain in pre-military saves.
- if(!starter&&!raw.militaryIntroduced&&!s.village.structures.some(p=>p.kind==='camp')&&s.village.structures.length<MAX_BUILDINGS){const b=s.village.structures.find(p=>p.kind==='barracks'),pos=findFreePlot(s.village,'camp',0,b?{x:b.x-5,z:b.z}:{x:-12,z:0});if(pos){s.village.structures.push({id:'plot-'+s.village.nextId++,kind:'camp',...pos,rotation:0,level:1,essential:false});note(s,'Un camp de gardiens offert rejoint votre village. Touchez le camp pour former vos troupes.',now);}}
+ if(!starter&&!raw.militaryIntroduced&&!s.village.structures.some(p=>p.kind==='camp')&&s.village.structures.length<MAX_BUILDINGS){const b=s.village.structures.find(p=>p.kind==='barracks'),pos=findFreePlot(s.village,'camp',0,b?{x:b.x-5,z:b.z}:{x:-12,z:0});if(pos){s.village.structures.push({id:'plot-'+s.village.nextId++,kind:'camp',...pos,rotation:0,level:1,essential:false});note(s,'Un camp de gardiens offert rejoint votre village. Les camps accueillent vos troupes ; la caserne les forme.',now);}}
  if(!starter&&!raw.townIntroduced){const added=expandTown(s.village);if(added)note(s,'La cité s’agrandit : '+added+' constructions offertes, dont le marché, l’académie et la fontaine. Vos bâtiments restent à leur place.',now);}
  if(!starter&&!raw.fortressIntroduced){const added=fortifyTown(s.village);if(added)note(s,'Votre base se fortifie : '+added+' défenses et remparts offerts sur des emplacements libres.',now);}
  s.siegeCleared=Array.isArray(raw.siegeCleared)?[0,1,2].filter(n=>raw.siegeCleared.includes(n)):[];

@@ -27,9 +27,11 @@
  const label=[...points.children].find(n=>n.tagName==='SPAN'&&!n.className);if(label)label.textContent='Points ONE';
  const style=document.createElement('link');style.rel='stylesheet';style.href='ui/header-polish.css?v=118c2';document.head.append(style);
 })();
-
 /* Keep the home game entry separate from the header controls. */
 (()=>{
- const entryURL=new URL('./one-valdoria-home.js?v=35',document.currentScript.src);
+ const entryURL=new URL('./one-valdoria-home.js?v=36',document.currentScript.src);
  import(entryURL.href).catch(error=>console.warn('Valdoria home entry could not load',error));
 })();
+
+
+

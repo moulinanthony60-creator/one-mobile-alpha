@@ -2,7 +2,7 @@ import {builderHutQuote} from './builder-huts.mjs?v=34';
 import {MAX_BUILDING_LEVEL} from './building-levels.mjs?v=34';
 import {jobFor,queuedWallFor,freeWorkers} from './builders.mjs?v=34';
 import {PLOTS,MAX_BUILDINGS} from './village-state.mjs?v=34';
-export const UNLOCK_LEVEL={builderhut:1,castle:1,mine:1,tree:1,cottage:1,camp:2,tower:2,wall:2,vault:2,barracks:3,forge:3,archery:3,hall:3,shrine:3,tavern:3,cannon:4,mortar:4,market:4,stable:4,mill:4,fountain:4,reservoir:4,ballista:5,arcane:5,academy:5};
+export const UNLOCK_LEVEL={builderhut:1,castle:1,mine:1,tree:1,cottage:1,camp:2,tower:2,wall:2,vault:2,barracks:2,forge:3,archery:3,hall:3,shrine:3,tavern:3,cannon:4,mortar:4,market:4,stable:4,mill:4,fountain:4,reservoir:4,ballista:5,arcane:5,academy:5};
 export const CITADEL_REQUIREMENTS={
  2:[['mine',1],['tree',1],['cottage',1]],
  3:[['camp',1],['tower',1],['mine',2],['tree',2]],

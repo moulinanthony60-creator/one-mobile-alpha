@@ -5,14 +5,14 @@ const imageURL=new URL('../royaume/assets/city.png',import.meta.url).href;
 const style=document.createElement('style');
 style.id='oneValdoriaHomeStyle';
 style.textContent=`
-#oneFoundation .oneValdoriaCard{position:relative;isolation:isolate;display:block;box-sizing:border-box;min-height:300px;overflow:hidden;margin:20px 0;border:1px solid #d9c08b80;border-radius:22px;background:#102c32;color:#fff5df;text-decoration:none;box-shadow:0 14px 36px #050c2033;outline-offset:5px;-webkit-tap-highlight-color:transparent}
+#oneFoundation .oneValdoriaCard{position:relative;isolation:isolate;display:block;box-sizing:border-box;min-height:260px;overflow:hidden;margin:20px 0;border:1px solid #d9c08b80;border-radius:22px;background:#102c32;color:#fff5df;text-decoration:none;box-shadow:0 14px 36px #050c2033;outline-offset:5px;-webkit-tap-highlight-color:transparent}
 #oneFoundation .oneValdoriaCard:focus-visible{outline:3px solid #f5d894}
 #oneFoundation .oneValdoriaCard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 36%;z-index:-2;transition:transform .45s ease}
 #oneFoundation .oneValdoriaCard::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#0b20242b 0%,#0b202400 24%,#091c217a 49%,#081a22f5 100%)}
 #oneFoundation .oneValdoriaTop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 22px}
 #oneFoundation .oneValdoriaTag{padding:7px 10px;border:1px solid #ffffff55;border-radius:8px;background:#10252ac9;color:#fff5df;font:700 10px/1.2 system-ui,sans-serif;letter-spacing:.14em}
 #oneFoundation .oneValdoriaBrand{color:#fff;font:800 12px/1 system-ui,sans-serif;letter-spacing:.16em;text-shadow:0 1px 8px #10252a}
-#oneFoundation .oneValdoriaContent{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:115px 24px 24px}
+#oneFoundation .oneValdoriaContent{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:80px 24px 24px}
 #oneFoundation .oneValdoriaCopy{display:block;min-width:0}
 #oneFoundation .oneValdoriaTitle{display:block;color:#fff4d4;font:500 clamp(34px,5vw,46px)/1.05 Georgia,serif;letter-spacing:-.035em;text-shadow:0 2px 14px #02101380}
 #oneFoundation .oneValdoriaDescription{display:block;margin-top:9px;color:#e7ebdf;font:400 13px/1.5 system-ui,sans-serif}
