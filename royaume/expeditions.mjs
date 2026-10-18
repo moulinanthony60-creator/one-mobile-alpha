@@ -1,3 +1,4 @@
+import {recordOnline} from './online-events.mjs?v=38';
 import {TRAINING,TRAINING_UNITS} from './barracks.mjs?v=36';
 
 export const FIELD={width:20,height:16,seconds:150};
@@ -65,7 +66,7 @@ function route(u,target,b,range){
 }
 function hurt(b,target,damage,source,kind='shot'){target.hp=Math.max(0,target.hp-damage);b.effects.push({kind,x:target.x,y:target.y,fromX:source.x,fromY:source.y,life:.25});}
 export function stepAssault(s,dt){
- const b=s.assault;if(!b||b.phase!=='active')return;dt=clamp(dt,0,.1);b.elapsed+=dt;b.effects=b.effects.map(e=>({...e,life:e.life-dt})).filter(e=>e.life>0).slice(-80);
+ const b=s.assault;if(!b||b.phase!=='active'||s.cloud?.busy)return;dt=clamp(dt,0,.1);recordOnline(s,{kind:'tick',mode:'assault',dt,at:Date.now()});b.elapsed+=dt;b.effects=b.effects.map(e=>({...e,life:e.life-dt})).filter(e=>e.life>0).slice(-80);
  for(const u of b.units){if(u.hp<=0)continue;const spec=ASSAULT_UNITS[u.kind];u.cooldown-=dt;u.repath-=dt;
   let target;
   if(spec.heal){target=b.units.filter(v=>v.hp>0&&v.id!==u.id&&!ASSAULT_UNITS[v.kind].heal).sort((a,c)=>(a.hp/a.maxHp-c.hp/c.maxHp)||Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(c.x-u.x,c.y-u.y))[0];}

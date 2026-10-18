@@ -1,3 +1,4 @@
+import {onlineReady,recordOnline} from './online-events.mjs?v=38';
 import {assaultCommand,restoreAssault} from './expeditions.mjs?v=37';
 import {TRAINING,TRAINING_UNITS,barracksLevel,plotLevel} from './barracks.mjs?v=36';
 import {builderHutQuote,restoreBuilderHuts,builderHuts} from './builder-huts.mjs?v=34';
@@ -93,7 +94,7 @@ function advanceStep(s,now){
  while(s.training&&now>=s.training.ends){const q=s.training,spec=TRAINING[q.unit];if(spec){if(q.unit==='guardians')s.troops+=spec.count;else{s.army??={archers:0,cavalry:0};s.army[q.unit]=(s.army[q.unit]||0)+spec.count;}note(s,`${spec.count} ${spec.name.toLowerCase()} ont rejoint les camps.`,q.ends);}s.training=(s.trainingQueue||[]).shift()||null;}
  const dt=cap((now-s.lastTick)/60000,0,480),bonus=villageBonus(s.village);
  s.stash.gold=Math.min(800*s.buildings.mine+bonus.goldStorage,s.stash.gold+dt*(45*s.buildings.mine+bonus.gold));
- s.stash.wood=Math.min(700*s.buildings.tree,s.stash.wood+dt*(30*s.buildings.tree+bonus.wood));
+ s.stash.wood=Math.min(700*s.buildings.tree+bonus.woodStorage,s.stash.wood+dt*(30*s.buildings.tree+bonus.wood));
  s.stash.aether=Math.min(160*s.buildings.shrine+bonus.aetherStorage,s.stash.aether+dt*(3*s.buildings.shrine+bonus.aether));
  s.lastTick=Math.max(s.lastTick,now);
  const ticks=Math.floor(Math.max(0,now-s.energyTick)/90000);
@@ -145,6 +146,7 @@ function enemyTurn(s,now){
  b.actor=b.team.findIndex(h=>h.hp>0);b.log.push(`Tour ${b.round} · À vous de jouer.`);
 }
 export function act(s,action,now=Date.now()){
+ onlineReady(s);
  // All actions run on a copy: a rejected operation cannot partially spend resources.
  now=Math.max(now,s.lastTick);const n=structuredClone(s);advance(n,now);
  if(n.siege?.phase==='active'&&['hire-worker','clear-tree','upgrade-walls','cancel-wall-queue','place-building','place-walls','move-walls','upgrade-plot','upgrade','speedup','demolish','raid'].includes(action.type))throw new Error('Terminez la défense avant de modifier la base ou de lancer un raid.');
@@ -265,6 +267,7 @@ export function act(s,action,now=Date.now()){
  }
  startQueuedWalls(n,now);
  for(const m of awardMilestones(n))note(n,`Étape accomplie : +${m.gold} or, +${m.wood} bois.`,now);
+ recordOnline(n,{kind:'action',action:structuredClone(action),at:now});
  return n;
 }
 export function restoreState(raw,now=Date.now()){
@@ -315,8 +318,9 @@ export function restoreState(raw,now=Date.now()){
   }
  }
  restoreAssault(s,raw);
+ if(raw.cloud?.user&&Number.isInteger(raw.cloud.rev))s.cloud={user:raw.cloud.user,rev:raw.cloud.rev,queue:Array.isArray(raw.cloud.queue)?raw.cloud.queue.slice(0,400):[],request:raw.cloud.request||null,raid:raw.cloud.raid||null,busy:false};
  return advance(s,now);
 }
 
 // Explicit real-time advancement. Trials pause while the page is hidden or outside the village.
-export function advanceDefense(s,dt){stepSiege(s.siege,dt);settleSiege(s);return s;}
+export function advanceDefense(s,dt){if(s.cloud?.busy||s.cloud?.raid)return s;const live=s.siege?.phase==='active';stepSiege(s.siege,dt);settleSiege(s);if(live)recordOnline(s,{kind:'tick',mode:'siege',dt:Math.min(dt,.1),at:Date.now()});return s;}

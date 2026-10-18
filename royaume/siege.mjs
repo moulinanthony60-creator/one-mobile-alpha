@@ -3,6 +3,9 @@ import {updateFootContacts} from './locomotion.mjs?v=34';
 import {walkable} from './village-motion.mjs?v=34';
 import {footprint,GRID_MIN,GRID_MAX} from './village-state.mjs?v=34';
 export const DEFENSES={
+ bastion:{range:6,damage:70,interval:2,shot:'shell',name:'Tir du bastion'},
+ firetower:{range:6,damage:28,interval:1.2,splash:2,shot:'mortar',name:'Flammes'},
+ watchtower:{range:12,damage:18,interval:.8,shot:'arrow',name:'Flèches rapides'},
  tower:{range:7,damage:24,interval:1,shot:'arrow',name:'Flèches'},
  cannon:{range:7,damage:48,interval:1.7,shot:'shell',name:'Boulets'},
  mortar:{range:10,damage:42,interval:3,splash:2.2,shot:'mortar',name:'Explosion de zone'},

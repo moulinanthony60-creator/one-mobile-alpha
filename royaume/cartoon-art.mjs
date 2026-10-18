@@ -19,6 +19,10 @@ export function createCartoonArtwork(images,makeCanvas){
    const tile=makeCanvas(r-l+1,b-t+1);tile.getContext('2d').drawImage(image,l,t,tile.width,tile.height,0,0,tile.width,tile.height);sprites[names[i]]=spriteFrom(tile,makeCanvas);
   }
  }
+ for(const [kind,base,hue,mark] of [['farm','cottage',35,'✿'],['lumberyard','sawmill',-25,'▥'],['mint','vault',25,'◆'],['warehouse','barracks',65,'▤'],['treasury','vault',-30,'♦'],['firetower','arcane',115,'▲'],['watchtower','tower',-30,'✦']]){
+  const source=sprites[base].image,c=makeCanvas(source.width,source.height),cx=c.getContext('2d');cx.filter='hue-rotate('+hue+'deg)';cx.drawImage(source,0,0);cx.filter='none';
+  const r=c.width*.095,x=c.width*.53,y=c.height*.62;cx.fillStyle='#f2d17a';cx.strokeStyle='#6b4b25';cx.lineWidth=Math.max(1,r*.12);cx.beginPath();cx.arc(x,y,r,0,Math.PI*2);cx.fill();cx.stroke();cx.fillStyle='#554023';cx.font='bold '+r*1.4+'px serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText(mark,x,y);sprites[kind]=spriteFrom(c,makeCanvas);
+ }
  sprites.builderhut=spriteFrom(images.toonHut,makeCanvas);
  sprites.castle=sprites.castle3;sprites.rampartX=sprites.wallX;sprites.rampartZ=sprites.wallZ;
  for(const kind of ['worker','guardian','archer','scholar','rider','merchant','raider','brute','wolf']){const c=makeCanvas(180,200);paintCartoonActor(c.getContext('2d'),{kind,dx:1,dz:0,walkDistance:0,motionBlend:0},90,180,145);sprites[kind]=spriteFrom(c,makeCanvas);}

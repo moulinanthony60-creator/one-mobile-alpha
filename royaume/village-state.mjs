@@ -2,6 +2,14 @@ import {forestTrees,treeOverlaps} from './forest.mjs?v=34';
 import {MAX_BUILDING_LEVEL} from './building-levels.mjs?v=34';
 export const GRID_MIN=-40,GRID_MAX=41,GRID_SIZE=81,MAX_BUILDINGS=600;
 export const PLOTS={
+ farm:{name:'Ferme royale',w:3,d:3,gold:420,wood:300,group:'Ressources',desc:'Les récoltes et les échanges produisent 12 or et 6 bois par minute et par niveau.'},
+ lumberyard:{name:'Chantier forestier',w:4,d:3,gold:680,wood:480,group:'Ressources',desc:'Les équipes de bûcherons produisent 35 bois par minute et par niveau.'},
+ mint:{name:'Hôtel des monnaies',w:3,d:3,gold:1100,wood:750,group:'Ressources',desc:'Frappe 48 or par minute et par niveau. Augmente le stockage d’or de 800 par niveau.'},
+ warehouse:{name:'Entrepôt de bois',w:3,d:3,gold:520,wood:380,group:'Ressources',desc:'Ajoute 1 400 places au stockage de bois par niveau, même pendant votre absence.'},
+ treasury:{name:'Coffre fortifié',w:3,d:3,gold:950,wood:700,group:'Ressources',desc:'Protège 250 or et 250 bois de vos réserves contre le pillage, par niveau et par coffre.'},
+ bastion:{name:'Bastion de fer',w:3,d:3,gold:1200,wood:850,group:'Défenses',desc:'Défense lourde : 70 dégâts, portée 6 cases. Tire toutes les 2 secondes.'},
+ firetower:{name:'Tour de flammes',w:2,d:2,gold:1400,wood:950,group:'Défenses',desc:'Inflige 28 dégâts de zone aux groupes d’ennemis toutes les 1,2 seconde. Portée 6 cases.'},
+ watchtower:{name:'Tour des sentinelles',w:2,d:2,gold:850,wood:600,group:'Défenses',desc:'Des tirs rapides à longue portée : 18 dégâts toutes les 0,8 seconde, portée 12 cases.'},
  builderhut:{name:'Cabane d’ouvrier',w:2,d:2,gold:0,wood:0,group:'Cité',desc:'Une cabane accueille un ouvrier permanent. Trois cabanes se débloquent en jouant ; deux emplacements ONE supplémentaires sont réservés.'},
  mortar:{name:'Mortier royal',w:2,d:2,gold:580,wood:300,group:'Défenses',desc:'Bombarde les groupes d’assaillants. Dégâts de zone, longue portée et cadence lente.'},
  ballista:{name:'Baliste',w:3,d:2,gold:620,wood:450,group:'Défenses',desc:'Transperce les ennemis à longue distance. Excellente contre les brutes.'},
@@ -114,8 +122,9 @@ export function restoreVillage(raw,starter=false){
  v.nextId=Math.max(100,...v.structures.filter(s=>s.id.startsWith('plot-')).map(s=>Number(s.id.slice(5))+1));return v;
 }
 export function villageBonus(v){
- const b={gold:0,wood:0,aether:0,attack:0,hp:0,goldStorage:0,aetherStorage:0};
+ const b={gold:0,wood:0,aether:0,attack:0,hp:0,goldStorage:0,woodStorage:0,aetherStorage:0,protected:0};
  for(const p of v?.structures||[]){if(p.essential||p.pending)continue;const l=p.level;
+  if(p.kind==='farm'){b.gold+=12*l;b.wood+=6*l;}if(p.kind==='lumberyard')b.wood+=35*l;if(p.kind==='mint'){b.gold+=48*l;b.goldStorage+=800*l;}if(p.kind==='warehouse')b.woodStorage+=1400*l;if(p.kind==='treasury')b.protected+=250*l;
   if(p.kind==='market')b.gold+=24*l;if(p.kind==='academy')b.attack+=.02*l;if(p.kind==='fountain')b.hp+=.02*l;
   if(p.kind==='vault')b.goldStorage+=1200*l;if(p.kind==='reservoir')b.aetherStorage+=240*l;
   if(p.kind==='mine')b.gold+=30*l;if(p.kind==='cottage')b.gold+=8*l;if(p.kind==='tree')b.wood+=20*l;if(p.kind==='mill')b.wood+=25*l;if(p.kind==='shrine')b.aether+=2*l;
