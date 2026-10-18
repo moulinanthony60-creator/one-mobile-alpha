@@ -597,7 +597,8 @@ export async function handleOneRequest(request,env,fetchAuth=fetch){
  if(!token?.startsWith('Bearer ')||token.length>4096)return response({error:'Connectez-vous à votre compte ONE pour jouer en ligne.'},401);
  if(!env.DB)return response({error:'Le serveur de duel se prépare. Réessayez bientôt.'},503);
  try{
-  const auth=await fetchAuth(AUTH,{headers:{Authorization:token,Origin:ORIGIN},signal:AbortSignal.timeout(7000)});
+  const options={headers:{Authorization:token,Origin:ORIGIN},signal:AbortSignal.timeout(7000)};
+  const auth=env.PROFILE?await env.PROFILE.fetch(new Request(AUTH,options)):await fetchAuth(AUTH,options);
   if(auth.status===401||auth.status===403)return response({error:'Votre session ONE a expiré. Reconnectez-vous sur ONE.'},401);
   if(!auth.ok)return response({error:'La connexion au compte ONE est temporairement indisponible.'},503);
   const profile=await auth.json();if(!profile.ok||!profile.account?.id)return response({error:'Connectez-vous à votre compte ONE.'},401);

@@ -2,6 +2,12 @@
   "name": "one-valdoria-api",
   "main": "worker.mjs",
   "compatibility_date": "2026-10-18",
+  "services": [
+    {
+      "binding": "PROFILE",
+      "service": "one-profile-api"
+    }
+  ],
   "d1_databases": [
     {
       "binding": "DB",
