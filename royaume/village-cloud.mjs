@@ -1,3 +1,4 @@
+import {SAVE_KEY} from './save-storage.mjs?v=39';
 export const VILLAGE_API='https://one-valdoria-api.moulinanthony60.workers.dev/api/villages';
 export function createVillageCloud({getState,setState,save,notice,request=fetch,schedule=setInterval}){
  let inflight=null,status='';
@@ -39,7 +40,7 @@ export function createVillageCloud({getState,setState,save,notice,request=fetch,
  }
  async function enroll(){
   await connect();if(getState().cloud)return;
-  localStorage.setItem('one_royaumes_aurore_v1_before_online',JSON.stringify(getState()));
+  localStorage.setItem(SAVE_KEY+'_before_online',JSON.stringify(getState()));
   accept(await api({action:'enroll',state:getState()}));
  }
  async function command(body){if(inflight)await inflight;const c=getState().cloud;if(c)c.busy=true;
