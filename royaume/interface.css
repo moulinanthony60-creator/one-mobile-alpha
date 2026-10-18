@@ -1,0 +1,202 @@
+/* V32 — one readable interface, shared by every village sheet.
+   These ID-scoped rules deliberately supersede the historic theme layers. */
+:root{
+ --panel-paper:#fff6df;--panel-paper-deep:#f1e2bd;--panel-ink:#403521;
+ --panel-muted:#726044;--panel-line:#c5aa76;--panel-blue:#327da8;
+ --action-green:#4b7d20;--action-gold:#f4c34a;
+}
+#modal, #village-selection, #village-catalog, #wall-selection, #placement-toolbar{
+ font-family:'Trebuchet MS',Arial,sans-serif;line-height:1.45;-webkit-font-smoothing:antialiased;
+}
+#modal:not(.royal-modal):not(.duel-modal),#village-selection,#village-catalog,#wall-selection,#placement-toolbar{
+ background:linear-gradient(145deg,#fff9e9,var(--panel-paper-deep));color:var(--panel-ink);
+ border:2px solid #9c8050;border-top-color:#fff8da;border-radius:18px;
+ box-shadow:0 4px 0 #6b5434,0 16px 38px #14271755,inset 0 0 0 1px #fff9df;
+}
+#modal:not(.royal-modal):not(.duel-modal){width:min(760px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:24px;overflow:auto}
+#modal::backdrop{background:#132e3780;backdrop-filter:blur(3px)}
+#modal:not(.royal-modal):not(.duel-modal)>h2{font:800 clamp(23px,4.5vw,30px)/1.15 'Trebuchet MS',Arial,sans-serif;color:var(--panel-ink);text-shadow:none;margin:5px 48px 20px 0;letter-spacing:-.5px}
+#modal:not(.royal-modal):not(.duel-modal)>.eyebrow{font-size:11px;color:var(--panel-muted);letter-spacing:.8px;font-weight:700;padding-right:40px}
+/* A primary action is green. Navigation and secondary actions are blue.
+   Spending ONE or gems keeps the distinct gold treatment in the chest. */
+#village-selection .button,#village-catalog .button,#wall-selection .button,#placement-toolbar .button,#modal .button{
+ font:700 15px/1.25 'Trebuchet MS',Arial,sans-serif;min-height:48px;padding:12px 16px;
+ border-radius:11px;letter-spacing:0;white-space:normal;gap:8px;touch-action:manipulation;
+ transition:filter .12s,transform .12s,box-shadow .12s;
+}
+#village-selection .soft-button,#wall-selection .soft-button,#placement-toolbar .soft-button,#village-catalog .soft-button,#modal .soft-button{
+ color:#fffaf0;background:linear-gradient(#5799c1,#3279a5);border:1px solid #235b80;border-top-color:#add3e6;
+ box-shadow:inset 0 1px #b5dcef66,0 3px 0 #204c6b;text-shadow:0 1px #1f5578;
+}
+#village-selection .gold-button,#wall-selection .gold-button,#placement-toolbar .gold-button,#village-catalog .gold-button,#modal .gold-button,#modal .button.upgrade-confirm{
+ color:#fffefa;background:linear-gradient(#7cae3e,#527f26);border:1px solid #3b641c;border-top-color:#d1e898;
+ box-shadow:inset 0 1px #e4f5b855,0 3px 0 #365a1e;text-shadow:0 1px #3b601d;font-weight:800;
+}
+#modal .button:hover:not(:disabled),#village-selection .button:hover:not(:disabled){filter:brightness(1.07)}
+#modal .button:active:not(:disabled),#village-selection .button:active:not(:disabled),#village-catalog .button:active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 1px 3px #132e3722}
+#modal .button:disabled,#village-selection .button:disabled,#wall-selection .button:disabled,#placement-toolbar .button:disabled{
+ background:#d8d3c3;color:#716b5d;border:1px solid #b6ae97;box-shadow:0 2px #b5aa8c;text-shadow:none;opacity:1;filter:none;cursor:default;
+}
+#modal button:focus-visible,#modal input:focus-visible,#modal select:focus-visible,#modal summary:focus-visible,
+#village-selection button:focus-visible,#village-selection summary:focus-visible,#village-catalog button:focus-visible{
+ outline:3px solid #155f98;outline-offset:3px;
+}
+#modal .button>.icon,#village-selection .button>.icon,#placement-toolbar .button>.icon{width:22px;height:22px;flex-shrink:0;stroke-width:2}
+#modal .modal-close,#village-selection .selection-close,#village-catalog .catalog-header>.icon-button,#wall-selection .editor-close{
+ width:44px;height:44px;min-height:44px;min-width:44px;padding:10px;display:grid;place-items:center;
+ background:#f5e8ca;color:#705739;border:1px solid #c8ad7c;border-radius:12px;box-shadow:0 2px #c6af82;text-shadow:none;
+}
+#modal .modal-close{top:15px;right:15px}#village-selection .selection-close{top:14px;right:14px}
+#modal .modal-close .icon,#village-selection .selection-close .icon{width:22px;height:22px}
+#modal:not(.royal-modal):not(.duel-modal) :is(.helper-text,.modal-lead){font-size:13px;line-height:1.6;color:var(--panel-muted)}
+#modal:not(.royal-modal):not(.duel-modal) .text-button{color:#5c5844;font-size:13px;min-height:44px;padding:10px 12px}
+/* Building sheet: clear title, price outside the button, only two action rows. */
+#village-selection{width:460px;max-width:calc(100% - 20px);max-height:65dvh;padding:16px 16px 4px;bottom:calc(12px + env(safe-area-inset-bottom));overflow:auto;scrollbar-width:thin}
+#village-selection .selection-heading{gap:14px;margin:0 0 14px;padding-right:46px;min-height:54px}
+#village-selection .selection-heading h2{font:800 24px/1.15 'Trebuchet MS',Arial,sans-serif;color:#403521;margin:4px 0 0;letter-spacing:-.5px}
+#village-selection .selection-heading small{font:700 11px/1.3 'Trebuchet MS',Arial,sans-serif;color:#81683f;letter-spacing:.5px}
+#village-selection .selection-icon{width:58px;height:58px;flex:0 0 58px}
+#village-selection .selection-icon>img{width:72px;height:72px}
+.selection-upgrade-info{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 12px;margin:0 0 14px;background:#e8dcc025;border:1px solid #d8c6a0;border-radius:11px;color:#6d5836;font-size:13px}
+.selection-upgrade-info>span{display:flex;align-items:center;gap:7px}.selection-upgrade-info .icon{width:16px;height:16px}
+.selection-next-level b{color:#446b24}.selection-price{display:flex;gap:20px;flex-basis:100%;padding-top:7px;border-top:1px solid #d8c6a088;font-size:16px;font-variant-numeric:tabular-nums}
+.selection-price>span{display:flex;align-items:center;gap:6px}.selection-price small{font-size:12px;color:#746142}.selection-price .upgrade-resource-art{width:27px;height:27px}
+#village-selection .selection-actions{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:10px;margin:0 0 5px}
+#village-selection .selection-actions>.button{min-height:52px;font-size:16px;padding:12px 10px;flex-basis:auto;justify-content:center}
+#village-selection .selection-actions.has-service{grid-template-columns:1fr 1fr}
+#village-selection .selection-actions.has-service>.button:first-child{grid-column:1/-1}
+#village-selection .selection-actions>.button[data-action=walls-select]{grid-column:1/-1;background:#eee3c8;color:#67573b;border:1px solid #cbbb98;box-shadow:none;font-size:13px;min-height:44px}
+#village-selection .selection-details{font-size:13px;margin-top:10px;border-top:1px solid #d2c09a;padding-top:0;color:#6c5b3d}
+#village-selection .selection-details>summary{font:700 13px 'Trebuchet MS',Arial,sans-serif;min-height:44px;color:#77603c;text-align:center;padding:8px}
+#village-selection .selection-details p,#village-selection .selection-details .helper-text{font-size:13px;line-height:1.55;color:#6c5b3d}
+#village-selection .selection-details .button{font-size:13px;min-height:44px}
+#village-selection .selection-work{padding:12px;background:#e9e1c2;border:1px solid #c4b587;border-radius:11px}
+#village-selection .selection-work>div:first-child{font-size:13px;color:#655431}#village-selection .selection-work strong{font-size:17px;color:#466b2c}
+#village-selection .selection-work-track{height:8px}#village-selection .selection-work-track>i{background:#7dab43}
+#village-selection .tree-clear-reward{font-size:15px;gap:8px;flex-wrap:wrap}#village-selection .tree-clear-reward>span:last-child{font-size:12px;color:#6f6044}
+#village-selection .selection-cost{font-size:12px;opacity:1;line-height:1.5}#village-selection .camp-inline{font-size:13px}
+/* Catalogue: every card can be scanned; no concealed horizontal carousel. */
+#village-catalog{width:min(820px,calc(100% - 16px));max-height:78dvh;bottom:8px;border-radius:18px;padding:18px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#village-catalog .catalog-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:nowrap;margin-bottom:14px}
+#village-catalog .catalog-header h2{font-size:25px;margin:4px 0 0;color:#443621}
+#village-catalog .catalog-header .eyebrow{font-size:10px;line-height:1.4;letter-spacing:.5px;color:#78603b}
+#village-catalog .catalog-header h2 small{font-size:13px;background:#d75340;color:white;border:1px solid #b03d2b;border-radius:7px;padding:3px 7px;vertical-align:middle}
+#village-catalog .catalog-header>.icon-button{position:static;flex-shrink:0}
+#village-catalog .catalog-filters{display:flex;gap:7px;overflow-x:auto;flex-wrap:nowrap;margin:0 0 14px;padding:2px 1px 5px;scrollbar-width:thin}
+#village-catalog .catalog-filters>.button{min-height:44px!important;background:#efe2c2!important;border:1px solid #cbb68b!important;color:#6c5735!important;font-size:13px!important;font-weight:700;padding:9px 14px!important;box-shadow:none!important;border-radius:9px}
+#village-catalog .catalog-filters>.button.active{background:#327ba4!important;color:#fffdf5!important;border-color:#215d82!important}
+#village-catalog .catalog-items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;overflow:visible;padding:0;scroll-snap-type:none}
+#village-catalog .catalog-item{min-width:0;width:100%;padding:10px;display:flex;flex-direction:column;align-items:center;border:1px solid #cbb487!important;border-top-color:#cbb487!important;background:#fff8e8;box-shadow:0 2px #cdb58b;border-radius:13px;position:relative}
+#village-catalog .catalog-item[hidden]{display:none}#village-catalog .catalog-item:hover:not(:disabled){background:#fffdf2;transform:translateY(-1px)}
+#village-catalog .catalog-item>b{font-size:15px;line-height:1.25;color:#4e3c21;margin:5px 0;white-space:normal}
+#village-catalog .catalog-illustration{height:104px;width:100%;margin:0;display:grid;place-items:center}
+#village-catalog .catalog-illustration>img{width:130px;height:112px;max-width:100%;object-fit:contain}
+#village-catalog .catalog-size{font-size:12px;color:#806a45;margin:2px 0 8px}
+#village-catalog .catalog-cost{font-size:13px;color:#685334;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;align-items:center;border-top:1px solid #dfd0b1;padding-top:8px;margin-top:auto;width:100%;min-height:34px}
+#village-catalog .catalog-cost>span{display:flex;gap:4px;align-items:center}.catalog-cost .upgrade-resource-art{width:23px;height:23px}
+.catalog-place{width:100%;min-height:34px;padding:6px;display:flex;justify-content:center;align-items:center;gap:5px;background:#e4edd2;color:#547729;border-radius:7px;margin-top:8px;font-size:13px;font-weight:800}.catalog-place .icon{width:16px;height:16px}
+#village-catalog .catalog-item:disabled{opacity:.63;filter:none;background:#e9e0cc;box-shadow:none}.catalog-complete .catalog-illustration{filter:saturate(.5)}
+#village-catalog .catalog-availability{top:8px;right:8px;min-width:24px;height:24px;padding:2px 6px;font:800 13px/18px Arial,sans-serif;box-shadow:0 2px #8c3025;border:1px solid #ac3c2c;background:#da5542;color:white;border-radius:7px}
+#village-catalog .catalog-next{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;padding-top:15px;border-top:1px solid #cdb98f}
+#village-catalog .catalog-next b{font-size:16px;color:#554021}#village-catalog .catalog-next small{font-size:12px;color:#7a6645;line-height:1.5}
+/* Upgrade confirmation: generous price and timing, readable blocked conditions. */
+#modal.upgrade-modal .upgrade-layout{gap:20px}#modal.upgrade-modal .upgrade-visual{min-width:0}
+#modal.upgrade-modal .upgrade-cost{background:#fff9ec;border:1px solid #d3bf96;border-radius:11px;padding:12px}
+#modal.upgrade-modal .upgrade-cost b{font-size:22px;color:#514022}#modal.upgrade-modal .upgrade-cost small{font-size:12px;color:#7a6746}
+#modal.upgrade-modal .upgrade-timing{font-size:14px;color:#77603c;gap:14px;flex-wrap:wrap}
+#modal.upgrade-modal .upgrade-confirm{min-height:56px;margin-top:16px;font-size:18px;width:100%}
+#modal.upgrade-modal .upgrade-confirm small{font-size:12px;color:inherit;font-weight:500;margin-top:4px}
+#modal.upgrade-modal .upgrade-benefits{background:#eee8d1;border:1px solid #d8c9a7;padding:13px;color:#5a4c33}
+#modal.upgrade-modal .upgrade-benefits small,#modal.upgrade-modal .upgrade-benefit-label{color:#78623e;font-size:12px}
+#modal.upgrade-modal .upgrade-requirements{background:#fff7e1;color:#6c5937;border:1px solid #d8c6a0;border-radius:11px;padding:12px}
+#modal.upgrade-modal .upgrade-requirements> b{font-size:14px;color:#534023}#modal .upgrade-requirements li{font-size:13px;gap:8px;padding:9px 0}
+#modal .upgrade-requirements li.met{color:#51772d}#modal .requirement-action{min-height:44px;font-size:12px;padding:9px 12px;border-radius:9px}
+#modal .upgrade-funds,#modal .upgrade-lock,#modal .upgrade-queue-info,#modal .upgrade-payment-note{font-size:13px;line-height:1.5}
+#modal .upgrade-lock{color:#90603a;background:#f1dfbc;padding:11px;border-radius:9px}
+#modal .upgrade-footlinks{display:flex;justify-content:space-between;gap:12px;margin-top:10px}
+/* Recruitment: three readable choices, compact portrait rows on a phone. */
+#modal.army-modal .army-wallet{font-size:14px;gap:20px}#modal.army-modal .housing-summary p{font-size:13px}
+#modal.army-modal .recruit-card{border:1px solid #cbb487;background:#fff8e7;box-shadow:0 2px #cdb58b}
+#modal.army-modal .recruit-card h3{font-size:18px}#modal.army-modal .recruit-space{font-size:12px;color:#786440}
+#modal.army-modal .recruit-cost{font-size:14px;gap:12px}#modal.army-modal .recruit-time{font-size:12px;min-height:24px;color:#756141}
+#modal.army-modal .recruit-ready{font-size:12px;color:#5b733b;line-height:1.5}#modal.army-modal .recruit-card>.button{padding:10px 7px;font-size:14px}
+#modal.army-modal .recruit-queue b,#modal.army-modal .training-waiting-item b{font-size:13px}#modal.army-modal .recruit-queue [data-training-seconds],#modal.army-modal .training-waiting-item small{font-size:12px}
+#modal.army-modal .army-camp-drawer>summary{min-height:50px;font-size:14px}#modal.army-modal .army-camp-drawer summary small{font-size:12px}
+#modal.army-modal .army-footer{gap:12px;flex-wrap:wrap}#modal.army-modal .army-footer>span{font-size:12px;color:#786441}#modal.army-modal .army-footer>.button{font-size:13px;min-height:44px}
+#modal.army-modal .worker-card{color:#4a3a24;background:#fff8e5;border:1px solid #d1bc92;border-radius:12px;padding:14px;gap:12px}
+#modal.army-modal .worker-card b{color:#4a3a24;font-size:16px}#modal.army-modal .worker-card small{color:#746140;font-size:12px}
+#modal.army-modal .worker-emblem{background:#e3ecd0;color:#5a7c36;border-color:#b7c49a}#modal.army-modal .worker-clock{color:#476c2c;font-size:14px}#modal.army-modal .worker-free{color:#5a7b37}
+#modal.army-modal .workers-summary,#modal.army-modal .worker-hire,#modal.army-modal .worker-queue{background:#f4e6c4;border-color:#cbbb95;color:#584727;font-size:14px}
+#modal.army-modal .workers-summary span,#modal.army-modal .worker-hire small,#modal.army-modal .worker-hire span{color:#7d6541;font-size:12px}
+/* Settings and combat use the same simple rows as the village. */
+#modal .combat-choices{grid-template-columns:1fr;gap:12px}
+#modal .combat-choices>button{display:grid;grid-template-columns:48px 1fr;column-gap:14px;text-align:left;padding:16px;background:#fff8e5;color:#4a3a23;border:1px solid #d0b98c;box-shadow:0 2px #cbb58c;border-radius:12px;position:relative;min-height:88px}
+#modal .combat-choices>button>.icon{grid-column:1;grid-row:1/3;width:40px;height:40px;color:#377ca6;align-self:center}
+#modal .combat-choices>button>b{grid-column:2;font-size:18px}#modal .combat-choices>button>span{grid-column:2;font-size:13px;color:#796340;line-height:1.5}
+#modal .combat-choices>button:hover{background:#fffdf1;border-color:#4382a8}
+#modal .field-label{font-size:14px;color:#635132}#modal .name-form{display:flex;gap:8px;margin-top:8px}
+#modal #player-input{min-width:0;width:100%;background:#fffdf3;color:#483820;border:1px solid #c7b184;border-radius:9px;padding:12px;font-size:16px}
+#modal .setting-row{color:#57482f;font-size:15px;border-color:#d5c29b;padding:18px 0}
+#modal .save-info{color:#53722e;background:#e8edcf;padding:14px;border:1px solid #c1cda0;border-radius:10px;margin:0 0 18px}
+#modal .save-info small{font-size:12px;color:#728052;line-height:1.5}#modal .save-info b{font-size:14px}
+#modal .settings-advanced{border-top:1px solid #cfba91;margin-top:20px;padding-top:4px}#modal .settings-advanced>summary{display:flex;justify-content:space-between;align-items:center;min-height:50px;cursor:pointer;font-size:14px;font-weight:700;color:#7a603b;list-style:none}
+#modal .settings-advanced>summary .icon{width:18px;height:18px}#modal .settings-advanced[open]>summary .icon{transform:rotate(90deg)}#modal .settings-advanced .full-width{margin-top:12px}
+#modal .levels-table{color:#695332;font-size:14px}#modal .levels-table th{color:#544025}#modal .levels-table td,#modal .levels-table th{border-color:#d7c59e;padding:12px}#modal .levels-table .current-level{background:#e1e8c9}
+#modal .siege-tier{background:#fff7e1;border-color:#d0b98e;color:#584727}#modal .siege-tier h3{color:#4e3c23}#modal .siege-tier p,#modal .siege-tier small{color:#816c47}#modal .siege-tier-number{background:#e6d5af;color:#715735}
+/* Collection and packs retain their royal blue backdrop, with comfortable controls. */
+#modal.royal-modal .royal-dock .button{min-height:52px;font-size:15px;border-radius:11px!important}
+#modal.royal-modal .royal-topbar h2{font-size:26px}#modal.royal-modal .royal-back{min-width:44px;min-height:44px}
+#modal.royal-modal .royal-screen-body p,#modal.royal-modal .royal-note{font-size:13px;line-height:1.6}
+#modal.royal-modal .royal-contents small{font-size:12px}#modal.royal-modal .royal-contents b{font-size:14px}
+#modal.royal-modal .royal-odds summary,#modal.royal-modal .royal-history summary{min-height:44px;font-size:13px;display:flex;align-items:center}
+.troop-collection .hall-tabs>button{min-height:52px;font-size:15px}.troop-collection .collection-mode-tabs>button{min-height:44px;font-size:12px;padding:8px 10px}
+.troop-collection .collection-roles>button{min-height:44px;font-size:12px}.troop-collection .collection-status>button,.troop-collection .rarity-picker>summary{min-height:44px;font-size:13px}
+.troop-collection .team-suggest{min-height:44px;font-size:12px}.troop-collection .collection-team-slots>button>span>small{font-size:11px}
+.troop-collection .troop-card-rarity{font-size:11px;line-height:1.4}.troop-collection .card-upgrade-label{font-size:12px;min-height:29px;display:flex;align-items:center;justify-content:center}
+#modal.duel-modal .duel-actions>.button{font-size:14px;min-height:50px}#modal.duel-modal .duel-picks select{font-size:13px;min-height:48px}
+#modal.duel-modal .duel-fighter>b{font-size:12px}#modal.duel-modal .duel-instruction{font-size:14px}#modal.duel-modal .duel-note{font-size:12px}
+@media(max-width:600px){
+ #modal:not(.royal-modal):not(.duel-modal){padding:20px 16px;width:calc(100% - 16px);max-height:calc(100dvh - 24px)}
+ #village-catalog{padding:16px 12px;max-height:78dvh}#village-catalog .catalog-items{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #village-catalog .catalog-item>b{font-size:14px}#village-catalog .catalog-cost{gap:8px;font-size:12px}#village-catalog .catalog-illustration{height:94px}#village-catalog .catalog-illustration>img{height:102px}
+ #village-catalog .catalog-next .button{font-size:13px;padding:10px}#village-catalog .catalog-next small{font-size:11px}
+ #village-selection{padding:14px 14px 2px}#village-selection .selection-heading{gap:10px}#village-selection .selection-heading h2{font-size:23px}
+ #modal.upgrade-modal .upgrade-layout{grid-template-columns:1fr;gap:15px}#modal.upgrade-modal .upgrade-preview{min-height:140px}#modal.upgrade-modal .upgrade-stage img{max-height:150px}
+ #modal.army-modal .recruit-cards{grid-template-columns:1fr;gap:12px}
+ #modal.army-modal .recruit-card{display:grid;grid-template-columns:96px minmax(0,1fr);grid-template-rows:auto auto auto auto auto;column-gap:12px;padding:12px;text-align:left;overflow:hidden}
+ #modal.army-modal .recruit-stage{grid-column:1;grid-row:1/6;width:96px;height:128px;margin:0;border:0;border-radius:10px;align-self:center;overflow:hidden;background:radial-gradient(ellipse,#b9d8e7a0,transparent 72%)}
+ #modal.army-modal .recruit-stage>.army-figure{width:128px;height:128px;margin-left:-16px}#modal.army-modal .recruit-count{font-size:14px;top:2px;left:2px}
+ #modal.army-modal .recruit-card h3{grid-column:2;font-size:18px;margin:0 0 2px}#modal.army-modal .recruit-space{grid-column:2;font-size:12px}
+ #modal.army-modal .recruit-cost{grid-column:2;justify-content:flex-start;margin:7px 0;font-size:13px}#modal.army-modal .recruit-cost svg{width:23px;height:23px;flex-basis:23px}
+ #modal.army-modal .recruit-card>.button{grid-column:2;width:100%;font-size:14px;min-height:46px;padding:10px 7px}
+ #modal.army-modal .recruit-time{grid-column:2;justify-content:flex-start;font-size:11px;margin:5px 0 0;min-height:18px}
+ #modal.army-modal .recruit-time .icon{width:14px;height:14px}#modal.army-modal .army-wallet{font-size:13px}
+ #modal.army-modal .worker-hire{flex-wrap:wrap;gap:12px}#modal.army-modal .worker-card{padding:12px}
+ #modal .name-form{flex-wrap:wrap}#modal .name-form .button{width:100%}
+ #modal.royal-modal .royal-topbar h2{font-size:23px}#modal.royal-modal .royal-dock{padding:12px 12px calc(14px + env(safe-area-inset-bottom));gap:8px}
+ #modal.royal-modal .royal-dock .button{font-size:14px;padding:10px 9px}
+ .troop-collection .collection-mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+ .troop-collection .collection-team-slots>button>span>small{font-size:10px}.troop-collection .troop-card-rarity{font-size:10px}
+ #modal.duel-modal .duel-actions>.button{font-size:12px;padding:10px 5px}
+}
+@media(max-height:500px) and (min-width:601px){
+ #village-selection{max-height:calc(100dvh - 26px);width:480px;bottom:8px}
+ #village-selection .selection-heading{min-height:42px;margin-bottom:9px}#village-selection .selection-icon{width:46px;height:46px;flex-basis:46px}#village-selection .selection-icon>img{width:58px;height:58px}
+ .selection-upgrade-info{margin-bottom:10px;padding:7px 10px}.selection-price{flex-basis:auto;border:0;padding:0;gap:12px}.selection-price small{display:none}.selection-next-level{font-size:12px}
+ #village-selection .selection-actions>.button{min-height:46px;font-size:15px}#village-selection .selection-details{margin-top:7px}
+ #village-catalog{max-height:calc(100dvh - 20px)}#village-catalog .catalog-items{grid-template-columns:repeat(4,minmax(0,1fr))}
+ #modal.army-modal .recruit-stage{height:105px}#modal .button{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){#modal *,#village-selection *,#village-catalog *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+/* Readability of the secondary screens follows the same hierarchy. */
+#village-catalog .catalog-next{margin:0 0 16px;padding:12px;background:#e8edda;border:1px solid #c3c99e;border-radius:11px}
+#modal.army-modal .worker-hire b,#modal.army-modal .worker-queue strong{color:#594525}
+#modal.army-modal .worker-queue b{color:#52702f}#modal.army-modal .worker-queue p{color:#7b6544;font-size:13px}
+#modal .construction-box b{font-size:15px;font-weight:700}#modal .construction-box [data-countdown]{font-size:18px;color:#547529}
+#modal .help-steps li{color:#7b9c43;font-size:18px}#modal .help-steps b{color:#4d3c24;font-size:16px;font-weight:700}#modal .help-steps p{font-size:13px;line-height:1.6;color:#786343}
+#modal .upgrade-cost span{font-size:11px}#modal .upgrade-benefit>div:first-child{font-size:12px}
+#modal .upgrade-stage>span{font-size:10px}#modal .upgrade-requirements ul{grid-template-columns:1fr}
+.collection-refine{margin:12px 0 18px;border-top:1px solid #7fa8c044;border-bottom:1px solid #7fa8c044}
+.collection-refine>summary{min-height:46px;display:flex;align-items:center;justify-content:space-between;color:#c8e0ec;font-size:13px;font-weight:700;cursor:pointer;list-style:none;padding:7px 2px}
+.collection-refine>summary .icon{width:18px;height:18px}.collection-refine .collection-status{margin:0 0 7px}.collection-refine .collection-roles{margin-bottom:7px}
+@media(max-width:380px){#village-selection .selection-heading h2{font-size:21px}#modal.army-modal .recruit-card{grid-template-columns:80px minmax(0,1fr);gap:8px;padding:10px}#modal.army-modal .recruit-stage{width:80px}#modal.army-modal .recruit-stage>.army-figure{margin-left:-24px}#modal.army-modal .recruit-card h3{font-size:16px}}

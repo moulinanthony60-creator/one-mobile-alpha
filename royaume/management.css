@@ -1,0 +1,89 @@
+/* V33 — self-contained management sheets: fixed header and action dock,
+   only the middle scrolls. Scoped to avoid collisions with legacy modals. */
+#modal.management-modal{position:fixed;inset:0;margin:auto;width:min(590px,calc(100vw - 24px));max-width:calc(100vw - 24px);height:auto;max-height:calc(100dvh - 24px);padding:0;overflow:hidden;border:2px solid #345a71;border-top-color:#a9cfdf;border-radius:20px;background:#f8f0d9;box-shadow:0 5px #17384e,0 22px 65px #10272d80;box-sizing:border-box;color:#493a25}
+#modal.management-modal[open]{display:flex}
+#modal.management-modal *{box-sizing:border-box}
+.management-shell{display:flex;flex-direction:column;width:100%;min-width:0;max-height:calc(100dvh - 28px);overflow:hidden}
+.management-header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex:0 0 auto;padding:18px 20px;background:linear-gradient(135deg,#4384b3,#286184);color:#fff9e4;border-bottom:2px solid #17466a;box-shadow:inset 0 1px #abd8e5}
+.management-header>div{min-width:0}.management-header>div>span{display:block;font:700 11px/1.3 'Trebuchet MS',sans-serif;letter-spacing:.8px;color:#c4e2ee;text-transform:uppercase}
+.management-header h2{margin:4px 0 0;font:900 27px/1.1 'Trebuchet MS',sans-serif;color:#fff9e2;text-shadow:0 2px #1d5077;letter-spacing:-.4px;overflow-wrap:anywhere}
+.management-close{display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;padding:10px;background:#205679;border:1px solid #8ab9d1;border-bottom-width:3px;border-radius:12px;color:#fff2cb;cursor:pointer}.management-close .icon{width:22px;height:22px}
+.management-body{padding:18px 20px;overflow:auto;overscroll-behavior:contain;min-height:0;flex:1 1 auto;scrollbar-width:thin;scrollbar-color:#c1ad82 transparent;background:radial-gradient(ellipse at 50% 0,#fffdf3,#f6ecd2 80%)}
+.management-footer{padding:12px 20px 17px;flex:0 0 auto;background:#f1e4c3;border-top:1px solid #ceb78a;box-shadow:0 -5px 16px #b9984a12}
+.management-footer>p{font:400 12px/1.4 'Trebuchet MS',sans-serif;color:#78613e;margin:0 0 9px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px}.management-footer>p .icon{width:15px;height:15px;flex:none}
+.management-footer-actions{display:flex;gap:10px}.management-footer-actions>.button{flex:1;min-width:0}
+#modal.management-modal .management-footer .button{margin:0;width:auto;min-height:52px;padding:12px 14px;font-size:16px;border-radius:12px}
+#modal.management-modal .management-footer .upgrade-confirm{background:linear-gradient(#8cbd49,#61962c);color:#fffbea;border:1px solid #466c24;border-top-color:#d1eb94;box-shadow:inset 0 1px #e5f8b4,0 3px #3c6522}
+#modal.management-modal .management-footer .button:disabled{background:#d5cbb2;color:#786d57;border-color:#baac8c;box-shadow:none;text-shadow:none}
+#modal.management-modal .management-footer .button .upgrade-resource-art{width:30px;height:30px;flex:none}
+#modal.management-modal .management-footer .soft-button{background:#f9f0d9;border:1px solid #bfa879;color:#715b39;box-shadow:0 3px #b29a6d;text-shadow:none;font-size:14px}
+#modal.management-modal .building-overview{padding:0;margin-bottom:16px}
+#modal.management-modal .upgrade-preview{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);gap:9px;align-items:center;min-height:0;margin:0;padding:4px 0 11px;background:radial-gradient(ellipse at 50% 80%,#d5dfb866,transparent 70%);border:0}
+#modal.management-modal .upgrade-stage>span{font-size:10px;letter-spacing:.4px;color:#8a7651;white-space:normal;min-height:25px}
+#modal.management-modal .upgrade-stage>div{height:120px;display:grid;place-items:center}
+#modal.management-modal .upgrade-stage img{width:155px;height:140px;max-width:115%;object-fit:contain;filter:drop-shadow(0 6px 4px #74612c22)}
+#modal.management-modal .upgrade-stage b{font-size:12px;box-shadow:none;text-shadow:none;border:1px solid #bfad82;padding:4px 10px;color:#826c46;background:#f0e4c5;border-radius:7px}
+#modal.management-modal .upgrade-stage.next b{color:#fffbea;background:#5c8a31;border-color:#496e27}
+#modal.management-modal .upgrade-arrow{font-size:25px;color:#789849}
+#modal.management-modal .upgrade-benefits{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;background:transparent;border:0;padding:0;margin:8px 0 0}
+#modal.management-modal .upgrade-benefit{padding:10px 12px;border:1px solid #ddcdab;border-radius:10px;background:#fffaf0}
+#modal.management-modal .upgrade-benefit>div:first-child{display:block;font-size:12px;margin:0;color:#87704a}
+#modal.management-modal .upgrade-benefit strong{display:block;font-size:17px;color:#4e422a;white-space:normal;margin-top:4px}
+#modal.management-modal .upgrade-benefit strong em{font-size:13px;background:#e9f0d3;color:#5c7e2e;border-radius:5px;padding:2px 4px;margin-left:4px}
+#modal.management-modal .upgrade-benefit strong small{font-size:11px;color:#8b7751}
+#modal.management-modal .upgrade-stat-track{display:none}
+.preparation-card{background:#fff9e8;border:1px solid #d8c198;border-radius:12px;padding:13px;margin:14px 0}
+.preparation-title{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:15px;color:#584225}.preparation-title>span{font-size:12px;font-weight:800;border-radius:6px;background:#e8edce;color:#628437;padding:4px 7px}
+.preparation-card>p{font-size:12px;line-height:1.4;color:#8a7149;margin:3px 0 10px}
+.preparation-list{display:grid;gap:8px}.preparation-list>button{display:flex;align-items:center;gap:11px;border:1px solid #c5b184;border-radius:9px;background:#f5ead0;color:#554328;min-height:66px;padding:8px 10px;text-align:left;cursor:pointer}
+.preparation-list>button:hover{background:#fff7de;border-color:#4b89aa}.preparation-list [data-thumbnail]{width:48px;height:48px;flex:0 0 48px}.preparation-list img{width:100%;height:100%;object-fit:contain}.preparation-list>button>span:nth-child(2){flex:1;min-width:0}.preparation-list b{display:block;font-size:14px;line-height:1.4}.preparation-list small{font-size:12px;color:#39789e;display:block;margin-top:2px;font-weight:700}.preparation-list>button>.icon{width:19px;height:19px;color:#5889a2;flex:none}
+.preparation-done{margin-top:8px;font-size:12px;color:#68813d}.preparation-done>summary{display:flex;align-items:center;gap:6px;min-height:36px;list-style:none;cursor:pointer}.preparation-done>summary>.icon{width:15px;height:15px}.preparation-done>summary>.icon:last-child{margin-left:auto}.preparation-done[open]>summary>.icon:last-child{transform:rotate(90deg)}.preparation-done ul{list-style:none;margin:4px 0 0;padding:0}.preparation-done li{display:flex;align-items:center;gap:7px;padding:6px 0}.preparation-done li .icon{width:14px;height:14px}
+.preparation-card.complete{background:#edf1dc;border-color:#c2cd9d}.preparation-card.complete .preparation-title{color:#55742c}
+.upgrade-payment{margin-top:16px}.upgrade-payment h3{font-size:13px;letter-spacing:.3px;color:#80673f;margin:0 0 9px}
+#modal.management-modal .upgrade-costs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0}
+#modal.management-modal .upgrade-cost{display:grid;grid-template-columns:38px minmax(0,1fr);align-items:center;gap:9px;border:1px solid #d4bf94;background:#fffaf0;border-radius:11px;padding:12px;min-width:0}
+#modal.management-modal .upgrade-cost .upgrade-resource-art{width:38px;height:38px}
+#modal.management-modal .upgrade-cost small{font-size:10px;letter-spacing:.5px;font-weight:700;color:#998056}
+#modal.management-modal .upgrade-cost b{font-size:23px;line-height:1.1;color:#554025}
+#modal.management-modal .upgrade-cost span{font-size:11px;line-height:1.35;white-space:normal;color:#7b704d}
+#modal.management-modal .upgrade-cost.shortage{background:#fff2df;border-color:#d5a074}#modal.management-modal .upgrade-cost.shortage span{color:#a5603c}
+#modal.management-modal .upgrade-timing{display:flex;justify-content:center;gap:26px;margin:12px 0 0;padding:9px 0 0;border:0;font-size:13px;color:#7b6542}.upgrade-timing>span{display:flex;align-items:center;gap:7px}
+#modal.management-modal .upgrade-timing .upgrade-resource-art{width:26px;height:26px}#modal.management-modal .upgrade-timing .icon{width:18px;height:18px}
+.management-level-link{text-align:center;margin:10px 0 -5px}#modal.management-modal .management-level-link .text-button{font-size:12px;color:#64869a;padding:9px;min-height:40px}.management-level-link .icon{width:14px;height:14px}
+#modal.management-modal .construction-box{margin:10px 0;background:#e7edda;border:1px solid #bfcca2;border-radius:12px;padding:14px}
+.construction-heading{display:flex;gap:12px;align-items:center}.construction-heading>.worker-portrait{width:68px;height:68px;flex:0 0 68px}.construction-heading>div{min-width:0}.construction-heading b,.construction-heading small,.construction-heading strong{display:block}.construction-heading small{font-size:12px;color:#768653;margin:4px 0}.construction-heading strong{font-size:16px}
+.management-message{display:flex;align-items:center;gap:8px;font-size:13px;line-height:1.5;color:#62813c;padding:12px;background:#ecf0db;border-radius:10px}
+/* Character portraits are transparent; the colored backplate belongs to the UI. */
+.worker-portrait{display:block;background-image:url('assets/v33-workers.webp');background-size:300% 100%;background-position:0 50%;background-repeat:no-repeat;aspect-ratio:1;flex:none}
+.worker-portrait-1{background-position:50% 50%}.worker-portrait-2{background-position:100% 50%}
+.builder-summary{background:linear-gradient(120deg,#e4edcf,#f2f0d4);border:1px solid #beca98;border-radius:12px;padding:13px;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:16px}
+.builder-summary>div{display:flex;align-items:center;gap:10px}.builder-summary .upgrade-resource-art{width:39px;height:39px;flex:none}.builder-summary strong{font-size:20px;color:#536d2e;display:block}.builder-summary small{display:block;color:#7d8657;font-size:12px;margin-top:2px}.builder-summary-count{font-size:24px;line-height:1;text-align:center;font-weight:800;color:#727b50;padding-left:15px;border-left:1px solid #c2cb9f}.builder-summary-count small{font-size:10px;font-weight:400;line-height:1.3;margin-top:5px;white-space:nowrap}
+.builder-roster{display:grid;gap:11px}.builder-card{display:flex;align-items:center;gap:14px;padding:12px;background:#fffbf0;border:1px solid #dcc6a2;border-radius:13px;position:relative}
+.builder-portrait-frame{position:relative;width:80px;height:83px;flex:0 0 80px;background:radial-gradient(ellipse at 50% 60%,#cedde3 0,#e5eef0 55%,transparent 75%);border-radius:12px;overflow:hidden}.builder-portrait-frame .worker-portrait{width:84px;height:84px;position:absolute;left:-2px;bottom:0}
+.builder-status-dot{position:absolute;right:2px;bottom:2px;width:13px;height:13px;border-radius:50%;border:2px solid #fffae9;background:#86ad40}.working .builder-status-dot{background:#e6ac42}
+.builder-copy{flex:1;min-width:0}.builder-copy>div:first-child{display:flex;justify-content:space-between;align-items:center;gap:8px}.builder-copy h3{font-size:18px;line-height:1.2;color:#594024;margin:0}.builder-status{color:#67933b;background:#ecf2da;padding:4px 7px;border-radius:5px;font-size:11px;font-weight:700}.working .builder-status{color:#9f7530;background:#faedca}
+.builder-copy>p{color:#8a714d;font-size:12px;line-height:1.45;margin:6px 0}.builder-ready{font-size:11px;color:#7f984d;display:flex;align-items:center;gap:5px}.builder-ready .icon{width:14px;height:14px}
+#modal.management-modal .worker-clock{color:#5d8b3e;font-size:13px;font-weight:800;display:block;margin-top:6px}
+#modal.management-modal .builder-card .progress-track{height:7px;margin:7px 0 0;background:#e3ddca;border-radius:5px;overflow:hidden}.builder-card .progress-track i{display:block;height:100%;background:linear-gradient(90deg,#9fc85f,#6b9e36)}
+#modal.management-modal .builder-locate{padding:9px;min-width:44px;width:44px;min-height:44px;flex:none;border:1px solid #a2bdca;background:#e7f0f3;color:#467b99;box-shadow:none;border-radius:10px}
+.builder-recruit{margin-top:20px;background:linear-gradient(115deg,#e8f0f5,#f4f3df);border:1px solid #afc6d2;border-radius:13px;overflow:hidden;padding:14px}
+.builder-recruit-top{display:flex;align-items:center;gap:13px}.builder-recruit-top>.worker-portrait{width:86px;height:86px;flex:0 0 86px}.builder-recruit-top>div>span{font-size:10px;letter-spacing:1px;color:#7194a7;font-weight:800}.builder-recruit h3{font-size:21px;margin:4px 0;color:#355f78}.builder-recruit p{font-size:13px;color:#7a8b77;margin:5px 0}.builder-recruit-cost{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;padding:10px 0;border-top:1px solid #cad6cd;margin-top:10px}.builder-recruit-cost>span{display:flex;align-items:center;gap:6px;color:#6d6040;font-size:17px}.builder-recruit-cost .upgrade-resource-art{width:29px;height:29px}.builder-recruit-cost small{font-size:12px;color:#847b59}.builder-recruit .builder-recruit-lock{font-size:12px;color:#86734e;display:flex;align-items:center;justify-content:center;gap:6px;line-height:1.5;text-align:center}.builder-recruit-lock>.icon{width:15px;height:15px;flex:none}
+.builder-queue{padding:13px;margin-top:15px;border:1px solid #d1bd97;background:#f5ebd4;border-radius:12px}.builder-queue>div{display:flex;align-items:center;gap:10px}.builder-queue .upgrade-resource-art{width:32px;height:32px}.builder-queue b{font-size:14px;color:#6c552e}.builder-queue small{display:block;font-size:12px;color:#8c7952;margin-top:4px}.builder-queue p{font-size:12px;color:#887455;margin:9px 0 3px}
+.builder-premium{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.builder-premium>div{border:1px dashed #c6b491;border-radius:11px;padding:12px;background:#e8e1ce77;text-align:center;color:#8f7b58}.builder-premium .icon{width:23px;height:23px;margin:auto}.builder-premium b{display:block;font-size:13px;margin-top:7px}.builder-premium small{display:block;font-size:11px;line-height:1.5;margin-top:5px;color:#9b8c6d}.builder-premium-note{font-size:11px;color:#8d7d5d;text-align:center;line-height:1.5;margin:10px 0 0}
+@media(max-width:430px){
+ #modal.management-modal{width:calc(100vw - 14px);max-width:calc(100vw - 14px);max-height:calc(100dvh - 14px);border-radius:16px}.management-shell{max-height:calc(100dvh - 18px)}
+ .management-header{padding:15px}.management-header h2{font-size:25px}.management-header>div>span{font-size:10px}.management-body{padding:15px}.management-footer{padding:11px 15px 15px}.management-footer>p{font-size:11px}
+ #modal.management-modal .management-footer .button{font-size:14px;padding:11px 9px;min-height:50px}.management-footer-actions{gap:8px}
+ #modal.management-modal .upgrade-stage>div{height:96px}#modal.management-modal .upgrade-stage img{width:126px;height:116px}
+ #modal.management-modal .upgrade-cost{grid-template-columns:30px minmax(0,1fr);gap:7px;padding:11px 9px}#modal.management-modal .upgrade-cost .upgrade-resource-art{width:30px;height:30px}#modal.management-modal .upgrade-cost b{font-size:22px}#modal.management-modal .upgrade-cost span{font-size:10px}
+ .builder-summary{padding:11px}.builder-summary strong{font-size:17px}.builder-summary small{font-size:11px}.builder-summary .upgrade-resource-art{width:32px;height:32px}.builder-summary-count{font-size:21px;padding-left:10px}
+ .builder-card{padding:10px;gap:10px}.builder-portrait-frame{width:68px;height:76px;flex-basis:68px}.builder-portrait-frame .worker-portrait{width:78px;height:78px;left:-5px}.builder-copy h3{font-size:17px}.builder-copy>p{font-size:11px}.builder-status{font-size:10px;padding:3px 5px}
+ .builder-recruit-top>.worker-portrait{width:76px;height:76px;flex-basis:76px}.builder-recruit h3{font-size:19px}
+}
+@media(max-height:500px) and (min-width:601px){
+ #modal.management-modal{width:min(680px,calc(100vw - 24px));max-height:calc(100dvh - 16px)}.management-shell{max-height:calc(100dvh - 20px)}.management-header{padding:10px 16px}.management-header h2{font-size:23px}.management-body{padding:14px 18px}.management-footer{padding:8px 16px 12px}.management-footer>p{font-size:11px;margin-bottom:6px}#modal.management-modal .management-footer .button{min-height:44px;font-size:14px}
+ #modal.management-modal .building-overview{display:grid;grid-template-columns:1.3fr 1fr;align-items:center;gap:18px}#modal.management-modal .upgrade-stage>div{height:90px}#modal.management-modal .upgrade-stage img{height:105px}#modal.management-modal .upgrade-benefits{grid-template-columns:1fr;margin:0}
+}
+@media(prefers-reduced-motion:reduce){#modal.management-modal *{transition:none!important;animation:none!important}}
+
+.building-construction-portrait{display:grid;place-items:center;grid-column:1/-1;gap:8px;color:#527b35;font-size:14px}.building-construction-portrait>span{display:block;width:155px;height:145px}.building-construction-portrait img{width:100%;height:100%;object-fit:contain}
