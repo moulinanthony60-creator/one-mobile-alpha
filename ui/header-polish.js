@@ -27,27 +27,9 @@
  const label=[...points.children].find(n=>n.tagName==='SPAN'&&!n.className);if(label)label.textContent='Points ONE';
  const style=document.createElement('link');style.rel='stylesheet';style.href='ui/header-polish.css?v=118c2';document.head.append(style);
 })();
-/* Valdoria is reachable from the top of the Points ONE panel. */
+
+/* Keep the home game entry separate from the header controls. */
 (()=>{
- 'use strict';
- const gameURL=new URL('../royaume/index.html?from=one',document.currentScript.src).href;
- function mountValdoria(){
-  const panel=document.getElementById('onePointsPanel'),header=panel?.querySelector('header');
-  if(!header)return false;
-  if(panel.querySelector('#oneValdoriaEntry'))return true;
-  const link=document.createElement('a');
-  link.id='oneValdoriaEntry';
-  link.href=gameURL;
-  link.setAttribute('aria-label','Jouer à Valdoria');
-  link.innerHTML='<span class="oneValdoriaIcon" aria-hidden="true">♜</span><span><strong>Jouer à Valdoria</strong><small>Construis ton royaume</small></span><span aria-hidden="true">→</span>';
-  header.after(link);
-  return true;
- }
- const style=document.createElement('style');
- style.textContent='#onePointsPanel #oneValdoriaEntry{display:flex;align-items:center;gap:12px;margin:14px 20px 0;padding:14px 16px;min-height:58px;box-sizing:border-box;border:1px solid #d7b778;border-radius:14px;background:linear-gradient(120deg,#54402a,#30203f);color:#fff0c9;text-decoration:none;text-align:left;font:inherit}#oneValdoriaEntry .oneValdoriaIcon{font-size:32px;line-height:1}#oneValdoriaEntry>span:nth-child(2){flex:1;min-width:0}#oneValdoriaEntry strong{display:block;font-size:15px;line-height:1.4}#oneValdoriaEntry small{display:block;margin-top:3px;font-size:12px;line-height:1.4;color:#dcccae}#oneValdoriaEntry:focus-visible{outline:3px solid #f9db8c;outline-offset:3px}#oneValdoriaEntry:hover{filter:brightness(1.12)}';
- document.head.append(style);
- if(!mountValdoria()){
-  const observer=new MutationObserver(()=>{if(mountValdoria())observer.disconnect();});
-  observer.observe(document.body,{childList:true,subtree:true});
- }
+ const entryURL=new URL('./one-valdoria-home.js?v=35',document.currentScript.src);
+ import(entryURL.href).catch(error=>console.warn('Valdoria home entry could not load',error));
 })();
