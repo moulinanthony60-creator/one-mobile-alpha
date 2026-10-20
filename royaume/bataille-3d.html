@@ -7,14 +7,14 @@
   <meta name="description" content="Essayez la première bataille 3D de Valdoria. Déployez vos gardiens, archers et mages dans un entraînement gratuit.">
   <title>Valdoria · Bataille 3D</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="battle3d.css?v=1">
+  <link rel="stylesheet" href="battle3d.css?v=2">
 </head>
 <body>
 <main id="game">
   <header class="topbar">
     <a class="icon-button" href="./index.html" aria-label="Retour au village">‹</a>
-    <div class="brand"><span class="eyebrow">ONE · VALDORIA</span><strong>Le fort des ronces</strong></div>
-    <span class="test-badge">ESSAI 3D</span>
+    <div class="brand"><span class="eyebrow">ONE · VALDORIA 3D</span><strong>Le fort des ronces</strong></div>
+    <button id="quality" class="quality-button" aria-pressed="false" aria-label="Activer le mode éco : réduire les ombres et la résolution">Éco</button>
     <button id="pause" class="icon-button" aria-label="Mettre en pause" disabled>Ⅱ</button>
   </header>
   <section class="battle-status" aria-label="État de la bataille">
@@ -38,15 +38,15 @@
     <div class="deck-heading"><span>TON ARMÉE</span><span id="reserve">17 troupes gratuites</span></div>
     <div class="troop-list" role="group" aria-label="Choisir une troupe">
       <button class="troop selected guardian" data-unit="guardians" aria-pressed="true" disabled>
-        <span class="troop-art"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M16 31V23a16 16 0 0 1 32 0v8l-6 8H22Z" fill="#bacdd7"/><path d="M29 9h6v29h-6Z" fill="#e5f2ed"/><path d="M21 26h22v5H21Z" fill="#243c4a"/><path d="m12 43 20-6 20 6-4 17H16Z" fill="#63bce9"/><path d="m36 40 17 4v10L44 63l-8-8Z" fill="#e8bd6f"/><path d="m39 44 11 3v6l-6 6-5-6Z" fill="#3274aa"/></svg></span>
+        <span class="troop-portrait"><svg viewBox="1298 2 319 319" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><image href="assets/v27-troops-a.webp" width="1619" height="971"/></svg></span>
         <span class="troop-name">Gardiens</span><small>Première ligne</small><b class="troop-count" data-count="guardians">8</b>
       </button>
       <button class="troop archer" data-unit="archers" aria-pressed="false" disabled>
-        <span class="troop-art"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 35 16 18 31 6l16 12 4 17Z" fill="#669c50"/><ellipse cx="32" cy="26" rx="11" ry="13" fill="#edbf93"/><path d="M16 25 30 8l17 17-17-7Z" fill="#a5ce75"/><path d="m17 44 15-8 16 8 5 17H11Z" fill="#82b458"/><path d="M51 19q18 20 0 39" fill="none" stroke="#edc17b" stroke-width="4"/><path d="m51 19 2 39" stroke="#fff0c9" fill="none"/></svg></span>
+        <span class="troop-portrait"><svg viewBox="650 2 321 319" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><image href="assets/v27-troops-a.webp" width="1619" height="971"/></svg></span>
         <span class="troop-name">Archers</span><small>À distance</small><b class="troop-count" data-count="archers">6</b>
       </button>
       <button class="troop mage" data-unit="mages" aria-pressed="false" disabled>
-        <span class="troop-art"><svg viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="29" cy="29" rx="10" ry="11" fill="#edbf93"/><path d="m15 61 5-21 9-5 10 5 6 21Z" fill="#9674d5"/><path d="m11 25 18-23 12 23Z" fill="#b297e8"/><path d="M8 26h37" stroke="#7151b1" stroke-width="5"/><path d="M52 61V25" stroke="#d7ad78" stroke-width="4"/><path d="m52 10 8 10-8 10-8-10Z" fill="#80ece5"/><path d="m22 34 7 13 7-13" fill="#edf1e2"/></svg></span>
+        <span class="troop-portrait"><svg viewBox="974 649 320 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><image href="assets/v27-troops-b.webp" width="1619" height="971"/></svg></span>
         <span class="troop-name">Mages</span><small>Dégâts de zone</small><b class="troop-count" data-count="mages">3</b>
       </button>
     </div>
@@ -68,7 +68,7 @@
 <div id="fatal" hidden role="alert"><span class="eyebrow">VALDORIA · ESSAI 3D</span><h1>La 3D n’a pas pu démarrer</h1><p id="fatal-detail">Essaie de recharger la page dans une version récente de Chrome ou Safari.</p><button onclick="location.reload()" class="primary">Réessayer</button><a class="text-link" href="./index.html">Retour au village</a></div>
 <noscript>Active JavaScript pour essayer la bataille 3D. <a href="./index.html">Retour au village</a></noscript>
 <script type="module">
-  import('./battle3d-app.mjs?v=1').catch(error => {
+  import('./battle3d-app.mjs?v=2').catch(error => {
     console.error('Valdoria 3D:',error);
     document.querySelector('#loading').hidden = true;
     document.querySelector('#fatal').hidden = false;

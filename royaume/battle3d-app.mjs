@@ -1,5 +1,5 @@
-import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=1';
-import {createScene} from './battle3d-scene.mjs?v=1';
+import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=2';
+import {createScene} from './battle3d-scene.mjs?v=2';
 import {bindBattleInput} from './battle3d-input.mjs?v=1';
 
 const $=selector=>document.querySelector(selector);
@@ -80,6 +80,7 @@ $('#deploy-south').addEventListener('click',()=>{const x=7.2+(southIndex++%9)*.7
 $('#zoom-in').addEventListener('click',()=>view.zoom(1.2));
 $('#zoom-out').addEventListener('click',()=>view.zoom(1/1.2));
 $('#home').addEventListener('click',()=>view.home());
+$('#quality').addEventListener('click',()=>{const eco=$('#quality').getAttribute('aria-pressed')!=='true';view.quality(eco);$('#quality').setAttribute('aria-pressed',String(eco));$('#quality').textContent=eco?'Éco ✓':'Éco';$('#quality').setAttribute('aria-label',eco?'Désactiver le mode éco et retrouver les ombres détaillées':'Activer le mode éco : réduire les ombres et la résolution');toast(eco?'Mode éco activé.':'Graphismes détaillés activés.');});
 $('#start').addEventListener('click',()=>{entered=true;$('#intro').close();updateUI();canvas.focus({preventScroll:true});});
 $('#pause').addEventListener('click',setPause);
 $('#resume').addEventListener('click',()=>{training.pause(false);$('#pause-dialog').close();last=performance.now();updateUI();canvas.focus({preventScroll:true});});
