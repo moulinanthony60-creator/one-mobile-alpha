@@ -1,9 +1,17 @@
-# Planches des troupes de Valdoria
+# Illustrations du combat de Valdoria
 
-`guardians.webp`, `archers.webp` et `mages.webp` sont les trois nouvelles planches utilisées par le terrain et les cartes. Créées avec l’outil intégré imagegen, puis converties en WebP en conservant le canal alpha ; aucun modèle ou personnage de Clash of Clans n’a été repris.
+## Version 7
 
-Chaque image mesure 1536 × 1024 et contient quatre colonnes et deux rangées. Rangée du haut : face trois quarts droite. Rangée du bas : dos trois quarts droite. Colonnes : repos, pas gauche, pas droit, attaque. Le moteur inverse horizontalement les poses pour les déplacements vers la gauche. Le découpage et l’ancrage des pieds sont calculés depuis le canal alpha par `battle-style-art.mjs`.
+- `fortress-kit.webp` : seize éléments originaux dans une planche 4 × 4, utilisés pour les bâtiments, la forêt, les rochers et les débris. Les bâtiments restent des objets séparés du moteur de combat.
+- `guardians-smooth.webp`, `archers-smooth.webp`, `mages-smooth.webp` : huit poses par personnage, quatre vues de face et quatre de dos. Le moteur recale leur torse et leurs pieds et précalcule les transitions de marche. Les cartes emploient les mêmes personnages.
 
-Direction utilisée pour la génération : personnages originaux pour un jeu de stratégie isométrique, volumes arrondis, proportions lisibles à petite taille, éclairage venant du haut à gauche, silhouette entière, même échelle entre les huit cellules et fond transparent. Le gardien porte une armure d’acier, du bleu et de l’or, une crête bleue, une moustache brune, une épée et un bouclier au soleil doré. L’archère rousse porte une capuche verte, du cuir et un arc. La mage porte une robe à capuche violette bordée d’or et un bâton à cristal cyan.
+Création avec l’outil intégré imagegen, sortie avec transparence, puis conversion WebP conservant l’alpha. Aucun modèle 3D ni personnage de Clash of Clans n’est repris. Ces éléments sont des illustrations 2D utilisées en vue isométrique, et non des maillages 3D animés par un squelette.
 
-Ces images sont des éléments de jeu animés par poses. Elles ne constituent pas des modèles 3D et ne sont pas la maquette de bataille générée précédemment.
+Prompts de production :
+
+- Fort : planche transparente 4 × 4 d’objets isolés, caméra isométrique orthographique plongeante, volumes compacts, grandes formes sculptées, pierre chaude, bleu marine et or, soleil héraldique original, lumière en haut à gauche. Château, tour, canon, mortier, mine, coffre, réservoir violet, caserne, tour magique, maison, forge, moulin, feuillus, pins, rochers et débris. Sans texte ni interface.
+- Gardiens : planche transparente 4 × 2 d’un personnage cartoon aux proportions compactes, casque ouvert en acier, écharpe bleue, épée et bouclier bleu/or ; poses de marche de face et de dos, même échelle et même éclairage.
+- Archers : même cadrage, archère rousse à capuche verte, arc court, bottes et carquois ; poses de marche de face et de dos.
+- Mages : même cadrage, mage âgé à barbe blanche, capuche violette bordée d’or, bottes visibles et bâton à cristal cyan ; poses de marche de face et de dos.
+
+Les anciennes planches sans suffixe `-smooth` sont conservées pour la compatibilité avec les anciennes versions en cache, mais ne sont plus chargées par le combat v7.

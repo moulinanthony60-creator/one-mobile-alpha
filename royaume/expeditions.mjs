@@ -71,8 +71,17 @@ function blockedCells(buildings,width,height){
  }
  return blocked;
 }
+// Training maps reuse collision grids until a building is destroyed. Campaign
+// routing and its recorded outcomes retain the original implementation.
+const trainingGrids=new WeakMap();
+function trainingGrid(b,width,height){
+ const key=b.buildings.map(p=>p.hp>0?'1':'0').join('');
+ let cache=trainingGrids.get(b);
+ if(!cache||cache.key!==key){cache={key,blocked:blockedCells(b.buildings,width,height)};trainingGrids.set(b,cache);}
+ return cache.blocked;
+}
 function route(u,target,b,range){
- const {width,height}=b.field||FIELD,blocked=blockedCells(b.buildings,width,height),start=Math.floor(u.y)*width+Math.floor(u.x),queue=[start],parents=new Map([[start,null]]);let end=null;
+ const {width,height}=b.field||FIELD,blocked=b.field?trainingGrid(b,width,height):blockedCells(b.buildings,width,height),start=Math.floor(u.y)*width+Math.floor(u.x),queue=[start],parents=new Map([[start,null]]);let end=null;
  for(let i=0;i<queue.length;i++){const key=queue[i],x=key%width+.5,y=Math.floor(key/width)+.5;if(Math.hypot(target.x-x,target.y-y)<=range){end=key;break;}
   for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=Math.floor(x)+dx,ny=Math.floor(y)+dy,n=ny*width+nx;if(nx<0||ny<0||nx>=width||ny>=height||parents.has(n)||blocked.has(n))continue;parents.set(n,key);queue.push(n);}}
  if(end===null)return null;const path=[];while(end!==start&&end!==null){path.unshift({x:end%width+.5,y:Math.floor(end/width)+.5});end=parents.get(end);}return path;
@@ -84,11 +93,15 @@ export function stepAssault(s,dt){
   let target;
   if(spec.heal){target=b.units.filter(v=>v.hp>0&&v.id!==u.id&&!ASSAULT_UNITS[v.kind].heal).sort((a,c)=>(a.hp/a.maxHp-c.hp/c.maxHp)||Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(c.x-u.x,c.y-u.y))[0];}
   else{const live=b.buildings.filter(p=>p.hp>0),priority=spec.priority&&live.some(p=>p.damage>0)?live.filter(p=>p.damage>0):live.filter(p=>p.kind!=='wall');target=(priority.length?priority:live).sort((a,c)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(c.x-u.x,c.y-u.y))[0];}
+  if(b.field&&u.repath>0){const locked=b.buildings.find(p=>p.id===u.target&&p.hp>0);if(locked)target=locked;}
   if(!target)continue;
   if(Math.hypot(u.x-target.x,u.y-target.y)>spec.range+targetRadius(target)){
    if(u.repath<=0||u.target!==target.id||!u.path?.length){u.path=route(u,target,b,spec.range+targetRadius(target));u.repath=.6;u.target=target.id;
-    if(u.path===null&&!spec.heal){const wall=b.buildings.filter(p=>p.hp>0&&p.kind==='wall').sort((a,c)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(c.x-u.x,c.y-u.y))[0];if(wall){target=wall;u.path=route(u,wall,b,spec.range+targetRadius(wall));}}}
-   const next=u.path?.[0];if(next){const distance=Math.hypot(next.x-u.x,next.y-u.y),step=Math.min(distance,spec.speed*dt);if(distance){u.x+=(next.x-u.x)/distance*step;u.y+=(next.y-u.y)/distance*step;}if(distance<.08)u.path.shift();}
+    if(u.path===null&&!spec.heal){const wall=b.buildings.filter(p=>p.hp>0&&p.kind==='wall').sort((a,c)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(c.x-u.x,c.y-u.y))[0];if(wall){target=wall;if(b.field)u.target=wall.id;u.path=route(u,wall,b,spec.range+targetRadius(wall));}}}
+   if(b.field){
+    let remaining=spec.speed*dt;
+    while(remaining>1e-8&&u.path?.length){const next=u.path[0],distance=Math.hypot(next.x-u.x,next.y-u.y),step=Math.min(distance,remaining);if(distance>1e-8){u.x+=(next.x-u.x)/distance*step;u.y+=(next.y-u.y)/distance*step;}remaining-=step;if(distance<=step+1e-8)u.path.shift();else break;}
+   }else{const next=u.path?.[0];if(next){const distance=Math.hypot(next.x-u.x,next.y-u.y),step=Math.min(distance,spec.speed*dt);if(distance){u.x+=(next.x-u.x)/distance*step;u.y+=(next.y-u.y)/distance*step;}if(distance<.08)u.path.shift();}}
   }
   if(Math.hypot(u.x-target.x,u.y-target.y)<=spec.range+targetRadius(target)+.1&&u.cooldown<=0){u.cooldown=spec.rate;if(spec.heal){target.hp=Math.min(target.maxHp,target.hp+spec.damage);b.effects.push({kind:'heal',x:target.x,y:target.y,life:.35});}else{hurt(b,target,spec.damage,u);if(spec.splash)for(const p of b.buildings)if(p!==target&&p.hp>0&&Math.hypot(p.x-target.x,p.y-target.y)<spec.splash)hurt(b,p,spec.damage*.5,u);}}
  }

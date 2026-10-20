@@ -1,5 +1,5 @@
-import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=6';
-import {createVillageScene} from './battle-village-scene.mjs?v=6';
+import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=7';
+import {createVillageScene} from './battle-village-scene.mjs?v=7';
 import {VALDORIA_FIELD,createValdoriaFort} from './battle-style-layout.mjs?v=1';
 import {bindBattleInput} from './battle3d-input.mjs?v=1';
 
@@ -135,7 +135,7 @@ function frame(now) {
     const dt=last?Math.min((now-last)/1000,.1):0;last=now;
     if(!document.hidden) {
       if(entered)training.tick(dt);
-      if(entered&&!training.paused&&(!resultShown||now-finishedAt<1000))view.frame(training.battle,dt);
+      if(entered&&!training.paused&&(!resultShown||now-finishedAt<1000))view.frame(training.battle,dt,true,training.presentation);
       if(now-lastHUD>120){updateUI();lastHUD=now;}
       if(training.battle.phase==='finished'&&!resultShown)result();
       if(toastUntil&&now>toastUntil){$('#toast').classList.remove('visible');toastUntil=0;}
