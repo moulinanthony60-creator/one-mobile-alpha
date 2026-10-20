@@ -13,3 +13,5 @@ dialog{color:var(--ink);background:linear-gradient(145deg,#284438,#122821);borde
 
 /* Keep the familiar village view and the fully 3D view one tap apart. */
 .visual-modes{position:absolute;left:14px;top:35px;display:flex;gap:2px;padding:3px;border-radius:10px;background:#143c2ee8;border:1px solid #e7d69c6b;box-shadow:0 2px 8px #183a2b26}.visual-modes button{min-width:60px;min-height:36px;padding:6px 12px;font-size:11px;font-weight:750;border:0;border-radius:7px;background:transparent;color:#d8e5c9}.visual-modes button[aria-pressed=true]{color:#263a28;background:linear-gradient(#f5df9f,#dfba6d)}#toast{top:85px}dialog .art-note{font-size:11px;color:#decfa7;line-height:1.5;margin-top:-6px}.loading{z-index:3}
+
+#battle-webgl-canvas{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}

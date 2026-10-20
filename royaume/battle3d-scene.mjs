@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three.module.js';
 import {createArchitecture,createVillageProps,createForest} from './battle3d-models.mjs?v=2';
-import {createVillageArt,VILLAGE_CAMERA} from './battle3d-village-art.mjs?v=3';
+import {createVillageArt,VILLAGE_CAMERA} from './battle3d-village-art.mjs?v=4';
 import {actorGeometries,drawTroop} from './battle3d-actors.mjs?v=2';
 
 const UP=new THREE.Vector3(0,1,0),color=new THREE.Color(),local=new THREE.Object3D(),composed=new THREE.Matrix4();
@@ -191,6 +191,7 @@ export function createScene(canvas,battle){
   }
   return {
     frame,
+    resize,
     async loadVillage(){
       try{villageArt=await createVillageArt(scene,battle,{signal:artAbort.signal});if(disposed){villageArt.dispose();villageArt=null;return false;}return true;}
       catch(error){if(!disposed)console.warn('Illustrations du village :',error.message);return false;}
