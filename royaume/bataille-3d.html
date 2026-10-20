@@ -7,7 +7,7 @@
   <meta name="description" content="Essayez la première bataille 3D de Valdoria. Déployez vos gardiens, archers et mages dans un entraînement gratuit.">
   <title>Valdoria · Bataille 3D</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="battle3d.css?v=4">
+  <link rel="stylesheet" href="battle3d.css?v=5">
 </head>
 <body>
 <main id="game">
@@ -71,7 +71,7 @@
 <div id="fatal" hidden role="alert"><span class="eyebrow">VALDORIA · ENTRAÎNEMENT</span><h1>Le terrain n’a pas pu démarrer</h1><p id="fatal-detail">Recharge la page pour réessayer le chargement du terrain.</p><button onclick="location.reload()" class="primary">Réessayer</button><a class="text-link" href="./index.html">Retour au village</a></div>
 <noscript>Active JavaScript pour essayer la bataille 3D. <a href="./index.html">Retour au village</a></noscript>
 <script type="module">
-  import('./battle3d-app.mjs?v=4').catch(error => {
+  import('./battle3d-app.mjs?v=5').catch(error => {
     console.error('Valdoria, démarrage :',error);
     document.querySelector('#fatal-detail').textContent = 'Le chargement du terrain a échoué. Détail : ' + (error?.message || 'erreur inconnue') + '. Recharge la page pour réessayer.';
     document.querySelector('#loading').hidden = true;

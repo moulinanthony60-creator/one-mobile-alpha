@@ -43,4 +43,10 @@ node --test royaume/tests/battle3d.test.mjs royaume/tests/battle3d-art.test.mjs 
 
 **Validation encore nécessaire sur téléphone :** rendu dans le navigateur, gestes tactiles et fluidité. Le vrai rendu Canvas a été exécuté hors navigateur avec les atlas réels, 17 unités animées, le déplacement, le zoom, le mode Éco, le redémarrage et la libération des ressources. Les vues initiale et en mouvement ont été inspectées. Aucun navigateur de validation compatible n’était disponible ; ces contrôles ne remplacent pas un essai sur appareil.
 
-Sur téléphone, ouvrir la bataille avec `?v=4`, entrer en vue Village et jouer. Comparer ensuite avec **3D** : si cette option échoue, le jeu doit rester en vue Village avec le même combat. Tester pause, reprise, glisser sans déployer, pincer, rejouer et retour au village.
+Sur téléphone, ouvrir la bataille avec `?v=5`, entrer en vue Village et jouer. Comparer ensuite avec **3D** : si cette option échoue, le jeu doit rester en vue Village avec le même combat. Tester pause, reprise, glisser sans déployer, pincer, rejouer et retour au village.
+
+## Ajustement de l’écran mobile
+
+Le terrain est positionné dans son conteneur pour que la taille interne du canvas n’agrandisse pas la mise en page. La hauteur du jeu suit la zone visible du navigateur, y compris quand les barres Android changent de taille. Les commandes et la magie gardent leur place en bas ; une disposition compacte s’active sur les écrans courts.
+
+Après la dernière troupe d’un type, le prochain type disponible est sélectionné. Quand toute l’armée est déployée, les touches sur le terrain ne déclenchent plus l’erreur de réserve vide ; déplacement et zoom restent disponibles. La magie doit toujours être choisie explicitement. Sans sort restant, l’aide n’invite plus à l’utiliser.
