@@ -1,46 +1,37 @@
-# Valdoria : bataille, vues Village et 3D
+# Valdoria — le village fortifié
 
-Après fusion et déploiement GitHub Pages :
-
-**https://one-officiel.fr/royaume/bataille-3d.html**
-
-L’essai est aussi accessible dans Valdoria par **Réglages → Tester la bataille 3D**, dès le niveau 1, et dans le menu des combats à partir du niveau 2. La navigation depuis le village sauvegarde normalement la partie avant d’ouvrir l’entraînement.
+La page `royaume/bataille-3d.html` conserve son adresse historique, mais présente désormais le combat illustré en vue isométrique demandé à partir des références en paysage.
 
 ## Jouer
 
-- Entrer sur le terrain, choisir une troupe, puis toucher la bordure bleue pour la déployer. Le chronomètre démarre au premier ordre.
-- 8 gardiens, 6 archers et 3 mages sont fournis. Deux frappes magiques peuvent viser le terrain ennemi.
-- La vue **Village** est sélectionnée au démarrage. Les boutons **Village / 3D** changent le rendu de la même bataille, sans dépenser de troupes ni réinitialiser le chronomètre.
-- Glisser pour déplacer la caméra, pincer pour zoomer. Les boutons +, − et recentrage sont aussi disponibles.
-- « Déployer au sud » permet de jouer sans viser le terrain. Au clavier : 1, 2, 3 pour les troupes, M pour la magie, Échap pour la pause.
-- La bataille se met en pause quand la page est masquée. Elle peut être recommencée depuis la pause ou le résultat.
+Depuis le village : **Combat → Combat · Village fortifié**. Le lien des réglages ouvre également cette page. Après publication : https://one-officiel.fr/royaume/bataille-3d.html?v=6
 
-## Périmètre
+Le terrain s’ouvre directement. Choisir une carte, puis toucher à l’extérieur de la ligne bleue pour déployer. Le bouton « Déployer au sud » reste disponible. La foudre se lance après sélection de sa carte. Glisser déplace la vue, pincer ou +/− change le zoom. Les commandes comprennent recentrage, plein écran si disponible, mode éco, pause et aide. La page s’adapte au portrait ; le paysage laisse davantage de place au terrain.
 
-Cette première version est un entraînement solo contre des défenses automatiques. L’armée et la bataille sont créées dans un état privé en mémoire. Aucun accès aux sauvegardes, au compte ONE, au réseau ou au stockage depuis le moteur de l’essai. Aucune récompense de cet entraînement ne rejoint le village. Recharger la page recommence l’essai.
+L’entraînement fournit 8 gardiens, 6 archers, 3 mages et 2 sorts. Le compte à rebours commence au premier déploiement ou sort. La carte comporte 35 bâtiments et 170 segments de rempart, avec plusieurs enceintes. Les compteurs du coin supérieur indiquent les réserves de cette bataille, les sorts et les cibles restantes — pas les ressources sauvegardées du joueur.
 
-Le moteur de campagne existant (`expeditions.mjs`) est réutilisé. Le terrain d’entraînement dispose maintenant de 11 bâtiments et de remparts reliés, avec quatre passages. Les positions et les forces de ce fort sont définies uniquement dans `battle3d-layout.mjs`. Des dimensions de collision facultatives permettent aux troupes de contourner les modèles 3D. Sans ces dimensions, les règles des campagnes existantes restent identiques ; les résultats des 12 missions ont été comparés à ceux du moteur précédent.
+## Rendu
 
-La vue **Village** utilise maintenant le **Canvas 2D natif**, avec les illustrations et les personnages animés déjà utilisés par Valdoria. Son démarrage ne charge ni Three.js ni la scène WebGL. Le château, les maisons, les bâtiments, les arbres et les petits décors proviennent des atlas `v27-*` existants ; les remparts utilisent `wall-art.mjs`. Les unités sont dessinées avec les articulations de `paintCartoonActor`. Le décor extérieur est mis en cache et redessiné uniquement lorsque la caméra, la résolution ou les illustrations changent.
+Le terrain utilise Canvas 2D, avec des bâtiments illustrés indépendants et triés en profondeur. Ce rendu 2,5D ne permet pas de tourner librement autour des modèles. Le village n’est pas une image de fond : chaque bâtiment peut être ciblé, subir des dégâts et laisser des décombres.
 
-Le bouton **3D** charge séparément Three.js et les modèles volumétriques. Un module manquant, un délai de chargement supérieur à 10 secondes, une erreur de création ou de rendu, ou une perte de contexte WebGL ramène automatiquement à la vue Village. La même bataille continue : armée, dégâts, sorts et chronomètre ne sont pas réinitialisés. La vue 3D fautive est désactivée jusqu’au rechargement de la page.
+Les bâtiments viennent des illustrations existantes de Valdoria. Trois nouvelles planches de troupes comportent chacune huit poses : repos, deux pas et attaque, vus de face et de dos. Les unités changent de pose et d’orientation pendant la simulation. Les cartes affichent les mêmes personnages. Les nouvelles images WebP pèsent environ 978 ko au total.
 
-Cette séparation corrige la dépendance du mode Village envers le démarrage WebGL, qui pouvait bloquer tout l’écran. La cause exacte du signalement sur le téléphone n’a pas pu être confirmée : l’ancien écran masquait l’exception. Les fichiers de la version déployée ont été vérifiés en HTTP 200, avec les bons types MIME et des contenus identiques à ceux du dépôt. Le nouvel écran d’erreur affiche le détail si le chargement principal échoue encore.
+Le sol texturé, les berges, la forêt, les chemins, les projectiles et les effets de destruction sont dessinés dans le moteur. Les éléments fixes du décor sont mis en cache. Le mode éco réduit la résolution et les effets ; la préférence système de réduction des animations est respectée. Les éventuels échecs de chargement d’images gardent un terrain simplifié jouable et sont signalés.
 
-La vue Village charge seulement cinq atlas existants (environ 1,15 Mo transférés avant cache). Si leurs images échouent ou dépassent 12 secondes de chargement, un terrain simplifié reste jouable et le dialogue explique comment réessayer. L’essai n’importe pas la disposition personnelle du joueur : le fort reste un adversaire prédéfini.
+## Simulation et sauvegardes
 
-La résolution reste plafonnée à 1,6 fois la taille CSS ; **Éco** la réduit et désactive les ombres en vue 3D. Le rendu s’arrête pendant la pause et après l’animation du résultat. Aucun changement du moteur de combat ou des sauvegardes du village.
+`battle-style-layout.mjs` définit la carte d’entraînement de 40 × 32. `createTraining` accepte cette carte et ses dimensions en option. Le moteur de déplacement lit ces dimensions lorsqu’elles sont présentes ; les missions existantes conservent leur terrain de 20 × 16 et leurs résultats précédents.
 
-## Vérifications
+L’état de l’entraînement reste privé et en mémoire. Il n’importe ni moteur de sauvegarde ni connexion au village. Ses récompenses de simulation ne sont jamais transférées au compte du joueur. Le village sauvegardé, les campagnes et les combats entre joueurs ne sont pas remplacés par cette carte.
 
-Depuis la racine du dépôt, avec Node.js récent :
+## Validation
 
 ```sh
-node --test royaume/tests/battle3d.test.mjs royaume/tests/battle3d-art.test.mjs royaume/tests/battle-startup.test.mjs
+node --test royaume/tests/battle3d.test.mjs royaume/tests/battle3d-art.test.mjs royaume/tests/battle-startup.test.mjs royaume/tests/battle-style.test.mjs
 ```
 
-19 tests couvrent l’isolation, les positions invalides (y compris sur un rempart), les réserves, les deux sorts, la pause, les retards de simulation, la victoire, la limite de temps, le redémarrage, l’absence de persistance/réseau dans le moteur de l’essai, les gestes tactiles, le contournement des bâtiments, les géométries et articulations, le budget de triangles et la conservation des résultats des 12 campagnes existantes. Les nouveaux contrôles couvrent le chargement, les erreurs, le délai maximum et l’annulation des images, la couverture de tous les bâtiments par les atlas originaux et l’alignement isométrique des fondations. Les nouveaux tests de démarrage couvrent l’absence de dépendance statique à WebGL, les erreurs d’import/création/rendu, les délais, la perte de contexte, la conservation du combat, la sortie pendant un chargement et les coordonnées tactiles après zoom/déplacement. Les modules ont également été vérifiés par `node --check`.
+24 tests passent. Ils couvrent notamment le déploiement sur les quatre côtés du grand terrain, les collisions pendant une bataille gagnée, la remise à zéro, les poses des troupes, les commandes de la page et la conservation des résultats des douze missions existantes.
 
-**Validation encore nécessaire sur téléphone :** rendu dans le navigateur, gestes tactiles et fluidité. Le vrai rendu Canvas a été exécuté hors navigateur avec les atlas réels, 17 unités animées, le déplacement, le zoom, le mode Éco, le redémarrage et la libération des ressources. Les vues initiale et en mouvement ont été inspectées. Aucun navigateur de validation compatible n’était disponible ; ces contrôles ne remplacent pas un essai sur appareil.
+Le rendu Canvas avec les vrais fichiers graphiques a été exécuté et inspecté hors navigateur, avant et pendant une bataille. Les tests des commandes remplacent le DOM et la surface de dessin. La mise en page CSS dans un navigateur réel, les gestes sur appareil et les performances Android restent à vérifier. L’image de référence générée n’est pas une capture du jeu ; l’aperçu ci-dessous provient du moteur Canvas.
 
-Sur téléphone, ouvrir la bataille avec `?v=4`, entrer en vue Village et jouer. Comparer ensuite avec **3D** : si cette option échoue, le jeu doit rester en vue Village avec le même combat. Tester pause, reprise, glisser sans déployer, pincer, rejouer et retour au village.
+![Terrain produit par le moteur Canvas, sans les commandes HTML](docs/fort-style.webp)

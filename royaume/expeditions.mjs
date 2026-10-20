@@ -48,9 +48,10 @@ export function assaultCommand(s,a){
  if(a.type==='assault-dismiss'){check(b.phase!=='active','Terminez l’attaque ou mettez-la en pause.');s.assault=null;return;}
  check(b.phase==='active','Cette attaque est terminée.');
  if(a.type==='assault-retreat'){b.phase='finished';settleAssault(s);return;}
- const x=Number(a.x),y=Number(a.y);check(Number.isFinite(x)&&Number.isFinite(y)&&x>=0&&y>=0&&x<FIELD.width&&y<FIELD.height,'Choisissez un point du terrain.');
+ const field=b.field||FIELD,margin=field.margin||3;
+ const x=Number(a.x),y=Number(a.y);check(Number.isFinite(x)&&Number.isFinite(y)&&x>=0&&y>=0&&x<field.width&&y<field.height,'Choisissez un point du terrain.');
  if(a.type==='assault-deploy'){
-  const spec=ASSAULT_UNITS[a.unit];check(spec,'Troupe inconnue.');check(x<3||x>17||y<3||y>13,'Déployez dans la bordure bleue.');check(!b.buildings.some(p=>p.hp>0&&p.collision&&Math.abs(x-p.x)<p.collision.width/2&&Math.abs(y-p.y)<p.collision.depth/2),'Choisissez un point libre dans la bordure bleue.');check(armyCount(s,a.unit)>0,'Cette troupe n’est plus disponible.');check(b.units.length<160,'Limite de 160 troupes engagées dans cette attaque.');
+  const spec=ASSAULT_UNITS[a.unit];check(spec,'Troupe inconnue.');check(x<margin||x>field.width-margin||y<margin||y>field.height-margin,'Déployez à l’extérieur de la ligne bleue.');check(!b.buildings.some(p=>p.hp>0&&p.collision&&Math.abs(x-p.x)<p.collision.width/2&&Math.abs(y-p.y)<p.collision.depth/2),'Choisissez un point libre dans la bordure bleue.');check(armyCount(s,a.unit)>0,'Cette troupe n’est plus disponible.');check(b.units.length<160,'Limite de 160 troupes engagées dans cette attaque.');
   if(a.unit==='guardians')s.troops--;else s.army[a.unit]--;
   b.units.push({id:++b.serial,kind:a.unit,x,y,hp:spec.hp,maxHp:spec.hp,cooldown:0,path:[],target:null,repath:0});b.deployed[a.unit]=(b.deployed[a.unit]||0)+1;
  }else if(a.type==='assault-spell'){
@@ -71,7 +72,7 @@ function blockedCells(buildings,width,height){
  return blocked;
 }
 function route(u,target,b,range){
- const width=FIELD.width,height=FIELD.height,blocked=blockedCells(b.buildings,width,height),start=Math.floor(u.y)*width+Math.floor(u.x),queue=[start],parents=new Map([[start,null]]);let end=null;
+ const {width,height}=b.field||FIELD,blocked=blockedCells(b.buildings,width,height),start=Math.floor(u.y)*width+Math.floor(u.x),queue=[start],parents=new Map([[start,null]]);let end=null;
  for(let i=0;i<queue.length;i++){const key=queue[i],x=key%width+.5,y=Math.floor(key/width)+.5;if(Math.hypot(target.x-x,target.y-y)<=range){end=key;break;}
   for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=Math.floor(x)+dx,ny=Math.floor(y)+dy,n=ny*width+nx;if(nx<0||ny<0||nx>=width||ny>=height||parents.has(n)||blocked.has(n))continue;parents.set(n,key);queue.push(n);}}
  if(end===null)return null;const path=[];while(end!==start&&end!==null){path.unshift({x:end%width+.5,y:Math.floor(end/width)+.5});end=parents.get(end);}return path;
