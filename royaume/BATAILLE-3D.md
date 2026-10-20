@@ -1,37 +1,38 @@
-# Valdoria — le village fortifié
+# Combat d’entraînement de Valdoria — version 7
 
-La page `royaume/bataille-3d.html` conserve son adresse historique, mais présente désormais le combat illustré en vue isométrique demandé à partir des références en paysage.
-
-## Jouer
-
-Depuis le village : **Combat → Combat · Village fortifié**. Le lien des réglages ouvre également cette page. Après publication : https://one-officiel.fr/royaume/bataille-3d.html?v=6
-
-Le terrain s’ouvre directement. Choisir une carte, puis toucher à l’extérieur de la ligne bleue pour déployer. Le bouton « Déployer au sud » reste disponible. La foudre se lance après sélection de sa carte. Glisser déplace la vue, pincer ou +/− change le zoom. Les commandes comprennent recentrage, plein écran si disponible, mode éco, pause et aide. La page s’adapte au portrait ; le paysage laisse davantage de place au terrain.
-
-L’entraînement fournit 8 gardiens, 6 archers, 3 mages et 2 sorts. Le compte à rebours commence au premier déploiement ou sort. La carte comporte 35 bâtiments et 170 segments de rempart, avec plusieurs enceintes. Les compteurs du coin supérieur indiquent les réserves de cette bataille, les sorts et les cibles restantes — pas les ressources sauvegardées du joueur.
+Le chemin historique `bataille-3d.html?v=7` ouvre une bataille isométrique illustrée sur Canvas 2D. Il ne s’agit pas d’une scène 3D à caméra libre. L’entraînement reste gratuit et indépendant du village sauvegardé, des ressources et du PvP.
 
 ## Rendu
 
-Le terrain utilise Canvas 2D, avec des bâtiments illustrés indépendants et triés en profondeur. Ce rendu 2,5D ne permet pas de tourner librement autour des modèles. Le village n’est pas une image de fond : chaque bâtiment peut être ciblé, subir des dégâts et laisser des décombres.
+Le terrain conserve 35 bâtiments destructibles et 170 segments de remparts. Le kit graphique v7 remplace les anciens bâtiments du village dans cet entraînement : château bleu et or, défenses, ateliers, ressources, forêt, rochers et débris. Les remparts emploient le niveau de matériau 6. La barre de troupes est réduite sur les téléphones en paysage.
 
-Les bâtiments viennent des illustrations existantes de Valdoria. Trois nouvelles planches de troupes comportent chacune huit poses : repos, deux pas et attaque, vus de face et de dos. Les unités changent de pose et d’orientation pendant la simulation. Les cartes affichent les mêmes personnages. Les nouvelles images WebP pèsent environ 978 ko au total.
+![Terrain rendu par le moteur Canvas](docs/fort-fluide.webp)
 
-Le sol texturé, les berges, la forêt, les chemins, les projectiles et les effets de destruction sont dessinés dans le moteur. Les éléments fixes du décor sont mis en cache. Le mode éco réduit la résolution et les effets ; la préférence système de réduction des animations est respectée. Les éventuels échecs de chargement d’images gardent un terrain simplifié jouable et sont signalés.
+[Capture des mouvements dans le moteur Canvas](docs/troupes-fluides.mp4)
 
-## Simulation et sauvegardes
+Ces captures utilisent le vrai moteur, les véritables ressources et la simulation. Elles sont produites hors navigateur avec Canvas natif et ne comprennent pas l’interface HTML. Elles ne mesurent pas les performances d’un téléphone Android.
 
-`battle-style-layout.mjs` définit la carte d’entraînement de 40 × 32. `createTraining` accepte cette carte et ses dimensions en option. Le moteur de déplacement lit ces dimensions lorsqu’elles sont présentes ; les missions existantes conservent leur terrain de 20 × 16 et leurs résultats précédents.
+## Fluidité
 
-L’état de l’entraînement reste privé et en mémoire. Il n’importe ni moteur de sauvegarde ni connexion au village. Ses récompenses de simulation ne sont jamais transférées au compte du joueur. Le village sauvegardé, les campagnes et les combats entre joueurs ne sont pas remplacés par cette carte.
+- Simulation à pas fixe de 30 Hz ; affichage interpolé entre les deux dernières positions connues à chaque image. Au plus 33 ms de retard visuel, sans prédiction à travers les obstacles.
+- Consommation de toute la distance d’un pas au passage d’un point du chemin, sans arrêt artificiel entre les cases.
+- Dans ce grand terrain uniquement, conservation temporaire de la cible et réutilisation de la grille de collision jusqu’à une destruction.
+- Recalage des pieds et du torse entre les poses, transitions précalculées, orientation amortie et réaction à chaque attaque.
+- Cache du décor par groupes triés en profondeur. Lorsqu’une troupe traverse la profondeur d’un groupe, ses éléments sont redessinés dans l’ordre exact pour conserver les occultations.
+- Mode éco : densité de pixels réduite et moins d’effets. Préférence de mouvement réduit respectée.
 
-## Validation
+Le routage des douze missions historiques conserve son ancien comportement. Les changements de déplacement et de verrouillage de cible ne s’activent que sur le terrain privé étendu.
+
+## Vérifications
 
 ```sh
-node --test royaume/tests/battle3d.test.mjs royaume/tests/battle3d-art.test.mjs royaume/tests/battle-startup.test.mjs royaume/tests/battle-style.test.mjs
+node --test royaume/tests/battle3d.test.mjs royaume/tests/battle3d-art.test.mjs royaume/tests/battle-startup.test.mjs royaume/tests/battle-style.test.mjs royaume/tests/battle-motion.test.mjs
 ```
 
-24 tests passent. Ils couvrent notamment le déploiement sur les quatre côtés du grand terrain, les collisions pendant une bataille gagnée, la remise à zéro, les poses des troupes, les commandes de la page et la conservation des résultats des douze missions existantes.
+27 tests passent : commandes, collisions, victoire, replay, isolation du village, résultats des 12 missions historiques, interpolation des positions, absence d’arrêt aux cases, pause et ordre d’occultation du cache.
 
-Le rendu Canvas avec les vrais fichiers graphiques a été exécuté et inspecté hors navigateur, avant et pendant une bataille. Les tests des commandes remplacent le DOM et la surface de dessin. La mise en page CSS dans un navigateur réel, les gestes sur appareil et les performances Android restent à vérifier. L’image de référence générée n’est pas une capture du jeu ; l’aperçu ci-dessous provient du moteur Canvas.
+La simulation de 600 étapes avec 17 troupes a demandé en moyenne environ 0,58 ms par étape contre 1,29 ms avant ces corrections dans cet environnement Node. Ces valeurs illustrent la réduction du travail de simulation ; elles ne constituent pas une mesure de FPS sur mobile. Le rendu de l’interface, les gestes réels et la fluidité Android restent à vérifier sur appareil.
 
-![Terrain produit par le moteur Canvas, sans les commandes HTML](docs/fort-style.webp)
+## Essai
+
+Après fusion et déploiement : `https://one-officiel.fr/royaume/bataille-3d.html?v=7`. Tourner le téléphone en paysage. Choisir une troupe puis toucher hors de la limite bleue, ou utiliser « Déployer au sud ». Glisser pour déplacer la caméra ; pincer pour zoomer. Pause, replay, plein écran et retour au village restent accessibles.

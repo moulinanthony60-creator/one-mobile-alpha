@@ -6,9 +6,10 @@ import {VALDORIA_FIELD,createValdoriaFort} from '../battle-style-layout.mjs';
 import {troopFrame,TROOP_SHEETS} from '../battle-style-art.mjs';
 import {BATTLE_ATLASES,villageSpriteKey} from '../battle-village-assets.mjs';
 import {CARTOON_CELLS} from '../cartoon-art.mjs';
+import {FORTRESS_KEYS} from '../battle-fortress-art.mjs';
 const training=()=>createTraining({layout:createValdoriaFort,field:VALDORIA_FIELD});
 test('the new base has 35 separate targets, connected partitions and complete artwork',()=>{
- const b=training().battle,keys=new Set(BATTLE_ATLASES.flatMap(a=>CARTOON_CELLS[a]));
+ const b=training().battle,keys=new Set([...FORTRESS_KEYS,'camp']);
  assert.equal(b.buildings.filter(p=>p.kind!=='wall').length,35);assert.equal(new Set(b.buildings.map(p=>p.id)).size,b.buildings.length);
  for(const p of b.buildings){assert.ok(p.x>=6&&p.x<=34&&p.y>=6&&p.y<=26);assert.ok(p.collision.width>0&&p.collision.depth>0);if(p.kind!=='wall')assert.ok(keys.has(villageSpriteKey(p)),p.kind);}
  const walls=b.buildings.filter(p=>p.kind==='wall');assert.ok(walls.length>=150);assert.ok(walls.some(p=>p.x===15&&p.y===16));assert.ok(walls.some(p=>p.y===12&&p.x===20));
@@ -30,12 +31,12 @@ test('the army can finish the fortified base, without entering surviving footpri
  assert.deepEqual(t.score,{percent:100,stars:3});assert.ok(t.battle.elapsed<150);assert.equal(t.battle.settled,true);
  t.reset();assert.equal(t.battle.units.length,0);assert.equal(t.battle.field.width,40);assert.equal(t.count('guardians'),8);assert.ok(t.battle.buildings.every(p=>p.hp===p.maxHp));
 });
-test('sprites face their movement, use both walking steps and show an attack pose',()=>{
- assert.deepEqual(troopFrame({dx:1,dz:0,moving:false,attacking:false,distance:0}),{index:0,flip:false});
- assert.deepEqual(troopFrame({dx:0,dz:-1,moving:false,attacking:true,distance:0}),{index:7,flip:false});
+test('sprites face their movement, use both walking steps and keep registered walk poses',()=>{
+ assert.deepEqual(troopFrame({dx:1,dz:0,moving:false,attacking:false,distance:0}),{index:1,flip:false});
+ assert.deepEqual(troopFrame({dx:0,dz:-1,moving:false,attacking:true,distance:0}),{index:5,flip:false});
  assert.equal(troopFrame({dx:-1,dz:0,moving:true,attacking:false,distance:0}).flip,true);
  const columns=new Set(Array.from({length:20},(_,i)=>troopFrame({dx:1,dz:0,moving:true,attacking:false,distance:i/10}).index));assert.ok(columns.has(1)&&columns.has(2));
- assert.equal(troopFrame({dx:1,dz:0,moving:true,attacking:true,distance:1,reduced:true}).index,0);
+ assert.equal(troopFrame({dx:1,dz:0,moving:true,attacking:true,distance:1,reduced:true}).index,1);
 });
 
 // DOM wiring check. It executes the app and simulation, replacing only the
@@ -53,7 +54,7 @@ test('the real battle page wires selection, deployment, spells, help, pause and 
  globalThis.document=doc;globalThis.window=win;globalThis.requestAnimationFrame=f=>(frame=f,1);globalThis.cancelAnimationFrame=()=>{};
  globalThis.StyleTestView=(_canvas,battle)=>{current=battle;return {artStatus:{terrain:true,troops:true},loadVillage:async()=>true,frame(b){current=b;},reset(b){current=b;},point:(x,y)=>({x,y}),mark(){},pan(){},zoom(){},home(){},quality(){},dispose(){}};};
  try{
-  const url=new URL('../battle3d-app.mjs',import.meta.url);let source=readFileSync(url,'utf8').replace("import {createVillageScene} from './battle-village-scene.mjs?v=6';",'const createVillageScene=globalThis.StyleTestView;');source=source.replace(/from '([^']+)'/g,(_,p)=>`from '${new URL(p,url).href}'`);
+  const url=new URL('../battle3d-app.mjs',import.meta.url);let source=readFileSync(url,'utf8').replace("import {createVillageScene} from './battle-village-scene.mjs?v=7';",'const createVillageScene=globalThis.StyleTestView;');source=source.replace(/from '([^']+)'/g,(_,p)=>`from '${new URL(p,url).href}'`);
   await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
   assert.equal(ids.get('army-total').textContent,17);assert.equal(ids.get('targets-total').textContent,35);
   ids.get('deploy-south').click();assert.equal(current.units.length,1);assert.equal(current.units[0].y,28.4);assert.equal(ids.get('army-total').textContent,16);
