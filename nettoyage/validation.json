@@ -1,0 +1,116 @@
+{
+  "date": "2026-10-20",
+  "scope": "Static checks only; no browser or remote-service execution",
+  "integrity_and_references": {
+    "unchanged_files": 732,
+    "integrity_errors": [],
+    "new_missing_resources": [],
+    "preexisting_missing_resources": [
+      {
+        "source": "game-tables.js",
+        "literal": "./bluff-cinematic.js?v=117z",
+        "target": "bluff-cinematic.js",
+        "kind": "module_import"
+      },
+      {
+        "source": "one-bluff-mobile-preview.html",
+        "literal": "../work/one-source/ui/party-game.css?v=014115",
+        "target": "../work/one-source/ui/party-game.css",
+        "kind": "html_link"
+      },
+      {
+        "source": "one-bluff-mobile-preview.html",
+        "literal": "../work/one-source/ui/party-bluff.css?v=014115",
+        "target": "../work/one-source/ui/party-bluff.css",
+        "kind": "html_link"
+      },
+      {
+        "source": "one-bluff-mobile-preview.html",
+        "literal": "../work/one-source/ui/game-tables.css?v=014115",
+        "target": "../work/one-source/ui/game-tables.css",
+        "kind": "html_link"
+      },
+      {
+        "source": "one-bluff-mobile-preview.html",
+        "literal": "../work/one-source/ui/bluff-table-structure.css?v=014115",
+        "target": "../work/one-source/ui/bluff-table-structure.css",
+        "kind": "html_link"
+      },
+      {
+        "source": "one-lobby-r46.js",
+        "literal": "./three17-r46-warmup.js?v=lobby-shoot-v88",
+        "target": "three17-r46-warmup.js",
+        "kind": "module_import"
+      },
+      {
+        "source": "one-lobby-r46.js",
+        "literal": "./one-lobby-r46-screen.js?v=lobby-shoot-v88",
+        "target": "one-lobby-r46-screen.js",
+        "kind": "module_import"
+      },
+      {
+        "source": "one-lobby-r46.js",
+        "literal": "./one-lobby-r46-room.js?v=lobby-shoot-v88",
+        "target": "one-lobby-r46-room.js",
+        "kind": "module_import"
+      },
+      {
+        "source": "one-lobby-r46.js",
+        "literal": "./three17-r44-avatar.js?v=lobby-shoot-v88",
+        "target": "three17-r44-avatar.js",
+        "kind": "module_import"
+      },
+      {
+        "source": "one-lobby-r46.js",
+        "literal": "./three17-r46-render.js?v=lobby-shoot-v88",
+        "target": "three17-r46-render.js",
+        "kind": "module_import"
+      },
+      {
+        "source": "one-lobby-r46.js",
+        "literal": "./three17-r46-coop.js?v=lobby-shoot-v93",
+        "target": "three17-r46-coop.js",
+        "kind": "module_import"
+      },
+      {
+        "source": "three.module.js",
+        "literal": "./three.core.js",
+        "target": "three.core.js",
+        "kind": "module_import"
+      },
+      {
+        "source": "ui/party-premium.css",
+        "literal": "ui/one-game-art-96.png",
+        "target": "ui/ui/one-game-art-96.png",
+        "kind": "css_url"
+      }
+    ],
+    "checked_references": 845,
+    "glb_models": 46,
+    "duplicate_targets_checked": 129
+  },
+  "javascript_syntax": {
+    "checked": 495,
+    "passed": 493,
+    "failures": [
+      {
+        "file": "index_ONE_IA_corrige.html#inline-57",
+        "error": "Invalid or unexpected token"
+      },
+      {
+        "file": "index_ONE_IA_corrige.html#inline-59",
+        "error": "Invalid or unexpected token"
+      }
+    ]
+  },
+  "github_comparison": {
+    "repository": "moulinanthony60-creator/one-mobile-alpha",
+    "branch": "main",
+    "base_commit": "58f7ca85bb911e0eb3e768f3d1306351c5c20448",
+    "base_tree": "61edad4f47411a95083551ccbb5d382a5166b35a",
+    "matched_blobs": 1141,
+    "different_files": 0,
+    "missing_files": 0,
+    "extra_files": 0
+  }
+}

@@ -1,0 +1,2182 @@
+{
+  "date": "2026-10-20",
+  "source": "one reprise.zip",
+  "removed_files": 409,
+  "removed_bytes": 200344357,
+  "files": {
+    "A-METTRE-A-LA-RACINE/index.html": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 612215,
+      "sha256": "92acdfe93bd12cbe8a4e4102a32accba02b393c47eba82fbec2610e252964206"
+    },
+    "A-METTRE-A-LA-RACINE/sw.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2477,
+      "sha256": "62883a8664f8b799b24171012fa0c00a4b86c553ae096ea8f4e8ed8b561228c8"
+    },
+    "ONE-0.13.8.zip": {
+      "reason": "Ancienne archive de livraison incluse dans le projet",
+      "bytes": 532467,
+      "sha256": "39b6bfd82e846b321d486021abe7967b48cf362be5c8ea75de1cab7e34acf2f0"
+    },
+    "ONE-0.14.84-INSTALLATION-COMPLETE.zip": {
+      "reason": "Ancienne archive de livraison incluse dans le projet",
+      "bytes": 9170250,
+      "sha256": "8bc231530150ffcee553b8c2bbf266b3941e7ac4935d653cf83b6bf03ee71520"
+    },
+    "ONE-0.14.84-POINTS-JEUX-COLLECTION.zip": {
+      "reason": "Ancienne archive de livraison incluse dans le projet",
+      "bytes": 9129961,
+      "sha256": "2f313613617697b3e932940d4447b6f7d14755d972ca182b1d159cc8ccda0061"
+    },
+    "ONE-0.14.91-POINTS-JEUX-COLLECTION.zip": {
+      "reason": "Ancienne archive de livraison incluse dans le projet",
+      "bytes": 17195067,
+      "sha256": "3b0952dfef3d9f41680b7d09eb37f47b16d91b1cc0a452e20c2b4bec0784d406"
+    },
+    "ONE-0.14.92-POINTS-JEUX-COLLECTION.zip": {
+      "reason": "Ancienne archive de livraison incluse dans le projet",
+      "bytes": 17195071,
+      "sha256": "9b5ca3039241fa91fabc8fb55201a660bba6692b5672802dcd03ff09228dfca0"
+    },
+    "ONE-0.14.93-POINTS-JEUX-COLLECTION.zip": {
+      "reason": "Ancienne archive de livraison incluse dans le projet",
+      "bytes": 17195555,
+      "sha256": "fabdf986863cbfb585a04499d87c875c30544b6bae0a0d1c9c9ce8bfcd44f7e5"
+    },
+    "ONE-BLUFF-0.14.110-REFONTE.zip": {
+      "reason": "Ancienne archive de livraison incluse dans le projet",
+      "bytes": 308635,
+      "sha256": "e7176b88ee578dfaa2135508643320264d64928f536f3817f4035ab858579a54"
+    },
+    "ONE-BLUFF-0.14.113-FINITION-MOBILE.zip": {
+      "reason": "Ancienne archive de livraison incluse dans le projet",
+      "bytes": 309766,
+      "sha256": "63e1ccc93ba26a434126b4a8005ddd393281b729567b3ae7cbed84ed62ac9902"
+    },
+    "ONE-BLUFF-0.14.115-REPLIQUE.zip": {
+      "reason": "Ancienne archive de livraison incluse dans le projet",
+      "bytes": 323469,
+      "sha256": "b5af7c7c7ee2bfc5bcaba82659562959ca4ddc1b6d7fa4ec84435f2f2ef098be"
+    },
+    "ONE-INSTALLATION-COMPLETE.txt": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "INSTALLATION-ONE-0.14.84.txt",
+      "bytes": 9290,
+      "sha256": "fca1bcb97b10114dc0755f629a21d0bf4596f37e47abc184e678ffcff1e394d1"
+    },
+    "README.txt": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/317/README.txt",
+      "bytes": 218,
+      "sha256": "23b626c37b0a53dc477971652f2e29241cb61bf2403f122874ec4598a9a097d2"
+    },
+    "SERVEUR-SI-PAS-DEJA-INSTALLE/LIRE-AVANT-DEPLOIEMENT.txt": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 265,
+      "sha256": "97e5947cd07fb00d7a19ef395be8fbffd19d734708d0d7d2e431fa42bfcd7064"
+    },
+    "SERVEUR-SI-PAS-DEJA-INSTALLE/worker.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 166898,
+      "sha256": "9944bd9540fdd2452a90ef7cb5f785600c78500163184387c11a7f0f975ba1d9"
+    },
+    "SITE/assets/bluff/AUDIO-LICENSE-117Z.txt": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 493,
+      "sha256": "3be873352b087f9c115c6de47a9bc0ba055e26746fa53c6095574dbce8a126b4"
+    },
+    "SITE/assets/bluff/revolver-117z.glb": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 667276,
+      "sha256": "0aedcec8b35a45accfd4c55f95b18c2eb738c5060935f35cb63a1f4685c38553"
+    },
+    "SITE/assets/bluff/revolver-click-117z.wav": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 31796,
+      "sha256": "2dbd5d9718782495f2d4efa6beba533fc74e893c13f9ea466bf8fc4c68b9d24b"
+    },
+    "SITE/assets/bluff/revolver-shot-117z.wav": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 185264,
+      "sha256": "94650cae9f2e3ab83c16a12dfa4bb6b5b4ddaf2cd11c84c184d0e7975cdfda34"
+    },
+    "SITE/assets/bluff/revolver.glb": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 191712,
+      "sha256": "61b3c9138087464d4076e0cb966458dcb8d7715a05a6b97af08383a72230ac6c"
+    },
+    "SITE/index.html": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 612209,
+      "sha256": "3135fbfdf19455b9cea12354dd013ed95155f7b020320b8cb5a390eb96554b75"
+    },
+    "SITE/sw.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2467,
+      "sha256": "2475a411bed5057fea8d137b3a39a56626eeff43c9f0e760ac65d2a7ea6b4639"
+    },
+    "SITE/ui/blackjack-art-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1355,
+      "sha256": "2adeeaddf7cb47c065f4246c6c8e522787418e030db9a0731763fe22ae09a4b2"
+    },
+    "SITE/ui/blackjack-table-118.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2602805,
+      "sha256": "2ef0f5a868aeab6f11bc6a1376582042ed635022a75909fbc6f9a793e0bbe806"
+    },
+    "SITE/ui/bluff-cinematic.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 7891,
+      "sha256": "0a08e716b8957a617aa9dbd1f8d13528c3a46130732e7149e9e14d53174256a4"
+    },
+    "SITE/ui/bluff-lounge-117r.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2591199,
+      "sha256": "ff5e243391d675223d811649fb779e126fbe0a800b35b9439fb8c15d10084d25"
+    },
+    "SITE/ui/bluff-polish.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 8834,
+      "sha256": "b18ae7466d49acd0bdf2d128c36cb9a03d4214fb4312af12dba88a3abd48e021"
+    },
+    "SITE/ui/bluff-scene.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 19638,
+      "sha256": "86602c5c1d7dfc6eef8fc534b7a42afbd3e33bd947fe8e46027e75a436fe9cd0"
+    },
+    "SITE/ui/card-back-blackjack-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1288,
+      "sha256": "f842633f1588a3d5f639f282a31c8f637496cf923661454e69e1b9038e2e6c6b"
+    },
+    "SITE/ui/card-back-bluff-117ad.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1347,
+      "sha256": "47cca19a588c0d24f78e511069c3c1058a5ac4d73e77843d0e006899919b0556"
+    },
+    "SITE/ui/card-back-colors-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1287,
+      "sha256": "50312a144796fc5a584a0e73fee898f75d1de8233e04dfec42058443cf2fa020"
+    },
+    "SITE/ui/card-back-douze-117ad.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1347,
+      "sha256": "318d6d93e8273745f916c095a07a41bba4aa054e14337f2ec2515c9a561b27d2"
+    },
+    "SITE/ui/card-back-poker-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1284,
+      "sha256": "640a86879c07c94c92dc4f1e52453e8f9aedf227fe112f35f67a70d1fb0b33b0"
+    },
+    "SITE/ui/card-back-trio-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1283,
+      "sha256": "70029b7f29b7b44d64c71265c1788e5df88f723791751f48fe60513efb2cd462"
+    },
+    "SITE/ui/douze-lounge-117p.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2441749,
+      "sha256": "5d8324b13336bad3c01d95432122ab79cd6635a65d1dba6c884a4f2fbdbdce2d"
+    },
+    "SITE/ui/douze-target.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 20922,
+      "sha256": "0aa4498e18602221fb5c631b19a3871ce6b4078c2b612ac79bdbcdec4a8356fd"
+    },
+    "SITE/ui/friends.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 7279,
+      "sha256": "0a79684baa762f307daf3bb3a7f258c82a5398607856a5d9d8410d46cd02e039"
+    },
+    "SITE/ui/friends.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 14797,
+      "sha256": "36cc7d7307d0808e61432c84ef915a1dbf02db48d9cf643651e8581a2aceb47f"
+    },
+    "SITE/ui/game-lounge-109.webp": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 183082,
+      "sha256": "f99baa5896e004f965059a5cf75ba17147718ff728f07071ed4b7ee85f25962a"
+    },
+    "SITE/ui/game-shell.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 12300,
+      "sha256": "138b63be2df67e129fa38f8185f0e30bcf012e38e51771ae597574734f5e68ca"
+    },
+    "SITE/ui/game-shell.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 8234,
+      "sha256": "6103d06b3211c5115b5c8b58707cfcd54fda2ac4956aa00b6cede1a4b88d3816"
+    },
+    "SITE/ui/game-tables.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 13201,
+      "sha256": "11fb92969f69dffb5bf9a1c10f3a961d25ff209b4cd3803e1fbece5ad8a5a3ba"
+    },
+    "SITE/ui/game-tables.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 27338,
+      "sha256": "a2c117991547f7305e1e5d32f76879b228aa3b02511cfc3b56a17862c69ad3c2"
+    },
+    "SITE/ui/mobile-ux.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9598,
+      "sha256": "9b4a13313d51b8ac081e1e0dd09f0e1eda7ae5368e29dd80b652830f81fde2c8"
+    },
+    "SITE/ui/mobile-ux.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1825,
+      "sha256": "5e548b010af80aba572255a3b493a07afadf72a716eb77b23456c08047bb4107"
+    },
+    "SITE/ui/notifications.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 7155,
+      "sha256": "4951ee7280b2ed6a03a18295d72c7fcdf5c465eb83a7eca565e10d02a3e6192e"
+    },
+    "SITE/ui/one-luminous-117ae.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9063,
+      "sha256": "2619c233b8683fd0ed47d4bfb18b87b26483fb7a203b2a54bf71c514352b3881"
+    },
+    "SITE/ui/one-points.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 6999,
+      "sha256": "f8af5358c1fa81ab4de71aaa7f53456adb007a157002edafb7eb880869ef722f"
+    },
+    "SITE/ui/party-art.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1252,
+      "sha256": "a8f91f06dba68fb961f4899eaf508d11fe31ef0fe12992a6f215e06ca3191ee3"
+    },
+    "SITE/ui/party-blackjack.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 14427,
+      "sha256": "3b6109945c2878e21c01e20508747fa5f2178baca1e05c6df9df4b0555f477ba"
+    },
+    "SITE/ui/party-blackjack.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 6938,
+      "sha256": "51d748751beb3883e9ce6e418d1382902978b182e7ad6a032a4ca497748cfe50"
+    },
+    "SITE/ui/party-bluff.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 13677,
+      "sha256": "3932b266d9d2c4095bde70da3db560ed7dc9966a19495d510bdb55bb745ef250"
+    },
+    "SITE/ui/party-collection.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 23903,
+      "sha256": "2dfbaa3af0095b524b112ff989dfe537ce1a24ef28b3530176e466c9a7b20662"
+    },
+    "SITE/ui/party-communication.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 19718,
+      "sha256": "bb028b9536fc03c92ff37698db643266f6365aea82d981026c0f46df9a911b7b"
+    },
+    "SITE/ui/party-douze.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 14278,
+      "sha256": "df13a9b8bdbc99b5e940828aeffc72a043e9c8b59f4367bfe32810038fdcedd8"
+    },
+    "SITE/ui/party-game.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 20321,
+      "sha256": "362a821d5173d4a2c380a063cab0c5b15504e1a8fd044da83d969a60e58e0e64"
+    },
+    "SITE/ui/party-poker.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 11157,
+      "sha256": "bb2a6b9596dbbabd9ea5894be343cdc17757ddd169e390bb3ab1dff035c3c27e"
+    },
+    "SITE/ui/party-public.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 5859,
+      "sha256": "fb1b5b7c0c252bd537ca6af202bbfe81a7d1847699ebc7c09ae4b06a199b646a"
+    },
+    "SITE/ui/party-who.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9326,
+      "sha256": "f2f3d72c77c005d6a861f8ff506c3fff4f890bb689c2919780fa179b644afa98"
+    },
+    "SITE/ui/party.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 17799,
+      "sha256": "64237631192ba88f0c9cf7e19efbf63402bd7aece626fc9e2a2c490c458acfd1"
+    },
+    "SITE/ui/poker-lounge-117ae.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2811374,
+      "sha256": "7070610ce3f832ecdc38ef07f17bb6431ad15984b77bb427b943a596c3b19f63"
+    },
+    "SITE/ui/poker-polish.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 18202,
+      "sha256": "43adc43a975b58f6c2489179dae1f8c33df7eaed8ecab575c6a412f7ad25c68d"
+    },
+    "SITE/ui/salon-polish.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9460,
+      "sha256": "3988954804bc544352f639d7280984298c702ef782ae0bb9c4bd1b0305fa42ac"
+    },
+    "SITE/ui/social-app.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 4016,
+      "sha256": "f83966f2f0b47bdf077083d2307aa91d6314a6234830f62adcfaff788b4fcebe"
+    },
+    "SITE/ui/social-core.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 16718,
+      "sha256": "4964faf87f6c93e17de2eca92237589c80e27f42bae7ceeef37c96d259c365ba"
+    },
+    "SITE/ui/table-themes-117af.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 17045,
+      "sha256": "056168874fe32168a42d362cc0962173cdd32dead95d7b2574648d7b95ac150e"
+    },
+    "SITE/ui/table-themes-117af.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1105,
+      "sha256": "64c83614fc7dc3d993bd3541e4f279ba2755369d3d6986039e4e8328d604ef38"
+    },
+    "SITE/ui/vendor/BufferGeometryUtils.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 37724,
+      "sha256": "6d4f4f989a5f7e810522aaa36292205e3674878eed9810563417bd13ab9ba4f2"
+    },
+    "SITE/ui/vendor/GLTFLoader.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 117568,
+      "sha256": "ea6945bc119f46237fab6a9228c3566fe66fff200512b3b96b1a6a32e89cb706"
+    },
+    "SITE/ui/vendor/SkeletonUtils.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 11547,
+      "sha256": "eedd768765d6553f8082953ab3882e2c86dacc2eb7d180a312d1d52e86bb35c5"
+    },
+    "SITE/ui/vendor/three.core.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1458113,
+      "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+    },
+    "SITE/ui/vendor/three.module.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 662772,
+      "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+    },
+    "SITE/ui/wolf-council-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 6567,
+      "sha256": "a96266d0456330bfc9d06cf152774f00d9b40c90cbf2c79049de8b88b68ff31c"
+    },
+    "ai-clarify.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/ai-clarify.js",
+      "bytes": 3136,
+      "sha256": "ff6af3e763f48e394412d877c9b6c90564c413b337c0929f24988b525f0c3f7d"
+    },
+    "ai-language.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/ai-language.js",
+      "bytes": 1257,
+      "sha256": "10103b716554bc4fe7062c2c2b5856b1424ed95bca39acae0235dbb565d7cebb"
+    },
+    "ai-products.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/ai-products.js",
+      "bytes": 1741,
+      "sha256": "3481e299ca4668cd83820adb4cf02d28acbfc734c379be95735ee0a77567fa65"
+    },
+    "amazon-only.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/amazon-only.js",
+      "bytes": 4537,
+      "sha256": "fc81e5419b64685cc806309e40a959644b9b42885ea12a2fd79b31ce3e58c0b9"
+    },
+    "assets/assets/lobby/r45/coffee_table_round_01.glb": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 533996,
+      "sha256": "0bceef602a7c194e9bc4eb987b5ea793c9e4d1ccd588bbe2911f76063ce2a861"
+    },
+    "assets/assets/lobby/r45/mobile/coffee_table_round_01.glb": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 273472,
+      "sha256": "1d728f5677f326ca8317827453bc84b49a7da1106fd08c639a9f8f970ed65a4a"
+    },
+    "assets/assets/lobby/r45/mobile/sofa_02.glb": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 266668,
+      "sha256": "22b11e55b045f800bda8a2933b89715f8474ef304aeca8ef194736b7ab6f629b"
+    },
+    "assets/assets/lobby/r45/mobile/surfaces.glb": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 481308,
+      "sha256": "278e7f4b8e81c32a026ad3c873981f1eb98a3e4a0bec57f15a47a07f07591cde"
+    },
+    "assets/assets/lobby/r45/sofa_02.glb": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 500808,
+      "sha256": "d9254d7cc089cd7299042de7ec2b5b17f373cfe19702e483eef061d5d72a4e67"
+    },
+    "assets/assets/lobby/r45/surfaces.glb": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1859480,
+      "sha256": "446f00ec3d71a215b877c0e4b341ad46b4e5e6bd4de8054b7c54a5c373bd236b"
+    },
+    "bluff-cinema-109.webp": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/bluff-cinema-109.webp",
+      "bytes": 120590,
+      "sha256": "7d884cf6ef48f49c490278880df2f96a613b9d2b9fc85b370fc8a1332c014ad7"
+    },
+    "bluff-click-109.webm": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/bluff-click-109.webm",
+      "bytes": 429937,
+      "sha256": "2fc51d856f48e1620f21a54099294ce202eabede7390faa4df0265ff2b732b99"
+    },
+    "bluff-finish.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/bluff-finish.js",
+      "bytes": 3452,
+      "sha256": "6ee53982f2bbec6dd4d5d73d137574ced7653b782fd5468409989ba831567f65"
+    },
+    "bluff-model-bridge.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/bluff-model-bridge.js",
+      "bytes": 2930,
+      "sha256": "298e93e227157cf69d42f820279dd726498331e581ddf46f81a1251b764da69c"
+    },
+    "bluff-shot-109.webm": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/bluff-shot-109.webm",
+      "bytes": 432993,
+      "sha256": "74eb80924c00e6bc9497c51ed76c21a4a087ac4b20e19d62991aa3896fabf83c"
+    },
+    "bluff-table-structure.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/bluff-table-structure.css",
+      "bytes": 34862,
+      "sha256": "8cf00cfea99853434a79978e1c801283b02d686fece57bff903a397968895a81"
+    },
+    "bluff/main-chasseur.glb": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/main-chasseur.glb",
+      "bytes": 98056,
+      "sha256": "6f55e80a378366e2c1b3f1501b034ea9e6f1ccfd002eb5bc9f0afd0a3d217247"
+    },
+    "bluff/main-corbeau.glb": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/main-corbeau.glb",
+      "bytes": 300588,
+      "sha256": "92aa8b773c3a21853db1d3fab13f0730af7656d410bcbf2a3ed82d536d94caae"
+    },
+    "bluff/main-remy.glb": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/main-remy.glb",
+      "bytes": 117296,
+      "sha256": "45925a18870d83b7e1c232035080dd3d2926bb0726f07cd87e70dce5a7498c0d"
+    },
+    "bluff/manifest.json": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/manifest.json",
+      "bytes": 1641,
+      "sha256": "8802cdb8547e3b7c2c6d733c3121e92c379c5a37bf72ad7f478c06893be753c2"
+    },
+    "bluff/parasite-starkie-r23.glb": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/317/parasite-starkie-r23.glb",
+      "bytes": 4405672,
+      "sha256": "36944ac9918fc34f997cd5b3961523659f9f94f1a194389cfc5bf1c687bcb1f4"
+    },
+    "bluff/portraits/chasseur.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/portraits/chasseur.png",
+      "bytes": 386836,
+      "sha256": "90e3d0bfc0befbd751c556ec1bbd253f42e3fc858a438cccc915a47f4094ca8f"
+    },
+    "bluff/portraits/corbeau.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/portraits/corbeau.png",
+      "bytes": 348427,
+      "sha256": "f1e26f5567739ab5a020573879568d5601bf3b95d892900d4c7185aec009c0e3"
+    },
+    "bluff/portraits/croupier.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/portraits/croupier.png",
+      "bytes": 385689,
+      "sha256": "d4949199377e5d6c475bce0709397d15cce05f493e1a4808fe4113224b091701"
+    },
+    "bluff/portraits/renard.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/portraits/renard.png",
+      "bytes": 356726,
+      "sha256": "dbda33808713c375c6be678cdd670af668212c06811d368a009b1bf13b2ceb50"
+    },
+    "bluff/renard.glb": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/renard.glb",
+      "bytes": 1517100,
+      "sha256": "30b81c7ce79da9d7e7c8560216701a8ed2a76a5f06a62cce845e5cb3f9b8908a"
+    },
+    "bluff/revolver-117z.glb": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/revolver-117z.glb",
+      "bytes": 667276,
+      "sha256": "0aedcec8b35a45accfd4c55f95b18c2eb738c5060935f35cb63a1f4685c38553"
+    },
+    "bluff/revolver-click-117z.wav": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/revolver-click-117z.wav",
+      "bytes": 31796,
+      "sha256": "2dbd5d9718782495f2d4efa6beba533fc74e893c13f9ea466bf8fc4c68b9d24b"
+    },
+    "bluff/revolver-shot-117z.wav": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/revolver-shot-117z.wav",
+      "bytes": 185264,
+      "sha256": "94650cae9f2e3ab83c16a12dfa4bb6b5b4ddaf2cd11c84c184d0e7975cdfda34"
+    },
+    "bluff/salon.glb": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/salon.glb",
+      "bytes": 251912,
+      "sha256": "f861a3e5939b795da2705759cd2dab3b7cedaa312c644252a89401131fa48434"
+    },
+    "bluff/textures/10c4c5b30d08621cc3aa1908.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/10c4c5b30d08621cc3aa1908.png",
+      "bytes": 1969485,
+      "sha256": "10c4c5b30d08621cc3aa1908d816a00388cdab6efadf05b9c9e9ae5cdeae95df"
+    },
+    "bluff/textures/111526d209737e1987d6069c.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/111526d209737e1987d6069c.png",
+      "bytes": 162883,
+      "sha256": "111526d209737e1987d6069c92eb99d4e4b9f74dc1f523be318689f0a436dfa0"
+    },
+    "bluff/textures/1a24b6652fc48c3958721462.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/1a24b6652fc48c3958721462.jpg",
+      "bytes": 77942,
+      "sha256": "1a24b6652fc48c395872146254d69225ad2582bb7c76b0072f2bf0a55cc35006"
+    },
+    "bluff/textures/25ab42b32598306832ca01c3.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/25ab42b32598306832ca01c3.jpg",
+      "bytes": 54596,
+      "sha256": "25ab42b32598306832ca01c34acf5a8bbd39db628ed7cc845fdf4618b026772e"
+    },
+    "bluff/textures/26560d91c4c3b0b072d3d35b.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/26560d91c4c3b0b072d3d35b.png",
+      "bytes": 1159311,
+      "sha256": "26560d91c4c3b0b072d3d35b3cf181836e32d1f72290372940e3eaf331315493"
+    },
+    "bluff/textures/2b2461fff2247881ff336a59.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/2b2461fff2247881ff336a59.jpg",
+      "bytes": 46741,
+      "sha256": "2b2461fff2247881ff336a595f9ef6b8494c8f757a280578c7e3059e60b72f23"
+    },
+    "bluff/textures/3008da33de74a6caa8ccad1f.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/3008da33de74a6caa8ccad1f.jpg",
+      "bytes": 54125,
+      "sha256": "3008da33de74a6caa8ccad1f34df2bbf0a70a64aa985da9ba5abd7cbb76b4dbb"
+    },
+    "bluff/textures/4ee096c3f17aef93499f27b7.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/4ee096c3f17aef93499f27b7.png",
+      "bytes": 2281457,
+      "sha256": "4ee096c3f17aef93499f27b7d313c949518ba20f2f260853e587ba868848acd9"
+    },
+    "bluff/textures/63663b47cbaf583a10baa802.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/63663b47cbaf583a10baa802.jpg",
+      "bytes": 93239,
+      "sha256": "63663b47cbaf583a10baa802158affb76f324addf1c3f52bcdf7029cb1e0466d"
+    },
+    "bluff/textures/6b69bf6da5353bd983a5e149.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/6b69bf6da5353bd983a5e149.jpg",
+      "bytes": 193022,
+      "sha256": "6b69bf6da5353bd983a5e1499c3df6a07dc0ed971de04bd30ed852cb8ad0a302"
+    },
+    "bluff/textures/6bdf24bddbb25efeee45b40b.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/6bdf24bddbb25efeee45b40b.jpg",
+      "bytes": 202703,
+      "sha256": "6bdf24bddbb25efeee45b40b75318b62745f6481d8b49bcbf1fa36cd1f3375b4"
+    },
+    "bluff/textures/81335b5d392d538caae7d8ac.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/81335b5d392d538caae7d8ac.png",
+      "bytes": 956474,
+      "sha256": "81335b5d392d538caae7d8ac6f7cbbb85a814525ff035011c67959294d706e96"
+    },
+    "bluff/textures/8ff851d602f3ed51b93578dc.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/8ff851d602f3ed51b93578dc.jpg",
+      "bytes": 160968,
+      "sha256": "8ff851d602f3ed51b93578dc33065280baa1068aab45940b5cb730ea737ebd68"
+    },
+    "bluff/textures/921d9ff430bcd1d3d390e8eb.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/921d9ff430bcd1d3d390e8eb.jpg",
+      "bytes": 54297,
+      "sha256": "921d9ff430bcd1d3d390e8ebb037a54fe33dca16b88fd8c36bbc4ccd0dd11163"
+    },
+    "bluff/textures/927c1039eaedbb1d3e6c16df.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/927c1039eaedbb1d3e6c16df.jpg",
+      "bytes": 175882,
+      "sha256": "927c1039eaedbb1d3e6c16dfca9ec76a0edb58ac0197c8fa1f85e6a300a46f0d"
+    },
+    "bluff/textures/9c5f4adc3da4b5497877c43e.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/9c5f4adc3da4b5497877c43e.jpg",
+      "bytes": 98522,
+      "sha256": "9c5f4adc3da4b5497877c43ef63f924cf2e6d975ae3b06ef1f3af09f47e2e13f"
+    },
+    "bluff/textures/b656b53c034013d701685a91.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/b656b53c034013d701685a91.jpg",
+      "bytes": 58427,
+      "sha256": "b656b53c034013d701685a91434737857e9cb17b96d7da714dee71034cdf0db4"
+    },
+    "bluff/textures/b6570887bbc527a4aae619c0.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/b6570887bbc527a4aae619c0.jpg",
+      "bytes": 31647,
+      "sha256": "b6570887bbc527a4aae619c05164df5aaf7fec36575e92ab38cf4d63db4d3861"
+    },
+    "bluff/textures/bf8874509fc208b45a393989.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/bf8874509fc208b45a393989.jpg",
+      "bytes": 157531,
+      "sha256": "bf8874509fc208b45a393989b30744d89d45622d80240388ee54be489522ebad"
+    },
+    "bluff/textures/cd4396d1b30228ec4f5ea6ea.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/cd4396d1b30228ec4f5ea6ea.jpg",
+      "bytes": 112868,
+      "sha256": "cd4396d1b30228ec4f5ea6eab73e1da20f148b7a5eaa0dbac3031941fd8de391"
+    },
+    "bluff/textures/d3e304e064a3c6dcb3e62809.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/d3e304e064a3c6dcb3e62809.jpg",
+      "bytes": 101349,
+      "sha256": "d3e304e064a3c6dcb3e62809a4a0452ce2128dfd8826bf1b43aea4ad9d91385f"
+    },
+    "bluff/textures/e753fd136fb5a5b44c06cede.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/e753fd136fb5a5b44c06cede.jpg",
+      "bytes": 31297,
+      "sha256": "e753fd136fb5a5b44c06cede28b2dd3259a6beb53f3cb6dfa3202d39d5715b9d"
+    },
+    "bluff/textures/e8deeee5e60d491a8528f64d.jpg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/bluff/textures/e8deeee5e60d491a8528f64d.jpg",
+      "bytes": 162402,
+      "sha256": "e8deeee5e60d491a8528f64dc388b6873b9912f9351ccff733a77823a95d2c11"
+    },
+    "casino-finish-118.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/casino-finish-118.css",
+      "bytes": 17397,
+      "sha256": "496d0e2b61f2eaf47bb4860ac46eec7ece04d5f21c6112414a35bb438a5c8f00"
+    },
+    "catalog-manager.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/catalog-manager.css",
+      "bytes": 1799,
+      "sha256": "034b119fe3e4bd03e8bb6fbfeb579d137a6451fd8b64752b68af43f4febd77c8"
+    },
+    "catalog-manager.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/catalog-manager.js",
+      "bytes": 6785,
+      "sha256": "02e230839820f39bb9a4ab96c5722bfc3229d8caf753dad644044907875d4060"
+    },
+    "catalog-store.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/catalog-store.js",
+      "bytes": 8365,
+      "sha256": "37c75166e56d6e8d290c6a9ad7141e7a2349ffd9b1bb48a38fb63d37e308c7eb"
+    },
+    "comment-moderation.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/comment-moderation.js",
+      "bytes": 5275,
+      "sha256": "11c0f2b4190cd2db3a268a426a16e18176ed02d25f6c73c265f5821372278715"
+    },
+    "content-refresh.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/content-refresh.js",
+      "bytes": 1118,
+      "sha256": "2710a5c68dc03e4ae90919c52ffd83a9c231bef3e168c328c1edea96a91a287a"
+    },
+    "douze-target.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/douze-target.css",
+      "bytes": 20922,
+      "sha256": "0aa4498e18602221fb5c631b19a3871ce6b4078c2b612ac79bdbcdec4a8356fd"
+    },
+    "foundation.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/foundation.css",
+      "bytes": 19099,
+      "sha256": "d1cb023958bd592c8717e94b7dbce9e5525301fd20552aeee96bcfde9275771b"
+    },
+    "foundation.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/foundation.js",
+      "bytes": 18001,
+      "sha256": "734a51161937dd31b230216138791ad4ddc2f9ae4c91427cd47ab4de493de1cf"
+    },
+    "friend-scanner.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/friend-scanner.js",
+      "bytes": 3356,
+      "sha256": "5d845719c091836effa8b5328973ad6cdd697eb99a726a4d4f8477ffd3a12884"
+    },
+    "friends.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/friends.css",
+      "bytes": 7279,
+      "sha256": "0a79684baa762f307daf3bb3a7f258c82a5398607856a5d9d8410d46cd02e039"
+    },
+    "game-finish-118.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/game-finish-118.css",
+      "bytes": 11345,
+      "sha256": "45756b9307d61e7021225a2c9103fbe67452d1d47a51cf1132150cf9c30c91e2"
+    },
+    "game-shell.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/game-shell.css",
+      "bytes": 12300,
+      "sha256": "138b63be2df67e129fa38f8185f0e30bcf012e38e51771ae597574734f5e68ca"
+    },
+    "game-tables.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/game-tables.css",
+      "bytes": 13201,
+      "sha256": "11fb92969f69dffb5bf9a1c10f3a961d25ff209b4cd3803e1fbece5ad8a5a3ba"
+    },
+    "icons.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons.js",
+      "bytes": 4157,
+      "sha256": "58c8bd8e331222b821f9413db51eb56c4e228665aed784303be2909fdd253ab2"
+    },
+    "icons/home.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/home.svg",
+      "bytes": 136,
+      "sha256": "dcf6e46aeecf468c058890ec3c8a5a77cdd18fbb62020aaabeb8ea809828e104"
+    },
+    "icons/icon-192.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "icon-192.png",
+      "bytes": 43723,
+      "sha256": "a6d7898c27a2b08e7b5761c77ee99b1bf26135f86f3b68ffc4d8a9a7a8e24772"
+    },
+    "icons/icon-512.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "icon-512.png",
+      "bytes": 175380,
+      "sha256": "b4c3d7921d298ac411e25b8e6ab4347766d3cbae10dfddde4ec5306084a4e506"
+    },
+    "icons/music.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/music.svg",
+      "bytes": 278,
+      "sha256": "681470fac97ff87a86ffdc2caf1c04af0535da5f39a75e580ddc6e09fcbbf4c8"
+    },
+    "icons/one.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/one.svg",
+      "bytes": 311,
+      "sha256": "bb03a1a4a5d82eaaf3fefcf8ecb7d896ce9291dbd50beb900924e3872180da5a"
+    },
+    "icons/party.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/party.svg",
+      "bytes": 480,
+      "sha256": "019b8b843624524a7970ebc69d278d20d929724e9eb0926d9d375435f797bc61"
+    },
+    "icons/plus.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/plus.svg",
+      "bytes": 158,
+      "sha256": "b2c755e8878e44d82120ef50b09de1f18058af431138d4baeceae9b4100e0970"
+    },
+    "icons/settings.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/settings.svg",
+      "bytes": 293,
+      "sha256": "028c1db1cc3090e417ff8a468e40fb51b1fab3aca81145809d5e58d81926f3a1"
+    },
+    "icons/social.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/social.svg",
+      "bytes": 236,
+      "sha256": "e470be44246bff0d59a668989c84250ffdf34a872f57b948909a87a5f8025ecb"
+    },
+    "icons/spark.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/spark.svg",
+      "bytes": 165,
+      "sha256": "a873c0df89e2b4845663be333f0c15fd6ff0288302fababee271bf073c1825b5"
+    },
+    "icons/tiktok.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/tiktok.svg",
+      "bytes": 395,
+      "sha256": "0aee7698b832c804c7d9d9414fa0b314c4802c88c93e08bc4e5b0b2b5a5f30aa"
+    },
+    "icons/together.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/together.svg",
+      "bytes": 469,
+      "sha256": "553ff081bbd28c851027e26e48df470e570d466d3fee605266df0c459801ba21"
+    },
+    "icons/twitch.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/twitch.svg",
+      "bytes": 236,
+      "sha256": "bfcb09d38e7f12a68e05e53cde838fea8b321523b096f4dddcd063cddda2c8ea"
+    },
+    "icons/youtube.svg": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/icons/youtube.svg",
+      "bytes": 173,
+      "sha256": "57f830ced699b90c48a36cc323d2dfa0c4885b8d864be4e8ed5dba74d9564f45"
+    },
+    "jsQR.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/jsQR.js",
+      "bytes": 266986,
+      "sha256": "aec81b459d4e3856885fca04b497474227396ab793daedf402fd80f7b9fcc337"
+    },
+    "mission116.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/mission116.css",
+      "bytes": 31482,
+      "sha256": "e66e97c4577c0a922c776fbb288a4dbf5c8a127fd5d724b3c8af238a7ba8ef8f"
+    },
+    "one-3d-v201.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1434151,
+      "sha256": "28cc04096adfea7e90ac9c48fa928c8ca9e3842c73d24f129df78b0b743543c1"
+    },
+    "one-3d-v202.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1440233,
+      "sha256": "73e811b2e6c08f497af51dc0e940fe61f91711ecb834edd6f5dea648a96aa1cc"
+    },
+    "one-3d-v204.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1463588,
+      "sha256": "3211d56224dbc87c6bb8b4bb269b35007c49ab0890455b981d330b7aa5e6d3cc"
+    },
+    "one-3d-v205.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1481464,
+      "sha256": "7405fb3835651d8bd34d778bb54505a86a6f1e63e0318d97697ebd475bfe6590"
+    },
+    "one-3d-v206.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1487670,
+      "sha256": "2e39f498fc176ff16f2e9e55bc3e6c94996087f2c9254d515a68869a889c3856"
+    },
+    "one-3d-v207.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1487974,
+      "sha256": "3cca60ca160c1c31f6059d9f1d446bfbacdb68418e466292a41bf66bc953f8b9"
+    },
+    "one-3d-v208.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1490981,
+      "sha256": "e40fb768c4460a7adda89d38e07a40325c702e8cb1aa10b040ecfdb39be31ff8"
+    },
+    "one-3d-v209.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1498380,
+      "sha256": "29de190e696860d9f3703890eab4cc9893ed551e8f358f8200deeefbbfc49edb"
+    },
+    "one-3d-v210.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1499051,
+      "sha256": "1c4610672148565157084f6ff2e3902f5ff8e56a34136cca664cef4d9041ac43"
+    },
+    "one-3d-v211.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1521635,
+      "sha256": "2309af33503e61af7551e37e1870c9735da0d8c8fdfe8d85c33ec2bd8eb5acbd"
+    },
+    "one-3d-v212.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1549325,
+      "sha256": "7053ad39471afbe5d88338999a07e328d0a991c982202edffa2e8f884a388877"
+    },
+    "one-3d-v213.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1558818,
+      "sha256": "37abe678c0382cdacb76884bae09b08f1cdaaa5beb54abbf31788abad7ecec30"
+    },
+    "one-3d-v214.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1561354,
+      "sha256": "43d662e9e8e87d60e9d823bd1178fac891d9089f457850ba9212fbf1563890fe"
+    },
+    "one-3d-v215.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1562489,
+      "sha256": "ad474ce00e2bcc998b34862ed4cc62066316db25fd8f9e1e0b3cfc001277708f"
+    },
+    "one-3d-v216.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1811491,
+      "sha256": "5b42e04b553088220f9e505c276bde56f42eb5b25a667e9da14a438c056a0cf8"
+    },
+    "one-bluff-0.14.110/index.html": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 622120,
+      "sha256": "f53a638e63ee83da28a3f1ead94c8c956de170f74c8f2ea3201b0ba89b1e3d21"
+    },
+    "one-bluff-0.14.110/manifest.json": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 887,
+      "sha256": "7815dd75d051ac482ae021ca7aa990086170bf1d9fc85b6797c24478acbe66da"
+    },
+    "one-bluff-0.14.110/manifest.webmanifest": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 886,
+      "sha256": "b3b4b6c11ce5d11a99d570c0819ade6cb3529929cef94ba41dc6c46577d36b85"
+    },
+    "one-bluff-0.14.110/sw.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1990,
+      "sha256": "6239d63b61331f9dd7d2c22b21156518c4ccc076d98f888a772948713a8cc7cb"
+    },
+    "one-bluff-0.14.110/ui/bluff-lounge-109.webp": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 111208,
+      "sha256": "912c1e909b231323ff11fa41110f5ea30c5b21ed9719dfbed4c0bb9fec72d107"
+    },
+    "one-bluff-0.14.110/ui/bluff-table-structure.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 20448,
+      "sha256": "f6835bb9958290bc6f0f4e06655aa6aeef062eebe013171fe845f1f27e7f1fbb"
+    },
+    "one-bluff-0.14.110/ui/game-tables.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 10498,
+      "sha256": "1f9074e1e625ec5417dc375e5c7617a348f0316177bdd47bffd998c544628f4e"
+    },
+    "one-bluff-0.14.110/ui/party-bluff.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9582,
+      "sha256": "56e4921a331a32008ceeb0b68a7d16ccd3533009575dc9023b57a2cabcbaddf9"
+    },
+    "one-bluff-0.14.110/ui/party-communication.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 18560,
+      "sha256": "8321352f5e272a4e10026fc92b1635c44ddcf6f6d66a0dc96750478ff42a379b"
+    },
+    "one-bluff-0.14.110/ui/party-game.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 19064,
+      "sha256": "59381b5281fadf26d08e55372aa3a9293104473742041a8281f6aac5478c7472"
+    },
+    "one-bluff-0.14.113/index.html": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 622120,
+      "sha256": "d8db6a0c8a0449d29dd2070d3f87912449e855453d263d18a75c9b7e299d36de"
+    },
+    "one-bluff-0.14.113/manifest.json": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 887,
+      "sha256": "7815dd75d051ac482ae021ca7aa990086170bf1d9fc85b6797c24478acbe66da"
+    },
+    "one-bluff-0.14.113/manifest.webmanifest": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 886,
+      "sha256": "b3b4b6c11ce5d11a99d570c0819ade6cb3529929cef94ba41dc6c46577d36b85"
+    },
+    "one-bluff-0.14.113/sw.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1990,
+      "sha256": "bcdd11ca63d9b7e20b18ecf5544c62265fdb4f9eb3fc55de8a7e02a91b0128e7"
+    },
+    "one-bluff-0.14.113/ui/bluff-lounge-109.webp": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 111208,
+      "sha256": "912c1e909b231323ff11fa41110f5ea30c5b21ed9719dfbed4c0bb9fec72d107"
+    },
+    "one-bluff-0.14.113/ui/bluff-table-structure.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 24601,
+      "sha256": "0dd081c7a9e81934afb9e981264f26898449195308b4449982071a3dab74ab6e"
+    },
+    "one-bluff-0.14.113/ui/game-tables.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 11417,
+      "sha256": "c81fd7771080df6b9a43d96acb4bb9e77471c01d427f5207e81a9944f763e1e8"
+    },
+    "one-bluff-0.14.113/ui/party-bluff.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9889,
+      "sha256": "8afdb059d115801a8ad08a95eb123f7fd50566725a83ff5b538bad10d2ca894f"
+    },
+    "one-bluff-0.14.113/ui/party-communication.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 18559,
+      "sha256": "b6c66a49af6f084d2a2b93b60ad30eead0ed6d2b28a6390bf5da17a231b5cf96"
+    },
+    "one-bluff-0.14.113/ui/party-game.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 19088,
+      "sha256": "b135f86b7de9915915dc23131e0ea10a4613b5be0bb7c8fa03ecf8a6357e74f0"
+    },
+    "one-cards-expansion-a.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-cards-expansion-a.png",
+      "bytes": 3929946,
+      "sha256": "42303e38099df56a7c22dae53f2ef0c490910a4e6bbdb3f70c6767385485b1e4"
+    },
+    "one-cards-expansion-b.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-cards-expansion-b.png",
+      "bytes": 4149927,
+      "sha256": "cd4d3d4cf14883af253172104e18d9310f8437256aff6c755eadef813d7ca691"
+    },
+    "one-collection-art-hd.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-collection-art-hd.png",
+      "bytes": 3448314,
+      "sha256": "334937901e9b4568a9b2be11e637c38c2181d879d7ef88adb6488a8a9f28433e"
+    },
+    "one-collection-extra.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-collection-extra.js",
+      "bytes": 1178,
+      "sha256": "ac2e685dae863f2d278b43e6f9a93ddd4bcbbae0779977be252151b241c0eddd"
+    },
+    "one-collection-protection.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-collection-protection.js",
+      "bytes": 429,
+      "sha256": "8bec48e40c83bf0d39626391430023955bacfbd632ca468888c5882c921b23c8"
+    },
+    "one-collection-sheet.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-collection-sheet.png",
+      "bytes": 1228745,
+      "sha256": "a3ebd659d80d338dc0dd13a859a9b42add987049aac46323de31072a914ce3df"
+    },
+    "one-game-art-96.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-game-art-96.png",
+      "bytes": 3672034,
+      "sha256": "f0bab35bba274a4f332b2a26d58b80b274668cdf3d00f73e00ef4d7abefd88c2"
+    },
+    "one-gems-98.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-gems-98.png",
+      "bytes": 1590374,
+      "sha256": "d086b7e42f50873410a0fd4acdfb55947007f086b064835642a2ce8f155cbef4"
+    },
+    "one-home-camera.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-home-camera-v130.js",
+      "bytes": 16020,
+      "sha256": "b42315d0502d5354d6813986d6653080e86b6ecb560dc468ef2b28bcb5400c68"
+    },
+    "one-lobby-3d.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-lobby-3d-v12.js",
+      "bytes": 9362,
+      "sha256": "8a47f35c6ac431be2e12b7d05a8aaffe57c9ec8f0e6dc9ba01286f85d74c8f61"
+    },
+    "one-poker.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-poker.js",
+      "bytes": 8680,
+      "sha256": "17654642c9efe714f0bfd32f53e69826a2820672d09a909afcdbbe0fec2d6c74"
+    },
+    "one-sharing-v130.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-sharing-v125.js",
+      "bytes": 22640,
+      "sha256": "03d5f64a3b4afebef2b0af95cb6caf16968979eaf6722dfd0156064fac69ee60"
+    },
+    "one-sharing.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-sharing-v125.js",
+      "bytes": 22640,
+      "sha256": "03d5f64a3b4afebef2b0af95cb6caf16968979eaf6722dfd0156064fac69ee60"
+    },
+    "one-slot-dragon-banner.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-slot-dragon-banner.png",
+      "bytes": 3176737,
+      "sha256": "2044851e90a084b1ea9f7f2b4fb416bd6f563d944bdb0b4ef6b026be4b1c26a8"
+    },
+    "one-slot-symbols-real.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-slot-symbols-real.png",
+      "bytes": 2214114,
+      "sha256": "5e144cbec23cdd9bb812729ad870178a30a45cfbc97409ed99d5d5051d1685f7"
+    },
+    "one-ticket-enamel-97.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-ticket-enamel-97.png",
+      "bytes": 3922848,
+      "sha256": "79757794443fe683a344be52b56b2f59936990cd287c6e0cc9b9118bbd02fba0"
+    },
+    "one-version.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/one-version.js",
+      "bytes": 619,
+      "sha256": "6414265a91751f50baab3b6d7de2855620c3be10144d42a25bebd4632a0eb474"
+    },
+    "parasite-starkie-r23.glb": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "assets/317/parasite-starkie-r23.glb",
+      "bytes": 4405672,
+      "sha256": "36944ac9918fc34f997cd5b3961523659f9f94f1a194389cfc5bf1c687bcb1f4"
+    },
+    "party-art-102.png": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/party-art-102.png",
+      "bytes": 2944732,
+      "sha256": "b35f83b509e8156bc101e672b573bea0ff0acfaf38d4bf4a3988f9f299ab6f71"
+    },
+    "party-bluff.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/party-bluff.css",
+      "bytes": 13612,
+      "sha256": "0524ce0a484dec170bef5ae4a1034942d0aee7b084bef415889991d1e3c6472e"
+    },
+    "party-douze.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/party-douze.css",
+      "bytes": 12828,
+      "sha256": "1e1a1a1fc7634ccda3e1dd629fa8f96e5beca108236d213c72bd43d1865a9c66"
+    },
+    "party-game.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/party-game.css",
+      "bytes": 24801,
+      "sha256": "9c185657a2183686f36e7d6cb88c2bf2d222218183c17085e1c14c52b223bb12"
+    },
+    "party-lobby.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/party-lobby.css",
+      "bytes": 9687,
+      "sha256": "212abe9e41440ecdf38348994f299b5f0015bd0fc2748505efcbdb51bf327ac6"
+    },
+    "party-premium.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/party-premium.css",
+      "bytes": 20091,
+      "sha256": "e98b0985f4d4b217ae4cbea74a5137538fa77ec8733bbbd95b105be5243b1941"
+    },
+    "party-reactions.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/party-reactions.js",
+      "bytes": 10143,
+      "sha256": "48fa57a2fc2aedfa646bb927df3bb51e318564892eec0a95c406d8f1a2e16acc"
+    },
+    "party-table-3d.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/party-table-3d.js",
+      "bytes": 4847,
+      "sha256": "54416288c0c74b90a3d109374fd24b55cf13fc337fcf02df1ddd655813306010"
+    },
+    "party-video-sync.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/party-video-sync.js",
+      "bytes": 7140,
+      "sha256": "d93441e2a47fd9c33df178ed8d71b111bd9b2970991afc1306e5a06083028ce3"
+    },
+    "qrcode.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/qrcode.js",
+      "bytes": 58991,
+      "sha256": "55427af126a7fd46b83b7a9557b7ad6a48850b31f2b4a1b32e2289e376dc80b4"
+    },
+    "royaume.mjs": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "royaume/builder-huts.mjs",
+      "bytes": 1760,
+      "sha256": "2e8c4cfa65a8b32e2021756ab746e037d081167e658c65d158dcd8b11395f016"
+    },
+    "salons.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/salons.css",
+      "bytes": 2625,
+      "sha256": "31c215299bcde3f639a41f6e76f6b637384529bfdb2dc3b3ef90b109a9d746da"
+    },
+    "social.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/social.css",
+      "bytes": 23098,
+      "sha256": "72a7ac968b799ca5cbfad037da65f2622f03d3362281e655279e2fc10af32a13"
+    },
+    "three17-four.css": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/three17-four.css",
+      "bytes": 9514,
+      "sha256": "13c12c82f5e1724a54b3e3c5c0f9b9f169d9cbe0eb64f9da3f13ab5059ad9547"
+    },
+    "three17-four.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/three17-four.js",
+      "bytes": 40153,
+      "sha256": "d5607d5943c85607014cd795c10f54e2ffbbcac6216bcb35f21d125b1c0a2e50"
+    },
+    "tiktok-mini.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/tiktok-mini.js",
+      "bytes": 2710,
+      "sha256": "8f4e6171aa47f0a678f43837c23fcd01ebd0d3567f6c9e4bcef35c0e29a8def2"
+    },
+    "tiktok-share-core.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/tiktok-share-core.js",
+      "bytes": 3762,
+      "sha256": "231791f1c485a1317796eae24e282362c56fb4dabc78fed7f97a320bcae2450c"
+    },
+    "twitch-mini.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/twitch-mini.js",
+      "bytes": 2951,
+      "sha256": "812da0aa6453324c58ae28dbc1db94151923e2dc058ad4523994793e683a65f7"
+    },
+    "ui/A-METTRE-DANS-ui/blackjack-art-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1355,
+      "sha256": "2adeeaddf7cb47c065f4246c6c8e522787418e030db9a0731763fe22ae09a4b2"
+    },
+    "ui/A-METTRE-DANS-ui/blackjack-table-118.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2602805,
+      "sha256": "2ef0f5a868aeab6f11bc6a1376582042ed635022a75909fbc6f9a793e0bbe806"
+    },
+    "ui/A-METTRE-DANS-ui/bluff-cinematic.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 7891,
+      "sha256": "0a08e716b8957a617aa9dbd1f8d13528c3a46130732e7149e9e14d53174256a4"
+    },
+    "ui/A-METTRE-DANS-ui/bluff-lounge-117r.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2591199,
+      "sha256": "ff5e243391d675223d811649fb779e126fbe0a800b35b9439fb8c15d10084d25"
+    },
+    "ui/A-METTRE-DANS-ui/bluff-polish.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 8834,
+      "sha256": "b18ae7466d49acd0bdf2d128c36cb9a03d4214fb4312af12dba88a3abd48e021"
+    },
+    "ui/A-METTRE-DANS-ui/bluff-scene.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 19638,
+      "sha256": "86602c5c1d7dfc6eef8fc534b7a42afbd3e33bd947fe8e46027e75a436fe9cd0"
+    },
+    "ui/A-METTRE-DANS-ui/card-back-blackjack-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1288,
+      "sha256": "f842633f1588a3d5f639f282a31c8f637496cf923661454e69e1b9038e2e6c6b"
+    },
+    "ui/A-METTRE-DANS-ui/card-back-bluff-117ad.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1347,
+      "sha256": "47cca19a588c0d24f78e511069c3c1058a5ac4d73e77843d0e006899919b0556"
+    },
+    "ui/A-METTRE-DANS-ui/card-back-colors-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1287,
+      "sha256": "50312a144796fc5a584a0e73fee898f75d1de8233e04dfec42058443cf2fa020"
+    },
+    "ui/A-METTRE-DANS-ui/card-back-douze-117ad.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1347,
+      "sha256": "318d6d93e8273745f916c095a07a41bba4aa054e14337f2ec2515c9a561b27d2"
+    },
+    "ui/A-METTRE-DANS-ui/card-back-poker-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1284,
+      "sha256": "640a86879c07c94c92dc4f1e52453e8f9aedf227fe112f35f67a70d1fb0b33b0"
+    },
+    "ui/A-METTRE-DANS-ui/card-back-trio-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1283,
+      "sha256": "70029b7f29b7b44d64c71265c1788e5df88f723791751f48fe60513efb2cd462"
+    },
+    "ui/A-METTRE-DANS-ui/douze-lounge-117p.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2441749,
+      "sha256": "5d8324b13336bad3c01d95432122ab79cd6635a65d1dba6c884a4f2fbdbdce2d"
+    },
+    "ui/A-METTRE-DANS-ui/douze-target.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 20922,
+      "sha256": "0aa4498e18602221fb5c631b19a3871ce6b4078c2b612ac79bdbcdec4a8356fd"
+    },
+    "ui/A-METTRE-DANS-ui/friends.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 7279,
+      "sha256": "0a79684baa762f307daf3bb3a7f258c82a5398607856a5d9d8410d46cd02e039"
+    },
+    "ui/A-METTRE-DANS-ui/friends.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 14797,
+      "sha256": "36cc7d7307d0808e61432c84ef915a1dbf02db48d9cf643651e8581a2aceb47f"
+    },
+    "ui/A-METTRE-DANS-ui/game-lounge-109.webp": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 183082,
+      "sha256": "f99baa5896e004f965059a5cf75ba17147718ff728f07071ed4b7ee85f25962a"
+    },
+    "ui/A-METTRE-DANS-ui/game-shell.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 12300,
+      "sha256": "138b63be2df67e129fa38f8185f0e30bcf012e38e51771ae597574734f5e68ca"
+    },
+    "ui/A-METTRE-DANS-ui/game-shell.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 8234,
+      "sha256": "6103d06b3211c5115b5c8b58707cfcd54fda2ac4956aa00b6cede1a4b88d3816"
+    },
+    "ui/A-METTRE-DANS-ui/game-tables.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 13201,
+      "sha256": "11fb92969f69dffb5bf9a1c10f3a961d25ff209b4cd3803e1fbece5ad8a5a3ba"
+    },
+    "ui/A-METTRE-DANS-ui/game-tables.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 27338,
+      "sha256": "a2c117991547f7305e1e5d32f76879b228aa3b02511cfc3b56a17862c69ad3c2"
+    },
+    "ui/A-METTRE-DANS-ui/mobile-ux.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9598,
+      "sha256": "9b4a13313d51b8ac081e1e0dd09f0e1eda7ae5368e29dd80b652830f81fde2c8"
+    },
+    "ui/A-METTRE-DANS-ui/mobile-ux.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1825,
+      "sha256": "5e548b010af80aba572255a3b493a07afadf72a716eb77b23456c08047bb4107"
+    },
+    "ui/A-METTRE-DANS-ui/notifications.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 7155,
+      "sha256": "4951ee7280b2ed6a03a18295d72c7fcdf5c465eb83a7eca565e10d02a3e6192e"
+    },
+    "ui/A-METTRE-DANS-ui/one-luminous-117ae.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9063,
+      "sha256": "2619c233b8683fd0ed47d4bfb18b87b26483fb7a203b2a54bf71c514352b3881"
+    },
+    "ui/A-METTRE-DANS-ui/one-points.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 6999,
+      "sha256": "f8af5358c1fa81ab4de71aaa7f53456adb007a157002edafb7eb880869ef722f"
+    },
+    "ui/A-METTRE-DANS-ui/party-art.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1252,
+      "sha256": "a8f91f06dba68fb961f4899eaf508d11fe31ef0fe12992a6f215e06ca3191ee3"
+    },
+    "ui/A-METTRE-DANS-ui/party-blackjack.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 14427,
+      "sha256": "3b6109945c2878e21c01e20508747fa5f2178baca1e05c6df9df4b0555f477ba"
+    },
+    "ui/A-METTRE-DANS-ui/party-blackjack.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 6941,
+      "sha256": "1c9cc2772b3f69aee624228ee6ecfd7de98e8901fffa8226c57d6f2e3f1b5530"
+    },
+    "ui/A-METTRE-DANS-ui/party-bluff.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 13677,
+      "sha256": "3932b266d9d2c4095bde70da3db560ed7dc9966a19495d510bdb55bb745ef250"
+    },
+    "ui/A-METTRE-DANS-ui/party-collection.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 23903,
+      "sha256": "2dfbaa3af0095b524b112ff989dfe537ce1a24ef28b3530176e466c9a7b20662"
+    },
+    "ui/A-METTRE-DANS-ui/party-communication.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 19718,
+      "sha256": "bb028b9536fc03c92ff37698db643266f6365aea82d981026c0f46df9a911b7b"
+    },
+    "ui/A-METTRE-DANS-ui/party-douze.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 14278,
+      "sha256": "df13a9b8bdbc99b5e940828aeffc72a043e9c8b59f4367bfe32810038fdcedd8"
+    },
+    "ui/A-METTRE-DANS-ui/party-game.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 20321,
+      "sha256": "362a821d5173d4a2c380a063cab0c5b15504e1a8fd044da83d969a60e58e0e64"
+    },
+    "ui/A-METTRE-DANS-ui/party-poker.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 11157,
+      "sha256": "bb2a6b9596dbbabd9ea5894be343cdc17757ddd169e390bb3ab1dff035c3c27e"
+    },
+    "ui/A-METTRE-DANS-ui/party-public.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 5859,
+      "sha256": "fb1b5b7c0c252bd537ca6af202bbfe81a7d1847699ebc7c09ae4b06a199b646a"
+    },
+    "ui/A-METTRE-DANS-ui/party-who.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9326,
+      "sha256": "f2f3d72c77c005d6a861f8ff506c3fff4f890bb689c2919780fa179b644afa98"
+    },
+    "ui/A-METTRE-DANS-ui/party.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 17799,
+      "sha256": "64237631192ba88f0c9cf7e19efbf63402bd7aece626fc9e2a2c490c458acfd1"
+    },
+    "ui/A-METTRE-DANS-ui/poker-lounge-117ae.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2811374,
+      "sha256": "7070610ce3f832ecdc38ef07f17bb6431ad15984b77bb427b943a596c3b19f63"
+    },
+    "ui/A-METTRE-DANS-ui/poker-polish.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 18202,
+      "sha256": "43adc43a975b58f6c2489179dae1f8c33df7eaed8ecab575c6a412f7ad25c68d"
+    },
+    "ui/A-METTRE-DANS-ui/salon-polish.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9460,
+      "sha256": "3988954804bc544352f639d7280984298c702ef782ae0bb9c4bd1b0305fa42ac"
+    },
+    "ui/A-METTRE-DANS-ui/social-app.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 4016,
+      "sha256": "f83966f2f0b47bdf077083d2307aa91d6314a6234830f62adcfaff788b4fcebe"
+    },
+    "ui/A-METTRE-DANS-ui/social-core.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 16718,
+      "sha256": "4964faf87f6c93e17de2eca92237589c80e27f42bae7ceeef37c96d259c365ba"
+    },
+    "ui/A-METTRE-DANS-ui/table-themes-117af.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 17045,
+      "sha256": "056168874fe32168a42d362cc0962173cdd32dead95d7b2574648d7b95ac150e"
+    },
+    "ui/A-METTRE-DANS-ui/table-themes-117af.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1105,
+      "sha256": "64c83614fc7dc3d993bd3541e4f279ba2755369d3d6986039e4e8328d604ef38"
+    },
+    "ui/A-METTRE-DANS-ui/vendor/BufferGeometryUtils.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 37724,
+      "sha256": "6d4f4f989a5f7e810522aaa36292205e3674878eed9810563417bd13ab9ba4f2"
+    },
+    "ui/A-METTRE-DANS-ui/vendor/GLTFLoader.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 117568,
+      "sha256": "ea6945bc119f46237fab6a9228c3566fe66fff200512b3b96b1a6a32e89cb706"
+    },
+    "ui/A-METTRE-DANS-ui/vendor/SkeletonUtils.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 11547,
+      "sha256": "eedd768765d6553f8082953ab3882e2c86dacc2eb7d180a312d1d52e86bb35c5"
+    },
+    "ui/A-METTRE-DANS-ui/vendor/three.core.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1458113,
+      "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+    },
+    "ui/A-METTRE-DANS-ui/vendor/three.module.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 662772,
+      "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+    },
+    "ui/A-METTRE-DANS-ui/wolf-council-117af.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 6567,
+      "sha256": "a96266d0456330bfc9d06cf152774f00d9b40c90cbf2c79049de8b88b68ff31c"
+    },
+    "ui/index.html": {
+      "reason": "Copie alternative de la page ou du cache, non appelée par les pages actives",
+      "bytes": 618238,
+      "sha256": "e38e898367f3fb01bc724f907849713a0076cb6d1d1c15030d384719fcbd536f"
+    },
+    "ui/one-3d-v206.js": {
+      "reason": "Ancien bundle 3D remplacé par one-3d-v218.js",
+      "bytes": 1487670,
+      "sha256": "2e39f498fc176ff16f2e9e55bc3e6c94996087f2c9254d515a68869a889c3856"
+    },
+    "ui/one-activity-rewards.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-activity-rewards.js",
+      "bytes": 7098,
+      "sha256": "e2b864772d5d73113c29d89ccf93c45e1d45a80469277ec9ebb6e2ea94b78cc9"
+    },
+    "ui/one-cards-polish.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-cards-polish.js",
+      "bytes": 8227,
+      "sha256": "497c3b2c8a41a13776a0ecb872e6d6fe8b349bbfa9152293fc3829c004c9dd0a"
+    },
+    "ui/one-cards-style.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-cards-style.js",
+      "bytes": 10267,
+      "sha256": "7662b0f222549a505937bfd6bd5a291195421209f8d51e52b3256cb403076c4a"
+    },
+    "ui/one-casino-depth.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-casino-depth.js",
+      "bytes": 38037,
+      "sha256": "607213877bdde78a1505bce71b553ebf85dd03455c1acb1a874fd308be852d74"
+    },
+    "ui/one-collection-cards.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-collection-cards.js",
+      "bytes": 8655,
+      "sha256": "d5bc8ebe7b7f080aadd41058db1fbd9861a96c0eb28fb28f10ea395066b4ab6f"
+    },
+    "ui/one-games-gallery.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-games-gallery.js",
+      "bytes": 4437,
+      "sha256": "0f157f47276452712aa7397561444f1efd473c34a8b0d9a0b4747fd07cdaeeab"
+    },
+    "ui/one-mobile-casino-fixes.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-mobile-casino-fixes.js",
+      "bytes": 1677,
+      "sha256": "889fc54e5a573902ff6127700515fcda35428ce85220c6367a5de674c9dd4c71"
+    },
+    "ui/one-packs.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-packs.js",
+      "bytes": 10409,
+      "sha256": "55b5e827b57b4f8bb601f72b7a20864d84ddcbccb8e49d198dc1cd8744628e7b"
+    },
+    "ui/one-release-polish.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-release-polish.js",
+      "bytes": 14950,
+      "sha256": "a20ab55c4befbeb5915698a41034f7d9ca9d43b9a7086a0b154f506f4ba3fd0f"
+    },
+    "ui/one-scratch.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "one-scratch.js",
+      "bytes": 14667,
+      "sha256": "6f013c4a03f9191fbb3e25b8264ae1ef551b21bdaf1591b2ea13d796b6541aab"
+    },
+    "ui/party-premium.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "party-premium.js",
+      "bytes": 20475,
+      "sha256": "29e94d3004df53aa94904dd4f881517edb5cfcba5753c9abec0fed4acef7febb"
+    },
+    "ui/sw.js": {
+      "reason": "Copie alternative de la page ou du cache, non appelée par les pages actives",
+      "bytes": 13672,
+      "sha256": "c457ebbd7ba90e6d09504b66f25f493f69e5925411b3685ed3046bc55cbadb48"
+    },
+    "ui/three17-assets": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/Three17 assets",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "ui/ui/BufferGeometryUtils.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 37724,
+      "sha256": "6d4f4f989a5f7e810522aaa36292205e3674878eed9810563417bd13ab9ba4f2"
+    },
+    "ui/ui/GLTFLoader.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 117568,
+      "sha256": "ea6945bc119f46237fab6a9228c3566fe66fff200512b3b96b1a6a32e89cb706"
+    },
+    "ui/ui/SkeletonUtils.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 11547,
+      "sha256": "eedd768765d6553f8082953ab3882e2c86dacc2eb7d180a312d1d52e86bb35c5"
+    },
+    "ui/ui/connections.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 8713,
+      "sha256": "10dd692347f9ded2648e296f7a5852b709497457a83e2c8e89fa11b9698fe302"
+    },
+    "ui/ui/friends.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 18761,
+      "sha256": "638f2394dfd294aa7023027eaaa3c43d0fe65752482acb2ff52e4dd49c807dc5"
+    },
+    "ui/ui/game-shell.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 8124,
+      "sha256": "bfa6c5f1d42576ed0b1ab8b4ba8d3493c02df856bde65b10fd23a4dc5e2a96ae"
+    },
+    "ui/ui/notifications.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 7859,
+      "sha256": "e0f3913dae7227c718a01e375bcef51eedf64b6afbda91c356cc832015e494dc"
+    },
+    "ui/ui/one-arcade-r198-core.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 48049,
+      "sha256": "63ba120d92899861820ad96d420ae7b2a7ce0ac3fb8c722bd653dcb8d962db13"
+    },
+    "ui/ui/one-arcade-r198-picker.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 11770,
+      "sha256": "f70934db721e22c0b7c2e413f97f585b1397bac309767d94fdeae6d62336ec06"
+    },
+    "ui/ui/one-arcade-r198-session.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 22770,
+      "sha256": "c743ab475833735de8fc480e9c4adc673f973c4ddf606002c32c2b98097cd5f0"
+    },
+    "ui/ui/one-arcade-r198-view.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 48371,
+      "sha256": "9ce90f2273720bd39e6a1f385f986fe13945848dc19162498ec305002f445ba7"
+    },
+    "ui/ui/one-arcade-r198.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 12780,
+      "sha256": "9b7f41abd875718bf7e0fc0b4cdaad32422d8bec5350d4057e8a90626cf5c1bb"
+    },
+    "ui/ui/one-arcade-r203-visuals.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 13362,
+      "sha256": "d67b50de81c7fcb3a252192006a5f8f7a2933d4d9c72f80ffb47ee014262d118"
+    },
+    "ui/ui/one-arcade-r205-visuals.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 16268,
+      "sha256": "e46b15ebf750a336b0228a246851c6470b82f9a26cc5a7abc20002f0ec8c78b0"
+    },
+    "ui/ui/one-arcade-r206-visuals.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 16376,
+      "sha256": "c27f4167b8458602bfffe5883d43a54e13770a2fea35366df9e7d0404e7fab5f"
+    },
+    "ui/ui/one-arcade-r208-layout.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 3673,
+      "sha256": "01a9f023315f0cce2d8273559f8133b7d382d3b1199f2dfb1ee5f8bec4364c50"
+    },
+    "ui/ui/one-arcade-r209-surfaces.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2638,
+      "sha256": "cc6469666750bec009d5325767f303d49ff9e8f77dea74b9f4d5b594f71274f3"
+    },
+    "ui/ui/one-arcade-r209-visuals.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 18048,
+      "sha256": "5ecf46399195c7c948085dc5c8e18ade78a17bb020ee5d8ebc6b394e07647467"
+    },
+    "ui/ui/one-arcade-r211-gallery.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 5529,
+      "sha256": "1b690631cebfe32e0410bede3ca59bad8c84c5b83300f93abac9cabba3eae5f5"
+    },
+    "ui/ui/one-arcade-r211-paintgun.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9747,
+      "sha256": "70500be71a78432ffe3e5387efffaec5c6c81c885c0c284bd4608fc57c892fc4"
+    },
+    "ui/ui/one-audit-core.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 2069,
+      "sha256": "ea240e420da54f30ebfdd77f9630e5fb839ffd99f6c80b29845beff82cfef8fe"
+    },
+    "ui/ui/one-audit-v193.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 6355,
+      "sha256": "62b1e3f384fb7b65fe7ba0806f1358eb27ded4d2ac9d928f19bf7a9aaddc47a7"
+    },
+    "ui/ui/one-casino-r212-controls.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 10044,
+      "sha256": "c91d5dad8c439dbc29a696eff8944babd626564e63023dfeff95b7da7c178632"
+    },
+    "ui/ui/one-casino-r212-layout.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 965,
+      "sha256": "d43064001344faea8221dd3135ef829f6ce83d5aa6e2b915781302bf88fa7ec2"
+    },
+    "ui/ui/one-casino-r212-people.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 4029,
+      "sha256": "ab0d027e8fc98ea7d7809f9b06df7ca204d903dc42c9cd69b929d5e6ec63d41e"
+    },
+    "ui/ui/one-casino-r212-scene.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9771,
+      "sha256": "e120eeb2fd832b4f9c7b72c8e871cf38302c8ac13e13cbc964d95b94feb6bb8f"
+    },
+    "ui/ui/one-casino-r212-security.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 5788,
+      "sha256": "58a971b3f60cbfb1cf68a889a7866c4e5595a1e371e3718169fff12d2fce1c39"
+    },
+    "ui/ui/one-casino-r212-wallet.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 4186,
+      "sha256": "9d0f2277fdd5b0c97c69edc9532ee090784cfd699f809d7ac13e574cc9dd7fc3"
+    },
+    "ui/ui/one-chat-v8.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 6374,
+      "sha256": "1c0d144d2507c65085917e9c829032f2c0d4399124cf3d326b02d11f2a7a6dc6"
+    },
+    "ui/ui/one-desktop-pages.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1799,
+      "sha256": "0497532a456f00479b2452bd37f98bd4d2a26ab46ba139c4da3e25b09205bfd0"
+    },
+    "ui/ui/one-game-loader.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1628,
+      "sha256": "4dce4c31b1267e8503a5627f90db5af32c2f211bd6f92e0d8cb9fcd09dd5f43a"
+    },
+    "ui/ui/one-lobby-3d-v13.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 10258,
+      "sha256": "7ba096669d6267c943968cf5702a87446afeb39ed290c0e0e588daf3c2441ea0"
+    },
+    "ui/ui/one-lobby-3d.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 5674,
+      "sha256": "cf8cd2c9b204abc9cb0d66e8e1e674af9c27774aba3aac6b8a3c4c4f7da2fb36"
+    },
+    "ui/ui/one-lobby-r199-board.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 3669,
+      "sha256": "700f25f9ab273abd833538341faedaac7671181fbf2ffc30dc85e655ba8b4d20"
+    },
+    "ui/ui/one-lobby-r43.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 13665,
+      "sha256": "26daac8487739803550d9d91aebab35b8f9a74bf222454459443c3d894ea9970"
+    },
+    "ui/ui/one-lobby-r44-room.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 7504,
+      "sha256": "72204d7fdfd5bcd12c5db1d256883b70d73ecd280cf1ca22d44301642eb10e8e"
+    },
+    "ui/ui/one-lobby-r44.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 10586,
+      "sha256": "62502b1819342a18d305bea2c29d9ecb7085de0cac713d6e7808ebb5f74d8b88"
+    },
+    "ui/ui/one-lobby-r45-room.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9298,
+      "sha256": "54c92ef093e17ea0f648f24a407bbfb300856c5750a511d23b156326d9985c4f"
+    },
+    "ui/ui/one-lobby-r45.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 10673,
+      "sha256": "625f8ec4285fb45af76e44f63e6fb504738088fa67b1ed221f4dba50e377d87f"
+    },
+    "ui/ui/one-lobby-r46-room.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 20454,
+      "sha256": "2e9a770b5fde30f8516be3a88449e16f78c0a4391d09ee2d6461bc628e9be367"
+    },
+    "ui/ui/one-lobby-r46.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 40511,
+      "sha256": "0260f35184b477187b75ef9e741e7cf1f5b1267ad4c92fdfe35ac3a71e8a8fa3"
+    },
+    "ui/ui/one-private-communications.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 32892,
+      "sha256": "59283058bf76aa65b81247fbf0efe2a14b0acb1bb8c83fd3d4a88370ce67b501"
+    },
+    "ui/ui/one-shop.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 4821,
+      "sha256": "58724714b7a0a990bf900d4cade0a75c101fc30a50affa4ba5b1a4d311c61462"
+    },
+    "ui/ui/one-shop.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 12602,
+      "sha256": "0042a50bac2025a32be16422b281d6ed89867db6c001694a2dc3f4bf7d50194c"
+    },
+    "ui/ui/one-three17-game.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 641494,
+      "sha256": "289c4584e128f8a091bfcd5a5ef7e443c92f3acb55c43d7431a7dbda4f429e5f"
+    },
+    "ui/ui/party-communication.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 34054,
+      "sha256": "05961feed241c30da496386c28488187169ba6a4381c944c2d3b0779b50ee389"
+    },
+    "ui/ui/party-v14.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 26129,
+      "sha256": "e708002100c0a6252385eef09d10afa31afb69295301aa657eff66800063d4d1"
+    },
+    "ui/ui/salon-network-v14.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 5267,
+      "sha256": "3b976638abea9fb02a9e2a66bea2a15d20b0b2e6f0b063d434d093bf4bc9fe5a"
+    },
+    "ui/ui/shop-assets/astro-a50.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 178606,
+      "sha256": "82ca95a18f18be92e4cf8ad3da196a8a55ceaa6c88283bf21f6c9fe4a840f956"
+    },
+    "ui/ui/shop-assets/asus-rog.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 777711,
+      "sha256": "dd4ccf502ddd2a2f70aa4df20374082f2255c075d8e8fa961a6a3c93273951f5"
+    },
+    "ui/ui/shop-assets/crua-34.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 539624,
+      "sha256": "7559dc7cb4050ff50a3641653f81a5e373d8e4a3a819ea26e0fa250b06e78178"
+    },
+    "ui/ui/shop-assets/cyberpower.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 313629,
+      "sha256": "7edd7d46bc233ccd1558cb53ece4f5ab1be6888e90b0c8b137edb06d89b04d49"
+    },
+    "ui/ui/shop-assets/dualsense.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 156003,
+      "sha256": "18d881e37859b1c698cca23158dc2e6131f4b2fc98fcf8f9683da4bdb62f5e9c"
+    },
+    "ui/ui/shop-assets/fast-ips.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 503853,
+      "sha256": "82b6bb0088100fb96f643272dbed2166710a17eb8acd6d4328441f62559b1dab"
+    },
+    "ui/ui/shop-assets/fc27.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 483624,
+      "sha256": "2a1d756bd158b29604309a0415884b6f13f0722b8e78096bc87cbd28c0f2b074"
+    },
+    "ui/ui/shop-assets/hisense-50.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 515351,
+      "sha256": "00fd8744db511c03ffc52fba80b418d07953fbecdf791a33c4fc736b5524feee"
+    },
+    "ui/ui/shop-assets/hp-portable.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 283253,
+      "sha256": "06fd909b5de1261e3fafcae9645ba0e20713efa3af17c9375dec6a61de4e889c"
+    },
+    "ui/ui/shop-assets/hyperx.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 193436,
+      "sha256": "cc6c17683b8234c36a18c0b1a482206bf2fa18402db659fed2075595c4dca3b7"
+    },
+    "ui/ui/shop-assets/iphone-blue.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 268414,
+      "sha256": "25b7a10bfeda73f1ce541bb57bed33a9f90e708fdbcea843678ae2d9987a0599"
+    },
+    "ui/ui/shop-assets/iphone-silver.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 203491,
+      "sha256": "a450b12d327ddad41cd2d4da15e729673cf83dba5d482922290c9270c60fdf84"
+    },
+    "ui/ui/shop-assets/jbl-tune.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 187829,
+      "sha256": "a1e2cda4526252020bf8eedecade7c6cde83090cf104b9d6b8c3f1c89b2eabac"
+    },
+    "ui/ui/shop-assets/koorui-27-144hz.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 435939,
+      "sha256": "93daa2c8f372a35d91bb92015996768fcc8d38d3ed0c7b5d1567fbb1a42df7c9"
+    },
+    "ui/ui/shop-assets/monitor.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 258,
+      "sha256": "43f852f97a2da7453c14915ecf3a84a140f90fc6681b95ebac4f2e315b83b7e6"
+    },
+    "ui/ui/shop-assets/msi-mag.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 619848,
+      "sha256": "1cd4ff0b7f7afd86a00c485c02cd68a4fcfe1643020ea610617168b6986d8e8f"
+    },
+    "ui/ui/shop-assets/pc-rgb.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 267563,
+      "sha256": "65fb3cdaa78c7f3745119f7aee046131be4101434f8e7d837e9a829b66790441"
+    },
+    "ui/ui/shop-assets/product.svg": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 247,
+      "sha256": "ddbb9f5412706a0bffe6a8a1ad32e01d4c796a9ca40d54040bc196e5330edf80"
+    },
+    "ui/ui/shop-assets/ps5-digital.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 212430,
+      "sha256": "cceae4ea4d66e5a395cd91f1665f8d0ca0c1bbb9c9da12820457d49e149047f2"
+    },
+    "ui/ui/shop-assets/s26-ultra.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 211463,
+      "sha256": "e3814d536b94b1a28c9143e0702e7a27ad328d01ddac86a83fde6b2cb43b6ed8"
+    },
+    "ui/ui/shop-assets/s26.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 186924,
+      "sha256": "6b4841b98410cd8e6df62047a0ee3db94fe1e9df6cb799d6a2caacc833a2c6ab"
+    },
+    "ui/ui/shop-assets/samsung-monitor.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 531377,
+      "sha256": "ccf3858d1296da00f11274a4e99883f6cbb5a6be3b2d34018263d55ca5cbd88b"
+    },
+    "ui/ui/shop-assets/samsung-tv.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 706066,
+      "sha256": "dbf7e9e9a089ae67bebd737152612ad181b3ce23e095b4e863bea63c6bd5e5b9"
+    },
+    "ui/ui/shop-assets/sony-beige.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 119701,
+      "sha256": "ddd84e274105e22ada3ff2d651fca4fbf730e46d8e25abd08bac6461d83a64a3"
+    },
+    "ui/ui/shop-assets/steelseries.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 158588,
+      "sha256": "f463d7476a78b5b094662b5d181b95b3c31a198dffe4ad2e12680f908f369180"
+    },
+    "ui/ui/shop-assets/switch-oled.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 264904,
+      "sha256": "26811b7c9be218ff55981601dd480a8debd12db333f9c2f0119fa620f9c173e1"
+    },
+    "ui/ui/shop-assets/switch2.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 354946,
+      "sha256": "ddd4df8b256c16a0a58761c0b4b00fc954485fd9d0d95bb9ad5e55dd68168bf0"
+    },
+    "ui/ui/shop-assets/tcl-55.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 619140,
+      "sha256": "ab7c386c1844ae0dae542ab2b3e639c06365fc04dbac3a3ede237748c3801ecd"
+    },
+    "ui/ui/shop-assets/tcl-75.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 637890,
+      "sha256": "8a16e57bbed5dea40fd72080ae5d7bfa0c4985b83517f00ed9d19a393e718aff"
+    },
+    "ui/ui/shop-assets/xiaomi-65.png": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 441514,
+      "sha256": "f9ecd383b11e8544e3e2c3a0a8265c60d598e568a31d20b553bb4c823318b6bb"
+    },
+    "ui/ui/shop-products.json": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 27017,
+      "sha256": "97bdc1ab9b21767719b1b0eae3bec306f5ff9dee22e08f33b6c00249e7d4746e"
+    },
+    "ui/ui/social-app.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 4262,
+      "sha256": "fd4f775c5f78789e884e6308182650b667cc868dd3faf22e2671c43300865e2e"
+    },
+    "ui/ui/social-core.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 20276,
+      "sha256": "380c7ca0da300e49c542e4618a1bf678e9e47373ac5641e3b5885d0649ce0b9e"
+    },
+    "ui/ui/social-hub.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9582,
+      "sha256": "5dccca0fe5d532d94203feaa2cd975a0c31bc17715e3437168454b1c10c83168"
+    },
+    "ui/ui/three.core.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1458113,
+      "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+    },
+    "ui/ui/three.module.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 662772,
+      "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+    },
+    "ui/ui/three17-four.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 4861,
+      "sha256": "21936da6128e61e340335313e6907a24886287438a6c2a88418d4d205ba51210"
+    },
+    "ui/ui/three17-four.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 40153,
+      "sha256": "d5607d5943c85607014cd795c10f54e2ffbbcac6216bcb35f21d125b1c0a2e50"
+    },
+    "ui/ui/three17-house-rdc-v13.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 14882,
+      "sha256": "aab22c898cd87d219cbe5345044477c0e881ddaa10f0e6a6663ab168a0de1d98"
+    },
+    "ui/ui/three17-parasite-r41.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9089,
+      "sha256": "eb9d40f2ce6ca9c12f43abaf4d69ff5a8965607df500cc95b34e42b792e959c0"
+    },
+    "ui/ui/three17-r41-audio.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 7740,
+      "sha256": "5ae98d945472360b279a2f846d34c2717af7b7280d91dca1034ec5a574a23055"
+    },
+    "ui/ui/three17-r41-furniture.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9993,
+      "sha256": "1918e8c746bbc22b75359e632558fbeabbceda0a094caabd4906889cc2696484"
+    },
+    "ui/ui/three17-r41-scares.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 3197,
+      "sha256": "5d567aa82771252d6858208b7b94da346e2172372abec72ee6ff94d6ab86e69d"
+    },
+    "ui/ui/three17-r42-coop.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 18262,
+      "sha256": "1cd961e88fafe1dd34f0da8eb52df72d5dfd3b8891f846c3d55c2e1e953911b3"
+    },
+    "ui/ui/three17-r42-world.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9861,
+      "sha256": "3ed799ffc1cfae037d376894ac7fe4011c2902e190ca23ae7c70bbca955faa46"
+    },
+    "ui/ui/three17-r43-coop.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 21112,
+      "sha256": "1cf53a2eca7a5e02ff83704bf8dfab26f38efa757a6032437a18f1f38eacc287"
+    },
+    "ui/ui/three17-r44-avatar.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 3218,
+      "sha256": "b424e4337bdd4e987e5ead928e9706ccc2bd3beee90afb1f56c687c16410e988"
+    },
+    "ui/ui/three17-r44-coop.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 19310,
+      "sha256": "d8baf822688a535c2cf9bccae6ff41419634e254b3b3b3f7780287858da98594"
+    },
+    "ui/ui/three17-r44-render.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 3172,
+      "sha256": "3f66a29d35050b8880fde1ee5535c59c38875c7419e7259c46c29b2c84e93292"
+    },
+    "ui/ui/three17-r44-visuals.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 19227,
+      "sha256": "390fef4109f0ea86dcb2b8fc099937f03b3393dd67f5be1896939e8d1832b30f"
+    },
+    "ui/ui/three17-r46-coop.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 32412,
+      "sha256": "32b3feb0b1c1dfcf0265af057c538500b17e7027178ce83c3e80a6b1653527ac"
+    },
+    "ui/ui/three17-r46-render.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 3473,
+      "sha256": "6b3398fe259a01f37da85db7ffca79e0b87a0749cc4228f6cd35bbe028f395c8"
+    },
+    "ui/ui/together-browser.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9325,
+      "sha256": "02849c3b1a4c25ac5487864e67a295d7e5c5e14f884222afed88a56a632c20de"
+    },
+    "ui/ui/together-catalog.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 9184,
+      "sha256": "bb8cf36dfb4636665a973f88fffc010d440efb9136bc8230b7904ccd313be7bb"
+    },
+    "ui/ui/together.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 17742,
+      "sha256": "beed04e788abd2c2782645f9d8fe0508786bd656008e6066dbf294483130daa1"
+    },
+    "ui/ui/ui/one-arcade-r198-core.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 11685,
+      "sha256": "20acecff2b8af34ac4d1a6ea8ca14477cfb84c6004a5519a685b9e5b0568d8a2"
+    },
+    "ui/ui/ui/one-arcade-r198-picker.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 10300,
+      "sha256": "568ae7a7742ab05699f79139a2cd4106253100381b76104013e2a0b724814817"
+    },
+    "ui/ui/ui/one-arcade-r198-session.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 14522,
+      "sha256": "777950cbbd3235d7c3697c9092ae7b37176037d9b0396713e5ff6e73f54c0a67"
+    },
+    "ui/ui/ui/one-arcade-r198-view.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 24576,
+      "sha256": "241561d263b3ae202b4c1008db0a00efdcb70ca551bcb9f0c967117d774aeeab"
+    },
+    "ui/ui/ui/one-arcade-r198.css": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 7392,
+      "sha256": "3d54f138a174c19710ee45a1031c10f4aad67cc607d1ac8bb379abd883c28b3d"
+    },
+    "ui/ui/ui/one-game-loader.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 1628,
+      "sha256": "4dce4c31b1267e8503a5627f90db5af32c2f211bd6f92e0d8cb9fcd09dd5f43a"
+    },
+    "ui/ui/ui/one-lobby-r199-board.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 3669,
+      "sha256": "700f25f9ab273abd833538341faedaac7671181fbf2ffc30dc85e655ba8b4d20"
+    },
+    "ui/ui/ui/one-lobby-r46-room.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 20253,
+      "sha256": "28040c89b150bce59593e78a27570aa397f21c1dacf1f3ff8a0cc2702e4ce1d5"
+    },
+    "ui/ui/ui/one-lobby-r46.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 38384,
+      "sha256": "678780493332998746979062bbeda6c5cc7d76d390ac1ca447fe80da2bf38d85"
+    },
+    "ui/ui/ui/one-three17-game.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 643760,
+      "sha256": "21c65b3c8c7dcdc6963b115e33680ca4cab8db3700a4f7451564f276d9fa6b02"
+    },
+    "ui/ui/ui/three17-r46-coop.js": {
+      "reason": "Dossier de livraison ou copie imbriquée, extérieur à la structure active",
+      "bytes": 30283,
+      "sha256": "54fe285becfd6b85eee81b4111759ce6efe4785f821a26fc5f7aa88ff23e4a01"
+    },
+    "youtube-availability.js": {
+      "reason": "Copie strictement identique sans référence locale conservée",
+      "identical_to": "ui/youtube-availability.js",
+      "bytes": 2446,
+      "sha256": "b1427ce9c7be4e7c2d2fcfc5bbf9106b6e49d2fb71092a30fb0ede7f3f00a281"
+    }
+  }
+}
