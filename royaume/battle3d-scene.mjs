@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three.module.js';
 import {createArchitecture,createVillageProps,createForest} from './battle3d-models.mjs?v=2';
+import {createVillageArt,VILLAGE_CAMERA} from './battle3d-village-art.mjs?v=3';
 import {actorGeometries,drawTroop} from './battle3d-actors.mjs?v=2';
 
 const UP=new THREE.Vector3(0,1,0),color=new THREE.Color(),local=new THREE.Object3D(),composed=new THREE.Matrix4();
@@ -34,7 +35,8 @@ export function createScene(canvas,battle){
   const templates=new Map(),architecture=new Map(),windmills=[],resources=[];
   const destroyed=new Map(),deadUnits=new Map(),directions=new Map(),positions=new Map(),seenEffects=new Set(),particles=[];
   const root=new THREE.Object3D(),ray=new THREE.Raycaster(),ground=new THREE.Plane(UP,0),intersection=new THREE.Vector3();
-  let viewTime=0,zoom=1.12,disposed=false,economy=false,markerUntil=0;
+  let viewTime=0,zoom=1.12,disposed=false,economy=false,markerUntil=0,villageArt=null,villageMode=false;
+  const artAbort=new AbortController();
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function addMesh(g,mat,cast=false){const mesh=new THREE.Mesh(g,mat);mesh.receiveShadow=true;mesh.castShadow=cast;scene.add(mesh);resources.push(g);return mesh;}
@@ -47,8 +49,8 @@ export function createScene(canvas,battle){
   const groundMaterial=new THREE.MeshStandardMaterial({map:meadow,roughness:1});
   const land=addMesh(new THREE.PlaneGeometry(100,100),groundMaterial);land.rotation.x=-Math.PI/2;land.position.y=-.025;
   const streets=texture(1024,820,(ctx,w,h)=>{
-    ctx.fillStyle='#739c49';ctx.fillRect(0,0,w,h);
-    for(let i=0;i<2400;i++){ctx.fillStyle=i%3?'#b9cd6320':'#476d361b';ctx.beginPath();ctx.ellipse(random()*w,random()*h,2+random()*12,2+random()*9,0,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle='#83bb45';ctx.fillRect(0,0,w,h);
+    for(let i=0;i<2400;i++){ctx.fillStyle=i%3?'#b9cd6308':'#476d3606';ctx.beginPath();ctx.ellipse(random()*w,random()*h,2+random()*12,2+random()*9,0,0,Math.PI*2);ctx.fill();}
     const paths=[[[10,16],[10,12],[10,9.2]],[[3,8],[6.3,8],[8.3,8],[10,9.4],[13.5,8],[17,8]],[[6.7,4.6],[7.8,5.5],[10,5.6],[13.4,5.6]],[[13.6,8],[13.6,11.2],[10,12]],[[6.7,9.2],[6.7,11.8],[10,12]]];
     ctx.lineJoin=ctx.lineCap='round';
     for(const path of paths){
@@ -66,7 +68,8 @@ export function createScene(canvas,battle){
     for(let i=0;i<420;i++){ctx.fillStyle=i%7?'#4b7d361e':'#d7d47c65';ctx.fillRect(random()*w,random()*h,2,3);}
   });
   const streetMaterial=new THREE.MeshStandardMaterial({map:streets,roughness:1});const road=addMesh(new THREE.PlaneGeometry(20,16),streetMaterial);road.rotation.x=-Math.PI/2;road.position.y=.015;
-  addMesh(createForest(),architectureMaterial,true);addMesh(createVillageProps(),architectureMaterial,true);
+  const forest3d=addMesh(createForest(),architectureMaterial,true),props3d=addMesh(createVillageProps(),architectureMaterial,true);
+  const villageGroundMaterial=new THREE.MeshBasicMaterial({color:'#83bb45',toneMapped:false,fog:false}),villageStreetMaterial=new THREE.MeshBasicMaterial({map:streets,toneMapped:false,fog:false});
 
   for(const kind of new Set(battle.buildings.map(b=>b.kind))){
     const model=createArchitecture(kind);templates.set(kind,model);resources.push(model.geometry,...model.animated.map(a=>a.geometry));
@@ -103,7 +106,7 @@ export function createScene(canvas,battle){
       });mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;
     }
     for(const {building,part,pivot,mesh} of windmills){
-      pivot.visible=building.hp>0;pivot.matrixAutoUpdate=false;pivot.matrix.multiplyMatrices(parent(building.x-10,0,building.y-8),part.matrix);mesh.rotation.z=reduced?0:viewTime*.55;
+      pivot.visible=!villageMode&&building.hp>0;pivot.matrixAutoUpdate=false;pivot.matrix.multiplyMatrices(parent(building.x-10,0,building.y-8),part.matrix);mesh.rotation.z=reduced?0:viewTime*.55;
     }
     if(changing)renderer.shadowMap.needsUpdate=true;
   }
@@ -160,7 +163,7 @@ export function createScene(canvas,battle){
     }
   }
   function contactShadows(b){let index=0;const place=(x,z,w,d)=>{local.position.set(x,.04,z);local.rotation.set(-Math.PI/2,0,0);local.scale.set(w,d,1);local.updateMatrix();contacts.setMatrixAt(index++,local.matrix);};
-    for(const building of b.buildings){const template=templates.get(building.kind);place(building.x-10,building.y-8,template.width*1.25,template.depth*1.25);}
+    if(!villageMode)for(const building of b.buildings){const template=templates.get(building.kind);place(building.x-10,building.y-8,template.width*1.25,template.depth*1.25);}
     for(const unit of b.units)if(unit.hp>0)place(unit.x-10,unit.y-8,.7,.58);
     contacts.count=index;contacts.instanceMatrix.needsUpdate=true;
   }
@@ -168,23 +171,50 @@ export function createScene(canvas,battle){
     if(disposed)return;if(animate)viewTime+=Math.min(dt,.05);dynamic.begin();glow.begin();
     for(const building of b.buildings){
       if(building.hp<=0&&!destroyed.has(building.id)){destroyed.set(building.id,viewTime);particles.push({kind:'dust',x:building.x,z:building.y,born:viewTime,duration:.8});renderer.shadowMap.needsUpdate=true;}
-      if(building.hp<=0){const size=building.kind==='wall'?.6:1;for(let j=0;j<8;j++)add('rock',j%3?'#bdb497':'#b86e38',building.x-10+Math.cos(j*2.4)*size*.5,.14,building.y-8+Math.sin(j*2.4)*size*.45,.18*size,.13*size,.2*size,0,j);}
-      else if(building.kind!=='wall')health(building.x-10,templates.get(building.kind).height+.25,building.y-8,building.hp/building.maxHp,1.15);
+      if(building.hp<=0){
+        const {width,depth}=building.collision,wall=building.kind==='wall';
+        add('round','#776b4a',building.x-10,.04,building.y-8,width*.8,.065,depth*.8);
+        for(let j=0;j<(wall?6:15);j++){
+          const noise=n=>{const a=Math.sin((Number(building.id.slice(1))+1)*71+j*13+n*29)*43758.5453;return a-Math.floor(a);};
+          const x=(noise(1)-.5)*width*.7,z=(noise(2)-.5)*depth*.7,size=.12+noise(3)*.16;
+          add(j%4?'rock':'round',j%5?'#baa887':'#b56c35',building.x-10+x,.10+noise(4)*.14,building.y-8+z,size,.10+noise(5)*.13,size*1.3,noise(6)*.5,noise(7)*6,noise(8)*.3);
+        }
+      }
+      else if(building.kind!=='wall'){
+        const p=villageMode?villageArt.healthPoint(building):new THREE.Vector3(building.x-10,templates.get(building.kind).height+.25,building.y-8);
+        health(p.x,p.y,p.z,building.hp/building.maxHp,1.15);
+      }
     }
-    for(const unit of b.units)soldier(unit,b);effects(b);updateArchitecture();contactShadows(b);dynamic.end();glow.end();
+    for(const unit of b.units)soldier(unit,b);effects(b);updateArchitecture();if(villageMode)villageArt.update(b,destroyed,viewTime);contactShadows(b);dynamic.end();glow.end();
     marker.material.opacity=Math.max(0,(markerUntil-viewTime)*1.4);marker.scale.setScalar(1+(1-Math.max(0,markerUntil-viewTime))*.5);
     renderer.render(scene,camera);
   }
   return {
     frame,
+    async loadVillage(){
+      try{villageArt=await createVillageArt(scene,battle,{signal:artAbort.signal});if(disposed){villageArt.dispose();villageArt=null;return false;}return true;}
+      catch(error){if(!disposed)console.warn('Illustrations du village :',error.message);return false;}
+    },
+    style(mode){
+      if(disposed)return false;
+      const illustrated=mode==='village';if(illustrated&&!villageArt)return false;
+      villageMode=illustrated;if(villageArt)villageArt.group.visible=illustrated;
+      forest3d.visible=props3d.visible=!illustrated;
+      for(const {mesh} of architecture.values())mesh.visible=!illustrated;
+      land.material=illustrated?villageGroundMaterial:groundMaterial;road.material=illustrated?villageStreetMaterial:streetMaterial;
+      scene.background.set(illustrated?'#83bb45':'#a4b99a');scene.fog.color.copy(scene.background);
+      cameraOffset.set(...(illustrated?VILLAGE_CAMERA:[14,27,28]));
+      renderer.shadowMap.enabled=!economy&&!illustrated;renderer.shadowMap.needsUpdate=true;
+      resize();return true;
+    },
     point(clientX,clientY){const r=canvas.getBoundingClientRect();ray.setFromCamera(new THREE.Vector2((clientX-r.left)/r.width*2-1,-(clientY-r.top)/r.height*2+1),camera);if(!ray.ray.intersectPlane(ground,intersection))return null;return {x:intersection.x+10,y:intersection.z+8};},
     mark(x,y,magic=false){marker.position.set(x-10,.06,y-8);marker.material.color.set(magic?'#dfb7ff':'#baf0ff');markerUntil=viewTime+.65;},
     pan(dx,dy){const r=canvas.getBoundingClientRect(),right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion),up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion);target.addScaledVector(right,-dx*(camera.right-camera.left)/r.width/zoom).addScaledVector(up,dy*(camera.top-camera.bottom)/r.height/zoom);target.set(clamp(target.x,-7,7),.3,clamp(target.z,-6,6));updateCamera();},
     zoom(factor){zoom=clamp(zoom*factor,.9,3.2);updateCamera();},
     home(){zoom=1.12;target.set(0,.3,0);updateCamera();},
-    quality(eco){economy=Boolean(eco);renderer.setPixelRatio(economy?1:Math.min(window.devicePixelRatio||1,1.6));renderer.shadowMap.enabled=!economy;renderer.shadowMap.needsUpdate=true;resize();},
+    quality(eco){economy=Boolean(eco);renderer.setPixelRatio(economy?1:Math.min(window.devicePixelRatio||1,1.6));renderer.shadowMap.enabled=!economy&&!villageMode;renderer.shadowMap.needsUpdate=true;resize();},
     reset(b){for(const [kind,entry] of architecture)entry.buildings=b.buildings.filter(building=>building.kind===kind);for(const windmill of windmills)windmill.building=b.buildings.find(building=>building.id===windmill.building.id);viewTime=0;destroyed.clear();deadUnits.clear();positions.clear();directions.clear();seenEffects.clear();particles.length=0;markerUntil=0;updateArchitecture();renderer.shadowMap.needsUpdate=true;this.home();},
     get stats(){return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles};},
-    dispose(){disposed=true;observer.disconnect();scene.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const g of new Set([...resources,...Object.values(geometry),shadowGeometry,boundary.geometry]))g.dispose();for(const mat of [architectureMaterial,actorMaterial,glowMaterial,groundMaterial,streetMaterial,shadowMaterial,borderMesh.material,boundary.material,marker.material])mat.dispose();sunlight.shadow.dispose();renderer.dispose();}
+    dispose(){disposed=true;artAbort.abort();villageArt?.dispose();observer.disconnect();scene.traverse(o=>{if(o.isInstancedMesh)o.dispose();});for(const g of new Set([...resources,...Object.values(geometry),shadowGeometry,boundary.geometry]))g.dispose();for(const mat of [architectureMaterial,actorMaterial,glowMaterial,groundMaterial,streetMaterial,villageGroundMaterial,villageStreetMaterial,shadowMaterial,borderMesh.material,boundary.material,marker.material])mat.dispose();sunlight.shadow.dispose();renderer.dispose();}
   };
 }

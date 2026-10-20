@@ -1,10 +1,11 @@
 import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=2';
-import {createScene} from './battle3d-scene.mjs?v=2';
+import {createScene} from './battle3d-scene.mjs?v=3';
 import {bindBattleInput} from './battle3d-input.mjs?v=1';
 
 const $=selector=>document.querySelector(selector);
 const canvas=$('#battle-canvas'),training=createTraining();
 const view=createScene(canvas,training.battle);
+let abandoned=false,ready=false;
 let selected='guardians',entered=false,failed=false,resultShown=false,finishedAt=0,frameId=0,last=0,lastHUD=0,toastUntil=0,southIndex=0;
 const dialogs=[$('#intro'),$('#pause-dialog'),$('#result')];
 const controls=[...document.querySelectorAll('[data-unit]')];
@@ -81,6 +82,11 @@ $('#zoom-in').addEventListener('click',()=>view.zoom(1.2));
 $('#zoom-out').addEventListener('click',()=>view.zoom(1/1.2));
 $('#home').addEventListener('click',()=>view.home());
 $('#quality').addEventListener('click',()=>{const eco=$('#quality').getAttribute('aria-pressed')!=='true';view.quality(eco);$('#quality').setAttribute('aria-pressed',String(eco));$('#quality').textContent=eco?'Éco ✓':'Éco';$('#quality').setAttribute('aria-label',eco?'Désactiver le mode éco et retrouver les ombres détaillées':'Activer le mode éco : réduire les ombres et la résolution');toast(eco?'Mode éco activé.':'Graphismes détaillés activés.');});
+for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>{
+  if(!view.style(button.dataset.view))return;
+  input.clear();view.frame(training.battle,0,false);
+  for(const item of document.querySelectorAll('[data-view]'))item.setAttribute('aria-pressed',String(item===button));
+});
 $('#start').addEventListener('click',()=>{entered=true;$('#intro').close();updateUI();canvas.focus({preventScroll:true});});
 $('#pause').addEventListener('click',setPause);
 $('#resume').addEventListener('click',()=>{training.pause(false);$('#pause-dialog').close();last=performance.now();updateUI();canvas.focus({preventScroll:true});});
@@ -117,10 +123,22 @@ function frame(now) {
     frameId=requestAnimationFrame(frame);
   } catch(error) {console.error('Valdoria 3D:',error);fatal('L’essai a rencontré un problème. Tu peux réessayer ou retourner à ton village.');}
 }
-window.addEventListener('pagehide',event=>{cancelAnimationFrame(frameId);setPause();if(!event.persisted){input.dispose();view.dispose();}});
-window.addEventListener('pageshow',event=>{if(event.persisted&&!failed){last=0;frameId=requestAnimationFrame(frame);}});
+window.addEventListener('pagehide',event=>{cancelAnimationFrame(frameId);setPause();if(!event.persisted){abandoned=true;input.dispose();view.dispose();}});
+window.addEventListener('pageshow',event=>{if(event.persisted&&ready&&!failed){last=0;frameId=requestAnimationFrame(frame);}});
 
-view.frame(training.battle,0,false);
-$('#loading').hidden=true;
-$('#intro').showModal();updateUI();
-frameId=requestAnimationFrame(frame);
+const artReady=await view.loadVillage();
+if(!abandoned&&!failed){
+  if(artReady){
+    view.style('village');
+    $('[data-view="village"]').disabled=false;
+    $('[data-view="village"]').setAttribute('aria-pressed','true');
+    $('[data-view="3d"]').setAttribute('aria-pressed','false');
+  }else{
+    $('.art-note').textContent='Les illustrations n’ont pas pu charger. La vue 3D reste disponible ; recharge la page pour réessayer la vue Village.';
+    $('[data-view="village"]').title='Recharge la page pour réessayer le chargement des illustrations.';
+  }
+  ready=true;view.frame(training.battle,0,false);
+  $('#loading').hidden=true;
+  $('#intro').showModal();updateUI();
+  frameId=requestAnimationFrame(frame);
+}
