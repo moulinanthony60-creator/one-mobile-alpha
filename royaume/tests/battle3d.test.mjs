@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createTraining,TROOPS} from '../battle3d-sandbox.mjs';
-import {buildingParts,terrainParts} from '../battle3d-scene.mjs';
+import {createArchitecture,createForest,createVillageProps} from '../battle3d-models.mjs';
+import {actorGeometries,drawTroop} from '../battle3d-actors.mjs';
+import {startAssault,assaultCommand,stepAssault,attackScore} from '../expeditions.mjs';
 import {bindBattleInput} from '../battle3d-input.mjs';
 
 test('training starts with a private army and does not advance before deployment',()=>{
@@ -16,7 +18,7 @@ test('training starts with a private army and does not advance before deployment
 
 test('invalid positions, unavailable units and exhausted reserves cannot spend troops',()=>{
   const t=createTraining();
-  for(const [x,y] of [[10,8],[-1,1],[20,1],[1,16],[NaN,1],[Infinity,1],['1',1],[null,1]])
+  for(const [x,y] of [[10,8],[8,2.9],[-1,1],[20,1],[1,16],[NaN,1],[Infinity,1],['1',1],[null,1]])
     assert.throws(()=>t.deploy('guardians',x,y));
   assert.throws(()=>t.deploy('knights',1,1));
   assert.equal(t.count('guardians'),8);assert.equal(t.started,false);
@@ -53,7 +55,11 @@ test('a full army can win; settlement is stable; replay completely resets practi
   while(t.battle.phase==='active'&&steps<5000){
     if(index<army.length&&steps%60===0){t.deploy(army[index],7.2+(index%9)*.7,14.4);index++;}
     t.tick(1/30);steps++;
-    for(const unit of t.battle.units){assert.ok(Number.isFinite(unit.x)&&Number.isFinite(unit.y));assert.ok(unit.hp>=0&&unit.hp<=unit.maxHp);}
+    for(const unit of t.battle.units){
+      assert.ok(Number.isFinite(unit.x)&&Number.isFinite(unit.y));assert.ok(unit.hp>=0&&unit.hp<=unit.maxHp);
+      if(unit.hp>0)for(const b of t.battle.buildings)if(b.hp>0)
+        assert.ok(Math.abs(unit.x-b.x)>=b.collision.width/2-.05||Math.abs(unit.y-b.y)>=b.collision.depth/2-.05,`Unit ${unit.id} entered ${b.id}`);
+    }
   }
   assert.deepEqual(t.score,{percent:100,stars:3});assert.equal(t.battle.phase,'finished');
   assert.equal(t.battle.settled,true);assert.ok(t.battle.elapsed<150);
@@ -81,7 +87,7 @@ test('practice imports cannot reach persistence or network code',()=>{
       assert.ok(match[1].startsWith('./'));pending.push(new URL(match[1],url));
     }
   }
-  assert.equal(seen.size,4);
+  assert.equal(seen.size,5);
 });
 
 function harness(){
@@ -112,16 +118,47 @@ test('pinching, interrupted gestures and losing pointer capture never deploy',()
   assert.equal(h.taps.length,0);
 });
 
-test('all scenery transforms are finite and fit the instance capacities',()=>{
+test('detailed scenery has finite geometry and a bounded triangle budget',()=>{
   const t=createTraining();
-  const all=[...terrainParts(),...t.battle.buildings.flatMap(b=>buildingParts(b.kind))];
-  const counts={};
-  for(const part of all){
-    assert.ok(part.matrix.elements.every(Number.isFinite));
-    assert.ok(Math.abs(part.matrix.determinant())>0);
-    assert.match(part.tint,/^#[0-9a-f]{6}$/i);
-    counts[part.shape]=(counts[part.shape]||0)+1;
+  const meshes=[{geometry:createForest(),count:1},{geometry:createVillageProps(),count:1}];
+  for(const kind of new Set(t.battle.buildings.map(b=>b.kind))){
+    const model=createArchitecture(kind),count=t.battle.buildings.filter(b=>b.kind===kind).length;
+    meshes.push({geometry:model.geometry,count},...model.animated.map(p=>({geometry:p.geometry,count})));
+    assert.ok(model.height>0&&model.height<5);
+    for(const part of model.animated)assert.ok(part.matrix.elements.every(Number.isFinite));
   }
-  assert.ok(Object.values(counts).every(count=>count<2048));
-  assert.ok(all.length<600);
+  let triangles=0;
+  for(const {geometry,count} of meshes){
+    for(const key of ['position','normal','color'])assert.ok(geometry.attributes[key].array.every(Number.isFinite));
+    triangles+=geometry.attributes.position.count/3*count;
+  }
+  assert.ok(triangles<200000,`${triangles} scenery triangles`);
+});
+
+test('all three articulated troops have valid transforms at rest, walking and attacking',()=>{
+  const geometries=actorGeometries();let budget=0;
+  for(const troop of TROOPS)for(const [walk,attack] of [[0,0],[1,.7],[-1,-.7]]){
+    const counts={};let triangles=0;
+    drawTroop(troop.kind,1.7,walk,attack,(shape,tint,x,y,z,sx,sy,sz,rx=0,ry=0,rz=0)=>{
+      assert.ok(geometries[shape]);assert.match(tint,/^#[0-9a-f]{6}$/i);
+      assert.ok([x,y,z,sx,sy,sz,rx,ry,rz].every(Number.isFinite));assert.ok(sx>0&&sy>0&&sz>0);
+      counts[shape]=(counts[shape]||0)+1;triangles+=(geometries[shape].index?.count||geometries[shape].attributes.position.count)/3;
+    });
+    assert.ok(Object.values(counts).every(count=>count*17<2048));
+    if(walk===0)budget+=triangles*troop.count;
+  }
+  assert.ok(budget<180000,`${budget} troop triangles`);
+});
+
+test('optional 3D collisions preserve the recorded outcomes of all 12 existing campaign missions',()=>{
+  // Captured from the pre-change campaign engine, using the same fixed-step strategy.
+  const expected=[[100,3,6.533,17,2184],[100,3,8.433,17,2115],[100,3,10.133,17,2069],[100,3,11,17,1944],[100,3,11.633,17,1897.8],[100,3,12.067,17,1670],[100,3,11.8,17,1664.2],[100,3,12.233,16,1669],[100,3,13.2,16,1608.2],[100,3,17.733,11,868.6],[100,3,19.9,8,699.6],[100,3,22.133,5,465]];
+  for(let mission=0;mission<12;mission++){
+    const state={buildings:{castle:10},energy:1000,troops:8,army:{archers:6,mages:3},conquests:Object.fromEntries(Array.from({length:12},(_,i)=>[i,3])),stats:{raid:0},journal:[]};
+    startAssault(state,mission);let index=0;
+    for(const troop of TROOPS)for(let i=0;i<troop.count;i++)assaultCommand(state,{type:'assault-deploy',unit:troop.kind,x:7.2+(index++%9)*.7,y:14.4});
+    for(let i=0;i<5000&&state.assault.phase==='active';i++)stepAssault(state,1/30);
+    const b=state.assault,score=attackScore(b);
+    assert.deepEqual([score.percent,score.stars,+b.elapsed.toFixed(3),b.units.filter(u=>u.hp>0).length,+b.units.reduce((n,u)=>n+u.hp,0).toFixed(2)],expected[mission],`Mission ${mission}`);
+  }
 });

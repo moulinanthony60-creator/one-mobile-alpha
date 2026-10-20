@@ -1,4 +1,5 @@
-import {startAssault, assaultCommand, stepAssault, attackScore, armyCount, FIELD} from './expeditions.mjs?v=38';
+import {startAssault, assaultCommand, stepAssault, attackScore, armyCount, FIELD} from './expeditions.mjs?v=40';
+import {createTrainingFort} from './battle3d-layout.mjs?v=2';
 
 export const TROOPS = Object.freeze([
   {kind:'guardians', name:'Gardiens', role:'Au premier rang', count:8},
@@ -15,12 +16,7 @@ export function createTraining() {
     state = {buildings:{castle:2}, energy:100, troops:8, army:{archers:6,mages:3},
       conquests:{0:3,1:3}, stats:{raid:0}, journal:[], gold:0, wood:0, xp:0, gems:0};
     startAssault(state, 2);
-    // This practice fort lasts long enough to try all three troop roles.
-    // Only this private instance is tuned; campaign balance stays unchanged.
-    for (const building of state.assault.buildings) {
-      building.hp = building.maxHp *= 3;
-      building.damage = Math.round(building.damage * 2.5);
-    }
+    state.assault.buildings=createTrainingFort();
     started = false; paused = false; accumulator = 0; effectSerial = 0;
     return state.assault;
   }
