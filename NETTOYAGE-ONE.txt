@@ -1,0 +1,75 @@
+ONE — NETTOYAGE DU PROJET — 20 OCTOBRE 2026
+
+Cette archive est une copie nettoyée du contenu fourni dans « one reprise.zip ».
+Elle contient le projet complet conservé  pas seulement un correctif.
+
+BILAN
+- Fichiers d'origine : 1141.
+- Fichiers retirés : 409.
+- Fichiers d'origine conservés : 732.
+- Documents ajoutés pour ce nettoyage : 3 (ce bilan et deux fichiers JSON).
+- Taille décompressée d'origine : 381 861 084 octets.
+- Taille des fichiers d'origine conservés : 181 516 727 octets.
+- Gain décompressé  hors documents ajoutés : 200 344 357 octets (52.5 %).
+
+SUPPRESSIONS
+- 253 fichiers : Dossier de livraison ou copie imbriquée, extérieur à la structure active.
+- 9 fichiers : Ancienne archive de livraison incluse dans le projet.
+- 129 fichiers : Copie strictement identique sans référence locale conservée.
+- 16 fichiers : Ancien bundle 3D remplacé par one-3d-v218.js.
+- 2 fichiers : Copie alternative de la page ou du cache, non appelée par les pages actives.
+
+La liste exhaustive, les raisons, les empreintes SHA-256 et les emplacements
+des copies identiques restantes sont dans nettoyage/suppressions.json.
+
+BASE CONSERVÉE
+La page principale reste index.html. Elle charge le bundle one-3d-v218.js.
+Le service worker conserve son cache one-mobile-alpha-v221-valdoria-save-v39.
+Les jeux Party, 3:17, le dossier royaume (Valdoria), les fichiers serveur/SQL,
+les licences et les fichiers de vérification de domaine sont conservés.
+Aucun des 732 fichiers d'origine conservés n'a été modifié, renommé ou déplacé.
+Aucun déploiement et aucune modification de base de données n'ont été effectués.
+
+Les scripts anciens encore référencés, les ressources chargées dynamiquement,
+les modèles 3D et leurs textures externes sont conservés. Les fichiers
+index_FIXED.html et index_ONE_IA_corrige.html ne sont pas des copies identiques :
+ils restent disponibles, car leur statut ne peut pas être déterminé avec certitude.
+Quelques doublons restent volontairement présents : des chemins différents sont
+encore utilisés ou la licence accompagne la copie du composant.
+
+VÉRIFICATIONS
+- 732 empreintes SHA-256 contrôlées : contenu identique à l'original.
+- 129 suppressions de copies identiques reliées à un fichier identique conservé.
+- 845 références statiques vérifiées : HTML, imports JS, CSS, cache PWA et modèles.
+- 46 conteneurs GLB examinés, y compris leurs textures externes.
+- Aucune ressource présente dans l'original n'est devenue manquante parmi les
+  références vérifiées ; les constructions dynamiques repérées sont protégées.
+- 495 scripts ou blocs JavaScript analysés : 493 analyses réussies ; 2 erreurs
+  déjà présentes dans index_ONE_IA_corrige.html (blocs 57 et 59).
+- La page principale index.html passe son contrôle syntaxique.
+
+ANOMALIES ANTÉRIEURES CONSERVÉES
+13 chemins absents existent déjà dans l'archive d'origine : surtout des copies
+anciennes à la racine et une page d'aperçu utilisant des chemins locaux.
+Une URL relative d'image dans ui/party-premium.css vise également un fichier
+ui/ui/one-game-art-96.png déjà absent. Ce contrôle porte aussi sur les fichiers
+historiques : il ne signifie pas que chacun de ces chemins est chargé par ONE.
+Le détail est dans nettoyage/validation.json. Ces anomalies n'ont pas été
+corrigées dans cette opération de suppression de fichiers.
+
+LIMITES
+Contrôles statiques uniquement : aucun navigateur exécutable n'était disponible
+pour un essai visuel. Les comptes, services distants, caméras, sauvegardes en ligne
+et parties multijoueurs n'ont pas été testés. Le code des fichiers conservés
+reste strictement identique, mais un chargement de chemin calculé non détecté
+ne peut pas être exclu par une analyse statique seule.
+
+UTILISATION
+Décompresser et utiliser le contenu de one-mobile-alpha-main comme projet complet.
+Pour appliquer ce nettoyage à un dépôt existant, il faut aussi y supprimer les
+fichiers listés dans nettoyage/suppressions.json : un simple ajout des fichiers
+conservés ne retirera pas les anciens fichiers du dépôt. Conserver les réglages
+Git et de déploiement propres au dépôt. Ne pas relancer les scripts SQL ni
+redéployer les Workers pour ce seul nettoyage.
+Les anciens README, INSTALLATION et rapports présents sont historiques et ne
+constituent pas de nouveaux résultats de validation du projet nettoyé.
