@@ -1,9 +1,9 @@
 import {CARTOON_FILES,CARTOON_CELLS} from './cartoon-art.mjs?v=34';
 // Use the village's source artwork, including its connected wall painter.
-export const BATTLE_ATLASES=['toonCore','toonEvolution','toonMagic','toonNature','toonCivic'];
+export const BATTLE_ATLASES=['toonCore','toonEvolution','toonMagic','toonNature','toonCivic','toonDefense','toonMilitary'];
 export const VILLAGE_CAMERA=[24,Math.sqrt(384),24]; // 30° elevation, matching project() in village-art.
 const SQRT2=Math.SQRT2;
-const wanted=new Set(['castle3','mine','mill','cottage','tower','cannon','forge','barracks','spruce','oak','garden','rocks','field','fountain','lantern']);
+const wanted=new Set(['castle3','castle4','vault','reservoir','mortar','arcane','camp','mine','mill','cottage','tower','cannon','forge','barracks','spruce','oak','garden','rocks','field','fountain','lantern']);
 const makeCanvas=(w,h)=>{const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;return canvas;};
 
 export function loadArtImage(url,signal,ImageClass=Image,timeout=12000){
@@ -20,6 +20,7 @@ export function loadArtImage(url,signal,ImageClass=Image,timeout=12000){
 }
 
 export function villageSpriteKey(building){
+  if(building.art)return building.art;
   if(building.kind==='castle')return 'castle3';
   return building.kind;
 }

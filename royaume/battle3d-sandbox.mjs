@@ -1,4 +1,4 @@
-import {startAssault, assaultCommand, stepAssault, attackScore, armyCount, FIELD} from './expeditions.mjs?v=40';
+import {startAssault, assaultCommand, stepAssault, attackScore, armyCount, FIELD} from './expeditions.mjs?v=41';
 import {createTrainingFort} from './battle3d-layout.mjs?v=2';
 
 export const TROOPS = Object.freeze([
@@ -10,13 +10,14 @@ export const STEP = 1 / 30;
 
 // A fresh, private state: never import the village engine, cloud or saved game.
 // Settlement uses the existing campaign rules, but its rewards stay in memory.
-export function createTraining() {
+export function createTraining({layout=createTrainingFort,field=null}={}) {
   let state, started, paused, accumulator, effectSerial;
   function reset() {
     state = {buildings:{castle:2}, energy:100, troops:8, army:{archers:6,mages:3},
       conquests:{0:3,1:3}, stats:{raid:0}, journal:[], gold:0, wood:0, xp:0, gems:0};
     startAssault(state, 2);
-    state.assault.buildings=createTrainingFort();
+    state.assault.buildings=layout();
+    if(field)state.assault.field={...field};
     started = false; paused = false; accumulator = 0; effectSerial = 0;
     return state.assault;
   }
