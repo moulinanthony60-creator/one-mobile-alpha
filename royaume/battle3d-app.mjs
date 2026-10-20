@@ -1,10 +1,10 @@
 import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=2';
-import {createScene} from './battle3d-scene.mjs?v=3';
+import {createBattleView} from './battle-view.mjs?v=4';
 import {bindBattleInput} from './battle3d-input.mjs?v=1';
 
 const $=selector=>document.querySelector(selector);
-const canvas=$('#battle-canvas'),training=createTraining();
-const view=createScene(canvas,training.battle);
+const canvas=$('#battle-canvas'),webglCanvas=$('#battle-webgl-canvas'),training=createTraining();
+const view=createBattleView(canvas,webglCanvas,training.battle,{onFallback:()=>{syncViewButtons();toast('La 3D est indisponible. La bataille continue en vue Village.');}});
 let abandoned=false,ready=false;
 let selected='guardians',entered=false,failed=false,resultShown=false,finishedAt=0,frameId=0,last=0,lastHUD=0,toastUntil=0,southIndex=0;
 const dialogs=[$('#intro'),$('#pause-dialog'),$('#result')];
@@ -63,7 +63,7 @@ function restart() {
   for(const dialog of dialogs)if(dialog.open)dialog.close();
   training.reset();view.reset(training.battle);entered=true;resultShown=false;selected='guardians';southIndex=0;last=performance.now();
   input.clear();updateUI();toast('Une nouvelle armée t’attend. À toi de jouer !');
-  canvas.focus({preventScroll:true});
+  view.canvas.focus({preventScroll:true});
 }
 function result() {
   const b=training.battle,score=training.score,survivors=b.units.filter(unit=>unit.hp>0).length;
@@ -82,19 +82,23 @@ $('#zoom-in').addEventListener('click',()=>view.zoom(1.2));
 $('#zoom-out').addEventListener('click',()=>view.zoom(1/1.2));
 $('#home').addEventListener('click',()=>view.home());
 $('#quality').addEventListener('click',()=>{const eco=$('#quality').getAttribute('aria-pressed')!=='true';view.quality(eco);$('#quality').setAttribute('aria-pressed',String(eco));$('#quality').textContent=eco?'Éco ✓':'Éco';$('#quality').setAttribute('aria-label',eco?'Désactiver le mode éco et retrouver les ombres détaillées':'Activer le mode éco : réduire les ombres et la résolution');toast(eco?'Mode éco activé.':'Graphismes détaillés activés.');});
-for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>{
-  if(!view.style(button.dataset.view))return;
-  input.clear();view.frame(training.battle,0,false);
-  for(const item of document.querySelectorAll('[data-view]'))item.setAttribute('aria-pressed',String(item===button));
+function syncViewButtons(){for(const button of document.querySelectorAll('[data-view]')){button.setAttribute('aria-pressed',String(button.dataset.view===view.mode));button.disabled=button.dataset.view==='3d'&&view.failed3D;}}
+for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',async()=>{
+  input.clear();
+  if(button.dataset.view==='3d')toast('Ouverture de la vue 3D…');
+  await view.style(button.dataset.view);
+  if(abandoned||failed)return;
+  view.frame(training.battle,0,false);syncViewButtons();
 });
-$('#start').addEventListener('click',()=>{entered=true;$('#intro').close();updateUI();canvas.focus({preventScroll:true});});
+$('#start').addEventListener('click',()=>{entered=true;$('#intro').close();updateUI();view.canvas.focus({preventScroll:true});});
 $('#pause').addEventListener('click',setPause);
-$('#resume').addEventListener('click',()=>{training.pause(false);$('#pause-dialog').close();last=performance.now();updateUI();canvas.focus({preventScroll:true});});
+$('#resume').addEventListener('click',()=>{training.pause(false);$('#pause-dialog').close();last=performance.now();updateUI();view.canvas.focus({preventScroll:true});});
 $('#restart').addEventListener('click',restart);
 $('#restart-pause').addEventListener('click',restart);
 for(const dialog of dialogs)dialog.addEventListener('cancel',event=>{event.preventDefault();if(dialog.id==='pause-dialog')$('#resume').click();});
 
-const input=bindBattleInput(canvas,{enabled:playable,tap:(x,y)=>deploy(view.point(x,y)),pan:(dx,dy)=>view.pan(dx,dy),zoom:factor=>view.zoom(factor)});
+const inputs=[canvas,webglCanvas].map(surface=>bindBattleInput(surface,{enabled:()=>playable()&&view.canvas===surface,tap:(x,y)=>deploy(view.point(x,y)),pan:(dx,dy)=>view.pan(dx,dy),zoom:factor=>view.zoom(factor)}));
+const input={clear(){inputs.forEach(i=>i.clear());},dispose(){inputs.forEach(i=>i.dispose());}};
 document.addEventListener('keydown',event=>{
   if(event.repeat)return;
   if(playable()&&['1','2','3'].includes(event.key)) {select(TROOPS[Number(event.key)-1].kind);event.preventDefault();}
@@ -108,7 +112,6 @@ function fatal(message) {
   for(const dialog of dialogs)if(dialog.open)dialog.close();
   $('#fatal-detail').textContent=message;$('#fatal').hidden=false;$('#loading').hidden=true;updateUI();
 }
-canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();fatal('Le téléphone a interrompu l’affichage 3D. Ferme les autres onglets puis touche Réessayer. Ton village est préservé.');});
 function frame(now) {
   if(failed)return;
   try {
@@ -128,15 +131,8 @@ window.addEventListener('pageshow',event=>{if(event.persisted&&ready&&!failed){l
 
 const artReady=await view.loadVillage();
 if(!abandoned&&!failed){
-  if(artReady){
-    view.style('village');
-    $('[data-view="village"]').disabled=false;
-    $('[data-view="village"]').setAttribute('aria-pressed','true');
-    $('[data-view="3d"]').setAttribute('aria-pressed','false');
-  }else{
-    $('.art-note').textContent='Les illustrations n’ont pas pu charger. La vue 3D reste disponible ; recharge la page pour réessayer la vue Village.';
-    $('[data-view="village"]').title='Recharge la page pour réessayer le chargement des illustrations.';
-  }
+  if(!artReady)$('.art-note').textContent='Les illustrations n’ont pas pu charger. Le terrain simplifié reste jouable. Recharge la page pour réessayer les illustrations.';
+  syncViewButtons();
   ready=true;view.frame(training.battle,0,false);
   $('#loading').hidden=true;
   $('#intro').showModal();updateUI();

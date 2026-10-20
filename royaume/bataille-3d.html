@@ -7,7 +7,7 @@
   <meta name="description" content="Essayez la première bataille 3D de Valdoria. Déployez vos gardiens, archers et mages dans un entraînement gratuit.">
   <title>Valdoria · Bataille 3D</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="battle3d.css?v=3">
+  <link rel="stylesheet" href="battle3d.css?v=4">
 </head>
 <body>
 <main id="game">
@@ -24,8 +24,9 @@
   </section>
   <section id="arena" aria-label="Champ de bataille">
     <canvas id="battle-canvas" tabindex="0" aria-label="Terrain. Sélectionnez une troupe puis touchez la bordure bleue. Vous pouvez aussi utiliser le bouton Déployer au sud."></canvas>
+    <canvas id="battle-webgl-canvas" tabindex="0" aria-label="Terrain 3D. Sélectionnez une troupe puis touchez la bordure bleue." hidden></canvas>
     <div class="arena-label"><i></i> TERRAIN D’ENTRAÎNEMENT</div>
-    <div class="visual-modes" role="group" aria-label="Style du terrain"><button data-view="village" aria-pressed="false" disabled>Village</button><button data-view="3d" aria-pressed="true">3D</button></div>
+    <div class="visual-modes" role="group" aria-label="Style du terrain"><button data-view="village" aria-pressed="true">Village</button><button data-view="3d" aria-pressed="false">3D</button></div>
     <div class="camera-controls" aria-label="Caméra">
       <button id="zoom-in" aria-label="Rapprocher la caméra">+</button>
       <button id="zoom-out" aria-label="Éloigner la caméra">−</button>
@@ -67,11 +68,12 @@
 </dialog>
 <dialog id="pause-dialog" aria-labelledby="pause-title"><span class="eyebrow">PRENDS TON TEMPS</span><h2 id="pause-title">Bataille en pause</h2><p>Ton armée t’attend sur le terrain.</p><button id="resume" class="primary">Reprendre la bataille</button><button id="restart-pause" class="secondary">Recommencer l’entraînement</button><a class="text-link" href="./index.html">Retour au village</a></dialog>
 <dialog id="result" aria-labelledby="result-title"><span class="eyebrow">ENTRAÎNEMENT TERMINÉ</span><div id="result-stars" class="result-stars"></div><h2 id="result-title">Le fort est tombé !</h2><p id="result-detail"></p><div class="safe-note">Aucune ressource de ton village n’a été utilisée. Rejoue pour essayer une autre stratégie.</div><button id="restart" class="primary">Rejouer la bataille <span>↻</span></button><a class="text-link" href="./index.html">Retour à mon village</a></dialog>
-<div id="fatal" hidden role="alert"><span class="eyebrow">VALDORIA · ESSAI 3D</span><h1>La 3D n’a pas pu démarrer</h1><p id="fatal-detail">Essaie de recharger la page dans une version récente de Chrome ou Safari.</p><button onclick="location.reload()" class="primary">Réessayer</button><a class="text-link" href="./index.html">Retour au village</a></div>
+<div id="fatal" hidden role="alert"><span class="eyebrow">VALDORIA · ENTRAÎNEMENT</span><h1>Le terrain n’a pas pu démarrer</h1><p id="fatal-detail">Recharge la page pour réessayer le chargement du terrain.</p><button onclick="location.reload()" class="primary">Réessayer</button><a class="text-link" href="./index.html">Retour au village</a></div>
 <noscript>Active JavaScript pour essayer la bataille 3D. <a href="./index.html">Retour au village</a></noscript>
 <script type="module">
-  import('./battle3d-app.mjs?v=3').catch(error => {
-    console.error('Valdoria 3D:',error);
+  import('./battle3d-app.mjs?v=4').catch(error => {
+    console.error('Valdoria, démarrage :',error);
+    document.querySelector('#fatal-detail').textContent = 'Le chargement du terrain a échoué. Détail : ' + (error?.message || 'erreur inconnue') + '. Recharge la page pour réessayer.';
     document.querySelector('#loading').hidden = true;
     document.querySelector('#fatal').hidden = false;
     document.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());
