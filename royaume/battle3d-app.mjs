@@ -3,6 +3,17 @@ import {createBattleView} from './battle-view.mjs?v=4';
 import {bindBattleInput} from './battle3d-input.mjs?v=1';
 
 const $=selector=>document.querySelector(selector);
+// Use the visible viewport in mobile browsers and embedded app windows.
+let viewportHeight=0;
+function fitViewport(){
+  const visual=window.visualViewport;
+  if(visual&&Math.abs(visual.scale-1)>.01)return;
+  const height=Math.floor(Math.min(window.innerHeight,visual?.height||window.innerHeight));
+  if(!Number.isFinite(height)||height<=0||height===viewportHeight)return;
+  viewportHeight=height;document.documentElement.style.setProperty('--battle-height',height+'px');
+  $('#game').classList.toggle('compact-screen',height<690);
+}
+fitViewport();window.addEventListener('resize',fitViewport);window.visualViewport?.addEventListener('resize',fitViewport);
 const canvas=$('#battle-canvas'),webglCanvas=$('#battle-webgl-canvas'),training=createTraining();
 const view=createBattleView(canvas,webglCanvas,training.battle,{onFallback:()=>{syncViewButtons();toast('La 3D est indisponible. La bataille continue en vue Village.');}});
 let abandoned=false,ready=false;
@@ -14,7 +25,7 @@ const timeLabel=seconds=>`${Math.floor(seconds/60)}:${String(seconds%60).padStar
 function toast(message) {$('#toast').textContent=message;$('#toast').classList.add('visible');toastUntil=performance.now()+2700;}
 function playable() {return entered&&!training.paused&&!failed&&training.battle.phase==='active'&&!dialogs.some(dialog=>dialog.open);}
 function select(kind) {
-  if(!playable())return;
+  if(!playable()||(kind==='spell'?!training.battle.spells:!training.count(kind)))return;
   selected=kind;
   updateUI();
 }
@@ -30,8 +41,8 @@ function updateUI() {
   for(const button of controls) {
     const kind=button.dataset.unit,count=training.count(kind);reserve+=count;
     button.disabled=!active||!count;
-    button.classList.toggle('selected',selected===kind);
-    button.setAttribute('aria-pressed',String(selected===kind));
+    button.classList.toggle('selected',selected===kind&&count>0);
+    button.setAttribute('aria-pressed',String(selected===kind&&count>0));
     button.setAttribute('aria-label',`${TROOPS.find(t=>t.kind===kind).name}, ${count} disponible${count>1?'s':''}`);
     $(`[data-count="${kind}"]`).textContent=count;
   }
@@ -42,15 +53,19 @@ function updateUI() {
   $('#deploy-south').disabled=!active||selected==='spell'||!training.count(selected);
   $('#pause').disabled=!entered||failed||b.phase!=='active'||dialogs.some(dialog=>dialog.open);
   $('#hint').classList.toggle('magic',selected==='spell');
-  $('#hint').textContent=selected==='spell'?'Touche une défense pour lancer la frappe magique.':reserve===0?'Ton armée est engagée. Soutiens-la avec la magie !':!training.count(selected)?'Choisis une autre troupe pour poursuivre l’assaut.':'Touche la bordure bleue pour déployer tes troupes.';
+  $('#hint').textContent=selected==='spell'?'Touche une défense pour lancer la frappe magique.':reserve===0?(b.spells?'Ton armée combat. La magie reste disponible.':'Ton armée combat. Tu peux déplacer ou rapprocher la vue.'):!training.count(selected)?'Choisis une autre troupe pour poursuivre l’assaut.':'Touche la bordure bleue pour déployer tes troupes.';
 }
 function deploy(point) {
   if(!playable()||!point)return;
+  if(selected==='spell'?!training.battle.spells:!training.count(selected))return;
   try {
     if(selected==='spell') {
       training.spell(point.x,point.y);view.mark(point.x,point.y,true);
       if(training.battle.spells===0)selected=TROOPS.find(t=>training.count(t.kind)>0)?.kind||'guardians';
-    } else {training.deploy(selected,point.x,point.y);view.mark(point.x,point.y);}
+    } else {
+      training.deploy(selected,point.x,point.y);view.mark(point.x,point.y);
+      if(!training.count(selected))selected=TROOPS.find(t=>training.count(t.kind)>0)?.kind||selected;
+    }
     updateUI();
   } catch(error) {toast(error.message);}
 }
@@ -76,7 +91,11 @@ function result() {
 }
 
 controls.forEach(button=>button.addEventListener('click',()=>select(button.dataset.unit)));
-$('#spell').addEventListener('click',()=>select(selected==='spell'?'guardians':'spell'));
+$('#spell').addEventListener('click',()=>{
+  if(!playable())return;
+  if(selected==='spell'){selected=TROOPS.find(t=>training.count(t.kind)>0)?.kind||'guardians';updateUI();}
+  else select('spell');
+});
 $('#deploy-south').addEventListener('click',()=>{const x=7.2+(southIndex++%9)*.7;deploy({x,y:14.4});});
 $('#zoom-in').addEventListener('click',()=>view.zoom(1.2));
 $('#zoom-out').addEventListener('click',()=>view.zoom(1/1.2));
@@ -126,7 +145,7 @@ function frame(now) {
     frameId=requestAnimationFrame(frame);
   } catch(error) {console.error('Valdoria 3D:',error);fatal('L’essai a rencontré un problème. Tu peux réessayer ou retourner à ton village.');}
 }
-window.addEventListener('pagehide',event=>{cancelAnimationFrame(frameId);setPause();if(!event.persisted){abandoned=true;input.dispose();view.dispose();}});
+window.addEventListener('pagehide',event=>{cancelAnimationFrame(frameId);setPause();if(!event.persisted){abandoned=true;input.dispose();view.dispose();window.removeEventListener('resize',fitViewport);window.visualViewport?.removeEventListener('resize',fitViewport);}});
 window.addEventListener('pageshow',event=>{if(event.persisted&&ready&&!failed){last=0;frameId=requestAnimationFrame(frame);}});
 
 const artReady=await view.loadVillage();
