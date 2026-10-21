@@ -1,5 +1,5 @@
-import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=7';
-import {createVillageScene} from './battle-village-scene.mjs?v=7';
+import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=8';
+import {createVillageScene} from './battle-village-scene.mjs?v=8';
 import {VALDORIA_FIELD,createValdoriaFort} from './battle-style-layout.mjs?v=1';
 import {bindBattleInput} from './battle3d-input.mjs?v=1';
 
@@ -153,6 +153,7 @@ if(!abandoned&&!failed){
   $('#loading').hidden=true;
   updateUI();
   if(!artReady)toast('Les bâtiments n’ont pas chargé. Recharge la page pour retrouver leurs illustrations.');
+  else if(view.artStatus.details===false)toast('Certains bâtiments détaillés n’ont pas chargé. Recharge la page pour les retrouver.');
   else if(!view.artStatus.troops)toast('Les illustrations des troupes n’ont pas chargé. Les soldats simplifiés restent jouables.');
   frameId=requestAnimationFrame(frame);
 }

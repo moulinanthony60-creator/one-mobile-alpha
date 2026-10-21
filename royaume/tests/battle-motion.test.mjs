@@ -42,3 +42,11 @@ test('cached scenery preserves exact painter order around moving units and reuse
  cache.prepare('destroyed',objects.filter(o=>o.id!=='b5'),100,100,1,paint);assert.equal(cache.stats.builds,2);
  cache.dispose();assert.equal(cache.stats.groups,0);
 });
+
+test('damage rebuilds only the affected scenery run instead of the whole village',()=>{
+ let allocated=0;const makeCanvas=(width,height)=>{allocated++;return {width,height,getContext:()=>({setTransform(){}})};};
+ const cache=createSceneryCache(makeCanvas),objects=Array.from({length:60},(_,id)=>({depth:id,revision:'whole',bounds:{x:0,y:0,w:20,h:20}}));
+ cache.prepare('camera',objects,100,100,1,()=>{});assert.equal(allocated,6);
+ objects[22]={...objects[22],revision:'destroyed'};cache.prepare('camera',objects,100,100,1,()=>{});assert.equal(allocated,7);
+ cache.prepare('camera',objects,100,100,1,()=>{});assert.equal(allocated,7);cache.dispose();
+});

@@ -87,7 +87,8 @@ test('practice imports cannot reach persistence or network code',()=>{
       assert.ok(match[1].startsWith('./'));pending.push(new URL(match[1],url));
     }
   }
-  assert.equal(seen.size,5);
+  assert.equal(seen.size,6);
+  assert.ok([...seen].some(path=>path.endsWith('/battle-navigation.mjs')));
 });
 
 function harness(){

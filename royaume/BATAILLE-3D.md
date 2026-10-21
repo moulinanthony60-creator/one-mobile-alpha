@@ -1,38 +1,37 @@
-# Combat d’entraînement de Valdoria — version 7
+# Combat d’entraînement de Valdoria — version 8
 
-Le chemin historique `bataille-3d.html?v=7` ouvre une bataille isométrique illustrée sur Canvas 2D. Il ne s’agit pas d’une scène 3D à caméra libre. L’entraînement reste gratuit et indépendant du village sauvegardé, des ressources et du PvP.
+`bataille-3d.html?v=8` ouvre le terrain privé de 35 bâtiments et 170 segments de remparts. La scène utilise des illustrations animées en vue isométrique sur Canvas 2D. L’entraînement reste indépendant du village sauvegardé, des ressources et du PvP.
 
-## Rendu
+## Choix des cibles et déplacements
 
-Le terrain conserve 35 bâtiments destructibles et 170 segments de remparts. Le kit graphique v7 remplace les anciens bâtiments du village dans cet entraînement : château bleu et or, défenses, ateliers, ressources, forêt, rochers et débris. Les remparts emploient le niveau de matériau 6. La barre de troupes est réduite sur les téléphones en paysage.
+La version précédente cherchait le bâtiment le plus proche à vol d’oiseau puis, si le trajet échouait, le mur le plus proche. Elle pouvait donc ignorer un autre bâtiment accessible et attaquer une portion de rempart sans intérêt.
 
-![Terrain rendu par le moteur Canvas](docs/fort-fluide.webp)
+La nouvelle navigation cherche d’abord une position d’attaque accessible pour les bâtiments vivants. Elle tient compte des passages libres et des empreintes de collision. Si aucun bâtiment n’est accessible, une recherche pondérée estime le coût du trajet et de la destruction des murs ; l’unité vise alors le premier mur qui bloque ce trajet. Une destruction déclenche une réévaluation immédiate. Les archers et les mages peuvent tirer par-dessus les murs à portée.
 
-[Capture des mouvements dans le moteur Canvas](docs/troupes-fluides.mp4)
+Les chemins autorisent les diagonales libres, interdisent de couper les coins des obstacles et retirent les points intermédiaires inutiles après vérification du segment complet. Une route valide reste stable jusqu’à un changement de terrain. L’interpolation entre étapes de simulation est conservée.
 
-Ces captures utilisent le vrai moteur, les véritables ressources et la simulation. Elles sont produites hors navigateur avec Canvas natif et ne comprennent pas l’interface HTML. Elles ne mesurent pas les performances d’un téléphone Android.
+Cette navigation s’active uniquement pour le grand terrain privé. Les douze missions historiques conservent leurs règles de déplacement.
 
-## Fluidité
+## Bâtiments et rendu
 
-- Simulation à pas fixe de 30 Hz ; affichage interpolé entre les deux dernières positions connues à chaque image. Au plus 33 ms de retard visuel, sans prédiction à travers les obstacles.
-- Consommation de toute la distance d’un pas au passage d’un point du chemin, sans arrêt artificiel entre les cases.
-- Dans ce grand terrain uniquement, conservation temporaire de la cible et réutilisation de la grille de collision jusqu’à une destruction.
-- Recalage des pieds et du torse entre les poses, transitions précalculées, orientation amortie et réaction à chaque attaque.
-- Cache du décor par groupes triés en profondeur. Lorsqu’une troupe traverse la profondeur d’un groupe, ses éléments sont redessinés dans l’ordre exact pour conserver les occultations.
-- Mode éco : densité de pixels réduite et moins d’effets. Préférence de mouvement réduit respectée.
+Six nouvelles illustrations plus grandes remplacent le château, la tour, le canon, le mortier, la caserne et la forge. Les bâtiments montrent des traces de dommages à deux seuils de santé. Huit illustrations de ruines distinguent les matériaux et les fonctions du bâtiment détruit.
 
-Le routage des douze missions historiques conserve son ancien comportement. Les changements de déplacement et de verrouillage de cible ne s’activent que sur le terrain privé étendu.
+Le cache du décor reconstruit uniquement les groupes dont l’apparence a changé. Les groupes traversés par une troupe conservent leur dessin individuel afin de respecter l’ordre de profondeur. Le mode éco et la préférence de mouvement réduit restent pris en compte.
+
+![Terrain rendu par le moteur Canvas](docs/fort-v8.webp)
+
+[Capture des déplacements dans le moteur](docs/mouvements-v8.mp4)
+
+Ces captures utilisent les vraies ressources, la simulation et le moteur Canvas, exécutés hors navigateur. Elles ne comprennent pas l’interface HTML et ne mesurent pas la fluidité d’un téléphone Android.
 
 ## Vérifications
 
 ```sh
-node --test royaume/tests/battle3d.test.mjs royaume/tests/battle3d-art.test.mjs royaume/tests/battle-startup.test.mjs royaume/tests/battle-style.test.mjs royaume/tests/battle-motion.test.mjs
+node --test royaume/tests/battle3d.test.mjs royaume/tests/battle3d-art.test.mjs royaume/tests/battle-startup.test.mjs royaume/tests/battle-style.test.mjs royaume/tests/battle-motion.test.mjs royaume/tests/battle-navigation.test.mjs
 ```
 
-27 tests passent : commandes, collisions, victoire, replay, isolation du village, résultats des 12 missions historiques, interpolation des positions, absence d’arrêt aux cases, pause et ordre d’occultation du cache.
+33 tests : cibles accessibles, passage par les ouvertures, brèche utile, tir à distance au-dessus des murs, abandon des murs après ouverture, stabilité des routes, collisions, interpolation, pause, replay, victoire, cache partiel du décor, isolation du village et résultats de référence des 12 missions historiques.
 
-La simulation de 600 étapes avec 17 troupes a demandé en moyenne environ 0,58 ms par étape contre 1,29 ms avant ces corrections dans cet environnement Node. Ces valeurs illustrent la réduction du travail de simulation ; elles ne constituent pas une mesure de FPS sur mobile. Le rendu de l’interface, les gestes réels et la fluidité Android restent à vérifier sur appareil.
+Chargement réel des planches, rendu, mode éco et redémarrage contrôlés avec Canvas natif. Interface et fluidité Android restent à vérifier sur appareil.
 
-## Essai
-
-Après fusion et déploiement : `https://one-officiel.fr/royaume/bataille-3d.html?v=7`. Tourner le téléphone en paysage. Choisir une troupe puis toucher hors de la limite bleue, ou utiliser « Déployer au sud ». Glisser pour déplacer la caméra ; pincer pour zoomer. Pause, replay, plein écran et retour au village restent accessibles.
+Après fusion et déploiement : `https://one-officiel.fr/royaume/bataille-3d.html?v=8`.
