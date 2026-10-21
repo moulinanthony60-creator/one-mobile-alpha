@@ -328,7 +328,7 @@ function actionClick(e){
  case 'new-game-start':startNewGame();break;
  case 'restore-previous-game':{if(state.cloud){toast('La sauvegarde ONE protège votre progression en ligne.','error');break;}const previous=localStorage.getItem(KEY+'_previous');if(previous){state=restoreState(JSON.parse(previous));state.progressionPromptSeen=true;save();closeModal();navigate('city');villageView?.home();}break;}
  case 'multiplayer':clearFinishedSiege();modalKind='multiplayer';openMultiplayer($('#modal'),{name:state.name,team:state.team});break;
- case 'battle3d-test':save();location.assign(new URL('./bataille-3d.html?v=9',location.href));break;
+ case 'battle3d-test':save();location.assign(new URL('./bataille-3d.html?v=10',location.href));break;
  case 'combat-menu':showCombatMenu();break;
  case 'pvp':showVillageRaids();break;
  case 'expeditions':showExpeditions();break;

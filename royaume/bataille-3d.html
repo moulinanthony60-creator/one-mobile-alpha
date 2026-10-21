@@ -55,7 +55,7 @@
 </main>
 <dialog id="intro" aria-labelledby="intro-title">
  <span class="eyebrow">ONE · VALDORIA</span><h2 id="intro-title">À l’assaut du fort !</h2><p>17 soldats, deux sorts et 2 min 30 pour traverser les enceintes du village.</p>
- <ol><li>Choisis une carte de troupe.</li><li>Touche à l’extérieur de la <strong>ligne bleue</strong> pour la déployer.</li><li>Lance la foudre sur les défenses ennemies.</li></ol>
+ <ol><li>Choisis une carte de troupe.</li><li>Touche à l’extérieur de la <strong>ligne bleue</strong> pour la déployer. Maintiens le doigt pour en déployer plusieurs.</li><li>Lance la foudre sur les défenses ennemies.</li></ol>
  <p class="art-note">Glisse pour explorer le terrain et pince pour zoomer. En paysage, le village dispose de toute la largeur.</p><p class="safe-note">Cet entraînement n’utilise aucune troupe ni ressource de ton village.</p><button id="start" class="primary">Jouer</button>
 </dialog>
 <dialog id="pause-dialog" aria-labelledby="pause-title"><span class="eyebrow">VALDORIA</span><h2 id="pause-title">Bataille en pause</h2><p>Ton armée t’attend sur le terrain.</p><button id="resume" class="primary">Reprendre</button><button id="restart-pause" class="secondary">Recommencer l’entraînement</button><a class="text-link" href="./index.html">Retour au village</a></dialog>
@@ -63,6 +63,6 @@
 <div id="fatal" hidden role="alert"><span class="eyebrow">VALDORIA · ENTRAÎNEMENT</span><h2>Le terrain n’a pas pu démarrer</h2><p id="fatal-detail">Recharge la page pour réessayer.</p><button onclick="location.reload()" class="primary">Réessayer</button><a class="text-link" href="./index.html">Retour au village</a></div>
 <noscript>Active JavaScript pour jouer. <a href="./index.html">Retour au village</a></noscript>
 <script type="module">
- import('./battle3d-app.mjs?v=9').catch(error=>{console.error('Valdoria :',error);document.querySelector('#fatal-detail').textContent='Le terrain n’a pas pu charger. Recharge la page pour réessayer.';document.querySelector('#loading').hidden=true;document.querySelector('#fatal').hidden=false;document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());});
+ import('./battle3d-app.mjs?v=10').catch(error=>{console.error('Valdoria :',error);document.querySelector('#fatal-detail').textContent='Le terrain n’a pas pu charger. Recharge la page pour réessayer.';document.querySelector('#loading').hidden=true;document.querySelector('#fatal').hidden=false;document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());});
 </script>
 </body></html>

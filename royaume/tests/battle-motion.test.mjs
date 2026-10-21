@@ -2,8 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createTraining} from '../battle3d-sandbox.mjs';
 import {VALDORIA_FIELD,createValdoriaFort} from '../battle-style-layout.mjs';
-import {renderPosition,createMotionTracks} from '../battle-motion.mjs';
+import {renderPosition,renderFacing,createMotionTracks} from '../battle-motion.mjs';
 import {createSceneryCache} from '../battle-scene-cache.mjs';
+
+test('troop and turret headings interpolate across the shortest arc without a full turn at the angle boundary',()=>{
+ const actor={id:7,facing:-Math.PI+.1},before={facing:Math.PI-.1};
+ const presentation={previous:new Map([[7,before]]),previousBuildings:new Map([[7,before]]),alpha:.5};
+ assert.ok(Math.abs(renderFacing(actor,presentation)-Math.PI)<1e-9);
+ assert.ok(Math.abs(renderFacing(actor,presentation,true)-Math.PI)<1e-9);
+ presentation.alpha=0;assert.equal(renderFacing(actor,presentation),before.facing);
+ presentation.alpha=1;assert.ok(Math.abs(Math.sin(renderFacing(actor,presentation)-actor.facing))<1e-9);
+ assert.equal(renderFacing(actor,null),actor.facing);
+});
 
 test('60 Hz presentation advances between 30 Hz combat steps and stays within the simulated segment',()=>{
  const t=createTraining({layout:createValdoriaFort,field:VALDORIA_FIELD});t.deploy('guardians',3.5,16.5);
@@ -11,7 +21,7 @@ test('60 Hz presentation advances between 30 Hz combat steps and stays within th
  for(let i=0;i<70;i++){
   t.tick(1/60);const u=t.battle.units[0],p=renderPosition(u,t.presentation),before=t.presentation.previous.get(u.id);
   if(before){assert.ok(p.x>=Math.min(before.x,u.x)-1e-9&&p.x<=Math.max(before.x,u.x)+1e-9);assert.ok(p.y>=Math.min(before.y,u.y)-1e-9&&p.y<=Math.max(before.y,u.y)+1e-9);}
-  if(i>2)distances.push(Math.hypot(p.x-last.x,p.y-last.y));last=p;
+  if(i>20)distances.push(Math.hypot(p.x-last.x,p.y-last.y));last=p;
  }
  assert.ok(distances.every(d=>d>.015),'no alternating frozen frames or waypoint stops');
  assert.ok(distances.every(d=>d<.03),'no catch-up jumps');

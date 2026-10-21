@@ -1,7 +1,7 @@
-import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=9';
-import {createVillageScene} from './battle-village-scene.mjs?v=9';
+import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=10';
+import {createVillageScene} from './battle-village-scene.mjs?v=10';
 import {VALDORIA_FIELD,createValdoriaFort} from './battle-style-layout.mjs?v=1';
-import {bindBattleInput} from './battle3d-input.mjs?v=1';
+import {bindBattleInput} from './battle3d-input.mjs?v=2';
 
 const $=selector=>document.querySelector(selector);
 // Use the visible viewport in mobile browsers and embedded app windows.
@@ -57,11 +57,11 @@ function updateUI() {
   $('#deploy-south').disabled=!active||selected==='spell'||!training.count(selected);
   $('#pause').disabled=!entered||failed||b.phase!=='active'||dialogs.some(dialog=>dialog.open);
   $('#hint').classList.toggle('magic',selected==='spell');
-  $('#hint').textContent=selected==='spell'?'Touche une défense pour lancer la frappe magique.':reserve===0?(b.spells?'Ton armée combat. La magie reste disponible.':'Ton armée combat. Tu peux déplacer ou rapprocher la vue.'):!training.count(selected)?'Choisis une autre troupe pour poursuivre l’assaut.':'Touche à l’extérieur de la ligne bleue pour déployer.';
+  $('#hint').textContent=selected==='spell'?'Touche une défense pour lancer la frappe magique.':reserve===0?(b.spells?'Ton armée combat. La magie reste disponible.':'Ton armée combat. Tu peux déplacer ou rapprocher la vue.'):!training.count(selected)?'Choisis une autre troupe pour poursuivre l’assaut.':'Touche hors de la ligne bleue. Maintiens pour déployer plusieurs soldats.';
 }
 function deploy(point) {
-  if(!playable()||!point)return;
-  if(selected==='spell'?!training.battle.spells:!training.count(selected))return;
+  if(!playable()||!point)return false;
+  if(selected==='spell'?!training.battle.spells:!training.count(selected))return false;
   try {
     if(selected==='spell') {
       training.spell(point.x,point.y);view.mark(point.x,point.y,true);
@@ -71,7 +71,8 @@ function deploy(point) {
       if(!training.count(selected))selected=TROOPS.find(t=>training.count(t.kind)>0)?.kind||selected;
     }
     updateUI();
-  } catch(error) {toast(error.message);}
+    return true;
+  } catch(error) {view.mark(point.x,point.y,false,true);toast(error.message);return false;}
 }
 function setPause() {
   if(!entered||failed||training.battle.phase!=='active'||dialogs.some(dialog=>dialog.open))return;
@@ -114,7 +115,7 @@ $('#restart').addEventListener('click',restart);
 $('#restart-pause').addEventListener('click',restart);
 for(const dialog of dialogs)dialog.addEventListener('cancel',event=>{event.preventDefault();if(dialog.id==='pause-dialog')$('#resume').click();});
 
-const inputs=[canvas].map(surface=>bindBattleInput(surface,{enabled:()=>playable()&&view.canvas===surface,tap:(x,y)=>deploy(view.point(x,y)),pan:(dx,dy)=>view.pan(dx,dy),zoom:factor=>view.zoom(factor)}));
+const inputs=[canvas].map(surface=>bindBattleInput(surface,{enabled:()=>playable()&&view.canvas===surface,tap:(x,y)=>deploy(view.point(x,y)),holdKey:()=>selected==='spell'?null:selected,hold:(x,y,key)=>selected===key&&deploy(view.point(x,y)),pan:(dx,dy)=>view.pan(dx,dy),zoom:factor=>view.zoom(factor)}));
 const input={clear(){inputs.forEach(i=>i.clear());},dispose(){inputs.forEach(i=>i.dispose());}};
 document.addEventListener('keydown',event=>{
   if(event.repeat)return;

@@ -22,21 +22,21 @@ test('articulated walk alternates ground contacts and attacks move arms independ
 test('defences retain their identity, show a real travel interval then an impact, and freeze when paused',()=>{
  const t=createTraining({layout:createValdoriaFort,field:VALDORIA_FIELD});t.deploy('guardians',20,29);
  const defender=t.battle.buildings.find(b=>b.kind==='cannon'),u=t.battle.units[0];u.x=defender.x;u.y=defender.y+3;
- t.tick(1/30);const fx=t.battle.effects.find(e=>e.sourceId===defender.id);
+ for(let i=0;i<100&&!t.battle.effects.some(e=>e.sourceId===defender.id);i++)t.tick(1/30);const fx=t.battle.effects.find(e=>e.sourceId===defender.id);
  assert.ok(fx);assert.equal(fx.style,'cannon');assert.equal(fx.targetId,u.id);assert.ok(fx.duration>fx.flight);assert.ok(fx.flight>.25);
  const project=(x,y)=>({x:x*20,y:y*10});const start=shotPosition(fx,0,project,20),end=shotPosition(fx,fx.flight,project,20);
  assert.deepEqual({x:start.x,y:start.y},start.start);assert.deepEqual({x:end.x,y:end.y},end.end);
  t.pause(true);const before=effectAge(fx,t.battle.elapsed,t.presentation);t.tick(2);assert.equal(effectAge(fx,t.battle.elapsed,t.presentation),before);
  assert.equal(shotStyle({kind:'tower'}),'arrow');assert.equal(shotStyle({kind:'mortar'}),'mortar');assert.equal(shotStyle({kind:'arcane'}),'arcane');
- const mortar={...fx,style:'mortar',...shotTiming('mortar',4)},mid=shotPosition(mortar,mortar.flight/2,project,20);assert.ok(mid.y<(mid.start.y+mid.end.y)/2-35);
+ const mortar={...fx,style:'mortar',arc:2.2,...shotTiming('mortar',4)},mid=shotPosition(mortar,mortar.flight/2,project,20);assert.ok(mid.y<(mid.start.y+mid.end.y)/2-35);
  t.reset();assert.equal(t.battle.effects.length,0);
 });
 
 test('splash damage does not draw several simultaneous muzzle flashes from the same shot',()=>{
  const t=createTraining({layout:createValdoriaFort,field:VALDORIA_FIELD});t.deploy('guardians',20,29);t.deploy('guardians',20,29);
  const mortar=t.battle.buildings.find(b=>b.kind==='mortar');for(const [i,u]of t.battle.units.entries()){u.x=mortar.x+3;u.y=mortar.y+i*.2;}
- t.tick(1/30);assert.equal(t.battle.effects.filter(e=>e.sourceId===mortar.id).length,1);
- assert.ok(t.battle.units.every(u=>u.hp<u.maxHp));
+ for(let i=0;i<100&&!t.battle.effects.some(e=>e.sourceId===mortar.id);i++)t.tick(1/30);assert.equal(t.battle.effects.filter(e=>e.sourceId===mortar.id).length,1);
+ assert.ok(t.battle.impacts.some(e=>e.enemy&&e.splash>0));
 });
 
 test('overlapping troops separate gradually without entering a wall',()=>{

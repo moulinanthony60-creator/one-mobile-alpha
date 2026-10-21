@@ -46,3 +46,17 @@ Use case: precise-object-edit. This input is the front-view modular animation at
 Change only the viewing angle: show each part from a three-quarter BACK view facing away toward upper right. In column 1 show the BACK of the helmet or hood, NO faces. Column 2 show BACK of torso with straps or seams, no arms or head. Column 3 single upper arm shoulder-to-elbow. Column 4 single forearm elbow-to-fist. Column 5 single thigh hip-to-knee. Column 6 single shin and boot knee-to-foot. Upper limb joints at top and distal joints at bottom, vertical neutral pose. No weapons. No complete characters, no paired limbs, no labels, no text, no frames, no background shadow. Row1 navy and steel guardian, row2 green hooded archer, row3 purple white-bearded wizard. Match original grid 1536x1024.
 ```
 
+## Visée orientable v10
+
+`defense-foundations.webp` contient deux socles fixes sans tube : canon et mortier. Création avec l’outil intégré imagegen, puis conversion WebP en conservant l’alpha. Le moteur dessine séparément les pièces d’artillerie orientables ; leur bouche correspond exactement au départ du projectile. Les anciennes images complètes restent disponibles pour les anciens clients.
+
+Prompt de production :
+
+```text
+Use case: stylized-concept. Production atlas for an original polished mobile isometric fantasy battle game named Valdoria, with chunky readable toy-like forms, rich clean warm colors, softly shaded bevels, and detailed blue-and-gold medieval craftsmanship.
+TRUE TRANSPARENT background. Exactly TWO isolated objects side by side, centered in the left and right halves, ample empty transparent gutter. No text, no labels, no border, no ground shadow extending outside footprint. Camera elevated 30 degrees, isometric view, light from top left. Both objects are EMPTY STATIONARY TURRET FOUNDATIONS; a moving cannon barrel will be rendered separately in the game. Absolutely NO gun barrel, NO cannon, NO mortar tube, NO wheels, NO tall upright supports, NO cannonball.
+LEFT object: squat broad octagonal defensive artillery foundation. Gray sandstone masonry plinth, beveled stone tiles, small navy blue inset panels on its vertical sides, gold trim, brass rivets, crossed golden sun insignia on front. On top a low circular polished brass rotary bearing with EMPTY dark navy central flat disk. Bearing flush with platform, nothing standing above. The platform is about three times wider than its height.
+RIGHT object: squat circular mortar foundation. Eight chunky stone blocks forming a low stone plinth, navy enamel trim and warm gold bands. On top a LOW empty dark steel circular bearing with gold rim, ready for a separate rotating mortar assembly. Nothing in the central opening, no weapon. Same width and height scale as first object.
+The art must look fully finished and tactile, consistent with illustrated fantasy village buildings, not a sketch or flat icon. Neutral upright fixed base, symmetrical footprints. Landscape canvas 1536x1024, each item fits within its own half.
+```
+

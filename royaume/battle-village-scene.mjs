@@ -1,12 +1,13 @@
+import {createDefensePainter} from './battle-defense-rig.mjs?v=1';
 import {paintRuin,paintBuildingWear,ruinSprite} from './battle-building-details.mjs?v=1';
 import {loadVillageSprites,spritePlacement,villageSpriteKey,villageScenery} from './battle-village-assets.mjs?v=6';
 import {createWallArt,wallConnections} from './wall-art.mjs?v=34';
 import {paintCartoonActor} from './cartoon-art.mjs?v=34';
-import {loadBattleRigs,paintBattleTroop} from './battle-troop-rig.mjs?v=1';
-import {effectAge,paintCombatShot} from './battle-combat-fx.mjs?v=1';
+import {loadBattleRigs,paintBattleTroop} from './battle-troop-rig.mjs?v=2';
+import {effectAge,paintCombatShot} from './battle-combat-fx.mjs?v=2';
 import {loadFortressSprites} from './battle-fortress-art.mjs?v=2';
 import {createSceneryCache} from './battle-scene-cache.mjs?v=3';
-import {renderPosition,createMotionTracks} from './battle-motion.mjs?v=2';
+import {renderPosition,renderFacing,createMotionTracks} from './battle-motion.mjs?v=3';
 import {meadowTexture,battlefieldScenery,paintGround} from './battle-style-ground.mjs?v=2';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const makeCanvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
@@ -19,7 +20,7 @@ export function createVillageScene(canvas,initialBattle){
  const field=initialBattle.field||{width:20,height:16,margin:3},wide=Boolean(initialBattle.field);
  const camera={x:field.width/2,z:field.height/2,tile:22,zoom:1,width:1,height:1};
  const abort=new AbortController(),scenery=wide?battlefieldScenery(field):villageScenery().map(o=>({...o,x:o.x+10,z:o.z+8}));
- const wallSprite=createWallArt(makeCanvas),motion=createMotionTracks(),cache=createSceneryCache(makeCanvas),destroyed=new Map(),grass=meadowTexture(makeCanvas);
+ const wallSprite=createWallArt(makeCanvas),defense=createDefensePainter(makeCanvas),motion=createMotionTracks(),cache=createSceneryCache(makeCanvas),destroyed=new Map(),grass=meadowTexture(makeCanvas);
  let presentation=null,recoil=new Map();
  let recordsKey='',visualUnits=[],staticObjects=[],sprites=new Map(),troops=new Map(),battle=initialBattle,time=0,disposed=false,economy=false,marker=null,backdropDirty=true,pixelRatio=1,artStatus={terrain:false,troops:false};
  const backdrop=makeCanvas(1,1),outside=scenery.filter(o=>o.x<0||o.x>field.width||o.z<0||o.z>field.height),inside=scenery.filter(o=>!outside.includes(o));
@@ -39,6 +40,7 @@ export function createVillageScene(canvas,initialBattle){
  }
  function buildingBox(b,t,occupied){
   const at=p(b.x,b.y);
+  if(['cannon','mortar'].includes(b.kind))return {x:at.x-t*2,y:at.y-t*2.7,w:t*4,h:t*4};
   if(b.kind==='wall'){
    const art=wallSprite(wide?6:2,wallConnections({x:b.x,z:b.y},occupied)),scale=t/art.unit;
    return {image:art.image,x:at.x-art.anchor.x*scale,y:at.y-art.anchor.y*scale,w:art.image.width*scale,h:art.image.height*scale};
@@ -55,12 +57,14 @@ export function createVillageScene(canvas,initialBattle){
    const w=(b.collision.width+b.collision.depth)*t*.25;
    ctx.fillStyle='#1826194d';ctx.beginPath();ctx.moveTo(at.x-w*.85,at.y);ctx.lineTo(at.x,at.y-w*.43);ctx.lineTo(at.x+w*1.35,at.y+w*.16);ctx.lineTo(at.x+w*.2,at.y+w*.65);ctx.closePath();ctx.fill();
   }
+  if(['cannon','mortar'].includes(b.kind)){defense.paint(ctx,{...b,facing:renderFacing(b,presentation,true)},at,t,battle.elapsed-(presentation?(1-presentation.alpha)/30:0),reduced);return;}
   if(box.image){
    const kick=recoil.get(b.id);ctx.save();
    if(kick&&(b.kind==='cannon'||b.kind==='mortar')){const from=p(kick.fx.fromX,kick.fx.fromY),aim=p(kick.fx.x,kick.fx.y),d=Math.hypot(aim.x-from.x,aim.y-from.y)||1,amount=Math.sin(kick.age/.24*Math.PI)*t*.08;ctx.translate(-(aim.x-from.x)/d*amount,-(aim.y-from.y)/d*amount);}
    sprite(box.image,box.x,box.y,box.w,box.h);if(b.kind!=='wall')paintBuildingWear(ctx,b,box);ctx.restore();
   }
   else{ctx.fillStyle='#d5bc87';ctx.fillRect(box.x,box.y,box.w,box.h);}
+  if(b.kind==='tower')defense.paint(ctx,{...b,facing:renderFacing(b,presentation,true)},at,t,battle.elapsed-(presentation?(1-presentation.alpha)/30:0),reduced);
  }
  function unit(visual,t){
   const {unit:u,position,pose}=visual;if(u.hp<=0)return;
@@ -97,7 +101,7 @@ export function createVillageScene(canvas,initialBattle){
   const occupied=new Set(battle.buildings.filter(b=>b.kind==='wall'&&b.hp>0).map(b=>b.x+','+b.y));
   const topology=battle.buildings.map(b=>b.hp<=0?'0':b.hp<b.maxHp*.3?'1':b.hp<b.maxHp*.65?'2':'3').join('');
   const key=[camera.x,camera.z,t,camera.width,camera.height,pixelRatio,sprites.size].join('|');
-  recoil=new Map(battle.effects.filter(fx=>fx.kind==='enemy'&&fx.sourceId&&effectAge(fx,battle.elapsed,presentation)<.24).map(fx=>[fx.sourceId,{fx,age:effectAge(fx,battle.elapsed,presentation)}]));
+  recoil=new Map(battle.effects.filter(fx=>fx.kind==='enemy'&&fx.sourceId&&effectAge(fx,battle.elapsed,presentation)>=0&&effectAge(fx,battle.elapsed,presentation)<.24).map(fx=>[fx.sourceId,{fx,age:effectAge(fx,battle.elapsed,presentation)}]));
   const paintStatic=(o,surface)=>{const old=ctx;ctx=surface;if(o.building)building(o.building,t,occupied);else decoration(o.item,t);ctx=old;};
   if(recordsKey!==key+topology){recordsKey=key+topology;staticObjects=[];
   for(const item of inside){const art=sprites.get(item.key);if(!art)continue;const at=p(item.x,item.z),w=item.width*t/Math.SQRT2,h=w*art.aspect;staticObjects.push({depth:item.x+item.z,item,bounds:{x:at.x-w/2-2,y:at.y+item.bottom*t/Math.SQRT2-h-2,w:w+4,h:h+4}});}
@@ -107,26 +111,26 @@ export function createVillageScene(canvas,initialBattle){
   staticObjects.sort((a,b)=>a.depth-b.depth);}
   const activeRecoil=recoil;recoil=new Map();cache.prepare(key,staticObjects,camera.width,camera.height,pixelRatio,paintStatic);recoil=activeRecoil;
   const actors=visualUnits.filter(v=>v.unit.hp>0).map(v=>({...v,depth:v.position.x+v.position.y+.03})).sort((a,b)=>a.depth-b.depth);
-  cache.draw(ctx,actors,paintStatic,v=>unit(v,t),o=>recoil.has(o.building?.id));
+  cache.draw(ctx,actors,paintStatic,v=>unit(v,t),o=>o.building?.hp>0&&(['cannon','mortar','tower'].includes(o.building.kind)||recoil.has(o.building.id)));
   for(const b of battle.buildings)if(b.kind!=='wall'&&b.hp>0&&b.hp<b.maxHp){const at=p(b.x,b.y),box=buildingBox(b,t,occupied);health(at.x,box.y-5,t*.95,b.hp/b.maxHp);}
   paintEffects(t);
-  if(marker&&time<marker.until){const at=p(marker.x,marker.y);ctx.strokeStyle=marker.magic?'#ebbbff':'#e4ffff';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(at.x,at.y,t*.4,t*.2,0,0,Math.PI*2);ctx.stroke();}
+  if(marker&&time<marker.until){const at=p(marker.x,marker.y);ctx.strokeStyle=marker.invalid?'#ff775f':marker.magic?'#ebbbff':'#e4ffff';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(at.x,at.y,t*.4,t*.2,0,0,Math.PI*2);ctx.stroke();}
  }
  const observer=new ResizeObserver(resize);observer.observe(canvas);resize();
  return {
   get artStatus(){return {...artStatus};},
   get renderStats(){return cache.stats;},
-  async loadVillage(){const [terrain,actors]=await Promise.allSettled([wide?loadFortressSprites(abort.signal,makeCanvas):loadVillageSprites(abort.signal),loadBattleRigs(abort.signal,makeCanvas)]);if(disposed)return false;if(terrain.status==='fulfilled'){sprites=terrain.value;artStatus.terrain=true;artStatus.details=terrain.value.detailReady!==false;}if(actors.status==='fulfilled'){troops=actors.value;artStatus.troops=true;}backdropDirty=true;paint();return artStatus.terrain;},
+  async loadVillage(){const [terrain,actors,defenses]=await Promise.allSettled([wide?loadFortressSprites(abort.signal,makeCanvas):loadVillageSprites(abort.signal),loadBattleRigs(abort.signal,makeCanvas),defense.load(abort.signal)]);if(disposed)return false;if(terrain.status==='fulfilled'){sprites=terrain.value;artStatus.terrain=true;artStatus.details=terrain.value.detailReady!==false;}if(actors.status==='fulfilled'){troops=actors.value;artStatus.troops=true;}artStatus.defenses=defenses.status==='fulfilled';backdropDirty=true;cache.invalidate();paint();return artStatus.terrain;},
   frame(b,dt,animate=true,interpolation=null){battle=b;presentation=interpolation;const delta=animate?clamp(dt,0,.1):0;time+=delta;
    const targets=new Map(b.buildings.map(o=>[o.id,o]));
-   visualUnits=b.units.map(u=>{const position=renderPosition(u,presentation),target=targets.get(u.target);return {unit:u,position,pose:motion.sample(u,position,target?.hp>0?target:null,delta,reduced)};});paint();},
+   visualUnits=b.units.map(u=>{const position=renderPosition(u,presentation),target=targets.get(u.target);return {unit:u,position,pose:motion.sample({...u,facing:renderFacing(u,presentation)},position,target?.hp>0?target:null,delta,reduced,b.elapsed-(presentation?(1-presentation.alpha)/30:0))};});paint();},
   point(x,y){const r=canvas.getBoundingClientRect();return unprojectBattle(x-r.left,y-r.top,camera);},
-  mark(x,y,magic=false){marker={x,y,magic,until:time+.65};},
+  mark(x,y,magic=false,invalid=false){marker={x,y,magic,invalid,until:time+.65};},
   pan(dx,dy){const t=camera.tile*camera.zoom;camera.x=clamp(camera.x-dx/t-2*dy/t,2,field.width-2);camera.z=clamp(camera.z+dx/t-2*dy/t,2,field.height-2);backdropDirty=true;paint();},
   zoom(factor){camera.zoom=clamp(camera.zoom*factor,.75,3.2);backdropDirty=true;paint();},
   home(){camera.x=field.width/2;camera.z=field.height/2;camera.zoom=1;backdropDirty=true;paint();},
   quality(eco){economy=Boolean(eco);resize();},
   reset(b){battle=b;time=0;recordsKey='';visualUnits=[];motion.clear();cache.invalidate();destroyed.clear();marker=null;this.home();},resize,
-  dispose(){disposed=true;abort.abort();observer.disconnect();sprites.clear();troops.clear();motion.clear();cache.dispose();destroyed.clear();backdrop.width=backdrop.height=grass.width=grass.height=1;}
+  dispose(){disposed=true;abort.abort();observer.disconnect();sprites.clear();troops.clear();motion.clear();defense.dispose();cache.dispose();destroyed.clear();backdrop.width=backdrop.height=grass.width=grass.height=1;}
  };
 }

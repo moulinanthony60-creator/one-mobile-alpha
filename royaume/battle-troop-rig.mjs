@@ -1,5 +1,6 @@
 import {loadArtImage} from './battle-village-assets.mjs?v=7';
 import {footCycle} from './locomotion.mjs?v=34';
+import {troopScale,troopStride} from './battle-aim.mjs?v=1';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export const RIG_FILES=['assets/battle-style/troop-rig-front.webp','assets/battle-style/troop-rig-back.webp'];
 const kinds=['guardians','archers','mages'];
@@ -26,16 +27,18 @@ export async function loadBattleRigs(signal,makeCanvas){
 // of a cycle planted; different unit IDs supply a stable initial gait phase.
 export function battleTroopPose(kind,p){
  const norm=Math.hypot(p.dx,p.dz)||1,fx=p.dx/norm,fz=p.dz/norm,front=(fx+fz)/Math.SQRT2,side=(fx-fz)/Math.SQRT2;
- const motion=p.reduced?0:clamp(p.motion??0,0,1),stride=kind==='guardians'?.96:kind==='archers'?.90:1.02,phase=p.distance/stride,bob=Math.cos(phase*Math.PI*4)*.014*motion;
- const age=p.attackAge??10,hit=p.reduced?0:age<.42?Math.sin(Math.PI*age/.42):0,windup=p.reduced?0:p.windup||0;
+ const motion=p.reduced?0:clamp(p.motion??0,0,1),stride=troopStride(kind),phase=p.distance/stride,bob=Math.cos(phase*Math.PI*4)*.014*motion;
+ const age=p.attackAge??10,peak=kind==='guardians'?.12:kind==='archers'?.055:.08,ease=x=>{x=clamp(x,0,1);return x*x*(3-2*x);},hit=p.reduced?0:age<peak?ease(age/peak):1-ease((age-peak)/.24),carry=kind==='guardians'?Math.max(0,1-age/.12):kind==='mages'?Math.max(0,1-age/.30):0,windup=p.reduced?0:Math.max(p.windup||0,carry);
  const point=(s,f,h)=>({x:((fz*s+fx*f)-(-fx*s+fz*f))*.68,y:((fz*s+fx*f)+(-fx*s+fz*f))*.34-h,depth:(fz-fx)*s+(fx+fz)*f});
- const legs=[-1,1].map((sign,i)=>{const c=footCycle(phase+i*.5),travel=c.travel*(.6*stride/(4*.68*(kind==='guardians'?1.28:1.23)))*motion,lift=c.lift*.085*motion;
-  return {hip:point(sign*.13,0,.37+bob),knee:point(sign*.13,travel*.42+.055,.19+lift*.5),foot:point(sign*.13,travel,lift),contact:c.lift===0};});
+ const legs=[-1,1].map((sign,i)=>{const c=footCycle(phase+i*.5),travel=c.travel*(.6*stride/(4*.68*troopScale(kind)))*motion,lift=c.lift*.085*motion;
+  const hip=point(sign*.13,0,.37+bob),foot=p.footOffsets?.[i]||point(sign*.13,travel,lift),dx=foot.x-hip.x,dy=foot.y-hip.y,d=Math.min(.415,Math.hypot(dx,dy)),bend=Math.sqrt(Math.max(0,.21*.21-d*d/4));
+  const knee={x:(hip.x+foot.x)/2+Math.sign(side||1)*bend*.6,y:(hip.y+foot.y)/2-bend*.2};
+  return {hip,knee,foot,contact:c.lift===0};});
  const arms=[-1,1].map((sign,i)=>{
   let forward=-Math.cos(phase*Math.PI*2+i*Math.PI)*.12*motion,height=.39+bob,spread=sign*.28;
   if(kind==='guardians'&&i===1){forward+=hit*.42-windup*.12;height+=windup*.42+hit*.09;}
   if(kind==='archers'&&(p.aiming||hit||windup)){forward=i===0?.39:.09+(hit*.31);height=.66+bob+(i===0?0:.02);spread=i===0?-.10:.12;}
-  if(kind==='mages'){if(i===1){forward=.08+hit*.18;height=.43+bob+windup*.25+hit*.18;}else{forward+=hit*.30;height+=hit*.15;}}
+  if(kind==='mages'){if(i===1){forward=.08+hit*.18;height=.43+bob+windup*.25+hit*.05;}else{forward+=hit*.30;height+=hit*.15;}}
   const shoulder=point(sign*.23,0,.69+bob),hand=point(spread,forward,height),elbow=point(sign*.30,forward*.44-.045,(.69+height)/2-.035);
   return {shoulder,elbow,hand};
  });

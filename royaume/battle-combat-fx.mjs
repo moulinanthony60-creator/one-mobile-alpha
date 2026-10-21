@@ -1,18 +1,18 @@
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-export function effectAge(fx,elapsed,presentation){return Math.max(0,elapsed-(presentation?(1-clamp(presentation.alpha??1,0,1))/30:0)-(fx.firedAt??elapsed));}
+export function effectAge(fx,elapsed,presentation){return elapsed-(presentation?(1-clamp(presentation.alpha??1,0,1))/30:0)-(fx.firedAt??elapsed);}
 export function shotStyle(source){return {guardians:'slash',archers:'arrow',mages:'magic',tower:'arrow',cannon:'cannon',mortar:'mortar',arcane:'arcane'}[source.kind]||'arrow';}
 export function shotTiming(style,distance){const flight=style==='slash'?.12:style==='mortar'?clamp(.48+distance*.055,.55,.92):style==='arcane'?.22:clamp(.18+distance*.04,.25,.48);return {flight,duration:flight+(style==='mortar'?.48:.30)};}
 export function shotPosition(fx,age,project,tile){
  const from=project(fx.fromX,fx.fromY),to=project(fx.x,fx.y),progress=clamp(age/fx.flight,0,1);
  const sourceHeight=fx.kind==='enemy'?({tower:1.65,cannon:.65,mortar:.58,arcane:1.4}[fx.sourceKind]||.65):.68;
- const start={x:from.x,y:from.y-tile*sourceHeight},end={x:to.x,y:to.y-tile*(fx.kind==='enemy'?.48:.44)};
- const arc=fx.style==='mortar'?tile*2.2:fx.style==='arrow'?tile*.36:fx.style==='magic'?tile*.20:0;
- return {x:start.x+(end.x-start.x)*progress,y:start.y+(end.y-start.y)*progress-Math.sin(progress*Math.PI)*arc,start,end,progress};
+ const start={x:from.x,y:from.y-tile*(fx.fromH??sourceHeight)},end={x:to.x,y:to.y-tile*(fx.targetH??(fx.kind==='enemy'?.48:.44))};
+ const arc=tile*(fx.arc??(fx.style==='mortar'?2.2:fx.style==='arrow'?.36:fx.style==='magic'?.20:0));
+ return {x:start.x+(end.x-start.x)*progress,y:start.y+(end.y-start.y)*progress-4*progress*(1-progress)*arc,start,end,progress};
 }
 const stroke=(ctx,a,b,color,width)=>{ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.stroke();};
 const disk=(ctx,x,y,r,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();};
 export function paintCombatShot(ctx,fx,age,project,tile,{economy=false,reduced=false}={}){
- if(age>fx.duration||!fx.style)return;
+ if(age<0||age>fx.duration||!fx.style)return;
  const s=shotPosition(fx,age,project,tile),scale=Math.max(.8,tile/26),heavy=fx.style==='cannon'||fx.style==='mortar';
  const color=fx.style==='arcane'?'#72f4ff':fx.style==='magic'?'#d1a1ff':heavy?'#ffd478':'#ffe6ac';
  ctx.save();

@@ -1,5 +1,4 @@
-import {advanceTrainingUnit,canStrike,spaceTrainingUnits} from './battle-navigation.mjs?v=2';
-import {shotStyle,shotTiming} from './battle-combat-fx.mjs?v=1';
+import {stepTrainingCombat} from './battle-training-combat.mjs?v=1';
 import {recordOnline} from './online-events.mjs?v=38';
 import {TRAINING,TRAINING_UNITS} from './barracks.mjs?v=36';
 
@@ -79,19 +78,11 @@ function route(u,target,b,range){
   for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=Math.floor(x)+dx,ny=Math.floor(y)+dy,n=ny*width+nx;if(nx<0||ny<0||nx>=width||ny>=height||parents.has(n)||blocked.has(n))continue;parents.set(n,key);queue.push(n);}}
  if(end===null)return null;const path=[];while(end!==start&&end!==null){path.unshift({x:end%width+.5,y:Math.floor(end/width)+.5});end=parents.get(end);}return path;
 }
-function hurt(b,target,damage,source,kind='shot',primary=true){
- target.hp=Math.max(0,target.hp-damage);
- if(b.field){if(primary){const style=shotStyle(source),timing=shotTiming(style,Math.hypot(source.x-target.x,source.y-target.y));b.effects.push({kind,style,sourceKind:source.kind,sourceId:source.id,targetId:target.id,x:target.x,y:target.y,fromX:source.x,fromY:source.y,firedAt:b.elapsed,...timing,life:timing.duration});}}
- else b.effects.push({kind,x:target.x,y:target.y,fromX:source.x,fromY:source.y,life:.25});
-}
+function hurt(b,target,damage,source,kind='shot'){target.hp=Math.max(0,target.hp-damage);b.effects.push({kind,x:target.x,y:target.y,fromX:source.x,fromY:source.y,life:.25});}
 export function stepAssault(s,dt){
  const b=s.assault;if(!b||b.phase!=='active'||s.cloud?.busy)return;dt=clamp(dt,0,.1);recordOnline(s,{kind:'tick',mode:'assault',dt,at:Date.now()});b.elapsed+=dt;b.effects=b.effects.map(e=>({...e,life:e.life-dt})).filter(e=>e.life>0).slice(-80);
+ if(b.field)stepTrainingCombat(b,ASSAULT_UNITS,dt);else{
  for(const u of b.units){if(u.hp<=0)continue;const spec=ASSAULT_UNITS[u.kind];u.cooldown-=dt;u.repath-=dt;
-  if(b.field&&!spec.heal){
-   const target=advanceTrainingUnit(b,u,spec,dt);
-   if(target&&u.cooldown<=0&&canStrike(u,target,spec,b.buildings)){u.cooldown=spec.rate;hurt(b,target,spec.damage,u);if(spec.splash)for(const p of b.buildings)if(p!==target&&p.hp>0&&Math.hypot(p.x-target.x,p.y-target.y)<spec.splash)hurt(b,p,spec.damage*.5,u,'shot',false);}
-   continue;
-  }
   let target;
   if(spec.heal){target=b.units.filter(v=>v.hp>0&&v.id!==u.id&&!ASSAULT_UNITS[v.kind].heal).sort((a,c)=>(a.hp/a.maxHp-c.hp/c.maxHp)||Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(c.x-u.x,c.y-u.y))[0];}
   else{const live=b.buildings.filter(p=>p.hp>0),priority=spec.priority&&live.some(p=>p.damage>0)?live.filter(p=>p.damage>0):live.filter(p=>p.kind!=='wall');target=(priority.length?priority:live).sort((a,c)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(c.x-u.x,c.y-u.y))[0];}
@@ -101,11 +92,11 @@ export function stepAssault(s,dt){
     if(u.path===null&&!spec.heal){const wall=b.buildings.filter(p=>p.hp>0&&p.kind==='wall').sort((a,c)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(c.x-u.x,c.y-u.y))[0];if(wall){target=wall;u.path=route(u,wall,b,spec.range+targetRadius(wall));}}}
    const next=u.path?.[0];if(next){const distance=Math.hypot(next.x-u.x,next.y-u.y),step=Math.min(distance,spec.speed*dt);if(distance){u.x+=(next.x-u.x)/distance*step;u.y+=(next.y-u.y)/distance*step;}if(distance<.08)u.path.shift();}
   }
-  if(Math.hypot(u.x-target.x,u.y-target.y)<=spec.range+targetRadius(target)+.1&&u.cooldown<=0){u.cooldown=spec.rate;if(spec.heal){target.hp=Math.min(target.maxHp,target.hp+spec.damage);b.effects.push({kind:'heal',x:target.x,y:target.y,life:.35});}else{hurt(b,target,spec.damage,u);if(spec.splash)for(const p of b.buildings)if(p!==target&&p.hp>0&&Math.hypot(p.x-target.x,p.y-target.y)<spec.splash)hurt(b,p,spec.damage*.5,u,'shot',false);}}
+  if(Math.hypot(u.x-target.x,u.y-target.y)<=spec.range+targetRadius(target)+.1&&u.cooldown<=0){u.cooldown=spec.rate;if(spec.heal){target.hp=Math.min(target.maxHp,target.hp+spec.damage);b.effects.push({kind:'heal',x:target.x,y:target.y,life:.35});}else{hurt(b,target,spec.damage,u);if(spec.splash)for(const p of b.buildings)if(p!==target&&p.hp>0&&Math.hypot(p.x-target.x,p.y-target.y)<spec.splash)hurt(b,p,spec.damage*.5,u);}}
  }
- if(b.field)spaceTrainingUnits(b,dt);
- for(const p of b.buildings){if(p.hp<=0||!p.damage)continue;p.cooldown-=dt;if(p.cooldown>0)continue;const targets=b.units.filter(u=>u.hp>0&&Math.hypot(u.x-p.x,u.y-p.y)<=p.range).sort((a,c)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(c.x-p.x,c.y-p.y));const target=targets[0];if(!target)continue;p.cooldown=p.kind==='mortar'?2.5:1.2;hurt(b,target,p.damage*(ASSAULT_UNITS[target.kind].armor||1),p,'enemy');if(p.kind==='mortar')for(const u of targets)if(u!==target&&Math.hypot(u.x-target.x,u.y-target.y)<1.7)hurt(b,u,p.damage*.6,p,'enemy',false);}
- if(attackScore(b).percent===100||b.elapsed>=FIELD.seconds||(b.units.length&&!b.units.some(u=>u.hp>0&&!ASSAULT_UNITS[u.kind].heal)&&!TRAINING_UNITS.some(k=>!ASSAULT_UNITS[k].heal&&armyCount(s,k)>0))){b.phase='finished';settleAssault(s);}
+ for(const p of b.buildings){if(p.hp<=0||!p.damage)continue;p.cooldown-=dt;if(p.cooldown>0)continue;const targets=b.units.filter(u=>u.hp>0&&Math.hypot(u.x-p.x,u.y-p.y)<=p.range).sort((a,c)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(c.x-p.x,c.y-p.y));const target=targets[0];if(!target)continue;p.cooldown=p.kind==='mortar'?2.5:1.2;hurt(b,target,p.damage*(ASSAULT_UNITS[target.kind].armor||1),p,'enemy');if(p.kind==='mortar')for(const u of targets)if(u!==target&&Math.hypot(u.x-target.x,u.y-target.y)<1.7)hurt(b,u,p.damage*.6,p,'enemy');}
+ }
+ if(attackScore(b).percent===100||b.elapsed>=FIELD.seconds||(!(b.impacts?.length)&&(b.units.length&&!b.units.some(u=>u.hp>0&&!ASSAULT_UNITS[u.kind].heal)&&!TRAINING_UNITS.some(k=>!ASSAULT_UNITS[k].heal&&armyCount(s,k)>0)))){b.phase='finished';settleAssault(s);}
 }
 export function settleAssault(s){
  const b=s.assault;if(!b||b.phase==='active'||b.settled)return;const m=MISSIONS[b.mission],score=attackScore(b);s.conquests??={};const first=score.stars>0&&!s.conquests[m.id],ratio=score.percent/100;

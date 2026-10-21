@@ -1,5 +1,6 @@
 // Navigation for the private, extended training field. Campaigns use their
 // historical rules. Reachable buildings always take precedence over walls.
+import {turnTo,angleDelta} from './battle-aim.mjs?v=1';
 const CELL=.5,RADIUS=.10,EPS=1e-7;
 const maps=new WeakMap();
 const directions=[[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,Math.SQRT2],[1,-1,Math.SQRT2],[-1,1,Math.SQRT2],[-1,-1,Math.SQRT2]];
@@ -21,6 +22,9 @@ export function canStrike(u,b,spec,buildings){
  if(spec.range>2)return true; // Ranged units can fire over walls.
  const r=rect(b),aim={x:Math.max(r.left,Math.min(r.right,u.x)),y:Math.max(r.top,Math.min(r.bottom,u.y))};
  return clearSegment(u,aim,buildings,b.id,.015);
+}
+export function hasCombatRoom(battle,u){
+ return !(battle.units||[]).some(v=>v!==u&&v.hp>0&&['aim','windup','recover'].includes(v.action)&&Math.hypot(u.x-v.x,u.y-v.y)<.62);
 }
 function gridFor(battle){
  const revision=battle.buildings.map(b=>b.hp>0?'1':'0').join('');let map=maps.get(battle);
@@ -81,9 +85,13 @@ function smooth(u,points,live){
  return path;
 }
 export function planTrainingAttack(battle,u,spec){
- const map=gridFor(battle),goals=goalsFor(map,spec);
+ const map=gridFor(battle),allGoals=goalsFor(map,spec);
+ const reservations=(battle.units||[]).filter(v=>v!==u&&v.hp>0).map(v=>v.path?.at(-1)||v);
+ const free=point=>!reservations.some(v=>Math.hypot(v.x-point.x,v.y-point.y)<.70);
+ const filtered=new Map([...allGoals].filter(([cell])=>free(map.point(cell))));
+ const goals=filtered.size?filtered:allGoals;
  const immediate=map.live.filter(b=>b.kind!=='wall'&&canStrike(u,b,spec,map.live)).sort((a,b)=>distanceToBuilding(u,a)-distanceToBuilding(u,b))[0];
- if(immediate)return {target:immediate,objective:immediate.id,path:[],revision:map.revision};
+ if(immediate&&free(u))return {target:immediate,objective:immediate.id,path:[],revision:map.revision};
  const open=search(u,map,goals,spec);
  if(open)return {target:open.target,objective:open.target.id,path:smooth(u,open.path.map(map.point),map.live),revision:map.revision};
  // Only when every building is unreachable, estimate the route through walls
@@ -98,12 +106,21 @@ export function planTrainingAttack(battle,u,spec){
 }
 export function advanceTrainingUnit(battle,u,spec,dt){
  const map=gridFor(battle);let target=map.byId.get(u.target);
+ const room=hasCombatRoom(battle,u);
  const changed=u.navigationRevision!==map.revision;
- if(changed||!target||(!u.path?.length&&!canStrike(u,target,spec,map.live))){
+ if(changed||!target||(!u.path?.length&&(!canStrike(u,target,spec,map.live)||!room))){
   const plan=planTrainingAttack(battle,u,spec);target=plan.target;u.target=target?.id||null;u.objective=plan.objective;u.path=plan.path;u.navigationRevision=plan.revision;u.repath=.9+(u.id%5)*.07;
  }
- if(!target||canStrike(u,target,spec,map.live))return target;
- let remaining=spec.speed*dt;
+ if(!target||(room&&canStrike(u,target,spec,map.live))){u.speed=0;u.action=target?'aim':'idle';return target;}
+ const waypoint=u.path?.[0];if(!waypoint)return target;
+ const angle=Math.atan2(waypoint.y-u.y,waypoint.x-u.x);
+ turnTo(u,angle,dt,5.5);
+ if(Math.abs(angleDelta(angle,u.facing))>.32){u.speed=0;u.action='turn';return target;}
+ // Acceleration and braking are part of the simulation, not a visual slide.
+ const remainingRoute=Math.hypot(waypoint.x-u.x,waypoint.y-u.y)+(u.path.length>1?1:0);
+ const desired=Math.min(spec.speed,Math.sqrt(Math.max(.03,2*7*remainingRoute)));
+ u.speed=Math.min(desired,(u.speed||0)+7*dt);u.action='walk';
+ let remaining=u.speed*dt;
  while(remaining>EPS&&u.path?.length){const next=u.path[0],distance=Math.hypot(next.x-u.x,next.y-u.y),step=Math.min(distance,remaining);
   if(distance<=EPS){u.path.shift();continue;}
   const end={x:u.x+(next.x-u.x)/distance*step,y:u.y+(next.y-u.y)/distance*step};
@@ -122,7 +139,7 @@ export function spaceTrainingUnits(battle,dt){
   if(d<.001){const angle=((a.id*37+b.id*19)%360)*Math.PI/180;dx=Math.cos(angle);dy=Math.sin(angle);d=1;}else{dx/=d;dy/=d;}
   const amount=(gap-Math.hypot(a.x-b.x,a.y-b.y))*.55,pa=push.get(a.id),pb=push.get(b.id);pa.x+=dx*amount;pa.y+=dy*amount;pb.x-=dx*amount;pb.y-=dy*amount;
  }
- for(const u of units){const force=push.get(u.id),length=Math.hypot(force.x,force.y);if(length<1e-6)continue;const factor=Math.min(length,dt*.85)/length;
+ for(const u of units){if(u.action&&u.action!=='walk')continue;const force=push.get(u.id),length=Math.hypot(force.x,force.y);if(length<1e-6)continue;const factor=Math.min(length,dt*.60)/length;
   const end={x:Math.max(.15,Math.min(battle.field.width-.15,u.x+force.x*factor)),y:Math.max(.15,Math.min(battle.field.height-.15,u.y+force.y*factor))};
   if(clearSegment(u,end,battle.buildings)){u.x=end.x;u.y=end.y;}
  }
