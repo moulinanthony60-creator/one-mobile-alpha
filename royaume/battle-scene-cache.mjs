@@ -18,11 +18,11 @@ export function createSceneryCache(makeCanvas){
    groups=groups.map(g=>{const items=objects.slice(g.start,g.start+10);if(revision(items)===g.revision)return g;if(g.image)g.image.width=g.image.height=1;changed=true;return build(items,g.start,width,height,ratio,paint);});
    if(changed)stats.builds++;
   },
-  draw(ctx,actors,paintStatic,paintActor){
+  draw(ctx,actors,paintStatic,paintActor,isAnimated=()=>false){
    stats.blits=0;stats.individual=0;let index=0;
    for(const g of groups){
     while(index<actors.length&&actors[index].depth<g.min)paintActor(actors[index++]);
-    if(index===actors.length||actors[index].depth>g.max){if(g.image){ctx.drawImage(g.image,g.x,g.y,g.w,g.h);stats.blits++;}continue;}
+    if((index===actors.length||actors[index].depth>g.max)&&!g.items.some(isAnimated)){if(g.image){ctx.drawImage(g.image,g.x,g.y,g.w,g.h);stats.blits++;}continue;}
     for(const item of g.items){while(index<actors.length&&actors[index].depth<item.depth)paintActor(actors[index++]);paintStatic(item,ctx);stats.individual++;}
    }
    while(index<actors.length)paintActor(actors[index++]);

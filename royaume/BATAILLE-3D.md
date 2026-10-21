@@ -1,6 +1,10 @@
-# Combat d’entraînement de Valdoria — version 8
+# Combat d’entraînement de Valdoria — version 9
 
-`bataille-3d.html?v=8` ouvre le terrain privé de 35 bâtiments et 170 segments de remparts. La scène utilise des illustrations animées en vue isométrique sur Canvas 2D. L’entraînement reste indépendant du village sauvegardé, des ressources et du PvP.
+`bataille-3d.html?v=9` ouvre le terrain privé de 35 bâtiments et 170 segments de remparts. La scène utilise des illustrations animées en vue isométrique sur Canvas 2D. L’entraînement reste indépendant du village sauvegardé, des ressources et du PvP.
+
+## Animation et tirs de la version 9
+
+Les troupes disposent maintenant de membres articulés, de gestes distincts pour l’épée, l’arc et le bâton, et d’un espacement progressif. Les défenses montrent leurs projectiles, leurs impacts et le recul des pièces d’artillerie. [Détails, vidéo et validation de la version 9](docs/ANIMATION-V9.md).
 
 ## Choix des cibles et déplacements
 
@@ -27,11 +31,11 @@ Ces captures utilisent les vraies ressources, la simulation et le moteur Canvas,
 ## Vérifications
 
 ```sh
-node --test royaume/tests/battle3d.test.mjs royaume/tests/battle3d-art.test.mjs royaume/tests/battle-startup.test.mjs royaume/tests/battle-style.test.mjs royaume/tests/battle-motion.test.mjs royaume/tests/battle-navigation.test.mjs
+node --test royaume/tests/battle3d.test.mjs royaume/tests/battle3d-art.test.mjs royaume/tests/battle-startup.test.mjs royaume/tests/battle-style.test.mjs royaume/tests/battle-motion.test.mjs royaume/tests/battle-navigation.test.mjs royaume/tests/battle-animation.test.mjs
 ```
 
-33 tests : cibles accessibles, passage par les ouvertures, brèche utile, tir à distance au-dessus des murs, abandon des murs après ouverture, stabilité des routes, collisions, interpolation, pause, replay, victoire, cache partiel du décor, isolation du village et résultats de référence des 12 missions historiques.
+38 tests : animations articulées, tirs et impacts, espacement, cibles accessibles, passage par les ouvertures, brèche utile, tir à distance au-dessus des murs, abandon des murs après ouverture, stabilité des routes, collisions, interpolation, pause, replay, victoire, cache partiel du décor, isolation du village et résultats de référence des 12 missions historiques.
 
 Chargement réel des planches, rendu, mode éco et redémarrage contrôlés avec Canvas natif. Interface et fluidité Android restent à vérifier sur appareil.
 
-Après fusion et déploiement : `https://one-officiel.fr/royaume/bataille-3d.html?v=8`.
+Après fusion et déploiement : `https://one-officiel.fr/royaume/bataille-3d.html?v=9`.

@@ -1,4 +1,4 @@
-import {startAssault, assaultCommand, stepAssault, attackScore, armyCount, FIELD} from './expeditions.mjs?v=43';
+import {startAssault, assaultCommand, stepAssault, attackScore, armyCount, FIELD} from './expeditions.mjs?v=44';
 import {createTrainingFort} from './battle3d-layout.mjs?v=2';
 
 export const TROOPS = Object.freeze([
