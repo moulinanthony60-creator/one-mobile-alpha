@@ -112,3 +112,18 @@ export function advanceTrainingUnit(battle,u,spec,dt){
  }
  return target;
 }
+
+// A small, simultaneous local separation prevents a whole squad occupying the
+// same waypoint. It never pushes a troop through a footprint or outside play.
+export function spaceTrainingUnits(battle,dt){
+ const units=battle.units.filter(u=>u.hp>0),push=new Map(units.map(u=>[u.id,{x:0,y:0}])),gap=.72;
+ for(let i=0;i<units.length;i++)for(let j=i+1;j<units.length;j++){
+  const a=units[i],b=units[j];let dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);if(d>=gap)continue;
+  if(d<.001){const angle=((a.id*37+b.id*19)%360)*Math.PI/180;dx=Math.cos(angle);dy=Math.sin(angle);d=1;}else{dx/=d;dy/=d;}
+  const amount=(gap-Math.hypot(a.x-b.x,a.y-b.y))*.55,pa=push.get(a.id),pb=push.get(b.id);pa.x+=dx*amount;pa.y+=dy*amount;pb.x-=dx*amount;pb.y-=dy*amount;
+ }
+ for(const u of units){const force=push.get(u.id),length=Math.hypot(force.x,force.y);if(length<1e-6)continue;const factor=Math.min(length,dt*.85)/length;
+  const end={x:Math.max(.15,Math.min(battle.field.width-.15,u.x+force.x*factor)),y:Math.max(.15,Math.min(battle.field.height-.15,u.y+force.y*factor))};
+  if(clearSegment(u,end,battle.buildings)){u.x=end.x;u.y=end.y;}
+ }
+}

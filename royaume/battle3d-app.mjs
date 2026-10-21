@@ -1,5 +1,5 @@
-import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=8';
-import {createVillageScene} from './battle-village-scene.mjs?v=8';
+import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=9';
+import {createVillageScene} from './battle-village-scene.mjs?v=9';
 import {VALDORIA_FIELD,createValdoriaFort} from './battle-style-layout.mjs?v=1';
 import {bindBattleInput} from './battle3d-input.mjs?v=1';
 

@@ -12,7 +12,7 @@ export function createMotionTracks(){
  return {
   sample(unit,position,target,dt,reduced=false){
    let old=tracks.get(unit.id);
-   if(!old){old={x:position.x,y:position.y,distance:unit.id*.13,angle:Math.PI/4,motion:0,cooldown:unit.cooldown,attackAge:1};tracks.set(unit.id,old);}
+   if(!old){old={x:position.x,y:position.y,distance:unit.id*.13,angle:Math.PI/4,motion:0,cooldown:unit.cooldown,attackAge:10};tracks.set(unit.id,old);}
    const dx=position.x-old.x,dz=position.y-old.y,travel=Math.hypot(dx,dz);
    const moving=travel>.00001,delta=clamp(dt,0,.1);
    const desired=moving?Math.atan2(dz,dx):target?Math.atan2(target.y-position.y,target.x-position.x):old.angle;
@@ -23,7 +23,7 @@ export function createMotionTracks(){
    if(unit.cooldown>old.cooldown+.15)old.attackAge=0;else old.attackAge+=delta;
    old.cooldown=unit.cooldown;old.x=position.x;old.y=position.y;
    const strike=old.attackAge<.32?Math.sin(old.attackAge/.32*Math.PI):0;
-   return {dx:Math.cos(old.angle),dz:Math.sin(old.angle),distance:old.distance,moving:old.motion>.08,motion:old.motion,attack:strike,attacking:strike>.1,reduced};
+   return {dx:Math.cos(old.angle),dz:Math.sin(old.angle),distance:old.distance,moving:old.motion>.08,motion:old.motion,attack:strike,attacking:strike>.1,attackAge:old.attackAge,aiming:Boolean(target)&&old.motion<.25,windup:target&&old.motion<.25&&unit.cooldown>0&&unit.cooldown<.24?1-unit.cooldown/.24:0,reduced};
   },
   clear(){tracks.clear();}
  };
