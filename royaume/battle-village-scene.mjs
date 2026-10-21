@@ -1,9 +1,10 @@
+import {paintRuin,paintBuildingWear,ruinSprite} from './battle-building-details.mjs?v=1';
 import {loadVillageSprites,spritePlacement,villageSpriteKey,villageScenery} from './battle-village-assets.mjs?v=6';
 import {createWallArt,wallConnections} from './wall-art.mjs?v=34';
 import {paintCartoonActor} from './cartoon-art.mjs?v=34';
 import {loadTroopSheets,paintTroop} from './battle-style-art.mjs?v=2';
-import {loadFortressSprites} from './battle-fortress-art.mjs?v=1';
-import {createSceneryCache} from './battle-scene-cache.mjs?v=1';
+import {loadFortressSprites} from './battle-fortress-art.mjs?v=2';
+import {createSceneryCache} from './battle-scene-cache.mjs?v=2';
 import {renderPosition,createMotionTracks} from './battle-motion.mjs?v=1';
 import {meadowTexture,battlefieldScenery,paintGround} from './battle-style-ground.mjs?v=2';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -18,7 +19,7 @@ export function createVillageScene(canvas,initialBattle){
  const camera={x:field.width/2,z:field.height/2,tile:22,zoom:1,width:1,height:1};
  const abort=new AbortController(),scenery=wide?battlefieldScenery(field):villageScenery().map(o=>({...o,x:o.x+10,z:o.z+8}));
  const wallSprite=createWallArt(makeCanvas),motion=createMotionTracks(),cache=createSceneryCache(makeCanvas),destroyed=new Map(),grass=meadowTexture(makeCanvas);
- let visualUnits=[],staticObjects=[],sprites=new Map(),troops=new Map(),battle=initialBattle,time=0,disposed=false,economy=false,marker=null,backdropDirty=true,pixelRatio=1,artStatus={terrain:false,troops:false};
+ let recordsKey='',visualUnits=[],staticObjects=[],sprites=new Map(),troops=new Map(),battle=initialBattle,time=0,disposed=false,economy=false,marker=null,backdropDirty=true,pixelRatio=1,artStatus={terrain:false,troops:false};
  const backdrop=makeCanvas(1,1),outside=scenery.filter(o=>o.x<0||o.x>field.width||o.z<0||o.z>field.height),inside=scenery.filter(o=>!outside.includes(o));
  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  function resize(){
@@ -30,11 +31,7 @@ export function createVillageScene(canvas,initialBattle){
  function health(x,y,width,ratio){if(ratio<=0||ratio>=.999)return;ctx.fillStyle='#17251eee';ctx.fillRect(x-width/2-1,y-1,width+2,5);ctx.fillStyle='#57382b';ctx.fillRect(x-width/2,y,width,3);ctx.fillStyle=ratio>.4?'#a9df4b':'#eb7953';ctx.fillRect(x-width/2,y,width*ratio,3);}
  function sprite(image,x,y,width,height){if(x+width<0||x>camera.width||y+height<0||y>camera.height)return;ctx.drawImage(image,x,y,width,height);}
  function rubble(b,t){
-  const at=p(b.x,b.y),art=sprites.get('rubble');
-  if(art&&b.kind!=='wall'){
-   const w=(b.collision.width+b.collision.depth)*t*.52,h=w*art.aspect*.62;
-   ctx.save();ctx.translate(at.x,at.y);if(Number(b.id.slice(1))%2)ctx.scale(-1,1);ctx.drawImage(art.image,-w/2,-h*.7,w,h);ctx.restore();return;
-  }
+  const at=p(b.x,b.y);if(b.kind!=='wall'){const art=sprites.get(ruinSprite(b));if(art){const w=(b.collision.width+b.collision.depth)*t*.43,h=w*art.aspect*.60;ctx.drawImage(art.image,at.x-w/2,at.y-h*.75,w,h);}else paintRuin(ctx,b,at,t);return;}
   // Broken masonry follows the wall footprint; no repeated brown oval stamps.
   for(let j=0;j<5;j++){const n=k=>{const a=Math.sin((Number(b.id.slice(1))+1)*71+j*13+k*29)*43758.5453;return a-Math.floor(a);},x=at.x+(n(1)-.5)*t*.8,y=at.y+(n(2)-.5)*t*.3,size=t*(.06+n(3)*.12);ctx.fillStyle=j%3?'#7b8d96':'#c9a75a';ctx.beginPath();ctx.moveTo(x,y-size*.6);ctx.lineTo(x+size,y);ctx.lineTo(x,y+size*.35);ctx.lineTo(x-size*.7,y);ctx.fill();}
  }
@@ -56,7 +53,7 @@ export function createVillageScene(canvas,initialBattle){
    const w=(b.collision.width+b.collision.depth)*t*.25;
    ctx.fillStyle='#1826194d';ctx.beginPath();ctx.moveTo(at.x-w*.85,at.y);ctx.lineTo(at.x,at.y-w*.43);ctx.lineTo(at.x+w*1.35,at.y+w*.16);ctx.lineTo(at.x+w*.2,at.y+w*.65);ctx.closePath();ctx.fill();
   }
-  if(box.image)sprite(box.image,box.x,box.y,box.w,box.h);
+  if(box.image){sprite(box.image,box.x,box.y,box.w,box.h);if(b.kind!=='wall')paintBuildingWear(ctx,b,box);}
   else{ctx.fillStyle='#d5bc87';ctx.fillRect(box.x,box.y,box.w,box.h);}
  }
  function unit(visual,t){
@@ -91,15 +88,15 @@ export function createVillageScene(canvas,initialBattle){
   }
   ctx.drawImage(backdrop,0,0,camera.width,camera.height);ctx.imageSmoothingEnabled=true;
   const occupied=new Set(battle.buildings.filter(b=>b.kind==='wall'&&b.hp>0).map(b=>b.x+','+b.y));
-  const topology=battle.buildings.map(b=>b.hp>0?'1':'0').join('');
-  const key=[camera.x,camera.z,t,camera.width,camera.height,pixelRatio,sprites.size,topology].join('|');
+  const topology=battle.buildings.map(b=>b.hp<=0?'0':b.hp<b.maxHp*.3?'1':b.hp<b.maxHp*.65?'2':'3').join('');
+  const key=[camera.x,camera.z,t,camera.width,camera.height,pixelRatio,sprites.size].join('|');
   const paintStatic=(o,surface)=>{const old=ctx;ctx=surface;if(o.building)building(o.building,t,occupied);else decoration(o.item,t);ctx=old;};
-  staticObjects=[];
+  if(recordsKey!==key+topology){recordsKey=key+topology;staticObjects=[];
   for(const item of inside){const art=sprites.get(item.key);if(!art)continue;const at=p(item.x,item.z),w=item.width*t/Math.SQRT2,h=w*art.aspect;staticObjects.push({depth:item.x+item.z,item,bounds:{x:at.x-w/2-2,y:at.y+item.bottom*t/Math.SQRT2-h-2,w:w+4,h:h+4}});}
   for(const b of battle.buildings){const box=buildingBox(b,t,occupied),at=p(b.x,b.y),span=(b.collision.width+b.collision.depth)*t*.45;
-   staticObjects.push({depth:b.x+b.y+(b.kind==='wall'?.02:(b.collision.width+b.collision.depth)*.14),building:b,bounds:{x:Math.min(box.x,at.x-span)-3,y:Math.min(box.y,at.y-span*.6)-3,w:Math.max(box.x+box.w,at.x+span)-Math.min(box.x,at.x-span)+6,h:Math.max(box.y+box.h,at.y+span*.5)-Math.min(box.y,at.y-span*.6)+6}});
+   staticObjects.push({depth:b.x+b.y+(b.kind==='wall'?.02:(b.collision.width+b.collision.depth)*.14),building:b,revision:b.hp<=0?'dead':b.kind==='wall'?'wall'+wallConnections({x:b.x,z:b.y},occupied):b.hp<b.maxHp*.3?'broken':b.hp<b.maxHp*.65?'damaged':'whole',bounds:{x:Math.min(box.x,at.x-span)-3,y:Math.min(box.y,at.y-span*.6)-3,w:Math.max(box.x+box.w,at.x+span)-Math.min(box.x,at.x-span)+6,h:Math.max(box.y+box.h,at.y+span*.5)-Math.min(box.y,at.y-span*.6)+6}});
   }
-  staticObjects.sort((a,b)=>a.depth-b.depth);
+  staticObjects.sort((a,b)=>a.depth-b.depth);}
   cache.prepare(key,staticObjects,camera.width,camera.height,pixelRatio,paintStatic);
   const actors=visualUnits.filter(v=>v.unit.hp>0).map(v=>({...v,depth:v.position.x+v.position.y+.03})).sort((a,b)=>a.depth-b.depth);
   cache.draw(ctx,actors,paintStatic,v=>unit(v,t));
@@ -111,7 +108,7 @@ export function createVillageScene(canvas,initialBattle){
  return {
   get artStatus(){return {...artStatus};},
   get renderStats(){return cache.stats;},
-  async loadVillage(){const [terrain,actors]=await Promise.allSettled([wide?loadFortressSprites(abort.signal,makeCanvas):loadVillageSprites(abort.signal),loadTroopSheets(abort.signal,makeCanvas)]);if(disposed)return false;if(terrain.status==='fulfilled'){sprites=terrain.value;artStatus.terrain=true;}if(actors.status==='fulfilled'){troops=actors.value;artStatus.troops=true;}backdropDirty=true;paint();return artStatus.terrain;},
+  async loadVillage(){const [terrain,actors]=await Promise.allSettled([wide?loadFortressSprites(abort.signal,makeCanvas):loadVillageSprites(abort.signal),loadTroopSheets(abort.signal,makeCanvas)]);if(disposed)return false;if(terrain.status==='fulfilled'){sprites=terrain.value;artStatus.terrain=true;artStatus.details=terrain.value.detailReady!==false;}if(actors.status==='fulfilled'){troops=actors.value;artStatus.troops=true;}backdropDirty=true;paint();return artStatus.terrain;},
   frame(b,dt,animate=true,presentation=null){battle=b;const delta=animate?clamp(dt,0,.1):0;if(!reduced)time+=delta;
    const targets=new Map(b.buildings.map(o=>[o.id,o]));
    visualUnits=b.units.map(u=>{const position=renderPosition(u,presentation),target=targets.get(u.target);return {unit:u,position,pose:motion.sample(u,position,target?.hp>0?target:null,delta,reduced)};});paint();},
@@ -121,7 +118,7 @@ export function createVillageScene(canvas,initialBattle){
   zoom(factor){camera.zoom=clamp(camera.zoom*factor,.75,3.2);backdropDirty=true;paint();},
   home(){camera.x=field.width/2;camera.z=field.height/2;camera.zoom=1;backdropDirty=true;paint();},
   quality(eco){economy=Boolean(eco);resize();},
-  reset(b){battle=b;time=0;visualUnits=[];motion.clear();cache.invalidate();destroyed.clear();marker=null;this.home();},resize,
+  reset(b){battle=b;time=0;recordsKey='';visualUnits=[];motion.clear();cache.invalidate();destroyed.clear();marker=null;this.home();},resize,
   dispose(){disposed=true;abort.abort();observer.disconnect();sprites.clear();troops.clear();motion.clear();cache.dispose();destroyed.clear();backdrop.width=backdrop.height=grass.width=grass.height=1;}
  };
 }
