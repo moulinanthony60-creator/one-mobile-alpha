@@ -1,6 +1,6 @@
 // Navigation for the private, extended training field. Campaigns use their
 // historical rules. Reachable buildings always take precedence over walls.
-import {turnTo,angleDelta} from './battle-aim.mjs?v=1';
+import {turnTo,angleDelta} from './battle-aim.mjs?v=2';
 const CELL=.5,RADIUS=.10,EPS=1e-7;
 const maps=new WeakMap();
 const directions=[[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,Math.SQRT2],[1,-1,Math.SQRT2],[-1,1,Math.SQRT2],[-1,-1,Math.SQRT2]];

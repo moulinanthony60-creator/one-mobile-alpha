@@ -1,4 +1,4 @@
-import {weaponMount} from './battle-aim.mjs?v=1';
+import {weaponMount} from './battle-aim.mjs?v=2';
 import {loadArtImage} from './battle-village-assets.mjs?v=7';
 const add=(a,b,s=1)=>({x:a.x+b.x*s,y:a.y+b.y*s,h:a.h+b.h*s});
 const scale=(v,s)=>({x:v.x*s,y:v.y*s,h:v.h*s});

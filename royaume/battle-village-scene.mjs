@@ -1,18 +1,22 @@
-import {createDefensePainter} from './battle-defense-rig.mjs?v=1';
+import {createDefensePainter} from './battle-defense-rig.mjs?v=2';
 import {paintRuin,paintBuildingWear,ruinSprite} from './battle-building-details.mjs?v=1';
 import {loadVillageSprites,spritePlacement,villageSpriteKey,villageScenery} from './battle-village-assets.mjs?v=6';
 import {createWallArt,wallConnections} from './wall-art.mjs?v=34';
 import {paintCartoonActor} from './cartoon-art.mjs?v=34';
-import {loadBattleRigs,paintBattleTroop} from './battle-troop-rig.mjs?v=2';
+import {loadBattleRigs,paintBattleTroop} from './battle-troop-rig.mjs?v=3';
 import {effectAge,paintCombatShot} from './battle-combat-fx.mjs?v=2';
 import {loadFortressSprites} from './battle-fortress-art.mjs?v=2';
 import {createSceneryCache} from './battle-scene-cache.mjs?v=3';
-import {renderPosition,renderFacing,createMotionTracks} from './battle-motion.mjs?v=3';
+import {renderPosition,renderFacing,createMotionTracks} from './battle-motion.mjs?v=4';
 import {meadowTexture,battlefieldScenery,paintGround} from './battle-style-ground.mjs?v=2';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const makeCanvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
 export function projectBattle(x,z,camera){const t=camera.tile*camera.zoom;return {x:camera.width/2+((x-camera.x)-(z-camera.z))*t/2,y:camera.height*.43+((x-camera.x)+(z-camera.z))*t/4};}
 export function unprojectBattle(x,y,camera){const t=camera.tile*camera.zoom,a=(x-camera.width/2)*2/t,b=(y-camera.height*.43)*4/t;return {x:camera.x+(a+b)/2,y:camera.z+(b-a)/2};}
+export function troopFeedback(unit,elapsed,reduced=false){
+ const death=Number.isFinite(unit.diedAt)?Math.max(0,elapsed-unit.diedAt):Infinity,hit=Number.isFinite(unit.lastHitAt)?elapsed-unit.lastHitAt:Infinity;
+ return {visible:unit.hp>0||death<.55,fall:unit.hp>0||reduced?0:clamp(death/.35,0,1),opacity:unit.hp>0?1:Math.max(0,1-death/.55),hit:!reduced&&unit.hp>0&&hit>=0&&hit<.18?1-hit/.18:0};
+}
 
 // Independent illustrated objects: no screenshot background and no WebGL dependency.
 export function createVillageScene(canvas,initialBattle){
@@ -67,12 +71,16 @@ export function createVillageScene(canvas,initialBattle){
   if(b.kind==='tower')defense.paint(ctx,{...b,facing:renderFacing(b,presentation,true)},at,t,battle.elapsed-(presentation?(1-presentation.alpha)/30:0),reduced);
  }
  function unit(visual,t){
-  const {unit:u,position,pose}=visual;if(u.hp<=0)return;
+  const {unit:u,position,pose}=visual,feedback=troopFeedback(u,battle.elapsed-(presentation?(1-presentation.alpha)/30:0),reduced);if(!feedback.visible)return;
   const at=p(position.x,position.y),size=t*(u.kind==='guardians'?1.28:1.23);
+  ctx.save();ctx.globalAlpha=feedback.opacity;
   ctx.fillStyle='#14211655';ctx.beginPath();ctx.ellipse(at.x+2,at.y+1,size*.23,size*.09,0,0,Math.PI*2);ctx.fill();
+  if(feedback.hit){ctx.strokeStyle=`rgba(255,211,153,${feedback.hit*.85})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(at.x,at.y-size*.42,size*.25,size*.39,0,0,Math.PI*2);ctx.stroke();}
+  if(feedback.fall){ctx.translate(at.x,at.y);ctx.rotate((pose.dx-pose.dz>=0?1:-1)*feedback.fall*1.28);ctx.scale(1,1-feedback.fall*.28);ctx.translate(-at.x,-at.y);}
   const rig=troops.get(u.kind);
   if(rig)paintBattleTroop(ctx,rig,u.kind,pose,at.x,at.y,size);
   else paintCartoonActor(ctx,{...pose,kind:{guardians:'guardian',archers:'archer',mages:'scholar'}[u.kind],walkDistance:pose.distance,motionBlend:!reduced&&pose.moving?1:0,activityTime:time,cooldown:u.cooldown,interval:1},at.x,at.y,size*.8);
+  ctx.restore();
   health(at.x,at.y-size*1.04,size*.5,u.hp/u.maxHp);
  }
  function decoration(item,t){const art=sprites.get(item.key);if(!art)return;const at=p(item.x,item.z),w=item.width*t/Math.SQRT2,h=w*art.aspect;sprite(art.image,at.x-w/2,at.y+item.bottom*t/Math.SQRT2-h,w,h);}
@@ -110,7 +118,7 @@ export function createVillageScene(canvas,initialBattle){
   }
   staticObjects.sort((a,b)=>a.depth-b.depth);}
   const activeRecoil=recoil;recoil=new Map();cache.prepare(key,staticObjects,camera.width,camera.height,pixelRatio,paintStatic);recoil=activeRecoil;
-  const actors=visualUnits.filter(v=>v.unit.hp>0).map(v=>({...v,depth:v.position.x+v.position.y+.03})).sort((a,b)=>a.depth-b.depth);
+  const actors=visualUnits.filter(v=>troopFeedback(v.unit,battle.elapsed-(presentation?(1-presentation.alpha)/30:0),reduced).visible).map(v=>({...v,depth:v.position.x+v.position.y+.03})).sort((a,b)=>a.depth-b.depth);
   cache.draw(ctx,actors,paintStatic,v=>unit(v,t),o=>o.building?.hp>0&&(['cannon','mortar','tower'].includes(o.building.kind)||recoil.has(o.building.id)));
   for(const b of battle.buildings)if(b.kind!=='wall'&&b.hp>0&&b.hp<b.maxHp){const at=p(b.x,b.y),box=buildingBox(b,t,occupied);health(at.x,box.y-5,t*.95,b.hp/b.maxHp);}
   paintEffects(t);
@@ -123,7 +131,7 @@ export function createVillageScene(canvas,initialBattle){
   async loadVillage(){const [terrain,actors,defenses]=await Promise.allSettled([wide?loadFortressSprites(abort.signal,makeCanvas):loadVillageSprites(abort.signal),loadBattleRigs(abort.signal,makeCanvas),defense.load(abort.signal)]);if(disposed)return false;if(terrain.status==='fulfilled'){sprites=terrain.value;artStatus.terrain=true;artStatus.details=terrain.value.detailReady!==false;}if(actors.status==='fulfilled'){troops=actors.value;artStatus.troops=true;}artStatus.defenses=defenses.status==='fulfilled';backdropDirty=true;cache.invalidate();paint();return artStatus.terrain;},
   frame(b,dt,animate=true,interpolation=null){battle=b;presentation=interpolation;const delta=animate?clamp(dt,0,.1):0;time+=delta;
    const targets=new Map(b.buildings.map(o=>[o.id,o]));
-   visualUnits=b.units.map(u=>{const position=renderPosition(u,presentation),target=targets.get(u.target);return {unit:u,position,pose:motion.sample({...u,facing:renderFacing(u,presentation)},position,target?.hp>0?target:null,delta,reduced,b.elapsed-(presentation?(1-presentation.alpha)/30:0))};});paint();},
+   visualUnits=b.units.map(u=>{const position=renderPosition(u,presentation),target=targets.get(u.target);return {unit:u,position,pose:motion.sample({...u,action:u.hp>0?u.action:'dead',facing:renderFacing(u,presentation)},position,target?.hp>0?target:null,delta,reduced,b.elapsed-(presentation?(1-presentation.alpha)/30:0))};});paint();},
   point(x,y){const r=canvas.getBoundingClientRect();return unprojectBattle(x-r.left,y-r.top,camera);},
   mark(x,y,magic=false,invalid=false){marker={x,y,magic,invalid,until:time+.65};},
   pan(dx,dy){const t=camera.tile*camera.zoom;camera.x=clamp(camera.x-dx/t-2*dy/t,2,field.width-2);camera.z=clamp(camera.z+dx/t-2*dy/t,2,field.height-2);backdropDirty=true;paint();},

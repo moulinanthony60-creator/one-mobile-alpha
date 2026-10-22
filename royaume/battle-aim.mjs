@@ -28,7 +28,7 @@ export function weaponMount(source,aim){
 }
 export function troopMuzzle(unit){
  const scale=troopScale(unit.kind),angle=unit.facing??Math.PI/4,dx=Math.cos(angle),dy=Math.sin(angle),archer=unit.kind==='archers';
- const f=archer?.39:unit.kind==='mages'?.08:.40,s=archer?-.10:.28,h=archer?.66:unit.kind==='mages'?1.08:.47;
+ const f=archer?.39:unit.kind==='mages'?.08:-.085,s=archer?-.10:.28,h=archer?.66:unit.kind==='mages'?1.08:1.20;
  return {x:unit.x+1.36*scale*(dx*f+dy*s),y:unit.y+1.36*scale*(dy*f-dx*s),h:h*scale};
 }
 export function nearestFace(unit,building){

@@ -1,5 +1,5 @@
 import {footCycle} from './locomotion.mjs?v=34';
-import {troopScale,troopStride,angleDelta} from './battle-aim.mjs?v=1';
+import {troopScale,troopStride,angleDelta} from './battle-aim.mjs?v=2';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
 // Rendering between the last two fixed simulation steps adds at most 33 ms

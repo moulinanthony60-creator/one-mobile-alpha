@@ -1,5 +1,5 @@
-import {advanceTrainingUnit,canStrike,spaceTrainingUnits,hasCombatRoom} from './battle-navigation.mjs?v=3';
-import {turnTo,weaponMount,troopMuzzle,nearestFace} from './battle-aim.mjs?v=1';
+import {advanceTrainingUnit,canStrike,spaceTrainingUnits,hasCombatRoom} from './battle-navigation.mjs?v=4';
+import {turnTo,weaponMount,troopMuzzle,nearestFace} from './battle-aim.mjs?v=2';
 import {shotStyle,shotTiming} from './battle-combat-fx.mjs?v=2';
 
 export const practiceSpec=spec=>spec.range<2?{...spec,range:Math.min(spec.range,.72)}:spec;
@@ -20,6 +20,7 @@ function impact(b,shot,specs){
   const armor=shot.enemy?(specs[victim.kind]?.armor||1):1;
   victim.hp=Math.max(0,victim.hp-shot.damage*(direct?1:.5)*armor);
   victim.lastHitAt=b.elapsed;
+  if(victim.hp===0)victim.diedAt=b.elapsed;
  }
 }
 function aimAtMovingUnit(source,target){
