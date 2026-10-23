@@ -1,9 +1,11 @@
+import {createCombatAudio} from './battle-audio.mjs?v=13';
 import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=12';
-import {createVillageScene} from './battle-village-scene.mjs?v=12';
+import {createVillageScene} from './battle-village-scene.mjs?v=13';
 import {VALDORIA_FIELD,createValdoriaFort} from './battle-style-layout.mjs?v=2';
 import {bindBattleInput} from './battle3d-input.mjs?v=2';
 
 const $=selector=>document.querySelector(selector);
+const audio=createCombatAudio();
 // Use the visible viewport in mobile browsers and embedded app windows.
 let viewportHeight=0;
 function fitViewport(){
@@ -57,7 +59,7 @@ function updateUI() {
   $('#deploy-south').disabled=!active||selected==='spell'||!training.count(selected);
   $('#pause').disabled=!entered||failed||b.phase!=='active'||dialogs.some(dialog=>dialog.open);
   $('#hint').classList.toggle('magic',selected==='spell');
-  $('#hint').textContent=selected==='spell'?'Touche une défense pour lancer la frappe magique.':reserve===0?(b.spells?'Ton armée combat. La magie reste disponible.':'Ton armée combat. Tu peux déplacer ou rapprocher la vue.'):!training.count(selected)?'Choisis une autre troupe pour poursuivre l’assaut.':'Touche hors de la ligne bleue. Maintiens pour déployer plusieurs soldats.';
+  $('#hint').textContent=selected==='spell'?'Touche une défense pour lancer la frappe magique.':reserve===0?(b.spells?'Ton armée combat. La magie reste disponible.':'Ton armée combat. Tu peux déplacer ou rapprocher la vue.'):!training.count(selected)?'Choisis une autre troupe pour poursuivre l’assaut.':'Touche hors de la ligne rouge. Maintiens pour déployer plusieurs soldats.';
 }
 function deploy(point) {
   if(!playable()||!point)return false;
@@ -67,7 +69,7 @@ function deploy(point) {
       training.spell(point.x,point.y);view.mark(point.x,point.y,true);
       if(training.battle.spells===0)selected=TROOPS.find(t=>training.count(t.kind)>0)?.kind||'guardians';
     } else {
-      training.deploy(selected,point.x,point.y);view.mark(point.x,point.y);
+      training.deploy(selected,point.x,point.y);view.mark(point.x,point.y);audio.deploy();
       if(!training.count(selected))selected=TROOPS.find(t=>training.count(t.kind)>0)?.kind||selected;
     }
     updateUI();
@@ -76,12 +78,12 @@ function deploy(point) {
 }
 function setPause() {
   if(!entered||failed||training.battle.phase!=='active'||dialogs.some(dialog=>dialog.open))return;
-  training.pause(true);input.clear();
+  training.pause(true);audio.suspend();input.clear();
   $('#pause-dialog').showModal();updateUI();
 }
 function restart() {
   for(const dialog of dialogs)if(dialog.open)dialog.close();
-  training.reset();view.reset(training.battle);entered=true;resultShown=false;selected='guardians';southIndex=0;last=performance.now();
+  training.reset();audio.reset();audio.resume();view.reset(training.battle);entered=true;resultShown=false;selected='guardians';southIndex=0;last=performance.now();
   input.clear();updateUI();toast('Une nouvelle armée t’attend. À toi de jouer !');
   view.canvas.focus({preventScroll:true});
 }
@@ -105,12 +107,13 @@ $('#deploy-south').addEventListener('click',()=>{const x=16.5+(southIndex++%9)*.
 $('#zoom-in').addEventListener('click',()=>view.zoom(1.2));
 $('#zoom-out').addEventListener('click',()=>view.zoom(1/1.2));
 $('#home').addEventListener('click',()=>view.home());
+$('#sound').addEventListener('click',async()=>{const enabled=await audio.toggle();$('#sound').setAttribute('aria-pressed',String(enabled));$('#sound').setAttribute('aria-label',enabled?'Couper les sons du combat':'Activer les sons du combat');toast(enabled?'Sons du combat activés.':'Sons du combat désactivés.');});
 $('#quality').addEventListener('click',()=>{const eco=$('#quality').getAttribute('aria-pressed')!=='true';view.quality(eco);$('#quality').setAttribute('aria-pressed',String(eco));$('#quality').textContent=eco?'Éco ✓':'Éco';$('#quality').setAttribute('aria-label',eco?'Désactiver le mode éco':'Activer le mode éco : réduire les effets et la résolution');toast(eco?'Mode éco activé.':'Graphismes détaillés activés.');});
 $('#fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else toast('Tourne le téléphone en paysage pour agrandir le terrain.');}catch{toast('Le plein écran est indisponible ici. Tourne le téléphone en paysage.');}});
-$('#help').addEventListener('click',()=>{if(!ready||failed)return;training.pause(true);input.clear();$('#intro').showModal();updateUI();});
-$('#start').addEventListener('click',()=>{entered=true;training.pause(false);$('#intro').close();last=performance.now();updateUI();view.canvas.focus({preventScroll:true});});
+$('#help').addEventListener('click',()=>{if(!ready||failed)return;training.pause(true);audio.suspend();input.clear();$('#intro').showModal();updateUI();});
+$('#start').addEventListener('click',()=>{entered=true;training.pause(false);audio.resume();$('#intro').close();last=performance.now();updateUI();view.canvas.focus({preventScroll:true});});
 $('#pause').addEventListener('click',setPause);
-$('#resume').addEventListener('click',()=>{training.pause(false);$('#pause-dialog').close();last=performance.now();updateUI();view.canvas.focus({preventScroll:true});});
+$('#resume').addEventListener('click',()=>{training.pause(false);audio.resume();$('#pause-dialog').close();last=performance.now();updateUI();view.canvas.focus({preventScroll:true});});
 $('#restart').addEventListener('click',restart);
 $('#restart-pause').addEventListener('click',restart);
 for(const dialog of dialogs)dialog.addEventListener('cancel',event=>{event.preventDefault();if(dialog.id==='pause-dialog')$('#resume').click();});
@@ -135,7 +138,7 @@ function frame(now) {
   try {
     const dt=last?Math.min((now-last)/1000,.1):0;last=now;
     if(!document.hidden) {
-      if(entered)training.tick(dt);
+      if(entered){training.tick(dt);if(!training.paused)audio.sync(training.battle);}
       if(entered&&!training.paused&&(!resultShown||now-finishedAt<1000))view.frame(training.battle,dt,true,training.presentation);
       if(now-lastHUD>120){updateUI();lastHUD=now;}
       if(training.battle.phase==='finished'&&!resultShown)result();
@@ -144,7 +147,7 @@ function frame(now) {
     frameId=requestAnimationFrame(frame);
   } catch(error) {console.error('Valdoria 3D:',error);fatal('L’essai a rencontré un problème. Tu peux réessayer ou retourner à ton village.');}
 }
-window.addEventListener('pagehide',event=>{cancelAnimationFrame(frameId);setPause();if(!event.persisted){abandoned=true;input.dispose();view.dispose();window.removeEventListener('resize',fitViewport);window.visualViewport?.removeEventListener('resize',fitViewport);}});
+window.addEventListener('pagehide',event=>{cancelAnimationFrame(frameId);setPause();if(!event.persisted){abandoned=true;input.dispose();view.dispose();audio.dispose();window.removeEventListener('resize',fitViewport);window.visualViewport?.removeEventListener('resize',fitViewport);}});
 window.addEventListener('pageshow',event=>{if(event.persisted&&ready&&!failed){last=0;frameId=requestAnimationFrame(frame);}});
 
 const artReady=await view.loadVillage();

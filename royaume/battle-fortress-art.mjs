@@ -7,10 +7,9 @@ const RUIN_BOUNDS=[[15,63,393,471],[424,73,758,453],[782,160,1141,459],[1170,156
 export const RUIN_KEYS=['ruin-castle','ruin-tower','ruin-cannon','ruin-mortar','ruin-barracks','ruin-cottage','ruin-mine','ruin-crystal'];
 export const FORTRESS_ATLAS='assets/battle-style/fortress-kit.webp';
 export const FORTRESS_KEYS=['castle4','tower','cannon','mortar','mine','vault','reservoir','barracks','arcane','cottage','forge','mill','oak','spruce','rocks','rubble'];
-export const VOLUME_ATLAS='assets/battle-style/fortress-volume-v12.webp';
+export const VOLUME_ATLAS='assets/battle-style/fortress-v13.webp';
 export const VOLUME_KEYS=['castle4','tower','mine','vault','reservoir','barracks','arcane','cottage','forge','mill','cannon-base','mortar-base','oak','spruce','rocks','rubble'];
-// Explicit alpha bounds retain complete roofs and foundations in the atlas.
-const VOLUME_BOUNDS=[[22,16,351,336],[386,28,605,323],[641,70,947,329],[974,65,1232,325],[25,349,318,646],[337,347,645,647],[675,344,917,652],[952,374,1235,656],[29,659,329,945],[375,653,614,948],[666,746,928,934],[960,751,1218,928],[36,969,289,1219],[359,954,591,1227],[656,1003,923,1222],[953,1013,1238,1223]];
+// Production buildings use equal, padded cells; legacy ruin bounds remain explicit.
 function crop(image,region,makeCanvas){
  const [x,y,w,h]=region.map(Math.round),cell=makeCanvas(w,h),ctx=cell.getContext('2d');ctx.drawImage(image,x,y,w,h,0,0,w,h);
  const data=ctx.getImageData(0,0,w,h).data;let l=w,r=-1,t=h,b=-1;
@@ -36,7 +35,7 @@ export async function loadFortressSprites(signal,makeCanvas){
  const [base,ruins]=await Promise.allSettled([VOLUME_ATLAS,RUIN_ATLAS].map(file=>loadArtImage(new URL(file,import.meta.url).href,signal)));
  if(signal?.aborted)throw Error('Chargement annulé');if(base.status!=='fulfilled')return loadLegacyFortressSprites(signal,makeCanvas);
  const tiles=new Map(),image=base.value;
- VOLUME_BOUNDS.forEach(([x,y,r,b],i)=>tiles.set(VOLUME_KEYS[i],crop(image,[(x-2)*image.width/1254,(y-2)*image.height/1254,(r-x+4)*image.width/1254,(b-y+4)*image.height/1254],makeCanvas)));
+ grid(image,VOLUME_KEYS,4,4,tiles,makeCanvas);
  if(ruins.status==='fulfilled')RUIN_BOUNDS.forEach(([x,y,r,b],i)=>tiles.set(RUIN_KEYS[i],crop(ruins.value,[(x-2)*ruins.value.width/1536,(y-2)*ruins.value.height/1024,(r-x+4)*ruins.value.width/1536,(b-y+4)*ruins.value.height/1024],makeCanvas)));
  tiles.set('cannon',tiles.get('cannon-base'));tiles.set('mortar',tiles.get('mortar-base'));tiles.set('camp',tiles.get('barracks'));tiles.set('castle3',tiles.get('castle4'));tiles.detailReady=true;tiles.volumeReady=true;return tiles;
 }

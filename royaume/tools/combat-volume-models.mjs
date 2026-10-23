@@ -3,11 +3,12 @@
 import * as THREE from '../vendor/three.module.js';
 import {battleTroopPose} from '../battle-troop-rig.mjs';
 const sphere=new THREE.SphereGeometry(1,24,16),cylinder=new THREE.CylinderGeometry(1,1,1,20),cone=new THREE.ConeGeometry(1,1,24),helmet=new THREE.SphereGeometry(1,28,16,0,Math.PI*2,0,Math.PI/2),torus=new THREE.TorusGeometry(1,.09,8,32);
+const motionTrail=q=>Math.sin(q.phase*Math.PI*2)*q.motion*.025;
 const Q=new THREE.Quaternion(),V=new THREE.Vector3(),up=new THREE.Vector3(0,1,0);
 export function volumeTroop(kind,state){
  const q=battleTroopPose(kind,{dx:1,dz:0,distance:0,motion:0,attackAge:10,...state}),meshes=[];
  const knight=kind==='guardians',archer=kind==='archers',mage=kind==='mages';
- const cloth=knight?'#285dba':archer?'#368e49':'#7743b2',clothLight=knight?'#5282d4':archer?'#62ab4d':'#a06cd3',skin='#f3b77f',gold='#ecb94b',metal='#a9bdcc',leather='#754529';
+ const cloth=knight?'#2254a1':archer?'#337c40':'#61439b',clothLight=knight?'#467dd1':archer?'#79b84c':'#936cd0',skin='#f2b67c',gold='#ecb94b',metal='#a9bdcc',leather='#754529';
  const vector=v=>new THREE.Vector3(v.s,v.h,v.f),p=(s,h,f=0)=>({s,h,f});
  function mesh(geo,color,at,scale,rotation=new THREE.Quaternion(),shine=0){const matrix=new THREE.Matrix4().compose(vector(at),rotation,new THREE.Vector3(...scale));meshes.push({geo,color,matrix,shine});}
  function orb(color,s,h,f,sx,sy=sx,sz=sx,shine=0){mesh(sphere,color,p(s,h,f),[sx,sy,sz],undefined,shine);}
@@ -24,10 +25,14 @@ export function volumeTroop(kind,state){
   else orb(clothLight,knee.s,knee.h,knee.f+.065,.09,.065,.035);
  }
  // Rounded jacket, wide belt, padded shoulders and a short split skirt.
- orb(cloth,bs,.48+bob,bf,.225,.18,.14);orb(cloth,bs,.625+bob,bf+lean*.55,.245,.20,.16);
+ orb(cloth,bs,.48+bob,bf,knight?.25:.21,.18,.14);orb(cloth,bs,.625+bob,bf+lean*.55,knight?.275:.225,.20,.16);
+ // Cloth silhouettes distinguish the roles even when faces point away.
+ if(mage){mesh(cone,cloth,p(bs,.34+bob,bf-.02),[.25,.45,.20]);orb(clothLight,bs,.57+bob,bf-.15,.205,.24,.08);}
+ if(archer){mesh(cone,'#255a34',p(bs,.50+bob,bf-.16-motionTrail(q)),[.20,.43,.08]);}
+ if(knight){orb('#173778',bs,.61+bob,bf-.15,.235,.20,.055);}
  orb(clothLight,bs,.65+bob,bf+lean*.55-.075,.23,.18,.10);
  orb(leather,bs,.425+bob,bf,.235,.05,.16);orb(gold,bs,.425+bob,bf+.16,.057,.042,.022,.7);
- if(knight){orb(metal,bs,.63+bob,bf+lean*.6+.09,.22,.18,.10,.7);bone(gold,p(bs,.50+bob,bf+.184),p(bs,.735+bob,bf+lean+.15),.016,.012,.7);}
+ if(knight){orb(metal,bs,.63+bob,bf+lean*.6+.09,.25,.18,.105,.5);bone(gold,p(bs,.50+bob,bf+.184),p(bs,.735+bob,bf+lean+.15),.016,.012,.7);}
  else bone(leather,p(bs-.18,.74+bob,bf+lean+.13),p(bs+.16,.46+bob,bf+.14),.024,.014);
  for(let i=0;i<2;i++){const {shoulder,elbow,hand}=q.arms[i].world;
   bone(cloth,shoulder,elbow,.095,.09);orb(knight?gold:clothLight,shoulder.s,shoulder.h,shoulder.f,.13,.105,.13,.4);
@@ -36,7 +41,7 @@ export function volumeTroop(kind,state){
   orb(leather,(elbow.s+hand.s)/2,(elbow.h+hand.h)/2,(elbow.f+hand.f)/2,.077,.065,.067);
   orb(skin,hand.s,hand.h,hand.f,.065,.066,.065);
  }
- const hs=bs,hf=bf+lean,hh=.875+bob;
+ const hs=bs,hf=bf+lean,hh=.895+bob;
  // Faces are sculpted geometry, with eyes and nose sitting ahead of the hood.
  if(!knight){orb(cloth,hs,hh+.035,hf-.04,.222,.235,.21);}
  orb(skin,hs,hh,hf+.03,.183,.185,.165);
@@ -51,9 +56,9 @@ export function volumeTroop(kind,state){
  orb(skin,hs,hh-.026,hf+.201,.046,.056,.047);
  bone('#944a33',p(hs-.04,hh-.103,hf+.161),p(hs+.04,hh-.103,hf+.161),.008,.008);
  if(knight){
-  mesh(helmet,metal,p(hs,hh+.092,hf+.006),[.221,.204,.212],undefined,.8);ring(gold,hs,hh+.092,hf+.006,.219,.02);
+  mesh(helmet,metal,p(hs,hh+.092,hf+.006),[.235,.209,.224],undefined,.8);ring(gold,hs,hh+.092,hf+.006,.219,.02);
   for(const side of [-1,1]){orb(metal,hs+side*.192,hh-.012,hf-.015,.048,.112,.095,.7);orb('#653c25',hs+side*.045,hh-.075,hf+.201,.064,.033,.028);}
-  for(let i=0;i<5;i++)orb('#255db2',hs,hh+.30-i*.009,hf-.10+i*.045,.047,.067,.055);
+  for(let i=0;i<5;i++)orb('#dc6547',hs,hh+.31-i*.009,hf-.10+i*.045,.055,.069,.056);
   orb(cloth,hs,.75+bob,hf,.205,.049,.157);orb(clothLight,hs+.055,.73+bob,hf+.15,.07,.10,.025);
  }else if(archer){
   for(let i=0;i<5;i++)orb('#a64c22',hs-.13+i*.052,hh+.145-Math.abs(i-2)*.012,hf+.10,.057,.066,.067);
@@ -72,7 +77,7 @@ export function volumeTroop(kind,state){
   orb(gold,left.s,left.h,left.f+.09,.041,.041,.015,.8);
   for(let i=0;i<8;i++){const a=i*Math.PI/4;bone(gold,p(left.s+Math.cos(a)*.05,left.h+Math.sin(a)*.05,left.f+.091),p(left.s+Math.cos(a)*.105,left.h+Math.sin(a)*.105,left.f+.089),.009);}
   const tip=p(right.s,right.h+.39*(1-q.hit)-q.hit*.12,right.f+.08+q.hit*.14);
-  bone('#dce7ec',right,tip,.024,.014,.85);bone(gold,p(right.s-.075,right.h+.03,right.f),p(right.s+.075,right.h+.03,right.f),.02,.018,.8);
+  V.subVectors(vector(tip),vector(right));Q.setFromUnitVectors(up,V.clone().normalize());mesh(new THREE.CylinderGeometry(0,.052,1,4),'#dce7ec',p((right.s+tip.s)/2,(right.h+tip.h)/2,(right.f+tip.f)/2),[1,V.length(),.55],Q.clone(),.85);bone(gold,p(right.s-.075,right.h+.03,right.f),p(right.s+.075,right.h+.03,right.f),.02,.018,.8);
  }else if(archer){
   const ends=[];for(let i=0;i<=12;i++){const a=-Math.PI/2+i*Math.PI/12,at=p(left.s,left.h+Math.sin(a)*.23,left.f+Math.cos(a)*.17);if(i)bone('#c99148',ends.at(-1),at,.016);ends.push(at);}
   const draw=q.aiming?right:left;bone('#f7e7c3',ends[0],draw,.004);bone('#f7e7c3',draw,ends.at(-1),.004);
