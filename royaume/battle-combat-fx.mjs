@@ -11,7 +11,7 @@ export function shotPosition(fx,age,project,tile){
 }
 const stroke=(ctx,a,b,color,width)=>{ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.stroke();};
 const disk=(ctx,x,y,r,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();};
-export function paintCombatShot(ctx,fx,age,project,tile,{economy=false,reduced=false}={}){
+export function paintCombatShot(ctx,fx,age,project,tile,{economy=false,reduced=false,fireArt=null}={}){
  if(age<0||age>fx.duration||!fx.style)return;
  const s=shotPosition(fx,age,project,tile),scale=Math.max(.8,tile/26),heavy=fx.style==='cannon'||fx.style==='mortar';
  const color=fx.style==='arcane'?'#72f4ff':fx.style==='magic'?'#ff9a43':heavy?'#ffc55a':'#ffe6ac';
@@ -37,7 +37,9 @@ export function paintCombatShot(ctx,fx,age,project,tile,{economy=false,reduced=f
     stroke(ctx,s,{x:s.x-Math.cos(angle-.5)*4*scale,y:s.y-Math.sin(angle-.5)*4*scale},'#fff8de',1.3*scale);
    }else{
     if(!economy&&!reduced){for(let j=1;j<=5;j++){const trail=shotPosition(fx,Math.max(0,age-j*.018),project,tile);ctx.globalAlpha=(1-j/6)*.50;disk(ctx,trail.x,trail.y,(heavy?3.5:5)*scale*(1-j/7),heavy?'#b9b1a0':'#f47728');}ctx.globalAlpha=1;}
-    stroke(ctx,tail,s,color,(heavy?3:4)*scale);disk(ctx,s.x,s.y,(heavy?4.7:5)*scale,heavy?'#293742':'#f47b28');disk(ctx,s.x-scale,s.y-scale,(heavy?1.7:3)*scale,heavy?'#b6bcc1':'#fff3ae');
+    stroke(ctx,tail,s,color,(heavy?3:4)*scale);
+    if(fx.style==='magic'&&fireArt){const w=tile*.44;ctx.drawImage(fireArt,s.x-w*.5,s.y-w*.6,w,w);}
+    else{disk(ctx,s.x,s.y,(heavy?4.7:5)*scale,heavy?'#293742':'#f47b28');disk(ctx,s.x-scale,s.y-scale,(heavy?1.7:3)*scale,heavy?'#b6bcc1':'#fff3ae');}
    }
    if(fx.style==='mortar'&&!economy){const ground=project(fx.fromX+(fx.x-fx.fromX)*s.progress,fx.fromY+(fx.y-fx.fromY)*s.progress);ctx.fillStyle='#16312044';ctx.beginPath();ctx.ellipse(ground.x,ground.y,5*scale,2*scale,0,0,Math.PI*2);ctx.fill();}
   }
@@ -53,16 +55,16 @@ export function paintCombatShot(ctx,fx,age,project,tile,{economy=false,reduced=f
 
 // Deterministic debris: no particles are stored or added to the simulation.
 export function paintDestruction(ctx,b,age,at,tile,{economy=false,reduced=false}={}){
- if(age<0||age>1.4||reduced)return;
- const wall=b.kind==='wall',size=wall?.45:Math.min(2.6,(b.collision.width+b.collision.depth)*.45),life=1-age/1.4;
+ if(age<0||age>1.05||reduced)return;
+ const wall=b.kind==='wall',size=wall?.45:Math.min(2.6,(b.collision.width+b.collision.depth)*.45),life=1-age/1.05;
  ctx.save();
  for(let i=0;i<(economy?4:14);i++){
   const a=i*2.399+Number(b.id.slice(1)),spread=tile*size*age*(.3+(i%3)*.11),x=at.x+Math.cos(a)*spread,y=at.y+Math.sin(a)*spread*.5-tile*Math.sin(Math.min(1,age)*Math.PI)*(.22+i%3*.1);
   ctx.globalAlpha=life;ctx.fillStyle=i%3?'#c8bd98':'#666b61';ctx.save();ctx.translate(x,y);ctx.rotate(a+age*4);ctx.fillRect(-tile*.065,-tile*.035,tile*.13,tile*.09);ctx.restore();
  }
- for(let i=0;i<(economy?3:8);i++){
+ for(let i=0;i<(economy?2:5);i++){
   const x=at.x+Math.cos(i*2.4)*tile*size*age*.46,y=at.y-tile*age*.38+Math.sin(i*2.4)*tile*.13;
-  ctx.globalAlpha=life*.50;ctx.fillStyle=i%2?'#c5b78e':'#e1cf9d';ctx.beginPath();ctx.ellipse(x,y,tile*size*(.18+age*.42),tile*size*(.12+age*.28),0,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=life*.24;ctx.fillStyle=i%2?'#c5b78e':'#e1cf9d';ctx.beginPath();ctx.ellipse(x,y,tile*size*(.15+age*.30),tile*size*(.10+age*.20),0,0,Math.PI*2);ctx.fill();
  }
  ctx.restore();
 }
