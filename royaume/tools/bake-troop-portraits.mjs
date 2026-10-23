@@ -8,5 +8,5 @@ for(const [kind,file]of [['guardians','guardian'],['archers','archer'],['mages',
  const {meshes}=volumeTroop(kind,{aiming:true});
  const pixels=rasterVolume(meshes,Math.PI/4,{width:432,height:522,tile:340,anchorX:216,anchorY:470}),data=ctx.createImageData(432,522);data.data.set(pixels);ctx.putImageData(data,0,0);
  const portrait=createCanvas(216,261);portrait.getContext('2d').drawImage(source,0,0,216,261);
- writeFileSync(new URL('../assets/battle-style/'+file+'-portrait-v13.png',import.meta.url),portrait.toBuffer('image/png'));
+ writeFileSync(new URL('../assets/battle-style/'+file+'-portrait-v14.png',import.meta.url),portrait.toBuffer('image/png'));
 }

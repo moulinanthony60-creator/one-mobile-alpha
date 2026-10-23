@@ -1,6 +1,6 @@
-import {createCombatAudio} from './battle-audio.mjs?v=13';
-import {createTraining, TROOPS} from './battle3d-sandbox.mjs?v=12';
-import {createVillageScene} from './battle-village-scene.mjs?v=13';
+import {createCombatAudio} from './battle-audio.mjs?v=14';
+import {createTraining, TROOPS, RAID_ARMY} from './battle3d-sandbox.mjs?v=14';
+import {createVillageScene} from './battle-village-scene.mjs?v=14';
 import {VALDORIA_FIELD,createValdoriaFort} from './battle-style-layout.mjs?v=2';
 import {bindBattleInput} from './battle3d-input.mjs?v=2';
 
@@ -17,7 +17,7 @@ function fitViewport(){
   $('#game').classList.toggle('compact-screen',height<690);
 }
 fitViewport();window.addEventListener('resize',fitViewport);window.visualViewport?.addEventListener('resize',fitViewport);
-const canvas=$('#battle-canvas'),training=createTraining({layout:createValdoriaFort,field:VALDORIA_FIELD});
+const canvas=$('#battle-canvas'),training=createTraining({layout:createValdoriaFort,field:VALDORIA_FIELD,army:RAID_ARMY});
 const view=createVillageScene(canvas,training.battle);view.canvas=canvas;
 let abandoned=false,ready=false;
 let selected='guardians',entered=false,failed=false,resultShown=false,finishedAt=0,frameId=0,last=0,lastHUD=0,toastUntil=0,southIndex=0;
@@ -34,6 +34,8 @@ function select(kind) {
 }
 function updateUI() {
   const active=playable(),b=training.battle,score=training.score;
+  $('#ranges').setAttribute('aria-pressed',String(view.ranges));
+  $('#follow').setAttribute('aria-pressed',String(view.following));
   $('#timer').textContent=timeLabel(training.remaining);
   $('#clock-label').textContent=training.started?'FIN DE LA BATAILLE DANS':'DÉPLOIE TON ARMÉE';
   $('#magic-total').textContent=b.spells;$('#targets-total').textContent=b.buildings.filter(p=>p.kind!=='wall'&&p.hp>0).length;
@@ -103,7 +105,9 @@ $('#spell').addEventListener('click',()=>{
   if(selected==='spell'){selected=TROOPS.find(t=>training.count(t.kind)>0)?.kind||'guardians';updateUI();}
   else select('spell');
 });
-$('#deploy-south').addEventListener('click',()=>{const x=16.5+(southIndex++%9)*.9;deploy({x,y:28.4});});
+$('#deploy-south').addEventListener('click',()=>{const first=!training.started,kind=selected;for(let i=0;i<5&&selected===kind&&training.count(kind);i++){const x=15.4+(southIndex++%12)*.8;deploy({x,y:28.4+(southIndex%2)*.45});}if(first&&training.started)view.follow();updateUI();});
+$('#ranges').addEventListener('click',()=>{view.rangesVisible(!view.ranges);updateUI();if(view.ranges)toast('Les canons tirent sur les ennemis dans leur zone, même derrière les murailles.');});
+$('#follow').addEventListener('click',()=>{view.follow(!view.following);updateUI();});
 $('#zoom-in').addEventListener('click',()=>view.zoom(1.2));
 $('#zoom-out').addEventListener('click',()=>view.zoom(1/1.2));
 $('#home').addEventListener('click',()=>view.home());
@@ -118,7 +122,9 @@ $('#restart').addEventListener('click',restart);
 $('#restart-pause').addEventListener('click',restart);
 for(const dialog of dialogs)dialog.addEventListener('cancel',event=>{event.preventDefault();if(dialog.id==='pause-dialog')$('#resume').click();});
 
-const inputs=[canvas].map(surface=>bindBattleInput(surface,{enabled:()=>playable()&&view.canvas===surface,tap:(x,y)=>deploy(view.point(x,y)),holdKey:()=>selected==='spell'?null:selected,hold:(x,y,key)=>selected===key&&deploy(view.point(x,y)),pan:(dx,dy)=>view.pan(dx,dy),zoom:factor=>view.zoom(factor)}));
+// A finger on the field freezes follow before any tap/hold can be projected.
+canvas.addEventListener('pointerdown',()=>{if(view.following){view.follow(false);updateUI();}});
+const inputs=[canvas].map(surface=>bindBattleInput(surface,{enabled:()=>playable()&&view.canvas===surface,tap:(x,y)=>{if(selected!=='spell'){const gun=view.inspect(x,y);if(gun){const name={cannon:'Canon',mortar:'Mortier',tower:'Tour',arcane:'Tour arcanique'}[gun.kind]||'Défense';toast(`${name} · portée ${gun.range} cases. Les murailles ne bloquent pas ses tirs.`);updateUI();return true;}}return deploy(view.point(x,y));},holdKey:()=>selected==='spell'?null:selected,hold:(x,y,key)=>selected===key&&deploy(view.point(x,y)),pan:(dx,dy)=>view.pan(dx,dy),zoom:factor=>view.zoom(factor)}));
 const input={clear(){inputs.forEach(i=>i.clear());},dispose(){inputs.forEach(i=>i.dispose());}};
 document.addEventListener('keydown',event=>{
   if(event.repeat)return;

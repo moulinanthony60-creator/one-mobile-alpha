@@ -1,4 +1,4 @@
-import {startAssault, assaultCommand, stepAssault, attackScore, armyCount, FIELD} from './expeditions.mjs?v=47';
+import {startAssault, assaultCommand, stepAssault, attackScore, armyCount, FIELD} from './expeditions.mjs?v=48';
 import {createTrainingFort} from './battle3d-layout.mjs?v=2';
 
 export const TROOPS = Object.freeze([
@@ -7,13 +7,15 @@ export const TROOPS = Object.freeze([
   {kind:'mages', name:'Mages', role:'Dégâts de zone', count:3}
 ]);
 export const STEP = 1 / 30;
+export const RAID_ARMY = Object.freeze(TROOPS.map(t=>Object.freeze({...t,count:{guardians:20,archers:14,mages:6}[t.kind]})));
 
 // A fresh, private state: never import the village engine, cloud or saved game.
 // Settlement uses the existing campaign rules, but its rewards stay in memory.
-export function createTraining({layout=createTrainingFort,field=null}={}) {
+export function createTraining({layout=createTrainingFort,field=null,army=TROOPS}={}) {
   let state, started, paused, accumulator, effectSerial, previous, previousBuildings;
   function reset() {
-    state = {buildings:{castle:2}, energy:100, troops:8, army:{archers:6,mages:3},
+    const count=kind=>army.find(t=>t.kind===kind)?.count||0;
+    state = {buildings:{castle:2}, energy:100, troops:count('guardians'), army:{archers:count('archers'),mages:count('mages')},
       conquests:{0:3,1:3}, stats:{raid:0}, journal:[], gold:0, wood:0, xp:0, gems:0};
     startAssault(state, 2);
     state.assault.buildings=layout();

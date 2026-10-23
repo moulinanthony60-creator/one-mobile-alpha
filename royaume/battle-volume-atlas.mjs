@@ -1,8 +1,8 @@
 import {loadArtImage} from './battle-village-assets.mjs?v=7';
 import {troopVisualDirection} from './battle-aim.mjs?v=3';
-export const VOLUME_TILE={width:96,height:116,anchorX:48,anchorY:98,scale:68.8,directions:16};
+export const VOLUME_TILE={width:120,height:98,anchorX:60,anchorY:84,scale:55,directions:16};
 export const VOLUME_RELEASE=[0,.055,.12,.20,.30,.44];
-export const VOLUME_FILES={guardians:'assets/battle-style/guardian-volume-v13.webp',archers:'assets/battle-style/archer-volume-v13.webp',mages:'assets/battle-style/mage-volume-v13.webp'};
+export const VOLUME_FILES={guardians:'assets/battle-style/guardian-volume-v14.webp',archers:'assets/battle-style/archer-volume-v14.webp',mages:'assets/battle-style/mage-volume-v14.webp'};
 export function volumeFrame(kind,p){
  const direction=troopVisualDirection(Math.atan2(p.dz,p.dx));
  let row=0,next=0,blend=0;

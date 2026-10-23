@@ -3,6 +3,8 @@ import {turnTo,weaponMount,troopMuzzle,nearestFace} from './battle-aim.mjs?v=3';
 import {shotStyle,shotTiming} from './battle-combat-fx.mjs?v=2';
 
 export const practiceSpec=spec=>spec.range<2?{...spec,range:Math.min(spec.range,.52)}:spec;
+// Range is measured in world tiles. Walls do not block defensive targeting.
+export function inDefenseRange(gun,unit){return gun.hp>0&&unit.hp>0&&gun.range>0&&Math.hypot(unit.x-gun.x,unit.y-gun.y)<=gun.range;}
 const action=(actor,kind,now)=>{if(actor.action!==kind){actor.action=kind;actor.actionAt=now;}};
 function release(b,source,target,spec,enemy=false){
  const style=shotStyle(source),end=enemy?source.aim:nearestFace(source,target),mount=enemy?weaponMount(source,end):null,origin=mount?.muzzle||troopMuzzle(source);
@@ -52,7 +54,7 @@ export function stepTrainingCombat(b,specs,dt){
  for(const u of b.units){const before=previous.get(u.id);u.vx=(u.x-before.x)/dt;u.vy=(u.y-before.y)/dt;}
  for(const gun of b.buildings){
   if(gun.hp<=0||!gun.damage)continue;gun.cooldown=Math.max(0,gun.cooldown-dt);
-  const inRange=u=>u.hp>0&&Math.hypot(u.x-gun.x,u.y-gun.y)<=gun.range;
+  const inRange=u=>inDefenseRange(gun,u);
   let target=b.units.find(u=>u.id===gun.target&&inRange(u));
   if(!target)target=b.units.filter(inRange).sort((a,c)=>Math.hypot(a.x-gun.x,a.y-gun.y)-Math.hypot(c.x-gun.x,c.y-gun.y))[0];
   if(!target){gun.target=null;gun.windup=0;action(gun,'idle',b.elapsed);continue;}
