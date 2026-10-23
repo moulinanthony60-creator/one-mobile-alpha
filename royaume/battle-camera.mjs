@@ -5,3 +5,16 @@ export function fitBattleCamera(width,height,field){
  const tile=Math.max(3,Math.min((width-20)/29.5,(bottom-top)/14.6));
  return {tile,originY:(top+bottom)/2,x:field.width/2,z:field.height/2};
 }
+
+// Keep the fighting group and its targets in view, with a dead zone so the
+// terrain cache is not rebuilt for every footstep. Manual gestures stop follow.
+export function combatFocus(battle){
+ const alive=battle.units.filter(u=>u.hp>0);if(!alive.length)return null;
+ const targets=new Map(battle.buildings.filter(b=>b.hp>0).map(b=>[b.id,b]));
+ const median=values=>values.sort((a,b)=>a-b)[Math.floor(values.length/2)];
+ const x=median(alive.map(u=>u.x)),z=median(alive.map(u=>u.y));
+ const near=alive.filter(u=>Math.hypot(u.x-x,u.y-z)<8);
+ let sx=0,sz=0,weight=0;
+ for(const u of near){sx+=u.x;sz+=u.y;weight++;const t=targets.get(u.target);if(t&&Math.hypot(t.x-u.x,t.y-u.y)<6){sx+=t.x*.35;sz+=t.y*.35;weight+=.35;}}
+ return {x:sx/weight,z:sz/weight};
+}

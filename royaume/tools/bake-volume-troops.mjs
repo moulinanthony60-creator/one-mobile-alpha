@@ -19,5 +19,5 @@ for(const [kind,file]of [['guardians','guardian'],['archers','archer'],['mages',
   }
   if(row%6===0)console.log(kind,'pose',row+1,'/22');
  }
- writeFileSync(new URL(file+'-volume-v13.png',out),atlas.toBuffer('image/png'));atlas.width=atlas.height=1;
+ writeFileSync(new URL(file+'-volume-v14.png',out),atlas.toBuffer('image/png'));atlas.width=atlas.height=1;
 }
