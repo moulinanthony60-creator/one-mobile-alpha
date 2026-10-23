@@ -1,6 +1,6 @@
 import {loadArtImage} from './battle-village-assets.mjs?v=7';
 import {footCycle} from './locomotion.mjs?v=34';
-import {troopScale,troopStride} from './battle-aim.mjs?v=2';
+import {troopScale,troopStride} from './battle-aim.mjs?v=3';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export const RIG_FILES=['assets/battle-style/troop-rig-front.webp','assets/battle-style/troop-rig-back.webp'];
 const kinds=['guardians','archers','mages'];
@@ -47,7 +47,7 @@ export function battleTroopPose(kind,p){
   const hip={s:sign*.13+sway,f:shift*.2,h:.37+bob},foot={s:sign*.13,f:travel,h:lift},locked=p.footOffsets?.[i];
   if(locked){const x=locked.x/.68,y=locked.y/.34,wx=(x+y)/2,wz=(y-x)/2;foot.s=fz*wx-fx*wz;foot.f=fx*wx+fz*wz;foot.h=0;}
   const knee=bendJoint(hip,foot,.235,{s:0,f:1,h:0});
-  return {hip:project(hip),knee:project(knee),foot:project(foot),contact:motion===0||c.lift===0};});
+  return {hip:project(hip),knee:project(knee),foot:project(foot),world:{hip,knee,foot},contact:motion===0||c.lift===0};});
  const arms=[-1,1].map((sign,i)=>{
   let forward=-Math.cos(phase*Math.PI*2+i*Math.PI)*.17*motion+shift,height=.39+bob,spread=sign*.28;
   if(kind==='guardians'&&i===1){forward+=hit*.14-windup*.12;height+=windup*.42+hit*.09;}
@@ -56,10 +56,10 @@ export function battleTroopPose(kind,p){
   if(kind==='mages'){if(i===1){forward=.08+hit*.18;height=.43+bob+windup*.25+hit*.05;}else{forward+=hit*.30;height+=hit*.15;}}
   const shoulder={s:sign*.23+sway,f:shift+lean,h:.69+bob},hand={s:spread,f:forward,h:height};
   const elbow=bendJoint(shoulder,hand,.245,{s:sign*.7,f:-.4,h:-1});
-  return {shoulder:project(shoulder),elbow:project(elbow),hand:project(hand)};
+  return {shoulder:project(shoulder),elbow:project(elbow),hand:project(hand),world:{shoulder,elbow,hand}};
  });
  const waist=point(sway,shift,.37+bob),neck=point(sway,shift+lean,.77+bob),tilt=Math.atan2(neck.x-waist.x,waist.y-neck.y);
- return {legs,arms,front,side,back:front<-.12,flip:side<0,point,bob,hit,windup,draw,phase,motion,age,waist,neck,tilt,aiming:p.aiming,far:legs[0].hip.depth<legs[1].hip.depth?0:1,farArm:arms[0].shoulder.depth<arms[1].shoulder.depth?0:1};
+ return {legs,arms,front,side,back:front<-.12,flip:side<0,point,bob,hit,windup,draw,phase,motion,age,waist,neck,tilt,body:{s:sway,f:shift,lean,h:bob},aiming:p.aiming,far:legs[0].hip.depth<legs[1].hip.depth?0:1,farArm:arms[0].shoulder.depth<arms[1].shoulder.depth?0:1};
 }
 function bone(ctx,image,a,b,width,flip){
  const length=Math.hypot(b.x-a.x,b.y-a.y);ctx.save();ctx.translate(a.x,a.y);ctx.rotate(Math.atan2(b.y-a.y,b.x-a.x)-Math.PI/2);if(flip)ctx.scale(-1,1);ctx.drawImage(image,-width/2,-.035,width,length+.065);ctx.restore();

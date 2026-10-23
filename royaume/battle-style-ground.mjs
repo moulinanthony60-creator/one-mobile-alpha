@@ -1,7 +1,7 @@
 const seeded=start=>{let seed=start;return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);};
 export function meadowTexture(makeCanvas){
  const canvas=makeCanvas(384,384),ctx=canvas.getContext('2d'),rand=seeded(981);
- ctx.fillStyle='#749348';ctx.fillRect(0,0,384,384);
+ ctx.fillStyle='#82a54d';ctx.fillRect(0,0,384,384);
  for(let i=0;i<95;i++){const x=rand()*384,y=rand()*384,r=8+rand()*44,g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,i%3?'#c8c57b22':'#294b2928');g.addColorStop(1,'#8eac4500');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);}
  for(let i=0;i<16000;i++){const x=rand()*384,y=rand()*384;ctx.fillStyle=i%3?'#d1ca7728':'#29492530';ctx.fillRect(x,y,.5+rand()*1.6,.5+rand()*1.8);}
  return canvas;
@@ -27,8 +27,8 @@ export function paintGround(ctx,camera,field,project,texture){
  const water=ctx.createLinearGradient(0,camera.height*.45,0,camera.height);water.addColorStop(0,'#487d86');water.addColorStop(1,'#244857');
  polygon([...shore,[width+30,height+60],[-40,height+60]],water,'#b9aa6b',tile*.48);
  for(let i=0;i<9;i++){const z=height+3+i*1.3;ctx.beginPath();for(let x=-20;x<width+20;x+=2){const q=p(x,z+Math.sin(x*.35+i)*.18);x===-20?ctx.moveTo(q.x,q.y):ctx.lineTo(q.x,q.y);}ctx.strokeStyle='#97d1c012';ctx.lineWidth=1.5;ctx.stroke();}
- // Low contrast isometric grass plots and narrow paths between compartments.
- for(let z=3;z<height-2;z++)for(let x=3;x<width-2;x++)polygon([[x,z],[x+1,z],[x+1,z+1],[x,z+1]],(x+z)%2?'#cfce8910':'#34531c0d');
+ // Irregular grass remains continuous across the battlefield. Compartments
+ // are readable through the walls rather than a checkerboard on every cell.
  for(const x of [15,25])polygon([[x-.38,5],[x+.38,5],[x+.38,27],[x-.38,27]],'#bbac6b40');
  for(const z of [12,21])polygon([[6,z-.38],[34,z-.38],[34,z+.38],[6,z+.38]],'#bbac6b40');
  polygon([[19,26],[21,26],[21,height+1],[19,height+1]],'#b6a56d50');

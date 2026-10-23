@@ -1,8 +1,8 @@
-import {advanceTrainingUnit,canStrike,spaceTrainingUnits,hasCombatRoom} from './battle-navigation.mjs?v=4';
-import {turnTo,weaponMount,troopMuzzle,nearestFace} from './battle-aim.mjs?v=2';
+import {advanceTrainingUnit,canStrike,spaceTrainingUnits,hasCombatRoom} from './battle-navigation.mjs?v=5';
+import {turnTo,weaponMount,troopMuzzle,nearestFace} from './battle-aim.mjs?v=3';
 import {shotStyle,shotTiming} from './battle-combat-fx.mjs?v=2';
 
-export const practiceSpec=spec=>spec.range<2?{...spec,range:Math.min(spec.range,.72)}:spec;
+export const practiceSpec=spec=>spec.range<2?{...spec,range:Math.min(spec.range,.52)}:spec;
 const action=(actor,kind,now)=>{if(actor.action!==kind){actor.action=kind;actor.actionAt=now;}};
 function release(b,source,target,spec,enemy=false){
  const style=shotStyle(source),end=enemy?source.aim:nearestFace(source,target),mount=enemy?weaponMount(source,end):null,origin=mount?.muzzle||troopMuzzle(source);

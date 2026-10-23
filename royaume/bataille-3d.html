@@ -63,6 +63,6 @@
 <div id="fatal" hidden role="alert"><span class="eyebrow">VALDORIA · ENTRAÎNEMENT</span><h2>Le terrain n’a pas pu démarrer</h2><p id="fatal-detail">Recharge la page pour réessayer.</p><button onclick="location.reload()" class="primary">Réessayer</button><a class="text-link" href="./index.html">Retour au village</a></div>
 <noscript>Active JavaScript pour jouer. <a href="./index.html">Retour au village</a></noscript>
 <script type="module">
- import('./battle3d-app.mjs?v=11').catch(error=>{console.error('Valdoria :',error);document.querySelector('#fatal-detail').textContent='Le terrain n’a pas pu charger. Recharge la page pour réessayer.';document.querySelector('#loading').hidden=true;document.querySelector('#fatal').hidden=false;document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());});
+ import('./battle3d-app.mjs?v=12').catch(error=>{console.error('Valdoria :',error);document.querySelector('#fatal-detail').textContent='Le terrain n’a pas pu charger. Recharge la page pour réessayer.';document.querySelector('#loading').hidden=true;document.querySelector('#fatal').hidden=false;document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());});
 </script>
 </body></html>

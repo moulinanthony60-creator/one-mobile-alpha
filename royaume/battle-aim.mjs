@@ -7,11 +7,12 @@ export function turnTo(actor,angle,dt,rate=5){
  actor.facing+=clamp(angleDelta(angle,actor.facing),-rate*dt,rate*dt);
  return Math.abs(angleDelta(angle,actor.facing))<.045;
 }
-export const troopScale=kind=>kind==='guardians'?1.28:1.23;
+export const troopScale=kind=>kind==='guardians'?.92:kind==='archers'?.86:.90;
 export const troopStride=kind=>kind==='guardians'?.96:kind==='archers'?.90:1.02;
+export const troopVisualDirection=angle=>((Math.round(angle/(Math.PI*2)*16)%16)+16)%16;
 export function weaponMount(source,aim){
  const kind=source.kind,angle=source.facing??Math.PI/4,dx=Math.cos(angle),dy=Math.sin(angle);
- const height={cannon:.72,mortar:.43,tower:1.68,arcane:1.42}[kind]??.72;
+ const height={cannon:.72,mortar:.43,tower:2.35,arcane:2.12}[kind]??.72;
  const length={cannon:1.08,mortar:.80,tower:.58,arcane:.08}[kind]??.5;
  const pivot={x:source.x,y:source.y,h:height};
  const end=aim||{x:source.x+dx*4,y:source.y+dy*4,h:.62};
@@ -21,13 +22,13 @@ export function weaponMount(source,aim){
  for(let i=0;i<8;i++){
   muzzle={x:pivot.x+dx*Math.cos(pitch)*length,y:pivot.y+dy*Math.cos(pitch)*length,h:pivot.h+Math.sin(pitch)*length};
   const run=Math.max(.35,Math.hypot(end.x-muzzle.x,end.y-muzzle.y));
-  pitch=clamp(Math.atan2((end.h??.62)-muzzle.h+4*arc,run),-.28,1.35);
+  pitch=clamp(Math.atan2((end.h??.62)-muzzle.h+4*arc,run),kind==='arcane'?-1.2:kind==='tower'?-.9:-.28,1.35);
  }
  muzzle={x:pivot.x+dx*Math.cos(pitch)*length,y:pivot.y+dy*Math.cos(pitch)*length,h:pivot.h+Math.sin(pitch)*length};
  return {pivot,muzzle,angle,pitch,length,arc,direction:{x:dx*Math.cos(pitch),y:dy*Math.cos(pitch),h:Math.sin(pitch)}};
 }
 export function troopMuzzle(unit){
- const scale=troopScale(unit.kind),angle=unit.facing??Math.PI/4,dx=Math.cos(angle),dy=Math.sin(angle),archer=unit.kind==='archers';
+ const scale=troopScale(unit.kind),angle=troopVisualDirection(unit.facing??Math.PI/4)*Math.PI*2/16,dx=Math.cos(angle),dy=Math.sin(angle),archer=unit.kind==='archers';
  const f=archer?.39:unit.kind==='mages'?.08:-.085,s=archer?-.10:.28,h=archer?.66:unit.kind==='mages'?1.08:1.20;
  return {x:unit.x+1.36*scale*(dx*f+dy*s),y:unit.y+1.36*scale*(dy*f-dx*s),h:h*scale};
 }

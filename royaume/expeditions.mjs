@@ -1,4 +1,4 @@
-import {stepTrainingCombat} from './battle-training-combat.mjs?v=2';
+import {stepTrainingCombat} from './battle-training-combat.mjs?v=3';
 import {recordOnline} from './online-events.mjs?v=38';
 import {TRAINING,TRAINING_UNITS} from './barracks.mjs?v=36';
 
