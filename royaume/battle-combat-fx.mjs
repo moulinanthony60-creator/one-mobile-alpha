@@ -29,7 +29,10 @@ export function paintCombatShot(ctx,fx,age,project,tile,{economy=false,reduced=f
    ctx.beginPath();ctx.moveTo(-r*.2,-r*.70);ctx.quadraticCurveTo(r*.95,-r*.20,r*.62,r*.70);ctx.quadraticCurveTo(r*.28,r*.10,-r*.2,-r*.70);ctx.fillStyle='#fff5c6';ctx.fill();
    ctx.strokeStyle='#ffffff';ctx.lineWidth=1.4*scale;ctx.beginPath();ctx.moveTo(-r*.1,-r*.64);ctx.quadraticCurveTo(r*.72,-r*.12,r*.60,r*.64);ctx.stroke();ctx.restore();
   }else if(fx.style==='arcane'){
-   ctx.globalAlpha=1-s.progress*.35;stroke(ctx,s.start,s.end,'#209fb9',5*scale);stroke(ctx,s.start,s.end,'#e5ffff',1.8*scale);
+   ctx.globalAlpha=1-s.progress*.35;
+   const dx=s.end.x-s.start.x,dy=s.end.y-s.start.y,length=Math.hypot(dx,dy)||1;
+   const points=Array.from({length:7},(_,i)=>{const k=i/6,j=i===0||i===6?0:Math.sin(i*9.3+(fx.visualId||0)+Math.floor(age*24))*5*scale;return {x:s.start.x+dx*k-dy/length*j,y:s.start.y+dy*k+dx/length*j};});
+   for(const [width,tint]of [[5,'#2184b7'],[2,'#b9f9ff'],[.7,'#ffffff']])for(let i=1;i<points.length;i++)stroke(ctx,points[i-1],points[i],tint,width*scale);
   }else{
    const tail=shotPosition(fx,Math.max(0,age-.06),project,tile),dx=s.x-tail.x,dy=s.y-tail.y,angle=Math.atan2(dy,dx);
    if(fx.style==='arrow'){
@@ -44,11 +47,23 @@ export function paintCombatShot(ctx,fx,age,project,tile,{economy=false,reduced=f
    if(fx.style==='mortar'&&!economy){const ground=project(fx.fromX+(fx.x-fx.fromX)*s.progress,fx.fromY+(fx.y-fx.fromY)*s.progress);ctx.fillStyle='#16312044';ctx.beginPath();ctx.ellipse(ground.x,ground.y,5*scale,2*scale,0,0,Math.PI*2);ctx.fill();}
   }
  }else{
-  const impact=(age-fx.flight)/(fx.duration-fx.flight),spread=(heavy?27:fx.style==='magic'?20:13)*scale,at=s.end;
-  ctx.globalAlpha=1-impact;disk(ctx,at.x,at.y,spread*(.15+impact*.45),color);disk(ctx,at.x,at.y,spread*(.08+impact*.18),'#fff8dc');
-  if(heavy||fx.style==='magic'){ctx.globalAlpha=(1-impact)*.5;ctx.beginPath();ctx.ellipse(at.x,at.y+3*scale,spread*(.3+impact),spread*(.16+impact*.4),0,0,Math.PI*2);ctx.strokeStyle=color;ctx.lineWidth=2*scale;ctx.stroke();}
-  if(!reduced){for(let j=0;j<(economy?3:8);j++){const a=j*2.4+(fx.visualId||0),radius=spread*impact;ctx.globalAlpha=(1-impact)*.45;disk(ctx,at.x+Math.cos(a)*radius*.65,at.y+Math.sin(a)*radius*.35-impact*spread*.45,spread*(.08+impact*.20),heavy?'#d3c4a0':'#e4c58e');}ctx.globalAlpha=1-impact;}
-  if(!economy&&!reduced)for(let i=0;i<(heavy?7:4);i++){const a=i*2.4+(fx.visualId||0),r=spread*impact;stroke(ctx,{x:at.x+Math.cos(a)*r*.6,y:at.y+Math.sin(a)*r*.6},{x:at.x+Math.cos(a)*r,y:at.y+Math.sin(a)*r+impact*impact*5},color,2*scale);}
+  const impact=(age-fx.flight)/(fx.duration-fx.flight),spread=(heavy?24:fx.style==='magic'?17:9)*scale,at=s.end;
+  // A brief white core, then flying chips/sparks and dissipating dust. The hit
+  // no longer stays a large opaque yellow circle over the target.
+  const flash=Math.max(0,1-impact/.28);
+  if(flash>0){ctx.globalAlpha=flash;disk(ctx,at.x,at.y,spread*(.18+impact*.8),color);disk(ctx,at.x,at.y,spread*.12,'#fffbea');}
+  if((heavy||fx.style==='magic')&&!reduced){
+   ctx.globalAlpha=(1-impact)**2*.48;ctx.beginPath();ctx.ellipse(at.x,at.y+3*scale,spread*(.20+impact),spread*(.10+impact*.40),0,0,Math.PI*2);ctx.strokeStyle=heavy?'#edcf8b':'#ffac52';ctx.lineWidth=(1-impact)*2*scale;ctx.stroke();
+  }
+  if(!reduced)for(let j=0;j<(economy?3:7);j++){
+   const a=j*2.399+(fx.visualId||0),radius=spread*impact*(.5+j%3*.16),x=at.x+Math.cos(a)*radius,y=at.y+Math.sin(a)*radius*.55-spread*Math.sin(impact*Math.PI)*.38;
+   ctx.globalAlpha=(1-impact)**1.6;
+   if(heavy){ctx.save();ctx.translate(x,y);ctx.rotate(a+impact*6);ctx.fillStyle=j%2?'#b9aa87':'#625e4d';ctx.fillRect(-1.5*scale,-scale,3*scale,2*scale);ctx.restore();}
+   else stroke(ctx,{x,y},{x:x-Math.cos(a)*3*scale,y:y-Math.sin(a)*2*scale},j%2?'#ffe6b4':color,1.3*scale);
+  }
+  if(heavy&&!economy&&!reduced)for(let j=0;j<4;j++){
+   const a=j*2.4+(fx.visualId||0);ctx.globalAlpha=Math.sin(impact*Math.PI)*.14;disk(ctx,at.x+Math.cos(a)*spread*impact*.65,at.y+Math.sin(a)*spread*impact*.28-impact*spread*.3,spread*(.10+impact*.17),'#d4c4a4');
+  }
  }
  ctx.restore();
 }

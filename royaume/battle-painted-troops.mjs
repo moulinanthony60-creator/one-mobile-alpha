@@ -1,6 +1,6 @@
 // High-resolution painted pieces follow a continuous articulated pose. No
 // low-resolution full-body frame, frame blending or run-time image readback.
-import {loadBattleRigs,battleTroopPose} from './battle-troop-rig.mjs?v=16';
+import {loadBattleRigs,battleTroopPose} from './battle-troop-rig.mjs?v=18';
 import {loadArtImage} from './battle-village-assets.mjs?v=7';
 export const PAINTED_RIG_FILES=['assets/battle-style/troop-sculpt-front-v16.webp','assets/battle-style/troop-sculpt-back-v16.webp'];
 export const EQUIPMENT_FILE='assets/battle-style/equipment-v16.webp';
@@ -55,10 +55,20 @@ function equipment(ctx,gear,kind,q,i,resolution){
  }
  if(kind==='mages'&&i===1){const {muzzle}=paintedWeaponSockets(kind,q);weapon(ctx,gear.staff,hand,muzzle,.17,resolution,.58,.10);}
 }
+// A trailing cloth silhouette bends independently of the solid torso.
+function cloak(ctx,kind,q){
+ if(kind==='guardians')return;
+ const mage=kind==='mages',swing=Math.sin(q.phase*Math.PI*2-.7)*q.motion*.07,trail=q.motion*.12+q.hit*.09;
+ const a=q.point(-.19,-.10,.68+q.bob),b=q.point(.19,-.10,.68+q.bob),c=q.point(.23+swing,-.17-trail,mage?.13:.31),d=q.point(-.23+swing,-.17-trail,mage?.13:.31);
+ const gradient=ctx.createLinearGradient(a.x,a.y,c.x,c.y);gradient.addColorStop(0,mage?'#3469aa':'#477c3e');gradient.addColorStop(.55,mage?'#234c88':'#2f5b32');gradient.addColorStop(1,mage?'#142d5c':'#1d3e25');
+ ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.quadraticCurveTo(c.x+.06,c.y-.10,c.x,c.y);ctx.quadraticCurveTo((c.x+d.x)/2,(c.y+d.y)/2+.025,d.x,d.y);ctx.quadraticCurveTo(d.x-.05,d.y-.12,a.x,a.y);ctx.fillStyle=gradient;ctx.fill();
+ ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.quadraticCurveTo((c.x+d.x)/2,(c.y+d.y)/2+.025,c.x,c.y);ctx.lineWidth=.016;ctx.strokeStyle=mage?'#d4a456':'#91ab58';ctx.stroke();
+}
 export function paintPaintedTroop(ctx,rig,gear,kind,p,x,y,size){
  const q=battleTroopPose(kind,p),[head,torso,upper,fore,thigh,shin]=rig[q.back?1:0],knight=kind==='guardians';
  const transform=ctx.getTransform?.(),resolution=size*(transform?Math.hypot(transform.a,transform.b):1);
  ctx.save();ctx.translate(x,y);ctx.scale(size,size);
+ cloak(ctx,kind,q);
  const leg=i=>{const l=q.legs[i];bone(ctx,thigh,l.hip,l.knee,knight?.19:.17,q.flip,resolution);bone(ctx,shin,l.knee,l.foot,knight?.20:.175,q.flip,resolution);};
  const upperArm=i=>{const a=q.arms[i];
   line(ctx,a.shoulder,a.elbow,knight?'#be8754':kind==='archers'?'#c4946c':'#234a8c',.085);
@@ -73,8 +83,13 @@ export function paintPaintedTroop(ctx,rig,gear,kind,p,x,y,size){
  leg(q.far);
  if(kind==='archers'){const at=q.point(-.12,-.15,.53);ctx.save();ctx.translate(at.x,at.y);ctx.rotate(q.side*.14);if(q.flip)ctx.scale(-1,1);art(ctx,gear.quiver,-.085,-.39,.17,.47,resolution);ctx.restore();}
  upperArm(q.farArm);forearm(q.farArm);leg(1-q.far);upperArm(1-q.farArm);
- const width=(knight?.48:.40)*(.84+.16*Math.abs(q.front));
- ctx.save();ctx.translate(q.waist.x,q.waist.y);ctx.rotate(q.tilt);if(q.flip)ctx.scale(-1,1);art(ctx,torso,-width/2,-.40,width,kind==='mages'?.54:.44,resolution);ctx.restore();
- ctx.save();ctx.translate(q.neck.x,q.neck.y);ctx.rotate(q.tilt*.35);if(q.flip)ctx.scale(-1,1);const headWidth=knight?.405:.38;art(ctx,head,-headWidth/2,-.28,headWidth,.37,resolution);ctx.restore();
- forearm(1-q.farArm);ctx.restore();return q;
+ const width=(knight?.48:.40)*(.70+.30*Math.abs(q.front));
+ ctx.save();ctx.translate(q.waist.x,q.waist.y);ctx.rotate(q.tilt+q.twist*.18);ctx.transform(1,0,q.side*.08+q.twist,1,0,0);if(q.flip)ctx.scale(-1,1);art(ctx,torso,-width/2,-.40,width,kind==='mages'?.54:.44,resolution);ctx.restore();
+ ctx.save();ctx.translate(q.neck.x,q.neck.y);ctx.rotate(q.tilt*.45-q.twist*.25);if(q.flip)ctx.scale(-1,1);const headWidth=(knight?.385:.355)*(.84+.16*Math.abs(q.front));art(ctx,head,-headWidth/2,-.28,headWidth,.37,resolution);ctx.restore();
+ forearm(1-q.farArm);
+ if(kind==='mages'&&(q.windup>.05||q.hit>.05)){
+  const at=paintedWeaponSockets(kind,q).muzzle,energy=Math.max(q.windup,q.hit),r=.08+energy*.07;
+  ctx.save();ctx.globalAlpha=energy*.7;const glow=ctx.createRadialGradient(at.x,at.y,0,at.x,at.y,r);glow.addColorStop(0,'#fff5d0');glow.addColorStop(.25,'#ffc35d');glow.addColorStop(1,'#fa772000');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(at.x,at.y,r,0,Math.PI*2);ctx.fill();ctx.restore();
+ }
+ ctx.restore();return q;
 }
