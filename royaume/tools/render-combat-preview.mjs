@@ -31,5 +31,5 @@ async function render(width,height,name,zoom=1){
  view.reset(training.reset());view.frame(training.battle,0,false);view.dispose();
  console.log(JSON.stringify({name,loaded:true,width,height,score:finishedScore}));
 }
-await render(1024,576,'combat-v14',1);
-await render(390,720,'combat-v14-portrait');
+await render(1024,576,'combat-v15',1);
+await render(390,720,'combat-v15-portrait');
