@@ -3,7 +3,7 @@ export const VALDORIA_FIELD=Object.freeze({width:40,height:32,margin:6,seconds:1
 export function createValdoriaFort(){
  const buildings=[];
  function add(kind,x,y,hp,{damage=0,range=0,art=kind,w=2.1,d=2.1,rotation=0}={}){
-  buildings.push({id:`b${buildings.length}`,kind,art,x,y,hp,maxHp:hp,damage,range,cooldown:0,rotation,collision:{width:w,depth:d}});
+  buildings.push({id:`b${buildings.length}`,kind,art,x,y,hp,maxHp:hp,damage,range,cooldown:0,rotation,facing:Math.atan2(y-16,x-20),collision:{width:w,depth:d}});
  }
  add('castle',20.5,16.5,1080,{art:'castle4',w:4.1,d:3.8});
  const xs=[7,15,25,33],ys=[6,12,21,26];

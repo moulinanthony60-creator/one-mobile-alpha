@@ -3,19 +3,19 @@
 <head>
  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
  <meta name="theme-color" content="#2d482b"><meta name="description" content="Valdoria : déploie ton armée dans un village fortifié. Un entraînement gratuit en vue isométrique.">
- <title>Valdoria · Le fort des ronces</title><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="battle3d.css?v=7">
+ <title>Valdoria · Le fort des ronces</title><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="battle3d.css?v=13">
 </head>
 <body>
 <main id="game">
  <section id="arena" aria-label="Champ de bataille">
-  <canvas id="battle-canvas" tabindex="0" aria-label="Village fortifié. Choisis une troupe puis touche à l’extérieur de la ligne bleue. Glisse pour déplacer la vue et pince pour zoomer."></canvas>
+  <canvas id="battle-canvas" tabindex="0" aria-label="Village fortifié. Choisis une troupe puis touche à l’extérieur de la ligne rouge. Glisse pour déplacer la vue et pince pour zoomer."></canvas>
   <div id="loading" class="loading" role="status"><span class="loading-mark">V</span><strong>Le fort des ronces se prépare…</strong></div>
  </section>
  <header class="topbar">
   <div class="crest" aria-hidden="true"><svg viewBox="0 0 60 72"><path d="M5 6L30 2L55 6V42Q52 57 30 69Q8 57 5 42Z" fill="#245f9c" stroke="#efd57b" stroke-width="5"/><path d="M30 15V49M14 32H46M19 21L41 43M41 21L19 43" stroke="#f2d075" stroke-width="5"/><circle cx="30" cy="32" r="8" fill="#ffe5a3"/></svg></div>
-  <div class="brand"><span class="eyebrow">ONE · VALDORIA</span><h1>Le fort des ronces</h1><span class="practice-label">Entraînement gratuit</span></div>
+  <div class="brand"><span class="eyebrow">ONE · VALDORIA</span><h1>Le fort des ronces</h1><span class="practice-label">COMBAT D’ENTRAÎNEMENT</span></div>
  </header>
- <div class="battle-clock"><span id="clock-label">DÉPLOIE TON ARMÉE</span><b id="timer">2:30</b></div>
+ <div class="battle-clock"><span id="clock-label">DÉPLOIE TROUPES DISPONIBLES</span><b id="timer">2:30</b></div>
  <aside class="battle-counters" aria-label="Forces disponibles">
   <div class="counter"><span>Armée</span><b id="army-total">17</b><i aria-hidden="true" class="counter-icon army-icon">⚔</i></div>
   <div class="counter"><span>Sorts</span><b id="magic-total">2</b><i aria-hidden="true" class="counter-icon magic-icon">ϟ</i></div>
@@ -23,28 +23,28 @@
  </aside>
  <nav class="camera-controls" aria-label="Commandes de la vue">
   <button id="zoom-in" aria-label="Rapprocher la vue">+</button><button id="zoom-out" aria-label="Éloigner la vue">−</button><button id="home" aria-label="Recentrer le village">⌖</button>
-  <button id="fullscreen" aria-label="Ouvrir en plein écran">⛶</button><button id="quality" aria-pressed="false" aria-label="Activer le mode éco">Éco</button><button id="pause" aria-label="Mettre en pause" disabled>Ⅱ</button><button id="help" aria-label="Comment jouer">?</button>
+  <button id="fullscreen" aria-label="Ouvrir en plein écran">⛶</button><button id="sound" aria-pressed="false" aria-label="Activer les sons du combat">♫</button><button id="quality" aria-pressed="false" aria-label="Activer le mode éco">Éco</button><button id="pause" aria-label="Mettre en pause" disabled>Ⅱ</button><button id="help" aria-label="Comment jouer">?</button>
  </nav>
  <div id="toast" role="status" aria-live="polite"></div>
- <div id="hint" class="field-hint">Choisis une troupe, puis touche à l’extérieur de la ligne bleue.</div>
+ <div id="hint" class="field-hint">Choisis une troupe, puis touche à l’extérieur de la ligne rouge.</div>
  <section class="battle-status" aria-label="État de la bataille">
   <div class="progress-label">Destruction <b id="percent">0 %</b></div>
   <div class="progress-track" role="progressbar" aria-label="Destruction" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress"><i></i></div>
   <div id="stars" class="stars" aria-label="0 étoile sur 3"><span>★</span><span>★</span><span>★</span></div>
  </section>
  <footer class="command-deck">
-  <a class="return-button" href="./index.html"><span aria-hidden="true">‹</span> Village</a>
+  <a class="return-button" href="./index.html"><span aria-hidden="true">‹</span> Quitter</a>
   <div class="army-deck">
-   <div class="deck-heading"><span>TON ARMÉE</span><span id="reserve">17 troupes en réserve</span></div>
+   <div class="deck-heading"><span>TROUPES DISPONIBLES</span><span id="reserve">17 troupes en réserve</span></div>
    <div class="troop-list" role="group" aria-label="Choisir une troupe ou un sort">
     <button class="troop selected guardian" data-unit="guardians" aria-pressed="true" disabled>
-     <span class="troop-portrait"><svg viewBox="35 30 305 330" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><image href="assets/battle-style/guardians-smooth.webp" width="1536" height="1024"/></svg></span><span class="troop-name">Gardiens</span><b class="troop-count">×<span data-count="guardians">8</span></b>
+     <span class="troop-portrait"><img src="assets/battle-style/guardian-portrait-v13.webp" alt="" width="216" height="261"></span><span class="troop-name">Gardiens</span><b class="troop-count">×<span data-count="guardians">8</span></b>
     </button>
     <button class="troop archer" data-unit="archers" aria-pressed="false" disabled>
-     <span class="troop-portrait"><svg viewBox="35 35 300 330" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><image href="assets/battle-style/archers-smooth.webp" width="1536" height="1024"/></svg></span><span class="troop-name">Archers</span><b class="troop-count">×<span data-count="archers">6</span></b>
+     <span class="troop-portrait"><img src="assets/battle-style/archer-portrait-v13.webp" alt="" width="216" height="261"></span><span class="troop-name">Archers</span><b class="troop-count">×<span data-count="archers">6</span></b>
     </button>
     <button class="troop mage" data-unit="mages" aria-pressed="false" disabled>
-     <span class="troop-portrait"><svg viewBox="35 25 305 330" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><image href="assets/battle-style/mages-smooth.webp" width="1536" height="1024"/></svg></span><span class="troop-name">Mages</span><b class="troop-count">×<span data-count="mages">3</span></b>
+     <span class="troop-portrait"><img src="assets/battle-style/mage-portrait-v13.webp" alt="" width="216" height="261"></span><span class="troop-name">Mages</span><b class="troop-count">×<span data-count="mages">3</span></b>
     </button>
     <button id="spell" class="troop spell" aria-pressed="false" disabled><span class="spell-art" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><linearGradient id="potion" x2="0" y2="1"><stop stop-color="#84e9ff"/><stop offset="1" stop-color="#4565dc"/></linearGradient></defs><path d="M38 9H62V35Q86 51 80 77Q77 91 50 91Q23 91 20 77Q14 51 38 35Z" fill="url(#potion)" stroke="#dcf9ff" stroke-width="4"/><path d="M35 10H65V24H35Z" fill="#c6914b" stroke="#f9d595" stroke-width="3"/><path d="M57 39L36 64H50L44 82L67 54H52Z" fill="#fffbdc"/></svg></span><span class="troop-name">Foudre</span><b class="troop-count">×<span id="spell-count">2</span></b></button>
    </div>
@@ -55,7 +55,7 @@
 </main>
 <dialog id="intro" aria-labelledby="intro-title">
  <span class="eyebrow">ONE · VALDORIA</span><h2 id="intro-title">À l’assaut du fort !</h2><p>17 soldats, deux sorts et 2 min 30 pour traverser les enceintes du village.</p>
- <ol><li>Choisis une carte de troupe.</li><li>Touche à l’extérieur de la <strong>ligne bleue</strong> pour la déployer.</li><li>Lance la foudre sur les défenses ennemies.</li></ol>
+ <ol><li>Choisis une carte de troupe.</li><li>Touche à l’extérieur de la <strong>ligne rouge</strong> pour la déployer. Maintiens le doigt pour en déployer plusieurs.</li><li>Lance la foudre sur les défenses ennemies.</li></ol>
  <p class="art-note">Glisse pour explorer le terrain et pince pour zoomer. En paysage, le village dispose de toute la largeur.</p><p class="safe-note">Cet entraînement n’utilise aucune troupe ni ressource de ton village.</p><button id="start" class="primary">Jouer</button>
 </dialog>
 <dialog id="pause-dialog" aria-labelledby="pause-title"><span class="eyebrow">VALDORIA</span><h2 id="pause-title">Bataille en pause</h2><p>Ton armée t’attend sur le terrain.</p><button id="resume" class="primary">Reprendre</button><button id="restart-pause" class="secondary">Recommencer l’entraînement</button><a class="text-link" href="./index.html">Retour au village</a></dialog>
@@ -63,6 +63,6 @@
 <div id="fatal" hidden role="alert"><span class="eyebrow">VALDORIA · ENTRAÎNEMENT</span><h2>Le terrain n’a pas pu démarrer</h2><p id="fatal-detail">Recharge la page pour réessayer.</p><button onclick="location.reload()" class="primary">Réessayer</button><a class="text-link" href="./index.html">Retour au village</a></div>
 <noscript>Active JavaScript pour jouer. <a href="./index.html">Retour au village</a></noscript>
 <script type="module">
- import('./battle3d-app.mjs?v=9').catch(error=>{console.error('Valdoria :',error);document.querySelector('#fatal-detail').textContent='Le terrain n’a pas pu charger. Recharge la page pour réessayer.';document.querySelector('#loading').hidden=true;document.querySelector('#fatal').hidden=false;document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());});
+ import('./battle3d-app.mjs?v=13').catch(error=>{console.error('Valdoria :',error);document.querySelector('#fatal-detail').textContent='Le terrain n’a pas pu charger. Recharge la page pour réessayer.';document.querySelector('#loading').hidden=true;document.querySelector('#fatal').hidden=false;document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());});
 </script>
 </body></html>
