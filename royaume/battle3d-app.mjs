@@ -1,6 +1,6 @@
-import {createCombatAudio} from './battle-audio.mjs?v=15';
-import {createTraining, TROOPS, RAID_ARMY} from './battle3d-sandbox.mjs?v=15';
-import {createVillageScene} from './battle-village-scene.mjs?v=15';
+import {createCombatAudio} from './battle-audio.mjs?v=16';
+import {createTraining, TROOPS, RAID_ARMY} from './battle3d-sandbox.mjs?v=16';
+import {createVillageScene} from './battle-village-scene.mjs?v=16';
 import {VALDORIA_FIELD,createValdoriaFort} from './battle-style-layout.mjs?v=2';
 import {bindBattleInput} from './battle3d-input.mjs?v=2';
 
@@ -59,6 +59,8 @@ function updateUI() {
   $('#spell').setAttribute('aria-pressed',String(selected==='spell'));
   $('#spell-count').textContent=b.spells;
   $('#deploy-south').disabled=!active||selected==='spell'||!training.count(selected);
+  const deployLabel=reserve===0?'Armée déployée':'Déployer ×5<span>au sud ↓</span>';
+  if($('#deploy-south').innerHTML!==deployLabel)$('#deploy-south').innerHTML=deployLabel;
   $('#pause').disabled=!entered||failed||b.phase!=='active'||dialogs.some(dialog=>dialog.open);
   $('#hint').classList.toggle('magic',selected==='spell');
   $('#hint').textContent=selected==='spell'?'Touche une défense pour lancer la frappe magique.':reserve===0?(b.spells?'Ton armée combat. La magie reste disponible.':'Ton armée combat. Tu peux déplacer ou rapprocher la vue.'):!training.count(selected)?'Choisis une autre troupe pour poursuivre l’assaut.':'Touche hors de la ligne rouge. Maintiens pour déployer plusieurs soldats.';
@@ -164,6 +166,7 @@ if(!abandoned&&!failed){
   updateUI();
   if(!artReady)toast('Les bâtiments n’ont pas chargé. Recharge la page pour retrouver leurs illustrations.');
   else if(view.artStatus.details===false)toast('Certains bâtiments détaillés n’ont pas chargé. Recharge la page pour les retrouver.');
+  else if(view.artStatus.paintedTroops===false&&view.artStatus.troops)toast('Les nouvelles troupes n’ont pas chargé. Recharge pour retrouver leur nouveau rendu.');
   else if(!view.artStatus.troops)toast('Les illustrations des troupes n’ont pas chargé. Les soldats simplifiés restent jouables.');
   frameId=requestAnimationFrame(frame);
 }

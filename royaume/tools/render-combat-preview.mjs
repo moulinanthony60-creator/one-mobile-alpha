@@ -14,7 +14,7 @@ const out=process.env.VALDORIA_PREVIEW_DIR||fileURLToPath(new URL('../docs/',imp
 async function render(width,height,name,zoom=1){
  const training=createTraining({layout:createValdoriaFort,field:VALDORIA_FIELD,army:RAID_ARMY}),canvas=createCanvas(width,height);canvas.getBoundingClientRect=()=>({x:0,y:0,left:0,top:0,width,height});
  const view=createVillageScene(canvas,training.battle);await view.loadVillage();
- if(!view.artStatus.terrain||!view.artStatus.volumeTroops)throw Error('Production assets did not load');
+ if(!view.artStatus.terrain||!view.artStatus.paintedTroops)throw Error('Production assets did not load');
  view.zoom(zoom);view.frame(training.battle,0,false);writeFileSync(`${out}/${name}-overview.png`,canvas.toBuffer('image/png'));
  view.rangesVisible(true);writeFileSync(`${out}/${name}-ranges.png`,canvas.toBuffer('image/png'));view.rangesVisible(false);
  let n=0;for(const kind of ['guardians','archers','mages'])while(training.count(kind))training.deploy(kind,15.4+(n++%9)*.9,28.4+(n%2)*.35);
@@ -23,6 +23,8 @@ async function render(width,height,name,zoom=1){
  if(video)mkdirSync(`${out}/frames`,{recursive:true});
  for(let frame=0;frame<480;frame++){
   training.tick(1/30);view.frame(training.battle,1/30,true,training.presentation);
+  // Native Canvas defers draw commands; browsers present them each RAF.
+  if(!video&&frame%8===0)canvas.getContext('2d').getImageData(0,0,1,1);
   if(video&&frame%2===0)writeFileSync(`${out}/frames/${String(frame/2).padStart(4,'0')}.png`,canvas.toBuffer('image/png'));
   if(frame===269)writeFileSync(`${out}/${name}.png`,canvas.toBuffer('image/png'));
  }
@@ -31,5 +33,5 @@ async function render(width,height,name,zoom=1){
  view.reset(training.reset());view.frame(training.battle,0,false);view.dispose();
  console.log(JSON.stringify({name,loaded:true,width,height,score:finishedScore}));
 }
-await render(1024,576,'combat-v15',1);
-await render(390,720,'combat-v15-portrait');
+await render(1024,576,'combat-v16',1);
+await render(390,720,'combat-v16-portrait');

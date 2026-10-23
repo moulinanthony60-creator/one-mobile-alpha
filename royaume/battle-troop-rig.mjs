@@ -5,8 +5,8 @@ const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export const RIG_FILES=['assets/battle-style/troop-rig-front.webp','assets/battle-style/troop-rig-back.webp'];
 const kinds=['guardians','archers','mages'];
 // Atlas cells have generous gutters; alpha trimming is performed once at load.
-export async function loadBattleRigs(signal,makeCanvas){
- const images=await Promise.all(RIG_FILES.map(file=>loadArtImage(new URL(file,import.meta.url).href,signal)));
+export async function loadBattleRigs(signal,makeCanvas,files=RIG_FILES){
+ const images=await Promise.all(files.map(file=>loadArtImage(new URL(file,import.meta.url).href,signal)));
  const rigs=new Map(kinds.map(kind=>[kind,[]]));
  images.forEach((image,view)=>{
   const probe=makeCanvas(image.width,image.height),cx=probe.getContext('2d');cx.drawImage(image,0,0);const rgba=cx.getImageData(0,0,image.width,image.height).data;
@@ -36,7 +36,7 @@ export function bendJoint(a,b,length,direction){
 // shifting above it. The shooting hand stays on the shared muzzle at release.
 export function battleTroopPose(kind,p){
  const norm=Math.hypot(p.dx,p.dz)||1,fx=p.dx/norm,fz=p.dz/norm,front=(fx+fz)/Math.SQRT2,side=(fx-fz)/Math.SQRT2;
- const motion=p.reduced?0:clamp(p.motion??0,0,1),stride=troopStride(kind),phase=(p.distance||0)/stride,bob=Math.cos(phase*Math.PI*4)*.038*motion;
+ const motion=p.reduced?0:clamp(p.motion??0,0,1),stride=troopStride(kind),phase=(p.distance||0)/stride,bob=Math.cos(phase*Math.PI*4)*.026*motion;
  const age=p.attackAge??10,peak=kind==='guardians'?.12:kind==='archers'?.055:.08,ease=x=>{x=clamp(x,0,1);return x*x*(3-2*x);},hit=p.reduced?0:age<peak?ease(age/peak):1-ease((age-peak)/.24),carry=kind==='guardians'?Math.max(0,1-age/.12):kind==='mages'?Math.max(0,1-age/.30):0,windup=p.reduced?0:Math.max(p.windup||0,carry);
  const point=(s,f,h)=>({x:((fz*s+fx*f)-(-fx*s+fz*f))*.68,y:((fz*s+fx*f)+(-fx*s+fz*f))*.34-h,depth:(fz-fx)*s+(fx+fz)*f});
  const shift=kind==='guardians'?hit*.12-windup*.045:kind==='mages'?hit*.035-windup*.025:0;
@@ -55,7 +55,8 @@ export function battleTroopPose(kind,p){
   if(kind==='archers'&&(p.aiming||hit||windup)){forward=i===0?.39:.35-draw*.38;height=.66+bob+(i===0?0:.02);spread=i===0?-.10:.12;}
   if(kind==='mages'){if(i===1){forward=.08+hit*.18;height=.43+bob+windup*.25+hit*.05;}else{forward+=hit*.30;height+=hit*.15;}}
   const shoulder={s:sign*.23+sway,f:shift+lean,h:.69+bob},hand={s:spread,f:forward,h:height};
-  const elbow=bendJoint(shoulder,hand,.245,{s:sign*.7,f:-.4,h:-1});
+  const reach=Math.hypot(hand.s-shoulder.s,hand.f-shoulder.f,hand.h-shoulder.h),armLength=Math.max(kind==='guardians'?.205:.195,reach*.515);
+  const elbow=bendJoint(shoulder,hand,armLength,{s:sign*.18,f:-1,h:-.2});
   return {shoulder:project(shoulder),elbow:project(elbow),hand:project(hand),world:{shoulder,elbow,hand}};
  });
  const waist=point(sway,shift,.37+bob),neck=point(sway,shift+lean,.77+bob),tilt=Math.atan2(neck.x-waist.x,waist.y-neck.y);

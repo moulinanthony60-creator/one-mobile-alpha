@@ -2,13 +2,14 @@ import {createDefensePainter} from './battle-defense-rig.mjs?v=3';
 import {paintRuin,paintBuildingWear,ruinSprite} from './battle-building-details.mjs?v=1';
 import {loadVillageSprites,spritePlacement,villageSpriteKey,villageScenery} from './battle-village-assets.mjs?v=6';
 import {createWallArt,wallConnections} from './wall-art.mjs?v=34';
-import {createBattleWallArt} from './battle-wall-art.mjs?v=14';
+import {createBattleWallArt} from './battle-wall-art.mjs?v=16';
 import {fitBattleCamera,combatFocus} from './battle-camera.mjs?v=14';
 import {paintCartoonActor} from './cartoon-art.mjs?v=34';
-import {loadBattleRigs,paintBattleTroop} from './battle-troop-rig.mjs?v=14';
+import {paintBattleTroop} from './battle-troop-rig.mjs?v=16';
 import {loadVolumeTroops,paintVolumeTroop,VOLUME_TILE} from './battle-volume-atlas.mjs?v=15';
+import {loadPaintedTroops,paintPaintedTroop} from './battle-painted-troops.mjs?v=16';
 import {troopScale} from './battle-aim.mjs?v=3';
-import {effectAge,paintCombatShot,paintDestruction,paintEmbers} from './battle-combat-fx.mjs?v=14';
+import {effectAge,paintCombatShot,paintDestruction,paintEmbers} from './battle-combat-fx.mjs?v=16';
 import {loadFortressSprites} from './battle-fortress-art.mjs?v=14';
 import {createSceneryCache} from './battle-scene-cache.mjs?v=3';
 import {renderPosition,renderFacing,createMotionTracks} from './battle-motion.mjs?v=5';
@@ -90,11 +91,12 @@ export function createVillageScene(canvas,initialBattle){
   if(feedback.hit){ctx.strokeStyle=`rgba(255,211,153,${feedback.hit*.85})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(at.x,at.y-size*.42,size*.25,size*.39,0,0,Math.PI*2);ctx.stroke();}
   if(feedback.fall){ctx.translate(at.x,at.y);ctx.rotate((pose.dx-pose.dz>=0?1:-1)*feedback.fall*1.28);ctx.scale(1,1-feedback.fall*.28);ctx.translate(-at.x,-at.y);}
   const rig=troops.get(u.kind);
-  if(rig&&troops.volume)paintVolumeTroop(ctx,rig,u.kind,pose,at.x,at.y,size,volumeMix);
+  if(rig&&troops.painted)paintPaintedTroop(ctx,rig,troops.equipment,u.kind,pose,at.x,at.y,size);
+  else if(rig&&troops.volume)paintVolumeTroop(ctx,rig,u.kind,pose,at.x,at.y,size,volumeMix);
   else if(rig)paintBattleTroop(ctx,rig,u.kind,pose,at.x,at.y,size);
   else paintCartoonActor(ctx,{...pose,kind:{guardians:'guardian',archers:'archer',mages:'scholar'}[u.kind],walkDistance:pose.distance,motionBlend:!reduced&&pose.moving?1:0,activityTime:time,cooldown:u.cooldown,interval:1},at.x,at.y,size*.8);
   ctx.restore();
-  health(at.x,at.y-size*1.26,size*.5,u.hp/u.maxHp);
+  if(Number.isFinite(u.lastHitAt)&&battle.elapsed-u.lastHitAt<1.5)health(at.x,at.y-size*1.15,size*.5,u.hp/u.maxHp);
  }
  function decoration(item,t){const art=sprites.get(item.key);if(!art)return;const at=p(item.x,item.z),w=item.width*t/Math.SQRT2,h=w*art.aspect;sprite(art.image,at.x-w/2,at.y+item.bottom*t/Math.SQRT2-h,w,h);}
  function paintEffects(t){
@@ -105,7 +107,7 @@ export function createVillageScene(canvas,initialBattle){
    else if(b.kind!=='wall')paintEmbers(ctx,b,time,at,t,{economy,reduced});
   }
   for(const fx of battle.effects){const at=p(fx.x,fx.y);
-   if(fx.style){paintCombatShot(ctx,fx,effectAge(fx,battle.elapsed,presentation),p,t,{economy,reduced});continue;}
+   if(fx.style){paintCombatShot(ctx,fx,effectAge(fx,battle.elapsed,presentation),p,t,{economy,reduced,fireArt:troops.equipment?.fire});continue;}
    if(fx.kind==='spell'){
     ctx.save();const progress=1-fx.life/.65;ctx.globalAlpha=Math.min(1,fx.life*3);ctx.strokeStyle='#dac9ff';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(at.x,at.y,t*2.6*progress,t*1.3*progress,0,0,Math.PI*2);ctx.stroke();
     if(!economy){const g=ctx.createRadialGradient(at.x,at.y,0,at.x,at.y,t*2);g.addColorStop(0,'#bda4ff88');g.addColorStop(1,'#846aff00');ctx.fillStyle=g;ctx.fillRect(at.x-t*2,at.y-t*2,t*4,t*4);}
@@ -160,7 +162,7 @@ export function createVillageScene(canvas,initialBattle){
  return {
   get artStatus(){return {...artStatus};},
   get renderStats(){return cache.stats;},
-  async loadVillage(){const [terrain,actors]=await Promise.allSettled([wide?loadFortressSprites(abort.signal,makeCanvas):loadVillageSprites(abort.signal),loadVolumeTroops(abort.signal).catch(()=>loadBattleRigs(abort.signal,makeCanvas))]);if(disposed)return false;if(terrain.status==='fulfilled'){sprites=terrain.value;artStatus.terrain=true;artStatus.details=terrain.value.detailReady!==false;}if(actors.status==='fulfilled'){troops=actors.value;artStatus.troops=true;artStatus.volumeTroops=Boolean(troops.volume);}if(sprites.volumeReady){defense.setBases(sprites);artStatus.defenses=true;}else{try{await defense.load(abort.signal);artStatus.defenses=true;}catch{artStatus.defenses=false;}}if(disposed)return false;backdropDirty=true;cache.invalidate();paint();return artStatus.terrain;},
+  async loadVillage(){const [terrain,actors]=await Promise.allSettled([wide?loadFortressSprites(abort.signal,makeCanvas):loadVillageSprites(abort.signal),loadPaintedTroops(abort.signal,makeCanvas).catch(()=>loadVolumeTroops(abort.signal))]);if(disposed){if(actors.status==='fulfilled')actors.value.dispose?.();return false;}if(terrain.status==='fulfilled'){sprites=terrain.value;artStatus.terrain=true;artStatus.details=terrain.value.detailReady!==false;}if(actors.status==='fulfilled'){troops=actors.value;artStatus.troops=true;artStatus.volumeTroops=Boolean(troops.volume);artStatus.paintedTroops=Boolean(troops.painted);artStatus.troopDecodedBytes=troops.decodedBytes||0;}if(sprites.volumeReady){defense.setBases(sprites);artStatus.defenses=true;}else{try{await defense.load(abort.signal);artStatus.defenses=true;}catch{artStatus.defenses=false;}}if(disposed)return false;backdropDirty=true;cache.invalidate();paint();return artStatus.terrain;},
   frame(b,dt,animate=true,interpolation=null){battle=b;presentation=interpolation;const delta=animate?clamp(dt,0,.1):0;time+=delta;
    if(following&&animate&&(followClock-=delta)<=0){followClock=.4;const focus=combatFocus(battle);if(focus){const at=p(focus.x,focus.z),limitX=camera.width*.17,limitY=camera.height*.10;if(Math.abs(at.x-camera.width/2)>limitX||Math.abs(at.y-camera.originY)>limitY){camera.x=focus.x;camera.z=focus.z;backdropDirty=true;}}}
    const targets=new Map(b.buildings.map(o=>[o.id,o]));
@@ -180,6 +182,6 @@ export function createVillageScene(canvas,initialBattle){
   home(){following=false;camera.x=field.width/2;camera.z=field.height/2;camera.zoom=1;backdropDirty=true;paint();},
   quality(eco){economy=Boolean(eco);resize();},
   reset(b){battle=b;time=0;recordsKey='';visualUnits=[];motion.clear();cache.invalidate();destroyed.clear();selectedDefense=null;showRanges=false;marker=null;this.home();},resize,
-  dispose(){disposed=true;abort.abort();observer.disconnect();sprites.clear();troops.clear();motion.clear();defense.dispose();cache.dispose();destroyed.clear();volumeMix.width=volumeMix.height=backdrop.width=backdrop.height=grass.width=grass.height=1;}
+  dispose(){disposed=true;abort.abort();observer.disconnect();sprites.clear();troops.dispose?.();troops.clear();motion.clear();defense.dispose();cache.dispose();destroyed.clear();volumeMix.width=volumeMix.height=backdrop.width=backdrop.height=grass.width=grass.height=1;}
  };
 }

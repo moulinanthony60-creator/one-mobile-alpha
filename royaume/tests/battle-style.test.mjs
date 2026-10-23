@@ -54,15 +54,16 @@ test('the real battle page wires selection, deployment, spells, help, pause and 
  globalThis.document=doc;globalThis.window=win;globalThis.requestAnimationFrame=f=>(frame=f,1);globalThis.cancelAnimationFrame=()=>{};
  globalThis.StyleTestView=(_canvas,battle)=>{current=battle;return {artStatus:{terrain:true,troops:true},loadVillage:async()=>true,frame(b){current=b;},reset(b){current=b;},point:(x,y)=>({x,y}),mark(){},pan(){},zoom(){},home(){},follow(){},rangesVisible(){},inspect(){return null;},quality(){},dispose(){}};};
  try{
-  const url=new URL('../battle3d-app.mjs',import.meta.url);let source=readFileSync(url,'utf8').replace("import {createVillageScene} from './battle-village-scene.mjs?v=15';",'const createVillageScene=globalThis.StyleTestView;');source=source.replace(/from '([^']+)'/g,(_,p)=>`from '${new URL(p,url).href}'`);
+  const url=new URL('../battle3d-app.mjs',import.meta.url);let source=readFileSync(url,'utf8').replace("import {createVillageScene} from './battle-village-scene.mjs?v=16';",'const createVillageScene=globalThis.StyleTestView;');source=source.replace(/from '([^']+)'/g,(_,p)=>`from '${new URL(p,url).href}'`);
   await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
-  assert.equal(ids.get('army-total').textContent,40);assert.equal(ids.get('targets-total').textContent,35);
+  assert.equal(ids.get('army-total').textContent,40);assert.equal(ids.get('targets-total').textContent,35);assert.match(ids.get('deploy-south').innerHTML,/Déployer/);
   ids.get('deploy-south').click();assert.equal(current.units.length,5);assert.ok(Math.abs(current.units[0].y-28.85)<1e-9);assert.equal(ids.get('army-total').textContent,35);
   controls[1].click();ids.get('deploy-south').click();assert.equal(current.units[5].kind,'archers');
   ids.get('spell').click();const canvas=ids.get('battle-canvas');canvas.listeners.get('pointerdown')({button:0,pointerId:1,clientX:20,clientY:16});canvas.listeners.get('pointerup')({button:0,pointerId:1,clientX:20,clientY:16});assert.equal(current.spells,1);
   ids.get('pause').click();assert.equal(ids.get('pause-dialog').open,true);assert.equal(ids.get('deploy-south').disabled,true);ids.get('resume').click();assert.equal(ids.get('pause-dialog').open,false);
   ids.get('help').click();assert.equal(ids.get('intro').open,true);ids.get('start').click();assert.equal(ids.get('intro').open,false);
   ids.get('pause').click();ids.get('restart-pause').click();assert.equal(current.units.length,0);assert.equal(current.spells,2);assert.equal(ids.get('army-total').textContent,40);
+  for(let i=0;i<9;i++)ids.get('deploy-south').click();assert.equal(ids.get('army-total').textContent,0);assert.equal(ids.get('deploy-south').innerHTML,'Armée déployée');
   frame(1000);win.listeners.get('pagehide')({persisted:false});
  }finally{for(const[k,v]of saved){if(v===undefined)delete globalThis[k];else globalThis[k]=v;}}
 });

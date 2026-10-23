@@ -14,7 +14,7 @@ test('landscape framing keeps the fort clear of the timer and troop bar, with ex
   for(const zoom of [.75,1,3.2])for(const [x,z]of [[3,3],[20,16],[37,29]]){camera.zoom=zoom;camera.x=18.2;camera.z=19.7;const p=projectBattle(x,z,camera),q=unprojectBattle(p.x,p.y,camera);assert.ok(Math.abs(q.x-x)<1e-9&&Math.abs(q.y-z)<1e-9);}
  }
 });
-test('production troop atlases remain below 48 MiB decoded and all three roles have matching portraits',()=>{
+test('fallback troop atlases remain below 48 MiB decoded and all three roles have matching portraits',()=>{
  const decoded=VOLUME_TILE.width*16*VOLUME_TILE.height*22*4*Object.keys(VOLUME_FILES).length;
  assert.ok(decoded<48*1024*1024);
  for(const file of Object.values(VOLUME_FILES)){assert.ok(existsSync(new URL('../'+file,import.meta.url)));assert.ok(existsSync(new URL('../'+file.replace('-volume-','-portrait-'),import.meta.url)));}
