@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="fr">
 <head>
+<script type="importmap">{"imports":{"./battle-aim.mjs?v=3":"./battle-aim.mjs?v=17"}}</script>
  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
  <meta name="theme-color" content="#2d482b"><meta name="description" content="Valdoria : déploie ton armée dans un village fortifié. Un entraînement gratuit en vue isométrique.">
  <title>Valdoria · Le fort des ronces</title><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="battle3d.css?v=16">
@@ -13,7 +14,7 @@
  </section>
  <header class="topbar">
   <div class="crest" aria-hidden="true"><svg viewBox="0 0 60 72"><path d="M5 6L30 2L55 6V42Q52 57 30 69Q8 57 5 42Z" fill="#245f9c" stroke="#efd57b" stroke-width="5"/><path d="M30 15V49M14 32H46M19 21L41 43M41 21L19 43" stroke="#f2d075" stroke-width="5"/><circle cx="30" cy="32" r="8" fill="#ffe5a3"/></svg></div>
-  <div class="brand"><span class="eyebrow">ONE · VALDORIA</span><h1>Le fort des ronces</h1><span class="practice-label">COMBAT D’ENTRAÎNEMENT · V16</span></div>
+  <div class="brand"><span class="eyebrow">ONE · VALDORIA</span><h1>Le fort des ronces</h1><span class="practice-label">COMBAT D’ENTRAÎNEMENT · V17</span></div>
  </header>
  <div class="battle-clock"><span id="clock-label">DÉPLOIE TON ARMÉE</span><b id="timer">2:30</b></div>
  <aside class="battle-counters" aria-label="Forces disponibles">
@@ -63,6 +64,6 @@
 <div id="fatal" hidden role="alert"><span class="eyebrow">VALDORIA · ENTRAÎNEMENT</span><h2>Le terrain n’a pas pu démarrer</h2><p id="fatal-detail">Recharge la page pour réessayer.</p><button onclick="location.reload()" class="primary">Réessayer</button><a class="text-link" href="./index.html">Retour au village</a></div>
 <noscript>Active JavaScript pour jouer. <a href="./index.html">Retour au village</a></noscript>
 <script type="module">
- import('./battle3d-app.mjs?v=16').catch(error=>{console.error('Valdoria :',error);document.querySelector('#fatal-detail').textContent='Le terrain n’a pas pu charger. Recharge la page pour réessayer.';document.querySelector('#loading').hidden=true;document.querySelector('#fatal').hidden=false;document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());});
+ import('./battle3d-app.mjs?v=17').catch(error=>{console.error('Valdoria :',error);document.querySelector('#fatal-detail').textContent='Le terrain n’a pas pu charger. Recharge la page pour réessayer.';document.querySelector('#loading').hidden=true;document.querySelector('#fatal').hidden=false;document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());});
 </script>
 </body></html>

@@ -3,7 +3,7 @@ import {paintRuin,paintBuildingWear,ruinSprite} from './battle-building-details.
 import {loadVillageSprites,spritePlacement,villageSpriteKey,villageScenery} from './battle-village-assets.mjs?v=6';
 import {createWallArt,wallConnections} from './wall-art.mjs?v=34';
 import {createBattleWallArt} from './battle-wall-art.mjs?v=16';
-import {fitBattleCamera,combatFocus} from './battle-camera.mjs?v=14';
+import {fitBattleCamera,combatFocus} from './battle-camera.mjs?v=17';
 import {paintCartoonActor} from './cartoon-art.mjs?v=34';
 import {paintBattleTroop} from './battle-troop-rig.mjs?v=16';
 import {loadVolumeTroops,paintVolumeTroop,VOLUME_TILE} from './battle-volume-atlas.mjs?v=15';
@@ -174,7 +174,7 @@ export function createVillageScene(canvas,initialBattle){
    const hit=battle.buildings.filter(b=>b.hp>0&&b.damage>0).map(b=>{const at=p(b.x,b.y),height=b.kind==='tower'?1.6:b.kind==='arcane'?1.4:.65;return {b,d:Math.hypot((sx-at.x)/(t*.90),(sy-(at.y-t*height))/(t*.80))};}).filter(o=>o.d<=1).sort((a,b)=>a.d-b.d)[0]?.b;
    selectedDefense=hit?.id||null;if(hit)showRanges=false;paint();return hit||null;
   },
-  follow(enabled=true){following=Boolean(enabled);followClock=0;if(following){const focus=combatFocus(battle);if(focus){camera.x=focus.x;camera.z=focus.z;camera.zoom=clamp(42/camera.tile,1.4,3.2);backdropDirty=true;paint();}}},
+  follow(enabled=true){following=Boolean(enabled);followClock=0;if(following){const focus=combatFocus(battle);if(focus){camera.x=focus.x;camera.z=focus.z;camera.zoom=clamp(34/camera.tile,1.2,3.2);backdropDirty=true;paint();}}},
   point(x,y){const r=canvas.getBoundingClientRect();return unprojectBattle(x-r.left,y-r.top,camera);},
   mark(x,y,magic=false,invalid=false){marker={x,y,magic,invalid,until:time+.65};},
   pan(dx,dy){following=false;const t=camera.tile*camera.zoom;camera.x=clamp(camera.x-dx/t-2*dy/t,2,field.width-2);camera.z=clamp(camera.z+dx/t-2*dy/t,2,field.height-2);backdropDirty=true;paint();},

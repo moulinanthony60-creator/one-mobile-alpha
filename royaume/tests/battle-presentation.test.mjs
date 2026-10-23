@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {fitBattleCamera} from '../battle-camera.mjs';
+import {fitBattleCamera,combatFocus} from '../battle-camera.mjs';
 import {projectBattle,unprojectBattle} from '../battle-village-scene.mjs';
 import {createCombatAudio} from '../battle-audio.mjs';
 import {VOLUME_TILE,VOLUME_FILES} from '../battle-volume-atlas.mjs';
@@ -24,4 +24,9 @@ test('audio is opt-in, deduplicates shots, suspends on pause and releases its co
  class Audio{constructor(){made++;this.state='suspended';this.currentTime=0;this.destination={};}async resume(){this.state='running';}async suspend(){this.state='suspended';}async close(){closed++;this.state='closed';}createGain(){return {gain:{setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){},disconnect(){}};}createOscillator(){return {frequency:{setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){},disconnect(){},start(){played++;},stop(){this.onended();}};}}
  globalThis.AudioContext=Audio;
  try{const audio=createCombatAudio(),battle={effects:[{visualId:1,style:'cannon'}]};audio.sync(battle);assert.equal(made,0);await audio.toggle();assert.equal(made,1);audio.reset();audio.sync(battle);const count=played;audio.sync(battle);assert.equal(played,count);audio.suspend();audio.sync({effects:[{visualId:2,style:'arrow'}]});assert.equal(played,count);await audio.toggle();audio.dispose();assert.equal(closed,1);}finally{if(previous===undefined)delete globalThis.AudioContext;else globalThis.AudioContext=previous;}
+});
+
+test('combat follow includes the defended village above troops deployed by the shore',()=>{
+ const b={units:[{hp:100,x:18,y:29},{hp:100,x:20,y:29},{hp:100,x:22,y:29}],buildings:[{id:'a',kind:'castle',hp:100,x:20,y:16},{id:'b',kind:'tower',hp:100,x:25,y:20}]};
+ const p=combatFocus(b);assert.ok(p.z<26&&p.z>20);assert.ok(p.x>=18&&p.x<=25);assert.equal(combatFocus({...b,units:[]}),null);
 });
