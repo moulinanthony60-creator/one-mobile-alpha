@@ -16,5 +16,10 @@ export function combatFocus(battle){
  const near=alive.filter(u=>Math.hypot(u.x-x,u.y-z)<8);
  let sx=0,sz=0,weight=0;
  for(const u of near){sx+=u.x;sz+=u.y;weight++;const t=targets.get(u.target);if(t&&Math.hypot(t.x-u.x,t.y-u.y)<6){sx+=t.x*.35;sz+=t.y*.35;weight+=.35;}}
- return {x:sx/weight,z:sz/weight};
+ const front={x:sx/weight,z:sz/weight},base=[...targets.values()].filter(b=>b.kind!=='wall');
+ // Include the defended village above the front line, rather than centering
+ // the whole screen on soldiers at the water's edge.
+ if(!base.length)return front;
+ const center={x:median(base.map(b=>b.x)),z:median(base.map(b=>b.y))};
+ return {x:front.x*.55+center.x*.45,z:front.z*.55+center.z*.45};
 }

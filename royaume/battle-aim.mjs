@@ -7,8 +7,8 @@ export function turnTo(actor,angle,dt,rate=5){
  actor.facing+=clamp(angleDelta(angle,actor.facing),-rate*dt,rate*dt);
  return Math.abs(angleDelta(angle,actor.facing))<.045;
 }
-export const troopScale=kind=>kind==='guardians'?.92:kind==='archers'?.86:.90;
-export const troopStride=kind=>kind==='guardians'?.96:kind==='archers'?.90:1.02;
+export const troopScale=kind=>kind==='guardians'?.63:kind==='archers'?.59:.62;
+export const troopStride=kind=>kind==='guardians'?.72:kind==='archers'?.68:.76;
 export const troopVisualDirection=angle=>((Math.round(angle/(Math.PI*2)*16)%16)+16)%16;
 export function weaponMount(source,aim){
  const kind=source.kind,angle=source.facing??Math.PI/4,dx=Math.cos(angle),dy=Math.sin(angle);
