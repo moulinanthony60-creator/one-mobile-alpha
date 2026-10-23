@@ -21,5 +21,5 @@ export function combatFocus(battle){
  // the whole screen on soldiers at the water's edge.
  if(!base.length)return front;
  const center={x:median(base.map(b=>b.x)),z:median(base.map(b=>b.y))};
- return {x:front.x*.55+center.x*.45,z:front.z*.55+center.z*.45};
+ return {x:front.x*.25+center.x*.75,z:front.z*.25+center.z*.75};
 }

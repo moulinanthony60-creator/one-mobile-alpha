@@ -36,21 +36,21 @@ export function bendJoint(a,b,length,direction){
 // shifting above it. The shooting hand stays on the shared muzzle at release.
 export function battleTroopPose(kind,p){
  const norm=Math.hypot(p.dx,p.dz)||1,fx=p.dx/norm,fz=p.dz/norm,front=(fx+fz)/Math.SQRT2,side=(fx-fz)/Math.SQRT2;
- const motion=p.reduced?0:clamp(p.motion??0,0,1),stride=troopStride(kind),phase=(p.distance||0)/stride,bob=Math.cos(phase*Math.PI*4)*.026*motion;
+ const motion=p.reduced?0:clamp(p.motion??0,0,1),stride=troopStride(kind),phase=(p.distance||0)/stride,bob=-Math.abs(Math.sin(phase*Math.PI*2))*(kind==='guardians'?.035:kind==='archers'?.045:.018)*motion;
  const age=p.attackAge??10,peak=kind==='guardians'?.12:kind==='archers'?.055:.08,ease=x=>{x=clamp(x,0,1);return x*x*(3-2*x);},hit=p.reduced?0:age<peak?ease(age/peak):1-ease((age-peak)/.24),carry=kind==='guardians'?Math.max(0,1-age/.12):kind==='mages'?Math.max(0,1-age/.30):0,windup=p.reduced?0:Math.max(p.windup||0,carry);
  const point=(s,f,h)=>({x:((fz*s+fx*f)-(-fx*s+fz*f))*.68,y:((fz*s+fx*f)+(-fx*s+fz*f))*.34-h,depth:(fz-fx)*s+(fx+fz)*f});
  const shift=kind==='guardians'?hit*.12-windup*.045:kind==='mages'?hit*.035-windup*.025:0;
- const sway=Math.sin(phase*Math.PI*2)*.030*motion,lean=.055*motion+(kind==='guardians'?hit*.19-windup*.06:kind==='mages'?hit*.045-windup*.025:0);
+ const sway=Math.sin(phase*Math.PI*2)*(kind==='guardians'?.040:.022)*motion,lean=.055*motion+(kind==='guardians'?hit*.19-windup*.06:kind==='mages'?hit*.045-windup*.025:0);
  const draw=kind==='archers'&&!p.reduced?(age<.22?1-ease(age/.095):ease(p.windup||0)):0;
  const project=v=>point(v.s,v.f,v.h);
- const legs=[-1,1].map((sign,i)=>{const c=footCycle(phase+i*.5),travel=c.travel*(.6*stride/(4*.68*troopScale(kind)))*motion,lift=c.lift*.17*motion;
+ const legs=[-1,1].map((sign,i)=>{const c=footCycle(phase+i*.5),travel=c.travel*(.6*stride/(4*.68*troopScale(kind)))*motion,lift=c.lift*(kind==='guardians'?.115:kind==='archers'?.16:.085)*motion;
   const hip={s:sign*.13+sway,f:shift*.2,h:.37+bob},foot={s:sign*.13,f:travel,h:lift},locked=p.footOffsets?.[i];
   if(locked){const x=locked.x/.68,y=locked.y/.34,wx=(x+y)/2,wz=(y-x)/2;foot.s=fz*wx-fx*wz;foot.f=fx*wx+fz*wz;foot.h=0;}
   const knee=bendJoint(hip,foot,.235,{s:0,f:1,h:0});
   return {hip:project(hip),knee:project(knee),foot:project(foot),world:{hip,knee,foot},contact:motion===0||c.lift===0};});
  const arms=[-1,1].map((sign,i)=>{
-  let forward=-Math.cos(phase*Math.PI*2+i*Math.PI)*.17*motion+shift,height=.39+bob,spread=sign*.28;
-  if(kind==='guardians'&&i===1){forward+=hit*.38-windup*.12;height+=windup*.42+hit*.17;}
+  let forward=-Math.cos(phase*Math.PI*2+i*Math.PI)*(kind==='guardians'?.13:kind==='archers'?.20:.075)*motion+shift,height=.39+bob,spread=sign*.28;
+  if(kind==='guardians'&&i===1){forward+=hit*.38-windup*.12;height+=windup*.42+hit*.17;spread-=hit*.38;}
   if(kind==='guardians'&&i===0){forward+=windup*.12+hit*.16;height+=windup*.08;}
   if(kind==='archers'&&(p.aiming||hit||windup)){forward=i===0?.39:.35-draw*.38;height=.66+bob+(i===0?0:.02);spread=i===0?-.10:.12;}
   if(kind==='mages'){if(i===1){forward=.08+hit*.18;height=.43+bob+windup*.25+hit*.05;}else{forward+=hit*.30;height+=hit*.15;}}
@@ -59,8 +59,11 @@ export function battleTroopPose(kind,p){
   const elbow=bendJoint(shoulder,hand,armLength,{s:sign*.18,f:-1,h:-.2});
   return {shoulder:project(shoulder),elbow:project(elbow),hand:project(hand),world:{shoulder,elbow,hand}};
  });
- const waist=point(sway,shift,.37+bob),neck=point(sway,shift+lean,.77+bob),tilt=Math.atan2(neck.x-waist.x,waist.y-neck.y);
- return {legs,arms,front,side,back:front<-.12,flip:side<0,point,bob,hit,windup,draw,phase,motion,age,waist,neck,tilt,body:{s:sway,f:shift,lean,h:bob},aiming:p.aiming,far:legs[0].hip.depth<legs[1].hip.depth?0:1,farArm:arms[0].shoulder.depth<arms[1].shoulder.depth?0:1};
+ const compression=kind==='guardians'?hit*.055:kind==='archers'?hit*.015:hit*.025;
+ const breath=p.reduced||(p.aiming&&!p.idle)||motion>.1?0:Math.sin((p.time||0)*2.8)*.009;
+ const waist=point(sway,shift,.37+bob-compression),neck=point(sway,shift+lean,.77+bob-compression+breath),tilt=Math.atan2(neck.x-waist.x,waist.y-neck.y);
+ const twist=Math.sin(phase*Math.PI*2)*motion*.10+(kind==='guardians'?(windup-hit)*.13:kind==='archers'?-draw*.055:hit*.07);
+ return {twist,breath,legs,arms,front,side,back:front<-.12,flip:side<0,point,bob,hit,windup,draw,phase,motion,age,waist,neck,tilt,body:{s:sway,f:shift,lean,h:bob},aiming:p.aiming,far:legs[0].hip.depth<legs[1].hip.depth?0:1,farArm:arms[0].shoulder.depth<arms[1].shoulder.depth?0:1};
 }
 function bone(ctx,image,a,b,width,flip){
  const length=Math.hypot(b.x-a.x,b.y-a.y);ctx.save();ctx.translate(a.x,a.y);ctx.rotate(Math.atan2(b.y-a.y,b.x-a.x)-Math.PI/2);if(flip)ctx.scale(-1,1);ctx.drawImage(image,-width/2,-.035,width,length+.065);ctx.restore();

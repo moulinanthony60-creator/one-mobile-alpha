@@ -34,6 +34,6 @@ test('new village and combat entry points request the changed modules instead of
  const index=readFileSync(new URL('../index.html',import.meta.url),'utf8'),battle=readFileSync(new URL('../bataille-3d.html',import.meta.url),'utf8');
  const imports=html=>JSON.parse(html.match(/<script type="importmap">(.*?)<\/script>/s)[1]).imports;
  assert.equal(imports(index)['./village-art.mjs?v=34'],'./village-art.mjs?v=17');assert.equal(imports(index)['./village-hud.mjs?v=34'],'./village-hud.mjs?v=17');assert.equal(imports(battle)['./battle-aim.mjs?v=3'],'./battle-aim.mjs?v=17');
- assert.match(index,/app\.mjs\?v=52/);assert.match(battle,/V17/);
+ assert.match(index,/app\.mjs\?v=53/);assert.match(battle,/V18/);
  for(const kind of ['guardians','archers','mages'])assert.ok(troopScale(kind)<.65&&troopScale(kind)>.55);
 });

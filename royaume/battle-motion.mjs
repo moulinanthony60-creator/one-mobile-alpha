@@ -40,7 +40,7 @@ export function createMotionTracks(){
     if(Math.hypot(x,y)>.5){old.feet[i]=null;return null;}
     return {x:(x-y)*.5/size,y:(x+y)*.25/size,world:{...foot}};
    });
-   return {dx,dz,distance:old.distance,moving:old.motion>.08,motion:old.motion,attack:strike,attacking:strike>.1,attackAge:old.attackAge,aiming:unit.action?['aim','windup','recover'].includes(unit.action):Boolean(target)&&old.motion<.25,windup:unit.action?(unit.action==='windup'?unit.windup||0:0):target&&old.motion<.25&&unit.cooldown>0&&unit.cooldown<.24?1-unit.cooldown/.24:0,footOffsets,reduced};
+   return {time:(elapsed??0)+unit.id*.37,dx,dz,distance:old.distance,moving:old.motion>.08,motion:old.motion,attack:strike,attacking:strike>.1,attackAge:old.attackAge,aiming:unit.action?['aim','windup','recover'].includes(unit.action):Boolean(target)&&old.motion<.25,windup:unit.action?(unit.action==='windup'?unit.windup||0:0):target&&old.motion<.25&&unit.cooldown>0&&unit.cooldown<.24?1-unit.cooldown/.24:0,footOffsets,reduced};
   },
   clear(){tracks.clear();}
  };

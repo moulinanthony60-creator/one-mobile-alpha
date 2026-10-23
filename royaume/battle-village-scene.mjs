@@ -3,16 +3,17 @@ import {paintRuin,paintBuildingWear,ruinSprite} from './battle-building-details.
 import {loadVillageSprites,spritePlacement,villageSpriteKey,villageScenery} from './battle-village-assets.mjs?v=6';
 import {createWallArt,wallConnections} from './wall-art.mjs?v=34';
 import {createBattleWallArt} from './battle-wall-art.mjs?v=16';
-import {fitBattleCamera,combatFocus} from './battle-camera.mjs?v=17';
+import {fitBattleCamera,combatFocus} from './battle-camera.mjs?v=18';
 import {paintCartoonActor} from './cartoon-art.mjs?v=34';
-import {paintBattleTroop} from './battle-troop-rig.mjs?v=16';
+import {paintBattleTroop} from './battle-troop-rig.mjs?v=18';
 import {loadVolumeTroops,paintVolumeTroop,VOLUME_TILE} from './battle-volume-atlas.mjs?v=15';
-import {loadPaintedTroops,paintPaintedTroop} from './battle-painted-troops.mjs?v=16';
+import {loadAnimatedTroops,paintAnimatedTroop} from './battle-animated-troops.mjs?v=18';
+import {loadPaintedTroops,paintPaintedTroop} from './battle-painted-troops.mjs?v=18';
 import {troopScale} from './battle-aim.mjs?v=3';
-import {effectAge,paintCombatShot,paintDestruction,paintEmbers} from './battle-combat-fx.mjs?v=16';
+import {effectAge,paintCombatShot,paintDestruction,paintEmbers} from './battle-combat-fx.mjs?v=18';
 import {loadFortressSprites} from './battle-fortress-art.mjs?v=14';
 import {createSceneryCache} from './battle-scene-cache.mjs?v=3';
-import {renderPosition,renderFacing,createMotionTracks} from './battle-motion.mjs?v=5';
+import {renderPosition,renderFacing,createMotionTracks} from './battle-motion.mjs?v=18';
 import {meadowTexture,battlefieldScenery,paintGround} from './battle-style-ground.mjs?v=14';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const makeCanvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
@@ -88,10 +89,11 @@ export function createVillageScene(canvas,initialBattle){
   if(!economy&&!reduced&&pose.motion>.6){ctx.save();ctx.globalAlpha=.11;ctx.fillStyle='#e9d4a1';ctx.beginPath();ctx.ellipse(at.x-pose.dx*t*.16,at.y+1,t*.12,t*.05,0,0,Math.PI*2);ctx.fill();ctx.restore();}
   ctx.save();ctx.globalAlpha=feedback.opacity;
   ctx.fillStyle='#14211655';ctx.beginPath();ctx.ellipse(at.x+2,at.y+1,size*.23,size*.09,0,0,Math.PI*2);ctx.fill();
-  if(feedback.hit){ctx.strokeStyle=`rgba(255,211,153,${feedback.hit*.85})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(at.x,at.y-size*.42,size*.25,size*.39,0,0,Math.PI*2);ctx.stroke();}
+  if(feedback.hit){const lean=(pose.dx-pose.dz>=0?-1:1)*feedback.hit*.13;ctx.translate(at.x,at.y);ctx.rotate(lean);ctx.scale(1,1-feedback.hit*.035);ctx.translate(-at.x,-at.y);}
   if(feedback.fall){ctx.translate(at.x,at.y);ctx.rotate((pose.dx-pose.dz>=0?1:-1)*feedback.fall*1.28);ctx.scale(1,1-feedback.fall*.28);ctx.translate(-at.x,-at.y);}
   const rig=troops.get(u.kind);
-  if(rig&&troops.painted)paintPaintedTroop(ctx,rig,troops.equipment,u.kind,pose,at.x,at.y,size);
+  if(rig&&troops.animated)paintAnimatedTroop(ctx,rig,u.kind,pose,at.x,at.y,size);
+  else if(rig&&troops.painted)paintPaintedTroop(ctx,rig,troops.equipment,u.kind,pose,at.x,at.y,size);
   else if(rig&&troops.volume)paintVolumeTroop(ctx,rig,u.kind,pose,at.x,at.y,size,volumeMix);
   else if(rig)paintBattleTroop(ctx,rig,u.kind,pose,at.x,at.y,size);
   else paintCartoonActor(ctx,{...pose,kind:{guardians:'guardian',archers:'archer',mages:'scholar'}[u.kind],walkDistance:pose.distance,motionBlend:!reduced&&pose.moving?1:0,activityTime:time,cooldown:u.cooldown,interval:1},at.x,at.y,size*.8);
@@ -162,7 +164,7 @@ export function createVillageScene(canvas,initialBattle){
  return {
   get artStatus(){return {...artStatus};},
   get renderStats(){return cache.stats;},
-  async loadVillage(){const [terrain,actors]=await Promise.allSettled([wide?loadFortressSprites(abort.signal,makeCanvas):loadVillageSprites(abort.signal),loadPaintedTroops(abort.signal,makeCanvas).catch(()=>loadVolumeTroops(abort.signal))]);if(disposed){if(actors.status==='fulfilled')actors.value.dispose?.();return false;}if(terrain.status==='fulfilled'){sprites=terrain.value;artStatus.terrain=true;artStatus.details=terrain.value.detailReady!==false;}if(actors.status==='fulfilled'){troops=actors.value;artStatus.troops=true;artStatus.volumeTroops=Boolean(troops.volume);artStatus.paintedTroops=Boolean(troops.painted);artStatus.troopDecodedBytes=troops.decodedBytes||0;}if(sprites.volumeReady){defense.setBases(sprites);artStatus.defenses=true;}else{try{await defense.load(abort.signal);artStatus.defenses=true;}catch{artStatus.defenses=false;}}if(disposed)return false;backdropDirty=true;cache.invalidate();paint();return artStatus.terrain;},
+  async loadVillage(){const [terrain,actors]=await Promise.allSettled([wide?loadFortressSprites(abort.signal,makeCanvas):loadVillageSprites(abort.signal),loadAnimatedTroops(abort.signal).catch(()=>loadPaintedTroops(abort.signal,makeCanvas)).catch(()=>loadVolumeTroops(abort.signal))]);if(disposed){if(actors.status==='fulfilled')actors.value.dispose?.();return false;}if(terrain.status==='fulfilled'){sprites=terrain.value;artStatus.terrain=true;artStatus.details=terrain.value.detailReady!==false;}if(actors.status==='fulfilled'){troops=actors.value;artStatus.troops=true;artStatus.volumeTroops=Boolean(troops.volume);artStatus.paintedTroops=Boolean(troops.painted||troops.animated);artStatus.animatedTroops=Boolean(troops.animated);artStatus.troopDecodedBytes=troops.decodedBytes||0;}if(sprites.volumeReady){defense.setBases(sprites);artStatus.defenses=true;}else{try{await defense.load(abort.signal);artStatus.defenses=true;}catch{artStatus.defenses=false;}}if(disposed)return false;backdropDirty=true;cache.invalidate();paint();return artStatus.terrain;},
   frame(b,dt,animate=true,interpolation=null){battle=b;presentation=interpolation;const delta=animate?clamp(dt,0,.1):0;time+=delta;
    if(following&&animate&&(followClock-=delta)<=0){followClock=.4;const focus=combatFocus(battle);if(focus){const at=p(focus.x,focus.z),limitX=camera.width*.17,limitY=camera.height*.10;if(Math.abs(at.x-camera.width/2)>limitX||Math.abs(at.y-camera.originY)>limitY){camera.x=focus.x;camera.z=focus.z;backdropDirty=true;}}}
    const targets=new Map(b.buildings.map(o=>[o.id,o]));
