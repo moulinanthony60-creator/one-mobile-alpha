@@ -54,7 +54,7 @@ test('the real battle page wires selection, deployment, spells, help, pause and 
  globalThis.document=doc;globalThis.window=win;globalThis.requestAnimationFrame=f=>(frame=f,1);globalThis.cancelAnimationFrame=()=>{};
  globalThis.StyleTestView=(_canvas,battle)=>{current=battle;return {artStatus:{terrain:true,troops:true},loadVillage:async()=>true,frame(b){current=b;},reset(b){current=b;},point:(x,y)=>({x,y}),mark(){},pan(){},zoom(){},home(){},follow(){},rangesVisible(){},inspect(){return null;},quality(){},dispose(){}};};
  try{
-  const url=new URL('../battle3d-app.mjs',import.meta.url);let source=readFileSync(url,'utf8').replace("import {createVillageScene} from './battle-village-scene.mjs?v=14';",'const createVillageScene=globalThis.StyleTestView;');source=source.replace(/from '([^']+)'/g,(_,p)=>`from '${new URL(p,url).href}'`);
+  const url=new URL('../battle3d-app.mjs',import.meta.url);let source=readFileSync(url,'utf8').replace("import {createVillageScene} from './battle-village-scene.mjs?v=15';",'const createVillageScene=globalThis.StyleTestView;');source=source.replace(/from '([^']+)'/g,(_,p)=>`from '${new URL(p,url).href}'`);
   await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
   assert.equal(ids.get('army-total').textContent,40);assert.equal(ids.get('targets-total').textContent,35);
   ids.get('deploy-south').click();assert.equal(current.units.length,5);assert.ok(Math.abs(current.units[0].y-28.85)<1e-9);assert.equal(ids.get('army-total').textContent,35);

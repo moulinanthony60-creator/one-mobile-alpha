@@ -1,6 +1,6 @@
-import {createCombatAudio} from './battle-audio.mjs?v=14';
-import {createTraining, TROOPS, RAID_ARMY} from './battle3d-sandbox.mjs?v=14';
-import {createVillageScene} from './battle-village-scene.mjs?v=14';
+import {createCombatAudio} from './battle-audio.mjs?v=15';
+import {createTraining, TROOPS, RAID_ARMY} from './battle3d-sandbox.mjs?v=15';
+import {createVillageScene} from './battle-village-scene.mjs?v=15';
 import {VALDORIA_FIELD,createValdoriaFort} from './battle-style-layout.mjs?v=2';
 import {bindBattleInput} from './battle3d-input.mjs?v=2';
 
