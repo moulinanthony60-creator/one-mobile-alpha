@@ -65,12 +65,14 @@ function setup(){
   return {context,document,feed,slides,items,timers,tick,message,frame,status,button,opened};
 }
 
-test('only the active video loads; ready starts muted without locking volume',()=>{
+test('native playback is visible and clickable before TikTok emits ready',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);r.tick(1000);
   assert.equal(r.document.querySelectorAll('iframe').length,1);
-  assert.equal(new URL(f.src).searchParams.get('muted'),'0');assert.equal(new URL(f.src).searchParams.get('autoplay'),'0');
-  r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
-  assert(f.messages.every(m=>m.origin==='https://www.tiktok.com'));
+  assert.equal(new URL(f.src).searchParams.get('muted'),'0');assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');
+  for(const key of ['controls','play_button','progress_bar','volume_control','fullscreen_button'])assert.equal(new URL(f.src).searchParams.get(key),'1');
+  assert.equal(f.style.opacity,'1');assert.equal(f.style.pointerEvents,'auto');assert.equal(s.querySelector('img').style.opacity,'0');
+  assert.equal(s.dataset.ttManual,'1');assert.equal(s.dataset.ttControlsReady,'1');
+  r.message(f,'onPlayerReady');assert.equal(f.messages.length,0);
   r.message(f,'onStateChange',1);assert.equal(f.style.opacity,'1');assert.equal(s.dataset.ttVisualReady,'1');
 });
 test('a video loading longer than 4.5 seconds is retained and can recover after timeout',()=>{
@@ -79,14 +81,13 @@ test('a video loading longer than 4.5 seconds is retained and can recover after 
   r.tick(10500);assert.equal(r.frame(s),f);assert.match(r.status(s).querySelector('p').textContent,/plus de temps/);
   r.message(f,'onStateChange',1);assert.equal(r.status(s),null);assert.equal(f.style.opacity,'1');
 });
-test('autoplay error exposes an interactive native player without a reload loop',()=>{
+test('autoplay refusal leaves the same native player ready for a direct tap',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const old=r.frame(s);
   r.message(old,'onPlayerError',{errorCode:3002,errorType:'AUTOPLAY_ERROR'});const f=r.frame(s);
-  assert.notEqual(f,old);assert.equal(f.dataset.oneManual,'1');assert.equal(new URL(f.src).searchParams.get('controls'),'1');
-  assert.equal(new URL(f.src).searchParams.get('autoplay'),'0');assert.equal(f.style.opacity,'1');
+  assert.equal(f,old);assert.equal(f.dataset.oneManual,'1');assert.equal(new URL(f.src).searchParams.get('controls'),'1');
+  assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');assert.equal(f.style.opacity,'1');
   r.message(f,'onPlayerReady');assert.equal(f.messages.length,0);
   r.message(f,'onPlayerError',{errorCode:3002});assert.equal(r.frame(s),f);
-  r.message(old,'onPlayerError',{errorCode:1001});assert.equal(r.frame(s),f);
   r.message(f,'onStateChange',1);assert.equal(r.status(s),null);
 });
 test('invalid videos show a way forward without deleting catalogue entries',()=>{
@@ -130,5 +131,13 @@ test('swiping back creates a fresh playable frame without restoring stale errors
   r.context.v17ActivateSlide(r.slides[1]);r.context.v17ActivateSlide(s);const f=r.frame(s);
   assert.notEqual(f,old);assert.equal(r.status(s),null);assert.equal(s.dataset.oneUserPaused,undefined);
   assert.equal(r.document.querySelectorAll('iframe').length,1);r.message(f,'onPlayerReady');
-  assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
+  assert.equal(f.messages.length,0);assert.equal(s.dataset.ttManual,'1');assert.equal(f.style.opacity,'1');
+});
+test('native player navigation works without scrolling inside the cross-origin iframe',()=>{
+  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const first=r.frame(s);
+  r.context.v17StepSlide(s,-1);assert.equal(r.frame(s),first);
+  r.context.v17StepSlide(s,1);assert.equal(r.slides[1].dataset.active,'1');assert.equal(r.slides[1].scrolled,true);
+  assert.equal(first.isConnected,false);assert.equal(r.document.querySelectorAll('iframe').length,1);
+  r.context.v17StepSlide(r.slides[1],-1);assert.equal(s.dataset.active,'1');assert.notEqual(r.frame(s),first);
+  r.context.v17StepSlide(r.slides[2],1);assert.equal(s.dataset.active,'1');
 });
