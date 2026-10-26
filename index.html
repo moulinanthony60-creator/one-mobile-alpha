@@ -878,6 +878,7 @@ function v17OpenTikTok(id){
 function v17ClearTikTokTimers(slide){
  if(!slide)return;
  for(const key of ['_ttVisualTimer','_ttPosterTimer','_ttReadyTimer','_ttFastKick','_ttNext2Timer'])clearTimeout(slide[key]);
+ slide._ttVisualTimer=null;
  const frame=slide.querySelector('iframe');
  if(frame){clearTimeout(frame._oneTTKick1);clearTimeout(frame._oneTTKick2);}
 }
@@ -922,6 +923,11 @@ function v17TikTokNativePlayer(slide){
  media.classList.remove('playing','loading');
  v17TikTokFallback(slide,'manual');
 }
+async function v17CopyTikTokDiagnostic(slide){
+ const report='ONE v226 — diagnostic TikTok\n'+JSON.stringify({video:v17RawTikTokId(v17ItemById(slide?.dataset.id)),browser:navigator.userAgent,events:window.oneTikTokDiagnostic||[]},null,2);
+ try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}
+ catch{const panel=slide?.querySelector('.oneTikTokStatus');if(!panel)return;let box=panel.querySelector('textarea');if(!box){box=document.createElement('textarea');box.readOnly=true;box.setAttribute('aria-label','Diagnostic TikTok à copier');box.style.cssText='width:100%;height:100px';panel.appendChild(box);}box.value=report;box.select();}
+}
 function v17TikTokFallback(slide,reason='network'){
  const x=v17ItemById(slide?.dataset.id),media=slide?.querySelector('.vslideMedia');
  if(!x||!media||slide.getAttribute('data-active')!=='1')return;
@@ -949,6 +955,7 @@ function v17TikTokFallback(slide,reason='network'){
   const skip=document.createElement('button');skip.type='button';skip.textContent='Vidéo suivante';skip.onclick=e=>{e.stopPropagation();v17StepSlide(slide,1);};actions.appendChild(skip);
  }
  const external=document.createElement('button');external.type='button';external.textContent='Ouvrir sur TikTok';external.onclick=e=>{e.stopPropagation();v17OpenTikTok(x.id);};actions.appendChild(external);
+ const diagnostic=document.createElement('button');diagnostic.type='button';diagnostic.textContent='Copier le diagnostic';diagnostic.onclick=e=>{e.stopPropagation();v17CopyTikTokDiagnostic(slide);};actions.appendChild(diagnostic);
 }
 function v17SendTikTok(frame,type,value,allowNativeCommand=false){
  if(!frame?.contentWindow||!frame.isConnected)return;
@@ -1117,6 +1124,7 @@ function v17ActivateSlide(slide){
   v17ClearTikTokTimers(slide);delete slide.dataset.oneUserPaused;
   slide.querySelector('.oneTikTokStatus')?.remove();
   slide.dataset.ttTimeAdvanced='0';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';slide.dataset.ttReady='0';
+  f._oneTTLastTime=null;
   // Native input stays available on ready, autoplay refusal, tap or the bounded timeout.
   f.dataset.oneManual='1';f.dataset.onePreload='0';f.dataset.onePlayPending=wasPreloaded?'1':'0';f.removeAttribute('aria-hidden');f.removeAttribute('tabindex');slide.dataset.ttManual='1';delete slide.dataset.ttUnavailable;
   if(wasPreloaded&&f.dataset.oneReady==='1')v17ShowTikTokControls(slide,false);else v17PrepareTikTokPoster(slide,f);
@@ -1167,8 +1175,10 @@ function v121ArmTikTokVisualWatch(slide){
  clearTimeout(slide._ttVisualTimer);
  const frame=slide.querySelector('iframe');
  slide._ttVisualTimer=setTimeout(()=>{
-  if(!document.hidden&&slide.isConnected&&slide.getAttribute('data-active')==='1'&&slide.querySelector('iframe')===frame&&slide.dataset.ttVisualReady!=='1'&&slide.dataset.oneUserPaused!=='1'){
+  slide._ttVisualTimer=null;
+  if(!document.hidden&&slide.isConnected&&slide.getAttribute('data-active')==='1'&&slide.querySelector('iframe')===frame&&slide.dataset.oneUserPaused!=='1'){
    // A slow load is not proof of an unavailable video. Keep the current frame alive.
+   oneTTTrace('lecture sans progression',slide,frame,{time:frame?._oneTTLastTime??null});
    v17TikTokFallback(slide,'slow');
   }
  },15000);
@@ -1200,16 +1210,24 @@ window.addEventListener('message',e=>{
    const tap=slide.querySelector('.oneTapPlayback');if(tap){tap.setAttribute('aria-pressed',String(paused));tap.setAttribute('aria-label',paused?'Reprendre la vidéo':'Mettre la vidéo en pause');}
   }
   if(state===1){
-   frame.dataset.oneHadPicture='1';delete frame.dataset.onePreloadError;
-   v121RevealTikTokFrame(slide);
-   if(frame.dataset.oneRestoreSound==='1'){frame.dataset.oneRestoreSound='0';v17SendTikTok(frame,'unMute',undefined,true);}
-   if(v1814SoundAllowed()&&frame.dataset.oneSoundAttempt!=='1'){frame.dataset.oneSoundAttempt='1';v17SendTikTok(frame,'unMute');}
+   // "playing" can precede buffering or a stale timestamp. Wait for the clock to advance.
+   if(slide.dataset.ttVisualReady!=='1')v17ShowTikTokControls(slide);
+   if(!slide._ttVisualTimer&&!slide.querySelector('.oneTikTokStatus'))v121ArmTikTokVisualWatch(slide);
   }
+  if(state===2&&slide.dataset.oneUserPaused==='1'){clearTimeout(slide._ttVisualTimer);slide._ttVisualTimer=null;}
  }
  if(d.type==='onMute'&&frame.dataset.oneHadPicture==='1')frame.dataset.oneUserMuted=d.value===true?'1':'0';
  if(d.type==='onCurrentTime'){
-  const time=Number(d.value?.currentTime??d.value??0);
-  if(Number.isFinite(time)&&time>0){slide.dataset.ttTimeAdvanced='1';v121RevealTikTokFrame(slide);}
+  const time=Number(d.value?.currentTime??d.value),last=frame._oneTTLastTime;
+  if(Number.isFinite(time)&&time>=0){
+   frame._oneTTLastTime=time;
+   if(Number.isFinite(last)&&time>last&&slide.dataset.oneUserPaused!=='1'){
+    slide.dataset.ttTimeAdvanced='1';frame.dataset.oneHadPicture='1';delete frame.dataset.onePreloadError;
+    v121RevealTikTokFrame(slide);v121ArmTikTokVisualWatch(slide);
+    if(frame.dataset.oneRestoreSound==='1'){frame.dataset.oneRestoreSound='0';v17SendTikTok(frame,'unMute',undefined,true);}
+    if(v1814SoundAllowed()&&frame.dataset.oneSoundAttempt!=='1'){frame.dataset.oneSoundAttempt='1';v17SendTikTok(frame,'unMute');}
+   }
+  }
  }
  if(d.type==='onPlayerError'||d.type==='onError'){
   const code=Number(d.value?.errorCode??d.value);
@@ -3135,6 +3153,7 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
     const pause=owner.dataset.oneUserPaused!=='1'&&(!slide||slide.dataset.ttPlaying==='1');owner.dataset.oneUserPaused=pause?'1':'0';
     b.setAttribute('aria-pressed',String(pause));b.setAttribute('aria-label',pause?'Reprendre la vidéo':'Mettre la vidéo en pause');
     v17SendTikTok(f,pause?'pause':'play',undefined,true);
+    if(slide){if(pause){clearTimeout(slide._ttVisualTimer);slide._ttVisualTimer=null;}else v121ArmTikTokVisualWatch(slide);}
    };
   }
   if(b._frame!==frame){b._frame=frame;delete owner.dataset.oneUserPaused;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label','Mettre la vidéo en pause');}
