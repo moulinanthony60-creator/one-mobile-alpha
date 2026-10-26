@@ -850,7 +850,7 @@ function v17PlayerUrl(x){
  if(x.p==='tiktok'){
    const tid=v17RawTikTokId(x);
    if(!/^\d{8,24}$/.test(tid) || x.tiktokPlayable===false) return '';
-   return `https://www.tiktok.com/player/v1/${encodeURIComponent(tid)}?autoplay=0&description=0&music_info=0&controls=0&progress_bar=0&play_button=0&volume_control=0&fullscreen_button=0&loop=1&rel=0&native_context_menu=1&muted=0`;
+   return `https://www.tiktok.com/player/v1/${encodeURIComponent(tid)}?autoplay=1&description=0&music_info=0&controls=1&progress_bar=1&play_button=1&volume_control=1&fullscreen_button=1&loop=1&rel=0&native_context_menu=1&muted=0`;
  }
  if(x.p==='youtube' && x.videoId){
    document.querySelectorAll('.card .media.inline-playing').forEach(m=>{if(m!==media && m.dataset.provider!=='twitch'){m.classList.remove('inline-playing');m.querySelector('iframe')?.remove();}});
@@ -881,6 +881,11 @@ function v17ClearTikTokTimers(slide){
  const frame=slide.querySelector('iframe');
  if(frame){clearTimeout(frame._oneTTKick1);clearTimeout(frame._oneTTKick2);}
 }
+function v17StepSlide(slide,direction){
+ const target=direction<0?slide?.previousElementSibling:slide?.nextElementSibling;
+ if(!target?.classList.contains('vslide'))return;
+ target.scrollIntoView({behavior:'auto',block:'start'});v17ActivateSlide(target);
+}
 function v17TikTokNativePlayer(slide){
  const x=v17ItemById(slide?.dataset.id),media=slide?.querySelector('.vslideMedia');
  if(!x||!media||slide.getAttribute('data-active')!=='1')return;
@@ -894,7 +899,7 @@ function v17TikTokNativePlayer(slide){
  frame.src=url.href;frame.title='Lecteur TikTok';frame.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';frame.allowFullscreen=true;
  frame.dataset.provider='tiktok';frame.dataset.oneManual='1';frame.setAttribute('playsinline','');
  frame.style.opacity='1';frame.style.pointerEvents='auto';
- slide.dataset.ttManual='1';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';delete slide.dataset.oneUserPaused;
+ slide.dataset.ttManual='1';slide.dataset.ttControlsReady='1';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';delete slide.dataset.oneUserPaused;
  media.appendChild(frame);const img=media.querySelector('img');if(img)img.style.opacity='0';
  media.classList.remove('playing','loading');
  v17TikTokFallback(slide,'manual');
@@ -905,6 +910,7 @@ function v17TikTokFallback(slide,reason='network'){
  v17ClearTikTokTimers(slide);
  if(reason==='autoplay'&&slide.dataset.ttManual!=='1'){v17TikTokNativePlayer(slide);return;}
  if(reason==='invalid'){
+  delete slide.dataset.ttControlsReady;
   media.querySelectorAll('iframe').forEach(frame=>{v17SendTikTok(frame,'pause');frame.remove();});
   const img=media.querySelector('img');if(img)img.style.opacity='1';
  }
@@ -914,7 +920,7 @@ function v17TikTokFallback(slide,reason='network'){
  if(!panel){panel=document.createElement('section');panel.className='oneTikTokStatus';panel.setAttribute('aria-label','Lecture TikTok');media.appendChild(panel);}
  panel.replaceChildren();panel.hidden=false;
  const message=document.createElement('p');message.setAttribute('role','status');
- message.textContent=reason==='invalid'?'Cette vidéo est indisponible dans le lecteur TikTok.':reason==='manual'||reason==='autoplay'?'Appuie sur ▶ dans le lecteur TikTok pour lancer la vidéo.':reason==='slow'?'TikTok met plus de temps à répondre. Tu peux patienter ou relancer la lecture.':'La lecture a été interrompue. Tu peux réessayer ou passer à la suivante.';
+ message.textContent=reason==='invalid'?'Cette vidéo est indisponible dans le lecteur TikTok.':reason==='manual'||reason==='autoplay'?'Appuie sur ▶ dans le lecteur TikTok pour lancer la vidéo.':reason==='slow'?'Appuie sur ▶ dans la vidéo. Si TikTok met plus de temps à charger, tu peux réessayer.':'La lecture a été interrompue. Tu peux réessayer ou passer à la suivante.';
  panel.appendChild(message);
  const actions=document.createElement('div');panel.appendChild(actions);
  if(!['invalid','manual','autoplay'].includes(reason)){
@@ -922,7 +928,7 @@ function v17TikTokFallback(slide,reason='network'){
  }
  const next=slide.nextElementSibling;
  if(next?.classList.contains('vslide')){
-  const skip=document.createElement('button');skip.type='button';skip.textContent='Vidéo suivante';skip.onclick=e=>{e.stopPropagation();next.scrollIntoView({behavior:'auto',block:'start'});v17ActivateSlide(next);};actions.appendChild(skip);
+  const skip=document.createElement('button');skip.type='button';skip.textContent='Vidéo suivante';skip.onclick=e=>{e.stopPropagation();v17StepSlide(slide,1);};actions.appendChild(skip);
  }
  const external=document.createElement('button');external.type='button';external.textContent='Ouvrir sur TikTok';external.onclick=e=>{e.stopPropagation();v17OpenTikTok(x.id);};actions.appendChild(external);
 }
@@ -981,7 +987,7 @@ function v1815ClipSound(slide){
 window.v1815ClipSound=v1815ClipSound;
 function v17RestoreSlide(slide){
  if(!slide)return;
- v17ClearTikTokTimers(slide);slide.querySelector('.oneTikTokStatus')?.remove();delete slide.dataset.ttManual;
+ v17ClearTikTokTimers(slide);slide.querySelector('.oneTikTokStatus')?.remove();delete slide.dataset.ttManual;delete slide.dataset.ttControlsReady;
  const id=String(slide.dataset.id||''), x=v17ItemById(id), media=slide.querySelector('.vslideMedia'); if(!media||!x)return;
  slide.removeAttribute('data-active');
  slide.removeAttribute('data-twitch-started');
@@ -1069,10 +1075,13 @@ function v17ActivateSlide(slide){
  const f=document.createElement('iframe');f.src=src;
  f.title='Lecteur '+platformName(x.p);f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider=x.p;f.style.pointerEvents='auto';
  if(x.p==='tiktok'){
-  v17ClearTikTokTimers(slide);delete slide.dataset.ttManual;delete slide.dataset.oneUserPaused;
+  v17ClearTikTokTimers(slide);delete slide.dataset.oneUserPaused;
   slide.querySelector('.oneTikTokStatus')?.remove();
   slide.dataset.ttTimeAdvanced='0';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';slide.dataset.ttReady='0';
-  f.style.opacity='0';const im=media.querySelector('img');if(im)im.style.opacity='1';media.classList.remove('playing','loading');
+  // Some TikTok players emit ready only after a native tap. Never hide that tap target.
+  // Native mode also keeps late API events from restarting or muting a user's playback.
+  f.dataset.oneManual='1';slide.dataset.ttManual='1';slide.dataset.ttControlsReady='1';
+  f.style.opacity='1';const im=media.querySelector('img');if(im)im.style.opacity='0';media.classList.remove('playing','loading');
   oneTTTrace('création lecteur actif',slide,f);
  }else f.style.opacity='1';
  f.onload=()=>{
@@ -1183,7 +1192,7 @@ function renderVerticalFeed(){
  if(verticalFeedMode==='twitch-clips'&&twitchClipLanguage!=='all')source=source.filter(x=>String(x.language||'').toLowerCase()===twitchClipLanguage);
  let arr=(['all','tiktok'].includes(verticalFeedMode)?oneMixCreators(source,verticalFeedMode):source.filter(x=>!state.disliked.has(String(x.id))).sort((a,b)=>personalScore(b)-personalScore(a)));if(verticalFeedMode==='tiktok'&&window.__oneCreationTikTokTargetId){const ti=arr.findIndex(x=>String(x.id)===String(window.__oneCreationTikTokTargetId)||String(x.tiktokId||'')===String(window.__oneCreationTikTokRaw||''));if(ti>0){const [pinned]=arr.splice(ti,1);arr.unshift(pinned);}}if(verticalFeedMode==='twitch-clips')arr=diverseByCreator(arr,60);else arr=arr.slice(0,60);
  if(!arr.length){root.innerHTML='<div class="vempty"><div><b>Aucun contenu réel chargé</b><br><br>'+(verticalFeedMode==='all'?'Connecte TikTok depuis ton compte ONE ou ajoute un lien public dans Réglages.':'Connecte YouTube, TikTok ou Twitch dans Réglages.')+'</div></div>';return}
- const verticalHtml=arr.map((x,index)=>`<article class="vslide" data-id="${v17Escape(x.id)}" data-platform="${v17Escape(x.p)}" ${x.isTwitchVod?'data-twitch-vod="1"':x.isTwitchClip?'data-twitch-clip="1"':''}><div class="vslideMedia">${x.thumbnail?(x.p==='twitch'?`<img class="twitchPreviewBg" data-preview-src="${v17Escape(x.thumbnail)}" src="${v17Escape(x.thumbnail)}" alt="" loading="lazy"><div class="twitchPreviewFrame"><img data-preview-src="${v17Escape(x.thumbnail)}" src="${v17Escape(x.thumbnail)}" alt="Aperçu du live ${v17Escape(x.creator)}" loading="lazy"></div>`:`<img src="${v17Escape(x.thumbnail)}" alt="" loading="${index<2?'eager':'lazy'}" decoding="async" ${index===0?'fetchpriority="high"':''}>`):`<div style="font-size:72px">${x.icon||'▶'}</div>`}<div class="vloading">Chargement du lecteur…</div>${x.p==='tiktok'?`<button class="vslidePlay" onclick="v17ActivateTikTok(this.closest('.vslide'))">▶</button>`:`<button class="vslidePlay" onclick="this.closest('.vslide').dataset.platform==='twitch'?v1822TwitchPlayButton(this.closest('.vslide')):v17ActivateSlide(this.closest('.vslide'))">▶</button>`}</div><div class="vslideShade"></div><div class="vslideInfo"><div class="vplatform">${x.live?'🔴 LIVE':platformName(x.p)}</div><div class="vslideCreator">@${v17Escape(x.creator)}</div><div class="vslideTitle">${v17Escape(x.title)}</div><div class="vslideMeta">${v17Escape(x.meta||'')}${x.duration&&x.duration!=='YouTube'?' · '+v17Escape(x.duration):''}</div><div class="vslideWhy">${recommendationReason(x)}</div></div><div class="vrail"><button class="${state.liked.has(String(x.id))?'on':''}" onclick="v17Rate('${v17Escape(x.id)}','like')">👍</button><small>J’aime</small>${x.p==='tiktok'?`<button type="button" aria-label="Ouvrir les commentaires ONE" onclick="oneOpenComments('${v17Escape(x.id)}',this)">💬</button><small>Commentaires</small><button type="button" aria-label="Partager" onclick="oneShareVertical('${v17Escape(x.id)}')">↗</button><small>Partager</small>`:''}<button data-one-favorite class="${state.saved.has(x.id)?'on':''}" onclick="v17Save('${v17Escape(x.id)}')">♡</button><small>Favori</small>${x.p==='youtube'?`<button class="${musicPlaylistHas(x.id)?'on':''}" onclick="toggleMusicPlaylist('${v17Escape(x.id)}');renderVerticalFeed()">🎵</button><small>Playlist</small>`:''}<button onclick="v17Rate('${v17Escape(x.id)}','dislike')">👎</button><small>Passer</small></div></article>`).join('');
+ const verticalHtml=arr.map((x,index)=>`<article class="vslide" data-id="${v17Escape(x.id)}" data-platform="${v17Escape(x.p)}" ${x.isTwitchVod?'data-twitch-vod="1"':x.isTwitchClip?'data-twitch-clip="1"':''}><div class="vslideMedia">${x.thumbnail?(x.p==='twitch'?`<img class="twitchPreviewBg" data-preview-src="${v17Escape(x.thumbnail)}" src="${v17Escape(x.thumbnail)}" alt="" loading="lazy"><div class="twitchPreviewFrame"><img data-preview-src="${v17Escape(x.thumbnail)}" src="${v17Escape(x.thumbnail)}" alt="Aperçu du live ${v17Escape(x.creator)}" loading="lazy"></div>`:`<img src="${v17Escape(x.thumbnail)}" alt="" loading="${index<2?'eager':'lazy'}" decoding="async" ${index===0?'fetchpriority="high"':''}>`):`<div style="font-size:72px">${x.icon||'▶'}</div>`}<div class="vloading">Chargement du lecteur…</div>${x.p==='tiktok'?`<button class="vslidePlay" onclick="v17ActivateTikTok(this.closest('.vslide'))">▶</button>`:`<button class="vslidePlay" onclick="this.closest('.vslide').dataset.platform==='twitch'?v1822TwitchPlayButton(this.closest('.vslide')):v17ActivateSlide(this.closest('.vslide'))">▶</button>`}</div><div class="vslideShade"></div>${x.p==='tiktok'?`<nav class="vslideNativeNav" aria-label="Changer de vidéo"><button type="button" aria-label="Vidéo précédente" ${index===0?'disabled':''} onclick="v17StepSlide(this.closest('.vslide'),-1)">↑</button><button type="button" aria-label="Vidéo suivante" ${index===arr.length-1?'disabled':''} onclick="v17StepSlide(this.closest('.vslide'),1)">↓</button></nav>`:''}<div class="vslideInfo"><div class="vplatform">${x.live?'🔴 LIVE':platformName(x.p)}</div><div class="vslideCreator">@${v17Escape(x.creator)}</div><div class="vslideTitle">${v17Escape(x.title)}</div><div class="vslideMeta">${v17Escape(x.meta||'')}${x.duration&&x.duration!=='YouTube'?' · '+v17Escape(x.duration):''}</div><div class="vslideWhy">${recommendationReason(x)}</div></div><div class="vrail"><button class="${state.liked.has(String(x.id))?'on':''}" onclick="v17Rate('${v17Escape(x.id)}','like')">👍</button><small>J’aime</small>${x.p==='tiktok'?`<button type="button" aria-label="Ouvrir les commentaires ONE" onclick="oneOpenComments('${v17Escape(x.id)}',this)">💬</button><small>Commentaires</small><button type="button" aria-label="Partager" onclick="oneShareVertical('${v17Escape(x.id)}')">↗</button><small>Partager</small>`:''}<button data-one-favorite class="${state.saved.has(x.id)?'on':''}" onclick="v17Save('${v17Escape(x.id)}')">♡</button><small>Favori</small>${x.p==='youtube'?`<button class="${musicPlaylistHas(x.id)?'on':''}" onclick="toggleMusicPlaylist('${v17Escape(x.id)}');renderVerticalFeed()">🎵</button><small>Playlist</small>`:''}<button onclick="v17Rate('${v17Escape(x.id)}','dislike')">👎</button><small>Passer</small></div></article>`).join('');
  if(!oneStableContent(root,verticalHtml,verticalFeedMode))return;v17SetupObserver(); v17ApplySound();
 }
 async function v17ToggleFullscreen(){
@@ -2941,11 +2950,12 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 .oneTikTokStatus{position:absolute;top:76px;left:14px;right:74px;z-index:7;padding:12px;border:1px solid #ffffff30;border-radius:14px;background:#11131ff2;color:#fff;font:13px/1.5 system-ui;box-shadow:0 6px 22px #0005;pointer-events:auto}
 .oneTikTokStatus[hidden]{display:none}.oneTikTokStatus p{margin:0 0 10px}.oneTikTokStatus>div{display:flex;flex-wrap:wrap;gap:7px}.oneTikTokStatus button{min-height:44px;padding:8px 11px;border:1px solid #a786dc;border-radius:10px;background:#392851;color:#fff;font:600 12px system-ui;cursor:pointer}.oneTikTokStatus button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .vslide[data-tt-manual="1"] .oneTapPlayback,.vslide[data-tt-manual="1"] .vslidePlay{display:none!important}
+.vslideNativeNav{position:absolute;left:10px;top:50%;transform:translateY(-50%);z-index:4;display:grid;gap:10px}.vslideNativeNav button{width:44px;height:44px;border:1px solid #ffffff66;border-radius:50%;background:#11131fdd;color:white;font:700 24px system-ui;cursor:pointer}.vslideNativeNav button:disabled{opacity:.35;cursor:default}.vslideNativeNav button:focus-visible{outline:2px solid white;outline-offset:2px}
 </style>
 <style id="oneTikTokCleanPlayback">
-/* Clear ONE's caption overlay once the TikTok video is actually visible. */
-.vslide[data-platform="tiktok"][data-active="1"][data-tt-visual-ready="1"]>.vslideInfo{display:none}
-.vslide[data-platform="tiktok"][data-active="1"][data-tt-visual-ready="1"]>.vslideShade{background:linear-gradient(180deg,#0003,transparent 25%,transparent 85%,#0002)}
+/* Keep TikTok's native play and volume controls visible before playback starts. */
+.vslide[data-platform="tiktok"][data-active="1"][data-tt-controls-ready="1"]>.vslideInfo{display:none}
+.vslide[data-platform="tiktok"][data-active="1"][data-tt-controls-ready="1"]>.vslideShade{background:linear-gradient(180deg,#0003,transparent 25%,transparent 85%,#0002)}
 </style>
 <style>
 #oneComments{position:absolute;inset:auto 0 0;z-index:50;height:min(55%,480px);min-height:230px;display:flex;flex-direction:column;background:#11131ff5;border:1px solid #61517e;border-radius:20px 20px 0 0;box-shadow:0 -10px 32px #0005;color:#f5f2ff;padding:12px;box-sizing:border-box}
@@ -3050,6 +3060,8 @@ html:fullscreen{margin:0!important;padding:0!important;overflow:hidden;scrollbar
 <script>
 (()=>{
  function attach(){document.querySelectorAll('.vslide[data-platform="tiktok"] .vslideMedia,.card .media[data-provider="tiktok"]').forEach(media=>{
+  // A tap must reach TikTok itself to satisfy the browser's user-activation policy.
+  if(media.closest('.vslide')){media.querySelector('.oneTapPlayback')?.remove();return;}
   const frame=media.querySelector('iframe');if(!frame)return;
   const owner=media.closest('.vslide')||media;
   let b=media.querySelector('.oneTapPlayback');
