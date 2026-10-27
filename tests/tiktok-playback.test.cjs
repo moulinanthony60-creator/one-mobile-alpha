@@ -43,6 +43,7 @@ class Element {
   querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
   closest(selector){return this.matches(selector)?this:this.parentElement?.closest(selector)||null;}
   scrollIntoView(){this.scrolled=true;}
+  select(){this.selected=true;}
   addEventListener(type,fn){(this.handlers??={})[type]=fn;}
 }
 function setup(count=3){
@@ -67,8 +68,9 @@ function setup(count=3){
   context.window=context;vm.createContext(context);vm.runInContext(code,context);vm.runInContext(tapCode,context);
   const tick=ms=>{clock+=ms;for(const [id,t]of [...timers])if(t.at<=clock&&timers.delete(id))t.fn();};
   const message=(frame,type,value,origin='https://www.tiktok.com')=>{for(const fn of listeners.get('message')||[])fn({source:frame.contentWindow,origin,data:{'x-tiktok-player':true,type,value}});};
+  const playing=frame=>{message(frame,'onStateChange',1);message(frame,'onCurrentTime',{currentTime:0});message(frame,'onCurrentTime',{currentTime:.5});};
   const frame=slide=>slide.querySelector('iframe'),status=slide=>slide.querySelector('.oneTikTokStatus'),button=(slide,label)=>status(slide)?.querySelectorAll('button').find(b=>b.textContent===label);
-  return {context,document,feed,slides,items,timers,tick,message,frame,status,button,opened};
+  return {context,document,feed,slides,items,timers,tick,message,playing,frame,status,button,opened};
 }
 
 test('startup preview has a bounded lifetime even if TikTok never emits ready',()=>{
@@ -80,13 +82,14 @@ test('startup preview has a bounded lifetime even if TikTok never emits ready',(
   r.tick(500);assert.equal(f.style.opacity,'1');assert.equal(f.style.pointerEvents,'auto');assert.equal(s.querySelector('img').style.opacity,'0');
   assert.equal(s.dataset.ttManual,'1');assert.equal(s.dataset.ttControlsReady,'1');assert.equal(s.dataset.ttNativeInput,'1');assert.equal(s.dataset.ttVisualReady,'0');
   r.message(f,'onPlayerReady');assert.equal(f.messages.length,0);
-  r.message(f,'onStateChange',1);assert.equal(f.style.opacity,'1');assert.equal(s.dataset.ttVisualReady,'1');
+  r.message(f,'onStateChange',1);assert.equal(f.style.opacity,'1');assert.equal(s.dataset.ttVisualReady,'0');
+  r.playing(f);assert.equal(s.dataset.ttVisualReady,'1');
 });
 test('a video loading longer than 4.5 seconds is retained and can recover after timeout',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);
   r.tick(4501);assert.equal(r.frame(s),f);assert.equal(r.status(s),null);
   r.tick(10500);assert.equal(r.frame(s),f);assert.match(r.status(s).querySelector('p').textContent,/plus de temps/);
-  r.message(f,'onStateChange',1);assert.equal(r.status(s),null);assert.equal(f.style.opacity,'1');
+  r.playing(f);assert.equal(r.status(s),null);assert.equal(f.style.opacity,'1');
 });
 test('autoplay refusal leaves the same native player ready for a direct tap',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const old=r.frame(s);
@@ -95,7 +98,7 @@ test('autoplay refusal leaves the same native player ready for a direct tap',()=
   assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');assert.equal(f.style.opacity,'1');
   r.message(f,'onPlayerReady');assert.equal(f.messages.length,0);
   r.message(f,'onPlayerError',{errorCode:3002});assert.equal(r.frame(s),f);
-  r.message(f,'onStateChange',1);assert.equal(r.status(s),null);
+  r.playing(f);assert.equal(r.status(s),null);
 });
 test('invalid videos show a way forward without deleting catalogue entries',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.message(r.frame(s),'onPlayerError',{errorCode:1001});
@@ -106,7 +109,7 @@ test('transient and legacy errors allow retry and recovery',()=>{
   for(const [type,value]of [['onPlayerError',{errorCode:2001}],['onPlayerError',{errorCode:3001}],['onError',3]]){
     const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);r.message(f,'onStateChange',1);r.message(f,type,value);
     assert.equal(r.frame(s),f);assert(r.button(s,'Réessayer'));
-    r.message(f,'onStateChange',1);assert.equal(r.status(s),null);
+    r.playing(f);assert.equal(r.status(s),null);
     r.message(f,type,value);r.button(s,'Réessayer').onclick({stopPropagation(){}});assert.equal(r.frame(s).dataset.oneManual,'1');
   }
 });
@@ -144,8 +147,9 @@ test('ready or playback ends the startup preview immediately without a fixed del
   for(const event of ['onPlayerReady','onStateChange']){
     const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);
     r.tick(100);r.message(f,event,event==='onStateChange'?1:undefined);assert.equal(f.style.opacity,'1');
-    assert.equal(s.dataset.ttNativeInput,event==='onStateChange'?'0':'1');
-    r.tick(1500);assert.equal(s.dataset.ttNativeInput,event==='onStateChange'?'0':'1');
+    assert.equal(s.dataset.ttNativeInput,'1');
+    r.tick(1500);assert.equal(s.dataset.ttNativeInput,'1');
+    r.playing(f);assert.equal(s.dataset.ttNativeInput,'0');
   }
 });
 test('a tap during the preview exposes native playback without sending an ignored play command',()=>{
@@ -155,7 +159,7 @@ test('a tap during the preview exposes native playback without sending an ignore
 });
 test('the swipe surface ignores drag clicks and allows deliberate pause and resume after playback',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.context.attach();const f=r.frame(s),tap=s.querySelector('.oneTapPlayback');
-  r.message(f,'onStateChange',1);assert.equal(s.dataset.ttNativeInput,'0');
+  r.playing(f);assert.equal(s.dataset.ttNativeInput,'0');
   tap.handlers.pointerdown({clientX:100,clientY:300});tap.handlers.pointermove({clientX:100,clientY:100});
   tap.onclick({preventDefault(){},stopPropagation(){}});assert.equal(f.messages.length,0);
   tap.handlers.pointerdown({clientX:100,clientY:300});tap.onclick({preventDefault(){},stopPropagation(){}});
@@ -164,7 +168,7 @@ test('the swipe surface ignores drag clicks and allows deliberate pause and resu
   tap.onclick({preventDefault(){},stopPropagation(){}});assert.equal(f.messages.at(-1).data.type,'play');
   assert.equal(f.messages.at(-1).origin,'https://www.tiktok.com');assert.equal(tap.getAttribute('aria-pressed'),'false');
   r.message(f,'onPlayerError',{errorCode:3002});assert.equal(s.dataset.ttNativeInput,'1');
-  r.message(f,'onStateChange',1);assert.equal(s.dataset.ttNativeInput,'0');
+  r.playing(f);assert.equal(s.dataset.ttNativeInput,'0');
 });
 test('a rapid swipe cancels the previous preview deadline without revealing the next frame early',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.tick(1000);r.context.v17StepSlide(s,1);
@@ -216,14 +220,14 @@ test('promotion before ready waits for the same player without leaving its nativ
   r.context.v17ActivateSlide(s);assert.equal(r.frame(s),f);assert.equal(f.messages.filter(m=>m.data.type==='play').length,0);
   r.tick(1500);assert.equal(f.style.opacity,'1');assert.equal(s.dataset.ttNativeInput,'1');
   r.message(f,'onPlayerReady');assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);
-  r.message(f,'onStateChange',1);assert.equal(s.dataset.ttNativeInput,'0');assert.equal(f.srcWrites,1);
+  r.playing(f);assert.equal(s.dataset.ttNativeInput,'0');assert.equal(f.srcWrites,1);
 });
 test('returning to the previous healthy video retains the player and restores its known sound choice',()=>{
   const r=setup(6),s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s);
-  r.message(f,'onPlayerReady');r.message(f,'onStateChange',1);r.message(f,'onMute',false);
+  r.message(f,'onPlayerReady');r.playing(f);r.message(f,'onMute',false);
   r.context.v17ActivateSlide(r.slides[3]);assert.equal(r.frame(s),f);assert.equal(f.dataset.onePreload,'1');
   r.message(f,'onMute',true);assert.equal(f.dataset.oneUserMuted,'0');
-  r.context.v17ActivateSlide(s);r.message(f,'onStateChange',1);
+  r.context.v17ActivateSlide(s);r.playing(f);
   assert.equal(r.frame(s),f);assert.equal(f.srcWrites,1);assert.equal(f.messages.at(-1).data.type,'unMute');
 });
 test('rapid forward/backward navigation stays bounded and leaving the feed releases every preload',()=>{
@@ -241,4 +245,49 @@ test('an unavailable preloaded video is reported only on activation and is not r
   r.message(f,'onPlayerError',{errorCode:1001});assert.equal(r.status(s),null);
   r.context.v17ActivateSlide(s);assert.equal(r.frame(s),null);assert.match(r.status(s).textContent||r.status(s).querySelector('p').textContent,/indisponible/);
   r.context.v17ActivateSlide(r.slides[4]);assert.equal(r.frame(s),null);assert.equal(r.items.size,6);
+});
+
+test('playing followed by buffering without time progress still exposes recovery',()=>{
+  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);
+  r.message(f,'onPlayerReady');r.message(f,'onStateChange',1);r.message(f,'onStateChange',3);
+  r.tick(15001);
+  assert(r.button(s,'Réessayer'),'a playing notification must not cancel the startup deadline');
+  assert.equal(r.frame(s),f);assert.equal(s.dataset.ttNativeInput,'1');
+});
+test('a cached timestamp repeated after a swipe cannot confirm playback',()=>{
+  const r=setup(),s=r.slides[1];r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(s);
+  r.message(f,'onPlayerReady');r.message(f,'onCurrentTime',{currentTime:4});r.context.v17ActivateSlide(s);
+  for(let i=0;i<4;i++){r.message(f,'onStateChange',1);r.message(f,'onCurrentTime',{currentTime:4});r.tick(4000);}
+  assert(r.button(s,'Réessayer'),'a stalled clock must not hide the recovery controls');
+  assert.equal(s.dataset.ttVisualReady,'0');assert.equal(f.srcWrites,1);
+});
+test('playback that freezes later remains recoverable without discarding the preload window',()=>{
+  const r=setup(6),s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s);
+  r.message(f,'onStateChange',1);r.message(f,'onCurrentTime',{currentTime:0});r.message(f,'onCurrentTime',{currentTime:.5});
+  r.tick(14000);r.message(f,'onCurrentTime',{currentTime:1});r.tick(14000);assert.equal(r.status(s),null);
+  r.message(f,'onStateChange',3);r.tick(1001);
+  assert(r.button(s,'Réessayer'));assert.equal(r.frame(s),f);
+  assert.deepEqual(r.slides.map((v,i)=>r.frame(v)?i:null).filter(i=>i!==null),[1,2,3,4]);
+});
+test('a delayed preload pause before playback cannot cancel the startup deadline',()=>{
+  const r=setup(),s=r.slides[1];r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(s);
+  r.message(f,'onPlayerReady');r.context.v17ActivateSlide(s);r.message(f,'onStateChange',1);r.message(f,'onStateChange',2);
+  r.tick(15001);assert(r.button(s,'Réessayer'));assert.equal(r.frame(s),f);
+});
+test('a deliberate pause suppresses recovery and resume starts a fresh deadline',()=>{
+  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.context.attach();const f=r.frame(s),tap=s.querySelector('.oneTapPlayback');
+  r.playing(f);tap.onclick({preventDefault(){},stopPropagation(){}});r.message(f,'onStateChange',2);
+  r.tick(30000);assert.equal(r.status(s),null);
+  tap.onclick({preventDefault(){},stopPropagation(){}});r.tick(14999);assert.equal(r.status(s),null);
+  r.tick(2);assert(r.button(s,'Réessayer'));
+});
+test('diagnostics are copied only after the user requests them and remain available if clipboard fails',async()=>{
+  const r=setup(),s=r.slides[0];let copied=null;
+  r.context.navigator={userAgent:'Test browser',clipboard:{writeText:async text=>{copied=text;}}};
+  r.context.oneTikTokDiagnostic=[{event:'lecture sans progression',time:0}];
+  r.context.v17ActivateSlide(s);r.tick(15001);assert(r.button(s,'Copier le diagnostic'));assert.equal(copied,null);
+  await r.context.v17CopyTikTokDiagnostic(s);assert.match(copied,/Test browser/);assert.match(copied,/lecture sans progression/);
+  r.context.navigator.clipboard.writeText=async()=>{throw new Error('denied');};
+  await r.context.v17CopyTikTokDiagnostic(s);const box=r.status(s).querySelector('textarea');
+  assert.equal(box.value,copied);assert.equal(box.selected,true);assert.equal(box.readOnly,true);
 });
