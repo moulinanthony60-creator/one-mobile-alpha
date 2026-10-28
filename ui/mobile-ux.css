@@ -107,6 +107,7 @@
 /* Short control feedback, shared by the salon, navigation and all games. */
 :where(button,a[href],summary,[role="button"],[role="switch"]){touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 :where(button,summary,[role="button"],[role="switch"]){transition-duration:100ms}
-[data-one-pressed="true"]{filter:brightness(1.16)!important;outline:2px solid #dac5ffb3;outline-offset:1px;transition-duration:0s!important}
+/* The transparent video pause surface must not draw a full-width press outline. */
+[data-one-pressed="true"]:not(.oneTapPlayback){filter:brightness(1.16)!important;outline:2px solid #dac5ffb3;outline-offset:1px;transition-duration:0s!important}
 button[aria-busy="true"]{cursor:progress;opacity:.78}
 @media(prefers-reduced-motion:reduce){[data-one-pressed="true"]{transition:none!important}}
