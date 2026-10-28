@@ -59,7 +59,7 @@ function setup(count=3){
     feed.appendChild(slide);slides.push(slide);items.set(slide.dataset.id,{id:slide.dataset.id,p:'tiktok',tiktokId:id,creator:'Test',tiktokPlayable:true});
   }
   let clock=0,seq=0;const timers=new Map(),listeners=new Map(),opened=[];
-  const context={document,URL,console,location:{origin:'https://one.test',href:'https://one.test/',hostname:'one.test'},
+  const context={document,URL,console,Date:{now:()=>clock},location:{origin:'https://one.test',href:'https://one.test/',hostname:'one.test'},
     v17ActiveId:'',v17Muted:true,v17Volume:50,v17TwitchPlayers:{},
     v17ItemById:id=>items.get(String(id)),platformName:p=>p,v1814NativeMuted:()=>true,v1814SoundAllowed:()=>true,v1814RememberSoundGesture(){},
     oneTTTrace(){},toast(){},learnFromItem(){},requestAnimationFrame:fn=>fn(),
@@ -118,7 +118,7 @@ test('foreign, stale and hidden-frame events cannot change the current player',(
   r.message(f,'onPlayerError',{errorCode:1001},'https://untrusted.test');assert.equal(r.frame(s),f);
   r.document.hidden=true;r.message(f,'onPlayerError',{errorCode:1001});assert.equal(r.frame(s),f);r.document.hidden=false;
   r.context.v17ActivateSlide(r.slides[1]);r.tick(20000);r.message(f,'onPlayerError',{errorCode:1001});
-  assert.equal(r.status(s),null);assert(r.frame(r.slides[1]));assert.equal(r.document.querySelectorAll('iframe').length,3);
+  assert.equal(r.status(s),null);assert(r.frame(r.slides[1]));assert.equal(r.document.querySelectorAll('iframe').length,2);
 });
 test('retry does not stack players and closing the feed cancels startup timers',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);
@@ -240,10 +240,10 @@ test('rapid forward/backward navigation stays bounded and leaving the feed relea
   for(const f of old)r.message(f,'onPlayerReady');
   assert.equal(r.document.querySelectorAll('iframe').length,0);assert.equal(r.timers.size,0);
 });
-test('an unavailable preloaded video is reported only on activation and is not repeatedly prefetched',()=>{
+test('an unavailable preloaded video is skipped on activation and is not repeatedly prefetched',()=>{
   const r=setup(6);r.context.v17ActivateSlide(r.slides[2]);const s=r.slides[3],f=r.frame(s);
   r.message(f,'onPlayerError',{errorCode:1001});assert.equal(r.status(s),null);
-  r.context.v17ActivateSlide(s);assert.equal(r.frame(s),null);assert.match(r.status(s).textContent||r.status(s).querySelector('p').textContent,/indisponible/);
+  r.context.v17ActivateSlide(s);assert.equal(r.frame(s),null);assert.equal(r.status(s),null);assert.equal(r.slides[4].dataset.active,'1');
   r.context.v17ActivateSlide(r.slides[4]);assert.equal(r.frame(s),null);assert.equal(r.items.size,6);
 });
 
@@ -290,4 +290,73 @@ test('diagnostics are copied only after the user requests them and remain availa
   r.context.navigator.clipboard.writeText=async()=>{throw new Error('denied');};
   await r.context.v17CopyTikTokDiagnostic(s);const box=r.status(s).querySelector('textarea');
   assert.equal(box.value,copied);assert.equal(box.selected,true);assert.equal(box.readOnly,true);
+});
+
+test('an unavailable active video advances once while retaining catalogue entries',()=>{
+  const r=setup(6),s=r.slides[0];r.context.v17ActivateSlide(s);
+  r.message(r.frame(s),'onPlayerError',{errorCode:1001});
+  assert.match(r.status(s).querySelector('p').textContent,/Passage à la suivante/);
+  r.tick(1499);assert.equal(s.dataset.active,'1');r.tick(1);assert.equal(r.slides[1].dataset.active,'1');
+  assert.equal(r.items.size,6);assert.equal(r.frame(s),null);
+});
+test('interaction with the unavailable panel cancels automatic navigation',()=>{
+  for(const interaction of ['pointerdown','focusin','Rester ici']){
+    const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.message(r.frame(s),'onPlayerError',{errorCode:1001});
+    if(interaction==='Rester ici')r.button(s,interaction).onclick({stopPropagation(){}});else r.status(s).handlers[interaction]();
+    r.tick(2000);assert.equal(s.dataset.active,'1');assert(r.button(s,'Ouvrir sur TikTok'));assert(r.button(s,'Copier le diagnostic'));
+  }
+});
+test('network, autoplay and timeout failures are not remembered as unavailable or auto-skipped',()=>{
+  for(const code of [2001,3001,3002,null]){
+    const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);if(code)r.message(r.frame(s),'onPlayerError',{errorCode:code});
+    r.tick(20000);assert.equal(s.dataset.active,'1');assert.equal(r.context.v17TikTokIsUnavailable(r.items.get(s.dataset.id)),false);
+  }
+});
+test('preloading and navigation skip known unavailable slots in both directions',()=>{
+  const r=setup(8);r.context.v17ActivateSlide(r.slides[2]);
+  r.message(r.frame(r.slides[3]),'onPlayerError',{errorCode:1001});
+  r.context.v17StepSlide(r.slides[2],1);assert.equal(r.slides[4].dataset.active,'1');
+  assert.deepEqual(r.slides.map((s,i)=>r.frame(s)?i:null).filter(i=>i!==null),[2,4,5,6]);
+  r.context.v17ActivateSlide(r.slides[3]);assert.equal(r.slides[2].dataset.active,'1');assert.equal(r.frame(r.slides[3]),null);
+  assert.deepEqual(r.slides.map((s,i)=>r.frame(s)?i:null).filter(i=>i!==null),[1,2,4,5]);
+});
+test('failed preloads are replaced with a bounded number of background requests',()=>{
+  const r=setup(10);r.context.v17ActivateSlide(r.slides[2]);
+  r.message(r.frame(r.slides[3]),'onPlayerError',{errorCode:1001});
+  assert.deepEqual(r.slides.map((s,i)=>r.frame(s)?i:null).filter(i=>i!==null),[1,2,4,5]);
+  r.message(r.frame(r.slides[4]),'onPlayerError',{errorCode:1001});
+  assert.deepEqual(r.slides.map((s,i)=>r.frame(s)?i:null).filter(i=>i!==null),[1,2,5,6]);
+  r.message(r.frame(r.slides[5]),'onPlayerError',{errorCode:1001});assert.equal(r.frame(r.slides[7]),null);
+  assert.equal(r.slides[2].dataset.active,'1');assert.equal(r.status(r.slides[2]),null);
+});
+test('three consecutive failures stop automatic navigation until real playback recovers',()=>{
+  const r=setup(8);r.context.v17ActivateSlide(r.slides[0]);
+  for(let i=0;i<3;i++){r.message(r.frame(r.slides[i]),'onPlayerError',{errorCode:1001});r.tick(1500);assert.equal(r.slides[i+1].dataset.active,'1');}
+  r.message(r.frame(r.slides[3]),'onPlayerError',{errorCode:1001});r.tick(2000);assert.equal(r.slides[3].dataset.active,'1');
+  r.context.v17ActivateSlide(r.slides[4]);r.playing(r.frame(r.slides[4]));
+  r.message(r.frame(r.slides[4]),'onPlayerError',{errorCode:1001});r.tick(1500);assert.equal(r.slides[5].dataset.active,'1');
+});
+test('unavailable evidence expires and matches both personal and shared item IDs',()=>{
+  const r=setup(),s=r.slides[0],item=r.items.get(s.dataset.id);r.context.v17ActivateSlide(s);
+  r.message(r.frame(s),'onPlayerError',{errorCode:1001});r.button(s,'Rester ici').onclick({stopPropagation(){}});
+  assert.equal(r.context.v17TikTokIsUnavailable({p:'tiktok',id:'tt_'+item.tiktokId}),true);
+  r.tick(10*60*1000+1);assert.equal(r.context.v17TikTokIsUnavailable(item),false);
+  r.context.v17ActivateSlide(r.slides[1]);r.context.v17ActivateSlide(s);assert(r.frame(s));assert.equal(r.items.size,3);
+});
+test('last unavailable video stays recoverable and leaving the feed cancels auto-skip',()=>{
+  const last=setup(1),s=last.slides[0];last.context.v17ActivateSlide(s);last.message(last.frame(s),'onPlayerError',{errorCode:1001});last.tick(2000);
+  assert.equal(s.dataset.active,'1');assert(last.button(s,'Ouvrir sur TikTok'));
+  const r=setup();r.context.v17ActivateSlide(r.slides[0]);r.message(r.frame(r.slides[0]),'onPlayerError',{errorCode:1001});
+  r.context.v1815StopAllPlayers();r.feed.classList.remove('show');r.tick(2000);assert.equal(r.document.querySelectorAll('iframe').length,0);assert.equal(r.timers.size,0);
+});
+test('rebuilding the automatic feed excludes unavailable videos and explains an exhausted catalogue',()=>{
+  const r=setup(),source=[...r.items.values()];
+  const getElementById=r.document.getElementById;r.document.getElementById=id=>id==='vfeedScroller'?r.feed:getElementById(id);
+  Object.assign(r.context,{verticalFeedMode:'tiktok',tiktokItems:source,purgeMockContent(){},oneMixCreators:xs=>xs,recommendationReason:()=>'',state:{liked:new Set(),saved:new Set(),disliked:new Set()},oneStableContent:(root,html)=>{root.innerHTML=html;return false;}});
+  vm.runInContext(html.slice(html.indexOf('function renderVerticalFeed(){'),html.indexOf('async function v17ToggleFullscreen(){')),r.context);
+  r.context.v17RememberTikTokUnavailable(r.slides[0]);r.context.renderVerticalFeed();
+  assert(!r.feed.innerHTML.includes('data-id="'+source[0].id+'"'));assert(r.feed.innerHTML.includes('data-id="'+source[1].id+'"'));
+  for(const s of r.slides)r.context.v17RememberTikTokUnavailable(s);r.context.renderVerticalFeed();
+  assert.match(r.feed.innerHTML,/Vidéos temporairement indisponibles/);assert.equal(r.items.size,3);
+  r.tick(10*60*1000+1);r.context.renderVerticalFeed();assert(r.feed.innerHTML.includes('data-id="'+source[0].id+'"'));
 });
