@@ -204,6 +204,20 @@ test('background players are muted and paused on ready or unexpected playback, n
   assert.deepEqual(f.messages.map(m=>m.data.type),['mute','pause','mute','pause','mute','pause']);
   assert.equal(r.status(r.slides[3]),null);
 });
+test('a ready preload keeps its native picture through activation and backward navigation',()=>{
+  const r=setup(6),s=r.slides[3];r.context.v17ActivateSlide(r.slides[2]);const f=r.frame(s),img=s.querySelector('img');
+  assert.equal(f.style.opacity,'0');r.message(f,'onPlayerReady');
+  assert.equal(f.style.opacity,'1');assert.equal(img.style.opacity,'0');assert.equal(s.dataset.ttControlsReady,'1');
+  assert.equal(f.style.pointerEvents,'none');assert.equal(f.getAttribute('aria-hidden'),'true');
+  assert.deepEqual(f.messages.map(m=>m.data.type),['mute','pause']);
+  r.context.v17ActivateSlide(s);r.playing(f);
+  assert.equal(f.style.opacity,'1');assert.equal(img.style.opacity,'0');assert.equal(f.srcWrites,1);
+  r.context.v17ActivateSlide(r.slides[4]);
+  assert.equal(r.frame(s),f);assert.equal(f.style.opacity,'1');assert.equal(img.style.opacity,'0');assert.equal(s.dataset.ttControlsReady,'1');
+  assert.equal(f.style.pointerEvents,'none');assert.equal(f.getAttribute('aria-hidden'),'true');
+  r.context.v17ActivateSlide(s);
+  assert.equal(r.frame(s),f);assert.equal(f.style.opacity,'1');assert.equal(img.style.opacity,'0');assert.equal(f.srcWrites,1);
+});
 test('a ready next player is promoted without changing its iframe or URL and resumes only once',()=>{
   const r=setup(6);r.context.v17ActivateSlide(r.slides[2]);
   const prev=r.frame(r.slides[1]),f=r.frame(r.slides[3]),next=r.frame(r.slides[4]);
