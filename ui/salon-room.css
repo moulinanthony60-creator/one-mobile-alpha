@@ -1,0 +1,72 @@
+/* ONE salon: scoped to the room overview, leaving other spaces and dialogs intact. */
+#oneSalonTray #oneSalonRoom .sr233{
+  --room-ink:#f5f1ff;--room-muted:#aaa5bd;--room-line:#ffffff12;
+  display:grid!important;gap:20px!important;padding:4px 0 22px!important;
+  max-width:760px;margin-inline:auto;color:var(--room-ink);
+}
+#oneSalonTray #oneSalonRoom .sr233 button{font-family:inherit!important;letter-spacing:0!important;touch-action:manipulation}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-top{grid-template-columns:44px minmax(0,1fr) 44px!important;gap:12px!important;margin:0!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-top>strong{font-size:14px!important;font-weight:600!important;color:#c4bfd4!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-top .sr157-round{display:grid;place-items:center;width:44px!important;height:44px!important;min-height:44px!important;padding:0!important;border-radius:50%!important;border:1px solid #ffffff12!important;background:#ffffff04!important;color:#ded7ed!important;box-shadow:none!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr233-glyph{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-profile{grid-template-columns:56px minmax(0,1fr)!important;column-gap:14px!important;row-gap:16px!important;margin:0!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-cover{position:relative;isolation:isolate;width:56px!important;height:56px!important;border-radius:18px!important;border:1px solid #c5a0ff45!important;background:radial-gradient(at 15% 0,#bd9fff55,transparent 65%),linear-gradient(145deg,#61418e,#2c2447)!important;box-shadow:inset 0 1px 0 #e9d5ff25!important;color:#f3eaff;font:800 13px/1 system-ui!important;letter-spacing:.02em}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-meta h2{margin:0 0 5px!important;font-size:27px!important;font-weight:750!important;letter-spacing:-.035em!important;line-height:1.15!important;color:var(--room-ink)!important;overflow-wrap:anywhere}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-meta p{display:flex;align-items:center;gap:6px;margin:0!important;font-size:12px!important;line-height:1.4!important;color:var(--room-muted)!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-meta p .sr233-glyph{width:12px;height:12px;color:#b69bdc}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-qa{grid-column:1/-1!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;margin:0!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-qa button{min-height:44px!important;margin:0!important;padding:7px 12px!important;border-radius:14px!important;font-size:12px!important;font-weight:600!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-members{display:flex!important;align-items:center;gap:9px!important;border:1px solid var(--room-line)!important;background:#ffffff03!important;color:#c6bfd8!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-faces{padding-right:4px}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-faces .os-avatar{width:27px!important;height:27px!important;min-width:27px!important;border:2px solid #14121f!important;margin-right:-7px!important;font-size:10px!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-members>.sr233-glyph{margin-left:auto;width:14px;height:14px;color:#88819c}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-qa .sr197-invite{display:flex!important;align-items:center;justify-content:center;gap:6px!important;padding-inline:15px!important;border:1px solid #b798ee55!important;background:linear-gradient(135deg,#9667da,#7549be)!important;box-shadow:inset 0 1px 0 #ffffff1c!important;color:#fff!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-invite .sr233-glyph{width:16px;height:16px}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important;padding:4px!important;margin:0!important;border:1px solid #ffffff0a!important;border-radius:15px!important;background:#ffffff04!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-tabs button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px!important;margin:0!important;padding:8px 4px!important;font-size:12px!important;font-weight:600!important;border:1px solid transparent!important;border-radius:11px!important;background:transparent!important;color:#a6a0b8!important;box-shadow:none!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-tabs .sr233-glyph{width:15px;height:15px}
+#oneSalonTray #oneSalonRoom .sr233 .sr157-tabs button.active{background:#b391ee19!important;border-color:#c8a3ff20!important;color:#ead9ff!important;box-shadow:inset 0 1px 0 #e3caff0d!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-activities{display:grid;gap:12px!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-activities[hidden],#oneSalonTray #oneSalonRoom .sr233 [hidden]{display:none!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-activities>h3{margin:0 0 2px!important;font-size:13px!important;font-weight:600!important;line-height:1.4!important;letter-spacing:0!important;color:#b6aec7!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-action{position:relative;display:flex!important;flex-direction:column;align-items:flex-start!important;justify-content:flex-start!important;gap:17px!important;width:100%!important;min-width:0;min-height:144px!important;padding:16px!important;margin:0!important;border:1px solid #ffffff12!important;border-radius:20px!important;background:linear-gradient(145deg,#1c1c2a,#14151f)!important;color:var(--room-ink)!important;text-align:left!important;box-shadow:inset 0 1px 0 #ffffff04!important;white-space:normal!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-action.play{background:linear-gradient(145deg,#251e36,#191520)!important;border-color:#be9aef20!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-icon{display:grid!important;place-items:center;width:36px!important;height:36px!important;min-height:36px;border-radius:12px!important;background:#8dcfdd0d!important;color:#92ccd5!important;font-size:0!important}
+#oneSalonTray #oneSalonRoom .sr233 .play .sr197-icon{background:#b28ae917!important;color:#c8a6f3!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-icon .sr233-glyph{width:22px;height:22px}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-copy{display:block;min-width:0;position:relative;z-index:1}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-action b{display:block;font-size:16px!important;font-weight:650!important;line-height:1.3!important;letter-spacing:-.02em!important;overflow-wrap:anywhere}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-action small{display:block;font-size:12px!important;font-weight:400!important;line-height:1.55!important;margin-top:5px!important;color:var(--room-muted)!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-arrow{position:absolute;top:18px;right:15px;width:15px;height:15px;color:#777085!important;display:block!important}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-arrow .sr233-glyph{width:15px;height:15px}
+#oneSalonTray #oneSalonRoom .sr233 .sr197-action.lobby{isolation:isolate;overflow:hidden;display:grid!important;grid-template-columns:minmax(0,1fr) 38%!important;align-items:center!important;gap:0!important;min-height:218px!important;padding:22px 20px!important;border-radius:23px!important;border:1px solid #c2a0ff38!important;background:radial-gradient(ellipse at 90% 65%,#a77aef28,transparent 65%),linear-gradient(125deg,#302042,#201a33 65%,#25223f)!important;box-shadow:inset 0 1px 0 #e9d8ff12,0 8px 24px #0805131a!important}
+#oneSalonTray #oneSalonRoom .sr233 .lobby::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#2e2041e6 0,#28203899 40%,transparent 72%)}
+#oneSalonTray #oneSalonRoom .sr233 .lobby .sr197-copy{grid-column:1;grid-row:1;align-self:center;z-index:2}
+#oneSalonTray #oneSalonRoom .sr233 .lobby .sr197-icon{grid-column:2;grid-row:1;align-self:center;justify-self:center;position:relative;width:190%!important;height:auto!important;aspect-ratio:340/310;max-width:300px;min-height:0!important;margin:6px -10px 0 0;background:transparent!important;border-radius:0!important;z-index:0;pointer-events:none}
+#oneSalonTray #oneSalonRoom .sr233 .lobby .sr197-icon img{display:block;width:100%;height:100%;object-fit:contain}
+#oneSalonTray #oneSalonRoom .sr233 .lobby .sr233-eyebrow{display:block;width:max-content;max-width:100%;margin:0 0 13px;color:#c9abe8;font-size:9px;font-weight:700;line-height:1.3;letter-spacing:.12em;text-transform:uppercase}
+#oneSalonTray #oneSalonRoom .sr233 .lobby b{max-width:190px;font-size:25px!important;font-weight:750!important;line-height:1.12!important;letter-spacing:-.04em!important;color:#f7edff!important}
+#oneSalonTray #oneSalonRoom .sr233 .lobby small{max-width:170px;margin-top:9px!important;color:#c7b8da!important;font-size:12px!important;line-height:1.5!important}
+#oneSalonTray #oneSalonRoom .sr233 .lobby>.sr197-arrow{display:none!important}
+#oneSalonTray #oneSalonRoom .sr233 .os202-lobby-enter{display:inline-flex!important;align-items:center;gap:8px;margin-top:21px!important;padding:10px 12px!important;min-height:38px;box-sizing:border-box;border:1px solid #e8d3ff42;border-radius:11px;background:#ead7ff!important;color:#342148!important;font-size:12px!important;font-weight:750!important;line-height:1.3;max-width:100%;white-space:normal;box-shadow:0 3px 10px #10091c20}
+#oneSalonTray #oneSalonRoom .sr233 .os202-lobby-enter .sr233-glyph{width:14px;height:14px}
+#oneSalonTray #oneSalonRoom .sr233 button:focus-visible{outline:2px solid #e2c9ff!important;outline-offset:3px!important}
+@media(hover:hover){#oneSalonTray #oneSalonRoom .sr233 .sr197-action:hover{border-color:#bd9ae05c!important;filter:brightness(1.06)}}
+@media(min-width:600px){
+  #oneSalonTray #oneSalonRoom .sr233{gap:24px!important}
+  #oneSalonTray #oneSalonRoom .sr233 .sr197-action.lobby{min-height:250px!important;grid-template-columns:1fr 44%!important;padding:30px!important}
+  #oneSalonTray #oneSalonRoom .sr233 .lobby .sr197-icon{width:100%!important;max-width:290px}
+  #oneSalonTray #oneSalonRoom .sr233 .lobby b{max-width:100%;font-size:34px!important}
+  #oneSalonTray #oneSalonRoom .sr233 .lobby small{max-width:260px;font-size:14px!important}
+  #oneSalonTray #oneSalonRoom .sr233 .sr197-action:not(.lobby){min-height:150px!important}
+}
+@media(max-width:350px){
+  #oneSalonTray #oneSalonRoom .sr233 .sr157-tabs button{gap:4px;font-size:11px!important}
+  #oneSalonTray #oneSalonRoom .sr233 .sr157-tabs .sr233-glyph{width:13px;height:13px}
+  #oneSalonTray #oneSalonRoom .sr233 .sr197-action{padding:14px!important}
+  #oneSalonTray #oneSalonRoom .sr233 .sr197-action.lobby{grid-template-columns:minmax(0,1fr) 31%!important;padding:20px 16px!important}
+  #oneSalonTray #oneSalonRoom .sr233 .lobby b{font-size:23px!important}
+  #oneSalonTray #oneSalonRoom .sr233 .lobby .sr197-icon{width:230%!important;opacity:.75;transform:translateX(12px)}
+  #oneSalonTray #oneSalonRoom .sr233 .sr197-action:not(.lobby) b{font-size:15px!important}
+}

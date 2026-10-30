@@ -19,7 +19,7 @@ function goHome(){route({oneSpace:'home'});window.oneShowSpace?.('home',false);w
 window.ONEAudit={uniqueById,readJSON,route,hasOverlay,navigationBlocked,frameTask,goHome};
 })();
 
-</script><link rel="stylesheet" href="ui/tiktok-public.css?v=118c1"><script defer src="ui/tiktok-public.js?v=118c7"></script><link rel="stylesheet" href="ui/tiktok-share.css?v=118c2"><script defer src="ui/tiktok-share-core.js?v=118c2"></script><script defer src="ui/tiktok-share.js?v=118c2"></script><script defer src="ui/header-polish.js?v=one-v222"></script>
+</script><link rel="stylesheet" href="ui/salon-room.css?v=233"><link rel="stylesheet" href="ui/tiktok-public.css?v=118c1"><script defer src="ui/tiktok-public.js?v=118c7"></script><link rel="stylesheet" href="ui/tiktok-share.css?v=118c2"><script defer src="ui/tiktok-share-core.js?v=118c2"></script><script defer src="ui/tiktok-share.js?v=118c2"></script><script defer src="ui/header-polish.js?v=one-v222"></script>
 <script src="ui/catalog-store.js?v=014117"></script>
 <link rel="preconnect" href="https://www.tiktok.com">
 <link rel="dns-prefetch" href="https://www.tiktok.com">
@@ -4405,39 +4405,43 @@ panel.querySelectorAll('[data-points-view]').forEach(b=>b.onclick=()=>view(b.dat
 
  async function friends(parent){const section=el('section',undefined,'os-friends-preview');section.append(el('h3','Tes amis'));parent.append(section);try{const d=await api('/friends/state');if(!section.isConnected)return;const list=(d.relationships||[]).filter(f=>f.status==='accepted').sort((a,b)=>Number(b.online)-Number(a.online));for(const f of list.slice(0,5)){const row=button('',()=>window.oneOpenFriends?.(),'os-friend-mini');row.append(avatar(f),el('b',f.name),el('small',f.online?'En ligne':'Hors ligne'));section.append(row);}if(!list.length)section.append(el('p','Ajoute des amis pour commencer votre soirée.','os-muted'));}catch{section.append(el('p','Tes amis sont disponibles depuis Amis ONE.','os-muted'));}}
  let loungeRenderController=null,salonTab=0,salonTabRoom='',openMessagesTab=null;window.oneSalonOpenMessages=()=>{window.oneOpenSalon();openMessagesTab?.()};
+ function salonIcon(kind){
+  const paths={back:'m14 6-6 6 6 6',more:'M5 12h.01M12 12h.01M19 12h.01',right:'m9 6 6 6-6 6',arrow:'M5 12h14m-5-5 5 5-5 5',plus:'M12 5v14M5 12h14',lock:'M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5Zm7 4v3',public:'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z',watch:'M4 4h16v13H4Zm4 17h8m-4-4v4M10 8l5 3-5 3Z',play:'M7 7h10c3 0 5 9 4 12-.5 2-2 2-4 0l-2-2H9l-2 2c-2 2-3.5 2-4 0-1-3 1-12 4-12Zm0 3v5m-2.5-2.5h5M16 11h.01M19 14h.01',activities:'M4 4h6v6H4Zm10 0h6v6h-6ZM4 14h6v6H4Zm10 0h6v6h-6Z',messages:'M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 3v-3H3V6a2 2 0 0 1 2-2Zm2 5h10M7 13h7',call:'M7 3 3 5c-1 7 9 17 16 16l2-4-5-3-2 2c-3-1-5-3-6-6l2-2Z'};
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),path=document.createElementNS(svg.namespaceURI,'path');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');svg.classList.add('sr233-glyph');path.setAttribute('d',paths[kind]||paths.arrow);if(kind==='more')path.setAttribute('stroke-width','3.4');svg.append(path);return svg;
+ }
  function renderRoom(){loungeRenderController?.abort();loungeRenderController=new AbortController();const loungeRenderSignal=loungeRenderController.signal;if(salonTabRoom!==room.id){salonTabRoom=room.id;salonTab=0;}roomIntro.replaceChildren();roomGame.replaceChildren();roomTools.replaceChildren();tray.dataset.appearance=roomAppearance(room.id);const r=room;
 /* V157: interface du salon reconstruite de zéro. Les fonctions réseau historiques restent inchangées. */
-const app=el('div',undefined,'sr157 sr197');
+const app=el('div',undefined,'sr157 sr197 sr233');
 const top=el('div',undefined,'sr157-top');
 const back=button('‹',()=>window.oneCloseSalon(),'sr157-round');back.setAttribute('aria-label','Fermer le salon');
-const manage=button('•••',settings,'sr157-round');manage.setAttribute('aria-label','Paramètres du salon');top.append(back,el('strong','Mon salon'),manage);
+const manage=button('•••',settings,'sr157-round');manage.setAttribute('aria-label','Paramètres du salon');back.replaceChildren(salonIcon('back'));manage.replaceChildren(salonIcon('more'));top.append(back,el('strong','Mon salon'),manage);
 app.append(top);
 
 const profile=el('section',undefined,'sr157-profile');
 const cover=el('div','ONE','sr157-cover');
 const meta=el('div',undefined,'sr157-meta');meta.append(el('h2',r.name),el('p',r.visibility==='public'?'Public · ouvert à tous':'Privé · sur invitation','os-muted'));
-profile.append(cover,meta);
+meta.lastChild.prepend(salonIcon(r.visibility==='public'?'public':'lock'));profile.append(cover,meta);
 const qa=el('div',undefined,'sr157-qa');
 const membersButton=button('',()=>salonPage(salonTab===2?0:2),'sr197-members');membersButton.setAttribute('aria-label','Voir les '+r.members.length+' membres du salon');membersButton.setAttribute('aria-controls','oneSalonMembersPage');
 const faces=el('span',undefined,'sr197-faces');for(const m of r.members.slice(0,3))faces.append(avatar(m));
-membersButton.append(faces,el('span',r.members.length+' membre'+(r.members.length>1?'s':'')),el('span','›'));
-qa.append(membersButton);if(r.isHost||r.visibility==='public')qa.append(button(r.isHost?'＋ Inviter':'Partager',r.isHost?invite:share,'sr197-invite'));profile.append(qa);app.append(profile);
+membersButton.append(faces,el('span',r.members.length+' membre'+(r.members.length>1?'s':'')),salonIcon('right'));
+qa.append(membersButton);if(r.isHost||r.visibility==='public'){const inviteButton=button('',r.isHost?invite:share,'sr197-invite');inviteButton.append(salonIcon(r.isHost?'plus':'arrow'),el('span',r.isHost?'Inviter':'Partager'));qa.append(inviteButton);}profile.append(qa);app.append(profile);
 
 const tabs=el('nav',undefined,'sr157-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Dans ce salon');
-for(const [n,lab,target]of [[0,'Activités','oneSalonActivitiesPage'],[1,'Messages','oneSalonMessagesPage'],[3,'Appel','oneSalonCallPage']]){const b=button(lab,()=>salonPage(n));b.dataset.salonPage=n;b.id='oneSalonTab'+n;b.setAttribute('role','tab');b.setAttribute('aria-controls',target);tabs.append(b);}
+for(const [n,lab,target]of [[0,'Activités','oneSalonActivitiesPage'],[1,'Messages','oneSalonMessagesPage'],[3,'Appel','oneSalonCallPage']]){const b=button('',()=>salonPage(n));b.append(salonIcon(n===0?'activities':n===1?'messages':'call'),el('span',lab));b.dataset.salonPage=n;b.id='oneSalonTab'+n;b.setAttribute('role','tab');b.setAttribute('aria-controls',target);tabs.append(b);}
 tabs.addEventListener('keydown',e=>{const buttons=[...tabs.children],i=buttons.indexOf(e.target);if(i<0)return;const next=e.key==='ArrowRight'?(i+1)%buttons.length:e.key==='ArrowLeft'?(i+buttons.length-1)%buttons.length:e.key==='Home'?0:e.key==='End'?buttons.length-1:-1;if(next<0)return;e.preventDefault();buttons[next].click();buttons[next].focus();});
 app.append(tabs);
 
 const choose=el('section',undefined,'sr197-activities');choose.id='oneSalonActivitiesPage';choose.setAttribute('role','tabpanel');choose.setAttribute('aria-labelledby','oneSalonTab0');
 if(r.activity){const running=el('section',undefined,'sr157-card sr157-running');running.append(el('h3','Activité en cours'));ONEUI.activity(running,{room:r});choose.append(running);}
-choose.append(el('h3',r.activity?'Envie d’autre chose ?':'On fait quoi ?'));
+choose.append(el('h3',r.activity?'Et pour la suite ?':'Un moment à partager'));
 const actionRow=el('div',undefined,'sr197-actions');
-const mk=(cls,ico,title,sub,fn)=>{const b=button('',fn,'sr197-action '+cls),symbol=el('span',ico,'sr197-icon');symbol.setAttribute('aria-hidden','true');const text=el('span');text.append(el('b',title),el('small',sub));b.append(symbol,text,el('span','›','sr197-arrow'));return b;};
+const mk=(cls,title,sub,fn)=>{const b=button('',fn,'sr197-action '+cls),symbol=el('span',undefined,'sr197-icon'),text=el('span',undefined,'sr197-copy'),arrow=el('span',undefined,'sr197-arrow');symbol.setAttribute('aria-hidden','true');if(cls!=='lobby')symbol.append(salonIcon(cls));arrow.setAttribute('aria-hidden','true');arrow.append(salonIcon('arrow'));text.append(el('b',title),el('small',sub));b.append(symbol,text,arrow);return b;};
 actionRow.append(
- mk('watch','▷','Regarder ensemble','Vidéos, lives et contenus à partager',()=>{window.oneCloseSalon();window.oneShowSpace?.('together');}),
- mk('play','✦','Jouer ensemble','Choisis un jeu pour le groupe',()=>{window.oneCloseSalon();window.oneShowSpace?.('party');})
+ mk('watch','Regarder ensemble','Vidéos et lives à partager',()=>{window.oneCloseSalon();window.oneShowSpace?.('together');}),
+ mk('play','Jouer ensemble','Une partie entre amis',()=>{window.oneCloseSalon();window.oneShowSpace?.('party');})
 );choose.append(actionRow);
-const lobbyCard=mk('lobby','◇','Votre lobby 3D','5 jeux. Un seul endroit pour vous retrouver.',()=>window.ONEOpen3DLobby?.({room:r}));lobbyCard.setAttribute('aria-label','Entrer dans le lobby 3D');choose.insertBefore(lobbyCard,actionRow);const lobbyEnter=el('span','Entrer dans le lobby →','os202-lobby-enter');lobbyCard.children[1].append(lobbyEnter);
+const lobbyCard=mk('lobby','Le lobby vous attend.','Retrouvez-vous, jouez, profitez.',()=>window.ONEOpen3DLobby?.({room:r}));lobbyCard.setAttribute('aria-label','Entrer dans le lobby 3D');const scene=el('img');scene.src='ui/salon-lobby-scene.svg?v=233';scene.alt='';scene.width=340;scene.height=310;scene.decoding='async';lobbyCard.children[0].append(scene);lobbyCard.children[1].prepend(el('span','VOTRE ESPACE 3D','sr233-eyebrow'));choose.insertBefore(lobbyCard,actionRow);const lobbyEnter=el('span',undefined,'os202-lobby-enter');lobbyEnter.append(el('span','Entrer dans le lobby'),salonIcon('arrow'));lobbyCard.children[1].append(lobbyEnter);
 app.append(choose);
 
 const pages=el('section',undefined,'sr164-pages');
