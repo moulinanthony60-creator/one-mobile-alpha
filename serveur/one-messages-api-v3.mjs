@@ -5,6 +5,8 @@ const HOME = 'https://one-officiel.fr/';
 const ORIGIN = new URL(HOME).origin;
 const PHOTO_MAX = 15 * 1024 * 1024;
 const VIDEO_MAX = 50 * 1024 * 1024;
+// TTL is enforced by server time from the moment a new photo upload is accepted.
+const PHOTO_TTL_MS = 10 * 60 * 1000;
 
 const schema = [
   `CREATE TABLE IF NOT EXISTS messages (
@@ -38,7 +40,14 @@ const schema = [
     created_at INTEGER NOT NULL
   )`,
   `CREATE INDEX IF NOT EXISTS media_shares_created
-   ON media_shares(created_at DESC)`
+   ON media_shares(created_at DESC)`,
+  // Sidecar only applies to photos uploaded after activation; legacy content is not silently purged.
+  `CREATE TABLE IF NOT EXISTS expiring_photos (
+    message_id TEXT PRIMARY KEY,
+    media_key TEXT NOT NULL,
+    expires_at INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS expiring_photos_due ON expiring_photos(expires_at)`
 ];
 
 const initialized = new WeakMap();
@@ -142,8 +151,16 @@ async function tokenHash(token) {
 }
 
 async function messageById(env, id) {
-  return env.DB.prepare('SELECT * FROM messages WHERE id=?').bind(id).first();
+  return env.DB.prepare('SELECT m.*, e.expires_at FROM messages m LEFT JOIN expiring_photos e ON e.message_id=m.id WHERE m.id=?').bind(id).first();
 }
+
+// A photo is unavailable on the exact server deadline, even if the cleanup job runs later.
+function rejectExpiredPhoto(row, now=Date.now()) {
+  if (row?.type === 'photo' && row.expires_at != null && now >= Number(row.expires_at)) {
+    throw fail(404, 'Cette photo a expiré après 10 minutes.');
+  }
+}
+
 
 async function shareById(env, id) {
   return env.DB.prepare('SELECT * FROM media_shares WHERE message_id=?').bind(id).first();
@@ -155,6 +172,7 @@ async function checkedShare(env, id, token) {
   if (!row || row.token_hash !== await tokenHash(token)) throw fail(403, 'Lien média invalide ou expiré.');
   const message = await messageById(env, id);
   if (!message?.media_key) throw fail(404, 'Média introuvable.');
+  rejectExpiredPhoto(message);
   return { share: row, message };
 }
 
@@ -178,6 +196,7 @@ function serializeMessage(row, accountId, apiOrigin) {
     status: outgoing ? messageStatus(row) : (row.opened_at ? 'opened' : 'received'),
     unopened: !outgoing && !row.opened_at && (row.type === 'photo' || row.type === 'video'),
     createdAt: row.created_at,
+    expiresAt: row.type === 'photo' && row.expires_at != null ? Number(row.expires_at) : null,
     deliveredAt: row.delivered_at || null,
     openedAt: row.opened_at || null,
     media: row.media_key ? {
@@ -190,7 +209,7 @@ function serializeMessage(row, accountId, apiOrigin) {
 
 async function existingByClient(env, sender, clientId) {
   if (!clientId) return null;
-  return env.DB.prepare('SELECT * FROM messages WHERE sender_id=? AND client_id=? LIMIT 1')
+  return env.DB.prepare('SELECT m.*, e.expires_at FROM messages m LEFT JOIN expiring_photos e ON e.message_id=m.id WHERE m.sender_id=? AND m.client_id=? LIMIT 1')
     .bind(sender, clientId).first();
 }
 
@@ -218,6 +237,7 @@ async function sendMedia(req, env, sender, origin, url) {
   const clientId = validClientId(url.searchParams.get('clientId'));
   const previous = await existingByClient(env, sender, clientId);
   if (previous) {
+    rejectExpiredPhoto(previous);
     const shareToken = randomToken();
     await env.DB.prepare(`INSERT INTO media_shares(message_id,token_hash,created_at)
       VALUES(?,?,?) ON CONFLICT(message_id) DO UPDATE SET token_hash=excluded.token_hash`)
@@ -245,10 +265,17 @@ async function sendMedia(req, env, sender, origin, url) {
       await env.MEDIA.delete(key);
       throw fail(413, type === 'photo' ? 'Photo trop volumineuse.' : 'Vidéo trop volumineuse.');
     }
-    await env.DB.prepare(`INSERT INTO messages
+    const recordedAt = Date.now();
+    const insert = env.DB.prepare(`INSERT INTO messages
       (id,conversation_id,sender_id,recipient_id,type,text,media_key,media_type,media_size,client_id,created_at)
       VALUES (?,?,?,?,?,'',?,?,?,?,?)`)
-      .bind(id, conversation, sender, recipient, type, key, contentType, stored.size, clientId, now).run();
+      .bind(id, conversation, sender, recipient, type, key, contentType, stored.size, clientId, recordedAt);
+    const writes = [insert];
+    if (type === 'photo') {
+      writes.push(env.DB.prepare('INSERT INTO expiring_photos(message_id,media_key,expires_at) VALUES(?,?,?)')
+        .bind(id,key,recordedAt+PHOTO_TTL_MS));
+    }
+    await env.DB.batch(writes);
   } catch (err) {
     if (stored) try { await env.MEDIA.delete(key); } catch {}
     throw err;
@@ -263,10 +290,11 @@ async function sendMedia(req, env, sender, origin, url) {
 async function conversations(env, accountId, origin, url) {
   const limit = Math.max(1, Math.min(100, Number(url.searchParams.get('limit') || 50)));
   const result = await env.DB.prepare(`WITH ranked AS (
-    SELECT *, ROW_NUMBER() OVER (PARTITION BY conversation_id ORDER BY created_at DESC) rn
-    FROM messages WHERE sender_id=? OR recipient_id=?
+    SELECT m.*,e.expires_at, ROW_NUMBER() OVER (PARTITION BY m.conversation_id ORDER BY m.created_at DESC) rn
+    FROM messages m LEFT JOIN expiring_photos e ON e.message_id=m.id
+    WHERE (m.sender_id=? OR m.recipient_id=?) AND (e.expires_at IS NULL OR e.expires_at>?)
   ) SELECT * FROM ranked WHERE rn=1 ORDER BY created_at DESC LIMIT ?`)
-    .bind(accountId, accountId, limit).all();
+    .bind(accountId, accountId, Date.now(), limit).all();
   return (result.results || []).map(row => serializeMessage(row, accountId, origin));
 }
 
@@ -275,20 +303,25 @@ async function messages(env, accountId, origin, url) {
   const conversation = conversationId(accountId, peer);
   const limit = Math.max(1, Math.min(100, Number(url.searchParams.get('limit') || 50)));
   const before = Number(url.searchParams.get('before') || Date.now() + 1);
-  const result = await env.DB.prepare(`SELECT * FROM messages
-    WHERE conversation_id=? AND created_at<? ORDER BY created_at DESC LIMIT ?`)
-    .bind(conversation, before, limit).all();
+  const result = await env.DB.prepare(`SELECT m.*,e.expires_at FROM messages m LEFT JOIN expiring_photos e ON e.message_id=m.id
+    WHERE m.conversation_id=? AND m.created_at<? AND (e.expires_at IS NULL OR e.expires_at>?)
+    ORDER BY m.created_at DESC LIMIT ?`)
+    .bind(conversation, before, Date.now(), limit).all();
   return (result.results || []).reverse().map(row => serializeMessage(row, accountId, origin));
 }
 
 async function openMessage(env, accountId, origin, id) {
   const now = Date.now();
+  const current = await messageById(env,id);
+  rejectExpiredPhoto(current,now);
   const row = await env.DB.prepare(`UPDATE messages
     SET delivered_at=COALESCE(delivered_at,?), opened_at=COALESCE(opened_at,?)
-    WHERE id=? AND recipient_id=? RETURNING *`)
-    .bind(now, now, id, accountId).first();
+    WHERE id=? AND recipient_id=? AND NOT EXISTS (
+      SELECT 1 FROM expiring_photos e WHERE e.message_id=messages.id AND e.expires_at<=?
+    ) RETURNING *`)
+    .bind(now, now, id, accountId, now).first();
   if (!row) throw fail(404, 'Message introuvable.');
-  return serializeMessage(row, accountId, origin);
+  return serializeMessage({...row,expires_at:current?.expires_at??null}, accountId, origin);
 }
 
 async function sharedStatus(env, accountId, id, token) {
@@ -338,7 +371,8 @@ function parseRange(header, size) {
   return { start, end, offset: start, length: end - start + 1 };
 }
 
-async function serveObject(req, env, key) {
+async function serveObject(req, env, key, expiresAt=null) {
+  if (expiresAt != null && Date.now() >= Number(expiresAt)) throw fail(404,'Photo expirée.');
   const head = await env.MEDIA.head(key);
   if (!head) throw fail(404, 'Média introuvable.');
   const headers = new Headers(corsHeaders({
@@ -357,12 +391,14 @@ async function serveObject(req, env, key) {
     object.writeHttpMetadata(headers);
     headers.set('Content-Range', `bytes ${range.start}-${range.end}/${head.size}`);
     headers.set('Content-Length', String(range.length));
+    if (expiresAt != null && Date.now() >= Number(expiresAt)) throw fail(404,'Photo expirée.');
     return new Response(object.body, { status: 206, headers });
   }
   const object = await env.MEDIA.get(key);
   if (!object) throw fail(404, 'Média introuvable.');
   object.writeHttpMetadata(headers);
   headers.set('Content-Length', String(head.size));
+  if (expiresAt != null && Date.now() >= Number(expiresAt)) throw fail(404,'Photo expirée.');
   return new Response(object.body, { status: 200, headers });
 }
 
@@ -371,12 +407,33 @@ async function serveMedia(req, env, accountId, id) {
   if (!message?.media_key || (message.sender_id !== accountId && message.recipient_id !== accountId)) {
     throw fail(404, 'Média introuvable.');
   }
-  return serveObject(req, env, message.media_key);
+  rejectExpiredPhoto(message);
+  return serveObject(req, env, message.media_key, message.expires_at);
 }
 
 async function serveSharedMedia(req, env, id, token) {
   const { message } = await checkedShare(env, id, token);
-  return serveObject(req, env, message.media_key);
+  return serveObject(req, env, message.media_key, message.expires_at);
+}
+
+async function cleanupExpiredPhotos(env, limit=100) {
+  const now=Date.now();
+  const due=await env.DB.prepare('SELECT message_id,media_key FROM expiring_photos WHERE expires_at<=? ORDER BY expires_at LIMIT ?').bind(now,limit).all();
+  let errors=0;
+  for(const row of due.results||[]){
+    try {
+      // Revoke access first via the read-time expiry guard; remove R2 bytes before deleting the cleanup marker.
+      await env.MEDIA.delete(row.media_key);
+      await env.DB.batch([
+        env.DB.prepare('DELETE FROM media_shares WHERE message_id=?').bind(row.message_id),
+        env.DB.prepare("DELETE FROM messages WHERE id=? AND type='photo'").bind(row.message_id),
+        env.DB.prepare('DELETE FROM expiring_photos WHERE message_id=? AND expires_at<=?').bind(row.message_id,now)
+      ]);
+    } catch {
+      errors++;
+    }
+  }
+  if(errors)throw Error('ONE photo expiration: cleanup incomplete, retry required');
 }
 
 export default {
@@ -417,10 +474,12 @@ export default {
         if(!row || (row.sender_id!==accountId && row.recipient_id!==accountId)) throw fail(404,'Message introuvable.');
         if(row.sender_id!==accountId)throw fail(403,'Seul l’expéditeur peut supprimer pour tout le monde.');
         await env.DB.batch([
+          ...(row.type==='photo' ? [env.DB.prepare('UPDATE expiring_photos SET expires_at=? WHERE message_id=?').bind(Date.now(),id)] : []),
           env.DB.prepare('DELETE FROM media_shares WHERE message_id=?').bind(id),
           env.DB.prepare('DELETE FROM messages WHERE id=? AND sender_id=?').bind(id,accountId)
         ]);
-        if(row.media_key) await env.MEDIA.delete(row.media_key);
+        if(row.media_key)await env.MEDIA.delete(row.media_key);
+        if(row.type==='photo')await env.DB.prepare('DELETE FROM expiring_photos WHERE message_id=?').bind(id).run();
         return json({ok:true,deleted:true});
       }
 
@@ -450,6 +509,11 @@ export default {
       console.error(JSON.stringify({ event: 'one_messages_error', status: err.status || 500, message: err.status ? err.message : 'Erreur interne' }));
       return json({ ok: false, error: err.status ? err.message : 'ONE Messages momentanément indisponible.' }, err.status || 500);
     }
+  },
+  // Configure a Cloudflare Cron Trigger (every minute) for automatic R2/D1 cleanup.
+  async scheduled(_event, env) {
+    await init(env);
+    await cleanupExpiredPhotos(env);
   }
 };
 
