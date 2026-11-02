@@ -34,3 +34,13 @@
 ## Déploiement
 
 Cette branche constitue une première base de suppression **à revoir**, pas une livraison de chiffrement intégral. Ne pas fusionner ou déployer sans revue et tests sur un environnement isolé. Ne pas supprimer les données de production pour tester.
+
+## Photos éphémères : 10 minutes après l'envoi (ajout du 2 novembre 2026)
+
+- `serveur/one-messages-api-v3.mjs` enregistre une échéance `expires_at` pour les **nouvelles photos** `/messages/media?type=photo`. La durée de dix minutes part de l'acceptation de l'envoi côté Worker.
+- Les lectures de conversations et la consultation des médias vérifient l'échéance côté serveur, y compris les liens de partage. Après expiration, l'API doit refuser l'accès même si la tâche de suppression R2 n'est pas encore passée.
+- Le handler Cloudflare `scheduled` permet de supprimer les fichiers R2 et les lignes D1 expirés ; **il faut configurer un Cron Trigger toutes les minutes** dans le Worker déployé. Les échecs sont retentés aux exécutions suivantes.
+- Ce paramétrage **ne supprime pas automatiquement les copies locales déjà téléchargées sur les téléphones**. L'interface et le Service Worker doivent être revus pour empêcher leur conservation et assurer leur disparition visuelle.
+- Les anciennes photos déjà présentes avant la migration ne reçoivent pas de durée de vie rétroactive. Les autres chemins de médias/messages (notamment le système amis, ses liens de médias et les scripts intégrés) exigent une intégration et des tests supplémentaires.
+- **Aucun chiffrement E2EE n'est ajouté**, et il n'existe aucune preuve que les sauvegardes D1/R2 ou appareils ne contiennent pas de copies.
+- Tests bloquants : contrôler lecture autorisée à T+9 min, refus à T+10 min, accès via ancien lien, nettoyage physique après cron, redémarrage, erreur R2 et reprise, tests sur deux comptes et expiration sans ouverture.
