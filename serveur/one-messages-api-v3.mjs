@@ -476,7 +476,7 @@ async function commRoute(req,env,me,url){
  const p=url.pathname;if(!p.startsWith('/voice')&&!p.startsWith('/calls')&&p!=='/communications')return null;
  await commInit(env);
  if(p==='/communications'&&req.method==='GET')return json({ok:true,voice:true,calls:true,iceServers:iceConfig(env)});
- if(p==='/voice'&&req.method==='GET'){const peer=validRecipient(url.searchParams.get('peer'));const result=await env.DB.prepare('SELECT id,sender,recipient,mime,created FROM one_voice WHERE (sender=? AND recipient=?) OR (sender=? AND recipient=?) ORDER BY created DESC LIMIT 100').bind(me,peer,peer,me).all();return json({ok:true,messages:(result.results||[]).reverse()});}
+ if(p==='/voice'&&req.method==='GET'){const peer=validRecipient(url.searchParams.get('peer'));const result=await env.DB.prepare('SELECT id,sender,recipient,mime,created FROM one_voice WHERE (sender=? AND recipient=?) OR (sender=? AND recipient=?) ORDER BY created DESC LIMIT 100').bind(me,peer,peer,me).all();return json({ok:true,messages:(result.results||[]).reverse().map(row=>({...row,mine:row.sender===me}))});}
  if(p==='/voice'&&req.method==='POST'){
   const peer=validRecipient(url.searchParams.get('to'));await acceptedPeer(req,me,peer);
   const client=validClientId(url.searchParams.get('clientId'));if(!client)throw fail(400,'Identifiant de vocal manquant.');
