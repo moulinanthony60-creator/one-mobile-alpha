@@ -1,3 +1,14 @@
+// ONE private-message deletion acknowledgements; purge after both participants erase.
+const privateDeletionReady=new WeakMap();
+async function ensurePrivateDeletionSchema(db){
+ let task=privateDeletionReady.get(db);
+ if(!task){task=db.batch([
+  db.prepare('CREATE TABLE IF NOT EXISTS friend_message_deletions(message_id TEXT NOT NULL,account_id TEXT NOT NULL,deleted_at INTEGER NOT NULL,PRIMARY KEY(message_id,account_id))'),
+  db.prepare('CREATE INDEX IF NOT EXISTS friend_message_deletions_account ON friend_message_deletions(account_id,message_id)')
+ ]).catch(e=>{privateDeletionReady.delete(db);throw e;});privateDeletionReady.set(db,task);}
+ await task;
+}
+
 const ONE_POKER_SCHEMA=["CREATE TABLE IF NOT EXISTS one_poker(code TEXT PRIMARY KEY,owner_id TEXT NOT NULL,mode TEXT NOT NULL,buyin INTEGER NOT NULL CHECK(buyin IN(100,500,1000)),state TEXT NOT NULL,revision INTEGER NOT NULL,status TEXT NOT NULL,updated_at INTEGER NOT NULL)","CREATE TRIGGER IF NOT EXISTS poker_create_guard BEFORE INSERT ON one_poker WHEN COALESCE((SELECT balance FROM one_wallets WHERE account_id=NEW.owner_id),0)<NEW.buyin OR EXISTS(SELECT 1 FROM one_poker WHERE status<>'finished' AND EXISTS(SELECT 1 FROM json_each(state,'$.players') p WHERE json_extract(p.value,'$.id')=NEW.owner_id)) BEGIN SELECT RAISE(IGNORE); END","CREATE TRIGGER IF NOT EXISTS poker_create_debit AFTER INSERT ON one_poker BEGIN UPDATE one_wallets SET balance=balance-NEW.buyin WHERE account_id=NEW.owner_id;INSERT INTO one_points_ledger VALUES(NEW.owner_id,'poker-in:'||NEW.code,-NEW.buyin,'poker',unixepoch()*1000);END","CREATE TRIGGER IF NOT EXISTS poker_join_guard BEFORE UPDATE ON one_poker WHEN OLD.status='waiting' AND NEW.status='playing' AND (COALESCE((SELECT balance FROM one_wallets WHERE account_id=json_extract(NEW.state,'$.players[1].id')),0)<NEW.buyin OR EXISTS(SELECT 1 FROM one_poker WHERE code<>NEW.code AND status<>'finished' AND EXISTS(SELECT 1 FROM json_each(state,'$.players') p WHERE json_extract(p.value,'$.id')=json_extract(NEW.state,'$.players[1].id')))) BEGIN SELECT RAISE(IGNORE); END","CREATE TRIGGER IF NOT EXISTS poker_join_debit AFTER UPDATE ON one_poker WHEN OLD.status='waiting' AND NEW.status='playing' BEGIN UPDATE one_wallets SET balance=balance-NEW.buyin WHERE account_id=json_extract(NEW.state,'$.players[1].id');INSERT INTO one_points_ledger VALUES(json_extract(NEW.state,'$.players[1].id'),'poker-in:'||NEW.code,-NEW.buyin,'poker',unixepoch()*1000);END","CREATE TRIGGER IF NOT EXISTS poker_settle AFTER UPDATE ON one_poker WHEN OLD.status<>'finished' AND NEW.status='finished' BEGIN UPDATE one_wallets SET balance=balance+COALESCE((SELECT json_extract(value,'$.stack') FROM json_each(NEW.state,'$.players') WHERE json_extract(value,'$.id')=account_id),0) WHERE account_id IN (SELECT json_extract(value,'$.id') FROM json_each(NEW.state,'$.players') WHERE json_extract(value,'$.id')<>'bot');INSERT INTO one_points_ledger SELECT json_extract(value,'$.id'),'poker-out:'||NEW.code,json_extract(value,'$.stack'),'poker',unixepoch()*1000 FROM json_each(NEW.state,'$.players') WHERE json_extract(value,'$.id')<>'bot';END"];const onePokerInit=new WeakMap();async function oneEnsurePoker(db){let p=onePokerInit.get(db);if(!p){p=db.batch(ONE_POKER_SCHEMA.map(q=>db.prepare(q))).catch(e=>{onePokerInit.delete(db);throw e;});onePokerInit.set(db,p);}await p;}
 function pokerRank5(cards){const ranks=cards.map(c=>c%13===0?14:c%13+1).sort((a,b)=>b-a),counts=new Map();for(const r of ranks)counts.set(r,(counts.get(r)||0)+1);const groups=[...counts].sort((a,b)=>b[1]-a[1]||b[0]-a[0]),flush=cards.every(c=>Math.floor(c/13)===Math.floor(cards[0]/13));let straight=0;const u=[...counts.keys()].sort((a,b)=>b-a);if(u.includes(14))u.push(1);for(let i=0;i<=u.length-5;i++)if(u[i]-u[i+4]===4){straight=u[i];break;}if(flush&&straight)return [8,straight];if(groups[0][1]===4)return[7,groups[0][0],groups[1][0]];if(groups[0][1]===3&&groups[1][1]===2)return[6,groups[0][0],groups[1][0]];if(flush)return[5,...ranks];if(straight)return[4,straight];if(groups[0][1]===3)return[3,groups[0][0],...groups.slice(1).map(g=>g[0])];if(groups[0][1]===2&&groups[1][1]===2)return[2,Math.max(groups[0][0],groups[1][0]),Math.min(groups[0][0],groups[1][0]),groups[2][0]];if(groups[0][1]===2)return[1,groups[0][0],...groups.slice(1).map(g=>g[0])];return[0,...ranks];}
 function pokerCompare(a,b){for(let i=0;i<Math.max(a.length,b.length);i++)if((a[i]||0)!==(b[i]||0))return(a[i]||0)-(b[i]||0);return 0;}
@@ -222,6 +233,7 @@ export default {async fetch(request,env){
   if(url.pathname.startsWith('/friends/')){
    const user=await auth();if(!user)return json({error:'Connecte-toi à ONE pour retrouver tes amis.'},401);
    const db=env.COMMENTS;
+   await ensurePrivateDeletionSchema(db);
    if(url.pathname==='/friends/presence'&&request.method==='POST'){await db.prepare('CREATE TABLE IF NOT EXISTS one_presence(account_id TEXT PRIMARY KEY,last_seen INTEGER NOT NULL)').run();await db.prepare('INSERT INTO one_presence(account_id,last_seen) VALUES(?,?) ON CONFLICT(account_id) DO UPDATE SET last_seen=excluded.last_seen').bind(user.id,Date.now()).run();return json({ok:true});}
    let profile=await db.prepare('SELECT code FROM friend_profiles WHERE account_id=?').bind(user.id).first();
    for(let attempt=0;!profile&&attempt<5;attempt++){const bytes=crypto.getRandomValues(new Uint8Array(8));const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const code=Array.from(bytes,b=>chars[b%chars.length]).join('');await db.prepare('INSERT OR IGNORE INTO friend_profiles VALUES(?,?,?)').bind(user.id,code,user.name).run();profile=await db.prepare('SELECT code FROM friend_profiles WHERE account_id=?').bind(user.id).first();}
@@ -238,7 +250,7 @@ export default {async fetch(request,env){
    }
 
    if(url.pathname==='/friends/inbox'&&request.method==='GET'){
-    const {results}=await db.prepare("SELECT f.id,p.name,p.account_id AS accountId,(SELECT body FROM friend_messages WHERE friendship_id=f.id ORDER BY created_at DESC,id DESC LIMIT 1) AS lastText,(SELECT MAX(created_at) FROM friend_messages WHERE friendship_id=f.id) AS lastAt,(SELECT COUNT(*) FROM friend_messages m LEFT JOIN notification_reads n ON n.event_key='message:'||m.id AND n.account_id=? WHERE m.friendship_id=f.id AND m.sender_id<>? AND n.event_key IS NULL) AS unread FROM friendships f JOIN friend_profiles p ON p.account_id=CASE WHEN f.a=? THEN f.b ELSE f.a END WHERE (f.a=? OR f.b=?) AND f.status='accepted' ORDER BY lastAt DESC,p.name LIMIT 200").bind(user.id,user.id,user.id,user.id,user.id).all();return json({ok:true,conversations:results});
+    const {results}=await db.prepare("SELECT f.id,p.name,p.account_id AS accountId,(SELECT body FROM friend_messages m WHERE m.friendship_id=f.id AND NOT EXISTS(SELECT 1 FROM friend_message_deletions d WHERE d.message_id=m.id AND d.account_id=?) ORDER BY m.created_at DESC,m.id DESC LIMIT 1) AS lastText,(SELECT MAX(m.created_at) FROM friend_messages m WHERE m.friendship_id=f.id AND NOT EXISTS(SELECT 1 FROM friend_message_deletions d WHERE d.message_id=m.id AND d.account_id=?)) AS lastAt,(SELECT COUNT(*) FROM friend_messages m LEFT JOIN notification_reads n ON n.event_key='message:'||m.id AND n.account_id=? WHERE m.friendship_id=f.id AND m.sender_id<>? AND n.event_key IS NULL AND NOT EXISTS(SELECT 1 FROM friend_message_deletions d WHERE d.message_id=m.id AND d.account_id=?)) AS unread FROM friendships f JOIN friend_profiles p ON p.account_id=CASE WHEN f.a=? THEN f.b ELSE f.a END WHERE (f.a=? OR f.b=?) AND f.status='accepted' ORDER BY lastAt DESC,p.name LIMIT 200").bind(user.id,user.id,user.id,user.id,user.id,user.id,user.id,user.id).all();return json({ok:true,conversations:results});
    }
    const readConversation=url.pathname.match(/^\/friends\/([a-f0-9-]{36})\/messages\/read$/i);
    if(readConversation&&request.method==='POST'){
@@ -246,10 +258,37 @@ export default {async fetch(request,env){
     const through=Number(url.searchParams.get('through'));if(!Number.isSafeInteger(through)||through<=0||through>Date.now())return json({error:'Date invalide.'},400);
     await db.prepare("INSERT OR IGNORE INTO notification_reads(account_id,event_key,read_at) SELECT ?,'message:'||id,? FROM friend_messages WHERE friendship_id=? AND sender_id<>? AND created_at<=?").bind(user.id,Date.now(),f.id,user.id,through).run();return json({ok:true});
    }
+   // Both participants may erase their copy; only the author may erase for everyone.
+   const privateDelete=url.pathname.match(/^\/friends\/([a-f0-9-]{36})\/messages\/([a-f0-9-]{36})$/i);
+   if(privateDelete&&request.method==='DELETE'){
+    const f=await db.prepare("SELECT id,a,b FROM friendships WHERE id=? AND (a=? OR b=?) AND status='accepted'").bind(privateDelete[1],user.id,user.id).first();
+    if(!f)return json({error:'Conversation indisponible.'},403);
+    const id=privateDelete[2],message=await db.prepare('SELECT id,sender_id FROM friend_messages WHERE id=? AND friendship_id=?').bind(id,f.id).first();
+    if(!message)return json({error:'Message introuvable ou déjà supprimé.'},404);
+    const scope=url.searchParams.get('scope');
+    if(scope==='everyone'){
+     if(message.sender_id!==user.id)return json({error:'Seul l’auteur peut supprimer pour tout le monde.'},403);
+     await db.batch([
+      db.prepare('DELETE FROM friend_messages WHERE id=? AND friendship_id=? AND sender_id=?').bind(id,f.id,user.id),
+      db.prepare('DELETE FROM friend_message_deletions WHERE message_id=?').bind(id),
+      db.prepare('DELETE FROM notification_reads WHERE event_key=? OR event_key=?').bind('message:'+id,'dismissed:message:'+id)
+     ]);
+     return json({ok:true,scope:'everyone',permanentlyDeleted:true});
+    }
+    if(scope!=='me')return json({error:'Option de suppression invalide.'},400);
+    const results=await db.batch([
+     db.prepare('INSERT OR IGNORE INTO friend_message_deletions(message_id,account_id,deleted_at) VALUES(?,?,?)').bind(id,user.id,Date.now()),
+     db.prepare('INSERT OR IGNORE INTO notification_reads(account_id,event_key,read_at) VALUES(?,?,?)').bind(user.id,'dismissed:message:'+id,Date.now()),
+     db.prepare('DELETE FROM friend_messages WHERE id=? AND friendship_id=? AND (SELECT COUNT(*) FROM friend_message_deletions WHERE message_id=?)=2').bind(id,f.id,id),
+     db.prepare('DELETE FROM notification_reads WHERE (event_key=? OR event_key=?) AND NOT EXISTS(SELECT 1 FROM friend_messages WHERE id=?)').bind('message:'+id,'dismissed:message:'+id,id),
+     db.prepare('DELETE FROM friend_message_deletions WHERE message_id=? AND NOT EXISTS(SELECT 1 FROM friend_messages WHERE id=?)').bind(id,id)
+    ]);
+    return json({ok:true,scope:'me',permanentlyDeleted:!!results[2]?.meta?.changes});
+   }
    const conversation=url.pathname.match(/^\/friends\/([a-f0-9-]{36})\/messages$/i);
    if(conversation){
     const friendship=await db.prepare("SELECT * FROM friendships WHERE id=? AND (a=? OR b=?) AND status='accepted'").bind(conversation[1],user.id,user.id).first();if(!friendship)return json({error:'Cette conversation est réservée à deux amis ONE.'},403);
-    if(request.method==='GET'){const {results}=await db.prepare('SELECT id,sender_id AS sender,body AS text,created_at AS createdAt FROM friend_messages WHERE friendship_id=? ORDER BY created_at DESC,id DESC LIMIT 50').bind(friendship.id).all();return json({ok:true,messages:results.reverse().map(m=>({id:m.id,text:m.text,createdAt:m.createdAt,isYou:m.sender===user.id}))});}
+    if(request.method==='GET'){const {results}=await db.prepare('SELECT m.id,m.sender_id AS sender,m.body AS text,m.created_at AS createdAt FROM friend_messages m WHERE m.friendship_id=? AND NOT EXISTS(SELECT 1 FROM friend_message_deletions d WHERE d.message_id=m.id AND d.account_id=?) ORDER BY m.created_at DESC,m.id DESC LIMIT 50').bind(friendship.id,user.id).all();return json({ok:true,messages:results.reverse().map(m=>({id:m.id,text:m.text,createdAt:m.createdAt,isYou:m.sender===user.id}))});}
     if(request.method==='POST'){
      const reader=request.body?.getReader();if(!reader)return json({error:'Message vide.'},400);let size=0,parts=[];while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>8192){await reader.cancel();return json({error:'Message trop long.'},413);}parts.push(value);}const bytes=new Uint8Array(size);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.length;}let data;try{data=JSON.parse(new TextDecoder().decode(bytes));}catch{return json({error:'Message invalide.'},400);}const text=typeof data?.text==='string'?data.text.trim():'';
      if(!/^[a-f0-9-]{36}$/i.test(data?.id||'')||!text||text.length>1000)return json({error:'Écris un message de 1 à 1 000 caractères.'},400);
@@ -262,7 +301,14 @@ export default {async fetch(request,env){
    const action=url.pathname.match(/^\/friends\/([a-f0-9-]{36})\/(accept|decline|remove)$/i);
    if(action&&request.method==='POST'){
     const f=await db.prepare('SELECT * FROM friendships WHERE id=? AND (a=? OR b=?)').bind(action[1],user.id,user.id).first();if(!f)return json({error:'Demande indisponible.'},404);
-    if(action[2]==='remove'){await db.prepare('DELETE FROM friendships WHERE id=? AND (a=? OR b=?)').bind(f.id,user.id,user.id).run();return json({ok:true});}
+    if(action[2]==='remove'){
+     await db.batch([
+      db.prepare("DELETE FROM notification_reads WHERE event_key IN (SELECT 'message:'||id FROM friend_messages WHERE friendship_id=?) OR event_key IN (SELECT 'dismissed:message:'||id FROM friend_messages WHERE friendship_id=?)").bind(f.id,f.id),
+      db.prepare('DELETE FROM friend_message_deletions WHERE message_id IN (SELECT id FROM friend_messages WHERE friendship_id=?)').bind(f.id),
+      db.prepare('DELETE FROM friend_messages WHERE friendship_id=?').bind(f.id),
+      db.prepare('DELETE FROM friendships WHERE id=? AND (a=? OR b=?)').bind(f.id,user.id,user.id)
+     ]);return json({ok:true});
+    }
     if(f.requester===user.id||f.status!=='pending')return json({error:'Seul le destinataire peut traiter cette demande.'},403);
     await db.prepare("UPDATE friendships SET status=? WHERE id=? AND status='pending'").bind(action[2]==='accept'?'accepted':'declined',f.id).run();return json({ok:true});
    }
