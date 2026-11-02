@@ -1,7 +1,9 @@
+import {createKartMatch} from './one-kart-core.js';
 import {paintPropBlocks} from './one-arcade-r209-surfaces.js';
 import {roundLayout} from './one-arcade-r208-layout.js';
 // Shared geometry and host-authoritative rules. No DOM or transport dependency.
 export const GAMES=Object.freeze([
+ {id:'kart',name:'Karting',min:1,max:8,icon:'◉',color:'#d7ff7d',description:'Un grand circuit en vue pilote. Trois tours, des dépassements et des coups de batte entre amis.'},
  {id:'paint',name:'Cache-cache peinture',min:2,max:8,icon:'◒',color:'#ad70ed',description:'Trouve une cachette, puis peins ton personnage sur place pour te fondre dans le décor.'},
  {id:'murder',name:'Murder',min:3,max:8,icon:'◇',color:'#e46c85',description:'Un tueur caché, un innocent armé. Observe, bluffe et survis.'},
  {id:'shoot',name:'Tir en équipes',min:2,max:8,icon:'◎',color:'#56b9ed',description:'Une arène, deux équipes : 1 contre 1 à 4 contre 4.'},
@@ -252,6 +254,7 @@ export function propMaxHp(type){if(!type)return 100;const p=PROP_TYPES[type];if(
 const random=()=>crypto.getRandomValues(new Uint32Array(1))[0]/4294967296;
 export function createMatch({id='preview',game,size=1,players,randomize=random}){
  if(!validMode(game,size,players?.length)||new Set(players.map(p=>p.id)).size!==players.length)throw Error('Nombre de joueurs incompatible avec ce mode.');
+ if(game==='kart')return createKartMatch({id,size,players});
  const shuffled=players.map(p=>({...p}));for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(randomize()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
  const world=worldFor(game,id),blocks=blocksFor(world),hiding=game==='paint'||game==='prop',state={game,size,elapsed:0,phase:hiding?'prepare':'play',until:hiding?world.prepare:180,score:[0,0],target:size*5,finished:false,winner:'',reason:'',gun:null,events:[],stones:[],grenades:[],players:[]};
  const hunters=Math.max(1,Math.floor(players.length/3));

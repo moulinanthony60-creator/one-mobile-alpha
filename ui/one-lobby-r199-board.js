@@ -7,7 +7,8 @@ const cards=[
  {id:'murder',label:'MURDER',detail:'Démasque le meurtrier',x:780,y:132,w:724,h:230},
  {id:'shoot',label:'TIR EN ÉQUIPE',detail:'1v1 · 2v2 · 3v3 · 4v4',x:32,y:382,w:724,h:230},
  {id:'prop',label:'PROP HUNT',detail:'Transforme-toi en objet',x:780,y:382,w:724,h:230},
- {id:'317',label:'3:17 · FOUR',detail:'La maison · 2–4 joueurs',color:'#be96d1',x:32,y:634,w:1472,h:102}
+ {id:'kart',label:'KARTING',detail:'Vue pilote · Grand circuit · Battes',x:32,y:634,w:724,h:102},
+ {id:'317',label:'3:17 · FOUR',detail:'La maison · 2–4 joueurs',color:'#be96d1',x:780,y:634,w:724,h:102}
 ].map(card=>({...GAMES.find(g=>g.id===card.id),...card}));
 
 export function createGameBoard(){
@@ -24,10 +25,10 @@ export function createGameBoard(){
  for(const card of cards){
   const {x,y,w,h,color,id}=card;
   round(x,y,w,h,24,'#244047');round(x,y,9,h,4,color);
-  if(id==='317'){
-   round(x+26,y+20,70,62,15,color);text('3:17',x+31,y+62,25,'#182e35',900);
-   text(card.label,x+118,y+65,48,'#fff8ff',850);
-   text(card.detail,x+530,y+63,34,'#c6d9dc',550);arrow(x+w-38,y+51,'#e5f8f0');continue;
+  if(id==='317'||id==='kart'){
+   round(x+26,y+20,70,62,15,color);text(id==='kart'?'K':'3:17',x+39,y+62,25,'#182e35',900);
+   text(card.label,x+118,y+43,32,'#fff8ff',850);
+   text(card.detail,x+118,y+76,22,'#c6d9dc',550);arrow(x+w-38,y+51,'#e5f8f0');continue;
   }
   round(x+w-193,y+22,168,h-44,22,color);
   c.save();c.translate(x+w-109,y+108);
