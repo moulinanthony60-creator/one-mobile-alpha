@@ -388,7 +388,7 @@ export default {
       if (req.method === 'OPTIONS') {
         return new Response(null, { status: 204, headers: corsHeaders({
           'Access-Control-Allow-Headers': 'Authorization, Content-Type, Range',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
           'Access-Control-Max-Age': '600'
         })});
       }
@@ -407,6 +407,21 @@ export default {
       if (url.pathname === '/messages/media' && req.method === 'POST') {
         const out = await sendMedia(req, env, accountId, apiOrigin, url);
         return json({ ok: true, ...out });
+      }
+
+      // Immediately revoke media share tokens and delete the underlying R2 object.
+      // Only participants may delete; global deletion is restricted to the sender.
+      const erased=url.pathname.match(/^\/messages\/([^/]+)$/);
+      if(erased&&req.method==='DELETE'){
+        const id=decodeURIComponent(erased[1]), row=await messageById(env,id);
+        if(!row || (row.sender_id!==accountId && row.recipient_id!==accountId)) throw fail(404,'Message introuvable.');
+        if(row.sender_id!==accountId)throw fail(403,'Seul l’expéditeur peut supprimer pour tout le monde.');
+        await env.DB.batch([
+          env.DB.prepare('DELETE FROM media_shares WHERE message_id=?').bind(id),
+          env.DB.prepare('DELETE FROM messages WHERE id=? AND sender_id=?').bind(id,accountId)
+        ]);
+        if(row.media_key) await env.MEDIA.delete(row.media_key);
+        return json({ok:true,deleted:true});
       }
 
       let m = url.pathname.match(/^\/messages\/([^/]+)\/open$/);
@@ -476,6 +491,15 @@ async function commRoute(req,env,me,url){
   return json({ok:true,id});
  }
  let m=p.match(/^\/voice\/([^/]+)$/);if(m&&req.method==='GET'){const row=await env.DB.prepare('SELECT * FROM one_voice WHERE id=?').bind(m[1]).first();if(!row||![row.sender,row.recipient].includes(me))throw fail(404,'Vocal introuvable.');return serveObject(req,env,row.media_key);}
+ if(p.startsWith('/voice/')&&req.method==='DELETE'){
+  const id=decodeURIComponent(p.slice('/voice/'.length));
+  const row=await env.DB.prepare('SELECT * FROM one_voice WHERE id=?').bind(id).first();
+  if(!row||![row.sender,row.recipient].includes(me))throw fail(404,'Vocal introuvable.');
+  if(row.sender!==me)throw fail(403,'Seul l’expéditeur peut supprimer ce vocal pour tout le monde.');
+  await env.DB.prepare('DELETE FROM one_voice WHERE id=? AND sender=?').bind(id,me).run();
+  await env.MEDIA.delete(row.media_key);
+  return json({ok:true,deleted:true});
+ }
  if(p==='/calls'&&req.method==='POST'){
   const d=await readJson(req),peer=validRecipient(d.to);await acceptedPeer(req,me,peer);if(typeof d.offer!=='string'||d.offer.length>16000||!d.offer.startsWith('v='))throw fail(400,'Proposition d’appel invalide.');
   const now=Date.now();await env.DB.prepare("UPDATE one_calls SET state='ended' WHERE (state='ringing' AND created<?) OR (state='active' AND (caller_seen<? OR callee_seen<?))").bind(now-45000,now-60000,now-60000).run();
