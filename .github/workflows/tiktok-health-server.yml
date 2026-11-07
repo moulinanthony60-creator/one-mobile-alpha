@@ -7,13 +7,13 @@ on:
     paths:
       - '.github/workflows/tiktok-health-server.yml'
       - 'scripts/tiktok-health-*'
-      - 'ui/tiktok-health-core.js'
+      - 'ui/tiktok-health*'
       - 'tests/tiktok-health*'
   pull_request:
     paths:
       - '.github/workflows/tiktok-health-server.yml'
       - 'scripts/tiktok-health-*'
-      - 'ui/tiktok-health-core.js'
+      - 'ui/tiktok-health*'
       - 'tests/tiktok-health*'
 
 permissions:
