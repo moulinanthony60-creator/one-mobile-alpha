@@ -2,7 +2,6 @@
 import json
 import os
 from pathlib import Path
-import shutil
 from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,7 +11,7 @@ fixture = """<!doctype html><html lang="fr"><meta charset="utf-8">
 <div id="settingsModal"><div class="ttCatalogBox"></div></div></body></html>"""
 
 with sync_playwright() as p:
-    executable = os.environ.get("CHROMIUM_EXECUTABLE") or shutil.which("chromium")
+    executable = os.environ.get("CHROMIUM_EXECUTABLE")
     browser = p.chromium.launch(**({"executable_path": executable} if executable else {}))
     page = browser.new_page(viewport={"width": 390, "height": 844})
     errors = []
