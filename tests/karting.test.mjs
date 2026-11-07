@@ -5,11 +5,11 @@ import {createMatch,validMode} from '../ui/one-arcade-r198-core.js';
 const players=[{id:'alice',name:'Alice'},{id:'bob',name:'Bob'}];
 const make=()=>createKartMatch({id:'test',players});
 const advance=(m,seconds)=>{for(let t=0;t<seconds;t+=.05)m.tick(.05);};
-test('large closed track and solo / eight-player lobby formats',()=>{
+test('legacy track remains valid but karting is unavailable from the arcade',()=>{
  assert(TRACK.length>550);assert(TRACK.length<650);assert.deepEqual(pointAt(0),pointAt(TRACK.length));
  for(let d=0;d<TRACK.length;d+=2){const p=pointAt(d);assert(projectTrack(p.x,p.z).d2<.001);}
- assert(validMode('kart',1,1));assert(validMode('kart',1,8));assert(!validMode('kart',1,9));
- assert.equal(createMatch({game:'kart',players}).snapshot().game,'kart');
+ for(const count of [1,2,8,9])assert.equal(validMode('kart',1,count),false);
+ assert.throws(()=>createMatch({game:'kart',players}),/incompatible/);
 });
 test('host validates driving input, speed, braking and circuit boundaries',()=>{
  const m=make(),p=m.state.players[0];assert(!m.input('alice',{x:NaN,z:1}));assert(!m.input('alice',{x:0,z:2}));assert(!m.input('unknown',{x:0,z:1}));
