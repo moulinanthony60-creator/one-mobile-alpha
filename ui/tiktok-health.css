@@ -1,0 +1,24 @@
+.tt-health-dialog{box-sizing:border-box;width:calc(100% - 24px);max-width:760px;max-height:90dvh;overflow:auto;margin:auto;padding:20px;border:1px solid #8466b5;border-radius:22px;background:#141224;color:#f4efff;font:15px/1.5 system-ui,sans-serif;color-scheme:dark;overflow-wrap:anywhere}
+.tt-health-dialog::backdrop{background:#05030bd9}
+.tt-health-dialog *{box-sizing:border-box}
+.tt-health-dialog header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tt-health-dialog h2{margin:0;font-size:20px;line-height:1.3}
+.tt-health-dialog button{min-height:44px;border:1px solid #8d6ebf;border-radius:12px;background:#37244f;color:#fff;padding:10px 14px;font:inherit;cursor:pointer;white-space:normal}
+.tt-health-dialog button:disabled{opacity:.5;cursor:default}
+.tt-health-dialog button:focus-visible,.tt-health-dialog a:focus-visible{outline:3px solid #d4b7ff;outline-offset:3px}
+.tt-health-actions{display:flex;flex-wrap:wrap;gap:8px}
+.tt-health-actions button:first-child{background:#692faf}
+.tt-health-muted{color:#c2b8d1;font-size:13px}
+.tt-health-counts{font-weight:650}
+.tt-health-dialog progress{width:100%;accent-color:#a479ef}
+.tt-health-frame{width:100%;max-width:325px;aspect-ratio:325/578;background:#08070e;margin:12px auto;overflow:hidden;border-radius:14px}
+.tt-health-frame iframe{display:block;width:100%;height:100%;border:0}
+.tt-health-results{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.tt-health-result{display:grid;gap:6px;padding:13px;border:1px solid #4b3a63;border-radius:13px}
+.tt-health-result span{color:#d0c8dc;font-size:13px}
+.tt-health-result a{color:#d5b8ff;font-size:13px;width:fit-content;min-height:32px}
+.tt-health-played{border-left:4px solid #61d2a6}
+.tt-health-unavailable,.tt-health-invalid{border-left:4px solid #f2919a}
+.tt-health-unknown{border-left:4px solid #efc56d}
+.tt-health-dialog [hidden]{display:none!important}
+@media(max-width:380px){.tt-health-dialog{padding:12px}.tt-health-dialog h2{font-size:17px}.tt-health-dialog header button{padding:9px}}
