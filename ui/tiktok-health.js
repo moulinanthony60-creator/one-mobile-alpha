@@ -72,7 +72,7 @@
   if(dialog){dialog.focus();return;}
   const d=el('dialog',undefined,'tt-health-dialog');dialog=d;d.setAttribute('aria-labelledby','tt-health-title');
   const head=el('header'),title=el('h2','Vérifier les vidéos TikTok');title.id='tt-health-title';
-  const close=button('Fermer',()=>d.close());head.append(title,close);
+  const close=button('Fermer',()=>{if(running||loading)stop();d.close();});head.append(title,close);
   const intro=el('p','ONE teste automatiquement le démarrage des vidéos du catalogue commun, une par une et sans son. Garde cet écran ouvert. Une erreur ne supprime aucune vidéo.');
   const limit=el('p','Ce contrôle concerne cet appareil et cet instant. Il ne garantit pas la lecture complète, ni celle sur les autres téléphones.','tt-health-muted');
   const actions=el('div',undefined,'tt-health-actions'),start=button('Lancer le contrôle',()=>run()),halt=button('Arrêter',()=>stop()),retry=button('Réessayer les problèmes',()=>run(true)),save=button('Exporter le rapport',download);

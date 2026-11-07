@@ -2,7 +2,6 @@
 import json
 import os
 from pathlib import Path
-import shutil
 from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,7 +11,7 @@ fixture = """<!doctype html><html lang="fr"><meta charset="utf-8">
 <div id="settingsModal"><div class="ttCatalogBox"></div></div></body></html>"""
 
 with sync_playwright() as p:
-    executable = os.environ.get("CHROMIUM_EXECUTABLE") or shutil.which("chromium")
+    executable = os.environ.get("CHROMIUM_EXECUTABLE")
     browser = p.chromium.launch(**({"executable_path": executable} if executable else {}))
     page = browser.new_page(viewport={"width": 390, "height": 844})
     errors = []
@@ -96,13 +95,13 @@ with sync_playwright() as p:
     expect(dialog).to_have_count(0)
     page.locator("#oneTikTokHealth").click()
     expect(dialog.get_by_role("button", name="Lancer le contrôle", exact=True)).to_be_enabled()
-    page.evaluate("window.ONETikTokPublic.refresh=async()=>{throw Error('Catalogue indisponible');}")
+    page.evaluate("() => { window.ONETikTokPublic.refresh=async()=>{throw Error('Catalogue indisponible');}; }")
     dialog.get_by_role("button", name="Lancer le contrôle", exact=True).click()
     expect(dialog.get_by_role("status")).to_have_text("Catalogue indisponible")
     assert page.locator("iframe").count() == 0
 
     # A response arriving after close must not restart the scan or populate old data.
-    page.evaluate("window.ONETikTokPublic.refresh=()=>new Promise(resolve=>window.resolveCatalogue=resolve)")
+    page.evaluate("() => { window.ONETikTokPublic.refresh=()=>new Promise(resolve=>window.resolveCatalogue=resolve); }")
     dialog.get_by_role("button", name="Lancer le contrôle", exact=True).click()
     dialog.get_by_role("button", name="Fermer", exact=True).click()
     page.evaluate("window.resolveCatalogue(window.catalogue)")

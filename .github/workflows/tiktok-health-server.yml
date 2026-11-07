@@ -1,0 +1,76 @@
+name: Contrôle TikTok en arrière-plan
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, codex/controle-tiktok-serveur]
+    paths:
+      - '.github/workflows/tiktok-health-server.yml'
+      - 'scripts/tiktok-health-*'
+      - 'ui/tiktok-health*'
+      - 'tests/tiktok-health*'
+  pull_request:
+    paths:
+      - '.github/workflows/tiktok-health-server.yml'
+      - 'scripts/tiktok-health-*'
+      - 'ui/tiktok-health*'
+      - 'tests/tiktok-health*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tiktok-health-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: node --test tests/tiktok-health.test.cjs tests/tiktok-playback.test.cjs
+      - run: python tests/tiktok-health-server-test.py
+      - run: pip install -r scripts/tiktok-health-requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      - run: python tests/tiktok-health-browser.py
+  server:
+    needs: tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: pip install -r scripts/tiktok-health-requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      - name: Vérifier une vidéo avant activation
+        if: github.ref != 'refs/heads/main'
+        run: python scripts/tiktok-health-server.py --probe
+      - name: Vérifier le catalogue commun
+        if: github.ref == 'refs/heads/main'
+        run: python scripts/tiktok-health-server.py
+      - name: Résumé du contrôle
+        if: always()
+        run: |
+          if [ -f health-reports/report.md ]; then
+            cat health-reports/report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Le contrôle n’a pas démarré. Consulter les étapes précédentes.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: controle-tiktok-${{ github.run_id }}
+          path: health-reports/
+          retention-days: 7
+          if-no-files-found: warn
