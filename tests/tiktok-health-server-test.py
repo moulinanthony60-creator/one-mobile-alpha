@@ -2,6 +2,7 @@ import importlib.util
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('health', Path(__file__).resolve().parents[1] / 'scripts/tiktok-health-server.py')
 health = importlib.util.module_from_spec(spec)
@@ -9,6 +10,18 @@ spec.loader.exec_module(health)
 
 
 class HealthTests(unittest.TestCase):
+    def test_catalogue_request_identifies_the_application(self):
+        with patch.object(health, 'build_opener') as build:
+            opener = build.return_value
+            opener.open.return_value.__enter__.return_value.read.return_value = b'{"ok": true, "entries": []}'
+            self.assertEqual(health.fetch_page(health.CATALOGUE), {'ok': True, 'entries': []})
+            request = opener.open.call_args.args[0]
+            self.assertEqual(request.full_url, health.CATALOGUE)
+            self.assertEqual(request.get_header('User-agent'), health.USER_AGENT)
+            self.assertTrue(request.get_header('User-agent').startswith('ONE-TikTok-Health/'))
+            self.assertEqual(request.get_header('Accept'), 'application/json')
+            self.assertEqual(opener.open.call_args.kwargs['timeout'], 15)
+
     def test_all_pages_and_duplicates(self):
         urls = []
         def fetch(url):

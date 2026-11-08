@@ -14,6 +14,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOGUE = "https://one-comments-api.moulinanthony60.workers.dev/catalog/tiktok"
+USER_AGENT = "ONE-TikTok-Health/1.0 (+https://github.com/moulinanthony60-creator/one-mobile-alpha)"
 STATUSES = ("played", "unavailable", "unknown", "pending")
 LIMITATION = "Démarrage testé depuis le serveur GitHub, sans compte TikTok. Le résultat ne garantit ni toute la vidéo ni la lecture sur un autre appareil ou dans une autre région. Aucune vidéo supprimée."
 
@@ -33,7 +34,8 @@ def now():
 
 def fetch_page(url):
     try:
-        with build_opener(NoRedirect()).open(Request(url, headers={"Accept": "application/json"}), timeout=15) as response:
+        # Cloudflare recommends identifying the application on workers.dev.
+        with build_opener(NoRedirect()).open(Request(url, headers={"Accept": "application/json", "User-Agent": USER_AGENT}), timeout=15) as response:
             raw = response.read(2_000_001)
         if len(raw) > 2_000_000:
             raise CatalogueError("Réponse du catalogue trop volumineuse.")
