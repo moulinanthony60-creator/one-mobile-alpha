@@ -844,26 +844,29 @@ function v1814RejectTwitchItem(id,slide,why='Contenu Twitch indisponible'){
 function v17Escape(s){return String(s||'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c))}
 function v17RawTikTokId(x){return String(x?.tiktokId||x?.id||'').replace(/^tt_(?:ext_)?/,'')}
 // Keep the native player's sound choice across slides, separate from preload muting.
-let v17TikTokMutedChoice=null;
+let v17TikTokMutedChoice=false;
 try{
- const saved=localStorage.getItem('one_tiktok_sound_v2'),legacy=localStorage.getItem('one_tiktok_muted');
+ const saved=localStorage.getItem('one_tiktok_sound_v3');
  if(saved==='0'||saved==='1')v17TikTokMutedChoice=saved==='1';
- else if(legacy==='0'||legacy==='1'){
-  // The old value could be overwritten by TikTok's own visibility autoplay mute.
-  v17TikTokMutedChoice=false;localStorage.setItem('one_tiktok_sound_v2','0');
+ else{
+  // Older keys could record a loading-time mute as a user choice. Reset once.
+  localStorage.setItem('one_tiktok_sound_v3','0');
  }
 }catch{}
+function v17RepairTikTokStartupSound(slide){
+ const frame=slide?.querySelector('iframe');
+ if(!frame||v17TikTokMutedChoice!==false||frame.dataset.oneSoundAttempt!=='1'||frame._oneTTObservedMuted!==true||frame.dataset.oneStartupSoundRepair==='1'||frame.dataset.onePreloadError||slide.dataset.ttPlaying!=='1'||slide.dataset.ttTimeAdvanced==='1'||slide.dataset.oneUserPaused==='1'||slide.getAttribute('data-active')!=='1'||document.hidden||!document.getElementById('vfeed')?.classList.contains('show'))return;
+ frame.dataset.oneStartupSoundRepair='1';oneTTTrace('sourdine automatique au démarrage',slide,frame);
+ v17SendTikTok(frame,'unMute',undefined,true);
+}
 function v17RememberTikTokMute(frame,muted,remember=true){
  if(typeof muted!=='boolean')return;
  const previous=frame._oneTTObservedMuted;frame._oneTTObservedMuted=muted;
  const slide=frame.closest('.vslide');
- if(remember&&muted&&v17TikTokMutedChoice===false&&frame.dataset.oneSoundAttempt==='1'&&slide?.dataset.ttPlaying==='1'&&slide.dataset.ttTimeAdvanced!=='1'&&slide.dataset.oneUserPaused!=='1'){
-  // TikTok can mute again when the promoted iframe becomes visible, after unMute.
-  // Repair this startup transition once; never save it as the viewer's preference.
-  if(frame.dataset.oneStartupSoundRepair!=='1'&&!frame.dataset.onePreloadError){
-   frame.dataset.oneStartupSoundRepair='1';oneTTTrace('sourdine automatique au démarrage',slide,frame);
-   v17SendTikTok(frame,'unMute',undefined,true);
-  }
+ if(remember&&muted&&v17TikTokMutedChoice===false&&frame.dataset.oneSoundAttempt==='1'&&slide?.dataset.ttTimeAdvanced!=='1'&&slide.dataset.oneUserPaused!=='1'){
+  // Loading-time mutes can arrive before or after playing. They are not user choices.
+  // If playback has not started, repair at the playing event instead of racing it.
+  v17RepairTikTokStartupSound(slide);
   return;
  }
  const expected=frame._oneTTMuteCommands?.get(muted);
@@ -871,7 +874,7 @@ function v17RememberTikTokMute(frame,muted,remember=true){
  // An initial muted notification can come from autoplay or preloading, not a tap.
  if(!remember||(muted&&previous!==false))return;
  frame.dataset.oneUserMuted=muted?'1':'0';v17TikTokMutedChoice=muted;
- try{localStorage.setItem('one_tiktok_sound_v2',muted?'1':'0');}catch{}
+ try{localStorage.setItem('one_tiktok_sound_v3',muted?'1':'0');}catch{}
 }
 // Local, temporary evidence from the embedded player; never delete catalogue entries.
 const v17TikTokUnavailableUntil=new Map();
@@ -1151,7 +1154,7 @@ function v17TikTokNeighbors(active){
 }
 function v17RestoreTikTokSound(slide){
  const frame=slide?.querySelector('iframe');
- if(!frame||v17TikTokMutedChoice===null||frame.dataset.oneSoundAttempt==='1'||(frame.dataset.oneReady!=='1'&&slide.dataset.ttPlaying!=='1')||slide.getAttribute('data-active')!=='1'||document.hidden||!document.getElementById('vfeed')?.classList.contains('show')||slide.dataset.oneUserPaused==='1')return;
+ if(!frame||frame.dataset.oneSoundAttempt==='1'||(frame.dataset.oneReady!=='1'&&slide.dataset.ttPlaying!=='1')||slide.getAttribute('data-active')!=='1'||document.hidden||!document.getElementById('vfeed')?.classList.contains('show')||slide.dataset.oneUserPaused==='1')return;
  frame.dataset.oneSoundAttempt='1';
  v17SendTikTok(frame,v17TikTokMutedChoice?'mute':'unMute',undefined,true);
 }
@@ -1299,7 +1302,6 @@ window.addEventListener('message',e=>{
   slide.dataset.ttReady='1';frame.dataset.oneReady='1';delete frame.dataset.onePreloadError;v17ResumeTikTokFrame(slide);
   if(slide.dataset.ttVisualReady!=='1')v17ShowTikTokControls(slide);
   if(frame.dataset.oneManual==='1')return;
-  if(v17TikTokMutedChoice===null)v17SendTikTok(frame,'mute');
   v17SendTikTok(frame,'play');
  }
  if(d.type==='onStateChange'){
@@ -1309,7 +1311,7 @@ window.addEventListener('message',e=>{
    const tap=slide.querySelector('.oneTapPlayback');if(tap){tap.setAttribute('aria-pressed',String(paused));tap.setAttribute('aria-label',paused?'Reprendre la vidéo':'Mettre la vidéo en pause');}
   }
   if(state===1){
-   v17RestoreTikTokSound(slide);
+   v17RestoreTikTokSound(slide);v17RepairTikTokStartupSound(slide);
    // "playing" can precede buffering or a stale timestamp. Wait for the clock to advance.
    if(slide.dataset.ttVisualReady!=='1')v17ShowTikTokControls(slide);
    if(!slide._ttVisualTimer&&!slide.querySelector('.oneTikTokStatus'))v121ArmTikTokVisualWatch(slide);
