@@ -843,6 +843,19 @@ function v1814RejectTwitchItem(id,slide,why='Contenu Twitch indisponible'){
 
 function v17Escape(s){return String(s||'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c))}
 function v17RawTikTokId(x){return String(x?.tiktokId||x?.id||'').replace(/^tt_(?:ext_)?/,'')}
+// Keep the native player's sound choice across slides, separate from preload muting.
+let v17TikTokMutedChoice=null;
+try{const saved=localStorage.getItem('one_tiktok_muted');if(saved==='0'||saved==='1')v17TikTokMutedChoice=saved==='1';}catch{}
+function v17RememberTikTokMute(frame,muted,remember=true){
+ if(typeof muted!=='boolean')return;
+ const previous=frame._oneTTObservedMuted;frame._oneTTObservedMuted=muted;
+ const expected=frame._oneTTMuteCommands?.get(muted);
+ if(expected!==undefined){frame._oneTTMuteCommands.delete(muted);if(Date.now()<=expected)return;}
+ // An initial muted notification can come from autoplay or preloading, not a tap.
+ if(!remember||(muted&&previous!==false))return;
+ frame.dataset.oneUserMuted=muted?'1':'0';v17TikTokMutedChoice=muted;
+ try{localStorage.setItem('one_tiktok_muted',muted?'1':'0');}catch{}
+}
 // Local, temporary evidence from the embedded player; never delete catalogue entries.
 const v17TikTokUnavailableUntil=new Map();
 let v17TikTokAutoSkips=0,v17TikTokPreloadRefills=0;
@@ -874,7 +887,7 @@ function v17PlayerUrl(x){
  if(x.p==='tiktok'){
    const tid=v17RawTikTokId(x);
    if(!/^\d{8,24}$/.test(tid) || x.tiktokPlayable===false) return '';
-   return `https://www.tiktok.com/player/v1/${encodeURIComponent(tid)}?autoplay=1&description=0&music_info=0&controls=1&progress_bar=1&play_button=1&volume_control=1&fullscreen_button=1&loop=1&rel=0&native_context_menu=1&muted=0`;
+   return `https://www.tiktok.com/player/v1/${encodeURIComponent(tid)}?autoplay=1&description=0&music_info=0&controls=1&progress_bar=1&play_button=1&volume_control=1&fullscreen_button=1&loop=1&rel=0&native_context_menu=1&muted=${v17TikTokMutedChoice===true?'1':'0'}`;
  }
  if(x.p==='youtube' && x.videoId){
    document.querySelectorAll('.card .media.inline-playing').forEach(m=>{if(m!==media && m.dataset.provider!=='twitch'){m.classList.remove('inline-playing');m.querySelector('iframe')?.remove();}});
@@ -1006,6 +1019,7 @@ function v17SendTikTok(frame,type,value,allowNativeCommand=false){
  if((type==='play'||type==='unMute')&&tapOwner?.dataset.oneUserPaused==='1')return;
  if(type==='unMute'&&(document.hidden||(owner&&(owner.getAttribute('data-active')!=='1'||!document.getElementById('vfeed')?.classList.contains('show')))))return;
  if(type==='play'&&(document.hidden||(owner&&(owner.getAttribute('data-active')!=='1'||!document.getElementById('vfeed')?.classList.contains('show')))))return;
+ if(type==='mute'||type==='unMute'){frame._oneTTMuteCommands??=new Map();frame._oneTTMuteCommands.set(type==='mute',Date.now()+2000);}
  try{if(owner&&owner.getAttribute('data-active')==='1'&&(type==='play'||type==='unMute')){const key='_oneTTLogged_'+type;if(!frame[key]){frame[key]=true;oneTTTrace(type==='play'?'commande play':'commande activation son',owner,frame,{mutedUrl:new URL(frame.src).searchParams.get('muted')});}}frame.contentWindow.postMessage({type,value,'x-tiktok-player':true},'https://www.tiktok.com')}catch(e){}
 }
 function v17ApplySound(slide=document.querySelector('.vslide[data-active="1"]')){
@@ -1015,7 +1029,7 @@ function v17ApplySound(slide=document.querySelector('.vslide[data-active="1"]'))
  const nativeMedia=x&&(x.p==='twitch'||x.p==='tiktok');
  if(panel)panel.style.display=x?.p==='twitch'?'none':'flex';
  if(full){full.style.display='block';full.title=x?.p==='twitch'?'Plein écran Twitch':'Plein écran';full.setAttribute('aria-label',full.title);}
- if(x?.p==='tiktok'){if(snd)snd.textContent=v1814SoundAllowed()?'🔊 Son':'🔇 Activer le son';if(vol)vol.style.display='none';if(lab)lab.textContent='réglage dans le lecteur';const frame=slide?.querySelector('iframe');if(frame&&slide.dataset.ttPlaying==='1')v17SendTikTok(frame,v1814SoundAllowed()?'unMute':'mute');return;}else if(vol){vol.style.display='';}
+ if(x?.p==='tiktok'){if(snd)snd.textContent=v17TikTokMutedChoice===false?'🔊 Son':'🔇 Activer le son';if(vol)vol.style.display='none';if(lab)lab.textContent='réglage dans le lecteur';return;}else if(vol){vol.style.display='';}
  if(x?.p==='twitch')return;
  if(snd)snd.textContent=v17Muted?'🔇 Activer':'🔊 Son';
  if(vol){vol.disabled=false;vol.value=String(v17Volume)}
@@ -1136,7 +1150,7 @@ function v124PreloadTikTokSlide(slide){
 function v124ParkTikTokSlide(slide){
  if(!slide||slide.dataset.platform!=='tiktok')return;
  v17ClearTikTokTimers(slide);slide.removeAttribute('data-active');
- slide.querySelectorAll('iframe').forEach(frame=>{frame.dataset.onePreload='1';frame.dataset.onePlayPending='0';frame.dataset.oneRestoreSound=frame.dataset.oneUserMuted==='0'?'1':'0';v17SendTikTok(frame,'mute');v17SendTikTok(frame,'pause');frame.style.opacity=frame.dataset.oneReady==='1'?'1':'0';frame.style.pointerEvents='none';frame.setAttribute('aria-hidden','true');frame.setAttribute('tabindex','-1');});
+ slide.querySelectorAll('iframe').forEach(frame=>{frame.dataset.onePreload='1';frame.dataset.onePlayPending='0';v17SendTikTok(frame,'mute');v17SendTikTok(frame,'pause');frame.style.opacity=frame.dataset.oneReady==='1'?'1':'0';frame.style.pointerEvents='none';frame.setAttribute('aria-hidden','true');frame.setAttribute('tabindex','-1');});
  slide.querySelector('.oneTikTokStatus')?.remove();delete slide.dataset.ttNativeInput;slide.dataset.ttPlaying='0';
  const media=slide.querySelector('.vslideMedia');media?.classList.remove('playing','loading');
  const frame=slide.querySelector('iframe');
@@ -1176,7 +1190,7 @@ function v17ActivateSlide(slide){
   v17ClearTikTokTimers(slide);delete slide.dataset.oneUserPaused;
   slide.querySelector('.oneTikTokStatus')?.remove();
   slide.dataset.ttTimeAdvanced='0';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';slide.dataset.ttReady='0';
-  f._oneTTLastTime=null;
+  f._oneTTLastTime=null;f.dataset.oneSoundAttempt='0';
   // Native input stays available on ready, autoplay refusal, tap or the bounded timeout.
   f.dataset.oneManual='1';f.dataset.onePreload='0';f.dataset.onePlayPending=wasPreloaded?'1':'0';f.removeAttribute('aria-hidden');f.removeAttribute('tabindex');slide.dataset.ttManual='1';delete slide.dataset.ttUnavailable;
   if(wasPreloaded&&f.dataset.oneReady==='1')v17ShowTikTokControls(slide,false);else v17PrepareTikTokPoster(slide,f);
@@ -1242,6 +1256,7 @@ window.addEventListener('message',e=>{
  const frame=slide.querySelector('iframe');
  if(slide.getAttribute('data-active')!=='1'){
   if(frame.dataset.onePreload!=='1')return;
+  if(d.type==='onMute')v17RememberTikTokMute(frame,d.value,false);
   if(d.type==='onPlayerReady'){frame.dataset.oneReady='1';delete frame.dataset.onePreloadError;v17SendTikTok(frame,'mute');v17SendTikTok(frame,'pause');v17ShowTikTokFrame(slide,frame);}
   if((d.type==='onStateChange'&&Number(d.value)===1)||(d.type==='onCurrentTime'&&Number(d.value?.currentTime??d.value)>0)){v17SendTikTok(frame,'mute');v17SendTikTok(frame,'pause');}
   if(d.type==='onPlayerError'||d.type==='onError'){frame.dataset.onePreloadError=String(d.value?.errorCode??d.value);v17SendTikTok(frame,'mute');v17SendTikTok(frame,'pause');}
@@ -1274,7 +1289,7 @@ window.addEventListener('message',e=>{
   }
   if(state===2&&slide.dataset.oneUserPaused==='1'){clearTimeout(slide._ttVisualTimer);slide._ttVisualTimer=null;}
  }
- if(d.type==='onMute'&&frame.dataset.oneHadPicture==='1')frame.dataset.oneUserMuted=d.value===true?'1':'0';
+ if(d.type==='onMute')v17RememberTikTokMute(frame,d.value);
  if(d.type==='onCurrentTime'){
   const time=Number(d.value?.currentTime??d.value),last=frame._oneTTLastTime;
   if(Number.isFinite(time)&&time>=0){
@@ -1283,8 +1298,10 @@ window.addEventListener('message',e=>{
     v17TikTokAutoSkips=0;v17TikTokUnavailableUntil.delete(v17RawTikTokId(v17ItemById(slide.dataset.id)));
     slide.dataset.ttTimeAdvanced='1';frame.dataset.oneHadPicture='1';delete frame.dataset.onePreloadError;
     v121RevealTikTokFrame(slide);v121ArmTikTokVisualWatch(slide);
-    if(frame.dataset.oneRestoreSound==='1'){frame.dataset.oneRestoreSound='0';v17SendTikTok(frame,'unMute',undefined,true);}
-    if(v1814SoundAllowed()&&frame.dataset.oneSoundAttempt!=='1'){frame.dataset.oneSoundAttempt='1';v17SendTikTok(frame,'unMute');}
+    if(frame.dataset.oneSoundAttempt!=='1'){
+     frame.dataset.oneSoundAttempt='1';
+     if(v17TikTokMutedChoice!==null)v17SendTikTok(frame,v17TikTokMutedChoice?'mute':'unMute',undefined,true);
+    }
    }
   }
  }
