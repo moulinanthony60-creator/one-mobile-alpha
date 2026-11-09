@@ -243,7 +243,7 @@ test('returning to the previous healthy video retains the player and restores it
   r.context.v17ActivateSlide(r.slides[3]);assert.equal(r.frame(s),f);assert.equal(f.dataset.onePreload,'1');
   r.message(f,'onMute',true);assert.equal(f.dataset.oneUserMuted,'0');
   r.context.v17ActivateSlide(s);r.playing(f);
-  assert.equal(r.frame(s),f);assert.equal(f.srcWrites,1);assert.equal(f.messages.at(-1).data.type,'unMute');
+  assert.equal(r.frame(s),f);assert.equal(f.srcWrites,1);assert.deepEqual(f.messages.slice(-2).map(m=>m.data.type),['unMute','play']);
 });
 test('enabling native sound carries to the next preloaded video exactly once',()=>{
   const r=setup(6),s=r.slides[0];r.context.v17ActivateSlide(s);const first=r.frame(s),next=r.frame(r.slides[1]);
@@ -262,7 +262,7 @@ test('preload mute notifications cannot replace the chosen sound preference',()=
   r.message(next,'onPlayerReady');r.context.v17ActivateSlide(r.slides[1]);
   r.message(next,'onMute',true);r.message(first,'onMute',true);r.message(first,'onMute',false);
   assert.equal(r.storage.get('one_tiktok_muted'),'0');
-  r.playing(next);assert.equal(next.messages.at(-1).data.type,'unMute');
+  r.playing(next);assert.deepEqual(next.messages.slice(-2).map(m=>m.data.type),['unMute','play']);
 });
 test('a deliberate native mute carries forward and overrides an older unmuted player',()=>{
   const r=setup(6,'0');r.context.v17ActivateSlide(r.slides[0]);const first=r.frame(r.slides[0]);
@@ -311,6 +311,39 @@ test('refreshing the sound controls cannot mute TikTok using another platform pr
   r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);r.playing(f);r.message(f,'onMute',false);
   const count=f.messages.length;r.context.v17ApplySound(r.slides[0]);
   assert.equal(f.messages.length,count);assert.equal(r.storage.get('one_tiktok_muted'),'0');
+});
+test('a ready preload restores sound before play without any clock or playing event',()=>{
+  const r=setup(4,'0');r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[1],f=r.frame(s);
+  r.message(f,'onPlayerReady');const before=f.messages.length;
+  r.context.v17ActivateSlide(s);
+  assert.deepEqual(f.messages.slice(before).map(m=>m.data.type),['unMute','play']);
+  assert.equal(s.dataset.ttTimeAdvanced,'0');assert.equal(s.dataset.ttPlaying,'0');
+  r.message(f,'onPlayerReady');f.onload();r.playing(f);
+  assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,1);
+});
+test('a fresh active player restores sound as soon as ready, before any playback timestamp',()=>{
+  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+  assert.equal(f.messages.length,0);r.message(f,'onPlayerReady');
+  assert.deepEqual(f.messages.map(m=>m.data.type),['unMute']);
+  assert.equal(r.slides[0].dataset.ttTimeAdvanced,'0');
+});
+test('promotion before ready restores sound before play at the first ready notification',()=>{
+  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[1]);
+  r.context.v17ActivateSlide(r.slides[1]);assert.equal(f.messages.length,0);
+  r.message(f,'onPlayerReady');
+  assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
+});
+test('immediate restoration respects deliberate mute, background visibility and pause',()=>{
+  const r=setup(3,'1');r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[0],f=r.frame(s);
+  s.dataset.oneUserPaused='1';r.message(f,'onPlayerReady');assert.equal(f.messages.length,0);
+  s.dataset.oneUserPaused='0';r.document.hidden=true;r.context.v17ResumeTikTokFrame(s);assert.equal(f.messages.length,0);
+  r.document.hidden=false;r.context.v17ResumeTikTokFrame(s);
+  assert.deepEqual(f.messages.map(m=>m.data.type),['mute']);
+});
+test('a missing ready event falls back to playing state without waiting for time progress',()=>{
+  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+  r.message(f,'onStateChange',1);assert.deepEqual(f.messages.map(m=>m.data.type),['unMute']);
+  assert.equal(r.slides[0].dataset.ttTimeAdvanced,'0');
 });
 test('rapid forward/backward navigation stays bounded and leaving the feed releases every preload',()=>{
   const r=setup(8);
