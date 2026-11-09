@@ -845,16 +845,33 @@ function v17Escape(s){return String(s||'').replace(/[&<>\"]/g,c=>({'&':'&amp;','
 function v17RawTikTokId(x){return String(x?.tiktokId||x?.id||'').replace(/^tt_(?:ext_)?/,'')}
 // Keep the native player's sound choice across slides, separate from preload muting.
 let v17TikTokMutedChoice=null;
-try{const saved=localStorage.getItem('one_tiktok_muted');if(saved==='0'||saved==='1')v17TikTokMutedChoice=saved==='1';}catch{}
+try{
+ const saved=localStorage.getItem('one_tiktok_sound_v2'),legacy=localStorage.getItem('one_tiktok_muted');
+ if(saved==='0'||saved==='1')v17TikTokMutedChoice=saved==='1';
+ else if(legacy==='0'||legacy==='1'){
+  // The old value could be overwritten by TikTok's own visibility autoplay mute.
+  v17TikTokMutedChoice=false;localStorage.setItem('one_tiktok_sound_v2','0');
+ }
+}catch{}
 function v17RememberTikTokMute(frame,muted,remember=true){
  if(typeof muted!=='boolean')return;
  const previous=frame._oneTTObservedMuted;frame._oneTTObservedMuted=muted;
+ const slide=frame.closest('.vslide');
+ if(remember&&muted&&v17TikTokMutedChoice===false&&frame.dataset.oneSoundAttempt==='1'&&slide?.dataset.ttPlaying==='1'&&slide.dataset.ttTimeAdvanced!=='1'&&slide.dataset.oneUserPaused!=='1'){
+  // TikTok can mute again when the promoted iframe becomes visible, after unMute.
+  // Repair this startup transition once; never save it as the viewer's preference.
+  if(frame.dataset.oneStartupSoundRepair!=='1'&&!frame.dataset.onePreloadError){
+   frame.dataset.oneStartupSoundRepair='1';oneTTTrace('sourdine automatique au démarrage',slide,frame);
+   v17SendTikTok(frame,'unMute',undefined,true);
+  }
+  return;
+ }
  const expected=frame._oneTTMuteCommands?.get(muted);
  if(expected!==undefined){frame._oneTTMuteCommands.delete(muted);if(Date.now()<=expected)return;}
  // An initial muted notification can come from autoplay or preloading, not a tap.
  if(!remember||(muted&&previous!==false))return;
  frame.dataset.oneUserMuted=muted?'1':'0';v17TikTokMutedChoice=muted;
- try{localStorage.setItem('one_tiktok_muted',muted?'1':'0');}catch{}
+ try{localStorage.setItem('one_tiktok_sound_v2',muted?'1':'0');}catch{}
 }
 // Local, temporary evidence from the embedded player; never delete catalogue entries.
 const v17TikTokUnavailableUntil=new Map();
@@ -1199,7 +1216,7 @@ function v17ActivateSlide(slide){
   v17ClearTikTokTimers(slide);delete slide.dataset.oneUserPaused;
   slide.querySelector('.oneTikTokStatus')?.remove();
   slide.dataset.ttTimeAdvanced='0';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';slide.dataset.ttReady='0';
-  f._oneTTLastTime=null;f.dataset.oneSoundAttempt='0';
+  f._oneTTLastTime=null;f.dataset.oneSoundAttempt='0';f.dataset.oneStartupSoundRepair='0';
   // Native input stays available on ready, autoplay refusal, tap or the bounded timeout.
   f.dataset.oneManual='1';f.dataset.onePreload='0';f.dataset.onePlayPending=wasPreloaded?'1':'0';f.removeAttribute('aria-hidden');f.removeAttribute('tabindex');slide.dataset.ttManual='1';delete slide.dataset.ttUnavailable;
   if(wasPreloaded&&f.dataset.oneReady==='1')v17ShowTikTokControls(slide,false);else v17PrepareTikTokPoster(slide,f);

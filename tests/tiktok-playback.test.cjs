@@ -46,7 +46,7 @@ class Element {
   select(){this.selected=true;}
   addEventListener(type,fn){(this.handlers??={})[type]=fn;}
 }
-function setup(count=3,soundPreference){
+function setup(count=3,soundPreference,legacyPreference){
   const document=new Element('document');document.hidden=false;document.createElement=tag=>new Element(tag);
   const feed=new Element('section');feed.id='vfeed';feed.className='vfeed show';document.appendChild(feed);
   document.getElementById=id=>id==='vfeed'?feed:null;
@@ -59,7 +59,8 @@ function setup(count=3,soundPreference){
     feed.appendChild(slide);slides.push(slide);items.set(slide.dataset.id,{id:slide.dataset.id,p:'tiktok',tiktokId:id,creator:'Test',tiktokPlayable:true});
   }
   let clock=0,seq=0;const timers=new Map(),listeners=new Map(),opened=[],storage=new Map();
-  if(soundPreference!==undefined)storage.set('one_tiktok_muted',soundPreference);
+  if(soundPreference!==undefined)storage.set('one_tiktok_sound_v2',soundPreference);
+  if(legacyPreference!==undefined)storage.set('one_tiktok_muted',legacyPreference);
   const context={document,URL,console,Date:{now:()=>clock},location:{origin:'https://one.test',href:'https://one.test/',hostname:'one.test'},
     v17ActiveId:'',v17Muted:true,v17Volume:50,v17TwitchPlayers:{},localStorage:{getItem:key=>storage.get(key)??null,setItem:(key,value)=>storage.set(key,value)},
     v17ItemById:id=>items.get(String(id)),platformName:p=>p,v1814NativeMuted:()=>true,v1814SoundAllowed:()=>true,v1814RememberSoundGesture(){},
@@ -249,7 +250,7 @@ test('enabling native sound carries to the next preloaded video exactly once',()
   const r=setup(6),s=r.slides[0];r.context.v17ActivateSlide(s);const first=r.frame(s),next=r.frame(r.slides[1]);
   r.message(next,'onPlayerReady');r.message(next,'onMute',true);
   r.playing(first);r.message(first,'onMute',false);
-  assert.equal(r.storage.get('one_tiktok_muted'),'0');
+  assert.equal(r.storage.get('one_tiktok_sound_v2'),'0');
   r.context.v17ActivateSlide(r.slides[1]);r.playing(next);
   r.message(next,'onMute',false);r.message(next,'onCurrentTime',{currentTime:1});
   assert.equal(next.messages.filter(m=>m.data.type==='unMute').length,1);
@@ -261,7 +262,7 @@ test('preload mute notifications cannot replace the chosen sound preference',()=
   r.playing(first);r.message(first,'onMute',false);
   r.message(next,'onPlayerReady');r.context.v17ActivateSlide(r.slides[1]);
   r.message(next,'onMute',true);r.message(first,'onMute',true);r.message(first,'onMute',false);
-  assert.equal(r.storage.get('one_tiktok_muted'),'0');
+  assert.equal(r.storage.get('one_tiktok_sound_v2'),'0');
   r.playing(next);assert.deepEqual(next.messages.slice(-2).map(m=>m.data.type),['unMute','play']);
 });
 test('a deliberate native mute carries forward and overrides an older unmuted player',()=>{
@@ -269,7 +270,7 @@ test('a deliberate native mute carries forward and overrides an older unmuted pl
   r.playing(first);r.message(first,'onMute',false);
   const next=r.frame(r.slides[1]);r.message(next,'onPlayerReady');r.message(next,'onMute',true);
   r.context.v17ActivateSlide(r.slides[1]);r.playing(next);r.message(next,'onMute',false);
-  r.message(next,'onMute',true);assert.equal(r.storage.get('one_tiktok_muted'),'1');
+  r.message(next,'onMute',true);assert.equal(r.storage.get('one_tiktok_sound_v2'),'1');
   const unmuteCount=first.messages.filter(m=>m.data.type==='unMute').length;
   r.context.v17ActivateSlide(r.slides[0]);r.playing(first);
   assert.equal(first.messages.at(-1).data.type,'mute');
@@ -282,20 +283,20 @@ test('a stored sound choice is restored after reopening while a new listener kee
     r.message(f,'onPlayerReady');r.message(f,'onMute',true);r.playing(f);
     assert.equal(new URL(f.src).searchParams.get('muted'),pref==='1'?'1':'0');
     assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,pref==='0'?1:0);
-    assert.equal(r.storage.get('one_tiktok_muted'),pref);
+    assert.equal(r.storage.get('one_tiktok_sound_v2'),pref);
   }
 });
 test('native sound chosen before the first picture survives the next slide',()=>{
   const r=setup(3);r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
-  r.message(f,'onMute',false);assert.equal(r.storage.get('one_tiktok_muted'),'0');
-  r.message(f,'onMute',true);assert.equal(r.storage.get('one_tiktok_muted'),'1');
+  r.message(f,'onMute',false);assert.equal(r.storage.get('one_tiktok_sound_v2'),'0');
+  r.message(f,'onMute',true);assert.equal(r.storage.get('one_tiktok_sound_v2'),'1');
   r.playing(f);assert(!f.messages.some(m=>m.data.type==='unMute'));
 });
 test('malformed or foreign sound notifications and blocked storage do not break playback',()=>{
   const r=setup(3);r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
   r.message(f,'onMute',false,'https://untrusted.test');
   for(const value of ['false',0,null,{}])r.message(f,'onMute',value);
-  assert.equal(r.storage.get('one_tiktok_muted'),undefined);
+  assert.equal(r.storage.get('one_tiktok_sound_v2'),undefined);
   r.context.localStorage.setItem=()=>{throw Error('Storage denied');};
   r.message(f,'onMute',false);r.playing(f);assert.equal(f.messages.at(-1).data.type,'unMute');
 });
@@ -310,7 +311,7 @@ test('refreshing the sound controls cannot mute TikTok using another platform pr
   const r=setup(3,'0');r.context.v1814SoundAllowed=()=>false;
   r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);r.playing(f);r.message(f,'onMute',false);
   const count=f.messages.length;r.context.v17ApplySound(r.slides[0]);
-  assert.equal(f.messages.length,count);assert.equal(r.storage.get('one_tiktok_muted'),'0');
+  assert.equal(f.messages.length,count);assert.equal(r.storage.get('one_tiktok_sound_v2'),'0');
 });
 test('a ready preload restores sound before play without any clock or playing event',()=>{
   const r=setup(4,'0');r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[1],f=r.frame(s);
@@ -344,6 +345,56 @@ test('a missing ready event falls back to playing state without waiting for time
   const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
   r.message(f,'onStateChange',1);assert.deepEqual(f.messages.map(m=>m.data.type),['unMute']);
   assert.equal(r.slides[0].dataset.ttTimeAdvanced,'0');
+});
+test('recorded TikTok startup sequence cannot persist its automatic remute as a user choice',()=>{
+  // Live Chromium trace: unMute acknowledged, playing, then TikTok mutes on visibility.
+  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[1],f=r.frame(s);
+  r.message(f,'onPlayerReady');r.message(f,'onMute',true);r.tick(6000);
+  r.context.v17ActivateSlide(s);
+  r.tick(38);r.message(f,'onMute',false);r.message(f,'onVolumeChange',100);
+  r.tick(1);r.message(f,'onStateChange',1);
+  r.tick(2);r.message(f,'onMute',true);r.message(f,'onVolumeChange',100);
+  assert.equal(f.messages.at(-1).data.type,'unMute');
+  assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,2);
+  assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);
+  assert.equal(r.storage.get('one_tiktok_sound_v2'),'0');
+  r.message(f,'onMute',false);r.message(f,'onCurrentTime',{currentTime:0});r.message(f,'onCurrentTime',{currentTime:.5});
+  r.message(f,'onMute',true);
+  assert.equal(r.storage.get('one_tiktok_sound_v2'),'1','A later native mute is a real preference');
+  assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,2);
+});
+test('startup audio repair is bounded and inactive players cannot trigger it',()=>{
+  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[0],f=r.frame(s);
+  r.message(f,'onPlayerReady');r.message(f,'onMute',false);r.message(f,'onStateChange',1);
+  r.message(f,'onMute',true);r.message(f,'onMute',true);r.message(f,'onMute',true);
+  assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,2);
+  assert.equal(r.storage.get('one_tiktok_sound_v2'),'0');
+  r.context.v17ActivateSlide(r.slides[1]);r.message(f,'onMute',true);
+  assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,2);
+});
+test('legacy preferences potentially overwritten by autoplay are reset once, later choices persist',()=>{
+  for(const legacy of ['0','1']){
+    const r=setup(3,undefined,legacy);r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+    r.message(f,'onPlayerReady');
+    assert.equal(r.storage.get('one_tiktok_sound_v2'),'0');
+    assert.equal(f.messages.at(-1).data.type,'unMute');
+  }
+  const r=setup(3,'1','0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+  r.message(f,'onPlayerReady');assert.equal(f.messages.at(-1).data.type,'mute');
+  assert.equal(r.storage.get('one_tiktok_sound_v2'),'1');
+});
+test('a deliberately muted startup does not trigger audio repair',()=>{
+  const r=setup(3,'1');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+  r.message(f,'onPlayerReady');r.message(f,'onStateChange',1);r.message(f,'onMute',true);
+  assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,0);
+  assert.equal(r.storage.get('one_tiktok_sound_v2'),'1');
+});
+test('an autoplay error stops startup audio repair without overwriting the sound preference',()=>{
+  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+  r.message(f,'onPlayerReady');r.message(f,'onMute',false);r.message(f,'onStateChange',1);
+  r.message(f,'onPlayerError',{errorCode:3002});r.message(f,'onMute',true);
+  assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,1);
+  assert.equal(r.storage.get('one_tiktok_sound_v2'),'0');
 });
 test('rapid forward/backward navigation stays bounded and leaving the feed releases every preload',()=>{
   const r=setup(8);
