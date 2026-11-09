@@ -1132,9 +1132,18 @@ function v17TikTokNeighbors(active){
  const next=v17NextPlayableSlide(active,1);
  return [v17NextPlayableSlide(active,-1),next,v17NextPlayableSlide(next,1)].filter(s=>s?.classList.contains('vslide')&&s.dataset.platform==='tiktok');
 }
+function v17RestoreTikTokSound(slide){
+ const frame=slide?.querySelector('iframe');
+ if(!frame||v17TikTokMutedChoice===null||frame.dataset.oneSoundAttempt==='1'||(frame.dataset.oneReady!=='1'&&slide.dataset.ttPlaying!=='1')||slide.getAttribute('data-active')!=='1'||document.hidden||!document.getElementById('vfeed')?.classList.contains('show')||slide.dataset.oneUserPaused==='1')return;
+ frame.dataset.oneSoundAttempt='1';
+ v17SendTikTok(frame,v17TikTokMutedChoice?'mute':'unMute',undefined,true);
+}
 function v17ResumeTikTokFrame(slide){
  const frame=slide?.querySelector('iframe');
- if(!frame||frame.dataset.oneReady!=='1'||frame.dataset.onePlayPending!=='1'||slide.getAttribute('data-active')!=='1'||document.hidden||!document.getElementById('vfeed')?.classList.contains('show')||slide.dataset.oneUserPaused==='1')return;
+ if(!frame||frame.dataset.oneReady!=='1'||slide.getAttribute('data-active')!=='1'||document.hidden||!document.getElementById('vfeed')?.classList.contains('show')||slide.dataset.oneUserPaused==='1')return;
+ // Restore sound before resuming a ready preload, without waiting for timestamps.
+ v17RestoreTikTokSound(slide);
+ if(frame.dataset.onePlayPending!=='1')return;
  frame.dataset.onePlayPending='0';v17SendTikTok(frame,'play',undefined,true);
 }
 function v124PreloadTikTokSlide(slide){
@@ -1273,8 +1282,8 @@ window.addEventListener('message',e=>{
   slide.dataset.ttReady='1';frame.dataset.oneReady='1';delete frame.dataset.onePreloadError;v17ResumeTikTokFrame(slide);
   if(slide.dataset.ttVisualReady!=='1')v17ShowTikTokControls(slide);
   if(frame.dataset.oneManual==='1')return;
-  // Start muted through the API without locking the player's volume in its URL.
-  v17SendTikTok(frame,'mute');v17SendTikTok(frame,'play');
+  if(v17TikTokMutedChoice===null)v17SendTikTok(frame,'mute');
+  v17SendTikTok(frame,'play');
  }
  if(d.type==='onStateChange'){
   const state=Number(d.value);slide.dataset.ttPlaying=state===1?'1':'0';
@@ -1283,6 +1292,7 @@ window.addEventListener('message',e=>{
    const tap=slide.querySelector('.oneTapPlayback');if(tap){tap.setAttribute('aria-pressed',String(paused));tap.setAttribute('aria-label',paused?'Reprendre la vidéo':'Mettre la vidéo en pause');}
   }
   if(state===1){
+   v17RestoreTikTokSound(slide);
    // "playing" can precede buffering or a stale timestamp. Wait for the clock to advance.
    if(slide.dataset.ttVisualReady!=='1')v17ShowTikTokControls(slide);
    if(!slide._ttVisualTimer&&!slide.querySelector('.oneTikTokStatus'))v121ArmTikTokVisualWatch(slide);
@@ -1298,10 +1308,6 @@ window.addEventListener('message',e=>{
     v17TikTokAutoSkips=0;v17TikTokUnavailableUntil.delete(v17RawTikTokId(v17ItemById(slide.dataset.id)));
     slide.dataset.ttTimeAdvanced='1';frame.dataset.oneHadPicture='1';delete frame.dataset.onePreloadError;
     v121RevealTikTokFrame(slide);v121ArmTikTokVisualWatch(slide);
-    if(frame.dataset.oneSoundAttempt!=='1'){
-     frame.dataset.oneSoundAttempt='1';
-     if(v17TikTokMutedChoice!==null)v17SendTikTok(frame,v17TikTokMutedChoice?'mute':'unMute',undefined,true);
-    }
    }
   }
  }
