@@ -20,6 +20,9 @@ au moins deux secondes de progression. L’origine TikTok et la fenêtre source
 sont vérifiées. Un chargement HTTP réussi ou « player ready » ne suffit pas.
 Le contrôle porte sur le démarrage, pas sur la totalité de la vidéo, son son,
 ni sa disponibilité sur tous les appareils ou dans toutes les régions.
+Une erreur de lecture transitoire ne termine plus immédiatement le test : le bot
+continue d’écouter le même lecteur jusqu’à la limite de trente secondes et peut
+constater une reprise effective. Il ne recharge pas le lecteur en boucle.
 
 Les motifs et codes du lecteur figurent dans le rapport. Une erreur 2005 /
 `TOO_MANY_REQUESTS`, un HTTP 429 ou un refus HTTP 403 arrête le lot. La pause

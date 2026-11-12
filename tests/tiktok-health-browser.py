@@ -50,7 +50,7 @@ with sync_playwright() as p:
     expect(dialog).to_be_visible()
     assert page.locator("iframe").count() == 0
     dialog.get_by_role("button", name="Lancer le contrôle", exact=True).click()
-    expect(dialog.get_by_role("status")).to_contain_text("Contrôle terminé", timeout=20000)
+    expect(dialog.get_by_role("status")).to_contain_text("Contrôle terminé", timeout=45000)
     expect(dialog.locator(".tt-health-counts")).to_have_text("4 / 4 testées · 1 lectures démarrées · 1 indisponibles · 2 à vérifier · 0 restantes")
     assert page.locator("iframe, .tt-health-results img").count() == 0
     assert page.evaluate("window.refreshCalls") == 1
