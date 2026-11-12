@@ -84,12 +84,95 @@
       "code": 2001,
       "checkedAt": "2026-11-12T10:42:02.518144+00:00",
       "confirmations": 0
+    },
+    "7692448183628107041": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-12T20:05:24.018508+00:00",
+      "confirmations": 0
+    },
+    "7689973993180368158": {
+      "status": "unavailable",
+      "reason": "invalid_video",
+      "code": 1001,
+      "checkedAt": "2026-11-12T20:05:35.358190+00:00",
+      "confirmations": 1,
+      "firstUnavailableAt": "2026-11-12T20:05:35.358190+00:00",
+      "lastUnavailableAt": "2026-11-12T20:05:35.358190+00:00",
+      "confirmationRun": "43296280900",
+      "confirmationRuns": [
+        "43296280900"
+      ]
+    },
+    "7677085625144708382": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.39,
+      "checkedAt": "2026-11-12T20:05:51.606536+00:00",
+      "confirmations": 0
+    },
+    "7692453136421686560": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-12T20:06:31.616466+00:00",
+      "confirmations": 0
+    },
+    "7692810884304915734": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-12T20:07:11.631613+00:00",
+      "confirmations": 0
+    },
+    "7675147524562226464": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-12T20:07:51.644553+00:00",
+      "confirmations": 0
+    },
+    "7678059833752341793": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-12T20:08:31.660453+00:00",
+      "confirmations": 0
+    },
+    "7681427105762036999": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-12T20:09:11.672012+00:00",
+      "confirmations": 0
+    },
+    "7684489116238548238": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-12T20:09:51.686047+00:00",
+      "confirmations": 0
+    },
+    "7692141690542427424": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-12T20:10:31.702059+00:00",
+      "confirmations": 0
+    },
+    "7672435766714174740": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-12T20:11:11.717121+00:00",
+      "confirmations": 0
     }
   },
-  "notBefore": "2026-11-12T16:42:02.737507+00:00",
-  "updatedAt": "2026-11-12T10:42:02.737507+00:00",
-  "lastRun": "43201315497",
-  "lastRunStartedAt": "2026-11-12T10:34:39.158686+00:00",
+  "notBefore": "2026-11-13T02:11:11.875724+00:00",
+  "updatedAt": "2026-11-12T20:11:11.875724+00:00",
+  "lastRun": "43296280900",
+  "lastRunStartedAt": "2026-11-12T20:04:51.265809+00:00",
   "lastStopReason": "repeated_unknown",
-  "healthyPlaybackObserved": false
+  "healthyPlaybackObserved": true
 }
