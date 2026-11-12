@@ -48,11 +48,31 @@ test('only the exact frame and TikTok origin may supply evidence',async()=>{
  r.send('onPlayerError',{errorCode:1001},{data:{type:'onPlayerError',value:{errorCode:1001}}});assert.equal(r.listeners.size,1);
  r.send('onPlayerError',{errorCode:1001});assert.deepEqual(await r.result,{status:'unavailable',reason:'invalid_video',code:1001});
 });
-for(const [code,reason] of [[2001,'server_error'],[3001,'player_error'],[3002,'autoplay'],[9999,'player_error']])test('error '+code+' remains uncertain',async()=>{
- const r=rig();r.send('onPlayerError',{errorCode:code});assert.deepEqual(await r.result,{status:'unknown',reason,code});
+for(const [code,reason] of [[2001,'server_error'],[2005,'rate_limit'],[3001,'player_error'],[3002,'autoplay'],[9999,'player_error']])test('error '+code+' remains uncertain',async()=>{
+ const r=rig();r.send('onPlayerError',{errorCode:code});if(code!==2005)r.expire();assert.deepEqual(await r.result,{status:'unknown',reason,code});
+});
+test('server confirmation can require two full seconds of actual progress',()=>{
+ const read=core.evidence(2);read(event('onStateChange',1));read(event('onCurrentTime',{currentTime:0}));
+ assert.equal(read(event('onCurrentTime',{currentTime:1.2})),null);
+ assert.equal(read(event('onCurrentTime',{currentTime:2.1})).status,'played');
 });
 test('legacy errors and image posts remain uncertain',async()=>{
- for(const type of ['onError','onImageChange']){const r=rig();r.send(type,1);assert.equal((await r.result).status,'unknown');}
+ for(const type of ['onError','onImageChange']){const r=rig();r.send(type,1);if(type==='onError')r.expire();assert.equal((await r.result).status,'unknown');}
+});
+test('an early legacy or transient error can recover within the same player',async()=>{
+ for(const [type,value] of [['onError',2],['onPlayerError',{errorCode:2001}],['onPlayerError',{}]]){
+  const r=rig();r.send(type,value);assert.equal(r.listeners.size,1);
+  r.send('onPlayerReady');r.send('onStateChange',1);r.send('onCurrentTime',{currentTime:0});r.send('onCurrentTime',{currentTime:1.2});
+  assert.equal((await r.result).status,'played');assert.equal(r.timers.size,0);
+ }
+});
+test('a later definitive error replaces the provisional legacy error',async()=>{
+ const r=rig();r.send('onError',2);r.send('onPlayerError',{errorCode:1001});
+ assert.equal((await r.result).status,'unavailable');
+});
+test('rate limits remain immediate and are never retried',async()=>{
+ const r=rig();r.send('onError',2);r.send('onPlayerError',{errorCode:2005});
+ assert.equal((await r.result).reason,'rate_limit');assert.equal(r.timers.size,0);
 });
 test('abort cleans up playback and leaves the entry untested',async()=>{
  const r=rig();r.controller.abort();assert.equal((await r.result).status,'pending');assert.equal(r.listeners.size,0);assert.equal(r.timers.size,0);assert.ok(r.frame.removed);
