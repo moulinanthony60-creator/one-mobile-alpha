@@ -48,8 +48,13 @@ test('only the exact frame and TikTok origin may supply evidence',async()=>{
  r.send('onPlayerError',{errorCode:1001},{data:{type:'onPlayerError',value:{errorCode:1001}}});assert.equal(r.listeners.size,1);
  r.send('onPlayerError',{errorCode:1001});assert.deepEqual(await r.result,{status:'unavailable',reason:'invalid_video',code:1001});
 });
-for(const [code,reason] of [[2001,'server_error'],[3001,'player_error'],[3002,'autoplay'],[9999,'player_error']])test('error '+code+' remains uncertain',async()=>{
+for(const [code,reason] of [[2001,'server_error'],[2005,'rate_limit'],[3001,'player_error'],[3002,'autoplay'],[9999,'player_error']])test('error '+code+' remains uncertain',async()=>{
  const r=rig();r.send('onPlayerError',{errorCode:code});assert.deepEqual(await r.result,{status:'unknown',reason,code});
+});
+test('server confirmation can require two full seconds of actual progress',()=>{
+ const read=core.evidence(2);read(event('onStateChange',1));read(event('onCurrentTime',{currentTime:0}));
+ assert.equal(read(event('onCurrentTime',{currentTime:1.2})),null);
+ assert.equal(read(event('onCurrentTime',{currentTime:2.1})).status,'played');
 });
 test('legacy errors and image posts remain uncertain',async()=>{
  for(const type of ['onError','onImageChange']){const r=rig();r.send(type,1);assert.equal((await r.result).status,'unknown');}

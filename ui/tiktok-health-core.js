@@ -16,14 +16,14 @@
    const key=String(entry.id);if(seen.has(key))return false;seen.add(key);return true;
   }).map(entry=>({id:typeof entry.id==='string'?entry.id:'',title:String(entry.title||'Vidéo TikTok').slice(0,300),status:'pending'}));
  }
- function evidence(){
+ function evidence(minSeconds=1){
   let playing=false,first=null;
   return data=>{
    if(!data||typeof data!=='object'||data['x-tiktok-player']!==true)return null;
    if(data.type==='onPlayerError'){
     const code=data.value?.errorCode;
     if(typeof code!=='number'||!Number.isFinite(code))return {status:'unknown',reason:'player_error'};
-    return {status:code===1001?'unavailable':'unknown',reason:code===1001?'invalid_video':code===3002?'autoplay':code===2001?'server_error':'player_error',code};
+    return {status:code===1001?'unavailable':'unknown',reason:code===1001?'invalid_video':code===2005||data.value?.errorType==='TOO_MANY_REQUESTS'?'rate_limit':code===3002?'autoplay':code===2001?'server_error':'player_error',code};
    }
    if(data.type==='onError')return {status:'unknown',reason:'player_error'};
    if(data.type==='onImageChange')return {status:'unknown',reason:'image_post'};
@@ -34,16 +34,16 @@
     const time=data.value?.currentTime;
     if(typeof time!=='number'||!Number.isFinite(time)||time<0)return null;
     if(first===null||time<first)first=time;
-    else if(time-first>=1)return {status:'played',reason:'time_advanced',seconds:Number((time-first).toFixed(2))};
+    else if(time-first>=minSeconds)return {status:'played',reason:'time_advanced',seconds:Number((time-first).toFixed(2))};
    }
    return null;
   };
  }
- function inspect(entry,{container,signal,timeoutMs=20000,host=globalThis,doc=globalThis.document}={}){
+ function inspect(entry,{container,signal,timeoutMs=20000,minSeconds=1,host=globalThis,doc=globalThis.document}={}){
   if(!validId(entry.id))return Promise.resolve({status:'invalid',reason:'invalid_id'});
   if(signal?.aborted)return Promise.resolve({status:'pending',reason:'interrupted'});
   return new Promise(resolve=>{
-   const frame=doc.createElement('iframe'),read=evidence();let done=false,timer,started=false;
+   const frame=doc.createElement('iframe'),read=evidence(minSeconds);let done=false,timer,started=false;
    frame.title='Contrôle de lecture TikTok';frame.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';
    frame.referrerPolicy='strict-origin-when-cross-origin';
    function send(type){try{frame.contentWindow?.postMessage({'x-tiktok-player':true,type},ORIGIN);}catch{}}

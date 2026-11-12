@@ -19,7 +19,7 @@ function goHome(){route({oneSpace:'home'});window.oneShowSpace?.('home',false);w
 window.ONEAudit={uniqueById,readJSON,route,hasOverlay,navigationBlocked,frameTask,goHome};
 })();
 
-</script><link rel="stylesheet" href="ui/salon-room.css?v=233"><link rel="stylesheet" href="ui/tiktok-public.css?v=118c1"><script defer src="ui/tiktok-public.js?v=118c7"></script><link rel="stylesheet" href="ui/tiktok-health.css?v=1"><script defer src="ui/tiktok-health-core.js?v=1"></script><script defer src="ui/tiktok-health.js?v=2"></script><link rel="stylesheet" href="ui/tiktok-share.css?v=118c2"><script defer src="ui/tiktok-share-core.js?v=118c2"></script><script defer src="ui/tiktok-share.js?v=118c2"></script><script defer src="ui/header-polish.js?v=one-v222"></script>
+</script><link rel="stylesheet" href="ui/salon-room.css?v=233"><link rel="stylesheet" href="ui/tiktok-public.css?v=118c1"><script defer src="ui/tiktok-availability.js?v=1"></script><script defer src="ui/tiktok-public.js?v=118c8"></script><link rel="stylesheet" href="ui/tiktok-health.css?v=1"><script defer src="ui/tiktok-health-core.js?v=2"></script><script defer src="ui/tiktok-health.js?v=2"></script><link rel="stylesheet" href="ui/tiktok-share.css?v=118c2"><script defer src="ui/tiktok-share-core.js?v=118c2"></script><script defer src="ui/tiktok-share.js?v=118c2"></script><script defer src="ui/header-polish.js?v=one-v222"></script>
 <script src="ui/catalog-store.js?v=014117"></script>
 <link rel="preconnect" href="https://www.tiktok.com">
 <link rel="dns-prefetch" href="https://www.tiktok.com">
@@ -1933,6 +1933,7 @@ function oneBuildTikTokPool(raw,external){
   const id=/^\d{8,}$/.test(direct)?direct:tiktokIdFromText(v.share_url||v.url||v.embed_link||'');
   // A missing duration is not proof that a video is unplayable. Explicit photo posts are excluded.
   if(!id||v.tiktokPlayable===false||v.is_photo===true||v.type==='photo'||v.type==='image'){audit.invalid++;return}
+  if(window.ONETikTokAvailability?.isHidden(id))return;
   const item=isExternal?tiktokExternalToItem({...v,id}):{
    id:'tt_'+id,p:'tiktok',icon:'🎵',creator:raw.profile?.display_name||'TikTok',
    title:v.title||v.video_description||'Vidéo TikTok',meta:'TikTok',duration:Number(v.duration)>0?Math.floor(v.duration/60)+':'+String(Math.floor(v.duration%60)).padStart(2,'0'):'TikTok',

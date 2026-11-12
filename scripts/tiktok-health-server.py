@@ -1,6 +1,7 @@
-"""Read-only TikTok playback check, independent from the user's phone."""
+"""Resumable playback checks; no writes to TikTok or the ONE database."""
 import argparse
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
@@ -8,6 +9,8 @@ from pathlib import Path
 import re
 import threading
 import time
+import uuid
+import tiktok_health_state as history
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -16,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CATALOGUE = "https://one-comments-api.moulinanthony60.workers.dev/catalog/tiktok"
 USER_AGENT = "ONE-TikTok-Health/1.0 (+https://github.com/moulinanthony60-creator/one-mobile-alpha)"
 STATUSES = ("played", "unavailable", "unknown", "pending")
-LIMITATION = "Démarrage testé depuis le serveur GitHub, sans compte TikTok. Le résultat ne garantit ni toute la vidéo ni la lecture sur un autre appareil ou dans une autre région. Aucune vidéo supprimée."
+LIMITATION = "Démarrage testé depuis GitHub, sans compte TikTok : deux secondes de progression, pas la vidéo entière. Le résultat peut varier selon l’appareil ou la région. Retrait réversible du fil ONE après trois confirmations espacées d’au moins six heures ; aucune suppression sur TikTok ni dans la base ONE."
 
 
 class CatalogueError(Exception):
@@ -30,6 +33,15 @@ class NoRedirect(HTTPRedirectHandler):
 
 def now():
     return datetime.now(timezone.utc).isoformat()
+
+
+def retry_after(value):
+    try:
+        if str(value).isdigit():
+            return min(int(value), 365 * 86400)
+        return max(0, min(int(parsedate_to_datetime(value).timestamp() - time.time()), 365 * 86400))
+    except (ValueError, TypeError, OverflowError):
+        return 0
 
 
 def fetch_page(url):
@@ -76,27 +88,32 @@ def totals(rows):
     return result
 
 
-def scan(rows, probe, *, limit=0, budget=6000, sleep=time.sleep, clock=time.monotonic, checkpoint=lambda: None):
+def scan(rows, probe, *, limit=0, budget=2400, sleep=time.sleep, clock=time.monotonic, checkpoint=lambda: None, run_id=None, interval=10):
     started, consecutive_unknown = clock(), 0
     for index, row in enumerate(rows):
         if limit and index >= limit:
-            return "probe"
+            return "batch_limit"
         if clock() - started >= budget:
             return "time_budget"
         result = probe(row)
         if not isinstance(result, dict) or result.get("status") not in ("played", "unavailable", "unknown"):
             result = {"status": "unknown", "reason": "invalid_probe_result"}
-        row.update(result)
+        if result.get("status") == "unavailable" and not (result.get("code") == 1001 and result.get("reason") == "invalid_video"):
+            result = {"status": "unknown", "reason": "unconfirmed_unavailability"}
+        for key in ("reason", "code", "seconds", "retryAfterSeconds"):
+            row.pop(key, None)
+        row.update({k: result[k] for k in ("status", "reason", "code", "seconds", "retryAfterSeconds") if k in result})
         row["checkedAt"] = now()
+        row["attemptRun"] = run_id
         checkpoint()
-        consecutive_unknown = consecutive_unknown + 1 if row["status"] == "unknown" else 0
-        print(f"Contrôle {index + 1}/{len(rows)} : {row['status']}", flush=True)
+        consecutive_unknown = consecutive_unknown + 1 if row["status"] == "unknown" and row.get("reason") != "image_post" else 0
+        print(f"Contrôle {index + 1}/{len(rows)} : {row['status']} · {row.get('reason', 'unknown')} · code {row.get('code', '—')}", flush=True)
         if row.get("reason") in ("provider_access", "rate_limit"):
             return row["reason"]
         if consecutive_unknown >= 8:
             return "repeated_unknown"
         if index < len(rows) - 1 and not (limit and index + 1 >= limit):
-            sleep(3)
+            sleep(interval)
     return "complete"
 
 
@@ -108,9 +125,10 @@ def markdown(report):
     if not report["catalogueLoaded"]:
         return "\n".join(lines + ["Catalogue non chargé : le nombre de vidéos est inconnu. Aucune conclusion sur leur lecture."])
     count = totals(report["entries"])
-    lines += [f"{count['checked']} / {count['total']} testées · {count['played']} démarrées · {count['unavailable']} indisponibles · {count['unknown']} incertaines · {count['pending']} non testées.", "", "| Vidéo | Résultat |", "| --- | --- |"]
+    lines += [f"Derniers résultats cumulés : {count['checked']} / {count['total']} testées · {count['played']} démarrées · {count['unavailable']} indisponibles · {count['unknown']} incertaines · {count['pending']} non testées.",
+              f"Cette exécution : {report.get('testedThisRun', 0)} tests. Retirées du fil : {report.get('hiddenCount', 0)}.", "", "| Vidéo | Résultat | Motif | Dernier contrôle |", "| --- | --- | --- | --- |"]
     for row in report["entries"][:1000]:
-        lines.append(f"| [{row['id']}](https://www.tiktok.com/@_/video/{row['id']}) | {row['status']} |")
+        lines.append(f"| [{row['id']}](https://www.tiktok.com/@_/video/{row['id']}) | {row['status']} | {row.get('reason', '—')} | {row.get('checkedAt', '—')} |")
     if len(report["entries"]) > 1000:
         lines += ["", "Les 1 000 premières lignes sont affichées ; le fichier JSON contient toutes les vidéos."]
     return "\n".join(lines) + "\n"
@@ -141,7 +159,7 @@ class Harness(BaseHTTPRequestHandler):
         pass
 
 
-def browser_scan(rows, *, limit, checkpoint):
+def browser_scan(rows, *, limit, checkpoint, run_id):
     from playwright.sync_api import sync_playwright, Error as BrowserError
     server = ThreadingHTTPServer(("127.0.0.1", 0), Harness)
     threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -156,21 +174,21 @@ def browser_scan(rows, *, limit, checkpoint):
 
                 def response_seen(response):
                     if response.request.resource_type == "document" and response.url.startswith("https://www.tiktok.com/player/v1/") and response.status in (403, 429):
-                        blocked.append(response.status)
+                        blocked.append((response.status, retry_after(response.headers.get('retry-after'))))
 
                 page.on("response", response_seen)
 
                 def probe(row):
                     blocked.clear()
                     try:
-                        result = page.evaluate("entry => ONETikTokHealthCore.inspect(entry,{container:document.getElementById('player')})", row)
+                        result = page.evaluate("entry => ONETikTokHealthCore.inspect(entry,{container:document.getElementById('player'),timeoutMs:30000,minSeconds:2})", row)
                     except BrowserError:
                         result = {"status": "unknown", "reason": "browser_error"}
                     if blocked:
-                        result = {"status": "unknown", "reason": "rate_limit" if 429 in blocked else "provider_access"}
+                        result = {"status": "unknown", "reason": "rate_limit" if any(status == 429 for status, _ in blocked) else "provider_access", "retryAfterSeconds": max(delay for _, delay in blocked)}
                     return result
 
-                return scan(rows, probe, limit=limit, checkpoint=checkpoint)
+                return scan(rows, probe, limit=limit, checkpoint=checkpoint, run_id=run_id)
             finally:
                 browser.close()
     finally:
@@ -182,18 +200,47 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe", action="store_true", help="Vérifier l’accès et une vidéo seulement avant activation.")
     parser.add_argument("--output", type=Path, default=ROOT / "health-reports")
+    parser.add_argument("--state", type=Path, help="Historique validé du contrôle précédent.")
+    parser.add_argument("--batch-size", type=int, default=40)
     args = parser.parse_args()
-    report = {"version": 1, "startedAt": now(), "state": "starting", "catalogueLoaded": False, "entries": [], "scope": "Catalogue TikTok commun ONE", "environment": "GitHub Chromium / lecteur intégré sur origine locale", "limitation": LIMITATION, "mode": "probe" if args.probe else "catalogue"}
-    checkpoint = lambda: write_report(report, args.output)
+    if not 1 <= args.batch_size <= 100:
+        parser.error("Le lot doit contenir de 1 à 100 vidéos.")
+    run_id = os.environ.get("GITHUB_RUN_ID") or str(uuid.uuid4())
+    previous = None
+    report = {"version": 2, "runId": run_id, "startedAt": now(), "state": "starting", "catalogueLoaded": False, "entries": [], "scope": "Catalogue TikTok commun ONE", "environment": "GitHub Chromium / lecteur intégré sur origine locale", "limitation": LIMITATION, "mode": "probe" if args.probe else "catalogue"}
+
+    def checkpoint():
+        report["testedThisRun"] = sum(row.get("attemptRun") == run_id for row in report["entries"])
+        if previous is not None and report["catalogueLoaded"]:
+            state = previous if history.epoch(previous.get("notBefore")) > time.time() else history.finalize(previous, report["entries"], run_id, report["startedAt"], report["state"], time.time())
+            report["hiddenCount"] = len(history.manifest(state)["entries"])
+            # A probe is diagnostic only and cannot affect the shared withdrawal list.
+            if not args.probe:
+                history.save(state, args.output)
+        write_report(report, args.output)
+
     checkpoint()
     try:
-        report["entries"] = load_catalogue()
+        previous = history.load(args.state)
+        report["entries"] = history.entries(load_catalogue(), previous)
         report["catalogueLoaded"] = True
         report["state"] = "running"
         print(f"Catalogue chargé : {len(report['entries'])} vidéos", flush=True)
         checkpoint()
-        if report["entries"]:
-            report["state"] = browser_scan(report["entries"], limit=1 if args.probe else 0, checkpoint=checkpoint)
+        timestamp = time.time()
+        if history.epoch(previous.get("notBefore")) > timestamp:
+            report["state"] = "cooldown"
+            report["error"] = "Pause demandée après un contrôle non concluant. Reprise au plus tôt : " + previous["notBefore"]
+        elif report["entries"]:
+            queue = history.due(report["entries"], timestamp)
+            # Recheck one previously working video when assessing repeat failures.
+            controls = [row for row in report["entries"] if row["status"] == "played"]
+            if queue and controls and any(row["status"] == "unavailable" for row in queue):
+                control = max(controls, key=lambda row: history.epoch(row.get("checkedAt")))
+                queue = [control] + [row for row in queue if row["id"] != control["id"]]
+            report["state"] = browser_scan(queue, limit=1 if args.probe else args.batch_size, checkpoint=checkpoint, run_id=run_id) if queue else "up_to_date"
+            if args.probe and report["state"] == "batch_limit":
+                report["state"] = "probe"
         else:
             report["state"] = "empty"
     except CatalogueError as error:
@@ -206,9 +253,9 @@ def main():
         report["finishedAt"] = now()
         checkpoint()
         print(markdown(report).split("| Vidéo")[0], flush=True)
-    if report["state"] not in ("complete", "empty", "probe"):
+    if report["state"] not in ("complete", "empty", "probe", "batch_limit", "up_to_date", "cooldown"):
         return 2
-    return 1 if any(row["status"] in ("unavailable", "unknown") for row in report["entries"]) else 0
+    return 1 if any(row.get("attemptRun") == run_id and row["status"] in ("unavailable", "unknown") for row in report["entries"]) else 0
 
 
 if __name__ == "__main__":

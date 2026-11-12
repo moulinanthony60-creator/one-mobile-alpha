@@ -2,19 +2,27 @@ name: Contrôle TikTok en arrière-plan
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
   push:
-    branches: [main, codex/controle-tiktok-serveur]
+    branches: [main, codex/controle-tiktok-fiable]
     paths:
       - '.github/workflows/tiktok-health-server.yml'
-      - 'scripts/tiktok-health-*'
+      - 'scripts/tiktok*'
       - 'ui/tiktok-health*'
+      - 'ui/tiktok-availability.js'
+      - 'ui/tiktok-public.js'
       - 'tests/tiktok-health*'
+      - 'tests/tiktok-availability*'
   pull_request:
     paths:
       - '.github/workflows/tiktok-health-server.yml'
-      - 'scripts/tiktok-health-*'
+      - 'scripts/tiktok*'
       - 'ui/tiktok-health*'
+      - 'ui/tiktok-availability.js'
+      - 'ui/tiktok-public.js'
       - 'tests/tiktok-health*'
+      - 'tests/tiktok-availability*'
 
 permissions:
   contents: read
@@ -34,16 +42,18 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.13'
-      - run: node --test tests/tiktok-health.test.cjs tests/tiktok-playback.test.cjs
+      - run: node --test tests/tiktok-health.test.cjs tests/tiktok-availability.test.cjs tests/tiktok-playback.test.cjs
       - run: python tests/tiktok-health-server-test.py
+      - run: python tests/tiktok-health-state-test.py
       - run: pip install -r scripts/tiktok-health-requirements.txt
       - run: python -m playwright install --with-deps chromium
       - run: python tests/tiktok-health-browser.py
-  server:
+      - run: python tests/tiktok-availability-browser.py
+  probe:
     needs: tests
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/codex/controle-tiktok-fiable'
     runs-on: ubuntu-latest
-    timeout-minutes: 115
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
         with:
@@ -53,24 +63,54 @@ jobs:
           python-version: '3.13'
       - run: pip install -r scripts/tiktok-health-requirements.txt
       - run: python -m playwright install --with-deps chromium
-      - name: Vérifier une vidéo avant activation
-        if: github.ref != 'refs/heads/main'
-        run: python scripts/tiktok-health-server.py --probe
-      - name: Vérifier le catalogue commun
-        if: github.ref == 'refs/heads/main'
-        run: python scripts/tiktok-health-server.py
+      - run: python scripts/tiktok-health-server.py --probe
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: essai-tiktok-${{ github.run_id }}
+          path: health-reports/
+          retention-days: 30
+  server:
+    needs: tests
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Reprendre l’historique
+        id: restore
+        run: python scripts/tiktok-health-store.py restore
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: pip install -r scripts/tiktok-health-requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      - name: Contrôler un lot de 40 vidéos
+        timeout-minutes: 30
+        run: python scripts/tiktok-health-server.py --state health-previous/state.json --batch-size 40
+      - name: Conserver l’avancement et les retraits confirmés
+        if: always() && steps.restore.outcome == 'success' && hashFiles('health-reports/state.json') != ''
+        run: python scripts/tiktok-health-store.py publish
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Résumé du contrôle
         if: always()
         run: |
           if [ -f health-reports/report.md ]; then
             cat health-reports/report.md >> "$GITHUB_STEP_SUMMARY"
           else
-            echo 'Le contrôle n’a pas démarré. Consulter les étapes précédentes.' >> "$GITHUB_STEP_SUMMARY"
+            echo 'Contrôle non démarré. Aucun retrait ajouté.' >> "$GITHUB_STEP_SUMMARY"
           fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: controle-tiktok-${{ github.run_id }}
           path: health-reports/
-          retention-days: 7
+          retention-days: 30
           if-no-files-found: warn
