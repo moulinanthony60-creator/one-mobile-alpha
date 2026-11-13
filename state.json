@@ -106,10 +106,10 @@
       ]
     },
     "7677085625144708382": {
-      "status": "played",
-      "reason": "time_advanced",
-      "seconds": 2.39,
-      "checkedAt": "2026-11-12T20:05:51.606536+00:00",
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-13T06:56:00.820901+00:00",
       "confirmations": 0
     },
     "7692453136421686560": {
@@ -167,12 +167,61 @@
       "code": 2001,
       "checkedAt": "2026-11-12T20:11:11.717121+00:00",
       "confirmations": 0
+    },
+    "7692527926914321682": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-13T06:56:41.107856+00:00",
+      "confirmations": 0
+    },
+    "7689109053670165793": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-13T06:57:21.123072+00:00",
+      "confirmations": 0
+    },
+    "7691015368042745121": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-13T06:58:01.133362+00:00",
+      "confirmations": 0
+    },
+    "7679102838215036193": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-13T06:58:41.146028+00:00",
+      "confirmations": 0
+    },
+    "7682435359992532237": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-13T06:59:21.158613+00:00",
+      "confirmations": 0
+    },
+    "7692159448978115862": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-13T07:00:01.171265+00:00",
+      "confirmations": 0
+    },
+    "7688805958633475361": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-13T07:00:41.181766+00:00",
+      "confirmations": 0
     }
   },
-  "notBefore": "2026-11-13T02:11:11.875724+00:00",
-  "updatedAt": "2026-11-12T20:11:11.875724+00:00",
-  "lastRun": "43296280900",
-  "lastRunStartedAt": "2026-11-12T20:04:51.265809+00:00",
+  "notBefore": "2026-11-13T13:00:41.623523+00:00",
+  "updatedAt": "2026-11-13T07:00:41.623523+00:00",
+  "lastRun": "43381877531",
+  "lastRunStartedAt": "2026-11-13T06:55:27.573194+00:00",
   "lastStopReason": "repeated_unknown",
-  "healthyPlaybackObserved": true
+  "healthyPlaybackObserved": false
 }
