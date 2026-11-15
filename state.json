@@ -1939,15 +1939,318 @@
     "7690150729482308897": {
       "status": "played",
       "reason": "time_advanced",
+      "seconds": 2.42,
+      "checkedAt": "2026-11-15T18:57:47.563154+00:00",
+      "confirmations": 0
+    },
+    "7689535039150804231": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.47,
+      "checkedAt": "2026-11-15T18:58:02.454059+00:00",
+      "confirmations": 0
+    },
+    "7689472313242307872": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.39,
+      "checkedAt": "2026-11-15T18:58:16.667576+00:00",
+      "confirmations": 0
+    },
+    "7690159816634862881": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.48,
+      "checkedAt": "2026-11-15T18:58:31.289350+00:00",
+      "confirmations": 0
+    },
+    "7676915357386362134": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.42,
+      "checkedAt": "2026-11-15T18:58:46.010651+00:00",
+      "confirmations": 0
+    },
+    "7690408695506717985": {
+      "status": "unavailable",
+      "reason": "invalid_video",
+      "code": 1001,
+      "checkedAt": "2026-11-15T18:58:56.573290+00:00",
+      "confirmations": 1,
+      "firstUnavailableAt": "2026-11-15T18:58:56.573290+00:00",
+      "lastUnavailableAt": "2026-11-15T18:58:56.573290+00:00",
+      "confirmationRun": "43749529765",
+      "confirmationRuns": [
+        "43749529765"
+      ]
+    },
+    "7688044174641220896": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-15T18:59:36.581748+00:00",
+      "confirmations": 0
+    },
+    "7689829485851561249": {
+      "status": "unavailable",
+      "reason": "invalid_video",
+      "code": 1001,
+      "checkedAt": "2026-11-15T18:59:46.996538+00:00",
+      "confirmations": 1,
+      "firstUnavailableAt": "2026-11-15T18:59:46.996538+00:00",
+      "lastUnavailableAt": "2026-11-15T18:59:46.996538+00:00",
+      "confirmationRun": "43749529765",
+      "confirmationRuns": [
+        "43749529765"
+      ]
+    },
+    "7690219097530944800": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.54,
+      "checkedAt": "2026-11-15T19:00:00.728926+00:00",
+      "confirmations": 0
+    },
+    "7688317726221143329": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.39,
+      "checkedAt": "2026-11-15T19:00:16.427031+00:00",
+      "confirmations": 0
+    },
+    "7689418306054343968": {
+      "status": "unavailable",
+      "reason": "invalid_video",
+      "code": 1001,
+      "checkedAt": "2026-11-15T19:00:27.016862+00:00",
+      "confirmations": 1,
+      "firstUnavailableAt": "2026-11-15T19:00:27.016862+00:00",
+      "lastUnavailableAt": "2026-11-15T19:00:27.016862+00:00",
+      "confirmationRun": "43749529765",
+      "confirmationRuns": [
+        "43749529765"
+      ]
+    },
+    "7689514106843368737": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.55,
+      "checkedAt": "2026-11-15T19:00:40.837542+00:00",
+      "confirmations": 0
+    },
+    "7687526588400799008": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.47,
+      "checkedAt": "2026-11-15T19:00:54.959814+00:00",
+      "confirmations": 0
+    },
+    "7682459329437388062": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.39,
+      "checkedAt": "2026-11-15T19:01:09.858500+00:00",
+      "confirmations": 0
+    },
+    "7666473635409923360": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.44,
+      "checkedAt": "2026-11-15T19:01:23.894532+00:00",
+      "confirmations": 0
+    },
+    "7690329712563866912": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.43,
+      "checkedAt": "2026-11-15T19:01:37.711939+00:00",
+      "confirmations": 0
+    },
+    "7690323229948366102": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.39,
+      "checkedAt": "2026-11-15T19:01:52.350243+00:00",
+      "confirmations": 0
+    },
+    "7689538869770882336": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.42,
+      "checkedAt": "2026-11-15T19:02:06.524268+00:00",
+      "confirmations": 0
+    },
+    "7676193408557305121": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.45,
+      "checkedAt": "2026-11-15T19:02:20.866572+00:00",
+      "confirmations": 0
+    },
+    "7689610371652406560": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.39,
+      "checkedAt": "2026-11-15T19:02:34.846623+00:00",
+      "confirmations": 0
+    },
+    "7680729287867075848": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.48,
+      "checkedAt": "2026-11-15T19:02:48.665705+00:00",
+      "confirmations": 0
+    },
+    "7690178798788168993": {
+      "status": "unavailable",
+      "reason": "invalid_video",
+      "code": 1001,
+      "checkedAt": "2026-11-15T19:03:01.098043+00:00",
+      "confirmations": 1,
+      "firstUnavailableAt": "2026-11-15T19:03:01.098043+00:00",
+      "lastUnavailableAt": "2026-11-15T19:03:01.098043+00:00",
+      "confirmationRun": "43749529765",
+      "confirmationRuns": [
+        "43749529765"
+      ]
+    },
+    "7690380336601074976": {
+      "status": "unavailable",
+      "reason": "invalid_video",
+      "code": 1001,
+      "checkedAt": "2026-11-15T19:03:11.533235+00:00",
+      "confirmations": 1,
+      "firstUnavailableAt": "2026-11-15T19:03:11.533235+00:00",
+      "lastUnavailableAt": "2026-11-15T19:03:11.533235+00:00",
+      "confirmationRun": "43749529765",
+      "confirmationRuns": [
+        "43749529765"
+      ]
+    },
+    "7685111971552759054": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.42,
+      "checkedAt": "2026-11-15T19:03:26.449959+00:00",
+      "confirmations": 0
+    },
+    "7683617946207374625": {
+      "status": "played",
+      "reason": "time_advanced",
       "seconds": 2.41,
-      "checkedAt": "2026-11-15T06:56:40.119158+00:00",
+      "checkedAt": "2026-11-15T19:03:42.163473+00:00",
+      "confirmations": 0
+    },
+    "7690397948865252640": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.64,
+      "checkedAt": "2026-11-15T19:03:56.103866+00:00",
+      "confirmations": 0
+    },
+    "7677769602159365408": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.47,
+      "checkedAt": "2026-11-15T19:04:10.198237+00:00",
+      "confirmations": 0
+    },
+    "7690166143335664928": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.47,
+      "checkedAt": "2026-11-15T19:04:24.778280+00:00",
+      "confirmations": 0
+    },
+    "7689967637350124832": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.49,
+      "checkedAt": "2026-11-15T19:04:38.632524+00:00",
+      "confirmations": 0
+    },
+    "7689816102074993952": {
+      "status": "unknown",
+      "reason": "server_error",
+      "code": 2001,
+      "checkedAt": "2026-11-15T19:05:18.642645+00:00",
+      "confirmations": 0
+    },
+    "7688495153790684448": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.5,
+      "checkedAt": "2026-11-15T19:05:32.356133+00:00",
+      "confirmations": 0
+    },
+    "7690361724360264993": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.53,
+      "checkedAt": "2026-11-15T19:05:46.375018+00:00",
+      "confirmations": 0
+    },
+    "7689550115941403936": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.39,
+      "checkedAt": "2026-11-15T19:06:01.211643+00:00",
+      "confirmations": 0
+    },
+    "7690230310998494497": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.41,
+      "checkedAt": "2026-11-15T19:06:15.171794+00:00",
+      "confirmations": 0
+    },
+    "7690294130940988705": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.47,
+      "checkedAt": "2026-11-15T19:06:29.692521+00:00",
+      "confirmations": 0
+    },
+    "7690223503500512544": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.39,
+      "checkedAt": "2026-11-15T19:06:43.788984+00:00",
+      "confirmations": 0
+    },
+    "7690319166712106273": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.39,
+      "checkedAt": "2026-11-15T19:06:57.718385+00:00",
+      "confirmations": 0
+    },
+    "7689861972078382343": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.44,
+      "checkedAt": "2026-11-15T19:07:13.888698+00:00",
+      "confirmations": 0
+    },
+    "7689968447161224481": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.48,
+      "checkedAt": "2026-11-15T19:07:28.225261+00:00",
+      "confirmations": 0
+    },
+    "7689513143776578848": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.44,
+      "checkedAt": "2026-11-15T19:07:42.407244+00:00",
       "confirmations": 0
     }
   },
   "notBefore": null,
-  "updatedAt": "2026-11-15T06:56:40.662512+00:00",
-  "lastRun": "43686858662",
-  "lastRunStartedAt": "2026-11-15T06:47:13.459215+00:00",
+  "updatedAt": "2026-11-15T19:07:42.552143+00:00",
+  "lastRun": "43749529765",
+  "lastRunStartedAt": "2026-11-15T18:57:40.839509+00:00",
   "lastStopReason": "batch_limit",
   "healthyPlaybackObserved": true
 }
