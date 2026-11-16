@@ -99,3 +99,10 @@ with sync_playwright() as p:
     assert not errors, errors
     browser.close()
     print('Navigation browser checks passed: stable navigation, one active player from startup, no preloads after progress, isolated retry, sound before play, explicit navigation after error.')
+
+# One-off live comparison on an isolated diagnostic PR, never on main/schedules.
+import os
+if os.environ.get('GITHUB_HEAD_REF') == 'codex/diagnostic-tiktok-mobile':
+    import subprocess
+    import sys
+    subprocess.run([sys.executable, str(ROOT/'scripts/tiktok-mobile-diagnostic.py')], check=True)
