@@ -42,7 +42,8 @@
    if(reason==='network'||reason==='slow')isolate(slide);
    const result=fallback.call(this,slide,reason);
    if(!['network','slow'].includes(reason)||slide?.getAttribute('data-active')!=='1')return result;
-   const retry=[...slide.querySelectorAll('.oneTikTokStatus button')].find(b=>b.textContent==='Réessayer');
+   // The network/slow fallback puts retry first; do not depend on translated text.
+   const retry=slide.querySelector('.oneTikTokStatus button');
    if(retry)retry.onclick=event=>{
     event.stopPropagation();
     const now=Date.now(),last=retried.get(slide);

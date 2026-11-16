@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 html = (ROOT/'index.html').read_text()
 player = html[html.index('function v17Escape('):html.index('function v17SetupObserver(')]
 ids = [str(7000000000000000000+i) for i in range(8)]
-fixture = '''<!doctype html><meta name="viewport" content="width=device-width"><style>
+fixture = '''<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><style>
 body{margin:0}#vfeedScroller{height:600px;overflow-y:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth}
 .vslide{height:600px;scroll-snap-align:start}.vslideMedia{position:relative;height:100%}iframe{width:100%;height:100%;border:0}
 </style><section id="vfeed" class="show"><div id="vfeedScroller">'''
@@ -28,7 +28,7 @@ with sync_playwright() as p:
             request.fulfill(status=200,content_type='text/html',body=fixture)
         elif url.startswith('https://one.test/ui/'):
             name = url.split('/ui/')[1].split('?')[0]
-            request.fulfill(status=200,content_type='text/javascript',body=(ROOT/'ui'/name).read_text())
+            request.fulfill(status=200,content_type='text/javascript; charset=utf-8',body=(ROOT/'ui'/name).read_text())
         elif url.startswith('https://www.tiktok.com/player/v1/'):
             request.fulfill(status=200,content_type='text/html',body="<script>window.commands=[];addEventListener('message',e=>{if(e.source===parent&&e.data?.['x-tiktok-player']===true)commands.push(e.data.type)});parent.postMessage({'x-tiktok-player':true,type:'onPlayerReady'},'*')</script>")
         else:
@@ -76,7 +76,6 @@ with sync_playwright() as p:
     page.get_by_role('button',name='Réessayer',exact=True).click()
     page.wait_for_function("slides[2].querySelector('iframe')?.dataset.oneReady==='1'")
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
-    print('Retry browser state:',page.evaluate("({active:slides[2].dataset,frame:slides[2].querySelector('iframe')?.dataset,src:slides[2].querySelector('iframe')?.src,traces})"),frame.evaluate('commands'),errors,flush=True)
     frame.wait_for_function("commands.includes('play')")
     assert frame.evaluate('commands')==['unMute','play']
     assert page.locator('iframe').count()==1
