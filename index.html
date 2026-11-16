@@ -19,7 +19,7 @@ function goHome(){route({oneSpace:'home'});window.oneShowSpace?.('home',false);w
 window.ONEAudit={uniqueById,readJSON,route,hasOverlay,navigationBlocked,frameTask,goHome};
 })();
 
-</script><link rel="stylesheet" href="ui/salon-room.css?v=233"><link rel="stylesheet" href="ui/tiktok-public.css?v=118c1"><script defer src="ui/tiktok-availability.js?v=1"></script><script defer src="ui/tiktok-public.js?v=118c8"></script><link rel="stylesheet" href="ui/tiktok-health.css?v=1"><script defer src="ui/tiktok-health-core.js?v=2"></script><script defer src="ui/tiktok-health.js?v=2"></script><link rel="stylesheet" href="ui/tiktok-share.css?v=118c2"><script defer src="ui/tiktok-share-core.js?v=118c2"></script><script defer src="ui/tiktok-share.js?v=118c2"></script><script defer src="ui/header-polish.js?v=one-v222"></script>
+</script><link rel="stylesheet" href="ui/salon-room.css?v=233"><link rel="stylesheet" href="ui/tiktok-public.css?v=118c1"><script defer src="ui/tiktok-availability.js?v=1"></script><script defer src="ui/tiktok-public.js?v=118c8"></script><link rel="stylesheet" href="ui/tiktok-health.css?v=1"><script defer src="ui/tiktok-health-core.js?v=3"></script><script defer src="ui/tiktok-health.js?v=2"></script><link rel="stylesheet" href="ui/tiktok-share.css?v=118c2"><script defer src="ui/tiktok-share-core.js?v=118c2"></script><script defer src="ui/tiktok-share.js?v=118c2"></script><script defer src="ui/header-polish.js?v=one-v222"></script>
 <script src="ui/catalog-store.js?v=014117"></script>
 <link rel="preconnect" href="https://www.tiktok.com">
 <link rel="dns-prefetch" href="https://www.tiktok.com">
@@ -900,6 +900,12 @@ function v17NextPlayableSlide(slide,direction){
  }
  return null;
 }
+function v17CreateTikTokFrame(){
+ const frame=document.createElement('iframe');
+ // Public playback gets a temporary TikTok session, independent of old site data.
+ if('credentialless' in frame)frame.credentialless=true;
+ return frame;
+}
 function v17PlayerUrl(x){
  if(!x)return '';
  const mute=v17Muted?'1':'0';
@@ -975,7 +981,7 @@ function v17TikTokNativePlayer(slide){
  for(const key of ['controls','progress_bar','play_button','volume_control','fullscreen_button'])url.searchParams.set(key,'1');
  url.searchParams.set('autoplay','0');url.searchParams.set('muted','0');
  media.querySelectorAll('iframe').forEach(frame=>{v17SendTikTok(frame,'pause');frame.remove();});
- const frame=document.createElement('iframe');
+ const frame=v17CreateTikTokFrame();
  frame.src=url.href;frame.title='Lecteur TikTok';frame.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';frame.allowFullscreen=true;
  frame.dataset.provider='tiktok';frame.dataset.oneManual='1';frame.setAttribute('playsinline','');
  frame.style.opacity='1';frame.style.pointerEvents='auto';
@@ -985,7 +991,7 @@ function v17TikTokNativePlayer(slide){
  v17TikTokFallback(slide,'manual');
 }
 async function v17CopyTikTokDiagnostic(slide){
- const report='ONE v228 — diagnostic TikTok\n'+JSON.stringify({video:v17RawTikTokId(v17ItemById(slide?.dataset.id)),browser:navigator.userAgent,events:window.oneTikTokDiagnostic||[]},null,2);
+ const report='ONE v247 — diagnostic TikTok\n'+JSON.stringify({video:v17RawTikTokId(v17ItemById(slide?.dataset.id)),browser:navigator.userAgent,sessionIsolee:slide?.querySelector('iframe')?.credentialless===true,events:window.oneTikTokDiagnostic||[]},null,2);
  try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}
  catch{const panel=slide?.querySelector('.oneTikTokStatus');if(!panel)return;let box=panel.querySelector('textarea');if(!box){box=document.createElement('textarea');box.readOnly=true;box.setAttribute('aria-label','Diagnostic TikTok à copier');box.style.cssText='width:100%;height:100px';panel.appendChild(box);}box.value=report;box.select();}
 }
@@ -1170,7 +1176,7 @@ function v124PreloadTikTokSlide(slide){
  if(!slide||v17TikTokIsUnavailable(v17ItemById(slide.dataset.id))||slide.querySelector('iframe'))return;
  const x=v17ItemById(slide.dataset.id),media=slide.querySelector('.vslideMedia');if(!x||x.p!=='tiktok'||!media)return;
  const src=v17PlayerUrl(x);if(!src)return;
- const frame=document.createElement('iframe');frame.src=src;frame.title='Préchargement TikTok';frame.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.setAttribute('playsinline','');
+ const frame=v17CreateTikTokFrame();frame.src=src;frame.title='Préchargement TikTok';frame.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.setAttribute('playsinline','');
  frame.dataset.provider='tiktok';frame.dataset.oneManual='1';frame.dataset.onePreload='1';frame.setAttribute('aria-hidden','true');frame.setAttribute('tabindex','-1');
  frame.style.opacity='0';frame.style.pointerEvents='none';
  frame.onload=()=>{if(!frame.isConnected)return;frame.dataset.oneLoaded='1';if(slide.getAttribute('data-active')==='1')v17ResumeTikTokFrame(slide);else{v17SendTikTok(frame,'mute');v17SendTikTok(frame,'pause');}};
@@ -1213,7 +1219,7 @@ function v17ActivateSlide(slide){
  let f=x.p==='tiktok'?media.querySelector('iframe[data-one-preload="1"]'):null;
  if(f?.dataset.onePreloadError&&f.dataset.onePreloadError!=='1001'){f.remove();f=null;}
  const wasPreloaded=!!f;
- if(!f){media.querySelectorAll('iframe').forEach(frame=>{v17SendTikTok(frame,'pause');frame.remove();});f=document.createElement('iframe');f.src=src;}
+ if(!f){media.querySelectorAll('iframe').forEach(frame=>{v17SendTikTok(frame,'pause');frame.remove();});f=x.p==='tiktok'?v17CreateTikTokFrame():document.createElement('iframe');f.src=src;}
  f.title='Lecteur '+platformName(x.p);f.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;f.setAttribute('playsinline','');f.dataset.provider=x.p;f.style.pointerEvents='auto';
  if(x.p==='tiktok'){
   v17ClearTikTokTimers(slide);delete slide.dataset.oneUserPaused;
@@ -1437,7 +1443,7 @@ window.playInFeed=(id,source)=>{
    document.querySelectorAll('.card .media.inline-playing[data-provider="tiktok"]').forEach(m=>{if(m!==media){m.classList.remove('inline-playing');m.querySelector('iframe')?.remove();}});
    media.classList.add('inline-playing'); media.dataset.provider='tiktok';
    let f=media.querySelector('iframe');
-   if(!f){f=document.createElement('iframe');const ttMute=v1814SoundAllowed()?'0':'1';f.src=`https://www.tiktok.com/player/v1/${encodeURIComponent(tid)}?autoplay=1&description=0&music_info=0&controls=0&progress_bar=0&play_button=0&volume_control=0&fullscreen_button=0&loop=1&muted=${ttMute}`;f.title=`TikTok ${v17Escape(x.creator)}`;f.allow='autoplay *; encrypted-media; fullscreen';f.allowFullscreen=true;f.setAttribute('playsinline','');f.onload=()=>{v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute');setTimeout(()=>{v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')},250);setTimeout(()=>{v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')},900)};media.appendChild(f);}
+   if(!f){f=v17CreateTikTokFrame();const ttMute=v1814SoundAllowed()?'0':'1';f.src=`https://www.tiktok.com/player/v1/${encodeURIComponent(tid)}?autoplay=1&description=0&music_info=0&controls=0&progress_bar=0&play_button=0&volume_control=0&fullscreen_button=0&loop=1&muted=${ttMute}`;f.title=`TikTok ${v17Escape(x.creator)}`;f.allow='autoplay *; encrypted-media; fullscreen';f.allowFullscreen=true;f.setAttribute('playsinline','');f.onload=()=>{v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute');setTimeout(()=>{v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')},250);setTimeout(()=>{v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute')},900)};media.appendChild(f);}
    else{v17SendTikTok(f,'play');if(v1814SoundAllowed())v17SendTikTok(f,'unMute');}
    toast(v1814SoundAllowed()?'TikTok lecture auto + son 🔊':'TikTok lecture auto'); return;
  }

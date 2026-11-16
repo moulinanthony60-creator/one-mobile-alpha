@@ -19,7 +19,12 @@ fixture = fixture.replace('</style>', html[panel_start:html.index('</style>',pan
 
 with sync_playwright() as p:
     browser = p.chromium.launch()
-    page = browser.new_page(viewport={'width':390,'height':844})
+    context = browser.new_context(viewport={'width':390,'height':844})
+    # Synthetic cookie only: every request in this context is fulfilled/aborted
+    # below, so it is never sent to TikTok or any external server.
+    context.add_cookies([{'name':'one_tiktok_test','value':'old-session','domain':'www.tiktok.com',
+                         'path':'/','secure':True,'sameSite':'None','partitionKey':'https://one.test'}])
+    page = context.new_page()
     errors = []
     page.on('pageerror', lambda error: errors.append(str(error)))
     def route(request):
@@ -35,6 +40,15 @@ with sync_playwright() as p:
             request.abort()
     page.route('**/*',route)
     page.goto('https://one.test/')
+    with page.expect_event('framenavigated', predicate=lambda frame: frame.url.startswith('https://www.tiktok.com/player/v1/'+ids[0])) as loaded:
+        page.evaluate('''id=>{
+          localStorage.setItem('one-test-data','keep');
+          const f=document.createElement('iframe');f.id='cookie-control';
+          f.src='https://www.tiktok.com/player/v1/'+id;document.body.append(f);
+        }''',ids[0])
+    control = loaded.value
+    control.wait_for_function("document.cookie.includes('one_tiktok_test=old-session')")
+    page.locator('#cookie-control').evaluate('(f)=>f.remove()')
     page.evaluate('''ids=>{
       window.v17ActiveId='';window.v17Muted=true;window.v17Volume=50;window.v17TwitchPlayers={};
       const items=new Map(ids.map(id=>['tt_ext_'+id,{id:'tt_ext_'+id,p:'tiktok',tiktokId:id,creator:'Test',tiktokPlayable:true}]));
@@ -69,6 +83,9 @@ with sync_playwright() as p:
     assert page.evaluate("traces.filter(x=>x==='création préchargement').length===0")
     # A real TikTok-origin playback error must not trigger automatic navigation.
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
+    assert frame.evaluate('window.credentialless') is True
+    assert 'one_tiktok_test' not in frame.evaluate('document.cookie')
+    assert page.evaluate("localStorage.getItem('one-test-data')")=='keep'
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onPlayerError',value:{errorCode:3001,errorType:'PLAYBACK_ERROR'}},'*')")
     page.wait_for_timeout(1700)
     assert page.evaluate("slides[2].dataset.active==='1' && !v17TikTokIsUnavailable(v17ItemById(slides[2].dataset.id))")
@@ -77,6 +94,8 @@ with sync_playwright() as p:
     page.wait_for_function("slides[2].querySelector('iframe')?.dataset.oneReady==='1'")
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
     frame.wait_for_function("commands.includes('play')")
+    assert frame.evaluate('window.credentialless') is True
+    assert 'one_tiktok_test' not in frame.evaluate('document.cookie')
     assert frame.evaluate('commands')==['unMute','play']
     assert page.locator('iframe').count()==1
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onStateChange',value:1},'*');parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:0}},'*')")
@@ -98,4 +117,4 @@ with sync_playwright() as p:
     assert page.locator('iframe').count()==1
     assert not errors, errors
     browser.close()
-    print('Navigation browser checks passed: stable navigation, one active player from startup, no preloads after progress, isolated retry, sound before play, explicit navigation after error.')
+    print('Navigation browser checks passed: temporary TikTok session excludes an old synthetic cookie, ONE storage preserved, sound before play, one player, explicit recovery and stable navigation.')
