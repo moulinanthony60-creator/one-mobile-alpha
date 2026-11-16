@@ -7,12 +7,15 @@ ROOT = Path(__file__).resolve().parents[1]
 html = (ROOT/'index.html').read_text()
 player = html[html.index('function v17Escape('):html.index('function v17SetupObserver(')]
 ids = [str(7000000000000000000+i) for i in range(8)]
-fixture = '''<!doctype html><meta name="viewport" content="width=device-width"><style>
+fixture = '''<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><style>
 body{margin:0}#vfeedScroller{height:600px;overflow-y:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth}
 .vslide{height:600px;scroll-snap-align:start}.vslideMedia{position:relative;height:100%}iframe{width:100%;height:100%;border:0}
 </style><section id="vfeed" class="show"><div id="vfeedScroller">'''
 fixture += ''.join(f'<article class="vslide" data-platform="tiktok" data-id="tt_ext_{key}"><div class="vslideMedia"><img><button class="vslidePlay">▶</button></div></article>' for key in ids)
 fixture += '</div></section>'
+# Use the real panel positioning so a click exercises the actual retry control.
+panel_start = html.index('.oneTikTokStatus{')
+fixture = fixture.replace('</style>', html[panel_start:html.index('</style>',panel_start)]+'</style>',1)
 
 with sync_playwright() as p:
     browser = p.chromium.launch()
@@ -25,9 +28,9 @@ with sync_playwright() as p:
             request.fulfill(status=200,content_type='text/html',body=fixture)
         elif url.startswith('https://one.test/ui/'):
             name = url.split('/ui/')[1].split('?')[0]
-            request.fulfill(status=200,content_type='text/javascript',body=(ROOT/'ui'/name).read_text())
+            request.fulfill(status=200,content_type='text/javascript; charset=utf-8',body=(ROOT/'ui'/name).read_text())
         elif url.startswith('https://www.tiktok.com/player/v1/'):
-            request.fulfill(status=200,content_type='text/html',body="<script>parent.postMessage({'x-tiktok-player':true,type:'onPlayerReady'},'*')</script>")
+            request.fulfill(status=200,content_type='text/html',body="<script>window.commands=[];addEventListener('message',e=>{if(e.source===parent&&e.data?.['x-tiktok-player']===true)commands.push(e.data.type)});parent.postMessage({'x-tiktok-player':true,type:'onPlayerReady'},'*')</script>")
         else:
             request.abort()
     page.route('**/*',route)
@@ -63,11 +66,27 @@ with sync_playwright() as p:
     assert page.evaluate("slides[2].dataset.active==='1'")
     assert page.evaluate("Math.abs(document.getElementById('vfeedScroller').scrollTop-slides[2].offsetTop)<2")
     assert page.locator('iframe').count()<=4
+    assert page.evaluate("[...document.querySelectorAll('iframe[data-one-preload=\"1\"]')].every(f=>new URL(f.src).searchParams.get('autoplay')==='0')")
     # A real TikTok-origin playback error must not trigger automatic navigation.
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onPlayerError',value:{errorCode:3001,errorType:'PLAYBACK_ERROR'}},'*')")
     page.wait_for_timeout(1700)
     assert page.evaluate("slides[2].dataset.active==='1' && !v17TikTokIsUnavailable(v17ItemById(slides[2].dataset.id))")
+    assert page.locator('iframe').count()==1
+    page.get_by_role('button',name='Réessayer',exact=True).click()
+    page.wait_for_function("slides[2].querySelector('iframe')?.dataset.oneReady==='1'")
+    frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
+    frame.wait_for_function("commands.includes('play')")
+    assert frame.evaluate('commands')==['unMute','play']
+    assert page.locator('iframe').count()==1
+    frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onStateChange',value:1},'*');parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:0}},'*')")
+    page.wait_for_timeout(1000)
+    frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:1}},'*')")
+    page.wait_for_timeout(1000)
+    frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:2}},'*')")
+    page.wait_for_function("document.querySelectorAll('iframe').length===2")
+    # Slot 3 was marked unavailable in the navigation replay; warm the next usable slot.
+    assert page.evaluate("!slides[3].querySelector('iframe') && slides[4].querySelector('iframe')?.dataset.onePreload==='1' && new URL(slides[4].querySelector('iframe').src).searchParams.get('autoplay')==='0'")
     assert not errors, errors
     browser.close()
-    print('Navigation browser checks passed: real loader, stable destination, no preload churn, reverse gesture, 3001 does not skip.')
+    print('Navigation browser checks passed: stable navigation, paused preloads, isolated retry, sound before play, one next preload after real progress.')
