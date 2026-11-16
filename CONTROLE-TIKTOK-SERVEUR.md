@@ -30,7 +30,7 @@ Le Worker ne lit, ne vérifie et ne transmet aucun jeton de session. Aucun accè
 
 ## Données et limites
 
-`GET /health` fournit uniquement des identifiants vidéo et leur dernière lecture réussie, pour sept jours au maximum. `POST /playback` exige une session ONE, une origine autorisée, un corps borné et un identifiant valide. Les erreurs de compte ou de réseau n'expirent pas la session ONE.
+`GET /health` fournit uniquement des identifiants vidéo et leur dernière lecture réussie, pour sept jours au maximum. `POST /playback` exige une origine autorisée, un corps borné et un identifiant valide. Il refuse tout en-tête Authorization et tout champ autre que l'identifiant vidéo et deux secondes de progression. Il n'accède à aucune session ONE.
 
 La collecte ne stocke ni nom, ni jeton, ni IP, ni historique de visionnage par personne. Une limite globale de 120 rapports par minute borne les écritures ; ses compteurs ne contiennent aucun identifiant personnel et sont purgés après deux heures. La table des observations est bornée à 5 000 identifiants vidéo. Les lectures agrégées expirent après sept jours. Le navigateur déduplique les rapports et conserve une preuve locale bornée pendant sept jours. Les invités bénéficient du même signalement positif sans transmettre de session.
 
