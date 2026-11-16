@@ -12,6 +12,9 @@ on:
       - 'ui/tiktok-health*'
       - 'ui/tiktok-availability.js'
       - 'ui/tiktok-public.js'
+      - 'ui/tiktok-playback-health.js'
+      - 'SERVEUR/tiktok-health-worker.mjs'
+      - 'tests/tiktok-playback-health*'
       - 'tests/tiktok-health*'
       - 'tests/tiktok-availability*'
   pull_request:
@@ -21,6 +24,9 @@ on:
       - 'ui/tiktok-health*'
       - 'ui/tiktok-availability.js'
       - 'ui/tiktok-public.js'
+      - 'ui/tiktok-playback-health.js'
+      - 'SERVEUR/tiktok-health-worker.mjs'
+      - 'tests/tiktok-playback-health*'
       - 'tests/tiktok-health*'
       - 'tests/tiktok-availability*'
 
@@ -42,7 +48,10 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.13'
-      - run: node --test tests/tiktok-health.test.cjs tests/tiktok-availability.test.cjs tests/tiktok-playback.test.cjs
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: node --test tests/tiktok-health.test.cjs tests/tiktok-availability.test.cjs tests/tiktok-playback.test.cjs tests/tiktok-playback-health.test.cjs
       - run: python tests/tiktok-health-server-test.py
       - run: python tests/tiktok-health-state-test.py
       - run: pip install -r scripts/tiktok-health-requirements.txt
@@ -114,3 +123,4 @@ jobs:
           path: health-reports/
           retention-days: 30
           if-no-files-found: warn
+

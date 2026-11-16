@@ -13,6 +13,11 @@ spec.loader.exec_module(health)
 
 
 class HealthTests(unittest.TestCase):
+    def setUp(self):
+        telemetry = patch.object(health, 'fetch_app_evidence', return_value=None)
+        telemetry.start()
+        self.addCleanup(telemetry.stop)
+
     def test_catalogue_request_identifies_the_application(self):
         with patch.object(health, 'build_opener') as build:
             opener = build.return_value
@@ -98,7 +103,7 @@ class HealthTests(unittest.TestCase):
             health.write_report(report, Path(tmp))
             body = (Path(tmp) / 'report.md').read_text()
             self.assertIn('1 signalées indisponibles (à confirmer)', body)
-            self.assertIn('Retraits automatiques suspendus', body)
+            self.assertIn('Masquages automatiques suspendus', body)
 
     def test_persisted_cooldown_never_opens_the_browser_or_erases_history(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -110,7 +115,10 @@ class HealthTests(unittest.TestCase):
             with patch.object(sys, 'argv', args), patch.object(health, 'load_catalogue', return_value=[{'id': '11111111', 'status': 'pending'}]), patch.object(health, 'browser_scan') as browser:
                 self.assertEqual(health.main(), 0)
                 browser.assert_not_called()
-            self.assertEqual(json.loads((root/'out/state.json').read_text()), previous)
+            saved = json.loads((root/'out/state.json').read_text())
+            self.assertEqual(saved['records'], previous['records'])
+            self.assertEqual(saved['notBefore'], previous['notBefore'])
+            self.assertFalse(saved['appEvidence']['available'])
             self.assertEqual(json.loads((root/'out/report.json').read_text())['state'], 'cooldown')
 
     def test_corrupt_history_never_starts_scan_or_publishes_empty_withdrawals(self):

@@ -1,79 +1,43 @@
-# Contrôle TikTok : observations serveur à confirmer
+# Contrôle automatique TikTok avec lectures réelles de ONE
 
-Le workflow **Contrôle TikTok en arrière-plan** démarre toutes les six heures
-(minute 17, UTC ; GitHub peut retarder un lancement) et manuellement dans Actions.
-Le téléphone peut être éteint. Un lot contient au plus 40 contrôles séquentiels,
-avec dix secondes entre les lecteurs et trente secondes au plus par vidéo.
+Le contrôle croise les essais du serveur avec les démarrages réellement observés dans ONE. Il ne prétend pas certifier une suppression ni garantir la lecture complète, le son ou tous les appareils.
 
-L’historique est conservé sur la branche `one-tiktok-health-data`, dans
-`state.json`. Chaque passage reprend les vidéos jamais contrôlées avant les
-anciennes observations. Le catalogue est entièrement paginé avant toute écriture.
-Les erreurs sont revérifiées après six heures, les lectures réussies après sept
-jours. Une vidéo précédemment lisible peut servir de référence au début du lot.
+## Comportement
 
-## Portée des preuves
+- Une vidéo avance de deux secondes dans le lecteur actif et visible de ONE : elle redevient visible immédiatement sur cet appareil. ONE transmet seulement son identifiant et une observation positive au service partagé, sans compte, jeton de session ni cookie.
+- Le serveur horodate cette observation. Pendant sept jours, elle protège la vidéo sur tous les appareils et remet sa série d'erreurs à zéro. Aucun signalement négatif provenant d'un navigateur n'est accepté par ce service.
+- Le bot poursuit ses essais du catalogue par lots de 40, toutes les six heures. Les vidéos non testées passent avant les reprises. Une lecture confirmée par le bot remet également les erreurs à zéro.
+- Trois réponses explicites `1001 / invalid_video`, sur trois exécutions distinctes et espacées d'au moins six heures (douze heures au total), peuvent masquer temporairement une vidéo. Chaque exécution qui ajoute une erreur doit aussi avoir réussi à lire une vidéo témoin.
+- Ce masquage exige une collecte ONE disponible et récente, aucune lecture ONE réussie dans les sept derniers jours et des erreurs toutes postérieures à l'ouverture de la collecte. Les anciennes erreurs ne déclenchent donc pas un retrait immédiat à l'activation.
+- Le masquage expire au plus tard 24 heures après la dernière erreur explicite. Les reprises automatiques peuvent le renouveler uniquement avec une nouvelle erreur explicite. Une nouvelle lecture réussie l'annule. La base, les liens personnels et les favoris sont conservés.
+- Une erreur réseau, un délai dépassé, une erreur serveur `2001`, un refus d'autoplay `3002` ou une limitation TikTok ne suffit jamais à masquer. Le bot s'arrête temporairement après huit résultats incertains consécutifs, respecte `Retry-After` et reprend son historique.
+- Si la collecte partagée est absente, périmée ou inaccessible, le bot n'autorise aucun masquage. Le navigateur affiche les vidéos plutôt que d'appliquer un ancien retrait hors ligne.
 
-Une lecture confirmée exige l’état « playing » et au moins deux secondes de
-progression dans le lecteur officiel. L’origine TikTok et la fenêtre source
-sont vérifiées. Cela prouve le démarrage dans cet environnement à cet instant,
-pas la lecture intégrale, le son ou la lecture sur un autre téléphone.
+L'absence de lecture récente n'est pas une preuve de suppression. Cette politique choisit un masquage temporaire et réversible, pas une suppression définitive. Une observation client n'est pas infalsifiable : elle ne peut que restaurer ou protéger une vidéo, jamais en faire retirer une.
 
-Le code 1001 `INVALID_VIDEO` signifie que le lecteur ne trouve pas le média.
-Il reste un **signalement serveur à confirmer dans ONE**, même s’il se répète.
-Plusieurs réponses d’un même lecteur ne sont pas des preuves indépendantes.
-Les erreurs 2001, délais, erreurs réseau et restrictions de lecture automatique
-restent incertains. Aucun résultat ne promet une certitude à 100 %.
+## Installation du service partagé
 
-Les limites TikTok (2005, HTTP 429) et refus HTTP 403 arrêtent le lot avec
-une pause persistante d’au moins 24 heures ; `Retry-After` peut l’allonger.
-Huit observations incertaines consécutives imposent une pause de six heures.
-Aucun changement d’identité, de réseau ou d’origine ne contourne un refus.
+Le fichier **SERVEUR/tiktok-health-worker.mjs** est un Worker autonome, à publier sous **one-tiktok-health** dans le compte Cloudflare utilisant le sous-domaine `moulinanthony60.workers.dev`. Il ne remplace surtout pas `one-comments-api`, qui assure le catalogue, les commentaires et les salons.
 
-## Retraits suspendus et signalements répétés
+1. Créer une base D1 dédiée, par exemple `one-tiktok-health`.
+2. Créer le Worker `one-tiktok-health` avec le contenu exact de `SERVEUR/tiktok-health-worker.mjs`.
+3. Lui ajouter une liaison D1 nommée **HEALTH** vers cette base et déployer. Les trois tables dédiées sont créées automatiquement.
+4. Vérifier `https://one-tiktok-health.moulinanthony60.workers.dev/health` : la réponse doit contenir `ok: true`, `policy: "temporary-v1"`, `startedAt`, `generatedAt` et `entries`.
+5. Ouvrir ONE, laisser une vidéo TikTok progresser deux secondes et vérifier que son identifiant apparaît dans `entries`. Une tentative bloquée ou une vidéo simplement préchargée ne doit pas apparaître.
+6. Le prochain contrôle planifié sur main récupère ces observations. Tant que ce service n'est pas effectivement disponible, les masquages restent automatiquement désactivés.
 
-**Les observations du bot ne déclenchent plus aucun retrait automatique.**
-La liste `hidden.json` publiée reste vide avec la politique `review_required`,
-y compris si un ancien historique contient trois confirmations et `hiddenAt`.
-Le bot continue de parcourir le catalogue et de conserver les observations.
+Le Worker ne lit, ne vérifie et ne transmet aucun jeton de session. Aucun accès au service de profil et aucun secret ne sont requis. Ne pas insérer un jeton GitHub ou Cloudflare dans le frontend.
 
-Trois signaux 1001 sur des exécutions distinctes, espacés d’au moins six heures,
-produisent seulement une entrée dans `reviewRequired` du rapport JSON.
-Chaque passage qui ajoute un signal doit aussi réussir à lire une autre vidéo.
-Le nombre apparaît dans `reviewRequiredCount` ; le rapport indique explicitement
-`automaticWithdrawalsEnabled: false`. Une lecture réussie remet la série à zéro.
-Les anciens compteurs servent au suivi ; ils ne sont pas une autorisation de retrait.
+## Données et limites
 
-La vérification d’un signalement nécessite d’ouvrir le lien dans ONE et sur TikTok.
-Le bot serveur ne sait pas effectuer cette confirmation sur le téléphone de l’utilisateur.
-Une éventuelle future réactivation des retraits devra reposer sur des preuves
-supplémentaires et une modification explicite de cette politique. Aucun bouton,
-réglage ou variable d’environnement ne permet de réactiver les retraits actuels.
+`GET /health` fournit uniquement des identifiants vidéo et leur dernière lecture réussie, pour sept jours au maximum. `POST /playback` exige une origine autorisée, un corps borné et un identifiant valide. Il refuse tout en-tête Authorization et tout champ autre que l'identifiant vidéo et deux secondes de progression. Il n'accède à aucune session ONE.
 
-Aucun contenu TikTok, lien de la base ONE ou favori n’est effacé.
-Le Worker Cloudflare et les lecteurs des utilisateurs ne sont pas modifiés.
-La publication d’une liste vide rétablit les liens au prochain rafraîchissement
-du catalogue. ONE garde au plus cinq minutes la réponse distante en mémoire.
+La collecte ne stocke ni nom, ni jeton, ni IP, ni historique de visionnage par personne. Une limite globale de 120 rapports par minute borne les écritures ; ses compteurs ne contiennent aucun identifiant personnel et sont purgés après deux heures. La table des observations est bornée à 5 000 identifiants vidéo. Les lectures agrégées expirent après sept jours. Le navigateur déduplique les rapports et conserve une preuve locale bornée pendant sept jours. Les invités bénéficient du même signalement positif sans transmettre de session.
 
-## Rapports et validation
+Le fichier `hidden.json` utilise le format 2 et `withdrawalPolicy: "temporary-v1"`, avec une échéance par vidéo. Les listes anciennes ne peuvent pas activer cette politique. Les observations partagées sont actualisées chaque minute quand ONE est visible, sans reconstruire le lecteur actif ni modifier le son. Une restauration partagée peut donc prendre environ une minute, plus les délais réseau.
 
-Les rapports JSON/Markdown distinguent les lectures démarrées, les vidéos
-**signalées indisponibles (à confirmer)**, les erreurs incertaines et les vidéos
-non testées. Ils conservent les dates, le nombre testé pendant le passage et
-les signalements répétés à examiner. Les artefacts restent disponibles 30 jours.
-Le statut rouge GitHub peut signaler des observations incertaines ; il ne prouve
-pas une indisponibilité et n’indique pas la fin du passage sur tout le catalogue.
+## Rapports et vérification
 
-Le jeton GitHub Actions est transmis uniquement aux étapes de stockage, jamais
-au navigateur. Le script écrit deux fichiers sur la branche de données, jamais
-sur `main`, et refuse les écritures concurrentes. Un historique corrompu ou
-inaccessible n’est pas remplacé. Le contrôle de diagnostic ne publie pas de données.
+La branche `one-tiktok-health-data` conserve `state.json` et `hidden.json`. `state.json.lastRun` désigne l'exécution ayant publié l'avancement. Le rapport distingue vidéos parcourues, démarrages serveur, signalements indisponibles, résultats incertains, vidéos non testées, lectures ONE et masquages temporaires. Un lot terminé ou une exécution GitHub rouge ne signifie pas que tout le catalogue a été parcouru.
 
-Tests :
-
-- `node --test tests/tiktok-health.test.cjs tests/tiktok-availability.test.cjs tests/tiktok-playback.test.cjs`
-- `python tests/tiktok-health-server-test.py`
-- `python tests/tiktok-health-state-test.py`
-- `python tests/tiktok-health-browser.py`
-- `python tests/tiktok-availability-browser.py`
-
-Référence du lecteur : https://developers.tiktok.com/docs/en/embed-player
+Les tests vérifient les messages inter-origines, deux secondes de progression réelle, les préchargements et onglets cachés, l’absence de transmission de credentials, les requêtes SQL sur SQLite, la limitation de débit, la protection de sept jours, l'expiration de 24 heures, la restauration locale/partagée et le comportement sans collecte. Les tests du lecteur et du son existants sont conservés.

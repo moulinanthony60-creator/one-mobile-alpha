@@ -1,4 +1,4 @@
-"""Persistent server observations. They cannot prove unavailability on a user's device."""
+"""Temporary feed masking, cancelled by recent playback observations from ONE."""
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -8,6 +8,42 @@ MIN_GAP = 6 * 3600
 HEALTHY_TTL = 7 * 24 * 3600
 THRESHOLD = 3
 MAX_ROWS = 5000
+APP_TTL = 7 * 86400
+HIDE_TTL = 86400
+
+
+def app_snapshot(state, payload, timestamp):
+    """Reject partial/stale telemetry; missing telemetry always disables masking."""
+    snapshot = {"available": False, "checkedAt": iso(timestamp)}
+    try:
+        generated, started = epoch(payload.get("generatedAt")), epoch(payload.get("startedAt"))
+        rows = payload.get("entries")
+        if (payload.get("ok") is not True or payload.get("version") != 1
+                or payload.get("policy") != "temporary-v1" or not generated or abs(timestamp-generated) > 300
+                or not started or started > generated or not isinstance(rows, list) or len(rows) > MAX_ROWS):
+            raise ValueError()
+        played = {}
+        for row in rows:
+            key, at = row.get("id"), epoch(row.get("playedAt"))
+            if (not isinstance(key, str) or not re.fullmatch(r"\d{8,24}", key, re.ASCII)
+                    or not at or not started <= at <= generated or generated-at > APP_TTL or key in played):
+                raise ValueError()
+            played[key] = row["playedAt"]
+        snapshot.update(available=True, startedAt=payload["startedAt"], played=played)
+    except (AttributeError, TypeError, ValueError):
+        pass
+    result = {**state, "appEvidence": snapshot, "records": {key: dict(row) for key, row in state["records"].items()}}
+    if snapshot["available"]:
+        for key, record in result["records"].items():
+            last_played = epoch(snapshot["played"].get(key))
+            # Neither pre-collection failures nor failures before a playback can count.
+            if (epoch(record.get("firstUnavailableAt")) < epoch(snapshot["startedAt"])
+                    or last_played > epoch(record.get("lastUnavailableAt"))
+                    or (last_played and timestamp-last_played < APP_TTL)):
+                record["confirmations"] = 0
+                for field in ("firstUnavailableAt", "lastUnavailableAt", "confirmationRun", "confirmationRuns", "hiddenAt"):
+                    record.pop(field, None)
+    return result
 
 
 def epoch(value):
@@ -79,6 +115,7 @@ def finalize(state, rows, run_id, started_at, stop_reason, timestamp):
                 record.pop(field, None)
         elif (healthy and row["status"] == "unavailable" and row.get("code") == 1001
               and row.get("reason") == "invalid_video" and old.get("confirmationRun") != run_id and run_id not in old.get("confirmationRuns", [])
+              and not (epoch(state.get("appEvidence", {}).get("played", {}).get(key)) and timestamp - epoch(state["appEvidence"]["played"][key]) < APP_TTL)
               and (not old.get("lastUnavailableAt") or timestamp - epoch(old["lastUnavailableAt"]) >= MIN_GAP)):
             record["confirmations"] = min(THRESHOLD, record["confirmations"] + 1)
             record.setdefault("firstUnavailableAt", row["checkedAt"])
@@ -90,7 +127,8 @@ def finalize(state, rows, run_id, started_at, stop_reason, timestamp):
     delay = max([delay] + [row.get("retryAfterSeconds", 0) for row in tested])
     return {"version": 2, "records": records, "notBefore": iso(timestamp + delay) if delay else None,
             "updatedAt": iso(timestamp), "lastRun": run_id, "lastRunStartedAt": started_at,
-            "lastStopReason": stop_reason, "healthyPlaybackObserved": healthy}
+            "lastStopReason": stop_reason, "healthyPlaybackObserved": healthy,
+            "appEvidence": state.get("appEvidence", {"available": False})}
 
 
 def review_candidates(state):
@@ -105,10 +143,24 @@ def review_candidates(state):
 
 
 def manifest(state):
-    # Repeating the same embedded-player error is not independent proof.
-    # This gate also rejects hiddenAt records written by the older policy.
-    return {"version": 1, "generatedAt": state.get("updatedAt"), "entries": [],
-            "withdrawalPolicy": "review_required"}
+    stamp = epoch(state.get("updatedAt"))
+    evidence = state.get("appEvidence", {})
+    checked, started = epoch(evidence.get("checkedAt")), epoch(evidence.get("startedAt"))
+    active = evidence.get("available") is True and stamp and started and 0 <= stamp-checked <= 3600
+    rows = []
+    if active:
+        for row in review_candidates(state):
+            record = state["records"][row["id"]]
+            last, first = epoch(row["lastUnavailableAt"]), epoch(row["firstUnavailableAt"])
+            played = epoch(evidence.get("played", {}).get(row["id"]))
+            # Only a current explicit failure can renew a 24-hour mask.
+            # Legacy strikes and unknown/server/network errors cannot do so.
+            if (record.get("status") == "unavailable" and record.get("reason") == "invalid_video" and record.get("code") == 1001
+                    and first >= started and last <= stamp < last+HIDE_TTL
+                    and (not played or stamp-played >= APP_TTL)):
+                rows.append({**row, "hiddenUntil": iso(last+HIDE_TTL)})
+    return {"version": 2, "generatedAt": state.get("updatedAt"), "entries": rows,
+            "withdrawalPolicy": "temporary-v1", "appEvidenceAvailable": bool(active)}
 
 
 def save(state, directory):
