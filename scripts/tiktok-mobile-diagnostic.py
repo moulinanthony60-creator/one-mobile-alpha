@@ -8,6 +8,7 @@ Only the diagnostic branch invokes this file.
 """
 import json
 import time
+from pathlib import Path
 from email.utils import parsedate_to_datetime
 from urllib.parse import urlsplit, parse_qs
 from playwright.sync_api import sync_playwright, TimeoutError as BrowserTimeout
@@ -15,6 +16,7 @@ from playwright.sync_api import sync_playwright, TimeoutError as BrowserTimeout
 IDS = ['7666374455538617633', '7691588560222260513']
 CATALOGUE = 'https://one-comments-api.moulinanthony60.workers.dev/catalog/tiktok'
 ORIGIN = 'https://www.tiktok.com'
+ROOT = Path(__file__).resolve().parents[1]
 ENTRY = [{'id': i, 'url': f'{ORIGIN}/@_/video/{i}', 'title': 'Diagnostic de lecture',
           'creator': 'Diagnostic ONE', 'addedAt': 1} for i in IDS]
 
@@ -83,7 +85,12 @@ with sync_playwright() as p:
             page.on('requestfailed', failed)
             def route(request):
                 req = request.request
-                if req.url.split('?')[0] == CATALOGUE and req.method == 'GET':
+                target = urlsplit(req.url)
+                if target.hostname == 'one-officiel.fr' and target.path == '/' and req.method == 'GET':
+                    request.fulfill(status=200, content_type='text/html; charset=utf-8', body=(ROOT/'index.html').read_bytes())
+                elif target.hostname == 'one-officiel.fr' and target.path == '/ui/tiktok-health-core.js' and req.method == 'GET':
+                    request.fulfill(status=200, content_type='text/javascript; charset=utf-8', body=(ROOT/'ui/tiktok-health-core.js').read_bytes())
+                elif req.url.split('?')[0] == CATALOGUE and req.method == 'GET':
                     request.fulfill(status=200, content_type='application/json',
                                     headers={'Access-Control-Allow-Origin': 'https://one-officiel.fr'},
                                     body=json.dumps({'ok': True, 'entries': ENTRY, 'cursor': None}))
@@ -142,6 +149,7 @@ with sync_playwright() as p:
                               'stoppedOnAccessOrRateLimit': stopped}
                     if mode.endswith('ONE'):
                         result['frames'] = page.locator('#vfeed iframe').count()
+                        result['isolated'] = frame.evaluate('window.credentialless') if frame else None
                         result['errors'] = page.evaluate("(window.oneTikTokDiagnostic||[]).filter(e=>e.event==='onPlayerError').map(e=>({code:e.errorCode,type:e.errorType,player:e.lecteur}))")
                     emit(result)
                     page.wait_for_timeout(10000 if index < 2 and not stopped else 1)
