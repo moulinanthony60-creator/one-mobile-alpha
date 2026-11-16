@@ -571,8 +571,8 @@ test('deferred startup repair stays silent while hidden, inactive or deliberatel
 
 // Replay the repeated unavailable-slot callbacks reported by the Android diagnostic.
 const navigation=require('../ui/tiktok-navigation.js');
-function navigationSetup(){
- const r=setup(8),root=new Element('div');root.style.scrollBehavior='smooth';
+function navigationSetup(soundPreference){
+ const r=setup(8,soundPreference),root=new Element('div');root.style.scrollBehavior='smooth';
  r.document.getElementById=id=>id==='vfeed'?r.feed:id==='vfeedScroller'?root:null;
  root.removeEventListener=(type,fn)=>{if(root.handlers?.[type]===fn)delete root.handlers[type];};
  const created=[];const create=r.document.createElement;
@@ -621,4 +621,57 @@ test('the navigation guard preserves immediate sound and the existing stop after
  r.message(frame,'onPlayerReady');assert(frame.messages.some(m=>m.data.type==='unMute'));
  for(let i=0;i<3;i++){r.message(r.frame(r.slides[i]),'onPlayerError',{errorCode:1001});r.tick(1500);assert.equal(r.slides[i+1].dataset.active,'1');}
  r.message(r.frame(r.slides[3]),'onPlayerError',{errorCode:1001});r.tick(2000);assert.equal(r.slides[3].dataset.active,'1');
+});
+
+function recoverySetup(soundPreference){
+ const r=navigationSetup(soundPreference);
+ const handlers={},add=r.context.addEventListener;
+ r.context.addEventListener=(name,fn)=>{handlers[name]=fn;add(name,fn);};
+ const stop=r.install();
+ const proof=id=>handlers['one-tiktok-playback']({detail:{id}});
+ return {...r,proof,stop};
+}
+test('preloads are created paused while active URLs keep their sound and autoplay choice',()=>{
+ const r=recoverySetup();r.context.v17ActivateSlide(r.slides[2]);
+ assert.equal(new URL(r.frame(r.slides[2]).src).searchParams.get('autoplay'),'1');
+ for(const i of [1,3,4]){const f=r.frame(r.slides[i]);assert.equal(new URL(f.src).searchParams.get('autoplay'),'0');assert.equal(new URL(f.src).searchParams.get('muted'),'0');assert.equal(f.srcWrites,1);}
+ const next=r.frame(r.slides[3]);r.message(next,'onPlayerReady');const before=next.messages.length;
+ r.context.v17ActivateSlide(r.slides[3]);assert.deepEqual(next.messages.slice(before).map(m=>m.data.type),['unMute','play']);assert.equal(next.srcWrites,1);
+});
+test('a playback failure releases background frames without reloading or leaving the active one',()=>{
+ const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s),created=r.created.length;
+ r.message(f,'onPlayerError',{errorCode:3001,errorType:'PLAYBACK_ERROR'});
+ assert.equal(r.document.querySelectorAll('iframe').length,1);assert.equal(r.frame(s),f);assert.equal(r.created.length,created);
+ r.context.v120PrewarmAround(s);r.context.v124PreloadTikTokSlide(r.slides[3]);
+ assert.equal(r.document.querySelectorAll('iframe').length,1);assert.equal(r.created.length,created);
+ r.context.v17StepSlide(s,1);assert.equal(r.document.querySelectorAll('iframe').length,1);assert.equal(r.slides[3].dataset.active,'1');
+});
+test('explicit retry creates one isolated frame and requests sound then playback only once',()=>{
+ const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);let f=r.frame(s);
+ r.message(f,'onPlayerError',{errorCode:3001});const button=r.button(s,'Réessayer');assert(button);
+ const click=()=>button.onclick({stopPropagation(){}});const before=r.created.length;click();f=r.frame(s);
+ assert.equal(r.created.length,before+1);assert.equal(r.document.querySelectorAll('iframe').length,1);
+ assert.equal(new URL(f.src).searchParams.get('autoplay'),'0');r.message(f,'onPlayerReady');r.message(f,'onPlayerReady');
+ assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);click();assert.equal(r.created.length,before+1);
+});
+test('only a visible active playback proof allows one paused next preload after an error',()=>{
+ const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s);
+ r.message(f,'onPlayerError',{errorCode:3001});r.playing(f);
+ r.proof('99999999');assert.equal(r.document.querySelectorAll('iframe').length,1);
+ r.document.hidden=true;r.proof(r.items.get(s.dataset.id).tiktokId);assert.equal(r.document.querySelectorAll('iframe').length,1);
+ r.document.hidden=false;s.dataset.oneUserPaused='1';r.proof(r.items.get(s.dataset.id).tiktokId);assert.equal(r.document.querySelectorAll('iframe').length,1);
+ s.dataset.oneUserPaused='0';r.proof(r.items.get(s.dataset.id).tiktokId);
+ assert.equal(r.document.querySelectorAll('iframe').length,2);assert.equal(r.frame(s),f);assert(r.frame(r.slides[3]));assert.equal(r.frame(r.slides[1]),null);assert.equal(r.frame(r.slides[4]),null);
+ assert.equal(new URL(r.frame(r.slides[3]).src).searchParams.get('autoplay'),'0');
+});
+test('recovery never triggers an automatic retry or marks 3001 as unavailable',()=>{
+ const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s),created=r.created.length;
+ for(let i=0;i<6;i++){r.message(f,'onPlayerError',{errorCode:3001});r.tick(2000);}
+ assert.equal(r.created.length,created);assert.equal(r.frame(s),f);assert.equal(s.dataset.active,'1');assert.equal(r.context.v17TikTokIsUnavailable(r.items.get(s.dataset.id)),false);
+});
+test('isolated retry respects a deliberately saved mute before requesting play',()=>{
+ const r=recoverySetup('1'),s=r.slides[2];r.context.v17ActivateSlide(s);
+ r.message(r.frame(s),'onPlayerError',{errorCode:3001});r.button(s,'Réessayer').onclick({stopPropagation(){}});
+ const f=r.frame(s);r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
+ assert.equal(r.storage.get('one_tiktok_sound_v3'),'1');
 });
