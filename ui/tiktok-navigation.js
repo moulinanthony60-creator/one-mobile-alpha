@@ -1,4 +1,4 @@
-/* Stable navigation, paused preloads and a single-player recovery after errors. */
+/* Stable navigation with one TikTok player and user-driven recovery only. */
 (function(root,factory){
  const api=factory();
  if(typeof module==='object'&&module.exports)module.exports=api;
@@ -10,37 +10,29 @@
   if(typeof activate!=='function'||typeof step!=='function')return {stop(){}};
   let redirects=new WeakMap();
   const root=doc.getElementById('vfeedScroller');
-  const playerUrl=host.v17PlayerUrl,preload=host.v124PreloadTikTokSlide,neighbors=host.v17TikTokNeighbors,fallback=host.v17TikTokFallback;
-  let preloadDepth=0,recovery=false;
-  const confirmed=new WeakSet(),retried=new WeakMap();
+  const preload=host.v124PreloadTikTokSlide,neighbors=host.v17TikTokNeighbors,fallback=host.v17TikTokFallback;
+  let recovery=false;
+  const retried=new WeakMap();
   function isolate(slide){
    if(!slide||slide.dataset.platform!=='tiktok'||slide.getAttribute('data-active')!=='1')return;
    if(!recovery)host.oneTTTrace?.('lecture isolée après erreur',slide,slide.querySelector('iframe'));
    recovery=true;
-   const frame=slide.querySelector('iframe');if(frame)confirmed.delete(frame);
    doc.querySelectorAll('.vslide[data-platform="tiktok"]').forEach(other=>{if(other!==slide)host.v17RestoreSlide(other);});
   }
-  function source(item){
-   const src=playerUrl.call(this,item);
-   if(!preloadDepth||item?.p!=='tiktok'||!src)return src;
-   const url=new URL(src);url.searchParams.set('autoplay','0');
-   return url.href;
-  }
-  function surrounding(slide){
-   if(!recovery)return neighbors.call(this,slide);
-   const frame=slide?.querySelector('iframe');
-   if(!frame||!confirmed.has(frame)||doc.hidden||!doc.getElementById('vfeed')?.classList.contains('show'))return [];
-   const next=host.v17NextPlayableSlide(slide,1);
-   return next?.dataset.platform==='tiktok'?[next]:[];
-  }
-  function warm(slide){
-   if(recovery){const active=doc.querySelector('.vslide[data-active="1"]');if(!surrounding(active).includes(slide))return;}
-   preloadDepth++;
-   try{return preload.call(this,slide);}finally{preloadDepth--;}
-  }
+  // Even a paused iframe loads TikTok resources. Do not request neighbours,
+  // including after successful playback or through delayed refill callbacks.
+  function surrounding(){return [];}
+  function warm(){}
   function failed(slide,reason='network'){
    if(reason==='network'||reason==='slow')isolate(slide);
    const result=fallback.call(this,slide,reason);
+   if(reason==='invalid'&&slide?.getAttribute('data-active')==='1'){
+    host.clearTimeout(slide._ttSkipTimer);
+    const panel=slide.querySelector('.oneTikTokStatus'),message=panel?.querySelector('p');
+    if(message)message.textContent='Cette vidéo est indisponible dans le lecteur TikTok.';
+    // No automatic next-video request on failure; keep the explicit Next button.
+    for(const button of panel?.querySelectorAll('button')||[])if(button.textContent==='Rester ici')button.remove();
+   }
    if(!['network','slow'].includes(reason)||slide?.getAttribute('data-active')!=='1')return result;
    // The network/slow fallback puts retry first; do not depend on translated text.
    const retry=slide.querySelector('.oneTikTokStatus button');
@@ -56,15 +48,10 @@
    };
    return result;
   }
-  function played(event){
-   if(!recovery||doc.hidden||!doc.getElementById('vfeed')?.classList.contains('show'))return;
-   const slide=doc.querySelector('.vslide[data-active="1"]'),frame=slide?.querySelector('iframe');
-   if(!frame||slide.dataset.oneUserPaused==='1'||slide.dataset.ttPlaying!=='1'||slide.dataset.ttTimeAdvanced!=='1')return;
-   if(host.v17RawTikTokId(host.v17ItemById(slide.dataset.id))!==event.detail?.id)return;
-   confirmed.add(frame);host.v120PrewarmAround(slide);
-  }
-  host.v17PlayerUrl=source;host.v124PreloadTikTokSlide=warm;host.v17TikTokNeighbors=surrounding;host.v17TikTokFallback=failed;
-  host.addEventListener('one-tiktok-playback',played);
+  host.v124PreloadTikTokSlide=warm;host.v17TikTokNeighbors=surrounding;host.v17TikTokFallback=failed;
+  // The loader may run after the feed has already opened. Release older preloads.
+  const current=doc.querySelector('.vslide[data-active="1"]');
+  doc.querySelectorAll('.vslide[data-platform="tiktok"]').forEach(slide=>{if(slide!==current)host.v17RestoreSlide(slide);});
   const cancel=()=>{redirects=new WeakMap();};
   const unavailable=slide=>!!slide&&host.v17TikTokIsUnavailable(host.v17ItemById(slide.dataset.id));
   function move(slide){
@@ -85,6 +72,7 @@
    return activate.call(this,target);
   }
   function advance(slide,direction,automatic=false){
+   if(automatic&&slide?.dataset.platform==='tiktok')return;
    const target=host.v17NextPlayableSlide(slide,direction);
    if(!target||slide?.dataset.platform!=='tiktok')return step.call(this,slide,direction,automatic);
    // Intermediate failed slots may still occur in a queued observer callback.
@@ -104,11 +92,9 @@
   return {stop(){
    if(host.v17ActivateSlide===move)host.v17ActivateSlide=activate;
    if(host.v17StepSlide===advance)host.v17StepSlide=step;
-   if(host.v17PlayerUrl===source)host.v17PlayerUrl=playerUrl;
    if(host.v124PreloadTikTokSlide===warm)host.v124PreloadTikTokSlide=preload;
    if(host.v17TikTokNeighbors===surrounding)host.v17TikTokNeighbors=neighbors;
    if(host.v17TikTokFallback===failed)host.v17TikTokFallback=fallback;
-   host.removeEventListener?.('one-tiktok-playback',played);
    for(const type of ['pointerdown','wheel','keydown'])root?.removeEventListener(type,cancel);
    cancel();
   }};
