@@ -13,6 +13,9 @@ body{margin:0}#vfeedScroller{height:600px;overflow-y:auto;scroll-snap-type:y man
 </style><section id="vfeed" class="show"><div id="vfeedScroller">'''
 fixture += ''.join(f'<article class="vslide" data-platform="tiktok" data-id="tt_ext_{key}"><div class="vslideMedia"><img><button class="vslidePlay">▶</button></div></article>' for key in ids)
 fixture += '</div></section>'
+# Use the real panel positioning so a click exercises the actual retry control.
+panel_start = html.index('.oneTikTokStatus{')
+fixture = fixture.replace('</style>', html[panel_start:html.index('</style>',panel_start)]+'</style>',1)
 
 with sync_playwright() as p:
     browser = p.chromium.launch()
@@ -73,6 +76,7 @@ with sync_playwright() as p:
     page.get_by_role('button',name='Réessayer',exact=True).click()
     page.wait_for_function("slides[2].querySelector('iframe')?.dataset.oneReady==='1'")
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
+    frame.wait_for_function("commands.includes('play')")
     assert frame.evaluate('commands')==['unMute','play']
     assert page.locator('iframe').count()==1
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onStateChange',value:1},'*');parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:0}},'*')")
