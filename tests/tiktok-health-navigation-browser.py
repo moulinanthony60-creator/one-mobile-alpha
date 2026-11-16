@@ -118,3 +118,9 @@ with sync_playwright() as p:
     assert not errors, errors
     browser.close()
     print('Navigation browser checks passed: temporary TikTok session excludes an old synthetic cookie, ONE storage preserved, sound before play, one player, explicit recovery and stable navigation.')
+
+# This temporary diagnostic runs only on this isolated PR branch.
+import os
+if os.environ.get('GITHUB_HEAD_REF') == 'codex/diagnostic-tiktok-exact':
+    import runpy
+    runpy.run_path(str(ROOT / 'scripts/tiktok-exact-network-diagnostic.py'), run_name='__main__')
