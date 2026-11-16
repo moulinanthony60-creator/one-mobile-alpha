@@ -286,8 +286,8 @@
     "7688805958633475361": {
       "status": "played",
       "reason": "time_advanced",
-      "seconds": 2.47,
-      "checkedAt": "2026-11-16T09:10:19.837584+00:00",
+      "seconds": 2.66,
+      "checkedAt": "2026-11-16T09:31:14.063927+00:00",
       "confirmations": 0
     },
     "7692563872405851425": {
@@ -1980,7 +1980,7 @@
       "status": "unknown",
       "reason": "player_error",
       "code": 3001,
-      "checkedAt": "2026-11-15T06:54:13.520837+00:00",
+      "checkedAt": "2026-11-16T09:31:54.075299+00:00",
       "confirmations": 0
     },
     "7689385791318969633": {
@@ -2015,13 +2015,14 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-15T06:55:21.430077+00:00",
-      "confirmations": 1,
+      "checkedAt": "2026-11-16T09:32:04.503955+00:00",
+      "confirmations": 2,
       "firstUnavailableAt": "2026-11-15T06:55:21.430077+00:00",
-      "lastUnavailableAt": "2026-11-15T06:55:21.430077+00:00",
-      "confirmationRun": "43686858662",
+      "lastUnavailableAt": "2026-11-16T09:32:04.503955+00:00",
+      "confirmationRun": "43840192283",
       "confirmationRuns": [
-        "43686858662"
+        "43686858662",
+        "43840192283"
       ]
     },
     "7689856983263890721": {
@@ -2035,13 +2036,14 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-15T06:55:46.979514+00:00",
-      "confirmations": 1,
+      "checkedAt": "2026-11-16T09:32:14.885609+00:00",
+      "confirmations": 2,
       "firstUnavailableAt": "2026-11-15T06:55:46.979514+00:00",
-      "lastUnavailableAt": "2026-11-15T06:55:46.979514+00:00",
-      "confirmationRun": "43686858662",
+      "lastUnavailableAt": "2026-11-16T09:32:14.885609+00:00",
+      "confirmationRun": "43840192283",
       "confirmationRuns": [
-        "43686858662"
+        "43686858662",
+        "43840192283"
       ]
     },
     "7689519713348504865": {
@@ -2055,13 +2057,14 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-15T06:56:11.776991+00:00",
-      "confirmations": 1,
+      "checkedAt": "2026-11-16T09:32:25.614296+00:00",
+      "confirmations": 2,
       "firstUnavailableAt": "2026-11-15T06:56:11.776991+00:00",
-      "lastUnavailableAt": "2026-11-15T06:56:11.776991+00:00",
-      "confirmationRun": "43686858662",
+      "lastUnavailableAt": "2026-11-16T09:32:25.614296+00:00",
+      "confirmationRun": "43840192283",
       "confirmationRuns": [
-        "43686858662"
+        "43686858662",
+        "43840192283"
       ]
     },
     "7690212757374766369": {
@@ -2110,33 +2113,35 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-15T18:58:56.573290+00:00",
-      "confirmations": 1,
+      "checkedAt": "2026-11-16T09:32:36.031938+00:00",
+      "confirmations": 2,
       "firstUnavailableAt": "2026-11-15T18:58:56.573290+00:00",
-      "lastUnavailableAt": "2026-11-15T18:58:56.573290+00:00",
-      "confirmationRun": "43749529765",
+      "lastUnavailableAt": "2026-11-16T09:32:36.031938+00:00",
+      "confirmationRun": "43840192283",
       "confirmationRuns": [
-        "43749529765"
+        "43749529765",
+        "43840192283"
       ]
     },
     "7688044174641220896": {
-      "status": "unknown",
-      "reason": "server_error",
-      "code": 2001,
-      "checkedAt": "2026-11-15T18:59:36.581748+00:00",
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.51,
+      "checkedAt": "2026-11-16T09:32:49.870734+00:00",
       "confirmations": 0
     },
     "7689829485851561249": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-15T18:59:46.996538+00:00",
-      "confirmations": 1,
+      "checkedAt": "2026-11-16T09:33:00.244885+00:00",
+      "confirmations": 2,
       "firstUnavailableAt": "2026-11-15T18:59:46.996538+00:00",
-      "lastUnavailableAt": "2026-11-15T18:59:46.996538+00:00",
-      "confirmationRun": "43749529765",
+      "lastUnavailableAt": "2026-11-16T09:33:00.244885+00:00",
+      "confirmationRun": "43840192283",
       "confirmationRuns": [
-        "43749529765"
+        "43749529765",
+        "43840192283"
       ]
     },
     "7690219097530944800": {
@@ -2157,13 +2162,14 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-15T19:00:27.016862+00:00",
-      "confirmations": 1,
+      "checkedAt": "2026-11-16T09:33:12.385864+00:00",
+      "confirmations": 2,
       "firstUnavailableAt": "2026-11-15T19:00:27.016862+00:00",
-      "lastUnavailableAt": "2026-11-15T19:00:27.016862+00:00",
-      "confirmationRun": "43749529765",
+      "lastUnavailableAt": "2026-11-16T09:33:12.385864+00:00",
+      "confirmationRun": "43840192283",
       "confirmationRuns": [
-        "43749529765"
+        "43749529765",
+        "43840192283"
       ]
     },
     "7689514106843368737": {
@@ -2240,26 +2246,28 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-15T19:03:01.098043+00:00",
-      "confirmations": 1,
+      "checkedAt": "2026-11-16T09:33:22.825552+00:00",
+      "confirmations": 2,
       "firstUnavailableAt": "2026-11-15T19:03:01.098043+00:00",
-      "lastUnavailableAt": "2026-11-15T19:03:01.098043+00:00",
-      "confirmationRun": "43749529765",
+      "lastUnavailableAt": "2026-11-16T09:33:22.825552+00:00",
+      "confirmationRun": "43840192283",
       "confirmationRuns": [
-        "43749529765"
+        "43749529765",
+        "43840192283"
       ]
     },
     "7690380336601074976": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-15T19:03:11.533235+00:00",
-      "confirmations": 1,
+      "checkedAt": "2026-11-16T09:33:33.109583+00:00",
+      "confirmations": 2,
       "firstUnavailableAt": "2026-11-15T19:03:11.533235+00:00",
-      "lastUnavailableAt": "2026-11-15T19:03:11.533235+00:00",
-      "confirmationRun": "43749529765",
+      "lastUnavailableAt": "2026-11-16T09:33:33.109583+00:00",
+      "confirmationRun": "43840192283",
       "confirmationRuns": [
-        "43749529765"
+        "43749529765",
+        "43840192283"
       ]
     },
     "7685111971552759054": {
@@ -2305,10 +2313,10 @@
       "confirmations": 0
     },
     "7689816102074993952": {
-      "status": "unknown",
-      "reason": "server_error",
-      "code": 2001,
-      "checkedAt": "2026-11-15T19:05:18.642645+00:00",
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.45,
+      "checkedAt": "2026-11-16T09:33:47.246419+00:00",
       "confirmations": 0
     },
     "7688495153790684448": {
@@ -2611,13 +2619,13 @@
     }
   },
   "notBefore": null,
-  "updatedAt": "2026-11-16T09:17:37.445203+00:00",
-  "lastRun": "43836952781",
-  "lastRunStartedAt": "2026-11-16T09:10:07.474707+00:00",
-  "lastStopReason": "batch_limit",
+  "updatedAt": "2026-11-16T09:33:47.841926+00:00",
+  "lastRun": "43840192283",
+  "lastRunStartedAt": "2026-11-16T09:31:07.665536+00:00",
+  "lastStopReason": "complete",
   "healthyPlaybackObserved": true,
   "appEvidence": {
     "available": false,
-    "checkedAt": "2026-11-16T09:17:37.445067+00:00"
+    "checkedAt": "2026-11-16T09:33:47.841751+00:00"
   }
 }
