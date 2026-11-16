@@ -34,7 +34,7 @@ with sync_playwright() as p:
     browser = p.chromium.launch()
     stopped = False
     try:
-        for mode in ['ONE', 'officiel']:
+        for mode in ['ONE']:
             if stopped:
                 break
             context = browser.new_context(**p.devices['Pixel 5'], service_workers='block')
@@ -97,10 +97,14 @@ with sync_playwright() as p:
                         break
                     rows.clear()
                     failures.clear()
+                    trace_start = 0 if index == 0 else page.evaluate('(window.oneTikTokDiagnostic||[]).length')
                     if mode == 'officiel':
                         page.goto(f'{ORIGIN}/player/v1/{video_id}?autoplay=1&muted=1', wait_until='domcontentloaded', timeout=25000)
                     elif index:
                         page.locator('#vfeedScroller').evaluate('(el)=>el.scrollTo({top:el.clientHeight,behavior:"instant"})')
+                    if mode == 'ONE':
+                        page.wait_for_timeout(700)
+                        video_id = page.evaluate("v17RawTikTokId(v17ItemById(document.querySelector('.vslide[data-active=\"1\"]').dataset.id))")
                     last = None
                     deadline = time.monotonic() + 15
                     while time.monotonic() < deadline:
@@ -124,11 +128,11 @@ with sync_playwright() as p:
                             except Exception:
                                 pass
                         elif mode == 'ONE' and page.locator('.vslide[data-active="1"] .oneTikTokStatus').count():
-                            if page.locator('.vslide[data-active="1"]').get_attribute('data-id') == video_id:
+                            if page.locator('.vslide[data-active="1"]').get_attribute('data-id').endswith(video_id):
                                 last = {'ONEStatus': page.locator('.vslide[data-active="1"] .oneTikTokStatus p').inner_text()}
                                 break
                         page.wait_for_timeout(500)
-                    errors = [] if mode != 'ONE' else page.evaluate("(window.oneTikTokDiagnostic||[]).filter(e=>e.event==='onPlayerError').map(e=>({code:e.errorCode,type:e.errorType}))")
+                    errors = [] if mode != 'ONE' else page.evaluate("start=>(window.oneTikTokDiagnostic||[]).slice(start).filter(e=>e.event==='onPlayerError').map(e=>({code:e.errorCode,type:e.errorType}))", trace_start)
                     emit({'mode': mode, 'video': video_id, 'observed': last, 'network': rows, 'failures': failures, 'errors': errors, 'stopped': stopped})
                     if not stopped:
                         page.wait_for_timeout(10000)
