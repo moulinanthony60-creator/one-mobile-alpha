@@ -29,16 +29,44 @@ def cycle(state, hour, run=None, status='unavailable', code=1001, reason='invali
 
 
 class EvidenceTests(unittest.TestCase):
-    def test_three_spaced_confirmations_hide_and_success_restores(self):
+    def test_three_spaced_confirmations_require_review_without_hiding(self):
         state = policy.empty()
         for hour in [0, 6]:
             state = cycle(state, hour)
             self.assertEqual(policy.manifest(state)['entries'], [])
         state = cycle(state, 12)
-        self.assertEqual([x['id'] for x in policy.manifest(state)['entries']], [BAD])
+        self.assertEqual([x['id'] for x in policy.review_candidates(state)], [BAD])
+        self.assertEqual(policy.manifest(state)['entries'], [])
+        self.assertNotIn('hiddenAt', state['records'][BAD])
         state = cycle(state, 18, status='played', code=None, reason='time_advanced')
         self.assertEqual(policy.manifest(state)['entries'], [])
         self.assertEqual(state['records'][BAD]['confirmations'], 0)
+        self.assertEqual(policy.review_candidates(state), [])
+
+    def test_even_many_repeated_signals_cannot_authorize_withdrawal(self):
+        state = policy.empty()
+        for hour in range(0, 61, 6):
+            state = cycle(state, hour)
+        self.assertEqual(len(policy.review_candidates(state)), 1)
+        self.assertEqual(policy.manifest(state)['entries'], [])
+
+    def test_legacy_hidden_evidence_cannot_reach_publication(self):
+        state = cycle(cycle(cycle(policy.empty(), 0), 6), 12)
+        state['records'][BAD]['hiddenAt'] = policy.iso(BASE + 12 * 3600)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            policy.save(state, root)
+            (root / 'base.json').write_text('{"sha":"base"}')
+            calls = []
+            def api(method, path, data=None):
+                calls.append((method, path, data))
+                return {'object': {'sha': 'base'}} if method == 'GET' else {'sha': 'new'}
+            with patch.dict(os.environ, {'GITHUB_REF': 'refs/heads/main'}):
+                store.publish(root, root, api)
+            tree = next(data for _, path, data in calls if path == '/git/trees')
+            public = next(row for row in tree['tree'] if row['path'] == 'hidden.json')
+            self.assertEqual(json.loads(public['content'])['entries'], [])
+            self.assertEqual(json.loads((root/'hidden.json').read_text())['entries'], [])
 
     def test_same_run_and_rapid_retries_cannot_multiply_confirmations(self):
         state = cycle(policy.empty(), 0, run='one')
@@ -90,12 +118,15 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(len(policy.due(rows, BASE + 8 * 86400)), 3)
         self.assertEqual(rows[1]['status'], 'played')
 
-    def test_no_new_attempt_preserves_existing_hidden_evidence(self):
+    def test_no_new_attempt_preserves_history_but_revokes_legacy_hidden_flag(self):
         state = cycle(cycle(cycle(policy.empty(), 0), 6), 12)
+        state['records'][BAD]['hiddenAt'] = policy.iso(BASE + 12 * 3600)
         rows = policy.entries([{'id': BAD}, {'id': GOOD}], state)
         new = policy.finalize(state, rows, 'idle', policy.iso(BASE + 13 * 3600), 'up_to_date', BASE + 13 * 3600)
-        self.assertEqual(new['records'], state['records'])
-        self.assertEqual(len(policy.manifest(new)['entries']), 1)
+        self.assertNotIn('hiddenAt', new['records'][BAD])
+        self.assertEqual(new['records'][BAD]['confirmations'], 3)
+        self.assertEqual(len(policy.review_candidates(new)), 1)
+        self.assertEqual(policy.manifest(new)['entries'], [])
 
     def test_provider_denial_enforces_persistent_cooldown(self):
         state = policy.finalize(policy.empty(), [], 'run', policy.iso(BASE), 'rate_limit', BASE)

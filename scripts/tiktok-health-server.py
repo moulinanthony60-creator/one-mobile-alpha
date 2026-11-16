@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CATALOGUE = "https://one-comments-api.moulinanthony60.workers.dev/catalog/tiktok"
 USER_AGENT = "ONE-TikTok-Health/1.0 (+https://github.com/moulinanthony60-creator/one-mobile-alpha)"
 STATUSES = ("played", "unavailable", "unknown", "pending")
-LIMITATION = "Démarrage testé depuis GitHub, sans compte TikTok : deux secondes de progression, pas la vidéo entière. Le résultat peut varier selon l’appareil ou la région. Retrait réversible du fil ONE après trois confirmations espacées d’au moins six heures ; aucune suppression sur TikTok ni dans la base ONE."
+LIMITATION = "Démarrage testé depuis GitHub, sans compte TikTok : deux secondes de progression, pas la vidéo entière. Le résultat peut varier selon l’appareil ou la région. Une vidéo signalée indisponible par ce serveur reste à confirmer dans ONE. Les retraits automatiques sont suspendus : même trois erreurs espacées ne prouvent pas une indisponibilité sur les téléphones."
 
 
 class CatalogueError(Exception):
@@ -125,8 +125,9 @@ def markdown(report):
     if not report["catalogueLoaded"]:
         return "\n".join(lines + ["Catalogue non chargé : le nombre de vidéos est inconnu. Aucune conclusion sur leur lecture."])
     count = totals(report["entries"])
-    lines += [f"Derniers résultats cumulés : {count['checked']} / {count['total']} testées · {count['played']} démarrées · {count['unavailable']} indisponibles · {count['unknown']} incertaines · {count['pending']} non testées.",
-              f"Cette exécution : {report.get('testedThisRun', 0)} tests. Retirées du fil : {report.get('hiddenCount', 0)}.", "", "| Vidéo | Résultat | Motif | Dernier contrôle |", "| --- | --- | --- | --- |"]
+    lines += [f"Derniers résultats cumulés : {count['checked']} / {count['total']} testées · {count['played']} démarrées · {count['unavailable']} signalées indisponibles (à confirmer) · {count['unknown']} incertaines · {count['pending']} non testées.",
+              f"Cette exécution : {report.get('testedThisRun', 0)} tests. Retirées du fil : {report.get('hiddenCount', 0)}.",
+              f"Retraits automatiques suspendus. Signalements répétés à examiner : {report.get('reviewRequiredCount', 0)}.", "", "| Vidéo | Résultat | Motif | Dernier contrôle |", "| --- | --- | --- | --- |"]
     for row in report["entries"][:1000]:
         lines.append(f"| [{row['id']}](https://www.tiktok.com/@_/video/{row['id']}) | {row['status']} | {row.get('reason', '—')} | {row.get('checkedAt', '—')} |")
     if len(report["entries"]) > 1000:
@@ -214,6 +215,9 @@ def main():
         if previous is not None and report["catalogueLoaded"]:
             state = previous if history.epoch(previous.get("notBefore")) > time.time() else history.finalize(previous, report["entries"], run_id, report["startedAt"], report["state"], time.time())
             report["hiddenCount"] = len(history.manifest(state)["entries"])
+            report["reviewRequired"] = history.review_candidates(state)
+            report["reviewRequiredCount"] = len(report["reviewRequired"])
+            report["automaticWithdrawalsEnabled"] = False
             # A probe is diagnostic only and cannot affect the shared withdrawal list.
             if not args.probe:
                 history.save(state, args.output)

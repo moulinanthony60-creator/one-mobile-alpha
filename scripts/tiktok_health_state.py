@@ -1,4 +1,4 @@
-"""Persistent playback evidence. Only spaced INVALID_VIDEO confirmations hide a link."""
+"""Persistent server observations. They cannot prove unavailability on a user's device."""
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -68,10 +68,10 @@ def finalize(state, rows, run_id, started_at, stop_reason, timestamp):
         old = state["records"].get(key, {})
         if row.get("attemptRun") != run_id:
             if old:
-                records[key] = old
+                records[key] = {k: v for k, v in old.items() if k != "hiddenAt"}
             continue
         record = {k: row[k] for k in ("status", "reason", "code", "seconds", "checkedAt") if k in row}
-        record.update({k: old[k] for k in ("confirmations", "firstUnavailableAt", "lastUnavailableAt", "confirmationRun", "confirmationRuns", "hiddenAt") if k in old})
+        record.update({k: old[k] for k in ("confirmations", "firstUnavailableAt", "lastUnavailableAt", "confirmationRun", "confirmationRuns") if k in old})
         record["confirmations"] = old.get("confirmations", 0)
         if row["status"] == "played":
             record["confirmations"] = 0
@@ -85,8 +85,6 @@ def finalize(state, rows, run_id, started_at, stop_reason, timestamp):
             record["lastUnavailableAt"] = row["checkedAt"]
             record["confirmationRun"] = run_id
             record["confirmationRuns"] = (old.get("confirmationRuns", []) + [run_id])[-THRESHOLD:]
-            if record["confirmations"] >= THRESHOLD:
-                record.setdefault("hiddenAt", row["checkedAt"])
         records[key] = record
     delay = 24 * 3600 if stop_reason in ("provider_access", "rate_limit") else MIN_GAP if stop_reason == "repeated_unknown" else 0
     delay = max([delay] + [row.get("retryAfterSeconds", 0) for row in tested])
@@ -95,14 +93,22 @@ def finalize(state, rows, run_id, started_at, stop_reason, timestamp):
             "lastStopReason": stop_reason, "healthyPlaybackObserved": healthy}
 
 
-def manifest(state):
-    hidden = []
+def review_candidates(state):
+    """Repeated server signals require review; they are not withdrawal authorization."""
+    candidates = []
     for key, row in state["records"].items():
         first, last = epoch(row.get("firstUnavailableAt")), epoch(row.get("lastUnavailableAt"))
-        if row.get("hiddenAt") and row.get("confirmations") == THRESHOLD and first and last - first >= 2 * MIN_GAP:
-            hidden.append({"id": key, "reason": "invalid_video", "code": 1001, "confirmations": THRESHOLD,
+        if row.get("confirmations") == THRESHOLD and first and last - first >= 2 * MIN_GAP:
+            candidates.append({"id": key, "reason": "invalid_video", "code": 1001, "confirmations": THRESHOLD,
                            "firstUnavailableAt": row["firstUnavailableAt"], "lastUnavailableAt": row["lastUnavailableAt"]})
-    return {"version": 1, "generatedAt": state.get("updatedAt"), "entries": hidden}
+    return candidates
+
+
+def manifest(state):
+    # Repeating the same embedded-player error is not independent proof.
+    # This gate also rejects hiddenAt records written by the older policy.
+    return {"version": 1, "generatedAt": state.get("updatedAt"), "entries": [],
+            "withdrawalPolicy": "review_required"}
 
 
 def save(state, directory):
