@@ -6,7 +6,8 @@ Stop all probes on HTTP 403/429. Only the diagnostic branch invokes this file.
 """
 import json
 import time
-from urllib.parse import urlsplit
+from email.utils import parsedate_to_datetime
+from urllib.parse import urlsplit, parse_qs
 from playwright.sync_api import sync_playwright, TimeoutError as BrowserTimeout
 
 IDS = ['7666374455538617633', '7691588560222260513']
@@ -42,6 +43,27 @@ with sync_playwright() as p:
                 if request.resource_type in ('document', 'media', 'fetch', 'xhr'):
                     row = {'host': urlsplit(response.url).hostname, 'kind': request.resource_type,
                            'status': response.status, 'playerDocument': '/player/v1/' in urlsplit(response.url).path}
+                    if request.resource_type == 'media':
+                        headers = response.headers
+                        row['contentType'] = headers.get('content-type', '')
+                        query = parse_qs(urlsplit(response.url).query)
+                        row['queryKeys'] = sorted(query)
+                        for key, values in query.items():
+                            if key.lower() in ('expires', 'expire', 'x-expires') and values[0].isdigit():
+                                expires = int(values[0])
+                                if 1_000_000_000 < expires < 10_000_000_000:
+                                    try:
+                                        clock = parsedate_to_datetime(headers.get('date', '')).timestamp()
+                                    except Exception:
+                                        clock = time.time()
+                                    row['expiresInSeconds'] = round(expires - clock)
+                        if response.status == 403:
+                            try:
+                                body = response.body()[:10000].lower()
+                                # Classifications only; never log the response body or signed URL.
+                                row['denialWords'] = [word for word in ('expired', 'signature', 'token', 'authentication', 'access denied', 'forbidden', 'referer', 'ip address') if word.encode() in body]
+                            except Exception:
+                                row['denialBodyUnavailable'] = True
                     if row['playerDocument']:
                         headers = response.headers
                         row['cache'] = {k: headers[k] for k in ('age', 'cache-control', 'date', 'x-cache') if k in headers}
@@ -90,7 +112,10 @@ with sync_playwright() as p:
                         video_id = page.locator('.vslide[data-active="1"]').get_attribute('data-id', timeout=5000)
                     snapshots = []
                     deadline = time.monotonic() + 12
-                    while time.monotonic() < deadline and not stopped:
+                    # Finish observing this same player after a media denial. Let
+                    # TikTok's own in-page fallback finish; never start another
+                    # probe or change the device/network after a refusal.
+                    while time.monotonic() < deadline:
                         frame = page.main_frame if mode.endswith('officiel') else next((f for f in page.frames if '/player/v1/' in f.url), None)
                         if frame:
                             try:
