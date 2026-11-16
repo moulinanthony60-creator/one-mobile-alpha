@@ -85,7 +85,8 @@ with sync_playwright() as p:
     page.wait_for_timeout(1000)
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:2}},'*')")
     page.wait_for_function("document.querySelectorAll('iframe').length===2")
-    assert page.evaluate("slides[3].querySelector('iframe')?.dataset.onePreload==='1' && new URL(slides[3].querySelector('iframe').src).searchParams.get('autoplay')==='0'")
+    # Slot 3 was marked unavailable in the navigation replay; warm the next usable slot.
+    assert page.evaluate("!slides[3].querySelector('iframe') && slides[4].querySelector('iframe')?.dataset.onePreload==='1' && new URL(slides[4].querySelector('iframe').src).searchParams.get('autoplay')==='0'")
     assert not errors, errors
     browser.close()
     print('Navigation browser checks passed: stable navigation, paused preloads, isolated retry, sound before play, one next preload after real progress.')
