@@ -94,6 +94,11 @@ class HealthTests(unittest.TestCase):
             health.write_report(report, Path(tmp))
             self.assertEqual(report['counts']['pending'], 1)
             self.assertIn('0 / 1 testées', (Path(tmp) / 'report.md').read_text())
+            report['entries'] = [{'id': '11111111', 'status': 'unavailable', 'reason': 'invalid_video'}]
+            health.write_report(report, Path(tmp))
+            body = (Path(tmp) / 'report.md').read_text()
+            self.assertIn('1 signalées indisponibles (à confirmer)', body)
+            self.assertIn('Retraits automatiques suspendus', body)
 
     def test_persisted_cooldown_never_opens_the_browser_or_erases_history(self):
         with tempfile.TemporaryDirectory() as tmp:
