@@ -1,6 +1,75 @@
 {
   "version": 2,
   "records": {
+    "7696328788434521374": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.47,
+      "checkedAt": "2026-11-16T11:18:56.415557+00:00",
+      "confirmations": 0
+    },
+    "7702461073361767712": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.47,
+      "checkedAt": "2026-11-16T11:19:10.174848+00:00",
+      "confirmations": 0
+    },
+    "7691977328842362142": {
+      "status": "unavailable",
+      "reason": "invalid_video",
+      "code": 1001,
+      "checkedAt": "2026-11-16T11:19:20.609581+00:00",
+      "confirmations": 1,
+      "firstUnavailableAt": "2026-11-16T11:19:20.609581+00:00",
+      "lastUnavailableAt": "2026-11-16T11:19:20.609581+00:00",
+      "confirmationRun": "43856332609",
+      "confirmationRuns": [
+        "43856332609"
+      ]
+    },
+    "7707650544428518678": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.01,
+      "checkedAt": "2026-11-16T11:19:34.469137+00:00",
+      "confirmations": 0
+    },
+    "7706571358582476064": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.49,
+      "checkedAt": "2026-11-16T11:19:48.188583+00:00",
+      "confirmations": 0
+    },
+    "7701382172208385302": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.01,
+      "checkedAt": "2026-11-16T11:20:02.612589+00:00",
+      "confirmations": 0
+    },
+    "7702788443813858582": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.39,
+      "checkedAt": "2026-11-16T11:20:16.161218+00:00",
+      "confirmations": 0
+    },
+    "7708154598174854433": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.44,
+      "checkedAt": "2026-11-16T11:20:29.709341+00:00",
+      "confirmations": 0
+    },
+    "7708094744659823904": {
+      "status": "played",
+      "reason": "time_advanced",
+      "seconds": 2.42,
+      "checkedAt": "2026-11-16T11:20:43.484176+00:00",
+      "confirmations": 0
+    },
     "7700023311400504608": {
       "status": "played",
       "reason": "time_advanced",
@@ -2619,13 +2688,13 @@
     }
   },
   "notBefore": null,
-  "updatedAt": "2026-11-16T10:08:41.941795+00:00",
-  "lastRun": "43845806551",
-  "lastRunStartedAt": "2026-11-16T10:08:40.205676+00:00",
-  "lastStopReason": "up_to_date",
-  "healthyPlaybackObserved": false,
+  "updatedAt": "2026-11-16T11:20:44.004922+00:00",
+  "lastRun": "43856332609",
+  "lastRunStartedAt": "2026-11-16T11:18:48.634350+00:00",
+  "lastStopReason": "complete",
+  "healthyPlaybackObserved": true,
   "appEvidence": {
     "available": false,
-    "checkedAt": "2026-11-16T10:08:41.941614+00:00"
+    "checkedAt": "2026-11-16T11:20:44.004750+00:00"
   }
 }
