@@ -65,8 +65,8 @@ with sync_playwright() as p:
         page.evaluate('v17ActivateSlide(slides[3])')
     assert page.evaluate("slides[2].dataset.active==='1'")
     assert page.evaluate("Math.abs(document.getElementById('vfeedScroller').scrollTop-slides[2].offsetTop)<2")
-    assert page.locator('iframe').count()<=4
-    assert page.evaluate("[...document.querySelectorAll('iframe[data-one-preload=\"1\"]')].every(f=>new URL(f.src).searchParams.get('autoplay')==='0')")
+    assert page.locator('iframe').count()==1
+    assert page.evaluate("traces.filter(x=>x==='création préchargement').length===0")
     # A real TikTok-origin playback error must not trigger automatic navigation.
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onPlayerError',value:{errorCode:3001,errorType:'PLAYBACK_ERROR'}},'*')")
@@ -84,9 +84,18 @@ with sync_playwright() as p:
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:1}},'*')")
     page.wait_for_timeout(1000)
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:2}},'*')")
-    page.wait_for_function("document.querySelectorAll('iframe').length===2")
-    # Slot 3 was marked unavailable in the navigation replay; warm the next usable slot.
-    assert page.evaluate("!slides[3].querySelector('iframe') && slides[4].querySelector('iframe')?.dataset.onePreload==='1' && new URL(slides[4].querySelector('iframe').src).searchParams.get('autoplay')==='0'")
+    page.evaluate('v120PrewarmAround(slides[2]);v124PreloadTikTokSlide(slides[4])')
+    assert page.locator('iframe').count()==1
+    assert page.evaluate("traces.filter(x=>x==='création préchargement').length===0")
+    frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onPlayerError',value:{errorCode:1001,errorType:'INVALID_VIDEO'}},'*')")
+    page.wait_for_function("!!slides[2].querySelector('.oneTikTokStatus')")
+    page.wait_for_timeout(1700)
+    assert page.evaluate("slides[2].dataset.active==='1'")
+    assert page.locator('iframe').count()==0
+    assert 'Passage' not in page.locator('.oneTikTokStatus').inner_text()
+    page.get_by_role('button',name='Vidéo suivante',exact=True).click()
+    page.wait_for_function("slides[4].querySelector('iframe')?.dataset.oneReady==='1'")
+    assert page.locator('iframe').count()==1
     assert not errors, errors
     browser.close()
-    print('Navigation browser checks passed: stable navigation, paused preloads, isolated retry, sound before play, one next preload after real progress.')
+    print('Navigation browser checks passed: stable navigation, one active player from startup, no preloads after progress, isolated retry, sound before play, explicit navigation after error.')
