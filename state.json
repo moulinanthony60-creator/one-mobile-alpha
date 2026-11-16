@@ -2619,13 +2619,13 @@
     }
   },
   "notBefore": null,
-  "updatedAt": "2026-11-16T09:33:47.841926+00:00",
-  "lastRun": "43840192283",
-  "lastRunStartedAt": "2026-11-16T09:31:07.665536+00:00",
-  "lastStopReason": "complete",
-  "healthyPlaybackObserved": true,
+  "updatedAt": "2026-11-16T10:08:41.941795+00:00",
+  "lastRun": "43845806551",
+  "lastRunStartedAt": "2026-11-16T10:08:40.205676+00:00",
+  "lastStopReason": "up_to_date",
+  "healthyPlaybackObserved": false,
   "appEvidence": {
     "available": false,
-    "checkedAt": "2026-11-16T09:33:47.841751+00:00"
+    "checkedAt": "2026-11-16T10:08:41.941614+00:00"
   }
 }
