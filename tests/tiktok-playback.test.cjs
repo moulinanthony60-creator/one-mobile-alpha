@@ -567,3 +567,58 @@ test('deferred startup repair stays silent while hidden, inactive or deliberatel
     assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,1,mode);
   }
 });
+
+
+// Replay the repeated unavailable-slot callbacks reported by the Android diagnostic.
+const navigation=require('../ui/tiktok-navigation.js');
+function navigationSetup(){
+ const r=setup(8),root=new Element('div');root.style.scrollBehavior='smooth';
+ r.document.getElementById=id=>id==='vfeed'?r.feed:id==='vfeedScroller'?root:null;
+ root.removeEventListener=(type,fn)=>{if(root.handlers?.[type]===fn)delete root.handlers[type];};
+ const created=[];const create=r.document.createElement;
+ r.document.createElement=tag=>{const node=create(tag);if(tag==='iframe')created.push(node);return node;};
+ const scrolls=[];
+ for(const s of r.slides)s.scrollIntoView=options=>{s.scrolled=true;scrolls.push({slide:s,options,behavior:root.style.scrollBehavior});};
+ return {...r,root,created,scrolls,install:()=>navigation.install(r.context)};
+}
+test('diagnostic replay: the original redirect alternates between two healthy neighbours',()=>{
+ const r=navigationSetup();r.context.v17ActivateSlide(r.slides[2]);r.context.v17RememberTikTokUnavailable(r.slides[3]);
+ r.context.v17ActivateSlide(r.slides[3]);assert.equal(r.slides[4].dataset.active,'1');
+ r.context.v17ActivateSlide(r.slides[3]);assert.equal(r.slides[2].dataset.active,'1');
+});
+test('repeated stale unavailable callbacks keep one destination without recreating preloads',()=>{
+ const r=navigationSetup();r.install();r.context.v17ActivateSlide(r.slides[2]);r.context.v17RememberTikTokUnavailable(r.slides[3]);
+ r.context.v17ActivateSlide(r.slides[3]);const created=r.created.length,frame=r.frame(r.slides[4]);
+ for(let i=0;i<20;i++){r.tick(80);r.context.v17ActivateSlide(r.slides[3]);}
+ assert.equal(r.slides[4].dataset.active,'1');assert.equal(r.frame(r.slides[4]),frame);assert.equal(r.created.length,created);
+ assert.equal(r.scrolls.length,1);assert.equal(r.scrolls[0].options.behavior,'instant');assert.equal(r.document.querySelectorAll('iframe').length,4);
+});
+test('a fresh user gesture permits backward navigation across the same unavailable slot',()=>{
+ const r=navigationSetup();r.install();r.context.v17ActivateSlide(r.slides[2]);r.context.v17RememberTikTokUnavailable(r.slides[3]);
+ r.context.v17ActivateSlide(r.slides[3]);assert.equal(r.slides[4].dataset.active,'1');
+ r.root.handlers.pointerdown();r.context.v17ActivateSlide(r.slides[3]);assert.equal(r.slides[2].dataset.active,'1');
+ const created=r.created.length;
+ for(let i=0;i<12;i++)r.context.v17ActivateSlide(r.slides[3]);
+ assert.equal(r.slides[2].dataset.active,'1');assert.equal(r.created.length,created);
+});
+test('step navigation cancels inherited smooth scrolling and ignores crossed failed slots',()=>{
+ const r=navigationSetup();r.install();r.context.v17ActivateSlide(r.slides[2]);r.context.v17RememberTikTokUnavailable(r.slides[3]);
+ r.context.v17StepSlide(r.slides[2],1);assert.equal(r.slides[4].dataset.active,'1');
+ assert.equal(r.scrolls[0].behavior,'auto');assert.equal(r.root.style.scrollBehavior,'smooth');
+ const created=r.created.length;for(let i=0;i<15;i++)r.context.v17ActivateSlide(r.slides[3]);
+ assert.equal(r.slides[4].dataset.active,'1');assert.equal(r.created.length,created);
+ r.root.handlers.wheel();r.context.v17StepSlide(r.slides[4],-1);assert.equal(r.slides[2].dataset.active,'1');
+ r.context.v17ActivateSlide(r.slides[3]);assert.equal(r.slides[2].dataset.active,'1');
+});
+test('playback error 3001 never authorizes navigation, hiding or a new player',()=>{
+ const r=navigationSetup();r.install();const s=r.slides[2];r.context.v17ActivateSlide(s);const frame=r.frame(s),created=r.created.length;
+ r.message(frame,'onPlayerError',{errorCode:3001,errorType:'PLAYBACK_ERROR'});r.tick(20000);
+ assert.equal(s.dataset.active,'1');assert.equal(r.frame(s),frame);assert.equal(r.created.length,created);assert.equal(r.scrolls.length,0);
+ assert.equal(r.context.v17TikTokIsUnavailable(r.items.get(s.dataset.id)),false);
+});
+test('the navigation guard preserves immediate sound and the existing stop after three skips',()=>{
+ const r=navigationSetup();r.install();r.context.v17ActivateSlide(r.slides[0]);let frame=r.frame(r.slides[0]);
+ r.message(frame,'onPlayerReady');assert(frame.messages.some(m=>m.data.type==='unMute'));
+ for(let i=0;i<3;i++){r.message(r.frame(r.slides[i]),'onPlayerError',{errorCode:1001});r.tick(1500);assert.equal(r.slides[i+1].dataset.active,'1');}
+ r.message(r.frame(r.slides[3]),'onPlayerError',{errorCode:1001});r.tick(2000);assert.equal(r.slides[3].dataset.active,'1');
+});

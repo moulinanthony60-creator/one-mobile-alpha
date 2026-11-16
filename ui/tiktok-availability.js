@@ -5,9 +5,11 @@
  if(typeof module==='object'&&module.exports)module.exports=api;
  else{
   root.ONETikTokAvailability=api.create(root);
-  // Load the positive-only observer without changing the application or account code.
-  const script=root.document.createElement('script');script.src='ui/tiktok-playback-health.js?v=1';script.defer=true;
-  root.document.head.append(script);
+  // Keep the navigation fix separate from playback observation and account code.
+  for(const src of ['ui/tiktok-navigation.js?v=1','ui/tiktok-playback-health.js?v=1']){
+   const script=root.document.createElement('script');script.src=src;script.async=false;
+   root.document.head.append(script);
+  }
  }
 })(typeof globalThis==='object'?globalThis:this,function(){
  'use strict';
