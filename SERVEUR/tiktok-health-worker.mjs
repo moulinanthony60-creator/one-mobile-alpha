@@ -28,7 +28,9 @@ export default {async fetch(request,env){
    const {results}=await db.prepare('SELECT video_id,last_played_at FROM one_tiktok_played WHERE last_played_at>=? ORDER BY last_played_at DESC LIMIT 5001').bind(now-WEEK).all();
    // An incomplete snapshot must never authorize hiding.
    if(results.length>5000)return json({ok:false,error:'Historique trop volumineux.'},503);
-   return json({ok:true,version:1,policy:'temporary-v1',startedAt:new Date(meta.started_at).toISOString(),generatedAt:new Date(now).toISOString(),entries:results.map(r=>({id:r.video_id,playedAt:new Date(r.last_played_at).toISOString()}))});
+   // Date the snapshot after its reads: a concurrent playback may have just committed.
+   const generated=Date.now();
+   return json({ok:true,version:1,policy:'temporary-v1',startedAt:new Date(meta.started_at).toISOString(),generatedAt:new Date(generated).toISOString(),entries:results.filter(r=>generated-r.last_played_at<=WEEK).map(r=>({id:r.video_id,playedAt:new Date(r.last_played_at).toISOString()}))});
   }
   if(path!=='/playback'||request.method!=='POST')return json({ok:false},405);
   if(origin!==ORIGIN)return json({ok:false},403);
