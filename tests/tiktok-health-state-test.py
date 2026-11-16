@@ -148,6 +148,73 @@ class EvidenceTests(unittest.TestCase):
                 policy.load(root / 'state.json')
 
 
+def telemetry(state, hour, played=None, started=BASE-3600):
+    at = BASE + hour * 3600
+    payload = {'ok': True, 'version': 1, 'policy': 'temporary-v1', 'generatedAt': policy.iso(at),
+               'startedAt': policy.iso(started), 'entries': played or []}
+    return policy.app_snapshot(state, payload, at)
+
+
+class TemporaryMaskTests(unittest.TestCase):
+    def three_failures(self):
+        state = policy.empty()
+        for hour in [0, 6, 12]:
+            state = cycle(telemetry(state, hour), hour)
+        return state
+
+    def test_three_new_failures_with_fresh_collection_mask_for_one_day_only(self):
+        state = self.three_failures()
+        public = policy.manifest(state)
+        self.assertTrue(public['appEvidenceAvailable'])
+        self.assertEqual([x['id'] for x in public['entries']], [BAD])
+        self.assertEqual(policy.epoch(public['entries'][0]['hiddenUntil']), BASE + 36*3600)
+        state = telemetry(state, 37)
+        state['updatedAt'] = policy.iso(BASE + 37*3600)
+        self.assertEqual(policy.manifest(state)['entries'], [])
+
+    def test_one_recent_real_playback_restores_and_resets_all_failures(self):
+        state = self.three_failures()
+        state = telemetry(state, 13, [{'id': BAD, 'playedAt': policy.iso(BASE + 13*3600)}])
+        state['updatedAt'] = policy.iso(BASE + 13*3600)
+        self.assertEqual(policy.manifest(state)['entries'], [])
+        self.assertEqual(state['records'][BAD]['confirmations'], 0)
+        for hour in [18, 24, 30]:
+            state = telemetry(state, hour, [{'id': BAD, 'playedAt': policy.iso(BASE + 13*3600)}])
+            state = cycle(state, hour)
+            self.assertEqual(state['records'][BAD]['confirmations'], 0)
+            self.assertEqual(policy.manifest(state)['entries'], [])
+
+    def test_bot_playback_automatically_restores_without_any_phone_review(self):
+        state = cycle(self.three_failures(), 18, status='played', code=None, reason='time_advanced')
+        self.assertEqual(state['records'][BAD]['confirmations'], 0)
+        self.assertEqual(policy.manifest(state)['entries'], [])
+
+    def test_missing_stale_partial_or_duplicate_telemetry_never_masks(self):
+        for payload in [None, {}, {'ok': True, 'entries': []}]:
+            state = policy.app_snapshot(self.three_failures(), payload, BASE + 13*3600)
+            self.assertEqual(policy.manifest(state)['entries'], [])
+        state = self.three_failures()
+        state['appEvidence']['checkedAt'] = policy.iso(BASE)
+        self.assertEqual(policy.manifest(state)['entries'], [])
+        state = telemetry(self.three_failures(), 13, [{'id': BAD, 'playedAt': policy.iso(BASE+3600)}]*2)
+        self.assertFalse(state['appEvidence']['available'])
+
+    def test_legacy_failures_cannot_trigger_immediate_hiding_after_activation(self):
+        state = cycle(cycle(cycle(policy.empty(), 0), 6), 12)
+        state = telemetry(state, 13, started=BASE + 13*3600)
+        self.assertEqual(state['records'][BAD]['confirmations'], 0)
+        self.assertEqual(policy.manifest(state)['entries'], [])
+
+    def test_uncertain_result_cannot_renew_an_existing_mask(self):
+        for reason, code in [('server_error', 2001), ('autoplay', 3002), ('timeout', None)]:
+            state = cycle(telemetry(self.three_failures(), 18), 18, status='unknown', reason=reason, code=code)
+            self.assertEqual(policy.manifest(state)['entries'], [])
+
+    def test_real_playback_does_not_mark_an_untested_catalogue_entry_as_scanned(self):
+        state = telemetry(policy.empty(), 0, [{'id': BAD, 'playedAt': policy.iso(BASE)}])
+        self.assertEqual(policy.entries([{'id': BAD}], state)[0]['status'], 'pending')
+
+
 class StoreTests(unittest.TestCase):
     def test_publication_only_touches_data_branch_and_two_fixed_files(self):
         calls = []

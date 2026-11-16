@@ -17,9 +17,10 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOGUE = "https://one-comments-api.moulinanthony60.workers.dev/catalog/tiktok"
+APP_HEALTH = "https://one-tiktok-health.moulinanthony60.workers.dev/health"
 USER_AGENT = "ONE-TikTok-Health/1.0 (+https://github.com/moulinanthony60-creator/one-mobile-alpha)"
 STATUSES = ("played", "unavailable", "unknown", "pending")
-LIMITATION = "Démarrage testé depuis GitHub, sans compte TikTok : deux secondes de progression, pas la vidéo entière. Le résultat peut varier selon l’appareil ou la région. Une vidéo signalée indisponible par ce serveur reste à confirmer dans ONE. Les retraits automatiques sont suspendus : même trois erreurs espacées ne prouvent pas une indisponibilité sur les téléphones."
+LIMITATION = "Démarrage testé depuis GitHub : deux secondes de progression, pas la vidéo entière. Les erreurs du lecteur sont des signalements, pas une preuve de suppression. Une lecture observée dans ONE protège la vidéo pendant sept jours. Trois erreurs explicites espacées, sans lecture réussie récente, permettent uniquement un masquage temporaire de 24 heures. Si la collecte ONE est indisponible, aucun masquage n’est autorisé."
 
 
 class CatalogueError(Exception):
@@ -81,6 +82,13 @@ def load_catalogue(fetch=fetch_page):
     raise CatalogueError("Pagination incomplète : contrôle annulé.")
 
 
+def fetch_app_evidence():
+    try:
+        return fetch_page(APP_HEALTH)
+    except Exception:
+        return None
+
+
 def totals(rows):
     result = {status: sum(row["status"] == status for row in rows) for status in STATUSES}
     result["total"] = len(rows)
@@ -126,8 +134,9 @@ def markdown(report):
         return "\n".join(lines + ["Catalogue non chargé : le nombre de vidéos est inconnu. Aucune conclusion sur leur lecture."])
     count = totals(report["entries"])
     lines += [f"Derniers résultats cumulés : {count['checked']} / {count['total']} testées · {count['played']} démarrées · {count['unavailable']} signalées indisponibles (à confirmer) · {count['unknown']} incertaines · {count['pending']} non testées.",
-              f"Cette exécution : {report.get('testedThisRun', 0)} tests. Retirées du fil : {report.get('hiddenCount', 0)}.",
-              f"Retraits automatiques suspendus. Signalements répétés à examiner : {report.get('reviewRequiredCount', 0)}.", "", "| Vidéo | Résultat | Motif | Dernier contrôle |", "| --- | --- | --- | --- |"]
+              f"Cette exécution : {report.get('testedThisRun', 0)} tests. Masquées temporairement du fil : {report.get('hiddenCount', 0)}.",
+              ("Collecte ONE disponible ; masquage temporaire autorisé sous conditions." if report.get('automaticWithdrawalsEnabled') else "Masquages automatiques suspendus : collecte ONE indisponible ou périmée."),
+              f"Lectures récentes observées dans ONE : {report.get('appPlaybackCount', 0)}. Signalements répétés : {report.get('reviewRequiredCount', 0)}.", "", "| Vidéo | Résultat | Motif | Dernier contrôle |", "| --- | --- | --- | --- |"]
     for row in report["entries"][:1000]:
         lines.append(f"| [{row['id']}](https://www.tiktok.com/@_/video/{row['id']}) | {row['status']} | {row.get('reason', '—')} | {row.get('checkedAt', '—')} |")
     if len(report["entries"]) > 1000:
@@ -217,7 +226,8 @@ def main():
             report["hiddenCount"] = len(history.manifest(state)["entries"])
             report["reviewRequired"] = history.review_candidates(state)
             report["reviewRequiredCount"] = len(report["reviewRequired"])
-            report["automaticWithdrawalsEnabled"] = False
+            report["automaticWithdrawalsEnabled"] = history.manifest(state)["appEvidenceAvailable"]
+            report["appPlaybackCount"] = len(state.get("appEvidence", {}).get("played", {}))
             # A probe is diagnostic only and cannot affect the shared withdrawal list.
             if not args.probe:
                 history.save(state, args.output)
@@ -226,6 +236,7 @@ def main():
     checkpoint()
     try:
         previous = history.load(args.state)
+        previous = history.app_snapshot(previous, fetch_app_evidence(), time.time())
         report["entries"] = history.entries(load_catalogue(), previous)
         report["catalogueLoaded"] = True
         report["state"] = "running"
@@ -254,6 +265,9 @@ def main():
         report["state"] = "execution_error"
         report["error"] = "Le navigateur serveur n’a pas pu terminer le contrôle (" + type(error).__name__ + ")."
     finally:
+        # A successful ONE playback during the batch must win before publication.
+        if previous is not None:
+            previous = history.app_snapshot(previous, fetch_app_evidence(), time.time())
         report["finishedAt"] = now()
         checkpoint()
         print(markdown(report).split("| Vidéo")[0], flush=True)
