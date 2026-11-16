@@ -2,7 +2,9 @@
 
 Real TikTok responses; two public IDs in a browser-only catalogue fixture.
 No accounts, cookies, headers, signed URLs or response bodies in the log.
-Stop all probes on HTTP 403/429. Only the diagnostic branch invokes this file.
+Stop on document/API access denials, rate limits or a visible authentication
+failure. Media 403s are observed through TikTok's own fallback, without retries.
+Only the diagnostic branch invokes this file.
 """
 import json
 import time
@@ -27,7 +29,9 @@ with sync_playwright() as p:
     browser = p.chromium.launch()
     stopped = False
     try:
-        for mode in ['mobile-officiel', 'mobile-ONE', 'desktop-officiel', 'desktop-ONE']:
+        # The official mobile baseline already recovered in the preceding run.
+        # Compare ONE now, in exactly the same Pixel 5 simulation.
+        for mode in ['mobile-ONE']:
             if stopped:
                 break
             options = dict(p.devices['Pixel 5']) if mode.startswith('mobile') else {'viewport': {'width': 1280, 'height': 900}}
@@ -69,7 +73,7 @@ with sync_playwright() as p:
                         row['cache'] = {k: headers[k] for k in ('age', 'cache-control', 'date', 'x-cache') if k in headers}
                     if len(network) < 60:
                         network.append(row)
-                if response.status in (403, 429):
+                if response.status == 429 or (response.status == 403 and request.resource_type != 'media'):
                     stopped = True
             def failed(request):
                 if restricted_url(request.url) and len(failures) < 20:
@@ -126,6 +130,8 @@ with sync_playwright() as p:
                                     error:v.error?{code:v.error.code,message:String(v.error.message).slice(0,200)}:null}))
                                 })''')
                                 snapshots.append(value)
+                                if value['authenticationFailed']:
+                                    stopped = True
                                 if value['authenticationFailed'] or value['unavailable'] or any(v['time'] >= 2 for v in value['media']):
                                     break
                             except Exception:
