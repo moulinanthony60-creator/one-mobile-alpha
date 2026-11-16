@@ -76,6 +76,7 @@ with sync_playwright() as p:
     page.get_by_role('button',name='Réessayer',exact=True).click()
     page.wait_for_function("slides[2].querySelector('iframe')?.dataset.oneReady==='1'")
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
+    print('Retry browser state:',page.evaluate("({active:slides[2].dataset,frame:slides[2].querySelector('iframe')?.dataset,src:slides[2].querySelector('iframe')?.src,traces})"),frame.evaluate('commands'),errors,flush=True)
     frame.wait_for_function("commands.includes('play')")
     assert frame.evaluate('commands')==['unMute','play']
     assert page.locator('iframe').count()==1
