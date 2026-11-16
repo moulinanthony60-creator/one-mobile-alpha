@@ -699,3 +699,23 @@ test('error handling never dispatches an automatic next request even through a s
  r.message(f,'onPlayerError',{errorCode:1001});r.context.v17StepSlide(s,1,true);r.tick(20000);
  assert.equal(s.dataset.active,'1');assert.equal(r.created.length,created);assert.equal(r.scrolls.length,0);
 });
+
+test('supported TikTok players start in a temporary session before their first navigation, including explicit retry',()=>{
+ const r=recoverySetup(),create=r.document.createElement,src=Object.getOwnPropertyDescriptor(Element.prototype,'src');
+ r.document.createElement=tag=>{const node=create(tag);if(tag==='iframe'){
+  node.credentialless=false;
+  Object.defineProperty(node,'src',{get(){return src.get.call(this);},set(value){this.isolatedAtNavigation=this.credentialless;src.set.call(this,value);}});
+ }return node;};
+ const s=r.slides[0];r.context.v17ActivateSlide(s);let f=r.frame(s);
+ assert.equal(f.credentialless,true);assert.equal(f.isolatedAtNavigation,true);assert.equal(f.srcWrites,1);
+ r.message(f,'onPlayerError',{errorCode:3001});r.button(s,'Réessayer').onclick({stopPropagation(){}});f=r.frame(s);
+ assert.equal(f.isolatedAtNavigation,true);assert.equal(f.srcWrites,1);assert.equal(r.document.querySelectorAll('iframe').length,1);
+ r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
+});
+test('unsupported browsers keep their normal player and other providers do not receive TikTok session isolation',()=>{
+ const legacy=recoverySetup();legacy.context.v17ActivateSlide(legacy.slides[0]);assert(!('credentialless' in legacy.frame(legacy.slides[0])));
+ const r=setup(),create=r.document.createElement;
+ r.document.createElement=tag=>{const node=create(tag);if(tag==='iframe')node.credentialless=false;return node;};
+ const s=r.slides[0];s.dataset.platform='youtube';r.items.set(s.dataset.id,{id:s.dataset.id,p:'youtube',videoId:'abcdefghijk'});
+ r.context.v17ActivateSlide(s);assert.equal(r.frame(s).credentialless,false);assert.match(r.frame(s).src,/youtube-nocookie\.com/);
+});

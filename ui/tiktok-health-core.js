@@ -44,6 +44,7 @@
   if(signal?.aborted)return Promise.resolve({status:'pending',reason:'interrupted'});
   return new Promise(resolve=>{
    const frame=doc.createElement('iframe'),read=evidence(minSeconds);let done=false,timer,started=false,lastError=null;
+   if('credentialless' in frame)frame.credentialless=true;
    frame.title='Contrôle de lecture TikTok';frame.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';
    frame.referrerPolicy='strict-origin-when-cross-origin';
    function send(type){try{frame.contentWindow?.postMessage({'x-tiktok-player':true,type},ORIGIN);}catch{}}
