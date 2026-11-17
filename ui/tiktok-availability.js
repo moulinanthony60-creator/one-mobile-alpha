@@ -6,7 +6,7 @@
  else{
   root.ONETikTokAvailability=api.create(root);
   // Keep the navigation fix separate from playback observation and account code.
-  for(const src of ['ui/tiktok-navigation.js?v=5','ui/tiktok-playback-health.js?v=1']){
+  for(const src of ['ui/tiktok-navigation.js?v=5','ui/tiktok-preload.js?v=1','ui/tiktok-playback-health.js?v=1']){
    const script=root.document.createElement('script');script.src=src;script.async=false;
    root.document.head.append(script);
   }

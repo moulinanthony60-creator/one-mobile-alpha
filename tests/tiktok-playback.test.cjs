@@ -632,6 +632,55 @@ function recoverySetup(soundPreference){
  const stop=r.install();
  return {...r,stop};
 }
+const preload = require('../ui/tiktok-preload.js');
+function preloadSetup(){
+ const r=recoverySetup();r.warming=preload.install(r.context);r.context.v17ActivateSlide(r.slides[2]);
+ for(const i of [1,3,4])r.message(r.frame(r.slides[i]),'onPlayerReady');
+ return r;
+}
+test('neighbours decode in muted serial order only after the visible video advances',()=>{
+ const r=preloadSetup(),a=r.frame(r.slides[2]),next=r.frame(r.slides[3]),second=r.frame(r.slides[4]),previous=r.frame(r.slides[1]);
+ r.message(a,'onPlayerReady');r.message(a,'onStateChange',1);
+ assert(![next,second,previous].some(f=>f.messages.some(m=>m.data.type==='play')));
+ r.playing(a);assert.equal(next.dataset.oneWarming,'1');
+ assert(!second.messages.some(m=>m.data.type==='play'));assert(!previous.messages.some(m=>m.data.type==='play'));
+ r.message(next,'onStateChange',1);assert.equal(next.messages.at(-1).data.type,'mute');
+ r.message(next,'onCurrentTime',{currentTime:.1});
+ assert.equal(next.dataset.oneWarm,'1');assert.equal(next.dataset.oneWarming,undefined);
+ assert.deepEqual(next.messages.slice(-2).map(m=>m.data.type),['mute','pause']);assert.equal(second.dataset.oneWarming,'1');
+ r.message(second,'onCurrentTime',{currentTime:.1});assert.equal(previous.dataset.oneWarming,'1');
+ r.message(previous,'onCurrentTime',{currentTime:.1});
+ for(const f of [next,second,previous]){assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);assert(!f.messages.some(m=>m.data.type==='unMute'));assert.equal(f.closest('.vslide').dataset.ttTimeAdvanced,undefined);}
+ assert.equal(r.created.length,4);r.warming.stop();
+});
+test('warmup deadlines stop a silent player without retrying or creating more iframes',()=>{
+ const r=preloadSetup();r.playing(r.frame(r.slides[2]));
+ for(const i of [3,4,1]){const f=r.frame(r.slides[i]);assert.equal(f.dataset.oneWarming,'1');r.tick(1200);assert.deepEqual(f.messages.slice(-2).map(m=>m.data.type),['mute','pause']);assert.equal(f.dataset.oneWarming,undefined);}
+ r.tick(1200);assert.equal(r.created.length,4);
+ for(const i of [1,3,4])assert.equal(r.frame(r.slides[i]).messages.filter(m=>m.data.type==='play').length,1);
+ r.warming.stop();
+});
+test('swiping promotes the warmed iframe without a delayed pause or URL reload',()=>{
+ const r=preloadSetup();r.playing(r.frame(r.slides[2]));const next=r.frame(r.slides[3]);
+ r.context.v17StepSlide(r.slides[2],1);assert.equal(r.frame(r.slides[3]),next);
+ const before=next.messages.length;r.tick(1200);
+ assert(!next.messages.slice(before).some(m=>m.data.type==='pause'));assert.equal(next.srcWrites,1);assert.equal(next.dataset.oneWarming,undefined);
+ r.warming.stop();
+});
+test('foreign messages cannot finish warmup and hiding the feed cancels it',()=>{
+ const r=preloadSetup();r.playing(r.frame(r.slides[2]));const next=r.frame(r.slides[3]);
+ r.message(next,'onCurrentTime',{currentTime:1},'https://foreign.test');assert.equal(next.dataset.oneWarming,'1');
+ r.document.hidden=true;r.document.handlers.visibilitychange();assert.equal(next.dataset.oneWarming,undefined);
+ assert.deepEqual(next.messages.slice(-2).map(m=>m.data.type),['mute','pause']);r.tick(5000);
+ assert(!r.frame(r.slides[4]).messages.some(m=>m.data.type==='play'));r.warming.stop();
+});
+test('active authentication failure stops warmup and never becomes a catalogue withdrawal',()=>{
+ const r=preloadSetup(),s=r.slides[2],a=r.frame(s);r.playing(a);const next=r.frame(r.slides[3]);
+ r.message(a,'onPlayerError',{errorCode:3001,errorType:'PLAYBACK_ERROR'});r.tick(1200);
+ assert.equal(next.isConnected,false);assert.equal(next.dataset.oneWarming,undefined);
+ assert.equal(r.document.querySelectorAll('iframe').length,1);assert.equal(r.context.v17TikTokIsUnavailable(r.items.get(s.dataset.id)),false);
+ assert.equal(s.dataset.active,'1');r.warming.stop();
+});
 test('phone replay: legacy abort then INVALID_VIDEO keeps the next ready players through rapid swipes',()=>{
  const r=recoverySetup();r.context.v17ActivateSlide(r.slides[0]);const bad=r.frame(r.slides[0]),next=r.frame(r.slides[1]),second=r.frame(r.slides[2]);
  r.message(next,'onPlayerReady');r.message(second,'onPlayerReady');
