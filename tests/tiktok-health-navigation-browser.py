@@ -133,3 +133,9 @@ with sync_playwright() as p:
     assert not errors, errors
     browser.close()
     print('Navigation browser checks passed: isolated session, paused 2+1 window, rapid recovery without telemetry, legacy abort then 1001 retains the next frame, no automatic skip.')
+
+# Manual two-video comparison only on this isolated diagnostic branch.
+import os
+if os.environ.get('GITHUB_HEAD_REF') == 'codex/diagnostic-player-comparison':
+    import runpy
+    runpy.run_path(str(ROOT / 'scripts/tiktok-player-comparison.py'), run_name='__main__')
