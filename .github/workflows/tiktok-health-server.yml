@@ -2,8 +2,7 @@ name: Contrôle TikTok en arrière-plan
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '17 */6 * * *'
+  # Automatic catalogue checks paused at the user's request (2026-11-17).
   push:
     branches: [main, codex/controle-tiktok-fiable]
     paths:
@@ -39,7 +38,7 @@ permissions:
 
 concurrency:
   group: tiktok-health-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   tests:
@@ -65,7 +64,8 @@ jobs:
       - run: python tests/tiktok-health-navigation-browser.py
   probe:
     needs: tests
-    if: github.event_name == 'push' && github.ref == 'refs/heads/codex/controle-tiktok-fiable'
+    # Paused: do not make diagnostic requests to TikTok.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -86,7 +86,8 @@ jobs:
           retention-days: 30
   server:
     needs: tests
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    # Paused: retain the implementation and history for an explicit later restart.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
