@@ -64,7 +64,7 @@ async function refreshThread(){
    try{const r=await fetch(BASE+'/voice/'+encodeURIComponent(m.id),{headers:{Authorization:'Bearer '+session},signal:AbortSignal.timeout(20000),cache:'no-store'});if(!r.ok)throw Error('Vocal indisponible. Réessaie.');const blob=await r.blob();if(!row.isConnected||thread()!==d||token()!==session)return;
     const u=URL.createObjectURL(blob);voiceURLs.add(u);const audio=el('audio');audio.src=u;row.append(audioPlayer(audio,label));play.remove();hint.remove();readAudioDuration(audio,blob);await audio.play().catch(()=>{});
    }catch(e){if(row.isConnected){play.disabled=false;hint.textContent=errorText(e);}}
-  });play.classList.add('oneVoiceLoad');row.append(meta,play,hint);list.append(row);
+  });play.classList.add('oneVoiceLoad');row.append(meta,play,hint);if(m.mine){const del=iconButton('trash-2','Supprimer le vocal',async()=>{if(!confirm('Supprimer ce vocal pour les deux personnes ?'))return;del.disabled=true;try{const r=await fetch(BASE+'/voice/'+encodeURIComponent(m.id),{method:'DELETE',headers:{Authorization:'Bearer '+token()},cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error||'Suppression impossible.');row.remove();}catch(e){hint.textContent=e.message;del.disabled=false;}});del.textContent='Supprimer';row.append(del);}list.append(row);
  }
 
  }catch(e){/* Existing text/photo chat remains available before server installation. */}finally{voiceBusy=false;}
