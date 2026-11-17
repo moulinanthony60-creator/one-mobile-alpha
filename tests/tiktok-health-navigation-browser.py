@@ -133,3 +133,7 @@ with sync_playwright() as p:
     assert not errors, errors
     browser.close()
     print('Navigation browser checks passed: isolated session, paused 2+1 window, rapid recovery without telemetry, legacy abort then 1001 retains the next frame, no automatic skip.')
+
+# The standalone device test uses only synthetic player responses in CI.
+import runpy
+runpy.run_path(str(ROOT/'tests/tiktok-health-simple-browser.py'),run_name='__main__')
