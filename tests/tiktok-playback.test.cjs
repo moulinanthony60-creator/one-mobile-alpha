@@ -83,7 +83,7 @@ test('startup preview has a bounded lifetime even if TikTok never emits ready',(
   assert.equal(f.style.opacity,'0');assert.equal(s.querySelector('img').style.opacity,'1');assert.equal(s.dataset.ttNativeInput,'0');
   r.tick(500);assert.equal(f.style.opacity,'1');assert.equal(f.style.pointerEvents,'auto');assert.equal(s.querySelector('img').style.opacity,'0');
   assert.equal(s.dataset.ttManual,'1');assert.equal(s.dataset.ttControlsReady,'1');assert.equal(s.dataset.ttNativeInput,'1');assert.equal(s.dataset.ttVisualReady,'0');
-  r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['unMute']);
+  r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
   r.message(f,'onStateChange',1);assert.equal(f.style.opacity,'1');assert.equal(s.dataset.ttVisualReady,'0');
   r.playing(f);assert.equal(s.dataset.ttVisualReady,'1');
 });
@@ -143,7 +143,7 @@ test('returning to a failed player reloads it without restoring stale errors or 
   r.context.v17ActivateSlide(r.slides[1]);r.context.v17ActivateSlide(s);const f=r.frame(s);
   assert.notEqual(f,old);assert.equal(r.status(s),null);assert.equal(s.dataset.oneUserPaused,undefined);
   assert.equal(r.document.querySelectorAll('iframe').length,3);r.message(f,'onPlayerReady');
-  assert.deepEqual(f.messages.map(m=>m.data.type),['unMute']);assert.equal(s.dataset.ttManual,'1');assert.equal(f.style.opacity,'1');
+  assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);assert.equal(s.dataset.ttManual,'1');assert.equal(f.style.opacity,'1');
 });
 test('ready or playback ends the startup preview immediately without a fixed delay',()=>{
   for(const event of ['onPlayerReady','onStateChange']){
@@ -194,8 +194,8 @@ test('preloading keeps exactly one previous and two next players around the acti
   assert.deepEqual(r.slides.map((s,i)=>r.frame(s)?i:null).filter(i=>i!==null),[1,2,3,4]);
   for(const i of [1,3,4]){
     const f=r.frame(r.slides[i]);assert.equal(f.dataset.onePreload,'1');assert.equal(f.style.pointerEvents,'none');
-    assert.equal(f.getAttribute('aria-hidden'),'true');assert.equal(new URL(f.src).searchParams.get('muted'),'0');
-    assert.equal(f.messages.length,0);
+    assert.equal(f.getAttribute('aria-hidden'),'true');assert.equal(new URL(f.src).searchParams.get('muted'),'1');
+    assert.equal(new URL(f.src).searchParams.get('autoplay'),'0');assert.equal(f.messages.length,0);
   }
 });
 test('background players are muted and paused on ready or unexpected playback, never commanded to play',()=>{
@@ -325,7 +325,7 @@ test('a ready preload restores sound before play without any clock or playing ev
 test('a fresh active player restores sound as soon as ready, before any playback timestamp',()=>{
   const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
   assert.equal(f.messages.length,0);r.message(f,'onPlayerReady');
-  assert.deepEqual(f.messages.map(m=>m.data.type),['unMute']);
+  assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
   assert.equal(r.slides[0].dataset.ttTimeAdvanced,'0');
 });
 test('promotion before ready restores sound before play at the first ready notification',()=>{
@@ -339,7 +339,7 @@ test('immediate restoration respects deliberate mute, background visibility and 
   s.dataset.oneUserPaused='1';r.message(f,'onPlayerReady');assert.equal(f.messages.length,0);
   s.dataset.oneUserPaused='0';r.document.hidden=true;r.context.v17ResumeTikTokFrame(s);assert.equal(f.messages.length,0);
   r.document.hidden=false;r.context.v17ResumeTikTokFrame(s);
-  assert.deepEqual(f.messages.map(m=>m.data.type),['mute']);
+  assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
 });
 test('a missing ready event falls back to playing state without waiting for time progress',()=>{
   const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
@@ -377,10 +377,10 @@ test('legacy preferences potentially overwritten by autoplay are reset once, lat
     const r=setup(3,undefined,legacy);r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
     r.message(f,'onPlayerReady');
     assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
-    assert.equal(f.messages.at(-1).data.type,'unMute');
+    assert.equal(f.messages.filter(m=>['unMute','mute'].includes(m.data.type)).at(-1).data.type,'unMute');
   }
   const r=setup(3,'1','0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
-  r.message(f,'onPlayerReady');assert.equal(f.messages.at(-1).data.type,'mute');
+  r.message(f,'onPlayerReady');assert.equal(f.messages.filter(m=>['unMute','mute'].includes(m.data.type)).at(-1).data.type,'mute');
   assert.equal(r.storage.get('one_tiktok_sound_v3'),'1');
 });
 test('a deliberately muted startup does not trigger audio repair',()=>{
@@ -531,7 +531,7 @@ test('rebuilding the automatic feed excludes unavailable videos and explains an 
 test('first visit requests sound on the very first player without any stored preference',()=>{
   const r=setup(3);r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
   r.message(f,'onPlayerReady');
-  assert.equal(f.messages.at(-1)?.data.type,'unMute');
+  assert.equal(f.messages.filter(m=>['unMute','mute'].includes(m.data.type)).at(-1)?.data.type,'unMute');
   assert.equal(r.slides[0].dataset.ttTimeAdvanced,'0');
   for(const s of r.slides.slice(1))assert(!r.frame(s)?.messages.some(m=>m.data.type==='unMute'));
 });
@@ -591,7 +591,7 @@ test('repeated stale unavailable callbacks keep one destination without recreati
  r.context.v17ActivateSlide(r.slides[3]);const created=r.created.length,frame=r.frame(r.slides[4]);
  for(let i=0;i<20;i++){r.tick(80);r.context.v17ActivateSlide(r.slides[3]);}
  assert.equal(r.slides[4].dataset.active,'1');assert.equal(r.frame(r.slides[4]),frame);assert.equal(r.created.length,created);
- assert.equal(r.scrolls.length,1);assert.equal(r.scrolls[0].options.behavior,'instant');assert.equal(r.document.querySelectorAll('iframe').length,1);
+ assert.equal(r.scrolls.length,1);assert.equal(r.scrolls[0].options.behavior,'instant');assert.equal(r.document.querySelectorAll('iframe').length,4);
 });
 test('a fresh user gesture permits backward navigation across the same unavailable slot',()=>{
  const r=navigationSetup();r.install();r.context.v17ActivateSlide(r.slides[2]);r.context.v17RememberTikTokUnavailable(r.slides[3]);
@@ -635,13 +635,13 @@ function recoverySetup(soundPreference){
  const proof=id=>handlers['one-tiktok-playback']?.({detail:{id}});
  return {...r,proof,stop};
 }
-test('the first activation creates only one player while preserving sound and autoplay',()=>{
+test('the first activation starts one active player with paused two-ahead and one-behind preloads',()=>{
  const r=recoverySetup();r.context.v17ActivateSlide(r.slides[2]);
  const f=r.frame(r.slides[2]);assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');
  assert.equal(new URL(f.src).searchParams.get('muted'),'0');assert.equal(f.srcWrites,1);
- assert.equal(r.document.querySelectorAll('iframe').length,1);assert.equal(r.created.length,1);
- for(const i of [1,3,4])assert.equal(r.frame(r.slides[i]),null);
- r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['unMute']);
+ assert.equal(r.document.querySelectorAll('iframe').length,4);assert.equal(r.created.length,4);
+ for(const i of [1,3,4]){const bg=r.frame(r.slides[i]);assert(bg);assert.equal(new URL(bg.src).searchParams.get('autoplay'),'0');assert.equal(new URL(bg.src).searchParams.get('muted'),'1');r.message(bg,'onPlayerReady');assert.deepEqual(bg.messages.map(m=>m.data.type),['mute','pause']);}
+ r.message(f,'onPlayerReady');r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
 });
 test('a playback failure releases background frames without reloading or leaving the active one',()=>{
  const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s),created=r.created.length;
@@ -659,16 +659,17 @@ test('explicit retry creates one isolated frame and requests sound then playback
  assert.equal(new URL(f.src).searchParams.get('autoplay'),'0');r.message(f,'onPlayerReady');r.message(f,'onPlayerReady');
  assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);click();assert.equal(r.created.length,before+1);
 });
-test('successful playback and delayed refill calls never restart background requests',()=>{
+test('only matching visible playback proof restores the 2+1 window after a failure',()=>{
  const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s);
  r.message(f,'onPlayerError',{errorCode:3001});r.playing(f);
  r.proof('99999999');assert.equal(r.document.querySelectorAll('iframe').length,1);
  r.document.hidden=true;r.proof(r.items.get(s.dataset.id).tiktokId);assert.equal(r.document.querySelectorAll('iframe').length,1);
  r.document.hidden=false;s.dataset.oneUserPaused='1';r.proof(r.items.get(s.dataset.id).tiktokId);assert.equal(r.document.querySelectorAll('iframe').length,1);
  s.dataset.oneUserPaused='0';r.proof(r.items.get(s.dataset.id).tiktokId);
- r.context.v120PrewarmAround(s);r.context.v124PreloadTikTokSlide(r.slides[3]);r.tick(20000);
- assert.equal(r.document.querySelectorAll('iframe').length,1);assert.equal(r.created.length,1);assert.equal(r.frame(s),f);
- for(const i of [1,3,4])assert.equal(r.frame(r.slides[i]),null);
+ r.context.v120PrewarmAround(s);r.context.v124PreloadTikTokSlide(r.slides[3]);
+ assert.equal(r.document.querySelectorAll('iframe').length,4);assert.equal(r.created.length,7);assert.equal(r.frame(s),f);
+ for(const i of [1,3,4])assert(r.frame(r.slides[i]));
+ r.tick(20000);assert.equal(r.document.querySelectorAll('iframe').length,1);assert.equal(r.frame(s),f);
 });
 test('recovery never triggers an automatic retry or marks 3001 as unavailable',()=>{
  const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s),created=r.created.length;
@@ -682,17 +683,18 @@ test('isolated retry respects a deliberately saved mute before requesting play',
  assert.equal(r.storage.get('one_tiktok_sound_v3'),'1');
 });
 
-test('installing after an open feed releases old preloads without reloading the active player',()=>{
+test('installing after an open feed retains the bounded window and active player',()=>{
  const r=navigationSetup();r.context.v17ActivateSlide(r.slides[2]);const f=r.frame(r.slides[2]),created=r.created.length;
  assert.equal(r.document.querySelectorAll('iframe').length,4);r.install();
- assert.equal(r.document.querySelectorAll('iframe').length,1);assert.equal(r.frame(r.slides[2]),f);assert.equal(r.created.length,created);
+ assert.equal(r.document.querySelectorAll('iframe').length,4);assert.equal(r.frame(r.slides[2]),f);assert.equal(r.created.length,created);
 });
-test('forward and backward swipes release the previous player before appending the next one',()=>{
+test('forward and backward swipes retain only the 2+1 window and reuse the adjacent frame',()=>{
  const r=recoverySetup();let peak=0;
  for(const slide of r.slides){const media=slide.querySelector('.vslideMedia'),append=media.appendChild;
   media.appendChild=function(child){const result=append.call(this,child);peak=Math.max(peak,r.document.querySelectorAll('iframe').length);return result;};}
- for(const i of [2,3,4,3,2,1,2]){r.context.v17ActivateSlide(r.slides[i]);assert.equal(r.document.querySelectorAll('iframe').length,1);assert(r.frame(r.slides[i]));}
- assert.equal(peak,1);assert.equal(r.created.length,7);
+ let previous=2;r.context.v17ActivateSlide(r.slides[previous]);
+ for(const i of [3,4,3,2,1,2]){const ready=r.frame(r.slides[i]);assert(ready);r.context.v17ActivateSlide(r.slides[i]);assert.equal(r.frame(r.slides[i]),ready);assert.equal(r.document.querySelectorAll('iframe').length,4);const expected=[i-1,i,i+1,i+2];assert.deepEqual(r.slides.map((s,n)=>r.frame(s)?n:null).filter(n=>n!==null),expected);previous=i;}
+ assert.equal(peak,4);
 });
 test('error handling never dispatches an automatic next request even through a stale callback',()=>{
  const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s),created=r.created.length;

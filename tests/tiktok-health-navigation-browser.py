@@ -79,8 +79,12 @@ with sync_playwright() as p:
         page.evaluate('v17ActivateSlide(slides[3])')
     assert page.evaluate("slides[2].dataset.active==='1'")
     assert page.evaluate("Math.abs(document.getElementById('vfeedScroller').scrollTop-slides[2].offsetTop)<2")
-    assert page.locator('iframe').count()==1
-    assert page.evaluate("traces.filter(x=>x==='création préchargement').length===0")
+    assert page.locator('iframe').count()==4
+    assert page.evaluate("[...document.querySelectorAll('.vslide:not([data-active=\"1\"]) iframe')].every(f=>new URL(f.src).searchParams.get('autoplay')==='0' && new URL(f.src).searchParams.get('muted')==='1')")
+    for background in [f for f in page.frames if '/player/v1/' in f.url and not f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2])]:
+        background.wait_for_function('window.commands')
+        # A previous active video may have played; after parking it must be paused.
+        assert background.evaluate('commands.slice(-2)')==['mute','pause']
     # A real TikTok-origin playback error must not trigger automatic navigation.
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
     assert frame.evaluate('window.credentialless') is True
@@ -103,9 +107,18 @@ with sync_playwright() as p:
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:1}},'*')")
     page.wait_for_timeout(1000)
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:2}},'*')")
+    page.wait_for_function("document.querySelectorAll('#vfeed iframe').length===4")
     page.evaluate('v120PrewarmAround(slides[2]);v124PreloadTikTokSlide(slides[4])')
-    assert page.locator('iframe').count()==1
-    assert page.evaluate("traces.filter(x=>x==='création préchargement').length===0")
+    assert page.locator('iframe').count()==4
+    # Swipe promotes the same ready iframe and starts it once, after restoring sound.
+    page.wait_for_function("slides[4].querySelector('iframe')?.dataset.oneReady==='1'")
+    page.evaluate('window.promoted=slides[4].querySelector("iframe");v17StepSlide(slides[2],1)')
+    assert page.evaluate("slides[4].dataset.active==='1' && slides[4].querySelector('iframe')===promoted")
+    promoted = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[4]))
+    promoted.wait_for_function("commands.includes('play')")
+    assert promoted.evaluate("commands.slice(-2)")==['unMute','play']
+    page.evaluate('v17StepSlide(slides[4],-1)')
+    frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onPlayerError',value:{errorCode:1001,errorType:'INVALID_VIDEO'}},'*')")
     page.wait_for_function("!!slides[2].querySelector('.oneTikTokStatus')")
     page.wait_for_timeout(1700)
@@ -117,4 +130,4 @@ with sync_playwright() as p:
     assert page.locator('iframe').count()==1
     assert not errors, errors
     browser.close()
-    print('Navigation browser checks passed: temporary TikTok session excludes an old synthetic cookie, ONE storage preserved, sound before play, one player, explicit recovery and stable navigation.')
+    print('Navigation browser checks passed: isolated session, automatic active playback, paused 2+1 window, reused preloaded frame, sound before play, isolated recovery and stable navigation.')
