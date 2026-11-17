@@ -93,14 +93,45 @@ test('a video loading longer than 4.5 seconds is retained and can recover after 
   r.tick(10500);assert.equal(r.frame(s),f);assert.match(r.status(s).querySelector('p').textContent,/plus de temps/);
   r.playing(f);assert.equal(r.status(s),null);assert.equal(f.style.opacity,'1');
 });
-test('autoplay refusal leaves the same native player ready for a direct tap',()=>{
+test('autoplay refusal tries the same player once muted and retains native controls',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const old=r.frame(s);
   r.message(old,'onPlayerError',{errorCode:3002,errorType:'AUTOPLAY_ERROR'});const f=r.frame(s);
   assert.equal(f,old);assert.equal(f.dataset.oneManual,'1');assert.equal(new URL(f.src).searchParams.get('controls'),'1');
   assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');assert.equal(f.style.opacity,'1');
-  r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['unMute']);
+  r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
   r.message(f,'onPlayerError',{errorCode:3002});assert.equal(r.frame(s),f);
+  assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
   r.playing(f);assert.equal(r.status(s),null);
+});
+test('a ready player which silently refuses to start gets one muted attempt',()=>{
+ const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);r.message(f,'onPlayerReady');
+ r.tick(1199);assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);r.tick(1);
+ assert.deepEqual(f.messages.slice(-2).map(m=>m.data.type),['mute','play']);assert.equal(f.srcWrites,1);
+ r.message(f,'onMute',true);r.playing(f);assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,1);
+ assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');r.tick(3000);
+ assert.equal(f.messages.filter(m=>m.data.type==='play').length,2);
+});
+test('muted autoplay carries to the next video without overwriting the desired sound',()=>{
+ const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);
+ r.message(f,'onPlayerError',{errorCode:3002});r.playing(f);
+ const next=r.frame(r.slides[1]);r.message(next,'onPlayerReady');r.context.v17ActivateSlide(r.slides[1]);
+ assert.deepEqual(next.messages.slice(-2).map(m=>m.data.type),['mute','play']);
+ assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
+ // An explicit unmute in the native player restores the desired audible mode.
+ r.message(next,'onMute',true);r.message(next,'onMute',false);
+ r.context.v17ActivateSlide(r.slides[2]);const third=r.frame(r.slides[2]);r.message(third,'onPlayerReady');
+ assert.deepEqual(third.messages.slice(-2).map(m=>m.data.type),['unMute','play']);
+});
+test('autoplay recovery respects hidden state, explicit pause, stale frames and provider errors',()=>{
+ for(const mode of ['hidden','paused','stale','error']){
+  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);r.message(f,'onPlayerReady');
+  if(mode==='hidden')r.document.hidden=true;
+  if(mode==='paused')s.dataset.oneUserPaused='1';
+  if(mode==='stale')r.context.v17ActivateSlide(r.slides[1]);
+  if(mode==='error')r.message(f,'onPlayerError',{errorCode:3001});
+  const before=f.messages.length;r.tick(1200);
+  assert(!f.messages.slice(before).some(m=>m.data.type==='play'),mode);
+ }
 });
 test('invalid videos show a way forward without deleting catalogue entries',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.message(r.frame(s),'onPlayerError',{errorCode:1001});
