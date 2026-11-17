@@ -60,7 +60,7 @@ with sync_playwright() as p:
     page.add_script_tag(content=player)
     # Use the real loader, so global function binding and script order are covered.
     page.add_script_tag(content=(ROOT/'ui/tiktok-availability.js').read_text())
-    page.wait_for_function('!!window.ONETikTokNavigation')
+    page.wait_for_function('!!window.ONETikTokNavigation && !!window.ONETikTokPreload')
     page.evaluate('''()=>{
       window.slides=[...document.querySelectorAll('.vslide')];
       v17ActivateSlide(slides[2]);v17RememberTikTokUnavailable(slides[3]);
@@ -108,6 +108,16 @@ with sync_playwright() as p:
     page.wait_for_function("document.querySelectorAll('#vfeed iframe').length===4")
     page.evaluate('v120PrewarmAround(slides[2]);v124PreloadTikTokSlide(slides[4])')
     assert page.locator('iframe').count()==4
+    # Real cross-origin messages warm only one existing muted neighbour at a time.
+    page.wait_for_function("slides[4].querySelector('iframe')?.dataset.oneWarming==='1'")
+    warm = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[4]))
+    warm.wait_for_function("commands.includes('play')")
+    assert 'unMute' not in warm.evaluate('commands')
+    warm.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:.1}},'*')")
+    page.wait_for_function("slides[4].querySelector('iframe')?.dataset.oneWarm==='1'")
+    warm.wait_for_function("commands.at(-1)==='pause'")
+    assert page.evaluate("slides[4].dataset.ttTimeAdvanced!=='1'")
+    assert page.locator('iframe').count()==4
     # Swipe promotes the same ready iframe and starts it once, after restoring sound.
     page.wait_for_function("slides[4].querySelector('iframe')?.dataset.oneReady==='1'")
     page.evaluate('window.promoted=slides[4].querySelector("iframe");v17StepSlide(slides[2],1)')
@@ -132,7 +142,7 @@ with sync_playwright() as p:
     assert page.evaluate("slides[4].querySelector('iframe')===readyAfterBad")
     assert not errors, errors
     browser.close()
-    print('Navigation browser checks passed: isolated session, paused 2+1 window, rapid recovery without telemetry, legacy abort then 1001 retains the next frame, no automatic skip.')
+    print('Navigation browser checks passed: isolated session, bounded muted first-frame warmup in the 2+1 window, rapid recovery without telemetry, legacy abort then 1001 retains the next frame, no automatic skip.')
 
 # The standalone device test uses only synthetic player responses in CI.
 import runpy
