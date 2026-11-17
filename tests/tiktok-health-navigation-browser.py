@@ -103,10 +103,8 @@ with sync_playwright() as p:
     assert frame.evaluate('commands')==['unMute','play']
     assert page.locator('iframe').count()==1
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onStateChange',value:1},'*');parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:0}},'*')")
-    page.wait_for_timeout(1000)
-    frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:1}},'*')")
-    page.wait_for_timeout(1000)
-    frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:2}},'*')")
+    page.wait_for_timeout(250)
+    frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:.25}},'*')")
     page.wait_for_function("document.querySelectorAll('#vfeed iframe').length===4")
     page.evaluate('v120PrewarmAround(slides[2]);v124PreloadTikTokSlide(slides[4])')
     assert page.locator('iframe').count()==4
@@ -119,15 +117,19 @@ with sync_playwright() as p:
     assert promoted.evaluate("commands.slice(-2)")==['unMute','play']
     page.evaluate('v17StepSlide(slides[4],-1)')
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
-    frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onPlayerError',value:{errorCode:1001,errorType:'INVALID_VIDEO'}},'*')")
+    page.evaluate('window.readyAfterBad=slides[4].querySelector("iframe")')
+    # Exact phone ordering: legacy abort, followed by the typed unavailable error.
+    frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onError',value:1},'*');parent.postMessage({'x-tiktok-player':true,type:'onPlayerError',value:{errorCode:1001,errorType:'INVALID_VIDEO'}},'*')")
     page.wait_for_function("!!slides[2].querySelector('.oneTikTokStatus')")
     page.wait_for_timeout(1700)
     assert page.evaluate("slides[2].dataset.active==='1'")
-    assert page.locator('iframe').count()==0
+    assert page.locator('iframe').count()==3
+    assert page.evaluate("slides[4].querySelector('iframe')===readyAfterBad")
     assert 'Passage' not in page.locator('.oneTikTokStatus').inner_text()
     page.get_by_role('button',name='Vidéo suivante',exact=True).click()
     page.wait_for_function("slides[4].querySelector('iframe')?.dataset.oneReady==='1'")
-    assert page.locator('iframe').count()==1
+    assert page.locator('iframe').count()==4
+    assert page.evaluate("slides[4].querySelector('iframe')===readyAfterBad")
     assert not errors, errors
     browser.close()
-    print('Navigation browser checks passed: isolated session, automatic active playback, paused 2+1 window, reused preloaded frame, sound before play, isolated recovery and stable navigation.')
+    print('Navigation browser checks passed: isolated session, paused 2+1 window, rapid recovery without telemetry, legacy abort then 1001 retains the next frame, no automatic skip.')

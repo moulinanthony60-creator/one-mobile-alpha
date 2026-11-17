@@ -624,17 +624,28 @@ test('the navigation guard preserves immediate sound and stops automatic skips o
  assert.equal(r.slides[0].dataset.active,'1');assert.equal(r.created.length,created);assert.equal(r.scrolls.length,0);
  assert(!r.button(r.slides[0],'Rester ici'));assert(!r.status(r.slides[0]).querySelector('p').textContent.includes('Passage'));
  r.button(r.slides[0],'Vidéo suivante').onclick({stopPropagation(){}});
- assert.equal(r.slides[1].dataset.active,'1');assert.equal(r.document.querySelectorAll('iframe').length,1);
+ assert.equal(r.slides[1].dataset.active,'1');assert.equal(r.document.querySelectorAll('iframe').length,3);
 });
 
 function recoverySetup(soundPreference){
  const r=navigationSetup(soundPreference);
- const handlers={},add=r.context.addEventListener;
- r.context.addEventListener=(name,fn)=>{handlers[name]=fn;add(name,fn);};
  const stop=r.install();
- const proof=id=>handlers['one-tiktok-playback']?.({detail:{id}});
- return {...r,proof,stop};
+ return {...r,stop};
 }
+test('phone replay: legacy abort then INVALID_VIDEO keeps the next ready players through rapid swipes',()=>{
+ const r=recoverySetup();r.context.v17ActivateSlide(r.slides[0]);const bad=r.frame(r.slides[0]),next=r.frame(r.slides[1]),second=r.frame(r.slides[2]);
+ r.message(next,'onPlayerReady');r.message(second,'onPlayerReady');
+ r.message(bad,'onError',1);assert.equal(r.frame(r.slides[1]),next);assert.equal(r.frame(r.slides[2]),second);
+ r.tick(2);r.message(bad,'onPlayerError',{errorCode:1001,errorType:'INVALID_VIDEO'});
+ assert.equal(r.frame(r.slides[0]),null);assert.equal(r.frame(r.slides[1]),next);assert.equal(r.frame(r.slides[2]),second);
+ assert.equal(r.scrolls.length,0);assert.equal(r.created.length,3);
+ r.context.v17StepSlide(r.slides[0],1);assert.equal(r.frame(r.slides[1]),next);
+ assert.deepEqual(next.messages.slice(-2).map(m=>m.data.type),['unMute','play']);
+ // Swipe again before two seconds of viewing: preloading still works.
+ r.context.v17StepSlide(r.slides[1],1);assert.equal(r.frame(r.slides[2]),second);
+ assert.equal(second.srcWrites,1);assert.equal(r.document.querySelectorAll('iframe').length,4);
+ assert.deepEqual(second.messages.slice(-2).map(m=>m.data.type),['unMute','play']);
+});
 test('the first activation starts one active player with paused two-ahead and one-behind preloads',()=>{
  const r=recoverySetup();r.context.v17ActivateSlide(r.slides[2]);
  const f=r.frame(r.slides[2]);assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');
@@ -659,13 +670,15 @@ test('explicit retry creates one isolated frame and requests sound then playback
  assert.equal(new URL(f.src).searchParams.get('autoplay'),'0');r.message(f,'onPlayerReady');r.message(f,'onPlayerReady');
  assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);click();assert.equal(r.created.length,before+1);
 });
-test('only matching visible playback proof restores the 2+1 window after a failure',()=>{
+test('visible active time progression restores preloading without waiting for telemetry or two seconds',()=>{
  const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s);
- r.message(f,'onPlayerError',{errorCode:3001});r.playing(f);
- r.proof('99999999');assert.equal(r.document.querySelectorAll('iframe').length,1);
- r.document.hidden=true;r.proof(r.items.get(s.dataset.id).tiktokId);assert.equal(r.document.querySelectorAll('iframe').length,1);
- r.document.hidden=false;s.dataset.oneUserPaused='1';r.proof(r.items.get(s.dataset.id).tiktokId);assert.equal(r.document.querySelectorAll('iframe').length,1);
- s.dataset.oneUserPaused='0';r.proof(r.items.get(s.dataset.id).tiktokId);
+ r.message(f,'onPlayerError',{errorCode:3001});r.message(f,'onStateChange',1);
+ r.message(f,'onCurrentTime',{currentTime:0});r.message(f,'onCurrentTime',{currentTime:0});assert.equal(r.document.querySelectorAll('iframe').length,1);
+ r.message(f,'onCurrentTime',{currentTime:.5},'https://foreign.test');assert.equal(r.document.querySelectorAll('iframe').length,1);
+ r.document.hidden=true;r.message(f,'onCurrentTime',{currentTime:.5});assert.equal(r.document.querySelectorAll('iframe').length,1);
+ r.document.hidden=false;s.dataset.oneUserPaused='1';r.message(f,'onCurrentTime',{currentTime:1});assert.equal(r.document.querySelectorAll('iframe').length,1);
+ s.dataset.oneUserPaused='0';r.message(f,'onCurrentTime',{currentTime:1});assert.equal(r.document.querySelectorAll('iframe').length,1);
+ r.message(f,'onCurrentTime',{currentTime:1.5});
  r.context.v120PrewarmAround(s);r.context.v124PreloadTikTokSlide(r.slides[3]);
  assert.equal(r.document.querySelectorAll('iframe').length,4);assert.equal(r.created.length,7);assert.equal(r.frame(s),f);
  for(const i of [1,3,4])assert(r.frame(r.slides[i]));
