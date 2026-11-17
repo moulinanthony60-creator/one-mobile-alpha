@@ -83,7 +83,8 @@ with sync_playwright() as p:
     assert page.evaluate("[...document.querySelectorAll('.vslide:not([data-active=\"1\"]) iframe')].every(f=>new URL(f.src).searchParams.get('autoplay')==='0' && new URL(f.src).searchParams.get('muted')==='1')")
     for background in [f for f in page.frames if '/player/v1/' in f.url and not f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2])]:
         background.wait_for_function('window.commands')
-        assert 'play' not in background.evaluate('commands')
+        # A previous active video may have played; after parking it must be paused.
+        assert background.evaluate('commands.slice(-2)')==['mute','pause']
     # A real TikTok-origin playback error must not trigger automatic navigation.
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
     assert frame.evaluate('window.credentialless') is True
