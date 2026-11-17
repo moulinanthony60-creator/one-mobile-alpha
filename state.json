@@ -11,8 +11,8 @@
     "7708876580608609568": {
       "status": "played",
       "reason": "time_advanced",
-      "seconds": 2.76,
-      "checkedAt": "2026-11-17T06:37:01.326523+00:00",
+      "seconds": 2.1,
+      "checkedAt": "2026-11-17T07:31:56.874984+00:00",
       "confirmations": 0
     },
     "7696328788434521374": {
@@ -33,13 +33,14 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T11:19:20.609581+00:00",
-      "confirmations": 1,
+      "checkedAt": "2026-11-17T07:33:11.434800+00:00",
+      "confirmations": 2,
       "firstUnavailableAt": "2026-11-16T11:19:20.609581+00:00",
-      "lastUnavailableAt": "2026-11-16T11:19:20.609581+00:00",
-      "confirmationRun": "43856332609",
+      "lastUnavailableAt": "2026-11-17T07:33:11.434800+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43856332609"
+        "43856332609",
+        "44039090159"
       ]
     },
     "7707650544428518678": {
@@ -109,14 +110,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:18:16.898942+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:33:52.881339+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:43:59.373857+00:00",
-      "lastUnavailableAt": "2026-11-16T22:18:16.898942+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:33:52.881339+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43817607920",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7692503650815511840": {
@@ -130,42 +132,45 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:18:27.431907+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:34:04.190348+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:44:23.706421+00:00",
-      "lastUnavailableAt": "2026-11-16T22:18:27.431907+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:34:04.190348+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43817607920",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7692108458715303201": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:18:37.883401+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:34:14.585271+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:44:34.085734+00:00",
-      "lastUnavailableAt": "2026-11-16T22:18:37.883401+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:34:14.585271+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43817607920",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7688465072326315286": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:18:48.285441+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:34:24.906839+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:44:44.420242+00:00",
-      "lastUnavailableAt": "2026-11-16T22:18:48.285441+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:34:24.906839+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43817607920",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7684890867164892437": {
@@ -186,14 +191,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:18:58.663470+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:34:35.227420+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:47:28.416956+00:00",
-      "lastUnavailableAt": "2026-11-16T22:18:58.663470+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:34:35.227420+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7691376457196637472": {
@@ -214,15 +220,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:19:09.132993+00:00",
+      "checkedAt": "2026-11-17T07:34:45.625242+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-12T20:05:35.358190+00:00",
-      "lastUnavailableAt": "2026-11-16T22:19:09.132993+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:34:45.625242+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43296280900",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7677085625144708382": {
@@ -257,14 +263,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:19:19.742800+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:34:55.998756+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:48:58.925511+00:00",
-      "lastUnavailableAt": "2026-11-16T22:19:19.742800+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:34:55.998756+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7681427105762036999": {
@@ -292,70 +299,75 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:19:30.211011+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:35:06.398776+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:49:52.141349+00:00",
-      "lastUnavailableAt": "2026-11-16T22:19:30.211011+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:35:06.398776+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7692527926914321682": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:19:40.668185+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:35:16.816823+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:50:17.670760+00:00",
-      "lastUnavailableAt": "2026-11-16T22:19:40.668185+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:35:16.816823+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7689109053670165793": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:19:51.136265+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:35:27.205653+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:50:28.118167+00:00",
-      "lastUnavailableAt": "2026-11-16T22:19:51.136265+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:35:27.205653+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7691015368042745121": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:20:01.631311+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:35:37.600873+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:50:38.586054+00:00",
-      "lastUnavailableAt": "2026-11-16T22:20:01.631311+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:35:37.600873+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7679102838215036193": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:20:12.038994+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:35:47.933248+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:50:48.933882+00:00",
-      "lastUnavailableAt": "2026-11-16T22:20:12.038994+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:35:47.933248+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7682435359992532237": {
@@ -369,14 +381,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:20:22.488469+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:35:58.318500+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:51:13.082936+00:00",
-      "lastUnavailableAt": "2026-11-16T22:20:22.488469+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:35:58.318500+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7688805958633475361": {
@@ -390,30 +403,30 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:20:32.939062+00:00",
+      "checkedAt": "2026-11-17T07:36:08.716107+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T19:52:55.804903+00:00",
-      "lastUnavailableAt": "2026-11-16T22:20:32.939062+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:36:08.716107+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7672419749241916693": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:20:43.444095+00:00",
+      "checkedAt": "2026-11-17T07:36:19.169734+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T19:53:06.560231+00:00",
-      "lastUnavailableAt": "2026-11-16T22:20:43.444095+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:36:19.169734+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7670321774600408352": {
@@ -434,15 +447,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:20:53.930870+00:00",
+      "checkedAt": "2026-11-17T07:36:29.565749+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T19:53:45.526706+00:00",
-      "lastUnavailableAt": "2026-11-16T22:20:53.930870+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:36:29.565749+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7679521417796373792": {
@@ -463,15 +476,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:21:04.449507+00:00",
+      "checkedAt": "2026-11-17T07:36:39.968698+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T19:54:23.652120+00:00",
-      "lastUnavailableAt": "2026-11-16T22:21:04.449507+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:36:39.968698+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7692543266759265568": {
@@ -485,15 +498,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:21:14.814455+00:00",
+      "checkedAt": "2026-11-17T07:36:50.294495+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T19:54:48.209382+00:00",
-      "lastUnavailableAt": "2026-11-16T22:21:14.814455+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:36:50.294495+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7671086540088413473": {
@@ -542,15 +555,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:21:25.260405+00:00",
+      "checkedAt": "2026-11-17T07:37:00.628156+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T19:56:22.967651+00:00",
-      "lastUnavailableAt": "2026-11-16T22:21:25.260405+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:37:00.628156+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7671051427531197726": {
@@ -564,15 +577,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:21:35.725580+00:00",
+      "checkedAt": "2026-11-17T07:37:11.030359+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T19:56:47.087241+00:00",
-      "lastUnavailableAt": "2026-11-16T22:21:35.725580+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:37:11.030359+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7681674484490718496": {
@@ -607,15 +620,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:21:46.163637+00:00",
+      "checkedAt": "2026-11-17T07:37:21.446437+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T19:57:53.892196+00:00",
-      "lastUnavailableAt": "2026-11-16T22:21:46.163637+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:37:21.446437+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7674918395229375752": {
@@ -650,30 +663,30 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:21:56.548541+00:00",
+      "checkedAt": "2026-11-17T07:37:31.779688+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T19:59:00.540196+00:00",
-      "lastUnavailableAt": "2026-11-16T22:21:56.548541+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:37:31.779688+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7691696081012378888": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:22:07.074484+00:00",
+      "checkedAt": "2026-11-17T07:37:42.171856+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T19:59:10.991927+00:00",
-      "lastUnavailableAt": "2026-11-16T22:22:07.074484+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:37:42.171856+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7674045767161629985": {
@@ -687,15 +700,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:22:17.460031+00:00",
+      "checkedAt": "2026-11-17T07:37:52.503495+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T19:59:35.493427+00:00",
-      "lastUnavailableAt": "2026-11-16T22:22:17.460031+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:37:52.503495+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7692199633866509590": {
@@ -723,15 +736,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:22:27.944570+00:00",
+      "checkedAt": "2026-11-17T07:38:02.919495+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T20:00:27.795280+00:00",
-      "lastUnavailableAt": "2026-11-16T22:22:27.944570+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:38:02.919495+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7692405137402334497": {
@@ -745,15 +758,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:22:38.418451+00:00",
+      "checkedAt": "2026-11-17T07:38:13.308340+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T20:00:52.436812+00:00",
-      "lastUnavailableAt": "2026-11-16T22:22:38.418451+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:38:13.308340+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7692492985988074785": {
@@ -767,30 +780,30 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:22:48.807210+00:00",
+      "checkedAt": "2026-11-17T07:38:23.630653+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-13T20:01:16.692638+00:00",
-      "lastUnavailableAt": "2026-11-16T22:22:48.807210+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:38:23.630653+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43495931855",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7691694433464536352": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:22:59.253934+00:00",
+      "checkedAt": "2026-11-17T07:38:34.052181+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-14T06:40:01.747329+00:00",
-      "lastUnavailableAt": "2026-11-16T22:22:59.253934+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:38:34.052181+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43567288974",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7692508142386613536": {
@@ -825,15 +838,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:23:09.726008+00:00",
+      "checkedAt": "2026-11-17T07:38:44.460365+00:00",
       "confirmations": 3,
       "firstUnavailableAt": "2026-11-14T06:41:10.746003+00:00",
-      "lastUnavailableAt": "2026-11-16T22:23:09.726008+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:38:44.460365+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
-        "43567288974",
         "43818696401",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7691185218287340833": {
@@ -2212,14 +2225,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T09:32:25.614296+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:32:08.229412+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-15T06:56:11.776991+00:00",
-      "lastUnavailableAt": "2026-11-16T09:32:25.614296+00:00",
-      "confirmationRun": "43840192283",
+      "lastUnavailableAt": "2026-11-17T07:32:08.229412+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43686858662",
-        "43840192283"
+        "43840192283",
+        "44039090159"
       ]
     },
     "7690212757374766369": {
@@ -2268,14 +2282,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T09:32:36.031938+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:32:18.661964+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-15T18:58:56.573290+00:00",
-      "lastUnavailableAt": "2026-11-16T09:32:36.031938+00:00",
-      "confirmationRun": "43840192283",
+      "lastUnavailableAt": "2026-11-17T07:32:18.661964+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43749529765",
-        "43840192283"
+        "43840192283",
+        "44039090159"
       ]
     },
     "7688044174641220896": {
@@ -2289,14 +2304,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T09:33:00.244885+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:32:29.084277+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-15T18:59:46.996538+00:00",
-      "lastUnavailableAt": "2026-11-16T09:33:00.244885+00:00",
-      "confirmationRun": "43840192283",
+      "lastUnavailableAt": "2026-11-17T07:32:29.084277+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43749529765",
-        "43840192283"
+        "43840192283",
+        "44039090159"
       ]
     },
     "7690219097530944800": {
@@ -2317,14 +2333,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T09:33:12.385864+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:32:40.294697+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-15T19:00:27.016862+00:00",
-      "lastUnavailableAt": "2026-11-16T09:33:12.385864+00:00",
-      "confirmationRun": "43840192283",
+      "lastUnavailableAt": "2026-11-17T07:32:40.294697+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43749529765",
-        "43840192283"
+        "43840192283",
+        "44039090159"
       ]
     },
     "7689514106843368737": {
@@ -2401,28 +2418,30 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T09:33:22.825552+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:32:50.703729+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-15T19:03:01.098043+00:00",
-      "lastUnavailableAt": "2026-11-16T09:33:22.825552+00:00",
-      "confirmationRun": "43840192283",
+      "lastUnavailableAt": "2026-11-17T07:32:50.703729+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43749529765",
-        "43840192283"
+        "43840192283",
+        "44039090159"
       ]
     },
     "7690380336601074976": {
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T09:33:33.109583+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:33:01.030440+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-15T19:03:11.533235+00:00",
-      "lastUnavailableAt": "2026-11-16T09:33:33.109583+00:00",
-      "confirmationRun": "43840192283",
+      "lastUnavailableAt": "2026-11-17T07:33:01.030440+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43749529765",
-        "43840192283"
+        "43840192283",
+        "44039090159"
       ]
     },
     "7685111971552759054": {
@@ -2555,14 +2574,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:17:45.667247+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:33:21.830974+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:36:32.050867+00:00",
-      "lastUnavailableAt": "2026-11-16T22:17:45.667247+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:33:21.830974+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43817607920",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7686171596322557191": {
@@ -2660,14 +2680,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:17:56.170569+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:33:32.232722+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:39:48.169987+00:00",
-      "lastUnavailableAt": "2026-11-16T22:17:56.170569+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:33:32.232722+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43817607920",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7689823057782852896": {
@@ -2730,14 +2751,15 @@
       "status": "unavailable",
       "reason": "invalid_video",
       "code": 1001,
-      "checkedAt": "2026-11-16T22:18:06.548846+00:00",
-      "confirmations": 2,
+      "checkedAt": "2026-11-17T07:33:42.560486+00:00",
+      "confirmations": 3,
       "firstUnavailableAt": "2026-11-16T06:41:54.828974+00:00",
-      "lastUnavailableAt": "2026-11-16T22:18:06.548846+00:00",
-      "confirmationRun": "43968246365",
+      "lastUnavailableAt": "2026-11-17T07:33:42.560486+00:00",
+      "confirmationRun": "44039090159",
       "confirmationRuns": [
         "43817607920",
-        "43968246365"
+        "43968246365",
+        "44039090159"
       ]
     },
     "7657316569730829600": {
@@ -2777,13 +2799,13 @@
     }
   },
   "notBefore": null,
-  "updatedAt": "2026-11-17T06:43:55.369467+00:00",
-  "lastRun": "44032225775",
-  "lastRunStartedAt": "2026-11-17T06:36:25.792868+00:00",
+  "updatedAt": "2026-11-17T07:38:44.596096+00:00",
+  "lastRun": "44039090159",
+  "lastRunStartedAt": "2026-11-17T07:31:49.961420+00:00",
   "lastStopReason": "batch_limit",
   "healthyPlaybackObserved": true,
   "appEvidence": {
     "available": false,
-    "checkedAt": "2026-11-17T06:43:55.369292+00:00"
+    "checkedAt": "2026-11-17T07:38:44.595863+00:00"
   }
 }
