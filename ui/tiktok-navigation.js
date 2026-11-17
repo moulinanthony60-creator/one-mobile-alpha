@@ -12,11 +12,12 @@
   const root=doc.getElementById('vfeedScroller');
   const preload=host.v124PreloadTikTokSlide,neighbors=host.v17TikTokNeighbors,fallback=host.v17TikTokFallback;
   let recovery=false;
+  let clocks=new WeakMap();
   const retried=new WeakMap();
   function isolate(slide){
    if(!slide||slide.dataset.platform!=='tiktok'||slide.getAttribute('data-active')!=='1')return;
    if(!recovery)host.oneTTTrace?.('lecture isolée après erreur',slide,slide.querySelector('iframe'));
-   recovery=true;
+   recovery=true;clocks=new WeakMap();
    doc.querySelectorAll('.vslide[data-platform="tiktok"]').forEach(other=>{if(other!==slide)host.v17RestoreSlide(other);});
   }
   function surrounding(slide){return recovery?[]:neighbors.call(this,slide);}
@@ -25,15 +26,29 @@
    if(recovery||!surrounding(active).includes(slide))return;
    return preload.call(this,slide);
   }
-  function recovered(event){
+  function resetClocks(){clocks=new WeakMap();}
+  function progress(event){
+   const data=event.data;
+   if(event.origin!=='https://www.tiktok.com'||data?.['x-tiktok-player']!==true)return;
    const active=doc.querySelector('.vslide[data-active="1"]'),frame=active?.querySelector('iframe');
-   if(!recovery||!frame||doc.hidden||!doc.getElementById('vfeed')?.classList.contains('show')||active.dataset.oneUserPaused==='1'||active.dataset.ttPlaying!=='1'||active.dataset.ttTimeAdvanced!=='1'||frame.dataset.onePreloadError)return;
-   const id=host.v17RawTikTokId(host.v17ItemById(active.dataset.id));
-   if(event.detail?.id!==id)return;
+   if(!frame||frame.contentWindow!==event.source)return;
+   if(data.type!=='onCurrentTime'){
+    if(['onStateChange','onPlayerError','onError'].includes(data.type))clocks.delete(frame);
+    return;
+   }
+   if(!recovery)return;
+   const time=data.value?.currentTime??data.value,previous=clocks.get(frame);
+   if(doc.hidden||!doc.getElementById('vfeed')?.classList.contains('show')||active.dataset.oneUserPaused==='1'||active.dataset.ttPlaying!=='1'||typeof time!=='number'||!Number.isFinite(time)||time<0){clocks.delete(frame);return;}
+   clocks.set(frame,time);
+   if(previous===undefined||time<=previous||time-previous>5||active.dataset.ttTimeAdvanced!=='1'||frame.dataset.onePreloadError)return;
+   // Resume warming on real visible progress, without waiting for health telemetry.
    recovery=false;host.v120PrewarmAround(active);
   }
   function failed(slide,reason='network'){
-   if(['network','slow','invalid'].includes(reason))isolate(slide);
+   // Legacy onError(1) is followed by the specific error in the phone trace.
+   // Neither that abort nor a single INVALID_VIDEO should discard healthy neighbours.
+   const code=slide?.querySelector('iframe')?.dataset.onePreloadError;
+   if(reason==='slow'||(reason==='network'&&code!=='1'))isolate(slide);
    const result=fallback.call(this,slide,reason);
    if(reason==='invalid'&&slide?.getAttribute('data-active')==='1'){
     host.clearTimeout(slide._ttSkipTimer);
@@ -60,9 +75,11 @@
   host.v124PreloadTikTokSlide=warm;host.v17TikTokNeighbors=surrounding;host.v17TikTokFallback=failed;
   // The loader may arrive after the feed opens. Reuse only the bounded window.
   const current=doc.querySelector('.vslide[data-active="1"]');
-  if(current?.querySelector('iframe')?.dataset.onePreloadError)isolate(current);
+  const currentError=current?.querySelector('iframe')?.dataset.onePreloadError;
+  if(currentError&&!['1','1001'].includes(currentError))isolate(current);
   else if(current)host.v120PrewarmAround(current);
-  host.addEventListener('one-tiktok-playback',recovered);
+  host.addEventListener('message',progress);
+  doc.addEventListener('visibilitychange',resetClocks);
   const cancel=()=>{redirects=new WeakMap();};
   const unavailable=slide=>!!slide&&host.v17TikTokIsUnavailable(host.v17ItemById(slide.dataset.id));
   function move(slide){
@@ -106,7 +123,8 @@
    if(host.v124PreloadTikTokSlide===warm)host.v124PreloadTikTokSlide=preload;
    if(host.v17TikTokNeighbors===surrounding)host.v17TikTokNeighbors=neighbors;
    if(host.v17TikTokFallback===failed)host.v17TikTokFallback=fallback;
-   host.removeEventListener?.('one-tiktok-playback',recovered);
+   host.removeEventListener?.('message',progress);
+   doc.removeEventListener?.('visibilitychange',resetClocks);
    for(const type of ['pointerdown','wheel','keydown'])root?.removeEventListener(type,cancel);
    cancel();
   }};
