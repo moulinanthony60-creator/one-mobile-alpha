@@ -1,4 +1,4 @@
-/* Stable navigation with one TikTok player and user-driven recovery only. */
+/* Stable navigation, paused 2+1 preloading and isolated error recovery. */
 (function(root,factory){
  const api=factory();
  if(typeof module==='object'&&module.exports)module.exports=api;
@@ -19,12 +19,21 @@
    recovery=true;
    doc.querySelectorAll('.vslide[data-platform="tiktok"]').forEach(other=>{if(other!==slide)host.v17RestoreSlide(other);});
   }
-  // Even a paused iframe loads TikTok resources. Do not request neighbours,
-  // including after successful playback or through delayed refill callbacks.
-  function surrounding(){return [];}
-  function warm(){}
+  function surrounding(slide){return recovery?[]:neighbors.call(this,slide);}
+  function warm(slide){
+   const active=doc.querySelector('.vslide[data-active="1"]');
+   if(recovery||!surrounding(active).includes(slide))return;
+   return preload.call(this,slide);
+  }
+  function recovered(event){
+   const active=doc.querySelector('.vslide[data-active="1"]'),frame=active?.querySelector('iframe');
+   if(!recovery||!frame||doc.hidden||!doc.getElementById('vfeed')?.classList.contains('show')||active.dataset.oneUserPaused==='1'||active.dataset.ttPlaying!=='1'||active.dataset.ttTimeAdvanced!=='1'||frame.dataset.onePreloadError)return;
+   const id=host.v17RawTikTokId(host.v17ItemById(active.dataset.id));
+   if(event.detail?.id!==id)return;
+   recovery=false;host.v120PrewarmAround(active);
+  }
   function failed(slide,reason='network'){
-   if(reason==='network'||reason==='slow')isolate(slide);
+   if(['network','slow','invalid'].includes(reason))isolate(slide);
    const result=fallback.call(this,slide,reason);
    if(reason==='invalid'&&slide?.getAttribute('data-active')==='1'){
     host.clearTimeout(slide._ttSkipTimer);
@@ -49,9 +58,11 @@
    return result;
   }
   host.v124PreloadTikTokSlide=warm;host.v17TikTokNeighbors=surrounding;host.v17TikTokFallback=failed;
-  // The loader may run after the feed has already opened. Release older preloads.
+  // The loader may arrive after the feed opens. Reuse only the bounded window.
   const current=doc.querySelector('.vslide[data-active="1"]');
-  doc.querySelectorAll('.vslide[data-platform="tiktok"]').forEach(slide=>{if(slide!==current)host.v17RestoreSlide(slide);});
+  if(current?.querySelector('iframe')?.dataset.onePreloadError)isolate(current);
+  else if(current)host.v120PrewarmAround(current);
+  host.addEventListener('one-tiktok-playback',recovered);
   const cancel=()=>{redirects=new WeakMap();};
   const unavailable=slide=>!!slide&&host.v17TikTokIsUnavailable(host.v17ItemById(slide.dataset.id));
   function move(slide){
@@ -95,6 +106,7 @@
    if(host.v124PreloadTikTokSlide===warm)host.v124PreloadTikTokSlide=preload;
    if(host.v17TikTokNeighbors===surrounding)host.v17TikTokNeighbors=neighbors;
    if(host.v17TikTokFallback===failed)host.v17TikTokFallback=fallback;
+   host.removeEventListener?.('one-tiktok-playback',recovered);
    for(const type of ['pointerdown','wheel','keydown'])root?.removeEventListener(type,cancel);
    cancel();
   }};
