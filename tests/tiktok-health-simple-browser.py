@@ -57,13 +57,29 @@ with sync_playwright() as p:
     expect(page.get_by_role('textbox',name='Résultat à copier')).to_be_visible()
     result=json.loads(page.get_by_role('textbox',name='Résultat à copier').input_value().split('\n',1)[1])
     assert result['playbackConfirmed'] is False and any(row.get('code')==3001 for row in result['events'])
+    # Changing mode stops the old frame and does not request anything until Start.
+    page.get_by_label('Mode du lecteur').select_option('isolated')
+    assert page.locator('iframe').count()==0 and len(requests)==2
+    page.get_by_role('button',name='Démarrer le test',exact=True).click()
+    expect(page.get_by_role('status')).to_contain_text('Lecteur prêt')
+    assert page.locator('iframe').count()==1 and len(requests)==3
+    assert page.locator('iframe').get_attribute('credentialless') is not None
+    frame=next(f for f in page.frames if 'tiktok.com/player/' in f.url)
+    frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onPlayerError',value:{errorCode:2001,errorType:'SERVER_ERROR'}},'*')")
+    expect(page.get_by_role('status')).to_contain_text('erreur serveur (2001)')
+    page.get_by_role('button',name='Copier le résultat',exact=True).click()
+    result=json.loads(page.get_by_role('textbox',name='Résultat à copier').input_value().split('\n',1)[1])
+    assert result['sessionIsolee'] is True and result['ready'] is True and result['playbackConfirmed'] is False
+    assert result['previousTests'][0]['sessionIsolee'] is False and result['previousTests'][0]['playbackConfirmed'] is True
+    assert all(row['video']==result['video'] for row in result['previousTests'])
+    assert len(result['previousTests'])==2 and len(requests)==3
     for width in (320,390,900):
         page.set_viewport_size({'width':width,'height':844})
         assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),width
     for invalid in ('bad','123','1234567890123456789012345'):
         page.goto('https://one.test/tiktok-test.html?video='+invalid)
         expect(page.get_by_role('status')).to_contain_text('Identifiant vidéo invalide')
-        assert page.locator('iframe').count()==0 and len(requests)==2
+        assert page.locator('iframe').count()==0 and len(requests)==3
     assert not errors,errors
     browser.close()
-    print('Simple player browser checks passed: one explicit standard embed, no background scans, origin/source validation, two-second playback proof, error and clipboard fallback, invalid IDs and mobile layout.')
+    print('Simple player browser checks passed: explicit standard/isolated comparison on one video, no background scans, origin/source validation, two-second playback proof, server errors kept distinct, combined copy, invalid IDs and mobile layout.')
