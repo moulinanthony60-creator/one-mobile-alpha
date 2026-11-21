@@ -12,7 +12,8 @@
 <body><main>
 <header><strong>ONE.</strong><a href="./">Retour à ONE</a></header>
 <h1>Test de lecture simple</h1>
-<p>Une seule vidéo, sans préchargement. Appuie sur le bouton pour essayer le lecteur TikTok seul.</p>
+<p>Une seule vidéo, sans préchargement. Essaie le lecteur standard, puis le lecteur isolé sur cette même vidéo. Les deux résultats seront réunis lorsque tu les copieras.</p>
+<p><label for="session">Mode du lecteur</label><br><select id="session" style="max-width:100%;min-height:48px;font:inherit"><option value="standard">Lecteur standard</option><option value="isolated">Lecteur isolé — comme dans ONE v251</option></select></p>
 <nav aria-label="Actions du test"><button id="start" type="button">Démarrer le test</button><button id="copy" type="button">Copier le résultat</button></nav>
 <p id="status" role="status">Le test n’a pas encore démarré.</p>
 <div id="player"></div>
@@ -24,19 +25,27 @@
  'use strict';
  const ORIGIN='https://www.tiktok.com',CONTROL='7666374455538617633';
  const requested=new URL(location.href).searchParams.get('video'),id=requested===null?CONTROL:requested;
- const valid=/^\d{8,24}$/.test(id),host=document.getElementById('player'),status=document.getElementById('status'),start=document.getElementById('start'),box=document.getElementById('report');
- let frame=null,timer=null,report,playing=false,last=null,at=null,advanced=0,elapsed=0;
- function reset(){report={version:1,test:'ONE · lecteur simple',video:id,mode:'iframe standard, sans préchargement',browser:navigator.userAgent,startedAt:null,ready:false,playbackConfirmed:false,seconds:0,events:[]};}
+ const valid=/^\d{8,24}$/.test(id),host=document.getElementById('player'),status=document.getElementById('status'),start=document.getElementById('start'),box=document.getElementById('report'),session=document.getElementById('session');
+ let frame=null,timer=null,report,playing=false,last=null,at=null,advanced=0,elapsed=0,previousTests=[];
+ const supportsIsolation='credentialless' in document.createElement('iframe');
+ if(!supportsIsolation){session.querySelector('[value="isolated"]').disabled=true;session.querySelector('[value="isolated"]').textContent='Lecteur isolé indisponible dans ce navigateur';}
+ function remember(){if(report?.startedAt)previousTests=[...previousTests,report].slice(-3);}
+ function reset(){report={version:2,test:'ONE · lecteur simple',video:id,mode:session.value==='isolated'?'iframe isolée, sans préchargement':'iframe standard, sans préchargement',sessionIsolee:null,browser:navigator.userAgent,startedAt:null,ready:false,playbackConfirmed:false,seconds:0,events:[]};}
  function trace(event,detail={}){report.events.push({event,t:Math.round(performance.now()),...detail});if(report.events.length>40)report.events.shift();}
  function clearProgress(){last=at=null;advanced=elapsed=0;}
  function begin(){
   if(!valid||start.disabled)return;
-  clearTimeout(timer);frame?.remove();reset();clearProgress();playing=false;
+  clearTimeout(timer);frame?.remove();remember();reset();clearProgress();playing=false;
   report.startedAt=new Date().toISOString();start.disabled=true;start.textContent='Recommencer le test';box.hidden=true;
   status.textContent='Chargement du lecteur TikTok…';
   frame=document.createElement('iframe');frame.title='Lecteur TikTok de test';
+  if(session.value==='isolated'){
+   if(!supportsIsolation){frame=null;start.disabled=false;status.textContent='Le lecteur isolé n’est pas disponible dans ce navigateur.';return;}
+   frame.credentialless=true;
+  }
+  report.sessionIsolee=frame.credentialless===true;
   frame.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';frame.allowFullscreen=true;
-  // The documented, standard embed. No app session override or player commands.
+  // Same public video and URL in both modes. No preload or player commands.
   frame.src=ORIGIN+'/player/v1/'+id+'?autoplay=1&muted=1';
   const created=frame;frame.addEventListener('load',()=>{if(frame===created&&created.isConnected)trace('iframe chargée');});
   host.replaceChildren(frame);trace('démarrage du test');
@@ -56,7 +65,7 @@
   if(data.type==='onPlayerError'){
    const code=data.value?.errorCode;if(typeof code!=='number'||!Number.isFinite(code))return;
    playing=false;clearProgress();trace('erreur TikTok',{code});start.disabled=false;
-   status.textContent=code===1001?'TikTok indique que cette vidéo est indisponible dans ce test.':code===3002?'TikTok attend peut-être un appui sur ▶ dans la vidéo.':'TikTok n’a pas démarré la lecture. Copie le résultat pour examiner cet échec.';
+   status.textContent=code===1001?'TikTok indique que cette vidéo est indisponible dans ce test.':code===2001?'TikTok a renvoyé une erreur serveur (2001). Le lecteur n’a pas démarré.':code===3002?'TikTok attend peut-être un appui sur ▶ dans la vidéo.':'TikTok n’a pas démarré la lecture. Copie le résultat pour examiner cet échec.';
   }
   if(data.type==='onCurrentTime'&&!report.playbackConfirmed){
    const time=data.value?.currentTime;
@@ -73,10 +82,16 @@
  });
  document.addEventListener('visibilitychange',clearProgress);
  start.addEventListener('click',begin);
+ session.addEventListener('change',()=>{
+  clearTimeout(timer);frame?.remove();frame=null;remember();reset();clearProgress();playing=false;
+  box.hidden=true;start.disabled=!valid;start.textContent='Démarrer le test';
+  status.textContent=valid?'Mode changé. Appuie sur Démarrer le test.':'Identifiant vidéo invalide. Aucun lecteur n’a été chargé.';
+ });
  document.getElementById('copy').addEventListener('click',async()=>{
-  const text='ONE — test de lecture simple\n'+JSON.stringify(report,null,2);
+  const text='ONE — test de lecture simple\n'+JSON.stringify({...report,previousTests},null,2);
+  box.value=text;box.hidden=false;
   try{await navigator.clipboard.writeText(text);status.textContent='Résultat copié. Colle-le dans notre conversation.';}
-  catch{box.value=text;box.hidden=false;box.focus();box.select();}
+  catch{box.focus();box.select();}
  });
  addEventListener('pagehide',()=>{clearTimeout(timer);frame?.remove();});
  reset();if(!valid){start.disabled=true;status.textContent='Identifiant vidéo invalide. Aucun lecteur n’a été chargé.';}
