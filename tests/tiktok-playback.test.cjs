@@ -75,15 +75,30 @@ function setup(count=3,soundPreference,legacyPreference){
   return {context,document,feed,slides,items,timers,tick,message,playing,frame,status,button,opened,storage};
 }
 
+// Audio-specific cases start after an observed native unmute in this visit.
+function withNativeSound(r){
+ r.context.v17ActivateSlide(r.slides[0]);const frame=r.frame(r.slides[0]);
+ r.message(frame,'onMute',true);r.message(frame,'onMute',false);return r;
+}
+
+test('an initial unmuted notification cannot undo muted autoplay in a new visit',()=>{
+ const r=setup(4,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+ r.message(f,'onMute',false);r.message(f,'onPlayerReady');r.playing(f);
+ assert.equal(new URL(f.src).searchParams.get('muted'),'1');
+ assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
+ const next=r.frame(r.slides[1]);r.message(next,'onPlayerReady');r.context.v17ActivateSlide(r.slides[1]);
+ assert.deepEqual(next.messages.slice(-2).map(m=>m.data.type),['mute','play']);
+});
+
 test('startup preview has a bounded lifetime even if TikTok never emits ready',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);r.tick(1000);
   assert.equal(r.document.querySelectorAll('iframe').length,3);
-  assert.equal(new URL(f.src).searchParams.get('muted'),'0');assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');
+  assert.equal(new URL(f.src).searchParams.get('muted'),'1');assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');
   for(const key of ['controls','play_button','progress_bar','volume_control','fullscreen_button'])assert.equal(new URL(f.src).searchParams.get(key),'1');
   assert.equal(f.style.opacity,'0');assert.equal(s.querySelector('img').style.opacity,'1');assert.equal(s.dataset.ttNativeInput,'0');
   r.tick(500);assert.equal(f.style.opacity,'1');assert.equal(f.style.pointerEvents,'auto');assert.equal(s.querySelector('img').style.opacity,'0');
   assert.equal(s.dataset.ttManual,'1');assert.equal(s.dataset.ttControlsReady,'1');assert.equal(s.dataset.ttNativeInput,'1');assert.equal(s.dataset.ttVisualReady,'0');
-  r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
+  r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
   r.message(f,'onStateChange',1);assert.equal(f.style.opacity,'1');assert.equal(s.dataset.ttVisualReady,'0');
   r.playing(f);assert.equal(s.dataset.ttVisualReady,'1');
 });
@@ -105,9 +120,9 @@ test('autoplay refusal tries the same player once muted and retains native contr
 });
 test('a ready player which silently refuses to start gets one muted attempt',()=>{
  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);r.message(f,'onPlayerReady');
- r.tick(1199);assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);r.tick(1);
+ r.tick(1199);assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);r.tick(1);
  assert.deepEqual(f.messages.slice(-2).map(m=>m.data.type),['mute','play']);assert.equal(f.srcWrites,1);
- r.message(f,'onMute',true);r.playing(f);assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,1);
+ r.message(f,'onMute',true);r.playing(f);assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,0);
  assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');r.tick(3000);
  assert.equal(f.messages.filter(m=>m.data.type==='play').length,2);
 });
@@ -174,7 +189,7 @@ test('returning to a failed player reloads it without restoring stale errors or 
   r.context.v17ActivateSlide(r.slides[1]);r.context.v17ActivateSlide(s);const f=r.frame(s);
   assert.notEqual(f,old);assert.equal(r.status(s),null);assert.equal(s.dataset.oneUserPaused,undefined);
   assert.equal(r.document.querySelectorAll('iframe').length,3);r.message(f,'onPlayerReady');
-  assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);assert.equal(s.dataset.ttManual,'1');assert.equal(f.style.opacity,'1');
+  assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);assert.equal(s.dataset.ttManual,'1');assert.equal(f.style.opacity,'1');
 });
 test('ready or playback ends the startup preview immediately without a fixed delay',()=>{
   for(const event of ['onPlayerReady','onStateChange']){
@@ -271,7 +286,7 @@ test('promotion before ready waits for the same player without leaving its nativ
 });
 test('returning to the previous healthy video retains the player and restores its known sound choice',()=>{
   const r=setup(6),s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s);
-  r.message(f,'onPlayerReady');r.playing(f);r.message(f,'onMute',false);
+  r.message(f,'onPlayerReady');r.playing(f);r.message(f,'onMute',true);r.message(f,'onMute',false);
   r.context.v17ActivateSlide(r.slides[3]);assert.equal(r.frame(s),f);assert.equal(f.dataset.onePreload,'1');
   r.message(f,'onMute',true);assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
   r.context.v17ActivateSlide(s);r.message(f,'onMute',false);r.playing(f);
@@ -280,7 +295,7 @@ test('returning to the previous healthy video retains the player and restores it
 test('enabling native sound carries to the next preloaded video exactly once',()=>{
   const r=setup(6),s=r.slides[0];r.context.v17ActivateSlide(s);const first=r.frame(s),next=r.frame(r.slides[1]);
   r.message(next,'onPlayerReady');r.message(next,'onMute',true);
-  r.playing(first);r.message(first,'onMute',false);
+  r.playing(first);r.message(first,'onMute',true);r.message(first,'onMute',false);
   assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
   r.context.v17ActivateSlide(r.slides[1]);r.message(next,'onMute',false);r.playing(next);
   r.message(next,'onCurrentTime',{currentTime:1});
@@ -290,7 +305,7 @@ test('enabling native sound carries to the next preloaded video exactly once',()
 });
 test('preload mute notifications cannot replace the chosen sound preference',()=>{
   const r=setup(6,'0');r.context.v17ActivateSlide(r.slides[0]);const first=r.frame(r.slides[0]),next=r.frame(r.slides[1]);
-  r.playing(first);r.message(first,'onMute',false);
+  r.playing(first);r.message(first,'onMute',true);r.message(first,'onMute',false);
   r.message(next,'onPlayerReady');r.context.v17ActivateSlide(r.slides[1]);
   r.message(next,'onMute',true);r.message(first,'onMute',true);r.message(first,'onMute',false);
   assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
@@ -298,7 +313,7 @@ test('preload mute notifications cannot replace the chosen sound preference',()=
 });
 test('a deliberate native mute carries forward and overrides an older unmuted player',()=>{
   const r=setup(6,'0');r.context.v17ActivateSlide(r.slides[0]);const first=r.frame(r.slides[0]);
-  r.playing(first);r.message(first,'onMute',false);
+  r.playing(first);r.message(first,'onMute',true);r.message(first,'onMute',false);
   const next=r.frame(r.slides[1]);r.message(next,'onPlayerReady');r.message(next,'onMute',true);
   r.context.v17ActivateSlide(r.slides[1]);r.playing(next);r.message(next,'onMute',false);
   r.message(next,'onMute',true);assert.equal(r.storage.get('one_tiktok_sound_v3'),'1');
@@ -308,18 +323,18 @@ test('a deliberate native mute carries forward and overrides an older unmuted pl
   assert.equal(first.messages.filter(m=>m.data.type==='unMute').length,unmuteCount);
   assert.equal(new URL(r.context.v17PlayerUrl(r.items.get(r.slides[5].dataset.id))).searchParams.get('muted'),'1');
 });
-test('saved mute is respected while a new listener requests sound immediately',()=>{
+test('saved audio preferences cannot force sound before a native choice in the new visit',()=>{
   for(const pref of ['0','1',undefined]){
     const r=setup(3,pref);r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
     r.message(f,'onPlayerReady');r.message(f,'onMute',true);r.playing(f);
-    assert.equal(new URL(f.src).searchParams.get('muted'),pref==='1'?'1':'0');
-    assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,pref==='1'?0:2);
+    assert.equal(new URL(f.src).searchParams.get('muted'),'1');
+    assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,0);
     assert.equal(r.storage.get('one_tiktok_sound_v3'),pref??'0');
   }
 });
 test('native sound chosen before the first picture survives the next slide',()=>{
   const r=setup(3);r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
-  r.message(f,'onMute',false);assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
+  r.message(f,'onMute',true);r.message(f,'onMute',false);assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
   r.message(f,'onMute',true);assert.equal(r.storage.get('one_tiktok_sound_v3'),'1');
   r.playing(f);assert(!f.messages.some(m=>m.data.type==='unMute'));
 });
@@ -329,10 +344,10 @@ test('malformed or foreign sound notifications and blocked storage do not break 
   for(const value of ['false',0,null,{}])r.message(f,'onMute',value);
   assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
   r.context.localStorage.setItem=()=>{throw Error('Storage denied');};
-  r.message(f,'onMute',false);r.playing(f);assert.equal(f.messages.at(-1).data.type,'unMute');
+  r.message(f,'onMute',true);r.message(f,'onMute',false);r.playing(f);assert.equal(f.messages.at(-1).data.type,'unMute');
 });
-test('restoring sound does not retry after autoplay refusal or override a deliberate pause',()=>{
-  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+test('after native unmute: restoring sound does not retry after autoplay refusal or override a deliberate pause',()=>{
+  const r=withNativeSound(setup(3,'0'));r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
   r.playing(f);r.message(f,'onPlayerError',{errorCode:3002});r.playing(f);
   assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,1);assert.equal(r.frame(r.slides[0]),f);
   r.message(f,'onStateChange',2);r.message(f,'onCurrentTime',{currentTime:2});
@@ -344,8 +359,8 @@ test('refreshing the sound controls cannot mute TikTok using another platform pr
   const count=f.messages.length;r.context.v17ApplySound(r.slides[0]);
   assert.equal(f.messages.length,count);assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
 });
-test('a ready preload restores sound before play without any clock or playing event',()=>{
-  const r=setup(4,'0');r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[1],f=r.frame(s);
+test('after native unmute: a ready preload restores sound before play without any clock or playing event',()=>{
+  const r=withNativeSound(setup(4,'0'));r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[1],f=r.frame(s);
   r.message(f,'onPlayerReady');const before=f.messages.length;
   r.context.v17ActivateSlide(s);
   assert.deepEqual(f.messages.slice(before).map(m=>m.data.type),['unMute','play']);
@@ -353,14 +368,14 @@ test('a ready preload restores sound before play without any clock or playing ev
   r.message(f,'onPlayerReady');f.onload();r.playing(f);
   assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,1);
 });
-test('a fresh active player restores sound as soon as ready, before any playback timestamp',()=>{
+test('a fresh active player requests muted playback on ready despite an old audible preference',()=>{
   const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
   assert.equal(f.messages.length,0);r.message(f,'onPlayerReady');
-  assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
+  assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
   assert.equal(r.slides[0].dataset.ttTimeAdvanced,'0');
 });
-test('promotion before ready restores sound before play at the first ready notification',()=>{
-  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[1]);
+test('after native unmute: promotion before ready restores sound before play at the first ready notification',()=>{
+  const r=withNativeSound(setup(3,'0'));r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[1]);
   r.context.v17ActivateSlide(r.slides[1]);assert.equal(f.messages.length,0);
   r.message(f,'onPlayerReady');
   assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
@@ -374,12 +389,12 @@ test('immediate restoration respects deliberate mute, background visibility and 
 });
 test('a missing ready event falls back to playing state without waiting for time progress',()=>{
   const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
-  r.message(f,'onStateChange',1);assert.deepEqual(f.messages.map(m=>m.data.type),['unMute']);
+  r.message(f,'onStateChange',1);assert.deepEqual(f.messages.map(m=>m.data.type),['mute']);
   assert.equal(r.slides[0].dataset.ttTimeAdvanced,'0');
 });
-test('recorded TikTok startup sequence cannot persist its automatic remute as a user choice',()=>{
+test('after native unmute: recorded TikTok startup sequence cannot persist its automatic remute as a user choice',()=>{
   // Live Chromium trace: unMute acknowledged, playing, then TikTok mutes on visibility.
-  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[1],f=r.frame(s);
+  const r=withNativeSound(setup(3,'0'));r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[1],f=r.frame(s);
   r.message(f,'onPlayerReady');r.message(f,'onMute',true);r.tick(6000);
   r.context.v17ActivateSlide(s);
   r.tick(38);r.message(f,'onMute',false);r.message(f,'onVolumeChange',100);
@@ -394,8 +409,8 @@ test('recorded TikTok startup sequence cannot persist its automatic remute as a 
   assert.equal(r.storage.get('one_tiktok_sound_v3'),'1','A later native mute is a real preference');
   assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,2);
 });
-test('startup audio repair is bounded and inactive players cannot trigger it',()=>{
-  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[0],f=r.frame(s);
+test('after native unmute: startup audio repair is bounded and inactive players cannot trigger it',()=>{
+  const r=withNativeSound(setup(3,'0'));r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[0],f=r.frame(s);
   r.message(f,'onPlayerReady');r.message(f,'onMute',false);r.message(f,'onStateChange',1);
   r.message(f,'onMute',true);r.message(f,'onMute',true);r.message(f,'onMute',true);
   assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,2);
@@ -408,7 +423,7 @@ test('legacy preferences potentially overwritten by autoplay are reset once, lat
     const r=setup(3,undefined,legacy);r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
     r.message(f,'onPlayerReady');
     assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
-    assert.equal(f.messages.filter(m=>['unMute','mute'].includes(m.data.type)).at(-1).data.type,'unMute');
+    assert.equal(f.messages.filter(m=>['unMute','mute'].includes(m.data.type)).at(-1).data.type,'mute');
   }
   const r=setup(3,'1','0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
   r.message(f,'onPlayerReady');assert.equal(f.messages.filter(m=>['unMute','mute'].includes(m.data.type)).at(-1).data.type,'mute');
@@ -420,8 +435,8 @@ test('a deliberately muted startup does not trigger audio repair',()=>{
   assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,0);
   assert.equal(r.storage.get('one_tiktok_sound_v3'),'1');
 });
-test('an autoplay error stops startup audio repair without overwriting the sound preference',()=>{
-  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+test('after native unmute: an autoplay error stops startup audio repair without overwriting the sound preference',()=>{
+  const r=withNativeSound(setup(3,'0'));r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
   r.message(f,'onPlayerReady');r.message(f,'onMute',false);r.message(f,'onStateChange',1);
   r.message(f,'onPlayerError',{errorCode:3002});r.message(f,'onMute',true);
   assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,1);
@@ -559,15 +574,15 @@ test('rebuilding the automatic feed excludes unavailable videos and explains an 
 });
 
 
-test('first visit requests sound on the very first player without any stored preference',()=>{
+test('first visit starts silently without any stored preference or automatic unmute',()=>{
   const r=setup(3);r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
   r.message(f,'onPlayerReady');
-  assert.equal(f.messages.filter(m=>['unMute','mute'].includes(m.data.type)).at(-1)?.data.type,'unMute');
+  assert.equal(f.messages.filter(m=>['unMute','mute'].includes(m.data.type)).at(-1)?.data.type,'mute');
   assert.equal(r.slides[0].dataset.ttTimeAdvanced,'0');
   for(const s of r.slides.slice(1))assert(!r.frame(s)?.messages.some(m=>m.data.type==='unMute'));
 });
-test('cold-start automatic mute before playing cannot overwrite the sound preference',()=>{
-  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+test('after native unmute: cold-start automatic mute before playing cannot overwrite the sound preference',()=>{
+  const r=withNativeSound(setup(3,'0'));r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
   r.message(f,'onPlayerReady');r.message(f,'onMute',false);
   r.message(f,'onMute',true);
   assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
@@ -578,17 +593,17 @@ test('cold-start automatic mute before playing cannot overwrite the sound prefer
   r.message(f,'onMute',true);
   assert.equal(r.storage.get('one_tiktok_sound_v3'),'1','Later native mute remains a user choice');
 });
-test('cold-start audio recovery does not override a player error',()=>{
-  const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+test('after native unmute: cold-start audio recovery does not override a player error',()=>{
+  const r=withNativeSound(setup(3,'0'));r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
   r.message(f,'onPlayerReady');r.message(f,'onMute',false);
   r.message(f,'onPlayerError',{errorCode:3002});r.message(f,'onMute',true);r.message(f,'onStateChange',1);
   assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');
   assert.equal(f.messages.filter(m=>m.data.type==='unMute').length,1);
 });
 
-test('deferred startup repair stays silent while hidden, inactive or deliberately paused',()=>{
+test('after native unmute: deferred startup repair stays silent while hidden, inactive or deliberately paused',()=>{
   for(const mode of ['hidden','inactive','paused']){
-    const r=setup(3,'0');r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[0],f=r.frame(s);
+    const r=withNativeSound(setup(3,'0'));r.context.v17ActivateSlide(r.slides[0]);const s=r.slides[0],f=r.frame(s);
     r.message(f,'onPlayerReady');r.message(f,'onMute',false);r.message(f,'onMute',true);
     s.dataset.ttPlaying='1';
     if(mode==='hidden')r.document.hidden=true;
@@ -647,8 +662,8 @@ test('playback error 3001 never authorizes navigation, hiding or a new player',(
  assert.equal(s.dataset.active,'1');assert.equal(r.frame(s),frame);assert.equal(r.created.length,created);assert.equal(r.scrolls.length,0);
  assert.equal(r.context.v17TikTokIsUnavailable(r.items.get(s.dataset.id)),false);
 });
-test('the navigation guard preserves immediate sound and stops automatic skips on the first failure',()=>{
- const r=navigationSetup();r.install();r.context.v17ActivateSlide(r.slides[0]);let frame=r.frame(r.slides[0]);
+test('after native unmute: the navigation guard preserves immediate sound and stops automatic skips on the first failure',()=>{
+ const r=navigationSetup();r.install();withNativeSound(r);r.context.v17ActivateSlide(r.slides[0]);let frame=r.frame(r.slides[0]);
  r.message(frame,'onPlayerReady');assert(frame.messages.some(m=>m.data.type==='unMute'));
  const created=r.created.length;
  r.message(frame,'onPlayerError',{errorCode:1001});r.tick(20000);
@@ -720,19 +735,19 @@ test('phone replay: legacy abort then INVALID_VIDEO keeps the next ready players
  assert.equal(r.frame(r.slides[0]),null);assert.equal(r.frame(r.slides[1]),next);assert.equal(r.frame(r.slides[2]),second);
  assert.equal(r.scrolls.length,0);assert.equal(r.created.length,3);
  r.context.v17StepSlide(r.slides[0],1);assert.equal(r.frame(r.slides[1]),next);
- assert.deepEqual(next.messages.slice(-2).map(m=>m.data.type),['unMute','play']);
+ assert.deepEqual(next.messages.slice(-2).map(m=>m.data.type),['mute','play']);
  // Swipe again before two seconds of viewing: preloading still works.
  r.context.v17StepSlide(r.slides[1],1);assert.equal(r.frame(r.slides[2]),second);
  assert.equal(second.srcWrites,1);assert.equal(r.document.querySelectorAll('iframe').length,4);
- assert.deepEqual(second.messages.slice(-2).map(m=>m.data.type),['unMute','play']);
+ assert.deepEqual(second.messages.slice(-2).map(m=>m.data.type),['mute','play']);
 });
 test('the first activation starts one active player with paused two-ahead and one-behind preloads',()=>{
  const r=recoverySetup();r.context.v17ActivateSlide(r.slides[2]);
  const f=r.frame(r.slides[2]);assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');
- assert.equal(new URL(f.src).searchParams.get('muted'),'0');assert.equal(f.srcWrites,1);
+ assert.equal(new URL(f.src).searchParams.get('muted'),'1');assert.equal(f.srcWrites,1);
  assert.equal(r.document.querySelectorAll('iframe').length,4);assert.equal(r.created.length,4);
  for(const i of [1,3,4]){const bg=r.frame(r.slides[i]);assert(bg);assert.equal(new URL(bg.src).searchParams.get('autoplay'),'0');assert.equal(new URL(bg.src).searchParams.get('muted'),'1');r.message(bg,'onPlayerReady');assert.deepEqual(bg.messages.map(m=>m.data.type),['mute','pause']);}
- r.message(f,'onPlayerReady');r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
+ r.message(f,'onPlayerReady');r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
 });
 test('a playback failure releases background frames without reloading or leaving the active one',()=>{
  const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s),created=r.created.length;
@@ -748,7 +763,7 @@ test('explicit retry creates one active frame and requests sound then playback o
  const click=()=>button.onclick({stopPropagation(){}});const before=r.created.length;click();f=r.frame(s);
  assert.equal(r.created.length,before+1);assert.equal(r.document.querySelectorAll('iframe').length,1);
  assert.equal(new URL(f.src).searchParams.get('autoplay'),'0');r.message(f,'onPlayerReady');r.message(f,'onPlayerReady');
- assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);click();assert.equal(r.created.length,before+1);
+ assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);click();assert.equal(r.created.length,before+1);
 });
 test('visible active time progression restores preloading without waiting for telemetry or two seconds',()=>{
  const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);const f=r.frame(s);
@@ -806,7 +821,7 @@ test('TikTok uses standard browser sessions for active players, neighbours and e
  assert(r.document.querySelectorAll('iframe').every(frame=>frame.credentiallessAtNavigation===false));
  r.message(f,'onPlayerError',{errorCode:3001});r.button(s,'Réessayer').onclick({stopPropagation(){}});f=r.frame(s);
  assert.equal(f.credentiallessAtNavigation,false);assert.equal(f.srcWrites,1);assert.equal(r.document.querySelectorAll('iframe').length,1);
- r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
+ r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
 });
 test('unsupported browsers keep their normal player and other providers do not receive TikTok session isolation',()=>{
  const legacy=recoverySetup();legacy.context.v17ActivateSlide(legacy.slides[0]);assert(!('credentialless' in legacy.frame(legacy.slides[0])));

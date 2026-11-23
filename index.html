@@ -845,7 +845,9 @@ function v17Escape(s){return String(s||'').replace(/[&<>\"]/g,c=>({'&':'&amp;','
 function v17RawTikTokId(x){return String(x?.tiktokId||x?.id||'').replace(/^tt_(?:ext_)?/,'')}
 // Keep the native player's sound choice across slides, separate from preload muting.
 let v17TikTokMutedChoice=false;
-let v17TikTokAutoplayMuted=false;
+// Start silently, like the working standard-player test. A native unmute can
+// enable sound for this visit; an old saved preference cannot grant autoplay.
+let v17TikTokAutoplayMuted=true;
 try{
  const saved=localStorage.getItem('one_tiktok_sound_v3');
  if(saved==='0'||saved==='1')v17TikTokMutedChoice=saved==='1';
@@ -873,7 +875,7 @@ function v17RememberTikTokMute(frame,muted,remember=true){
  const expected=frame._oneTTMuteCommands?.get(muted);
  if(expected!==undefined){frame._oneTTMuteCommands.delete(muted);if(Date.now()<=expected)return;}
  // An initial muted notification can come from autoplay or preloading, not a tap.
- if(!remember||(muted&&previous!==false))return;
+ if(!remember||(muted&&previous!==false)||(!muted&&v17TikTokAutoplayMuted&&previous!==true))return;
  frame.dataset.oneUserMuted=muted?'1':'0';v17TikTokMutedChoice=muted;
  if(!muted)v17TikTokAutoplayMuted=false;
  try{localStorage.setItem('one_tiktok_sound_v3',muted?'1':'0');}catch{}
@@ -979,7 +981,7 @@ function v17TikTokNativePlayer(slide){
  const src=v17PlayerUrl(x);if(!src)return;
  const url=new URL(src);
  for(const key of ['controls','progress_bar','play_button','volume_control','fullscreen_button'])url.searchParams.set(key,'1');
- url.searchParams.set('autoplay','0');url.searchParams.set('muted','0');
+ url.searchParams.set('autoplay','0');url.searchParams.set('muted',v17TikTokAutoplayMuted||v17TikTokMutedChoice?'1':'0');
  media.querySelectorAll('iframe').forEach(frame=>{v17SendTikTok(frame,'pause');frame.remove();});
  const frame=v17CreateTikTokFrame();
  frame.src=url.href;frame.title='Lecteur TikTok';frame.allow='autoplay *; encrypted-media; fullscreen; picture-in-picture';frame.allowFullscreen=true;
@@ -991,7 +993,7 @@ function v17TikTokNativePlayer(slide){
  v17TikTokFallback(slide,'manual');
 }
 async function v17CopyTikTokDiagnostic(slide){
- const report='ONE v252 — diagnostic TikTok\n'+JSON.stringify({video:v17RawTikTokId(v17ItemById(slide?.dataset.id)),browser:navigator.userAgent,sessionIsolee:slide?.querySelector('iframe')?slide.querySelector('iframe').credentialless===true:null,events:window.oneTikTokDiagnostic||[]},null,2);
+ const report='ONE v253 — diagnostic TikTok\n'+JSON.stringify({video:v17RawTikTokId(v17ItemById(slide?.dataset.id)),browser:navigator.userAgent,sessionIsolee:slide?.querySelector('iframe')?slide.querySelector('iframe').credentialless===true:null,events:window.oneTikTokDiagnostic||[]},null,2);
  try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}
  catch{const panel=slide?.querySelector('.oneTikTokStatus');if(!panel)return;let box=panel.querySelector('textarea');if(!box){box=document.createElement('textarea');box.readOnly=true;box.setAttribute('aria-label','Diagnostic TikTok à copier');box.style.cssText='width:100%;height:100px';panel.appendChild(box);}box.value=report;box.select();}
 }
@@ -1055,7 +1057,7 @@ function v17ApplySound(slide=document.querySelector('.vslide[data-active="1"]'))
  const nativeMedia=x&&(x.p==='twitch'||x.p==='tiktok');
  if(panel)panel.style.display=x?.p==='twitch'?'none':'flex';
  if(full){full.style.display='block';full.title=x?.p==='twitch'?'Plein écran Twitch':'Plein écran';full.setAttribute('aria-label',full.title);}
- if(x?.p==='tiktok'){if(snd)snd.textContent=v17TikTokMutedChoice===false?'🔊 Son':'🔇 Activer le son';if(vol)vol.style.display='none';if(lab)lab.textContent='réglage dans le lecteur';return;}else if(vol){vol.style.display='';}
+ if(x?.p==='tiktok'){if(snd)snd.textContent=v17TikTokAutoplayMuted||v17TikTokMutedChoice?'🔇 Activer le son':'🔊 Son';if(vol)vol.style.display='none';if(lab)lab.textContent='réglage dans le lecteur';return;}else if(vol){vol.style.display='';}
  if(x?.p==='twitch')return;
  if(snd)snd.textContent=v17Muted?'🔇 Activer':'🔊 Son';
  if(vol){vol.disabled=false;vol.value=String(v17Volume)}

@@ -101,7 +101,7 @@ with sync_playwright() as p:
     frame.wait_for_function("commands.includes('play')")
     assert frame.evaluate('window.credentialless') is False
     assert 'one_tiktok_test=old-session' in frame.evaluate('document.cookie')
-    assert frame.evaluate('commands')==['unMute','play']
+    assert frame.evaluate('commands')==['mute','play']
     assert page.locator('iframe').count()==1
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onStateChange',value:1},'*');parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:0}},'*')")
     page.wait_for_timeout(250)
@@ -119,13 +119,13 @@ with sync_playwright() as p:
     warm.wait_for_function("commands.at(-1)==='pause'")
     assert page.evaluate("slides[4].dataset.ttTimeAdvanced!=='1'")
     assert page.locator('iframe').count()==4
-    # Swipe promotes the same ready iframe and starts it once, after restoring sound.
+    # Swipe promotes the same ready iframe and starts it once, without enabling sound before a native user choice.
     page.wait_for_function("slides[4].querySelector('iframe')?.dataset.oneReady==='1'")
     page.evaluate('window.promoted=slides[4].querySelector("iframe");v17StepSlide(slides[2],1)')
     assert page.evaluate("slides[4].dataset.active==='1' && slides[4].querySelector('iframe')===promoted")
     promoted = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[4]))
     promoted.wait_for_function("commands.includes('play')")
-    assert promoted.evaluate("commands.slice(-2)")==['unMute','play']
+    assert promoted.evaluate("commands.slice(-2)")==['mute','play']
     page.evaluate('v17StepSlide(slides[4],-1)')
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
     page.evaluate('window.readyAfterBad=slides[4].querySelector("iframe")')
