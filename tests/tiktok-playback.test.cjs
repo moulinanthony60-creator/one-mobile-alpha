@@ -118,6 +118,39 @@ test('autoplay refusal tries the same player once muted and retains native contr
   assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
   r.playing(f);assert.equal(r.status(s),null);
 });
+test('a loaded active player starts once without inventing a ready event',()=>{
+ const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);f.onload();
+ r.tick(1199);assert.equal(f.messages.length,0);r.tick(1);
+ assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
+ assert.notEqual(f.dataset.oneReady,'1');assert.equal(s.dataset.ttTimeAdvanced,'0');
+ assert.equal(f.srcWrites,1);r.tick(3000);assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);
+ r.playing(f);assert.equal(s.dataset.ttTimeAdvanced,'1');assert.equal(r.status(s),null);
+});
+test('a loaded preload without ready resumes on promotion and stays bounded',()=>{
+ const r=setup(),s=r.slides[1];r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(s);f.onload();r.tick(2000);
+ assert.equal(f.messages.filter(m=>m.data.type==='play').length,0);
+ r.context.v17ActivateSlide(s);r.tick(1200);
+ assert.deepEqual(f.messages.slice(-2).map(m=>m.data.type),['mute','play']);assert.equal(r.frame(s),f);
+ assert.equal(new URL(f.src).searchParams.get('autoplay'),'0');assert.equal(f.srcWrites,1);
+ assert.notEqual(f.dataset.oneReady,'1');r.tick(3000);assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);
+});
+test('load fallback respects user pause, hidden state, replacement, departure and provider errors',()=>{
+ for(const mode of ['paused','hidden','replaced','departed','1001','2001','3001']){
+  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);f.onload();
+  if(mode==='paused')s.dataset.oneUserPaused='1';
+  if(mode==='hidden')r.document.hidden=true;
+  if(mode==='replaced')r.context.v17TikTokNativePlayer(s);
+  if(mode==='departed')r.context.v17ActivateSlide(r.slides[1]);
+  if(/^\d+$/.test(mode))r.message(f,'onPlayerError',{errorCode:Number(mode)});
+  r.tick(1200);assert.equal(f.messages.filter(m=>m.data.type==='play').length,0,mode);
+ }
+});
+test('explicit native retry can start a loaded player without ready',()=>{
+ const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.context.v17TikTokNativePlayer(s);
+ const f=r.frame(s);f.dataset.onePlayPending='1';f.onload();r.tick(1200);
+ assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);assert.equal(r.frame(s),f);
+ assert.notEqual(f.dataset.oneReady,'1');assert.equal(f.srcWrites,1);
+});
 test('a ready player which silently refuses to start gets one muted attempt',()=>{
  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);r.message(f,'onPlayerReady');
  r.tick(1199);assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);r.tick(1);

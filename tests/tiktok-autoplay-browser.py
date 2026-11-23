@@ -51,7 +51,7 @@ send('onPlayerReady');
 with sync_playwright() as p:
     browser = p.chromium.launch(args=['--autoplay-policy=document-user-activation-required',
         '--disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies'])
-    for audible in (False,True):
+    for audible,missing_ready in ((False,False),(True,False),(False,True)):
         context = browser.new_context(viewport={'width':390,'height':844})
         page = context.new_page()
         errors=[]
@@ -63,7 +63,7 @@ with sync_playwright() as p:
             elif url.startswith('https://one.test/ui/'):
                 request.fulfill(status=200,content_type='text/javascript',body=(ROOT/'ui'/url.split('/ui/')[1].split('?')[0]).read_bytes())
             elif url.startswith('https://www.tiktok.com/player/v1/'):
-                request.fulfill(status=200,content_type='text/html',body=embedded)
+                request.fulfill(status=200,content_type='text/html',body=embedded.replace("send('onPlayerReady');",'' if missing_ready else "send('onPlayerReady');"))
             else:
                 request.abort()
         page.route('**/*',route)
@@ -90,20 +90,23 @@ with sync_playwright() as p:
             assert first['commands'].count('play')==2 and 'unMute' in first['commands']
         else:
             assert first['refusals']==[]
-            assert first['commands'].count('play')==1 and 'unMute' not in first['commands']
+            assert first['commands'].count('play')==(0 if missing_ready else 1) and 'unMute' not in first['commands']
             assert inspect("new URL(slides[0].querySelector('iframe').src).searchParams.get('muted')")=='1'
         assert first['muted'] is True and first['paused'] is False and first['activated'] is False
         assert inspect("localStorage.getItem('one_tiktok_sound_v3')")=='0'
         for i in [1,2]:
-            wait(f"slides[{i}].querySelector('iframe')?.dataset.oneReady==='1'")
+            wait(f"slides[{i}].querySelector('iframe')?.dataset.{'oneLoaded' if missing_ready else 'oneReady'}==='1'")
             inspect(f"window.kept=slides[{i}].querySelector('iframe');v17StepSlide(slides[{i-1}],1)")
             wait(f"slides[{i}].dataset.ttTimeAdvanced==='1' && fixtureReports['{ids[i]}']?.time>.4 && !fixtureReports['{ids[i]}'].paused")
             assert inspect(f"slides[{i}].querySelector('iframe')===kept")
             report=inspect(f"fixtureReports['{ids[i]}']")
             assert report['muted'] is True and report['activated'] is False
             assert report['refusals']==[]
+            if missing_ready:
+                assert inspect(f"slides[{i}].querySelector('iframe').dataset.oneReady==='1'") is False
+                assert report['commands'].count('play')==1
             assert inspect('navigator.userActivation.hasBeenActive') is False
         assert not errors,errors
         context.close()
     browser.close()
-    print('Real media autoplay passed: muted initial autoplay without a tap or refusal, two following videos start without a tap, later audible refusal recovers once on the same iframe, no external provider requests.')
+    print('Real media autoplay passed: muted initial autoplay without a tap or refusal, two following videos start without a tap, later audible refusal recovers once on the same iframe, loaded preloads also start once when the ready notification is absent, no external provider requests.')
