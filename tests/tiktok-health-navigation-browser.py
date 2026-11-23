@@ -80,7 +80,8 @@ with sync_playwright() as p:
     assert page.evaluate("slides[2].dataset.active==='1'")
     assert page.evaluate("Math.abs(document.getElementById('vfeedScroller').scrollTop-slides[2].offsetTop)<2")
     assert page.locator('iframe').count()==4
-    assert page.evaluate("[...document.querySelectorAll('.vslide:not([data-active=\"1\"]) iframe')].every(f=>new URL(f.src).searchParams.get('autoplay')==='0' && new URL(f.src).searchParams.get('muted')==='1')")
+    # A parked former active frame can retain autoplay=1 in its URL; it must be muted and paused.
+    assert page.evaluate("[...document.querySelectorAll('.vslide:not([data-active=\"1\"]) iframe')].every(f=>f.dataset.onePreload==='1' && new URL(f.src).searchParams.get('muted')==='1')")
     for background in [f for f in page.frames if '/player/v1/' in f.url and not f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2])]:
         background.wait_for_function('window.commands')
         # A previous active video may have played; after parking it must be paused.
