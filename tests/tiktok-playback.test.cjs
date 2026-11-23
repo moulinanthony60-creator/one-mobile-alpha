@@ -126,6 +126,13 @@ test('a loaded active player starts once without inventing a ready event',()=>{
  assert.equal(f.srcWrites,1);r.tick(3000);assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);
  r.playing(f);assert.equal(s.dataset.ttTimeAdvanced,'1');assert.equal(r.status(s),null);
 });
+test('a late ready notification still resumes if the load-time command was ignored',()=>{
+ const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);f.onload();r.tick(1200);
+ assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);assert.equal(f.dataset.onePlayPending,'1');
+ r.message(f,'onPlayerReady');assert.equal(f.messages.filter(m=>m.data.type==='play').length,2);
+ assert.equal(f.dataset.onePlayPending,'0');r.playing(f);r.tick(5000);
+ assert.equal(f.messages.filter(m=>m.data.type==='play').length,2);assert.equal(f.srcWrites,1);
+});
 test('a loaded preload without ready resumes on promotion and stays bounded',()=>{
  const r=setup(),s=r.slides[1];r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(s);f.onload();r.tick(2000);
  assert.equal(f.messages.filter(m=>m.data.type==='play').length,0);

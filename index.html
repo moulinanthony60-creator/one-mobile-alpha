@@ -1182,7 +1182,11 @@ function v17StartTikTokMuted(slide){
 function v17WatchTikTokAutoplay(slide,frame){
  clearTimeout(frame._oneTTAutoTimer);
  frame._oneTTAutoTimer=setTimeout(()=>{
-  if(slide.querySelector('iframe')===frame&&slide.dataset.ttPlaying!=='1')v17StartTikTokMuted(slide);
+  if(slide.querySelector('iframe')===frame&&slide.dataset.ttPlaying!=='1'){
+   const awaitingReady=frame.dataset.oneReady!=='1'&&frame.dataset.onePlayPending==='1';
+   // A command sent before the SDK is ready may be ignored. Keep the ready path armed.
+   if(v17StartTikTokMuted(slide)&&awaitingReady)frame.dataset.onePlayPending='1';
+  }
  },1200);
 }
 function v17ResumeTikTokFrame(slide){
