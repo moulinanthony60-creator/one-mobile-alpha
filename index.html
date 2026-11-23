@@ -903,10 +903,8 @@ function v17NextPlayableSlide(slide,direction){
  return null;
 }
 function v17CreateTikTokFrame(){
- const frame=document.createElement('iframe');
- // Public playback gets a temporary TikTok session, independent of old site data.
- if('credentialless' in frame)frame.credentialless=true;
- return frame;
+ // Use the standard browser session, as in the successful on-device comparison.
+ return document.createElement('iframe');
 }
 function v17PlayerUrl(x){
  if(!x)return '';
@@ -993,7 +991,7 @@ function v17TikTokNativePlayer(slide){
  v17TikTokFallback(slide,'manual');
 }
 async function v17CopyTikTokDiagnostic(slide){
- const report='ONE v251 — diagnostic TikTok\n'+JSON.stringify({video:v17RawTikTokId(v17ItemById(slide?.dataset.id)),browser:navigator.userAgent,sessionIsolee:slide?.querySelector('iframe')?slide.querySelector('iframe').credentialless===true:null,events:window.oneTikTokDiagnostic||[]},null,2);
+ const report='ONE v252 — diagnostic TikTok\n'+JSON.stringify({video:v17RawTikTokId(v17ItemById(slide?.dataset.id)),browser:navigator.userAgent,sessionIsolee:slide?.querySelector('iframe')?slide.querySelector('iframe').credentialless===true:null,events:window.oneTikTokDiagnostic||[]},null,2);
  try{await navigator.clipboard.writeText(report);toast('Diagnostic copié : colle-le dans notre conversation.');}
  catch{const panel=slide?.querySelector('.oneTikTokStatus');if(!panel)return;let box=panel.querySelector('textarea');if(!box){box=document.createElement('textarea');box.readOnly=true;box.setAttribute('aria-label','Diagnostic TikTok à copier');box.style.cssText='width:100%;height:100px';panel.appendChild(box);}box.value=report;box.select();}
 }

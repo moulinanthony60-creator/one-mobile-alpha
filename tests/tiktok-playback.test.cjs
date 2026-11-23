@@ -742,7 +742,7 @@ test('a playback failure releases background frames without reloading or leaving
  assert.equal(r.document.querySelectorAll('iframe').length,1);assert.equal(r.created.length,created);
  r.context.v17StepSlide(s,1);assert.equal(r.document.querySelectorAll('iframe').length,1);assert.equal(r.slides[3].dataset.active,'1');
 });
-test('explicit retry creates one isolated frame and requests sound then playback only once',()=>{
+test('explicit retry creates one active frame and requests sound then playback only once',()=>{
  const r=recoverySetup();const s=r.slides[2];r.context.v17ActivateSlide(s);let f=r.frame(s);
  r.message(f,'onPlayerError',{errorCode:3001});const button=r.button(s,'Réessayer');assert(button);
  const click=()=>button.onclick({stopPropagation(){}});const before=r.created.length;click();f=r.frame(s);
@@ -769,7 +769,7 @@ test('recovery never triggers an automatic retry or marks 3001 as unavailable',(
  for(let i=0;i<6;i++){r.message(f,'onPlayerError',{errorCode:3001});r.tick(2000);}
  assert.equal(r.created.length,created);assert.equal(r.frame(s),f);assert.equal(s.dataset.active,'1');assert.equal(r.context.v17TikTokIsUnavailable(r.items.get(s.dataset.id)),false);
 });
-test('isolated retry respects a deliberately saved mute before requesting play',()=>{
+test('single-player retry respects a deliberately saved mute before requesting play',()=>{
  const r=recoverySetup('1'),s=r.slides[2];r.context.v17ActivateSlide(s);
  r.message(r.frame(s),'onPlayerError',{errorCode:3001});r.button(s,'Réessayer').onclick({stopPropagation(){}});
  const f=r.frame(s);r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
@@ -795,16 +795,17 @@ test('error handling never dispatches an automatic next request even through a s
  assert.equal(s.dataset.active,'1');assert.equal(r.created.length,created);assert.equal(r.scrolls.length,0);
 });
 
-test('supported TikTok players start in a temporary session before their first navigation, including explicit retry',()=>{
+test('TikTok uses standard browser sessions for active players, neighbours and explicit retry',()=>{
  const r=recoverySetup(),create=r.document.createElement,src=Object.getOwnPropertyDescriptor(Element.prototype,'src');
  r.document.createElement=tag=>{const node=create(tag);if(tag==='iframe'){
   node.credentialless=false;
-  Object.defineProperty(node,'src',{get(){return src.get.call(this);},set(value){this.isolatedAtNavigation=this.credentialless;src.set.call(this,value);}});
+  Object.defineProperty(node,'src',{get(){return src.get.call(this);},set(value){this.credentiallessAtNavigation=this.credentialless;src.set.call(this,value);}});
  }return node;};
  const s=r.slides[0];r.context.v17ActivateSlide(s);let f=r.frame(s);
- assert.equal(f.credentialless,true);assert.equal(f.isolatedAtNavigation,true);assert.equal(f.srcWrites,1);
+ assert.equal(f.credentialless,false);assert.equal(f.credentiallessAtNavigation,false);assert.equal(f.srcWrites,1);
+ assert(r.document.querySelectorAll('iframe').every(frame=>frame.credentiallessAtNavigation===false));
  r.message(f,'onPlayerError',{errorCode:3001});r.button(s,'Réessayer').onclick({stopPropagation(){}});f=r.frame(s);
- assert.equal(f.isolatedAtNavigation,true);assert.equal(f.srcWrites,1);assert.equal(r.document.querySelectorAll('iframe').length,1);
+ assert.equal(f.credentiallessAtNavigation,false);assert.equal(f.srcWrites,1);assert.equal(r.document.querySelectorAll('iframe').length,1);
  r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
 });
 test('unsupported browsers keep their normal player and other providers do not receive TikTok session isolation',()=>{
