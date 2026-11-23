@@ -133,13 +133,18 @@ test('a late ready notification still resumes if the load-time command was ignor
  assert.equal(f.dataset.onePlayPending,'0');r.playing(f);r.tick(5000);
  assert.equal(f.messages.filter(m=>m.data.type==='play').length,2);assert.equal(f.srcWrites,1);
 });
-test('a loaded preload without ready resumes on promotion and stays bounded',()=>{
- const r=setup(),s=r.slides[1];r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(s);f.onload();r.tick(2000);
- assert.equal(f.messages.filter(m=>m.data.type==='play').length,0);
- r.context.v17ActivateSlide(s);r.tick(1200);
- assert.deepEqual(f.messages.slice(-2).map(m=>m.data.type),['mute','play']);assert.equal(r.frame(s),f);
- assert.equal(new URL(f.src).searchParams.get('autoplay'),'0');assert.equal(f.srcWrites,1);
- assert.notEqual(f.dataset.oneReady,'1');r.tick(3000);assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);
+test('a preload without a command API becomes an autoplay active frame exactly once',()=>{
+ for(const loaded of [false,true]){
+  const r=setup(),s=r.slides[1];r.context.v17ActivateSlide(r.slides[0]);const old=r.frame(s);
+  if(loaded)old.onload();r.tick(2000);
+  assert.equal(old.messages.filter(m=>m.data.type==='play').length,0);
+  r.context.v17ActivateSlide(s);const f=r.frame(s);
+  assert.notEqual(f,old);assert.equal(old.isConnected,false);assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');
+  assert.equal(new URL(f.src).searchParams.get('muted'),'1');assert.equal(f.srcWrites,1);
+  r.context.v17ActivateSlide(s);assert.equal(r.frame(s),f);r.message(old,'onPlayerReady');assert.notEqual(f.dataset.oneReady,'1');
+  r.message(f,'onPlayerReady');r.playing(f);r.tick(3000);
+  assert.equal(r.frame(s),f);assert.equal(s.dataset.ttTimeAdvanced,'1');assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);
+ }
 });
 test('load fallback respects user pause, hidden state, replacement, departure and provider errors',()=>{
  for(const mode of ['paused','hidden','replaced','departed','1001','2001','3001']){
@@ -268,7 +273,7 @@ test('expired poster images are hidden while the native player remains recoverab
   r.context.v17ActivateSlide(s);assert.equal(img.style.visibility,'hidden');r.tick(1500);assert.equal(r.frame(s).style.opacity,'1');
 });
 test('native player navigation works without scrolling inside the cross-origin iframe',()=>{
-  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const first=r.frame(s);
+  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const first=r.frame(s);r.message(first,'onPlayerReady');r.message(r.frame(r.slides[1]),'onPlayerReady');
   r.context.v17StepSlide(s,-1);assert.equal(r.frame(s),first);
   r.context.v17StepSlide(s,1);assert.equal(r.slides[1].dataset.active,'1');assert.equal(r.slides[1].scrolled,true);
   assert.equal(first.isConnected,true);assert.equal(r.document.querySelectorAll('iframe').length,3);
@@ -317,10 +322,12 @@ test('a ready next player is promoted without changing its iframe or URL and res
   assert.equal(prev.isConnected,false);assert.equal(r.frame(r.slides[4]),next);
   r.message(f,'onPlayerReady');f.onload();assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);
 });
-test('promotion before ready waits for the same player without leaving its native controls hidden',()=>{
-  const r=setup(6);r.context.v17ActivateSlide(r.slides[2]);const s=r.slides[3],f=r.frame(s);
-  r.context.v17ActivateSlide(s);assert.equal(r.frame(s),f);assert.equal(f.messages.filter(m=>m.data.type==='play').length,0);
+test('promotion before ready keeps controls reachable on the replacement active player',()=>{
+  const r=setup(6);r.context.v17ActivateSlide(r.slides[2]);const s=r.slides[3],old=r.frame(s);
+  r.context.v17ActivateSlide(s);const f=r.frame(s);assert.notEqual(f,old);
+  assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');assert.equal(f.messages.filter(m=>m.data.type==='play').length,0);
   r.tick(1500);assert.equal(f.style.opacity,'1');assert.equal(s.dataset.ttNativeInput,'1');
+  r.message(old,'onPlayerReady');assert.equal(f.messages.filter(m=>m.data.type==='play').length,0);
   r.message(f,'onPlayerReady');assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);
   r.playing(f);assert.equal(s.dataset.ttNativeInput,'0');assert.equal(f.srcWrites,1);
 });
@@ -359,7 +366,7 @@ test('a deliberate native mute carries forward and overrides an older unmuted pl
   r.message(next,'onMute',true);assert.equal(r.storage.get('one_tiktok_sound_v3'),'1');
   const unmuteCount=first.messages.filter(m=>m.data.type==='unMute').length;
   r.context.v17ActivateSlide(r.slides[0]);r.playing(first);
-  assert.equal(first.messages.at(-1).data.type,'mute');
+  assert.deepEqual(first.messages.slice(-2).map(m=>m.data.type),['mute','play']);
   assert.equal(first.messages.filter(m=>m.data.type==='unMute').length,unmuteCount);
   assert.equal(new URL(r.context.v17PlayerUrl(r.items.get(r.slides[5].dataset.id))).searchParams.get('muted'),'1');
 });
@@ -415,8 +422,8 @@ test('a fresh active player requests muted playback on ready despite an old audi
   assert.equal(r.slides[0].dataset.ttTimeAdvanced,'0');
 });
 test('after native unmute: promotion before ready restores sound before play at the first ready notification',()=>{
-  const r=withNativeSound(setup(3,'0'));r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[1]);
-  r.context.v17ActivateSlide(r.slides[1]);assert.equal(f.messages.length,0);
+  const r=withNativeSound(setup(3,'0'));r.context.v17ActivateSlide(r.slides[0]);const old=r.frame(r.slides[1]);
+  r.context.v17ActivateSlide(r.slides[1]);const f=r.frame(r.slides[1]);assert.notEqual(f,old);assert.equal(f.messages.length,0);
   r.message(f,'onPlayerReady');
   assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);
 });
@@ -802,7 +809,7 @@ test('explicit retry creates one active frame and requests sound then playback o
  r.message(f,'onPlayerError',{errorCode:3001});const button=r.button(s,'Réessayer');assert(button);
  const click=()=>button.onclick({stopPropagation(){}});const before=r.created.length;click();f=r.frame(s);
  assert.equal(r.created.length,before+1);assert.equal(r.document.querySelectorAll('iframe').length,1);
- assert.equal(new URL(f.src).searchParams.get('autoplay'),'0');r.message(f,'onPlayerReady');r.message(f,'onPlayerReady');
+ assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');r.message(f,'onPlayerReady');r.message(f,'onPlayerReady');
  assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);click();assert.equal(r.created.length,before+1);
 });
 test('visible active time progression restores preloading without waiting for telemetry or two seconds',()=>{
@@ -841,7 +848,7 @@ test('forward and backward swipes retain only the 2+1 window and reuse the adjac
  for(const slide of r.slides){const media=slide.querySelector('.vslideMedia'),append=media.appendChild;
   media.appendChild=function(child){const result=append.call(this,child);peak=Math.max(peak,r.document.querySelectorAll('iframe').length);return result;};}
  let previous=2;r.context.v17ActivateSlide(r.slides[previous]);
- for(const i of [3,4,3,2,1,2]){const ready=r.frame(r.slides[i]);assert(ready);r.context.v17ActivateSlide(r.slides[i]);assert.equal(r.frame(r.slides[i]),ready);assert.equal(r.document.querySelectorAll('iframe').length,4);const expected=[i-1,i,i+1,i+2];assert.deepEqual(r.slides.map((s,n)=>r.frame(s)?n:null).filter(n=>n!==null),expected);previous=i;}
+ for(const i of [3,4,3,2,1,2]){const ready=r.frame(r.slides[i]);assert(ready);r.message(ready,'onPlayerReady');r.context.v17ActivateSlide(r.slides[i]);assert.equal(r.frame(r.slides[i]),ready);assert.equal(r.document.querySelectorAll('iframe').length,4);const expected=[i-1,i,i+1,i+2];assert.deepEqual(r.slides.map((s,n)=>r.frame(s)?n:null).filter(n=>n!==null),expected);previous=i;}
  assert.equal(peak,4);
 });
 test('error handling never dispatches an automatic next request even through a stale callback',()=>{
