@@ -87,8 +87,9 @@ with sync_playwright() as p:
         assert background.evaluate('commands.slice(-2)')==['mute','pause']
     # A real TikTok-origin playback error must not trigger automatic navigation.
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
-    assert frame.evaluate('window.credentialless') is True
-    assert 'one_tiktok_test' not in frame.evaluate('document.cookie')
+    assert frame.evaluate('window.credentialless') is False
+    assert page.evaluate("[...document.querySelectorAll('#vfeed iframe')].every(f=>!f.hasAttribute('credentialless'))")
+    assert 'one_tiktok_test=old-session' in frame.evaluate('document.cookie')
     assert page.evaluate("localStorage.getItem('one-test-data')")=='keep'
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onPlayerError',value:{errorCode:3001,errorType:'PLAYBACK_ERROR'}},'*')")
     page.wait_for_timeout(1700)
@@ -98,8 +99,8 @@ with sync_playwright() as p:
     page.wait_for_function("slides[2].querySelector('iframe')?.dataset.oneReady==='1'")
     frame = next(f for f in page.frames if f.url.startswith('https://www.tiktok.com/player/v1/'+ids[2]))
     frame.wait_for_function("commands.includes('play')")
-    assert frame.evaluate('window.credentialless') is True
-    assert 'one_tiktok_test' not in frame.evaluate('document.cookie')
+    assert frame.evaluate('window.credentialless') is False
+    assert 'one_tiktok_test=old-session' in frame.evaluate('document.cookie')
     assert frame.evaluate('commands')==['unMute','play']
     assert page.locator('iframe').count()==1
     frame.evaluate("parent.postMessage({'x-tiktok-player':true,type:'onStateChange',value:1},'*');parent.postMessage({'x-tiktok-player':true,type:'onCurrentTime',value:{currentTime:0}},'*')")
@@ -142,7 +143,7 @@ with sync_playwright() as p:
     assert page.evaluate("slides[4].querySelector('iframe')===readyAfterBad")
     assert not errors, errors
     browser.close()
-    print('Navigation browser checks passed: isolated session, bounded muted first-frame warmup in the 2+1 window, rapid recovery without telemetry, legacy abort then 1001 retains the next frame, no automatic skip.')
+    print('Navigation browser checks passed: standard browser session, bounded muted first-frame warmup in the 2+1 window, rapid recovery without telemetry, legacy abort then 1001 retains the next frame, no automatic skip.')
 
 # The standalone device test uses only synthetic player responses in CI.
 import runpy
