@@ -105,7 +105,8 @@ with sync_playwright() as p:
             assert first['commands'].count('play')==2 and 'unMute' in first['commands']
         else:
             assert first['refusals']==[]
-            assert first['commands'].count('play')==1 and 'unMute' not in first['commands']
+            assert first['commands'].count('play')==1
+            assert ('unMute' in first['commands']) is (scenario=='entry_sound')
             assert inspect("new URL(slides[0].querySelector('iframe').src).searchParams.get('muted')")==('0' if scenario=='entry_sound' else '1')
         assert first['muted'] is (scenario!='entry_sound') and first['paused'] is False and first['activated'] is False
         assert inspect("localStorage.getItem('one_tiktok_sound_v3')")=='0'
