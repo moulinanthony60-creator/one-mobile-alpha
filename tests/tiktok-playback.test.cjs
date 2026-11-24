@@ -203,6 +203,16 @@ test('explicit native retry can start a loaded player without ready',()=>{
  assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);assert.equal(r.frame(s),f);
  assert.notEqual(f.dataset.oneReady,'1');assert.equal(f.srcWrites,1);
 });
+test('normal buffering does not convert an authorized audible start into muted playback',()=>{
+ const r=withNativeSound(setup()),s=r.slides[0],f=r.frame(s);r.message(f,'onPlayerReady');r.message(f,'onStateChange',3);
+ r.tick(3000);assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);assert.equal(f.dataset.oneAutoplayFallback,'0');
+ r.playing(f);r.context.v17ActivateSlide(r.slides[1]);assert.equal(new URL(r.frame(r.slides[1]).src).searchParams.get('muted'),'0');
+});
+test('a typed autoplay denial still falls back once even after a buffering state',()=>{
+ const r=withNativeSound(setup()),s=r.slides[0],f=r.frame(s);r.message(f,'onPlayerReady');r.message(f,'onStateChange',3);
+ r.message(f,'onPlayerError',{errorCode:3002});assert.deepEqual(f.messages.slice(-2).map(m=>m.data.type),['mute','play']);
+ r.tick(3000);assert.equal(f.messages.filter(m=>m.data.type==='play').length,2);assert.equal(f.srcWrites,1);
+});
 test('a ready player which silently refuses to start gets one muted attempt',()=>{
  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);r.message(f,'onPlayerReady');
  r.tick(1199);assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);r.tick(1);

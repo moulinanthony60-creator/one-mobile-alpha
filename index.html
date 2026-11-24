@@ -1196,7 +1196,7 @@ function v17StartTikTokMuted(slide){
 function v17WatchTikTokAutoplay(slide,frame){
  clearTimeout(frame._oneTTAutoTimer);
  frame._oneTTAutoTimer=setTimeout(()=>{
-  if(slide.querySelector('iframe')===frame&&slide.dataset.ttPlaying!=='1'){
+  if(slide.querySelector('iframe')===frame&&slide.dataset.ttPlaying!=='1'&&slide.dataset.ttState!=='3'){
    const awaitingReady=frame.dataset.oneReady!=='1'&&frame.dataset.onePlayPending==='1';
    // A command sent before the SDK is ready may be ignored. Keep the ready path armed.
    if(v17StartTikTokMuted(slide)&&awaitingReady)frame.dataset.onePlayPending='1';
@@ -1268,7 +1268,7 @@ function v17ActivateSlide(slide){
  if(x.p==='tiktok'){
   v17ClearTikTokTimers(slide);delete slide.dataset.oneUserPaused;
   slide.querySelector('.oneTikTokStatus')?.remove();
-  slide.dataset.ttTimeAdvanced='0';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';slide.dataset.ttReady='0';
+  slide.dataset.ttTimeAdvanced='0';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';slide.dataset.ttReady='0';delete slide.dataset.ttState;
   f._oneTTLastTime=null;f.dataset.oneSoundAttempt='0';f.dataset.oneStartupSoundRepair='0';f.dataset.oneAutoplayFallback='0';
   // Native input stays available on ready, autoplay refusal, tap or the bounded timeout.
   f.dataset.oneManual='1';f.dataset.onePreload='0';f.dataset.onePlayPending='1';f.removeAttribute('aria-hidden');f.removeAttribute('tabindex');slide.dataset.ttManual='1';delete slide.dataset.ttUnavailable;
@@ -1355,7 +1355,7 @@ window.addEventListener('message',e=>{
   v17SendTikTok(frame,'play');
  }
  if(d.type==='onStateChange'){
-  const state=Number(d.value);slide.dataset.ttPlaying=state===1?'1':'0';
+  const state=Number(d.value);slide.dataset.ttState=String(state);slide.dataset.ttPlaying=state===1?'1':'0';
   if(state===1)frame.dataset.oneReady='1'; // A real SDK playback event also proves its command API is available.
   if(state===1||(state===2&&slide.dataset.ttVisualReady==='1')){
    const paused=state===2;slide.dataset.oneUserPaused=paused?'1':'0';
