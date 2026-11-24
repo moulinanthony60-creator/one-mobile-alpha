@@ -176,7 +176,7 @@ body.oneTwitchBrowse .verticalLaunchersTwitch .v17launch{width:100%;margin:0;min
 body.oneTwitchBrowse .verticalLaunchersTwitch .clips{background:#141821;border-color:#303546;color:#d5d9e4}
 body.oneTwitchBrowse .twitchFilters button:focus-visible,body.oneTwitchBrowse .verticalLaunchersTwitch button:focus-visible{outline:2px solid #e3d9ff;outline-offset:2px}
 </style>
-<style>.oneAiPurchaseLink{color:#c8baff;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}#videoAiSources{overflow-wrap:anywhere}.thumb{object-fit:cover}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}</style><style>#vfeed.oneCleanFeed #vSoundPanel,#vfeed.oneCleanFeed #vFullscreen{display:none!important}#vfeed[data-one-tiktok-sound="1"] #vSoundPanel{display:flex!important;top:calc(58px + env(safe-area-inset-top));right:110px;max-width:calc(100% - 128px)}#vfeed[data-one-tiktok-sound="1"] #vVolume,#vfeed[data-one-tiktok-sound="1"] #vVolLabel{display:none}#vfeed[data-one-tiktok-sound="1"] #vSound{min-height:32px;cursor:pointer}#vfeed.oneTikTokMini #vSoundPanel{display:none!important}</style><style>#vfeed.oneCleanFeed .vslideMedia img{filter:none}#vfeed.oneCleanFeed .vfeedTop button{backdrop-filter:none}#vfeed.oneCleanFeed .vslide{contain:layout paint}</style><style>
+<style>.oneAiPurchaseLink{color:#c8baff;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}#videoAiSources{overflow-wrap:anywhere}.thumb{object-fit:cover}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}</style><style>#vfeed.oneCleanFeed #vSoundPanel,#vfeed.oneCleanFeed #vFullscreen{display:none!important}#vfeed[data-one-tik-tok-sound="1"] #vSoundPanel{display:flex!important;top:calc(58px + env(safe-area-inset-top));right:110px;max-width:calc(100% - 128px)}#vfeed[data-one-tik-tok-sound="1"] #vVolume,#vfeed[data-one-tik-tok-sound="1"] #vVolLabel{display:none}#vfeed[data-one-tik-tok-sound="1"] #vSound{min-height:32px;cursor:pointer}#vfeed.oneTikTokMini #vSoundPanel{display:none!important}</style><style>#vfeed.oneCleanFeed .vslideMedia img{filter:none}#vfeed.oneCleanFeed .vfeedTop button{backdrop-filter:none}#vfeed.oneCleanFeed .vslide{contain:layout paint}</style><style>
 .oneAiSourceCard{display:block;padding:9px 10px;margin-top:6px;background:#1b2232;border:1px solid #333d52;border-radius:9px;text-decoration:none;color:#d7ccff}.oneAiSourceTitle{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35}.oneAiSourceCard small{display:block;color:#aab6ca;margin-top:4px;font-size:11px}
 #videoAiPanel .videoAiSheet{display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box}#videoAiPanel .videoAiHead{position:static;flex-shrink:0}#videoAiPanel .oneAiComposer{flex-shrink:0}#videoAiPanel .oneAiResults{overflow-y:auto;min-height:0;flex:1;overscroll-behavior:contain}#videoAiPanel .oneAiComposer textarea{max-height:110px}#videoAiPanel .oneAiResults #videoAiAnswer{margin-top:10px}
 #videoAiPanel.oneAiCompact .videoAiSheet{padding:6px 10px;width:min(600px,85vw)}#videoAiPanel.oneAiCompact .videoAiHead{padding:0 0 4px}#videoAiPanel.oneAiCompact .videoAiHead h3{font-size:14px}#videoAiPanel.oneAiCompact .videoAiHead button{padding:5px 10px;min-height:32px}#videoAiPanel.oneAiCompact .videoAiSheet>p{display:none}#videoAiPanel.oneAiCompact .oneAiComposer{display:grid;grid-template-columns:minmax(0,1fr) 100px;gap:4px 8px;align-items:stretch}#videoAiPanel.oneAiCompact .oneAiComposer label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}#videoAiPanel.oneAiCompact #videoAiQuestion{grid-column:1;grid-row:1 / 3;width:100%;height:72px;min-height:0;margin:0;padding:7px;font-size:14px;resize:none}#videoAiPanel.oneAiCompact #videoAiSearch{grid-column:2;grid-row:1;padding:7px;font-size:12px}#videoAiPanel.oneAiCompact .oneAiNewSearch{grid-column:2;grid-row:2;margin:0;padding:5px;font-size:10px}
@@ -994,7 +994,7 @@ function v17TikTokNativePlayer(slide){
  frame.dataset.provider='tiktok';frame.dataset.oneManual='1';frame.setAttribute('playsinline','');
  frame.onload=()=>{if(!frame.isConnected)return;frame.dataset.oneLoaded='1';if(frame.dataset.onePlayPending==='1')v17WatchTikTokAutoplay(slide,frame);};
  frame.style.opacity='1';frame.style.pointerEvents='auto';
- slide.dataset.ttManual='1';slide.dataset.ttControlsReady='1';slide.dataset.ttNativeInput='1';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';delete slide.dataset.oneUserPaused;
+ slide.dataset.ttManual='1';slide.dataset.ttControlsReady='1';slide.dataset.ttNativeInput='1';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';delete slide.dataset.oneUserPaused;delete slide.dataset.ttState;
  media.appendChild(frame);const img=media.querySelector('img');if(img)img.style.opacity='0';
  media.classList.remove('playing','loading');
  v17TikTokFallback(slide,'manual');
@@ -1196,7 +1196,7 @@ function v17StartTikTokMuted(slide){
 function v17WatchTikTokAutoplay(slide,frame){
  clearTimeout(frame._oneTTAutoTimer);
  frame._oneTTAutoTimer=setTimeout(()=>{
-  if(slide.querySelector('iframe')===frame&&slide.dataset.ttPlaying!=='1'){
+  if(slide.querySelector('iframe')===frame&&slide.dataset.ttPlaying!=='1'&&slide.dataset.ttState!=='3'){
    const awaitingReady=frame.dataset.oneReady!=='1'&&frame.dataset.onePlayPending==='1';
    // A command sent before the SDK is ready may be ignored. Keep the ready path armed.
    if(v17StartTikTokMuted(slide)&&awaitingReady)frame.dataset.onePlayPending='1';
@@ -1268,7 +1268,7 @@ function v17ActivateSlide(slide){
  if(x.p==='tiktok'){
   v17ClearTikTokTimers(slide);delete slide.dataset.oneUserPaused;
   slide.querySelector('.oneTikTokStatus')?.remove();
-  slide.dataset.ttTimeAdvanced='0';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';slide.dataset.ttReady='0';
+  slide.dataset.ttTimeAdvanced='0';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';slide.dataset.ttReady='0';delete slide.dataset.ttState;
   f._oneTTLastTime=null;f.dataset.oneSoundAttempt='0';f.dataset.oneStartupSoundRepair='0';f.dataset.oneAutoplayFallback='0';
   // Native input stays available on ready, autoplay refusal, tap or the bounded timeout.
   f.dataset.oneManual='1';f.dataset.onePreload='0';f.dataset.onePlayPending='1';f.removeAttribute('aria-hidden');f.removeAttribute('tabindex');slide.dataset.ttManual='1';delete slide.dataset.ttUnavailable;
@@ -1355,7 +1355,7 @@ window.addEventListener('message',e=>{
   v17SendTikTok(frame,'play');
  }
  if(d.type==='onStateChange'){
-  const state=Number(d.value);slide.dataset.ttPlaying=state===1?'1':'0';
+  const state=Number(d.value);slide.dataset.ttState=String(state);slide.dataset.ttPlaying=state===1?'1':'0';
   if(state===1)frame.dataset.oneReady='1'; // A real SDK playback event also proves its command API is available.
   if(state===1||(state===2&&slide.dataset.ttVisualReady==='1')){
    const paused=state===2;slide.dataset.oneUserPaused=paused?'1':'0';
