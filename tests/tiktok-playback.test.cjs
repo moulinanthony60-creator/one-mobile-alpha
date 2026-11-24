@@ -208,6 +208,11 @@ test('normal buffering does not convert an authorized audible start into muted p
  r.tick(3000);assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);assert.equal(f.dataset.oneAutoplayFallback,'0');
  r.playing(f);r.context.v17ActivateSlide(r.slides[1]);assert.equal(new URL(r.frame(r.slides[1]).src).searchParams.get('muted'),'0');
 });
+test('an explicit new player does not inherit the buffering state of the previous frame',()=>{
+ const r=withNativeSound(setup()),s=r.slides[0];r.message(r.frame(s),'onStateChange',3);r.context.v17TikTokNativePlayer(s);
+ const f=r.frame(s);f.dataset.onePlayPending='1';f.onload();r.tick(1200);
+ assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);assert.notEqual(f.dataset.oneReady,'1');
+});
 test('a typed autoplay denial still falls back once even after a buffering state',()=>{
  const r=withNativeSound(setup()),s=r.slides[0],f=r.frame(s);r.message(f,'onPlayerReady');r.message(f,'onStateChange',3);
  r.message(f,'onPlayerError',{errorCode:3002});assert.deepEqual(f.messages.slice(-2).map(m=>m.data.type),['mute','play']);

@@ -994,7 +994,7 @@ function v17TikTokNativePlayer(slide){
  frame.dataset.provider='tiktok';frame.dataset.oneManual='1';frame.setAttribute('playsinline','');
  frame.onload=()=>{if(!frame.isConnected)return;frame.dataset.oneLoaded='1';if(frame.dataset.onePlayPending==='1')v17WatchTikTokAutoplay(slide,frame);};
  frame.style.opacity='1';frame.style.pointerEvents='auto';
- slide.dataset.ttManual='1';slide.dataset.ttControlsReady='1';slide.dataset.ttNativeInput='1';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';delete slide.dataset.oneUserPaused;
+ slide.dataset.ttManual='1';slide.dataset.ttControlsReady='1';slide.dataset.ttNativeInput='1';slide.dataset.ttPlaying='0';slide.dataset.ttVisualReady='0';delete slide.dataset.oneUserPaused;delete slide.dataset.ttState;
  media.appendChild(frame);const img=media.querySelector('img');if(img)img.style.opacity='0';
  media.classList.remove('playing','loading');
  v17TikTokFallback(slide,'manual');
