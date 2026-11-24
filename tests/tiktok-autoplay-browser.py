@@ -10,13 +10,13 @@ html = (ROOT/'index.html').read_text()
 player = html[html.index('function v17Escape('):html.index('function v17SetupObserver(')]
 clip = base64.b64encode((ROOT/'tests/fixtures/tiktok-autoplay.webm').read_bytes()).decode()
 ids = [str(7000000000000000000+i) for i in range(3)]
-fixture = '<section id="vfeed" class="show"><div id="vfeedScroller">'+''.join(
+fixture = '<button id="fixtureEnter" hidden>Ouvrir TikTok</button><button id="vSound">Activer le son</button><section id="vfeed" class="show"><div id="vfeedScroller">'+''.join(
     f'<article class="vslide" data-platform="tiktok" data-id="tt_ext_{key}"><div class="vslideMedia"><img><button class="vslidePlay">▶</button></div></article>' for key in ids)+'</div></section>'
 setup = '''
 window.v17ActiveId='';window.v17Muted=true;window.v17Volume=50;window.v17TwitchPlayers={};
 localStorage.setItem('one_tiktok_sound_v3','0');
 const ids=IDS,items=new Map(ids.map(id=>['tt_ext_'+id,{id:'tt_ext_'+id,p:'tiktok',tiktokId:id,creator:'Fixture',tiktokPlayable:true}]));
-window.v17ItemById=id=>items.get(String(id));window.platformName=p=>p;
+window.v17ItemById=id=>items.get(String(id));window.platformName=p=>p;window.v1814RememberSoundGesture=()=>{};
 window.oneTTTrace=()=>{};window.toast=()=>{};window.learnFromItem=()=>{};window.v1814NativeMuted=()=>true;
 window.fixtureReports={};
 addEventListener('message',event=>{
@@ -25,9 +25,17 @@ addEventListener('message',event=>{
  if(slide)fixtureReports[slide.dataset.id.slice(7)]=event.data.value;
 });
 // The audible case models a later sound request whose permission is denied.
-addEventListener('load',()=>{window.slides=[...document.querySelectorAll('.vslide')];if(location.search==='?audible=1')v17TikTokAutoplayMuted=false;v17ActivateSlide(slides[0]);});
+addEventListener('load',()=>{
+ window.slides=[...document.querySelectorAll('.vslide')];
+ if(location.search==='?entry=1'){
+  const enter=document.getElementById('fixtureEnter');enter.hidden=false;
+  enter.onclick=()=>{v17TikTokSoundGesture();v17ActivateSlide(slides[0]);};
+ }else{if(location.search==='?audible=1')v17TikTokAutoplayMuted=false;v17ActivateSlide(slides[0]);}
+});
 '''.replace('IDS',json.dumps(ids))
-fixture += '<script>'+setup+'</script><script>'+player+'</script><script src="/ui/tiktok-availability.js"></script>'
+# Exercise the production ONE button binding, not a stand-in for its sound command.
+button_binding=next(line for line in html.splitlines() if line.startswith('if(vSoundBtn)vSoundBtn.onclick='))
+fixture += '<script>'+setup+'</script><script>'+player+'</script><script>const vSoundBtn=document.getElementById("vSound");'+button_binding+'</script><script src="/ui/tiktok-availability.js"></script>'
 embedded = '''<video controls playsinline loop src="data:video/webm;base64,CLIP"></video><script>
 const video=document.querySelector('video');video.muted=new URL(location.href).searchParams.get('muted')==='1';video.autoplay=new URL(location.href).searchParams.get('autoplay')==='1';
 window.commands=[];window.refusals=[];
@@ -53,7 +61,10 @@ if(apiEnabled)send('onPlayerReady');
 with sync_playwright() as p:
     browser = p.chromium.launch(args=['--autoplay-policy=document-user-activation-required',
         '--disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies'])
-    for audible,missing_ready in ((False,False),(True,False),(False,True)):
+    for scenario in ('muted','refused','no_api','entry_sound','sound_button'):
+        audible=scenario=='refused'
+        missing_ready=scenario in ('no_api','entry_sound','sound_button')
+        wants_audio=scenario in ('entry_sound','sound_button')
         context = browser.new_context(viewport={'width':390,'height':844})
         page = context.new_page()
         errors=[]
@@ -69,7 +80,7 @@ with sync_playwright() as p:
             else:
                 request.abort()
         page.route('**/*',route)
-        page.goto('https://one.test/'+('?audible=1' if audible else ''))
+        page.goto('https://one.test/'+('?entry=1' if scenario=='entry_sound' else '?audible=1' if audible else ''))
         # Playwright evaluate can grant an activation. These test-only protocol reads
         # explicitly omit that gesture, and all player installation happens at load.
         protocol=context.new_cdp_session(page)
@@ -85,6 +96,8 @@ with sync_playwright() as p:
                 time.sleep(.05)
             raise AssertionError(expression)
         assert inspect('navigator.userActivation.hasBeenActive') is False
+        if scenario=='entry_sound':
+            page.get_by_role('button',name='Ouvrir TikTok',exact=True).click()
         wait("slides[0].dataset.ttTimeAdvanced==='1' && fixtureReports['"+ids[0]+"']?.time>.4")
         first=inspect("fixtureReports['"+ids[0]+"']")
         if audible:
@@ -92,24 +105,34 @@ with sync_playwright() as p:
             assert first['commands'].count('play')==2 and 'unMute' in first['commands']
         else:
             assert first['refusals']==[]
-            assert first['commands'].count('play')==1 and 'unMute' not in first['commands']
-            assert inspect("new URL(slides[0].querySelector('iframe').src).searchParams.get('muted')")=='1'
-        assert first['muted'] is True and first['paused'] is False and first['activated'] is False
+            assert first['commands'].count('play')==1
+            assert ('unMute' in first['commands']) is (scenario=='entry_sound')
+            assert inspect("new URL(slides[0].querySelector('iframe').src).searchParams.get('muted')")==('0' if scenario=='entry_sound' else '1')
+        assert first['muted'] is (scenario!='entry_sound') and first['paused'] is False and first['activated'] is False
         assert inspect("localStorage.getItem('one_tiktok_sound_v3')")=='0'
+        if scenario=='sound_button':
+            page.get_by_role('button',name='Activer le son TikTok',exact=True).click()
+            wait("fixtureReports['"+ids[0]+"']?.muted===false && !fixtureReports['"+ids[0]+"'].paused")
         for i in [1,2]:
             wait(f"slides[{i}].querySelector('iframe')?.dataset.{'oneLoaded' if missing_ready else 'oneReady'}==='1'")
             inspect(f"window.kept=slides[{i}].querySelector('iframe');v17StepSlide(slides[{i-1}],1)")
             wait(f"slides[{i}].dataset.ttTimeAdvanced==='1' && fixtureReports['{ids[i]}']?.time>.4 && !fixtureReports['{ids[i]}'].paused")
             assert inspect(f"slides[{i}].querySelector('iframe')===kept") is (not missing_ready)
             report=inspect(f"fixtureReports['{ids[i]}']")
-            assert report['muted'] is True and report['activated'] is False
+            assert report['muted'] is (not wants_audio) and report['activated'] is False
             assert report['refusals']==[]
             if missing_ready:
                 assert inspect(f"slides[{i}].querySelector('iframe').dataset.oneReady==='1'") is True
                 assert inspect(f"new URL(slides[{i}].querySelector('iframe').src).searchParams.get('autoplay')")=='1'
                 assert report['commands'].count('play')==1
-            assert inspect('navigator.userActivation.hasBeenActive') is False
+            assert inspect('navigator.userActivation.hasBeenActive') is wants_audio
+        if wants_audio:
+            page.get_by_role('button',name='Couper le son TikTok',exact=True).click()
+            wait("fixtureReports['"+ids[2]+"']?.muted===true && !fixtureReports['"+ids[2]+"'].paused")
+            inspect('v17StepSlide(slides[2],-1)')
+            wait("slides[1].dataset.ttTimeAdvanced==='1' && fixtureReports['"+ids[1]+"']?.muted===true && !fixtureReports['"+ids[1]+"'].paused")
+            assert inspect("localStorage.getItem('one_tiktok_sound_v3')")=='1'
         assert not errors,errors
         context.close()
     browser.close()
-    print('Real media autoplay passed: muted initial autoplay without a tap or refusal, two following videos start without a tap, later audible refusal recovers once on the same iframe, previews with no command API are replaced once by active autoplay readers, no external provider requests.')
+    print('Real media autoplay passed: muted initial autoplay without a tap or refusal, two following videos start without a tap, later audible refusal recovers once on the same iframe, previews with no command API are replaced once by active autoplay readers, opening by click or the ONE sound button enables sound for the following videos, deliberate mute survives backward navigation, no external provider requests.')
