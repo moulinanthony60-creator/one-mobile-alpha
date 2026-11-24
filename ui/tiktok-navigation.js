@@ -21,10 +21,10 @@
    doc.querySelectorAll('.vslide[data-platform="tiktok"]').forEach(other=>{if(other!==slide)host.v17RestoreSlide(other);});
   }
   function surrounding(slide){return recovery?[]:neighbors.call(this,slide);}
-  function warm(slide){
+  function warm(slide,autoplayMuted=false){
    const active=doc.querySelector('.vslide[data-active="1"]');
    if(recovery||!surrounding(active).includes(slide))return;
-   return preload.call(this,slide);
+   return preload.call(this,slide,autoplayMuted);
   }
   function resetClocks(){clocks=new WeakMap();}
   function progress(event){
