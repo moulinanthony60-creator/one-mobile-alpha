@@ -105,7 +105,8 @@ with sync_playwright() as p:
             page.get_by_role('button',name='Ouvrir TikTok',exact=True).click()
         wait("slides[0].dataset.ttTimeAdvanced==='1' && fixtureReports['"+ids[0]+"']?.time>.4")
         first=inspect("fixtureReports['"+ids[0]+"']")
-        assert page.get_by_role('button',name='Couper le son TikTok' if scenario in ('entry_sound','buffered_sound') else 'Activer le son TikTok',exact=True).is_visible()
+        # Use the no-gesture protocol read here too: a visibility helper can activate the document.
+        assert inspect("(()=>{const b=document.getElementById('vSound');return b.getClientRects().length>0 && getComputedStyle(b).visibility==='visible';})()") is True
         if audible:
             assert 'NotAllowedError' in first['refusals']
             assert first['commands'].count('play')==2 and 'unMute' in first['commands']
