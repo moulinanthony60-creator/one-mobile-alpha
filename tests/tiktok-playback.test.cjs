@@ -81,6 +81,46 @@ function withNativeSound(r){
  r.message(frame,'onMute',true);r.message(frame,'onMute',false);return r;
 }
 
+test('only a current opening gesture can request audible autoplay, respecting a deliberate mute',()=>{
+ for(const [active,pref,wantsSound]of [[false,'0',false],[true,'0',true],[true,'1',false]]){
+  const r=setup(3,pref);r.context.navigator={userActivation:{isActive:active}};
+  assert.equal(r.context.v17TikTokSoundGesture(),wantsSound);
+  r.context.v17ActivateSlide(r.slides[0]);assert.equal(new URL(r.frame(r.slides[0]).src).searchParams.get('muted'),wantsSound?'0':'1');
+ }
+});
+test('the ONE sound control unmutes the active native player and carries sound to the next',()=>{
+ const r=setup();r.context.v17ActivateSlide(r.slides[0]);const first=r.frame(r.slides[0]);r.message(first,'onPlayerReady');r.playing(first);
+ r.context.v1815TikTokSound(r.slides[0],true);assert.deepEqual(first.messages.map(m=>m.data.type),['mute','play','unMute']);
+ assert.equal(r.storage.get('one_tiktok_sound_v3'),'0');const next=r.frame(r.slides[1]);r.message(next,'onPlayerReady');
+ r.context.v17ActivateSlide(r.slides[1]);assert.equal(r.frame(r.slides[1]),next);
+ assert.deepEqual(next.messages.slice(-2).map(m=>m.data.type),['unMute','play']);assert.equal(first.srcWrites,1);
+});
+test('an explicit sound choice during loading is applied once when the player becomes ready',()=>{
+ const r=setup();r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
+ r.context.v1815TikTokSound(r.slides[0],true);assert.equal(f.messages.length,0);
+ r.message(f,'onPlayerReady');r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['unMute','play']);assert.equal(f.srcWrites,1);
+});
+test('the ONE mute control preserves silence on the following video and return',()=>{
+ const r=setup();r.context.v17ActivateSlide(r.slides[0]);const first=r.frame(r.slides[0]);r.message(first,'onPlayerReady');r.playing(first);
+ r.context.v1815TikTokSound(r.slides[0],true);r.context.v1815TikTokSound(r.slides[0],false);const unmuted=first.messages.filter(m=>m.data.type==='unMute').length;
+ assert.equal(r.storage.get('one_tiktok_sound_v3'),'1');r.context.v17ActivateSlide(r.slides[1]);const next=r.frame(r.slides[1]);r.message(next,'onPlayerReady');
+ assert.equal(new URL(next.src).searchParams.get('muted'),'1');assert.deepEqual(next.messages.map(m=>m.data.type),['mute','play']);
+ r.context.v17ActivateSlide(r.slides[0]);assert.equal(r.frame(r.slides[0]),first);assert.equal(first.messages.filter(m=>m.data.type==='unMute').length,unmuted);
+});
+test('sound activation never resumes a deliberate pause or retries a provider error',()=>{
+ for(const mode of ['paused','error']){
+  const r=setup();r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);r.message(f,'onPlayerReady');r.playing(f);
+  if(mode==='paused')r.message(f,'onStateChange',2);else r.message(f,'onPlayerError',{errorCode:3001});
+  const count=f.messages.length;r.context.v1815TikTokSound(r.slides[0],true);assert.equal(f.messages.length,count);
+ }
+});
+test('hidden and background sound controls cannot change the active preference',()=>{
+ for(const hidden of [false,true]){
+  const r=setup();r.context.v17ActivateSlide(r.slides[0]);r.document.hidden=hidden;
+  const s=r.slides[hidden?0:1],f=r.frame(s),count=f.messages.length;r.context.v1815TikTokSound(s,true);assert.equal(f.messages.length,count);
+  r.document.hidden=false;r.context.v17ActivateSlide(r.slides[2]);assert.equal(new URL(r.frame(r.slides[2]).src).searchParams.get('muted'),'1');
+ }
+});
 test('an initial unmuted notification cannot undo muted autoplay in a new visit',()=>{
  const r=setup(4,'0');r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(r.slides[0]);
  r.message(f,'onMute',false);r.message(f,'onPlayerReady');r.playing(f);
