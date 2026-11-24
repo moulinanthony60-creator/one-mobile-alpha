@@ -149,4 +149,5 @@ with sync_playwright() as p:
 # The standalone device test uses only synthetic player responses in CI.
 import runpy
 runpy.run_path(str(ROOT/'tests/tiktok-health-simple-browser.py'),run_name='__main__')
+# Also checks the real clean-feed sound control markup and CSS visibility.
 runpy.run_path(str(ROOT/'tests/tiktok-autoplay-browser.py'),run_name='__main__')

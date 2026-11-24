@@ -10,7 +10,12 @@ html = (ROOT/'index.html').read_text()
 player = html[html.index('function v17Escape('):html.index('function v17SetupObserver(')]
 clip = base64.b64encode((ROOT/'tests/fixtures/tiktok-autoplay.webm').read_bytes()).decode()
 ids = [str(7000000000000000000+i) for i in range(3)]
-fixture = '<button id="fixtureEnter" hidden>Ouvrir TikTok</button><button id="vSound">Activer le son</button><section id="vfeed" class="show"><div id="vfeedScroller">'+''.join(
+# Include production markup and the clean-feed style, not just the JS handler.
+style_start=html.index('<style>#vfeed.oneCleanFeed #vSoundPanel')
+control_style=html[style_start:html.index('</style>',style_start)+8]
+control_start=html.index('<div class="vsoundPanel" id="vSoundPanel">')
+control_markup=html[control_start:html.index('</div>',control_start)+6]
+fixture = control_style+'<button id="fixtureEnter" hidden>Ouvrir TikTok</button><section id="vfeed" class="show oneCleanFeed">'+control_markup+'<div id="vfeedScroller">'+''.join(
     f'<article class="vslide" data-platform="tiktok" data-id="tt_ext_{key}"><div class="vslideMedia"><img><button class="vslidePlay">▶</button></div></article>' for key in ids)+'</div></section>'
 setup = '''
 window.v17ActiveId='';window.v17Muted=true;window.v17Volume=50;window.v17TwitchPlayers={};
@@ -100,6 +105,7 @@ with sync_playwright() as p:
             page.get_by_role('button',name='Ouvrir TikTok',exact=True).click()
         wait("slides[0].dataset.ttTimeAdvanced==='1' && fixtureReports['"+ids[0]+"']?.time>.4")
         first=inspect("fixtureReports['"+ids[0]+"']")
+        assert page.get_by_role('button',name='Couper le son TikTok' if scenario=='entry_sound' else 'Activer le son TikTok',exact=True).is_visible()
         if audible:
             assert 'NotAllowedError' in first['refusals']
             assert first['commands'].count('play')==2 and 'unMute' in first['commands']
