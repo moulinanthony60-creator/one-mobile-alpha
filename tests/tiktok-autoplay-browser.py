@@ -121,10 +121,14 @@ with sync_playwright() as p:
             page.get_by_role('button',name='Activer le son TikTok',exact=True).click()
             wait("fixtureReports['"+ids[0]+"']?.muted===false && !fixtureReports['"+ids[0]+"'].paused")
         for i in [1,2]:
-            wait(f"slides[{i}].querySelector('iframe')?.dataset.{'oneLoaded' if missing_ready else 'oneReady'}==='1'")
+            # The no-API fixture only exposes commands in its autoplay reader.
+            # Require actual media progress and silence before swiping to it.
+            wait(f"slides[{i}].querySelector('iframe')?.dataset.{'oneWarm' if missing_ready else 'oneReady'}==='1'")
+            if missing_ready:
+                wait(f"fixtureReports['{ids[i]}']?.muted===true && fixtureReports['{ids[i]}'].time>0")
             inspect(f"window.kept=slides[{i}].querySelector('iframe');v17StepSlide(slides[{i-1}],1)")
             wait(f"slides[{i}].dataset.ttTimeAdvanced==='1' && fixtureReports['{ids[i]}']?.time>.4 && !fixtureReports['{ids[i]}'].paused")
-            assert inspect(f"slides[{i}].querySelector('iframe')===kept") is (not missing_ready)
+            assert inspect(f"slides[{i}].querySelector('iframe')===kept") is True
             report=inspect(f"fixtureReports['{ids[i]}']")
             assert report['muted'] is (not wants_audio) and report['activated'] is False
             assert report['refusals']==[]
@@ -142,4 +146,4 @@ with sync_playwright() as p:
         assert not errors,errors
         context.close()
     browser.close()
-    print('Real media autoplay passed: muted initial autoplay without a tap or refusal, two following videos start without a tap, later audible refusal recovers once on the same iframe, previews with no command API are replaced once by active autoplay readers, opening by click or the ONE sound button enables sound for the following videos, deliberate mute survives backward navigation, normal buffering preserves authorized audio, no external provider requests.')
+    print('Media scenarios passed: muted startup, audio permission recovery, silent preloading before swipe, player reuse, and sound preference across navigation.')

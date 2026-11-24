@@ -5,8 +5,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const code = html.slice(html.indexOf('function v17Escape('), html.indexOf('function v17SetupObserver('));
-const tapStart=html.indexOf(' function attach(){document.querySelectorAll(\'.vslide[data-platform="tiktok"]');
-const tapCode=html.slice(tapStart,html.indexOf(" new MutationObserver(oneFrameTask(attach)).observe(document.getElementById('vfeed')",tapStart));
+const tapStart=html.indexOf(' function attachTikTokPlaybackControls()');
+const tapCode=html.slice(tapStart,html.indexOf(' const observer=new MutationObserver',tapStart));
 
 // Minimal DOM adapter for exercising the production player lifecycle without a browser.
 class Element {
@@ -61,7 +61,7 @@ function setup(count=3,soundPreference,legacyPreference){
   let clock=0,seq=0;const timers=new Map(),listeners=new Map(),opened=[],storage=new Map();
   if(soundPreference!==undefined)storage.set('one_tiktok_sound_v3',soundPreference);
   if(legacyPreference!==undefined)storage.set('one_tiktok_sound_v2',legacyPreference);
-  const context={document,URL,console,Date:{now:()=>clock},location:{origin:'https://one.test',href:'https://one.test/',hostname:'one.test'},
+  const context={document,URL,console,performance:{now:()=>clock},Date:{now:()=>clock},location:{origin:'https://one.test',href:'https://one.test/',hostname:'one.test'},
     v17ActiveId:'',v17Muted:true,v17Volume:50,v17TwitchPlayers:{},localStorage:{getItem:key=>storage.get(key)??null,setItem:(key,value)=>storage.set(key,value)},
     v17ItemById:id=>items.get(String(id)),platformName:p=>p,v1814NativeMuted:()=>true,v1814SoundAllowed:()=>true,v1814RememberSoundGesture(){},
     oneTTTrace(){},toast(){},learnFromItem(){},requestAnimationFrame:fn=>fn(),
@@ -130,16 +130,16 @@ test('an initial unmuted notification cannot undo muted autoplay in a new visit'
  assert.deepEqual(next.messages.slice(-2).map(m=>m.data.type),['mute','play']);
 });
 
-test('startup preview has a bounded lifetime even if TikTok never emits ready',()=>{
+test('startup keeps the poster across the old timeout, readiness and a stationary clock',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);r.tick(1000);
   assert.equal(r.document.querySelectorAll('iframe').length,3);
   assert.equal(new URL(f.src).searchParams.get('muted'),'1');assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');
   for(const key of ['controls','play_button','progress_bar','volume_control','fullscreen_button'])assert.equal(new URL(f.src).searchParams.get(key),'1');
   assert.equal(f.style.opacity,'0');assert.equal(s.querySelector('img').style.opacity,'1');assert.equal(s.dataset.ttNativeInput,'0');
-  r.tick(500);assert.equal(f.style.opacity,'1');assert.equal(f.style.pointerEvents,'auto');assert.equal(s.querySelector('img').style.opacity,'0');
-  assert.equal(s.dataset.ttManual,'1');assert.equal(s.dataset.ttControlsReady,'1');assert.equal(s.dataset.ttNativeInput,'1');assert.equal(s.dataset.ttVisualReady,'0');
+  r.tick(500);assert.equal(f.style.opacity,'0');assert.equal(f.style.pointerEvents,'none');assert.equal(s.querySelector('img').style.opacity,'1');
+  assert.equal(s.dataset.ttManual,'1');assert.equal(s.dataset.ttControlsReady,'0');assert.equal(s.dataset.ttNativeInput,'0');assert.equal(s.dataset.ttVisualReady,'0');
   r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
-  r.message(f,'onStateChange',1);assert.equal(f.style.opacity,'1');assert.equal(s.dataset.ttVisualReady,'0');
+  r.message(f,'onStateChange',1);r.message(f,'onCurrentTime',{currentTime:0});r.tick(3000);r.message(f,'onCurrentTime',{currentTime:0});assert.equal(f.style.opacity,'0');assert.equal(s.dataset.ttVisualReady,'0');
   r.playing(f);assert.equal(s.dataset.ttVisualReady,'1');
 });
 test('a video loading longer than 4.5 seconds is retained and can recover after timeout',()=>{
@@ -152,9 +152,9 @@ test('autoplay refusal tries the same player once muted and retains native contr
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const old=r.frame(s);
   r.message(old,'onPlayerError',{errorCode:3002,errorType:'AUTOPLAY_ERROR'});const f=r.frame(s);
   assert.equal(f,old);assert.equal(f.dataset.oneManual,'1');assert.equal(new URL(f.src).searchParams.get('controls'),'1');
-  assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');assert.equal(f.style.opacity,'1');
+  assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');assert.equal(f.style.opacity,'0');
   r.message(f,'onPlayerReady');assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
-  r.message(f,'onPlayerError',{errorCode:3002});assert.equal(r.frame(s),f);
+  r.message(f,'onPlayerError',{errorCode:3002});assert.equal(r.frame(s),f);assert.equal(f.style.opacity,'1');
   assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
   r.playing(f);assert.equal(r.status(s),null);
 });
@@ -289,24 +289,24 @@ test('returning to a failed player reloads it without restoring stale errors or 
   r.context.v17ActivateSlide(r.slides[1]);r.context.v17ActivateSlide(s);const f=r.frame(s);
   assert.notEqual(f,old);assert.equal(r.status(s),null);assert.equal(s.dataset.oneUserPaused,undefined);
   assert.equal(r.document.querySelectorAll('iframe').length,3);r.message(f,'onPlayerReady');
-  assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);assert.equal(s.dataset.ttManual,'1');assert.equal(f.style.opacity,'1');
+  assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);assert.equal(s.dataset.ttManual,'1');assert.equal(f.style.opacity,'0');r.playing(f);assert.equal(f.style.opacity,'1');
 });
-test('ready or playback ends the startup preview immediately without a fixed delay',()=>{
+test('readiness and playing notifications keep the poster until playback advances',()=>{
   for(const event of ['onPlayerReady','onStateChange']){
     const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);
-    r.tick(100);r.message(f,event,event==='onStateChange'?1:undefined);assert.equal(f.style.opacity,'1');
-    assert.equal(s.dataset.ttNativeInput,'1');
-    r.tick(1500);assert.equal(s.dataset.ttNativeInput,'1');
-    r.playing(f);assert.equal(s.dataset.ttNativeInput,'0');
+    r.tick(100);r.message(f,event,event==='onStateChange'?1:undefined);assert.equal(f.style.opacity,'0');
+    assert.equal(s.dataset.ttNativeInput,'0');
+    r.tick(1500);assert.equal(f.style.opacity,'0');
+    r.playing(f);assert.equal(s.dataset.ttNativeInput,'0');assert.equal(f.style.opacity,'1');
   }
 });
 test('a tap during the preview exposes native playback without sending an ignored play command',()=>{
-  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.context.attach();const f=r.frame(s),tap=s.querySelector('.oneTapPlayback');
+  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.context.attachTikTokPlaybackControls();const f=r.frame(s),tap=s.querySelector('.oneTapPlayback');
   tap.onclick({preventDefault(){},stopPropagation(){}});
   assert.equal(f.style.opacity,'1');assert.equal(s.dataset.ttNativeInput,'1');assert.equal(f.messages.length,0);
 });
 test('the swipe surface ignores drag clicks and allows deliberate pause and resume after playback',()=>{
-  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.context.attach();const f=r.frame(s),tap=s.querySelector('.oneTapPlayback');
+  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.context.attachTikTokPlaybackControls();const f=r.frame(s),tap=s.querySelector('.oneTapPlayback');
   r.playing(f);assert.equal(s.dataset.ttNativeInput,'0');const commandsBeforeDrag=f.messages.length;
   tap.handlers.pointerdown({clientX:100,clientY:300});tap.handlers.pointermove({clientX:100,clientY:100});
   tap.onclick({preventDefault(){},stopPropagation(){}});assert.equal(f.messages.length,commandsBeforeDrag);
@@ -318,14 +318,15 @@ test('the swipe surface ignores drag clicks and allows deliberate pause and resu
   r.message(f,'onPlayerError',{errorCode:3002});assert.equal(s.dataset.ttNativeInput,'1');
   r.playing(f);assert.equal(s.dataset.ttNativeInput,'0');
 });
-test('a rapid swipe cancels the previous preview deadline without revealing the next frame early',()=>{
+test('a rapid swipe keeps the incoming poster when a previous reader reports progress',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.tick(1000);r.context.v17StepSlide(s,1);
   const next=r.slides[1],f=r.frame(next);r.tick(500);assert.equal(f.style.opacity,'0');
-  r.tick(1000);assert.equal(f.style.opacity,'1');assert.equal(r.frame(s).dataset.onePreload,'1');assert.equal(r.frame(s).style.opacity,'0');
+  r.playing(r.frame(s));r.tick(1000);assert.equal(f.style.opacity,'0');assert.equal(r.frame(s).dataset.onePreload,'1');assert.equal(r.frame(s).style.opacity,'0');
 });
 test('expired poster images are hidden while the native player remains recoverable',()=>{
   const r=setup(),s=r.slides[0],img=s.querySelector('img');img.complete=true;img.naturalWidth=0;
-  r.context.v17ActivateSlide(s);assert.equal(img.style.visibility,'hidden');r.tick(1500);assert.equal(r.frame(s).style.opacity,'1');
+  r.context.v17ActivateSlide(s);assert.equal(img.style.visibility,'hidden');r.tick(1500);assert.equal(r.frame(s).style.opacity,'0');
+  r.context.attachTikTokPlaybackControls();s.querySelector('.oneTapPlayback').onclick({preventDefault(){},stopPropagation(){}});assert.equal(r.frame(s).style.opacity,'1');
 });
 test('native player navigation works without scrolling inside the cross-origin iframe',()=>{
   const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const first=r.frame(s);r.message(first,'onPlayerReady');r.message(r.frame(r.slides[1]),'onPlayerReady');
@@ -334,6 +335,17 @@ test('native player navigation works without scrolling inside the cross-origin i
   assert.equal(first.isConnected,true);assert.equal(r.document.querySelectorAll('iframe').length,3);
   r.context.v17StepSlide(r.slides[1],-1);assert.equal(s.dataset.active,'1');assert.equal(r.frame(s),first);
   r.context.v17StepSlide(r.slides[2],1);assert.equal(s.dataset.active,'1');
+});
+test('without a thumbnail a stationary incoming reader stays concealed and can recover in place',()=>{
+ const r=setup(4);r.context.v17ActivateSlide(r.slides[0]);
+ const slide=r.slides[1],frame=r.frame(slide);slide.querySelector('img').remove();
+ r.message(frame,'onPlayerReady');r.context.v17StepSlide(r.slides[0],1);
+ r.message(frame,'onStateChange',1);r.message(frame,'onCurrentTime',{currentTime:0});
+ r.tick(1600);r.message(frame,'onCurrentTime',{currentTime:0});
+ assert.equal(slide.dataset.ttControlsReady,'0');assert.equal(frame.style.opacity,'0');
+ r.message(frame,'onCurrentTime',{currentTime:.2},'https://foreign.test');
+ assert.equal(frame.style.opacity,'0');r.message(frame,'onCurrentTime',{currentTime:.2});
+ assert.equal(slide.dataset.ttControlsReady,'1');assert.equal(frame.style.opacity,'1');assert.equal(r.frame(slide),frame);
 });
 test('preloading keeps exactly one previous and two next players around the active video',()=>{
   const r=setup(6);r.context.v17ActivateSlide(r.slides[2]);
@@ -352,13 +364,13 @@ test('background players are muted and paused on ready or unexpected playback, n
   assert.deepEqual(f.messages.map(m=>m.data.type),['mute','pause','mute','pause','mute','pause']);
   assert.equal(r.status(r.slides[3]),null);
 });
-test('a ready preload keeps its native picture through activation and backward navigation',()=>{
+test('a ready preview keeps its poster and retains its picture only after it has played',()=>{
   const r=setup(6),s=r.slides[3];r.context.v17ActivateSlide(r.slides[2]);const f=r.frame(s),img=s.querySelector('img');
   assert.equal(f.style.opacity,'0');r.message(f,'onPlayerReady');
-  assert.equal(f.style.opacity,'1');assert.equal(img.style.opacity,'0');assert.equal(s.dataset.ttControlsReady,'1');
+  assert.equal(f.style.opacity,'0');assert.notEqual(img.style.opacity,'0');assert.notEqual(s.dataset.ttControlsReady,'1');
   assert.equal(f.style.pointerEvents,'none');assert.equal(f.getAttribute('aria-hidden'),'true');
   assert.deepEqual(f.messages.map(m=>m.data.type),['mute','pause']);
-  r.context.v17ActivateSlide(s);r.playing(f);
+  r.context.v17ActivateSlide(s);assert.equal(f.style.opacity,'0');r.playing(f);
   assert.equal(f.style.opacity,'1');assert.equal(img.style.opacity,'0');assert.equal(f.srcWrites,1);
   r.context.v17ActivateSlide(r.slides[4]);
   assert.equal(r.frame(s),f);assert.equal(f.style.opacity,'1');assert.equal(img.style.opacity,'0');assert.equal(s.dataset.ttControlsReady,'1');
@@ -372,7 +384,7 @@ test('a ready next player is promoted without changing its iframe or URL and res
   r.message(f,'onPlayerReady');const src=f.src;
   r.context.v17ActivateSlide(r.slides[3]);
   assert.equal(r.frame(r.slides[3]),f);assert.equal(f.src,src);assert.equal(f.srcWrites,1);
-  assert.equal(f.style.opacity,'1');assert.equal(f.style.pointerEvents,'auto');assert.equal(f.getAttribute('aria-hidden'),null);
+  assert.equal(f.style.opacity,'0');assert.equal(f.style.pointerEvents,'none');assert.equal(f.getAttribute('aria-hidden'),null);
   assert.deepEqual(r.slides.map((s,i)=>r.frame(s)?i:null).filter(i=>i!==null),[2,3,4,5]);
   assert.equal(prev.isConnected,false);assert.equal(r.frame(r.slides[4]),next);
   r.message(f,'onPlayerReady');f.onload();assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);
@@ -381,7 +393,7 @@ test('promotion before ready keeps controls reachable on the replacement active 
   const r=setup(6);r.context.v17ActivateSlide(r.slides[2]);const s=r.slides[3],old=r.frame(s);
   r.context.v17ActivateSlide(s);const f=r.frame(s);assert.notEqual(f,old);
   assert.equal(new URL(f.src).searchParams.get('autoplay'),'1');assert.equal(f.messages.filter(m=>m.data.type==='play').length,0);
-  r.tick(1500);assert.equal(f.style.opacity,'1');assert.equal(s.dataset.ttNativeInput,'1');
+  r.tick(1500);assert.equal(f.style.opacity,'0');assert.equal(s.dataset.ttNativeInput,'0');
   r.message(old,'onPlayerReady');assert.equal(f.messages.filter(m=>m.data.type==='play').length,0);
   r.message(f,'onPlayerReady');assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);
   r.playing(f);assert.equal(s.dataset.ttNativeInput,'0');assert.equal(f.srcWrites,1);
@@ -566,7 +578,7 @@ test('playing followed by buffering without time progress still exposes recovery
   r.message(f,'onPlayerReady');r.message(f,'onStateChange',1);r.message(f,'onStateChange',3);
   r.tick(15001);
   assert(r.button(s,'Réessayer'),'a playing notification must not cancel the startup deadline');
-  assert.equal(r.frame(s),f);assert.equal(s.dataset.ttNativeInput,'1');
+  assert.equal(r.frame(s),f);assert.equal(f.style.opacity,'0');r.button(s,'Afficher le lecteur TikTok').onclick({stopPropagation(){}});assert.equal(s.dataset.ttNativeInput,'1');assert.equal(f.style.opacity,'1');
 });
 test('a cached timestamp repeated after a swipe cannot confirm playback',()=>{
   const r=setup(),s=r.slides[1];r.context.v17ActivateSlide(r.slides[0]);const f=r.frame(s);
@@ -589,7 +601,7 @@ test('a delayed preload pause before playback cannot cancel the startup deadline
   r.tick(15001);assert(r.button(s,'Réessayer'));assert.equal(r.frame(s),f);
 });
 test('a deliberate pause suppresses recovery and resume starts a fresh deadline',()=>{
-  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.context.attach();const f=r.frame(s),tap=s.querySelector('.oneTapPlayback');
+  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);r.context.attachTikTokPlaybackControls();const f=r.frame(s),tap=s.querySelector('.oneTapPlayback');
   r.playing(f);tap.onclick({preventDefault(){},stopPropagation(){}});r.message(f,'onStateChange',2);
   r.tick(30000);assert.equal(r.status(s),null);
   tap.onclick({preventDefault(){},stopPropagation(){}});r.tick(14999);assert.equal(r.status(s),null);
@@ -781,6 +793,94 @@ function recoverySetup(soundPreference){
  return {...r,stop};
 }
 const preload = require('../ui/tiktok-preload.js');
+test('vertical swipes on the video advance one item and preserve mute; sideways drags do nothing',()=>{
+ const r=recoverySetup('1'),active=r.slides[2];r.context.v17ActivateSlide(active);
+ const start=html.indexOf("const root=document.getElementById('vfeedScroller');let startX");
+ const end=html.indexOf('\n})();',start);assert(start>0&&end>start);
+ r.root.querySelector=()=>r.slides.find(slide=>slide.dataset.active==='1');
+ r.root.getBoundingClientRect=()=>({left:0,right:390,top:0,bottom:844});
+ r.root.contains=slide=>r.slides.includes(slide);r.document.elementFromPoint=()=>active;
+ vm.runInContext(html.slice(start,end),r.context);
+ const target=new Element('button');target.className='oneTapPlayback';
+ const swipe=(dx,dy,scroll=0)=>{
+  r.root.scrollTop=0;
+  r.root.handlers.touchstart({target,touches:[{clientX:180,clientY:400}]});
+  r.root.scrollTop=scroll;
+  r.root.handlers.touchend({target,touches:[],changedTouches:[{clientX:180+dx,clientY:400+dy}]});
+ };
+ swipe(120,-35);assert.equal(active.dataset.active,'1');assert.equal(r.scrolls.length,0);
+ swipe(2,-110,84);assert.equal(active.dataset.active,'1');assert.equal(r.scrolls.length,0,'native snap finishes without a second scroll request');
+ swipe(6,-90);assert.equal(r.slides[3].dataset.active,'1');assert.equal(r.scrolls.length,1);
+ assert.equal(r.storage.get('one_tiktok_sound_v3'),'1');
+ assert.equal(new URL(r.frame(r.slides[3]).src).searchParams.get('muted'),'1');
+});
+test('ten swipes through sixty videos reset only the ten readers outside the sliding window',()=>{
+ const r=setup(60),restored=[];
+ const restore=r.context.v17RestoreSlide;
+ r.context.v17RestoreSlide=slide=>{restored.push(slide);restore(slide);};
+ r.context.v17ActivateSlide(r.slides[1]);
+ for(let i=2;i<12;i++)r.context.v17StepSlide(r.slides[i-1],1);
+ assert.deepEqual(restored,r.slides.slice(0,10));
+ assert.equal(r.document.querySelectorAll('iframe').length,4);
+});
+test('progress keeps one visual deadline, and a later stall can still recover in place',()=>{
+ const r=setup(),slide=r.slides[0];
+ r.context.v17ActivateSlide(slide);const frame=r.frame(slide);
+ r.message(frame,'onPlayerReady');r.playing(frame);const timer=slide._ttVisualTimer;
+ let reveals=0;const reveal=r.context.v121RevealTikTokFrame;
+ r.context.v121RevealTikTokFrame=s=>{reveals++;reveal(s);};
+ for(let i=1;i<=60;i++){r.tick(100);r.message(frame,'onCurrentTime',{currentTime:.5+i*.1});}
+ assert.equal(slide._ttVisualTimer,timer);assert.equal(reveals,0);
+ r.tick(9000);assert.equal(r.status(slide),null);
+ r.tick(6001);assert(r.button(slide,'Réessayer'));
+ r.message(frame,'onCurrentTime',{currentTime:6.6});
+ assert.equal(reveals,1);assert.equal(r.status(slide),null);assert.equal(r.frame(slide),frame);
+});
+function unresponsivePreview(){
+ const r=recoverySetup('0');r.warming=preload.install(r.context);
+ const [active,next,second]=r.slides;r.context.v17ActivateSlide(active);
+ const original=r.frame(next);original.onload();
+ return {r,active,next,second,original};
+}
+test('an inert next preview decodes muted, parks, then resumes the same reader on swipe',()=>{
+ const {r,active,next,second,original}=unresponsivePreview();
+ r.context.navigator={userActivation:{isActive:true}};r.context.v17TikTokSoundGesture();
+ r.playing(r.frame(active));const warm=r.frame(next);
+ assert.notEqual(warm,original);assert.equal(original.isConnected,false);
+ assert.equal(new URL(warm.src).searchParams.get('autoplay'),'1');
+ assert.equal(new URL(warm.src).searchParams.get('muted'),'1');
+ assert.equal(new URL(r.frame(second).src).searchParams.get('autoplay'),'0');
+ warm.onload();r.message(warm,'onPlayerReady');
+ assert(!warm.messages.some(m=>['unMute','pause'].includes(m.data.type)));
+ r.message(warm,'onCurrentTime',{currentTime:.14});assert.equal(warm.dataset.oneWarm,'1');
+ assert.equal(warm.messages.at(-1).data.type,'pause');
+ r.context.v17StepSlide(active,1);assert.equal(r.frame(next),warm);
+ assert.deepEqual(warm.messages.slice(-2).map(m=>m.data.type),['unMute','play']);
+ r.playing(warm);r.tick(4500);assert.equal(r.frame(next),warm);r.warming.stop();
+});
+test('a stalled muted upgrade times out once and the next swipe can cold-start normally',()=>{
+ const {r,active,next}=unresponsivePreview();r.playing(r.frame(active));
+ const upgraded=r.frame(next);r.tick(4000);assert(!upgraded.isConnected);
+ r.context.v120PrewarmAround(active);const passive=r.frame(next);passive.onload();
+ r.playing(r.frame(active));assert.equal(r.frame(next),passive);
+ r.context.v17StepSlide(active,1);assert.notEqual(r.frame(next),passive);
+ assert.equal(new URL(r.frame(next).src).searchParams.get('autoplay'),'1');r.warming.stop();
+});
+test('fast swipes, a hidden tab, and data saver keep speculative playback bounded',()=>{
+ for(const mode of ['swipe','hidden','saveData']){
+  const {r,active,next,original}=unresponsivePreview();
+  r.context.navigator={connection:{saveData:mode==='saveData'}};r.playing(r.frame(active));
+  const warm=r.frame(next);
+  if(mode==='saveData')assert.equal(warm,original);
+  if(mode==='hidden'){r.document.hidden=true;r.document.handlers.visibilitychange();assert(!warm.isConnected);}
+  if(mode==='swipe'){
+   r.context.v17StepSlide(active,1);assert.equal(r.frame(next),warm);
+   warm.onload();r.message(warm,'onPlayerReady');r.playing(warm);const count=warm.messages.length;
+   r.tick(5000);assert.equal(r.frame(next),warm);assert(!warm.messages.slice(count).some(m=>m.data.type==='pause'));
+  }
+  r.warming.stop();
+ }
+});
 function preloadSetup(){
  const r=recoverySetup();r.warming=preload.install(r.context);r.context.v17ActivateSlide(r.slides[2]);
  for(const i of [1,3,4])r.message(r.frame(r.slides[i]),'onPlayerReady');
