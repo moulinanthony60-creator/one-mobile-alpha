@@ -46,7 +46,7 @@ class Element {
   select(){this.selected=true;}
   addEventListener(type,fn){(this.handlers??={})[type]=fn;}
 }
-function setup(count=3,soundPreference,legacyPreference){
+function setup(count=3,soundPreference,legacyPreference,sessionStorage){
   const document=new Element('document');document.hidden=false;document.createElement=tag=>new Element(tag);
   const feed=new Element('section');feed.id='vfeed';feed.className='vfeed show';document.appendChild(feed);
   document.getElementById=id=>id==='vfeed'?feed:null;
@@ -61,7 +61,7 @@ function setup(count=3,soundPreference,legacyPreference){
   let clock=0,seq=0;const timers=new Map(),listeners=new Map(),opened=[],storage=new Map();
   if(soundPreference!==undefined)storage.set('one_tiktok_sound_v3',soundPreference);
   if(legacyPreference!==undefined)storage.set('one_tiktok_sound_v2',legacyPreference);
-  const context={document,URL,console,performance:{now:()=>clock},Date:{now:()=>clock},location:{origin:'https://one.test',href:'https://one.test/',hostname:'one.test'},
+  const context={document,URL,console,sessionStorage,performance:{now:()=>clock},Date:{now:()=>clock},location:{origin:'https://one.test',href:'https://one.test/',hostname:'one.test'},
     v17ActiveId:'',v17Muted:true,v17Volume:50,v17TwitchPlayers:{},localStorage:{getItem:key=>storage.get(key)??null,setItem:(key,value)=>storage.set(key,value)},
     v17ItemById:id=>items.get(String(id)),platformName:p=>p,v1814NativeMuted:()=>true,v1814SoundAllowed:()=>true,v1814RememberSoundGesture(){},
     oneTTTrace(){},toast(){},learnFromItem(){},requestAnimationFrame:fn=>fn(),
@@ -157,6 +157,45 @@ test('autoplay refusal tries the same player once muted and retains native contr
   r.message(f,'onPlayerError',{errorCode:3002});assert.equal(r.frame(s),f);assert.equal(f.style.opacity,'1');
   assert.deepEqual(f.messages.map(m=>m.data.type),['mute','play']);
   r.playing(f);assert.equal(r.status(s),null);
+});
+test('a ready but silent passive reader gets one direct start within the original six-second budget',()=>{
+ const r=setup(),s=r.slides[1];r.context.v17ActivateSlide(r.slides[0]);
+ const preview=r.frame(s);r.message(preview,'onPlayerReady');r.context.v17ActivateSlide(s);
+ r.tick(2999);assert.equal(r.frame(s),preview);r.tick(1);
+ const direct=r.frame(s);assert.notEqual(direct,preview);assert.equal(preview.isConnected,false);
+ assert.equal(new URL(direct.src).searchParams.get('autoplay'),'1');
+ direct.onload();r.tick(1200);r.tick(1799);assert.equal(r.status(s),null);
+ r.tick(1);assert(r.button(s,'Réessayer'));assert.equal(r.frame(s),direct);
+ r.playing(direct);assert.equal(r.status(s),null);assert.equal(s.dataset.ttVisualReady,'1');
+});
+test('buffering, a handoff to native controls and changing slides cancel silent-preview recovery',()=>{
+ for(const mode of ['buffering','native','hidden','swipe','progress']){
+  const r=setup(),s=r.slides[1];r.context.v17ActivateSlide(r.slides[0]);const frame=r.frame(s);
+  r.message(frame,'onPlayerReady');r.context.v17ActivateSlide(s);
+  if(mode==='buffering')r.message(frame,'onStateChange',3);
+  if(mode==='native')r.context.v17ShowTikTokControls(s);
+  if(mode==='hidden')r.document.hidden=true;
+  if(mode==='swipe')r.context.v17ActivateSlide(r.slides[2]);
+  if(mode==='progress')r.playing(frame);
+  r.tick(3100);assert.equal(r.frame(s),frame,mode);
+ }
+});
+test('only an unavailable video stays filtered after a tab reload, for the remaining ten minutes',()=>{
+ const data=new Map(),session={getItem:k=>data.get(k),setItem:(k,v)=>data.set(k,v)};
+ const original=setup(3,undefined,undefined,session);
+ original.context.v17ActivateSlide(original.slides[0]);
+ original.message(original.frame(original.slides[0]),'onPlayerError',{errorCode:3001});
+ original.context.v17ActivateSlide(original.slides[1]);
+ original.message(original.frame(original.slides[1]),'onPlayerError',{errorCode:1001});
+ const reload=setup(3,undefined,undefined,session);
+ const unavailable=i=>reload.context.v17TikTokIsUnavailable(reload.items.get(reload.slides[i].dataset.id));
+ assert.equal(unavailable(0),false);assert.equal(unavailable(1),true);
+ reload.tick(600001);assert.equal(unavailable(1),false);
+});
+test('a manual retry that stays silent offers retry again after six seconds',()=>{
+ const r=recoverySetup(),s=r.slides[0];r.context.v17ActivateSlide(s);
+ r.message(r.frame(s),'onPlayerError',{errorCode:3001});r.button(s,'Réessayer').onclick({stopPropagation(){}});
+ const retried=r.frame(s);r.tick(6000);assert(r.button(s,'Réessayer'));assert.equal(r.frame(s),retried);
 });
 test('a loaded active player starts once without inventing a ready event',()=>{
  const r=setup(),s=r.slides[0];r.context.v17ActivateSlide(s);const f=r.frame(s);f.onload();
