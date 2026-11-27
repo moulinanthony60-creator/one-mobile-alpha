@@ -901,6 +901,30 @@ test('neighbours decode in muted serial order only after the visible video advan
  for(const f of [next,second,previous]){assert.equal(f.messages.filter(m=>m.data.type==='play').length,1);assert(!f.messages.some(m=>m.data.type==='unMute'));assert.equal(f.closest('.vslide').dataset.ttTimeAdvanced,undefined);}
  assert.equal(r.created.length,4);r.warming.stop();
 });
+test('an incoming picture moves in silence during a swipe and parks if the gesture reverses or stalls',()=>{
+ const r=preloadSetup(),current=r.slides[2],next=r.frame(r.slides[3]);
+ r.root.getBoundingClientRect=()=>({top:0});current.getBoundingClientRect=()=>({top:-r.root.scrollTop,height:800});
+ const scroll=top=>{r.root.scrollTop=top;r.root.handlers.scroll();};
+ r.playing(r.frame(current));r.message(next,'onCurrentTime',{currentTime:.1});
+ assert.equal(next.style.opacity,'1');assert.equal(next.style.pointerEvents,'none');
+ const playCount=()=>next.messages.filter(m=>m.data.type==='play').length;
+ scroll(30);assert.equal(playCount(),2);assert.equal(next.dataset.oneWarming,'1');
+ r.message(next,'onCurrentTime',{currentTime:.25});assert.equal(next.dataset.oneWarming,'1');
+ scroll(10);assert.equal(next.messages.at(-1).data.type,'pause');assert.equal(current.dataset.active,'1');
+ scroll(50);r.tick(650);assert.equal(next.messages.at(-1).data.type,'pause');
+ scroll(70);assert.equal(playCount(),3);assert(!next.messages.some(m=>m.data.type==='unMute'));
+ scroll(0);r.context.navigator={connection:{saveData:true}};scroll(50);assert.equal(playCount(),3);
+ r.warming.stop();
+});
+test('a quick swipe can start a ready neighbour even while the foreground video is still loading',()=>{
+ const r=preloadSetup(),current=r.slides[2],next=r.frame(r.slides[3]);
+ r.root.getBoundingClientRect=()=>({top:0});current.getBoundingClientRect=()=>({top:-40,height:800});
+ r.root.scrollTop=40;r.root.handlers.scroll();r.message(next,'onCurrentTime',{currentTime:.1});
+ assert.equal(next.dataset.oneWarming,'1');assert.equal(next.style.opacity,'1');
+ r.context.v17StepSlide(current,1);const count=next.messages.length;r.tick(700);
+ assert.equal(r.frame(r.slides[3]),next);assert(!next.messages.slice(count).some(m=>m.data.type==='pause'));
+ r.warming.stop();
+});
 test('warmup deadlines stop a silent player without retrying or creating more iframes',()=>{
  const r=preloadSetup();r.playing(r.frame(r.slides[2]));
  for(const i of [3,4,1]){const f=r.frame(r.slides[i]);assert.equal(f.dataset.oneWarming,'1');r.tick(1200);assert.deepEqual(f.messages.slice(-2).map(m=>m.data.type),['mute','pause']);assert.equal(f.dataset.oneWarming,undefined);}
